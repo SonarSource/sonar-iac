@@ -22,8 +22,12 @@ package org.sonar.plugins.iac.terraform.plugin;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 public class TerraformSensor implements Sensor {
+
+  private static final Logger LOG = Loggers.get(TerraformSensor.class);
 
   @Override
   public void describe(SensorDescriptor sensorDescriptor) {
@@ -33,6 +37,6 @@ public class TerraformSensor implements Sensor {
 
   @Override
   public void execute(SensorContext sensorContext) {
-
+    LOG.info("Execute TerraformSensor");
   }
 }
