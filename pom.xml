@@ -1,68 +1,127 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonarsource.parent</groupId>
-        <artifactId>parent</artifactId>
-        <version>59.0.29</version>
-    </parent>
+  <parent>
+    <groupId>org.sonarsource.parent</groupId>
+    <artifactId>parent</artifactId>
+    <version>59.0.29</version>
+  </parent>
 
-    <groupId>org.sonarsource.iac</groupId>
-    <artifactId>iac</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+  <groupId>org.sonarsource.iac</groupId>
+  <artifactId>iac</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-    <name>SonarSource IaC</name>
-    <description>Code Analyzer for infrastructure as code issues</description>
-    <inceptionYear>2021</inceptionYear>
-    <organization>
-        <name>SonarSource</name>
-        <url>http://www.sonarsource.com</url>
-    </organization>
-    <licenses>
-        <license>
-            <name>GNU LGPL v3</name>
-            <url>http://www.gnu.org/licenses/lgpl.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+  <name>SonarSource IaC</name>
+  <description>Code Analyzer for infrastructure as code issues</description>
+  <inceptionYear>2021</inceptionYear>
+  <organization>
+    <name>SonarSource</name>
+    <url>https://www.sonarsource.com</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>GNU LGPL v3</name>
+      <url>https://www.gnu.org/licenses/lgpl.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
-    <scm>
-        <connection>scm:git:git@github.com:SonarSource/sonar-iac.git</connection>
-        <developerConnection>scm:git:git@github.com:SonarSource/sonar-iac.git</developerConnection>
-        <url>https://github.com/SonarSource/sonar-iac</url>
-        <tag>HEAD</tag>
-    </scm>
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://jira.sonarsource.com/projects/SONARIAC</url>
-    </issueManagement>
+  <modules>
+    <module>iac-terraform-plugin</module>
+  </modules>
 
-    <properties>
-        <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-        <sonar.version>8.9.0.43852</sonar.version>
-        <analyzer.commons.version>1.14.1.690</analyzer.commons.version>
-        <orchestrator.version>3.35.1.2719</orchestrator.version>
-        <sslr.version>1.24.0.633</sslr.version>
-        <gitRepositoryName>sonar-iac</gitRepositoryName>
-    </properties>
+  <scm>
+    <connection>scm:git:git@github.com:SonarSource/sonar-iac.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarSource/sonar-iac.git</developerConnection>
+    <url>https://github.com/SonarSource/sonar-iac</url>
+    <tag>HEAD</tag>
+  </scm>
+  <issueManagement>
+    <system>JIRA</system>
+    <url>https://jira.sonarsource.com/projects/SONARIAC</url>
+  </issueManagement>
 
-  <build>
+  <properties>
+    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+    <version.sonar>7.9</version.sonar>
+    <version.analyzer.commons>1.14.1.690</version.analyzer.commons>
+    <version.orchestrator>3.35.1.2719</version.orchestrator>
+    <version.sslr>1.24.0.633</version.sslr>
+    <gitRepositoryName>sonar-iac</gitRepositoryName>
+  </properties>
 
-  </build>
-    <profiles>
-        <profile>
-            <!-- Use javac's release flag for Java 9 and higher -->
-            <id>java9+</id>
-            <activation>
-                <jdk>[9,)</jdk>
-            </activation>
-            <properties>
-                <maven.compiler.release>8</maven.compiler.release>
-            </properties>
-        </profile>
-    </profiles>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-plugin-api</artifactId>
+        <version>${version.sonar}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sslr</groupId>
+        <artifactId>sslr-core</artifactId>
+        <version>${version.sslr}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sslr</groupId>
+        <artifactId>sslr-toolkit</artifactId>
+        <version>${version.sslr}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.analyzer-commons</groupId>
+        <artifactId>sonar-analyzer-commons</artifactId>
+        <version>${version.analyzer.commons}</version>
+      </dependency>
+
+      <!-- Test dependencies -->
+
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-testing-harness</artifactId>
+        <version>${version.sonar}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sslr</groupId>
+        <artifactId>sslr-testing-harness</artifactId>
+        <version>${version.sslr}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.orchestrator</groupId>
+        <artifactId>sonar-orchestrator</artifactId>
+        <version>${version.sonar-orchestrator}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.analyzer-commons</groupId>
+        <artifactId>sonar-analyzer-test-commons</artifactId>
+        <version>${version.analyzer-commons}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${version.assertj}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <profiles>
+    <profile>
+      <!-- Use javac's release flag for Java 9 and higher -->
+      <id>java9+</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <properties>
+        <maven.compiler.release>8</maven.compiler.release>
+      </properties>
+    </profile>
+  </profiles>
 </project>
