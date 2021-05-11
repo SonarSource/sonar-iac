@@ -1,0 +1,10 @@
+{
+  "rules-metadata-path": "./src/main/resources/org/sonar/l10n/terraform/rules/terraform",
+  "languages": [
+    "TERRAFORM"
+  ],
+  "options": {
+    "no-language-in-filenames": false,
+    "preserve-filenames": false
+  }
+}
