@@ -35,6 +35,14 @@
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sslr</groupId>
+      <artifactId>sslr-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sslr</groupId>
+      <artifactId>sslr-toolkit</artifactId>
+    </dependency>
 
     <!-- unit tests -->
     <dependency>
@@ -57,6 +65,10 @@
       <artifactId>sonar-plugin-api-impl</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sslr</groupId>
+      <artifactId>sslr-testing-harness</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-
 </project>
