@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

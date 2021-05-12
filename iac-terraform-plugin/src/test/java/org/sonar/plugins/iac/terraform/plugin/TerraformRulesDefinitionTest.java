@@ -19,23 +19,22 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
-import java.util.Arrays;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.AbstractLanguage;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.server.rule.RulesDefinition;
 
-public class TerraformLanguage extends AbstractLanguage {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final Configuration settings;
+class TerraformRulesDefinitionTest {
 
-  public TerraformLanguage(Configuration configuration) {
-    super(TerraformPlugin.LANGUAGE_KEY, TerraformPlugin.LANGUAGE_NAME);
-    this.settings = configuration;
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(settings.getStringArray(TerraformPlugin.FILE_SUFFIXES_KEY))
-      .filter(s -> s != null && !s.trim().isEmpty()).toArray(String[]::new);
-    return suffixes.length > 0 ? suffixes : TerraformPlugin.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
+  @Test
+  void testActivationSonarLint() {
+    TerraformRulesDefinition rulesDefinition = new TerraformRulesDefinition();
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+    RulesDefinition.Repository repository = context.repository("terraform");
+    assertThat(repository).isNotNull();
+    assertThat(repository.name()).isEqualTo("SonarQube");
+    assertThat(repository.language()).isEqualTo("terraform");
+    assertThat(repository.rules()).hasSize(TerraformCheckList.checks().size());
   }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
-import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
@@ -32,10 +31,7 @@ public class TerraformRulesDefinition implements RulesDefinition {
     NewRepository repository = context.createRepository(TerraformPlugin.REPOSITORY_KEY, TerraformPlugin.LANGUAGE_KEY)
       .setName(TerraformPlugin.REPOSITORY_NAME);
     RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
-
-    List<Class<?>> checks = TerraformCheckList.checks();
-    metadataLoader.addRulesByAnnotatedClass(repository, checks);
-
+    metadataLoader.addRulesByAnnotatedClass(repository, TerraformCheckList.checks());
     repository.done();
   }
 }

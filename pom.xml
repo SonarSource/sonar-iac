@@ -46,10 +46,13 @@
 
   <properties>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-    <version.sonar>7.9</version.sonar>
+    <version.sonar>8.9.0.43852</version.sonar>
     <version.analyzer.commons>1.14.1.690</version.analyzer.commons>
     <version.orchestrator>3.35.1.2719</version.orchestrator>
     <version.sslr>1.24.0.633</version.sslr>
+    <version.junit>5.7.1</version.junit>
+    <version.assertj>3.19.0</version.assertj>
+    <version.mockito>3.9.0</version.mockito>
     <gitRepositoryName>sonar-iac</gitRepositoryName>
   </properties>
 
@@ -104,9 +107,27 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-plugin-api-impl</artifactId>
+        <version>${version.sonar}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${version.junit}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${version.assertj}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${version.mockito}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
