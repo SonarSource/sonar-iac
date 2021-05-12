@@ -25,16 +25,16 @@ import org.sonar.api.resources.AbstractLanguage;
 
 public class TerraformLanguage extends AbstractLanguage {
 
-  private final Configuration settings;
+  private final Configuration configuration;
 
   public TerraformLanguage(Configuration configuration) {
     super(TerraformPlugin.LANGUAGE_KEY, TerraformPlugin.LANGUAGE_NAME);
-    this.settings = configuration;
+    this.configuration = configuration;
   }
 
   @Override
   public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(settings.getStringArray(TerraformPlugin.FILE_SUFFIXES_KEY))
+    String[] suffixes = Arrays.stream(configuration.getStringArray(TerraformPlugin.FILE_SUFFIXES_KEY))
       .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
     return suffixes.length > 0 ? suffixes : TerraformPlugin.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
   }
