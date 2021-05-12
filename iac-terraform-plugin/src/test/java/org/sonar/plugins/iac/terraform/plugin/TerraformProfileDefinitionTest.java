@@ -19,23 +19,21 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
-import java.util.Arrays;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.AbstractLanguage;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-public class TerraformLanguage extends AbstractLanguage {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final Configuration configuration;
+class TerraformProfileDefinitionTest {
 
-  public TerraformLanguage(Configuration configuration) {
-    super(TerraformPlugin.LANGUAGE_KEY, TerraformPlugin.LANGUAGE_NAME);
-    this.configuration = configuration;
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(configuration.getStringArray(TerraformPlugin.FILE_SUFFIXES_KEY))
-      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
-    return suffixes.length > 0 ? suffixes : TerraformPlugin.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
+  @Test
+  void should_create_sonar_way_profile() {
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    TerraformProfileDefinition definition = new TerraformProfileDefinition();
+    definition.define(context);
+    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("terraform", "Sonar way");
+    assertThat(profile.language()).isEqualTo("terraform");
+    assertThat(profile.name()).isEqualTo("Sonar way");
+    assertThat(profile.rules().size()).isZero();
   }
 }

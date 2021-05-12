@@ -19,23 +19,27 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
-import java.util.Arrays;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.AbstractLanguage;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.Plugin;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 
-public class TerraformLanguage extends AbstractLanguage {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final Configuration configuration;
+class TerraformPluginTest {
 
-  public TerraformLanguage(Configuration configuration) {
-    super(TerraformPlugin.LANGUAGE_KEY, TerraformPlugin.LANGUAGE_NAME);
-    this.configuration = configuration;
-  }
+  private static final Version VERSION_8_9 = Version.create(8, 9);
 
-  @Override
-  public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(configuration.getStringArray(TerraformPlugin.FILE_SUFFIXES_KEY))
-      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
-    return suffixes.length > 0 ? suffixes : TerraformPlugin.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
+  private final TerraformPlugin terraformPlugin = new TerraformPlugin();
+
+  @Test
+  void sonarqube_8_9_extensions() {
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    Plugin.Context context = new Plugin.Context(runtime);
+    terraformPlugin.define(context);
+    assertThat(context.getExtensions()).hasSize(6);
   }
 }

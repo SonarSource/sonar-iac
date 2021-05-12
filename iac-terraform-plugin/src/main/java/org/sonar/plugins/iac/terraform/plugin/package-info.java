@@ -17,25 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@javax.annotation.ParametersAreNonnullByDefault
 package org.sonar.plugins.iac.terraform.plugin;
-
-import java.util.Arrays;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.AbstractLanguage;
-
-public class TerraformLanguage extends AbstractLanguage {
-
-  private final Configuration configuration;
-
-  public TerraformLanguage(Configuration configuration) {
-    super(TerraformPlugin.LANGUAGE_KEY, TerraformPlugin.LANGUAGE_NAME);
-    this.configuration = configuration;
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(configuration.getStringArray(TerraformPlugin.FILE_SUFFIXES_KEY))
-      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
-    return suffixes.length > 0 ? suffixes : TerraformPlugin.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
-  }
-}

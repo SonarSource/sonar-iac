@@ -19,23 +19,27 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
-import java.util.Arrays;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.AbstractLanguage;
 
-public class TerraformLanguage extends AbstractLanguage {
+import org.junit.jupiter.api.Test;
+import org.sonar.api.config.internal.MapSettings;
 
-  private final Configuration configuration;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public TerraformLanguage(Configuration configuration) {
-    super(TerraformPlugin.LANGUAGE_KEY, TerraformPlugin.LANGUAGE_NAME);
-    this.configuration = configuration;
-  }
+class TerraformLanguageTest {
 
-  @Override
-  public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(configuration.getStringArray(TerraformPlugin.FILE_SUFFIXES_KEY))
-      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
-    return suffixes.length > 0 ? suffixes : TerraformPlugin.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
+  @Test
+  void should_return_terraform_file_suffixes() {
+    MapSettings settings = new MapSettings();
+    TerraformLanguage language = new TerraformLanguage(settings.asConfig());
+    assertThat(language.getFileSuffixes()).containsOnly(".tf");
+
+    settings.setProperty(TerraformPlugin.FILE_SUFFIXES_KEY, "");
+    assertThat(language.getFileSuffixes()).containsOnly(".tf");
+
+    settings.setProperty(TerraformPlugin.FILE_SUFFIXES_KEY, ".bar, .foo");
+    assertThat(language.getFileSuffixes()).containsOnly(".bar", ".foo");
+
+    settings.setProperty(TerraformPlugin.FILE_SUFFIXES_KEY, ".foo, , ");
+    assertThat(language.getFileSuffixes()).containsOnly(".foo");
   }
 }

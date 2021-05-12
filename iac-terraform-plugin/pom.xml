@@ -10,8 +10,14 @@
   </parent>
 
   <artifactId>iac-terraform-plugin</artifactId>
-  <name>SonarSource IaC Terraform Plugin</name>
   <packaging>sonar-plugin</packaging>
+
+  <name>SonarSource IaC Terraform Plugin</name>
+  <inceptionYear>2021</inceptionYear>
+  <organization>
+    <name>SonarSource</name>
+    <url>https://www.sonarsource.com</url>
+  </organization>
 
   <properties>
     <license.title>SonarQube IaC Terraform Plugin</license.title>
@@ -29,13 +35,28 @@
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
+
+    <!-- unit tests -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-plugin-api-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-
-  <organization>
-    <name>SonarSource</name>
-    <url>https://www.sonarsource.com</url>
-  </organization>
-
-  <inceptionYear>2021</inceptionYear>
 
 </project>

@@ -33,7 +33,7 @@ public class TerraformPlugin implements Plugin {
   static final String LANGUAGE_KEY = "terraform";
   static final String LANGUAGE_NAME = "Terraform";
   static final String REPOSITORY_KEY = "terraform";
-  static final String REPOSITORY_NAME = "SonarAnalyzer";
+  static final String REPOSITORY_NAME = "SonarQube";
   static final String PROFILE_NAME = "Sonar way";
 
   static final String EXCLUSIONS_KEY = "sonar.terraform.exclusions";

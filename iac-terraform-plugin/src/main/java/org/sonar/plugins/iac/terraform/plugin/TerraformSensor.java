@@ -19,9 +19,12 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
+import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -29,10 +32,20 @@ public class TerraformSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(TerraformSensor.class);
 
+  private final FileLinesContextFactory fileLinesContextFactory;
+  private final CheckFactory checkFactory;
+  private final NoSonarFilter noSonarFilter;
+
+  public TerraformSensor(FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory, NoSonarFilter noSonarFilter) {
+    this.fileLinesContextFactory = fileLinesContextFactory;
+    this.checkFactory = checkFactory;
+    this.noSonarFilter = noSonarFilter;
+  }
+
   @Override
   public void describe(SensorDescriptor sensorDescriptor) {
     sensorDescriptor.onlyOnLanguage(TerraformPlugin.LANGUAGE_KEY)
-      .name("Code Quality and Security for Terraform");
+      .name("IaC Terraform Sensor");
   }
 
   @Override
