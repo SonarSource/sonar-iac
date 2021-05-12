@@ -38,5 +38,8 @@ class TerraformLanguageTest {
 
     settings.setProperty(TerraformPlugin.FILE_SUFFIXES_KEY, ".bar, .foo");
     assertThat(language.getFileSuffixes()).containsOnly(".bar", ".foo");
+
+    settings.setProperty(TerraformPlugin.FILE_SUFFIXES_KEY, ".foo, , ");
+    assertThat(language.getFileSuffixes()).containsOnly(".foo");
   }
 }

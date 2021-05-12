@@ -35,7 +35,7 @@ public class TerraformLanguage extends AbstractLanguage {
   @Override
   public String[] getFileSuffixes() {
     String[] suffixes = Arrays.stream(settings.getStringArray(TerraformPlugin.FILE_SUFFIXES_KEY))
-      .filter(s -> s != null && !s.trim().isEmpty()).toArray(String[]::new);
+      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
     return suffixes.length > 0 ? suffixes : TerraformPlugin.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
   }
 }
