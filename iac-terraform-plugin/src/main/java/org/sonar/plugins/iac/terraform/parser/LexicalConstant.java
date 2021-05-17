@@ -35,4 +35,9 @@ public class LexicalConstant {
    * IDENTIFIERS
    */
   public static final String IDENTIFIER = "[a-zA-Z0-9\\-\\_]*+";
+
+  /**
+   * String
+   */
+  public static final String STRING_LITERAL = "\"(?:[^\"\\\\]*+(?:\\\\[\\s\\S])?+)*+\"";
 }

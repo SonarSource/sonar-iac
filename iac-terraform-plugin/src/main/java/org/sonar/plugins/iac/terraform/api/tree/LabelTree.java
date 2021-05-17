@@ -17,31 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.tree.impl;
+package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
-import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-import java.util.Collections;
-import java.util.List;
-
-public class OneLineBlockTreeImpl extends TerraformTree implements OneLineBlockTree {
-  private final SyntaxToken type;
-  private final List<LabelTree> labels;
-
-  public OneLineBlockTreeImpl(SyntaxToken type, List<LabelTree> labels) {
-    this.type = type;
-    this.labels = labels != null ? labels : Collections.emptyList();
-  }
-
-  @Override
-  public SyntaxToken type() {
-    return type;
-  }
-
-  @Override
-  public List<LabelTree> labels() {
-    return labels;
-  }
+public interface LabelTree extends Tree {
+  SyntaxToken token();
+  String value();
 }

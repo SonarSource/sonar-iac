@@ -21,6 +21,7 @@ package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
+import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 
@@ -42,9 +43,16 @@ public class HclGrammar {
   public OneLineBlockTree ONE_LINE_BLOCK() {
     return b.<OneLineBlockTree>nonterminal(HclLexicalGrammar.ONE_LINE_BLOCK).is(
       f.oneLineBlock(b.token(HclLexicalGrammar.IDENTIFIER),
+        b.zeroOrMore(LABEL()),
         b.token(HclPunctuator.LCURLYBRACE),
         b.token(HclPunctuator.RCURLYBRACE)
       ));
+  }
+
+  public LabelTree LABEL() {
+    return b.<LabelTree>nonterminal(HclLexicalGrammar.LABEL).is(
+      f.label(b.token(HclLexicalGrammar.STRING_LITERAL))
+    );
   }
 
 }

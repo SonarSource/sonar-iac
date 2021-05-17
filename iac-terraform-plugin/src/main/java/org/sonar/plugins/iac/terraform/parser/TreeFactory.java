@@ -21,9 +21,12 @@ package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
+import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 
 import java.util.List;
@@ -33,8 +36,11 @@ public class TreeFactory {
     return new BodyTreeImpl();
   }
 
-  public OneLineBlockTree oneLineBlock(InternalSyntaxToken token, InternalSyntaxToken token1, InternalSyntaxToken token2) {
-    return new OneLineBlockTreeImpl();
+  public OneLineBlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, SyntaxToken closeBrace) {
+    return new OneLineBlockTreeImpl(type, labels.orNull());
   }
 
+  public LabelTree label(InternalSyntaxToken token) {
+    return new LabelTreeImpl(token);
+  }
 }

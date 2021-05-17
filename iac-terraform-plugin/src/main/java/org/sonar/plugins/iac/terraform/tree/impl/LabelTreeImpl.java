@@ -20,28 +20,22 @@
 package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
-import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-import java.util.Collections;
-import java.util.List;
+public class LabelTreeImpl extends TerraformTree implements LabelTree {
+  private final SyntaxToken token;
 
-public class OneLineBlockTreeImpl extends TerraformTree implements OneLineBlockTree {
-  private final SyntaxToken type;
-  private final List<LabelTree> labels;
-
-  public OneLineBlockTreeImpl(SyntaxToken type, List<LabelTree> labels) {
-    this.type = type;
-    this.labels = labels != null ? labels : Collections.emptyList();
+  public LabelTreeImpl(SyntaxToken token) {
+    this.token = token;
   }
 
   @Override
-  public SyntaxToken type() {
-    return type;
+  public SyntaxToken token() {
+    return token;
   }
 
   @Override
-  public List<LabelTree> labels() {
-    return labels;
+  public String value() {
+    return token.text();
   }
 }
