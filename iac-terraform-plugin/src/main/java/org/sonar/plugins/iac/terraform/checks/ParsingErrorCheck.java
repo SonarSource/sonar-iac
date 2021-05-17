@@ -17,21 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.plugin;
+package org.sonar.plugins.iac.terraform.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.plugins.iac.terraform.checks.ParsingErrorCheck;
+import org.sonar.check.Rule;
 
-public class TerraformCheckList {
-
-  private TerraformCheckList() {
-
-  }
-
-  public static List<Class<?>> checks() {
-    return Collections.singletonList(
-      ParsingErrorCheck.class
-    );
-  }
+/**
+ * This class does nothing. It exists only to be present in the SonarQube profile and GUI.
+ * Issues for this class are created upfront, during the parsing.
+ */
+@Rule(key = "S2260")
+public class ParsingErrorCheck implements TerraformCheck{
 }

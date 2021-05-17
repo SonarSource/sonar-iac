@@ -17,21 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.plugin;
+package org.sonar.plugins.iac.terraform.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.plugins.iac.terraform.checks.ParsingErrorCheck;
-
-public class TerraformCheckList {
-
-  private TerraformCheckList() {
-
-  }
-
-  public static List<Class<?>> checks() {
-    return Collections.singletonList(
-      ParsingErrorCheck.class
-    );
-  }
+public interface TerraformCheck {
 }

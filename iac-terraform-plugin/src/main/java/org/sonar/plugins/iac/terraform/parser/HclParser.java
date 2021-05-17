@@ -26,6 +26,11 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 import java.nio.charset.StandardCharsets;
 
 public class HclParser extends ActionParser<Tree> {
+
+  public HclParser() {
+    this(HclLexicalGrammar.BODY, 0);
+  }
+
   public HclParser(GrammarRuleKey rootRule, int lineOffset) {
     super(
       StandardCharsets.UTF_8,
