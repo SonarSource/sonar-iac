@@ -51,7 +51,7 @@ public class HclGrammar {
 
   public LabelTree LABEL() {
     return b.<LabelTree>nonterminal(HclLexicalGrammar.LABEL).is(
-      f.label(b.token(HclLexicalGrammar.STRING_LITERAL))
+      f.label(b.firstOf(b.token(HclLexicalGrammar.STRING_LITERAL), b.token(HclLexicalGrammar.IDENTIFIER)))
     );
   }
 

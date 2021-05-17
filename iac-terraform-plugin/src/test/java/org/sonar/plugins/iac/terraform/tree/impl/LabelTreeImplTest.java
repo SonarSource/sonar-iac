@@ -17,24 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-class OneLineBlockTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class LabelTreeImplTest extends TerraformTreeModelTest {
+  @Test
+  void string_literal() throws Exception {
+    LabelTree tree = parse("\"a\"", HclLexicalGrammar.LABEL);
+    assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
+      assertThat(o.value()).isEqualTo("\"a\"");
+      assertThat(o.value()).isEqualTo(o.token().text());
+    });
+  }
 
   @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.ONE_LINE_BLOCK)
-      .matches("a{}")
-      .matches("  a {   }")
-      .matches("a { \n }")
-      .matches("a \"label\" {}")
-      .matches("a \"label1\" \"label2\" {}")
-      .matches("a \"label with \\\" quote\" {}")
-      .matches("a \"label1\" label2 {}")
-      .notMatches("a")
-      .notMatches("a{");
+  void identifier() throws Exception {
+    LabelTree tree = parse("id", HclLexicalGrammar.LABEL);
+    assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
+      assertThat(o.value()).isEqualTo("id");
+      assertThat(o.value()).isEqualTo(o.token().text());
+    });
   }
 }

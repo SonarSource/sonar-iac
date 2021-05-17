@@ -25,7 +25,7 @@ import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class OneLineBlockTreeImplTest extends TerraformTreeModelTest{
+class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void simple_one_line_block() {
@@ -53,6 +53,17 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest{
       assertThat(o.labels()).hasSize(2);
       assertThat(o.labels().get(0).value()).isEqualTo("\"label1\"");
       assertThat(o.labels().get(1).value()).isEqualTo("\"label2\"");
+    });
+  }
+
+  @Test
+  void with_string_and_identifier_labels() {
+    OneLineBlockTree tree = parse("a \"label1\" label2 {}", HclLexicalGrammar.ONE_LINE_BLOCK);
+    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
+      assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.labels()).hasSize(2);
+      assertThat(o.labels().get(0).value()).isEqualTo("\"label1\"");
+      assertThat(o.labels().get(1).value()).isEqualTo("label2");
     });
   }
 }
