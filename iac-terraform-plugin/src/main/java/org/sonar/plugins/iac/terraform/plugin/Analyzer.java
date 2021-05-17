@@ -94,7 +94,7 @@ public class Analyzer {
     TextPointer position = e.getPosition();
     String positionMessage = "";
     if (position != null) {
-      positionMessage = String.format("Parse error at position %s", position.line(), position.lineOffset());
+      positionMessage = String.format("Parse error at position %s:%s", position.line(), position.lineOffset());
     }
     LOG.error(String.format("Unable to parse file: %s. %s", inputFile.uri(), positionMessage));
     LOG.error(e.getMessage());

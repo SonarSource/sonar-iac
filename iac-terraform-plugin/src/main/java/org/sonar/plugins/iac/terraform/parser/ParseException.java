@@ -25,11 +25,11 @@ import org.sonar.api.batch.fs.TextPointer;
 
 public class ParseException extends RuntimeException {
 
-  private final TextPointer position;
+  private final transient TextPointer position;
 
-  public ParseException(String message, @Nullable TextPointer line) {
+  public ParseException(String message, @Nullable TextPointer position) {
     super(message);
-    this.position = line;
+    this.position = position;
   }
 
   @CheckForNull
