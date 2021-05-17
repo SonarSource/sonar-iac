@@ -20,7 +20,6 @@
   </organization>
 
   <properties>
-    <license.title>SonarQube IaC Terraform Plugin</license.title>
     <sonar.pluginClass>org.sonar.plugins.iac.terraform.plugin.TerraformPlugin</sonar.pluginClass>
     <sonar.pluginName>IaC Terraform Code Quality and Security</sonar.pluginName>
   </properties>

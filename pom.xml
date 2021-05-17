@@ -97,13 +97,13 @@
       <dependency>
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator</artifactId>
-        <version>${version.sonar-orchestrator}</version>
+        <version>${version.orchestrator}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-test-commons</artifactId>
-        <version>${version.analyzer-commons}</version>
+        <version>${version.analyzer.commons}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
