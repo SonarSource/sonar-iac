@@ -21,8 +21,10 @@ package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
+import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
@@ -37,9 +39,25 @@ public class HclGrammar {
     this.f = f;
   }
 
+  public FileTree FILE() {
+    return b.<FileTree>nonterminal(HclLexicalGrammar.FILE).is(
+      f.file(BODY(), b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)));
+  }
+
   public BodyTree BODY() {
     return b.<BodyTree>nonterminal(HclLexicalGrammar.BODY).is(
-      f.body(b.zeroOrMore(b.firstOf(ATTRIBUTE(), ONE_LINE_BLOCK())), b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)));
+      f.body(b.zeroOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK()))));
+  }
+
+  public BlockTree BLOCK() {
+    return b.<BlockTree>nonterminal(HclLexicalGrammar.BLOCK).is(
+      f.block(b.token(HclLexicalGrammar.IDENTIFIER),
+        b.zeroOrMore(LABEL()),
+        b.token(HclPunctuator.LCURLYBRACE),
+        b.token(HclLexicalGrammar.NEWLINE),
+        BODY(),
+        b.token(HclPunctuator.RCURLYBRACE)
+        ));
   }
 
   public OneLineBlockTree ONE_LINE_BLOCK() {

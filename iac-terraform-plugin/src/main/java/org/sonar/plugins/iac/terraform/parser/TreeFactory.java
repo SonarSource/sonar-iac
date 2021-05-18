@@ -21,15 +21,19 @@ package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
+import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.FileTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
@@ -37,8 +41,16 @@ import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import java.util.List;
 
 public class TreeFactory {
-  public BodyTree body(Optional<List<Tree>> zeroOrMoree, Optional<InternalSyntaxToken> optional, InternalSyntaxToken token) {
-    return new BodyTreeImpl();
+  public FileTree file(BodyTree body, Optional<InternalSyntaxToken> spacing, InternalSyntaxToken eof) {
+    return new FileTreeImpl(body);
+  }
+
+  public BodyTree body(Optional<List<Tree>> statements) {
+    return new BodyTreeImpl(statements.orNull());
+  }
+
+  public BlockTree block(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, SyntaxToken newLine, BodyTree body, SyntaxToken closeBrace) {
+    return new BlockTreeImpl(type, labels.orNull(), body);
   }
 
   public OneLineBlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
@@ -53,7 +65,7 @@ public class TreeFactory {
     return new LiteralExprTreeImpl(token);
   }
 
-  public AttributeTree attribute(InternalSyntaxToken name, InternalSyntaxToken equalSign, ExpressionTree value) {
+  public AttributeTree attribute(SyntaxToken name, SyntaxToken equalSign, ExpressionTree value) {
     return new AttributeTreeImpl(name, equalSign, value);
   }
 

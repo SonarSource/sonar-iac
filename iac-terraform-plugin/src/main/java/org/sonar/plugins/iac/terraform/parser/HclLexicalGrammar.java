@@ -25,8 +25,10 @@ import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 
 public enum HclLexicalGrammar implements GrammarRuleKey {
 
+  FILE,
   BODY,
   ONE_LINE_BLOCK,
+  BLOCK,
   EXPRESSION,
   LABEL,
   ATTRIBUTE,
@@ -72,6 +74,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   private static void lexical(LexerlessGrammarBuilder b) {
     b.rule(SPACING).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))).skip();
+    b.rule(NEWLINE).is(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + "]*+")).skip();
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(IDENTIFIER).is(SPACING, b.regexp(LexicalConstant.IDENTIFIER));

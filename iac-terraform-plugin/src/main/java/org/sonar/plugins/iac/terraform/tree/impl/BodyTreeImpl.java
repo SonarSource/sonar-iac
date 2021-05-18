@@ -20,6 +20,20 @@
 package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
+
+import java.util.Collections;
+import java.util.List;
 
 public class BodyTreeImpl extends TerraformTree implements BodyTree {
+  private final List<Tree> statements;
+
+  public BodyTreeImpl(List<Tree> statements) {
+    this.statements = statements != null ? statements : Collections.emptyList();
+  }
+
+  @Override
+  public List<Tree> statements() {
+    return statements;
+  }
 }

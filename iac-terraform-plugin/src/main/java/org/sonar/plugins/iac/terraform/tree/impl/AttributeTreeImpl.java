@@ -22,14 +22,13 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 
 public class AttributeTreeImpl extends TerraformTree implements AttributeTree {
-  private final InternalSyntaxToken name;
-  private final InternalSyntaxToken equalSign;
+  private final SyntaxToken name;
+  private final SyntaxToken equalSign;
   private final ExpressionTree value;
 
-  public AttributeTreeImpl(InternalSyntaxToken name, InternalSyntaxToken equalSign, ExpressionTree value) {
+  public AttributeTreeImpl(SyntaxToken name, SyntaxToken equalSign, ExpressionTree value) {
     this.name = name;
     this.equalSign = equalSign;
     this.value = value;

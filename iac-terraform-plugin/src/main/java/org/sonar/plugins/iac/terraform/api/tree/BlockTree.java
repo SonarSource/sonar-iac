@@ -17,21 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-class BodyTest {
+import java.util.List;
 
-  @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.BODY)
-      .matches("a{}")
-      .matches("  a {   }")
-      .matches("a = true")
-      .matches("a = true\nb {}")
-      .matches("a { \n b = true}")
-      .notMatches("a");
-  }
+public interface BlockTree extends Tree {
+  SyntaxToken type();
+  List<LabelTree> labels();
+  BodyTree body();
 }

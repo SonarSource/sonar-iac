@@ -19,18 +19,37 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
-import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
+import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Collections;
+import java.util.List;
 
+public class BlockTreeImpl extends TerraformTree implements BlockTree {
+  private final SyntaxToken type;
+  private final List<LabelTree> labels;
+  private final BodyTree body;
 
-class BodyTreeImplTest extends TerraformTreeModelTest {
+  public BlockTreeImpl(SyntaxToken type, List<LabelTree> labels, BodyTree body) {
+    this.type = type;
+    this.labels = labels != null ? labels : Collections.emptyList();
+    this.body = body;
+  }
 
-  @Test
-  void simple_body_with_one_line_block() {
-    BodyTree tree = parse("a", HclLexicalGrammar.BODY);
-    assertThat(tree).isInstanceOf(BodyTreeImpl.class);
+  @Override
+  public SyntaxToken type() {
+    return type;
+  }
+
+  @Override
+  public List<LabelTree> labels() {
+    return labels;
+  }
+
+  @Override
+  public BodyTree body() {
+    return body;
   }
 }
