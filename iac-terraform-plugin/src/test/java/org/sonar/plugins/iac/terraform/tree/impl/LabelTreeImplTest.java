@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LabelTreeImplTest extends TerraformTreeModelTest {
   @Test
-  void string_literal() throws Exception {
+  void string_literal() {
     LabelTree tree = parse("\"a\"", HclLexicalGrammar.LABEL);
     assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
       assertThat(o.value()).isEqualTo("\"a\"");
@@ -36,7 +36,7 @@ class LabelTreeImplTest extends TerraformTreeModelTest {
   }
 
   @Test
-  void identifier() throws Exception {
+  void identifier() {
     LabelTree tree = parse("id", HclLexicalGrammar.LABEL);
     assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
       assertThat(o.value()).isEqualTo("id");
