@@ -26,7 +26,7 @@ jobs:
         with:
           publish_to_binaries: true
           attach_artifacts_to_github_release: false
-          run_rules_cov: false
+          run_rules_cov: true
           slack_channel: lang-iac
       - name: Release action results
         if: always()
