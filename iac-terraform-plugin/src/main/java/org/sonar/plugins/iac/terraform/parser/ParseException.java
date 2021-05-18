@@ -17,21 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.plugin;
+package org.sonar.plugins.iac.terraform.parser;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.plugins.iac.terraform.checks.ParsingErrorCheck;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.TextPointer;
 
-public class TerraformCheckList {
+public class ParseException extends RuntimeException {
 
-  private TerraformCheckList() {
+  private final transient TextPointer position;
 
+  public ParseException(String message, @Nullable TextPointer position) {
+    super(message);
+    this.position = position;
   }
 
-  public static List<Class<?>> checks() {
-    return Collections.singletonList(
-      ParsingErrorCheck.class
-    );
+  @CheckForNull
+  public TextPointer getPosition() {
+    return position;
   }
 }

@@ -19,27 +19,33 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.iac.terraform.parser.HclParser;
+import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class TerraformSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(TerraformSensor.class);
-
+  // TODO use for Metrics
   private final FileLinesContextFactory fileLinesContextFactory;
-  private final CheckFactory checkFactory;
+  // TODO use for Metrics
   private final NoSonarFilter noSonarFilter;
 
   public TerraformSensor(FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory, NoSonarFilter noSonarFilter) {
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.checkFactory = checkFactory;
     this.noSonarFilter = noSonarFilter;
+    checkFactory.create(TerraformPlugin.REPOSITORY_KEY);
   }
 
   @Override
@@ -50,6 +56,24 @@ public class TerraformSensor implements Sensor {
 
   @Override
   public void execute(SensorContext sensorContext) {
-    LOG.info("Execute TerraformSensor");
+    FileSystem fileSystem = sensorContext.fileSystem();
+    FilePredicate mainFilePredicate = fileSystem.predicates().and(
+      fileSystem.predicates().hasLanguage(TerraformPlugin.LANGUAGE_KEY),
+      fileSystem.predicates().hasType(InputFile.Type.MAIN));
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate);
+    List<String> filenames = StreamSupport.stream(inputFiles.spliterator(), false).map(InputFile::toString).collect(Collectors.toList());
+    ProgressReport progressReport = new ProgressReport("Progress of the " + TerraformPlugin.LANGUAGE_NAME + " analysis", TimeUnit.SECONDS.toMillis(10));
+    progressReport.start(filenames);
+    boolean success = false;
+    Analyzer analyzer = Analyzer.create(new HclParser());
+    try {
+      success = analyzer.analyseFiles(sensorContext, inputFiles, progressReport);
+    } finally {
+      if (success) {
+        progressReport.stop();
+      } else {
+        progressReport.cancel();
+      }
+    }
   }
 }
