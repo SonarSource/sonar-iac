@@ -30,6 +30,7 @@ class OneLineBlockTest {
       .matches("a{}")
       .matches("  a {   }")
       .matches("a { \n }")
+      .matches("a label {}")
       .matches("a \"label\" {}")
       .matches("a \"label1\" \"label2\" {}")
       .matches("a \"label with \\\" quote\" {}")
