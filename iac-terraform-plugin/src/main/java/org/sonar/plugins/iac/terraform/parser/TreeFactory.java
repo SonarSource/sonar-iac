@@ -20,12 +20,15 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
@@ -34,12 +37,12 @@ import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import java.util.List;
 
 public class TreeFactory {
-  public BodyTree body(Optional<List<OneLineBlockTree>> zeroOrMoree, Optional<InternalSyntaxToken> optional, InternalSyntaxToken token) {
+  public BodyTree body(Optional<List<Tree>> zeroOrMoree, Optional<InternalSyntaxToken> optional, InternalSyntaxToken token) {
     return new BodyTreeImpl();
   }
 
-  public OneLineBlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, SyntaxToken closeBrace) {
-    return new OneLineBlockTreeImpl(type, labels.orNull());
+  public OneLineBlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
+    return new OneLineBlockTreeImpl(type, labels.orNull(), attribute.orNull());
   }
 
   public LabelTree label(SyntaxToken token) {
@@ -49,4 +52,9 @@ public class TreeFactory {
   public LiteralExprTreeImpl literalExpr(SyntaxToken token) {
     return new LiteralExprTreeImpl(token);
   }
+
+  public AttributeTree attribute(InternalSyntaxToken name, InternalSyntaxToken equalSign, ExpressionTree value) {
+    return new AttributeTreeImpl(name, equalSign, value);
+  }
+
 }

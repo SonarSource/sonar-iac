@@ -35,6 +35,7 @@ class OneLineBlockTest {
       .matches("a \"label1\" \"label2\" {}")
       .matches("a \"label with \\\" quote\" {}")
       .matches("a \"label1\" label2 {}")
+      .matches("a {b = false}")
       .notMatches("a")
       .notMatches("a{");
   }

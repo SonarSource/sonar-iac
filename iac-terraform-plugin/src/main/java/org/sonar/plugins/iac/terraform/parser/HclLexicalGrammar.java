@@ -28,8 +28,8 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   BODY,
   ONE_LINE_BLOCK,
   EXPRESSION,
-  LITERAL_EXPRESSION,
   LABEL,
+  ATTRIBUTE,
 
   /**
    * Lexical
@@ -42,11 +42,15 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
    * SPACING
    */
   SPACING,
+  NEWLINE,
 
   /**
    * Expression
    */
-  BOOLEAN_LITERAL
+  LITERAL_EXPRESSION,
+
+  BOOLEAN_LITERAL,
+  NULL
 
   ;
 
@@ -72,7 +76,9 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(IDENTIFIER).is(SPACING, b.regexp(LexicalConstant.IDENTIFIER));
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(LexicalConstant.STRING_LITERAL));
+
     b.rule(BOOLEAN_LITERAL).is(b.firstOf(word(b, "TRUE"), word(b, "FALSE")));
+    b.rule(NULL).is(word(b,"NULL")).skip();
   }
 
   private static Object word(LexerlessGrammarBuilder b, String word) {

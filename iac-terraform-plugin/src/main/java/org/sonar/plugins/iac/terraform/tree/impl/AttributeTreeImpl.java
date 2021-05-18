@@ -19,19 +19,34 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
+import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class AttributeTreeImpl extends TerraformTree implements AttributeTree {
+  private final InternalSyntaxToken name;
+  private final InternalSyntaxToken equalSign;
+  private final ExpressionTree value;
 
-class LiteralExprTreeImplTest extends TerraformTreeModelTest {
-  @Test
-  void boolean_literal() {
-    LiteralExprTree tree = parse("true", HclLexicalGrammar.LITERAL_EXPRESSION);
-    assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
-      assertThat(o.value()).isEqualTo("true");
-      assertThat(o.value()).isEqualTo(o.token().text());
-    });
+  public AttributeTreeImpl(InternalSyntaxToken name, InternalSyntaxToken equalSign, ExpressionTree value) {
+    this.name = name;
+    this.equalSign = equalSign;
+    this.value = value;
+  }
+
+  @Override
+  public String name() {
+    return name.text();
+  }
+
+  @Override
+  public SyntaxToken equalSign() {
+    return equalSign;
+  }
+
+  @Override
+  public ExpressionTree value() {
+    return value;
   }
 }

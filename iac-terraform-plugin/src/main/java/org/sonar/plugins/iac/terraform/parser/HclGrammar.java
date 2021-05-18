@@ -20,6 +20,7 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
@@ -38,7 +39,7 @@ public class HclGrammar {
 
   public BodyTree BODY() {
     return b.<BodyTree>nonterminal(HclLexicalGrammar.BODY).is(
-      f.body(b.zeroOrMore(ONE_LINE_BLOCK()), b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)));
+      f.body(b.zeroOrMore(b.firstOf(ATTRIBUTE(), ONE_LINE_BLOCK())), b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)));
   }
 
   public OneLineBlockTree ONE_LINE_BLOCK() {
@@ -46,6 +47,7 @@ public class HclGrammar {
       f.oneLineBlock(b.token(HclLexicalGrammar.IDENTIFIER),
         b.zeroOrMore(LABEL()),
         b.token(HclPunctuator.LCURLYBRACE),
+        b.optional(ATTRIBUTE()),
         b.token(HclPunctuator.RCURLYBRACE)
       ));
   }
@@ -53,6 +55,12 @@ public class HclGrammar {
   public LabelTree LABEL() {
     return b.<LabelTree>nonterminal(HclLexicalGrammar.LABEL).is(
       f.label(b.firstOf(b.token(HclLexicalGrammar.STRING_LITERAL), b.token(HclLexicalGrammar.IDENTIFIER)))
+    );
+  }
+
+  public AttributeTree ATTRIBUTE() {
+    return b.<AttributeTree>nonterminal(HclLexicalGrammar.ATTRIBUTE).is(
+      f.attribute(b.token(HclLexicalGrammar.IDENTIFIER), b.token(HclPunctuator.EQU), EXPRESSION())
     );
   }
 
@@ -64,8 +72,8 @@ public class HclGrammar {
 
   public ExpressionTree LITERAL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.LITERAL_EXPRESSION).is(
-      f.literalExpr(b.token(HclLexicalGrammar.BOOLEAN_LITERAL))
-    );
+      f.literalExpr(b.firstOf(b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
+        b.token(HclLexicalGrammar.NULL))));
   }
 
 }

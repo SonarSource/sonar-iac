@@ -19,20 +19,24 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
+import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class OneLineBlockTreeImpl extends TerraformTree implements OneLineBlockTree {
   private final SyntaxToken type;
   private final List<LabelTree> labels;
+  private final Optional<AttributeTree> attribute;
 
-  public OneLineBlockTreeImpl(SyntaxToken type, List<LabelTree> labels) {
+  public OneLineBlockTreeImpl(SyntaxToken type, List<LabelTree> labels, AttributeTree attribute) {
     this.type = type;
     this.labels = labels != null ? labels : Collections.emptyList();
+    this.attribute = Optional.ofNullable(attribute);
   }
 
   @Override
@@ -43,5 +47,10 @@ public class OneLineBlockTreeImpl extends TerraformTree implements OneLineBlockT
   @Override
   public List<LabelTree> labels() {
     return labels;
+  }
+
+  @Override
+  public Optional<AttributeTree> attribute() {
+    return attribute;
   }
 }

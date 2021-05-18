@@ -17,21 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.tree.impl;
+package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class LiteralExprTreeImplTest extends TerraformTreeModelTest {
-  @Test
-  void boolean_literal() {
-    LiteralExprTree tree = parse("true", HclLexicalGrammar.LITERAL_EXPRESSION);
-    assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
-      assertThat(o.value()).isEqualTo("true");
-      assertThat(o.value()).isEqualTo(o.token().text());
-    });
-  }
+public interface AttributeTree extends Tree {
+  String name();
+  SyntaxToken equalSign();
+  ExpressionTree value();
 }
