@@ -22,8 +22,11 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,12 +34,16 @@ import java.util.Optional;
 public class OneLineBlockTreeImpl extends TerraformTree implements OneLineBlockTree {
   private final SyntaxToken type;
   private final List<LabelTree> labels;
+  private final SyntaxToken openBrace;
   private final Optional<AttributeTree> attribute;
+  private final SyntaxToken closeBrace;
 
-  public OneLineBlockTreeImpl(SyntaxToken type, List<LabelTree> labels, AttributeTree attribute) {
+  public OneLineBlockTreeImpl(SyntaxToken type, List<LabelTree> labels, SyntaxToken openBrace, AttributeTree attribute, SyntaxToken closeBrace) {
     this.type = type;
     this.labels = labels != null ? labels : Collections.emptyList();
+    this.openBrace = openBrace;
     this.attribute = Optional.ofNullable(attribute);
+    this.closeBrace = closeBrace;
   }
 
   @Override
@@ -52,5 +59,17 @@ public class OneLineBlockTreeImpl extends TerraformTree implements OneLineBlockT
   @Override
   public Optional<AttributeTree> attribute() {
     return attribute;
+  }
+
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>(Arrays.asList(type));
+    children.addAll(labels);
+    children.add(openBrace);
+    if (attribute.isPresent()) {
+      children.add(attribute.get());
+    }
+    children.add(closeBrace);
+    return children;
   }
 }

@@ -41,12 +41,12 @@ public class HclGrammar {
 
   public FileTree FILE() {
     return b.<FileTree>nonterminal(HclLexicalGrammar.FILE).is(
-      f.file(BODY(), b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)));
+      f.file(b.optional(BODY()), b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)));
   }
 
   public BodyTree BODY() {
     return b.<BodyTree>nonterminal(HclLexicalGrammar.BODY).is(
-      f.body(b.zeroOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK()))));
+      f.body(b.oneOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK()))));
   }
 
   public BlockTree BLOCK() {
@@ -55,7 +55,7 @@ public class HclGrammar {
         b.zeroOrMore(LABEL()),
         b.token(HclPunctuator.LCURLYBRACE),
         b.token(HclLexicalGrammar.NEWLINE),
-        BODY(),
+        b.optional(BODY()),
         b.token(HclPunctuator.RCURLYBRACE)
         ));
   }
@@ -89,9 +89,12 @@ public class HclGrammar {
   }
 
   public ExpressionTree LITERAL_EXPRESSION() {
+    //TODO: add numerics
+    //TODO: in the HCL grammar strings are not part of literals but of TemplateExpr. Do we need this?
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.LITERAL_EXPRESSION).is(
       f.literalExpr(b.firstOf(b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
-        b.token(HclLexicalGrammar.NULL))));
+        b.token(HclLexicalGrammar.NULL),
+        b.token(HclLexicalGrammar.STRING_LITERAL))));
   }
 
 }

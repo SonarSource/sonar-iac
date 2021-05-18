@@ -21,7 +21,11 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class AttributeTreeImpl extends TerraformTree implements AttributeTree {
   private final SyntaxToken name;
@@ -47,5 +51,10 @@ public class AttributeTreeImpl extends TerraformTree implements AttributeTree {
   @Override
   public ExpressionTree value() {
     return value;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Arrays.asList(name, equalSign, value);
   }
 }

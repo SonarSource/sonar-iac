@@ -30,7 +30,7 @@ class BodyTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void simple_body_with_one_line_block() {
-    BodyTree tree = parse("a", HclLexicalGrammar.BODY);
+    BodyTree tree = parse("a {}", HclLexicalGrammar.BODY);
     assertThat(tree).isInstanceOf(BodyTreeImpl.class);
   }
 }

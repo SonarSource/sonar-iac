@@ -31,6 +31,7 @@ class LiteralExprTest {
       .matches("TRUE")
       .matches("false")
       .matches("null")
+      .matches("\"foo\"")
       .notMatches("notBoolean");
   }
 }

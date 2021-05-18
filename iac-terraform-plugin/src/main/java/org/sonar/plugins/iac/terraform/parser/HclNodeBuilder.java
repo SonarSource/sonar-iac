@@ -25,6 +25,7 @@ import com.sonar.sslr.api.TokenType;
 import com.sonar.sslr.api.Trivia;
 import com.sonar.sslr.api.typed.Input;
 import com.sonar.sslr.api.typed.NodeBuilder;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -97,5 +98,14 @@ public class HclNodeBuilder implements NodeBuilder {
 
   private static class InternalSyntaxSpacing extends TerraformTree {
 
+    @Override
+    public List<Tree> children() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isLeaf() {
+      return true;
+    }
   }
 }

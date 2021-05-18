@@ -29,7 +29,6 @@ import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
@@ -41,20 +40,20 @@ import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import java.util.List;
 
 public class TreeFactory {
-  public FileTree file(BodyTree body, Optional<InternalSyntaxToken> spacing, InternalSyntaxToken eof) {
-    return new FileTreeImpl(body);
+  public FileTree file(Optional<BodyTree> body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
+    return new FileTreeImpl(body.orNull(), eof);
   }
 
-  public BodyTree body(Optional<List<Tree>> statements) {
-    return new BodyTreeImpl(statements.orNull());
+  public BodyTree body(List<Tree> statements) {
+    return new BodyTreeImpl(statements);
   }
 
-  public BlockTree block(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, SyntaxToken newLine, BodyTree body, SyntaxToken closeBrace) {
-    return new BlockTreeImpl(type, labels.orNull(), body);
+  public BlockTree block(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, SyntaxToken newLine, Optional<BodyTree> body, SyntaxToken closeBrace) {
+    return new BlockTreeImpl(type, labels.orNull(), openBrace, body.orNull(), closeBrace);
   }
 
   public OneLineBlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
-    return new OneLineBlockTreeImpl(type, labels.orNull(), attribute.orNull());
+    return new OneLineBlockTreeImpl(type, labels.orNull(), openBrace, attribute.orNull(), closeBrace);
   }
 
   public LabelTree label(SyntaxToken token) {

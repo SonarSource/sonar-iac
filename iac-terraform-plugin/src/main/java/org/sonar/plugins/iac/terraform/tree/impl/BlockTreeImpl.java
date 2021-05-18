@@ -22,20 +22,28 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class BlockTreeImpl extends TerraformTree implements BlockTree {
   private final SyntaxToken type;
   private final List<LabelTree> labels;
-  private final BodyTree body;
+  private final SyntaxToken openBrace;
+  private final Optional<BodyTree> body;
+  private final SyntaxToken closeBrace;
 
-  public BlockTreeImpl(SyntaxToken type, List<LabelTree> labels, BodyTree body) {
+  public BlockTreeImpl(SyntaxToken type, List<LabelTree> labels, SyntaxToken openBrace, BodyTree body, SyntaxToken closeBrace) {
     this.type = type;
     this.labels = labels != null ? labels : Collections.emptyList();
-    this.body = body;
+    this.openBrace = openBrace;
+    this.body = Optional.ofNullable(body);
+    this.closeBrace = closeBrace;
   }
 
   @Override
@@ -49,7 +57,17 @@ public class BlockTreeImpl extends TerraformTree implements BlockTree {
   }
 
   @Override
-  public BodyTree body() {
+  public Optional<BodyTree> body() {
     return body;
+  }
+
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>(Arrays.asList(type));
+    children.addAll(labels);
+    children.add(openBrace);
+    body.ifPresent(children::add);
+    children.add(closeBrace);
+    return children;
   }
 }

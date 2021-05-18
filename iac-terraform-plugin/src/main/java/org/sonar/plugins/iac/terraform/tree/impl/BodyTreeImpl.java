@@ -36,4 +36,9 @@ public class BodyTreeImpl extends TerraformTree implements BodyTree {
   public List<Tree> statements() {
     return statements;
   }
+
+  @Override
+  public List<Tree> children() {
+    return statements;
+  }
 }

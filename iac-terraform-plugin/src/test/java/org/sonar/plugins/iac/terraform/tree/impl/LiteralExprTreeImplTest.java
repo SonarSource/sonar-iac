@@ -34,4 +34,22 @@ class LiteralExprTreeImplTest extends TerraformTreeModelTest {
       assertThat(o.value()).isEqualTo(o.token().text());
     });
   }
+
+  @Test
+  void null_literal() {
+    LiteralExprTree tree = parse("null", HclLexicalGrammar.LITERAL_EXPRESSION);
+    assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
+      assertThat(o.value()).isEqualTo("null");
+      assertThat(o.value()).isEqualTo(o.token().text());
+    });
+  }
+
+  @Test
+  void string_literal() {
+    LiteralExprTree tree = parse("\"foo\"", HclLexicalGrammar.LITERAL_EXPRESSION);
+    assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
+      assertThat(o.value()).isEqualTo("\"foo\"");
+      assertThat(o.value()).isEqualTo(o.token().text());
+    });
+  }
 }

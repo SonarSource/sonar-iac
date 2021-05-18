@@ -20,7 +20,11 @@
 package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+
+import java.util.Collections;
+import java.util.List;
 
 public class LiteralExprTreeImpl extends TerraformTree implements LiteralExprTree {
   private final SyntaxToken token;
@@ -37,5 +41,10 @@ public class LiteralExprTreeImpl extends TerraformTree implements LiteralExprTre
   @Override
   public String value() {
     return token.text();
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Collections.singletonList(token);
   }
 }
