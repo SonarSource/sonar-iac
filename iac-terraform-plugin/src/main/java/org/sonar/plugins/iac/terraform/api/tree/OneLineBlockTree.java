@@ -19,6 +19,11 @@
  */
 package org.sonar.plugins.iac.terraform.api.tree;
 
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+
+import java.util.List;
+
 public interface OneLineBlockTree extends Tree {
-  // TODO: Children
+  SyntaxToken type();
+  List<LabelTree> labels();
 }

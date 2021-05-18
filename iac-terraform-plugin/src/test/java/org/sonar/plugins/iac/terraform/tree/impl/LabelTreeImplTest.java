@@ -19,29 +19,28 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
+import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
-import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-import java.util.Collections;
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class OneLineBlockTreeImpl extends TerraformTree implements OneLineBlockTree {
-  private final SyntaxToken type;
-  private final List<LabelTree> labels;
-
-  public OneLineBlockTreeImpl(SyntaxToken type, List<LabelTree> labels) {
-    this.type = type;
-    this.labels = labels != null ? labels : Collections.emptyList();
+class LabelTreeImplTest extends TerraformTreeModelTest {
+  @Test
+  void string_literal() throws Exception {
+    LabelTree tree = parse("\"a\"", HclLexicalGrammar.LABEL);
+    assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
+      assertThat(o.value()).isEqualTo("\"a\"");
+      assertThat(o.value()).isEqualTo(o.token().text());
+    });
   }
 
-  @Override
-  public SyntaxToken type() {
-    return type;
-  }
-
-  @Override
-  public List<LabelTree> labels() {
-    return labels;
+  @Test
+  void identifier() throws Exception {
+    LabelTree tree = parse("id", HclLexicalGrammar.LABEL);
+    assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
+      assertThat(o.value()).isEqualTo("id");
+      assertThat(o.value()).isEqualTo(o.token().text());
+    });
   }
 }
