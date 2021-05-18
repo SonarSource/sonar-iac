@@ -1,5 +1,5 @@
 /*
- * SonarSource IaC ITS
+ * SonarSource IaC
  * Copyright (C) 2021-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
@@ -45,7 +45,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class IacRulingTest {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
-  private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
+  private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE[8.9]";
+  private static final String LITS_VERSION = "0.9.0.1682";
 
   private static Orchestrator orchestrator;
   private static boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
@@ -56,7 +57,7 @@ class IacRulingTest {
   public static void setUp() {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
-      .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.8.0.1209"));
+      .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION));
 
     addLanguagePlugins(builder);
 

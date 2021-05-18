@@ -31,6 +31,7 @@
 
   <modules>
     <module>iac-terraform-plugin</module>
+    <module>its</module>
   </modules>
 
   <scm>
@@ -39,6 +40,7 @@
     <url>https://github.com/SonarSource/sonar-iac</url>
     <tag>HEAD</tag>
   </scm>
+
   <issueManagement>
     <system>JIRA</system>
     <url>https://jira.sonarsource.com/projects/SONARIAC</url>
