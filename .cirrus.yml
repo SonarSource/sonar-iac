@@ -19,20 +19,41 @@ env:
   # Allows to run builds for the 50 last commits in a branch:
   CIRRUS_CLONE_DEPTH: 20
 
-container_definition: &CONTAINER_DEFINITION
+linux_image_template: &LINUX_IMAGE
   image: gcr.io/language-team/base:latest
   cluster_name: cirrus-ci-lt-cluster
   zone: us-central1-a
   namespace: default
+  use_in_memory_disk: true
 
-only_sonarsource_qa: &ONLY_SONARSOURCE_QA
+linux_1_cpu_1G_template: &LINUX_1_CPU_1G
+  gke_container:
+    <<: *LINUX_IMAGE
+    cpu: 1
+    memory: 1G
+
+linux_3_5_cpu_7G_template: &LINUX_3_5_CPU_7G
+  gke_container:
+    <<: *LINUX_IMAGE
+    cpu: 3.5
+    memory: 7G
+
+linux_4_cpu_8G_template: &LINUX_4_CPU_8G
+  gke_container:
+    <<: *LINUX_IMAGE
+    cpu: 4
+    memory: 8G
+
+only_sonarsource_qa: &ONLY_IF_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
+qa_task_filter_template: &QA_TASK_FILTER
+  depends_on:
+    - build
+  <<: *ONLY_IF_SONARSOURCE_QA
+
 build_task:
-  gke_container:
-    <<: *CONTAINER_DEFINITION
-    cpu: 2
-    memory: 2G
+  <<: *LINUX_3_5_CPU_7G
   env:
     SIGN_KEY: ENCRYPTED[!cc216dfe592f79db8006f2a591f8f98b40aa2b078e92025623594976fd32f6864c1e6b6ba74b50647f608e2418e6c336!]
     PGP_PASSPHRASE: ENCRYPTED[!314a8fc344f45e462dd5e8dccd741d7562283a825e78ebca27d4ae9db8e65ce618e7f6aece386b2782a5abe5171467bd!]
@@ -48,14 +69,9 @@ build_task:
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
-ruling_task:
-  depends_on:
-    - build
-  <<: *ONLY_SONARSOURCE_QA
-  gke_container:
-    <<: *CONTAINER_DEFINITION
-    cpu: 4
-    memory: 8G
+qa_ruling_task:
+  <<: *QA_TASK_FILTER
+  <<: *LINUX_4_CPU_8G
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   submodules_script:
@@ -65,4 +81,21 @@ ruling_task:
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
     - mvn verify -Pit-ruling -Dsonar.runtimeVersion=LATEST_RELEASE[8.9] -B -e -V
+  cleanup_before_cache_script: cleanup_maven_repository
+
+promote_task:
+  depends_on:
+    - build
+    - qa_ruling
+  <<: *ONLY_IF_SONARSOURCE_QA
+  <<: *LINUX_1_CPU_1G
+  env:
+    #promotion cloud function
+    GCF_ACCESS_TOKEN: ENCRYPTED[!1fb91961a5c01e06e38834e55755231d649dc62eca354593105af9f9d643d701ae4539ab6a8021278b8d9348ae2ce8be!]
+    PROMOTE_URL: ENCRYPTED[!e22ed2e34a8f7a1aea5cff653585429bbd3d5151e7201022140218f9c5d620069ec2388f14f83971e3fd726215bc0f5e!]
+    #artifacts that will have downloadable links in burgr
+    ARTIFACTS: org.sonarsource.iac:iac-terraform-plugin
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  script: cirrus_promote_maven
   cleanup_before_cache_script: cleanup_maven_repository
