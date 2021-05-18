@@ -25,15 +25,8 @@ container_definition: &CONTAINER_DEFINITION
   zone: us-central1-a
   namespace: default
 
-win_vm_definition: &WINDOWS_VM_DEFINITION
-  gce_instance:
-    image_project: language-team
-    image_family: lt-base-windows
-    platform: windows
-    zone: us-central1-a
-    preemptible: false
-    disk: 60
-    type: n1-standard-4
+only_sonarsource_qa: &ONLY_SONARSOURCE_QA
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
 build_task:
   gke_container:
@@ -47,7 +40,7 @@ build_task:
     SONAR_TOKEN: ENCRYPTED[!b6fd814826c51e64ee61b0b6f3ae621551f6413383f7170f73580e2e141ac78c4b134b506f6288c74faa0dd564c05a29!]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
     #allow deployment of pull request artifacts to repox
-    DEPLOY_PULL_REQUEST: false #TODO enable if pipeline is verified
+    DEPLOY_PULL_REQUEST: true
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   build_script:
@@ -55,15 +48,21 @@ build_task:
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
-build_win_task:
+ruling_task:
   depends_on:
     - build
-  <<: *WINDOWS_VM_DEFINITION
-  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
+  <<: *ONLY_SONARSOURCE_QA
+  gke_container:
+    <<: *CONTAINER_DEFINITION
+    cpu: 4
+    memory: 8G
   maven_cache:
-    #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
-    folder: ~/.m2/repository
-  build_script:
-    - source cirrus-env CI
-    - mvn test
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  submodules_script:
+    - git submodule update --init
+  ruling_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - cd its/ruling
+    - mvn verify -Pit-ruling -Dsonar.runtimeVersion=LATEST_RELEASE[8.9] -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository

@@ -31,6 +31,7 @@
 
   <modules>
     <module>iac-terraform-plugin</module>
+    <module>its</module>
   </modules>
 
   <scm>
@@ -39,6 +40,7 @@
     <url>https://github.com/SonarSource/sonar-iac</url>
     <tag>HEAD</tag>
   </scm>
+
   <issueManagement>
     <system>JIRA</system>
     <url>https://jira.sonarsource.com/projects/SONARIAC</url>
@@ -97,13 +99,13 @@
       <dependency>
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator</artifactId>
-        <version>${version.sonar-orchestrator}</version>
+        <version>${version.orchestrator}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-test-commons</artifactId>
-        <version>${version.analyzer-commons}</version>
+        <version>${version.analyzer.commons}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
