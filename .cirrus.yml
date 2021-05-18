@@ -25,6 +25,10 @@ container_definition: &CONTAINER_DEFINITION
   zone: us-central1-a
   namespace: default
 
+only_sonarsource_qa: &ONLY_SONARSOURCE_QA
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
+
+
 win_vm_definition: &WINDOWS_VM_DEFINITION
   gce_instance:
     image_project: language-team
@@ -66,4 +70,25 @@ build_win_task:
   build_script:
     - source cirrus-env CI
     - mvn test
+  cleanup_before_cache_script: cleanup_maven_repository
+
+ruling_task:
+  depends_on:
+    - build
+  <<: *ONLY_SONARSOURCE_QA
+  gke_container:
+    <<: *CONTAINER_DEFINITION
+    cpu: 4
+    memory: 8G
+  env:
+    CIRRUS_CLONE_DEPTH: 1
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  submodules_script:
+    - git submodule update --init
+  ruling_script:
+    - source cirrus-env QA
+    - source .cirrus/set_maven_build_version $BUILD_NUMBER
+    - cd its/ruling
+    - mvn verify -Drevision=${PROJECT_VERSION} -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
