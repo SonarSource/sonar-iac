@@ -30,6 +30,7 @@ class AttributeTest {
       .matches("a = true")
       .matches("a = null")
       .matches("a = \"foo\"")
+      .matches("a = {}")
       .notMatches("a")
       .notMatches("a =");
   }

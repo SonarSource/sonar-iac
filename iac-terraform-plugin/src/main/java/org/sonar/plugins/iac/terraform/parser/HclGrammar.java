@@ -26,9 +26,9 @@ import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
-import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class HclGrammar {
 
@@ -58,7 +58,7 @@ public class HclGrammar {
         b.token(HclLexicalGrammar.NEWLINE),
         b.optional(BODY()),
         b.token(HclPunctuator.RCURLYBRACE)
-        ));
+      ));
   }
 
   public OneLineBlockTree ONE_LINE_BLOCK() {
@@ -85,7 +85,15 @@ public class HclGrammar {
 
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
-      LITERAL_EXPRESSION()
+      b.firstOf(LITERAL_EXPRESSION(),
+        OBJECT())
+    );
+  }
+
+  public ObjectTree OBJECT() {
+    return b.<ObjectTree>nonterminal(HclLexicalGrammar.OBJECT).is(
+      f.object(b.token(HclPunctuator.LCURLYBRACE),
+        b.token(HclPunctuator.RCURLYBRACE))
     );
   }
 

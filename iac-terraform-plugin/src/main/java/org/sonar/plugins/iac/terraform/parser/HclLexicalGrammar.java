@@ -32,6 +32,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   EXPRESSION,
   LABEL,
   ATTRIBUTE,
+  OBJECT,
 
   /**
    * Lexical
