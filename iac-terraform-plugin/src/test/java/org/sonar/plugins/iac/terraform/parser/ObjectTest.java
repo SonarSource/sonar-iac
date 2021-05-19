@@ -33,6 +33,8 @@ class ObjectTest {
       .matches("{ a: 1, b: 2, }")
       .matches("{ a: 1, b = 2 }")
       .matches("{ a: 1, b = { c: 3 } }")
+      .matches("{ a: 1\n b = 3 }")
+      .matches("{ a: 1 b = 3 }") //TODO: this shouldn't be valid
       .notMatches("")
       .notMatches("{");
   }

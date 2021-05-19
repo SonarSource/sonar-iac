@@ -102,7 +102,7 @@ public class HclGrammar {
   public SeparatedList<ObjectElementTree> OBJECT_ELEMENTS() {
     return b.<SeparatedList<ObjectElementTree>>nonterminal().is(
       f.objectElements(OBJECT_ELEMENT(),
-        b.zeroOrMore(f.newTuple(b.token(HclPunctuator.COMMA), OBJECT_ELEMENT())),
+        b.zeroOrMore(f.newTuple(b.firstOf(b.token(HclPunctuator.COMMA), b.token(HclLexicalGrammar.NEWLINE)), OBJECT_ELEMENT())),
         b.optional(b.token(HclPunctuator.COMMA))
         ));
   }
