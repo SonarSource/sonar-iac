@@ -32,9 +32,6 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/security_group_no_description_for_security_group/main.tf':[
 11,
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/tag_all_items/main.tf':[
-0,
-],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/using_public_amis/main.tf':[
 16,
 ],
@@ -58,9 +55,6 @@
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticache_replication_group_not_encrypted_at_rest/main.tf':[
 3,
-],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticsearch_not_encrypted/main.tf':[
-0,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/kinesis_stream_not_encrypted/main.tf':[
 6,
@@ -182,17 +176,11 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/cloudtrail_file_log_validation_disabled/main.tf':[
 12,
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/cloudwatch_log_groups_no_retention/main.tf':[
-0,
-],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/ec2_without_monitoring/main.tf':[
 6,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/eks_logging_disabled/main.tf':[
 16,
-],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/elasticsearch_domain_logging_disabled/main.tf':[
-0,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/elb_without_access_logs/main.tf':[
 3,
@@ -205,9 +193,6 @@
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/rest_api_no_access_logging/main.tf':[
 11,
-],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/s3_access_logging_disabled/main.tf':[
-0,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/default_sg_in_new_vpc/main.tf':[
 15,
