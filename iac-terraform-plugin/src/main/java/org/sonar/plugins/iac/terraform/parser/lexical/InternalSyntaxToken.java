@@ -77,11 +77,6 @@ public class InternalSyntaxToken extends TerraformTree implements SyntaxToken {
   }
 
   @Override
-  public boolean isLeaf() {
-    return true;
-  }
-
-  @Override
   public List<Tree> children() {
     throw new UnsupportedOperationException();
   }

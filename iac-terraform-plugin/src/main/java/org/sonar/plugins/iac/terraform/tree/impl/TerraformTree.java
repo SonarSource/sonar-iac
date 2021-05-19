@@ -28,17 +28,10 @@ public abstract class TerraformTree implements Tree {
   private SyntaxToken lastToken = null;
 
   /**
-   * Creates iterator for children of this node.
+   * Returns the list of children of this node.
    * Note that iterator may contain {@code null} elements.
-   *
-   * @throws UnsupportedOperationException if {@link #isLeaf()} returns {@code true}
    */
   public abstract List<Tree> children();
-
-  public boolean isLeaf() {
-    //TODO: where should this be set to true
-    return false;
-  }
 
   public SyntaxToken getLastToken() {
     if (lastToken == null) {

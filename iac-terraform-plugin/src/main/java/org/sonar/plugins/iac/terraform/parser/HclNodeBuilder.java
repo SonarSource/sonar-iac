@@ -103,9 +103,5 @@ public class HclNodeBuilder implements NodeBuilder {
       throw new UnsupportedOperationException();
     }
 
-    @Override
-    public boolean isLeaf() {
-      return true;
-    }
   }
 }
