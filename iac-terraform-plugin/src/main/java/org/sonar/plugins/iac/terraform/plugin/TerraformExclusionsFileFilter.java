@@ -19,28 +19,26 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFileFilter;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.WildcardPattern;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class TerraformExclusionsFileFilter implements InputFileFilter {
 
-class TerraformPluginTest {
+  private final Configuration configuration;
 
-  private static final Version VERSION_8_9 = Version.create(8, 9);
+  public TerraformExclusionsFileFilter(Configuration configuration) {
+    this.configuration = configuration;
+  }
 
-  private final TerraformPlugin terraformPlugin = new TerraformPlugin();
-
-  @Test
-  void sonarqube_8_9_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    terraformPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(7);
+  @Override
+  public boolean accept(InputFile inputFile) {
+    if (!TerraformPlugin.LANGUAGE_KEY.equals(inputFile.language())) {
+      return true;
+    }
+    String[] excludedPatterns = this.configuration.getStringArray(TerraformPlugin.EXCLUSIONS_KEY);
+    String relativePath = inputFile.uri().toString();
+    return !WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath);
   }
 }
-
