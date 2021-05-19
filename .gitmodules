@@ -1,0 +1,3 @@
+[submodule "its/sources/terraform/tool-compare"]
+	path = its/sources/terraform/tool-compare
+	url = https://github.com/iacsecurity/tool-compare.git
