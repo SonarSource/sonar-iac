@@ -32,6 +32,14 @@ class LiteralExprTest {
       .matches("false")
       .matches("null")
       .matches("\"foo\"")
+      .matches("1")
+      .matches("12.34")
+      .matches("12e34")
+      .matches("12E34")
+      .matches("12E+34")
+      .matches("12E-34")
+      .notMatches("12.")
+      .notMatches("12E")
       .notMatches("notBoolean");
   }
 }

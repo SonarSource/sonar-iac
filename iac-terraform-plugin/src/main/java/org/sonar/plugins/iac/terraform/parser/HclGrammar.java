@@ -28,6 +28,7 @@ import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class HclGrammar {
 
@@ -89,10 +90,10 @@ public class HclGrammar {
   }
 
   public ExpressionTree LITERAL_EXPRESSION() {
-    //TODO: add numerics
     //TODO: in the HCL grammar strings are not part of literals but of TemplateExpr. Do we need this?
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.LITERAL_EXPRESSION).is(
-      f.literalExpr(b.firstOf(b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
+      f.literalExpr(b.firstOf(b.token(HclLexicalGrammar.NUMERIC_LITERAL),
+        b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
         b.token(HclLexicalGrammar.NULL),
         b.token(HclLexicalGrammar.STRING_LITERAL))));
   }

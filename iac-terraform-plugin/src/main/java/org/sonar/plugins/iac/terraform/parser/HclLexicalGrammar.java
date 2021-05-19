@@ -39,6 +39,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   EOF,
   IDENTIFIER,
   STRING_LITERAL,
+  NUMERIC_LITERAL,
 
   /**
    * SPACING
@@ -79,6 +80,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(IDENTIFIER).is(SPACING, b.regexp(LexicalConstant.IDENTIFIER));
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(LexicalConstant.STRING_LITERAL));
+    b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(LexicalConstant.NUMERIC_LITERAL));
 
     b.rule(BOOLEAN_LITERAL).is(b.firstOf(word(b, "TRUE"), word(b, "FALSE")));
     b.rule(NULL).is(word(b,"NULL")).skip();
