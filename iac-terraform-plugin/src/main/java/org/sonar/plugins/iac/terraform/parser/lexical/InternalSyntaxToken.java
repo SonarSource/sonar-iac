@@ -19,61 +19,24 @@
  */
 package org.sonar.plugins.iac.terraform.parser.lexical;
 
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
-
 import java.util.List;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
 
-public class InternalSyntaxToken extends TerraformTree implements SyntaxToken {
-  private String value;
-  private int line;
-  private int column;
-  private final int startIndex;
-  private int endLine;
-  private int endColumn;
+public class InternalSyntaxToken extends InternalSyntax implements SyntaxToken {
 
-  public InternalSyntaxToken(int line, int column, String value, int startIndex, boolean isEOF) {
-    this.value = value;
-    this.line = line;
-    this.column = column;
+  private List<SyntaxTrivia> trivias;
+  private int startIndex;
+
+  public InternalSyntaxToken(int line, int column, String value, List<SyntaxTrivia> trivias, int startIndex, boolean isEOF) {
+    super(value, line, column);
+    this.trivias = trivias;
     this.startIndex = startIndex;
-    calculateEndOffsets();
-  }
-
-  private void calculateEndOffsets() {
-    String[] lines = value.split("\r\n|\n|\r", -1);
-    endColumn = column + value.length();
-    endLine = line + lines.length - 1;
-
-    if (endLine != line) {
-      endColumn = lines[lines.length - 1].length();
-    }
   }
 
   @Override
-  public String text() {
-    return value;
-  }
-
-  @Override
-  public int line() {
-    return line;
-  }
-
-  @Override
-  public int column() {
-    return column;
-  }
-
-  @Override
-  public int endLine() {
-    return endLine;
-  }
-
-  @Override
-  public int endColumn() {
-    return endColumn;
+  public List<SyntaxTrivia> trivias() {
+    return trivias;
   }
 
   @Override
