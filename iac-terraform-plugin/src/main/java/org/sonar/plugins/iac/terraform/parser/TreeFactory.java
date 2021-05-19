@@ -26,16 +26,19 @@ import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.FileTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 
@@ -72,5 +75,9 @@ public class TreeFactory {
 
   public ObjectTree object(SyntaxToken openBrace, SyntaxToken closeBrace) {
     return new ObjectTreeImpl(openBrace, closeBrace);
+  }
+
+  public ObjectElementTree objectElement(Tree name, SyntaxToken equalOrColonSign, ExpressionTree value) {
+    return new ObjectElementTreeImpl(name, equalOrColonSign, value);
   }
 }

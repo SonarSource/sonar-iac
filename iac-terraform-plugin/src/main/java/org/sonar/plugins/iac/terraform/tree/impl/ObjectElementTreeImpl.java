@@ -19,24 +19,41 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class ObjectTreeImpl extends TerraformTree implements ObjectTree {
-  private final SyntaxToken openBrace;
-  private final SyntaxToken closeBrace;
+public class ObjectElementTreeImpl extends TerraformTree implements ObjectElementTree {
+  private final Tree name;
+  private final SyntaxToken equalOrColonSign;
+  private final Tree value;
 
-  public ObjectTreeImpl(SyntaxToken openBrace, SyntaxToken closeBrace) {
-    this.openBrace = openBrace;
-    this.closeBrace = closeBrace;
+  public ObjectElementTreeImpl(Tree name, SyntaxToken equalOrColonSign, Tree value) {
+    this.name = name;
+    this.equalOrColonSign = equalOrColonSign;
+    this.value = value;
   }
 
   @Override
   public List<Tree> children() {
-    return Arrays.asList(openBrace, closeBrace);
+    return Arrays.asList(name, equalOrColonSign, value);
+  }
+
+  @Override
+  public Tree name() {
+    return name;
+  }
+
+  @Override
+  public SyntaxToken equalOrColonSign() {
+    return equalOrColonSign;
+  }
+
+  @Override
+  public Tree value() {
+    return value;
   }
 }

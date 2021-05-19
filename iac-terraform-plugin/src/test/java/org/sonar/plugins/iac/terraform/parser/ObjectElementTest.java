@@ -17,26 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.tree.impl;
+package org.sonar.plugins.iac.terraform.parser;
 
-import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-import java.util.Arrays;
-import java.util.List;
+class ObjectElementTest {
 
-public class ObjectTreeImpl extends TerraformTree implements ObjectTree {
-  private final SyntaxToken openBrace;
-  private final SyntaxToken closeBrace;
-
-  public ObjectTreeImpl(SyntaxToken openBrace, SyntaxToken closeBrace) {
-    this.openBrace = openBrace;
-    this.closeBrace = closeBrace;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Arrays.asList(openBrace, closeBrace);
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.OBJECT_ELEMENT)
+      .matches("a : 1")
+      .matches("a = 1")
+      .matches("{} : 1")
+      .matches("a : {}")
+      .notMatches("a :")
+      .notMatches("a =");
   }
 }
