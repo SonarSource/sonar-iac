@@ -17,23 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-class ObjectTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ObjectTreeImplTest extends TerraformTreeModelTest {
 
   @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.OBJECT)
-      .matches("{ }")
-      .matches("{ a : 1 }")
-      .matches("{ a: 1, b: 2 }")
-      .matches("{ a: 1, b: 2, }")
-      .matches("{ a: 1, b = 2 }")
-      .matches("{ a: 1, b = { c: 3 } }")
-      .notMatches("")
-      .notMatches("{");
+  void simple_object() {
+    ObjectTree tree = parse("{a: 1, b: 2}", HclLexicalGrammar.OBJECT);
+    assertThat(tree).isInstanceOfSatisfying(ObjectTreeImpl.class, o -> assertThat(o.elements()).hasSize(2));
   }
+
 }

@@ -17,23 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-class ObjectTest {
+import java.util.List;
 
-  @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.OBJECT)
-      .matches("{ }")
-      .matches("{ a : 1 }")
-      .matches("{ a: 1, b: 2 }")
-      .matches("{ a: 1, b: 2, }")
-      .matches("{ a: 1, b = 2 }")
-      .matches("{ a: 1, b = { c: 3 } }")
-      .notMatches("")
-      .notMatches("{");
-  }
+public interface SeparatedList<T extends Tree> extends List<T> {
+  SyntaxToken getSeparator(int i);
+
+  List<SyntaxToken> getSeparators();
+
+  List<Tree> elementsAndSeparators();
 }

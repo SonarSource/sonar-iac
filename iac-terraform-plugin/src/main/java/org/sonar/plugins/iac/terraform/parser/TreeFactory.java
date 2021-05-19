@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.iac.terraform.parser;
 
+import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.typed.Optional;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
@@ -29,6 +30,7 @@ import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.plugins.iac.terraform.api.tree.SeparatedList;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
@@ -41,7 +43,9 @@ import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.SeparatedListImpl;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class TreeFactory {
@@ -73,11 +77,66 @@ public class TreeFactory {
     return new AttributeTreeImpl(name, equalSign, value);
   }
 
-  public ObjectTree object(SyntaxToken openBrace, SyntaxToken closeBrace) {
-    return new ObjectTreeImpl(openBrace, closeBrace);
+  public ObjectTree object(SyntaxToken openBrace, Optional<SeparatedList<ObjectElementTree>> elements, SyntaxToken closeBrace) {
+    return new ObjectTreeImpl(openBrace, elements.orNull(), closeBrace);
   }
 
   public ObjectElementTree objectElement(Tree name, SyntaxToken equalOrColonSign, ExpressionTree value) {
     return new ObjectElementTreeImpl(name, equalOrColonSign, value);
+  }
+
+  public SeparatedList<ObjectElementTree> objectElements(
+    ObjectElementTree firstElement,
+    Optional<List<Tuple<SyntaxToken, ObjectElementTree>>> otherElements,
+    Optional<InternalSyntaxToken> trailingComma) {
+    return separatedList(firstElement, otherElements, trailingComma.orNull());
+  }
+
+  private static <T extends Tree> SeparatedListImpl<T> separatedList(
+    T firstElement,
+    Optional<List<Tuple<SyntaxToken, T>>> tuples,
+    @Nullable SyntaxToken trailingSeparator
+  ) {
+    ImmutableList.Builder<T> elements = ImmutableList.builder();
+    ImmutableList.Builder<SyntaxToken> separators = ImmutableList.builder();
+
+    elements.add(firstElement);
+    if (tuples.isPresent()) {
+      for (Tuple<SyntaxToken, T> tuple : tuples.get()) {
+        separators.add(tuple.first());
+        elements.add(tuple.second());
+      }
+    }
+
+    if (trailingSeparator != null) {
+      separators.add(trailingSeparator);
+    }
+
+    return new SeparatedListImpl<>(elements.build(), separators.build());
+  }
+
+  public static class Tuple<T, U> {
+
+    private final T first;
+    private final U second;
+
+    public Tuple(T first, U second) {
+      super();
+
+      this.first = first;
+      this.second = second;
+    }
+
+    public T first() {
+      return first;
+    }
+
+    public U second() {
+      return second;
+    }
+  }
+
+  public <T, U> Tuple<T, U> newTuple(T first, U second) {
+    return new Tuple<>(first, second);
   }
 }

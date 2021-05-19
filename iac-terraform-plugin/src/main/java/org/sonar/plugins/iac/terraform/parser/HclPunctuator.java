@@ -26,6 +26,7 @@ public enum HclPunctuator implements GrammarRuleKey {
   LCURLYBRACE("{"),
   RCURLYBRACE("}"),
   COLON(":"),
+  COMMA(",")
   ;
 
   private final String value;
