@@ -20,7 +20,31 @@
 package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+
+import java.util.List;
 
 public abstract class TerraformTree implements Tree {
-  // TODO: children iterator
+  private SyntaxToken lastToken = null;
+
+  /**
+   * Returns the list of children of this node.
+   * Note that iterator may contain {@code null} elements.
+   */
+  public abstract List<Tree> children();
+
+  public SyntaxToken getLastToken() {
+    if (lastToken == null) {
+      for (Tree tree : children()) {
+        TerraformTree child = (TerraformTree) tree;
+        if (child != null) {
+          SyntaxToken childLastToken = child.getLastToken();
+          if (childLastToken != null) {
+            lastToken = childLastToken;
+          }
+        }
+      }
+    }
+    return lastToken;
+  }
 }

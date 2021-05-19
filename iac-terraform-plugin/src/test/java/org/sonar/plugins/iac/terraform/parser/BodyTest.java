@@ -29,6 +29,10 @@ class BodyTest {
     Assertions.assertThat(HclLexicalGrammar.BODY)
       .matches("a{}")
       .matches("  a {   }")
-      .notMatches("a");
+      .matches("a = true")
+      .matches("a = true\nb {}")
+      .matches("a { \n b = true}")
+      .notMatches("a")
+      .notMatches("");
   }
 }

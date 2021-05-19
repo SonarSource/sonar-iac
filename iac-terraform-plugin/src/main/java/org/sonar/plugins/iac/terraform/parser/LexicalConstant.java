@@ -40,4 +40,9 @@ public class LexicalConstant {
    * String
    */
   public static final String STRING_LITERAL = "\"(?:[^\"\\\\]*+(?:\\\\[\\s\\S])?+)*+\"";
+
+  /**
+   * Numeric Literal
+   */
+  public static final String NUMERIC_LITERAL = "[0-9]+(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?";
 }

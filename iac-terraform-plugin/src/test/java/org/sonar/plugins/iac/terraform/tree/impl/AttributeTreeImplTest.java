@@ -19,32 +19,23 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
+import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-import java.util.Collections;
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class LabelTreeImpl extends TerraformTree implements LabelTree {
-  private final SyntaxToken token;
-
-  public LabelTreeImpl(SyntaxToken token) {
-    this.token = token;
-  }
-
-  @Override
-  public SyntaxToken token() {
-    return token;
-  }
-
-  @Override
-  public String value() {
-    return token.text();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Collections.singletonList(token);
+class AttributeTreeImplTest extends TerraformTreeModelTest{
+  @Test
+  void simple_attribute() {
+    AttributeTree tree = parse("a = true", HclLexicalGrammar.ATTRIBUTE);
+    assertThat(tree).isInstanceOfSatisfying(AttributeTree.class, o -> {
+      assertThat(o.name().text()).isEqualTo("a");
+      assertThat(o.equalSign().text()).isEqualTo("=");
+      assertThat(o.value()).isInstanceOfSatisfying(LiteralExprTree.class, a -> {
+        assertThat(a.value()).isEqualTo("true");
+      });
+    });
   }
 }

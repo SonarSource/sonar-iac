@@ -25,9 +25,13 @@ import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 
 public enum HclLexicalGrammar implements GrammarRuleKey {
 
+  FILE,
   BODY,
   ONE_LINE_BLOCK,
+  BLOCK,
+  EXPRESSION,
   LABEL,
+  ATTRIBUTE,
 
   /**
    * Lexical
@@ -35,11 +39,21 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   EOF,
   IDENTIFIER,
   STRING_LITERAL,
+  NUMERIC_LITERAL,
 
   /**
    * SPACING
    */
-  SPACING
+  SPACING,
+  NEWLINE,
+
+  /**
+   * Expression
+   */
+  LITERAL_EXPRESSION,
+
+  BOOLEAN_LITERAL,
+  NULL
 
   ;
 
@@ -61,9 +75,18 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   private static void lexical(LexerlessGrammarBuilder b) {
     b.rule(SPACING).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))).skip();
+    b.rule(NEWLINE).is(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + "]*+")).skip();
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(IDENTIFIER).is(SPACING, b.regexp(LexicalConstant.IDENTIFIER));
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(LexicalConstant.STRING_LITERAL));
+    b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(LexicalConstant.NUMERIC_LITERAL));
+
+    b.rule(BOOLEAN_LITERAL).is(b.firstOf(word(b, "TRUE"), word(b, "FALSE")));
+    b.rule(NULL).is(word(b,"NULL")).skip();
+  }
+
+  private static Object word(LexerlessGrammarBuilder b, String word) {
+    return b.sequence(SPACING, b.regexp("(?i)" + word));
   }
 }

@@ -32,6 +32,8 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
     OneLineBlockTree tree = parse("a {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
       assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.labels()).isEmpty();
+      assertThat(o.attribute()).isNotPresent();
     });
   }
 
@@ -64,6 +66,16 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
       assertThat(o.labels()).hasSize(2);
       assertThat(o.labels().get(0).value()).isEqualTo("\"label1\"");
       assertThat(o.labels().get(1).value()).isEqualTo("label2");
+    });
+  }
+
+  @Test
+  void with_simple_attribute() {
+    OneLineBlockTree tree = parse("a { b = true }", HclLexicalGrammar.ONE_LINE_BLOCK);
+    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
+      assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.labels()).isEmpty();
+      assertThat(o.attribute().get()).isInstanceOf(AttributeTreeImpl.class);
     });
   }
 }

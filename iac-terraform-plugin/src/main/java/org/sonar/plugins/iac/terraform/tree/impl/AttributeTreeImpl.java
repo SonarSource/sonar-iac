@@ -19,32 +19,42 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
+import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
-public class LabelTreeImpl extends TerraformTree implements LabelTree {
-  private final SyntaxToken token;
+public class AttributeTreeImpl extends TerraformTree implements AttributeTree {
+  private final SyntaxToken name;
+  private final SyntaxToken equalSign;
+  private final ExpressionTree value;
 
-  public LabelTreeImpl(SyntaxToken token) {
-    this.token = token;
+  public AttributeTreeImpl(SyntaxToken name, SyntaxToken equalSign, ExpressionTree value) {
+    this.name = name;
+    this.equalSign = equalSign;
+    this.value = value;
   }
 
   @Override
-  public SyntaxToken token() {
-    return token;
+  public SyntaxToken name() {
+    return name;
   }
 
   @Override
-  public String value() {
-    return token.text();
+  public SyntaxToken equalSign() {
+    return equalSign;
+  }
+
+  @Override
+  public ExpressionTree value() {
+    return value;
   }
 
   @Override
   public List<Tree> children() {
-    return Collections.singletonList(token);
+    return Arrays.asList(name, equalSign, value);
   }
 }

@@ -20,26 +20,35 @@
 package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LabelTreeImplTest extends TerraformTreeModelTest {
+class LiteralExprTreeImplTest extends TerraformTreeModelTest {
   @Test
-  void string_literal() {
-    LabelTree tree = parse("\"a\"", HclLexicalGrammar.LABEL);
-    assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
-      assertThat(o.value()).isEqualTo("\"a\"");
+  void boolean_literal() {
+    LiteralExprTree tree = parse("true", HclLexicalGrammar.LITERAL_EXPRESSION);
+    assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
+      assertThat(o.value()).isEqualTo("true");
       assertThat(o.value()).isEqualTo(o.token().text());
     });
   }
 
   @Test
-  void identifier() {
-    LabelTree tree = parse("id", HclLexicalGrammar.LABEL);
-    assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
-      assertThat(o.value()).isEqualTo("id");
+  void null_literal() {
+    LiteralExprTree tree = parse("null", HclLexicalGrammar.LITERAL_EXPRESSION);
+    assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
+      assertThat(o.value()).isEqualTo("null");
+      assertThat(o.value()).isEqualTo(o.token().text());
+    });
+  }
+
+  @Test
+  void string_literal() {
+    LiteralExprTree tree = parse("\"foo\"", HclLexicalGrammar.LITERAL_EXPRESSION);
+    assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
+      assertThat(o.value()).isEqualTo("\"foo\"");
       assertThat(o.value()).isEqualTo(o.token().text());
     });
   }

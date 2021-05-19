@@ -19,32 +19,34 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
+import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class LabelTreeImpl extends TerraformTree implements LabelTree {
-  private final SyntaxToken token;
+public class FileTreeImpl extends TerraformTree implements FileTree {
+  private final Optional<BodyTree> body;
+  private final SyntaxToken eof;
 
-  public LabelTreeImpl(SyntaxToken token) {
-    this.token = token;
+  public FileTreeImpl(BodyTree body, SyntaxToken eof) {
+    this.body = Optional.ofNullable(body);
+    this.eof = eof;
   }
 
   @Override
-  public SyntaxToken token() {
-    return token;
-  }
-
-  @Override
-  public String value() {
-    return token.text();
+  public Optional<BodyTree> body() {
+    return body;
   }
 
   @Override
   public List<Tree> children() {
-    return Collections.singletonList(token);
+    List<Tree> children = new ArrayList<>();
+    body.ifPresent(children::add);
+    children.add(eof);
+    return children;
   }
 }

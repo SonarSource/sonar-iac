@@ -17,34 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.tree.impl;
+package org.sonar.plugins.iac.terraform.parser;
 
-import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-import java.util.Collections;
-import java.util.List;
+class LiteralExprTest {
 
-public class LabelTreeImpl extends TerraformTree implements LabelTree {
-  private final SyntaxToken token;
-
-  public LabelTreeImpl(SyntaxToken token) {
-    this.token = token;
-  }
-
-  @Override
-  public SyntaxToken token() {
-    return token;
-  }
-
-  @Override
-  public String value() {
-    return token.text();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Collections.singletonList(token);
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.LITERAL_EXPRESSION)
+      .matches("true")
+      .matches("TRUE")
+      .matches("false")
+      .matches("null")
+      .matches("\"foo\"")
+      .matches("1")
+      .matches("12.34")
+      .matches("12e34")
+      .matches("12E34")
+      .matches("12E+34")
+      .matches("12E-34")
+      .notMatches("12.")
+      .notMatches("12E")
+      .notMatches("notBoolean");
   }
 }

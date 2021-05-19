@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets;
 public class HclParser extends ActionParser<Tree> {
 
   public HclParser() {
-    this(HclLexicalGrammar.BODY, 0);
+    this(HclLexicalGrammar.FILE, 0);
   }
 
   public HclParser(GrammarRuleKey rootRule, int lineOffset) {

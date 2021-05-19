@@ -19,32 +19,21 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-import java.util.Collections;
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class LabelTreeImpl extends TerraformTree implements LabelTree {
-  private final SyntaxToken token;
+class BlockTreeImplTest extends TerraformTreeModelTest {
 
-  public LabelTreeImpl(SyntaxToken token) {
-    this.token = token;
-  }
-
-  @Override
-  public SyntaxToken token() {
-    return token;
-  }
-
-  @Override
-  public String value() {
-    return token.text();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Collections.singletonList(token);
+  @Test
+  void simple_one_line_block() {
+    BlockTree tree = parse("a{\n b = true \nc = null}", HclLexicalGrammar.BLOCK);
+    assertThat(tree).isInstanceOfSatisfying(BlockTree.class, o -> {
+      assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.labels()).isEmpty();
+      assertThat(o.body().get().statements()).hasSize(2);
+    });
   }
 }

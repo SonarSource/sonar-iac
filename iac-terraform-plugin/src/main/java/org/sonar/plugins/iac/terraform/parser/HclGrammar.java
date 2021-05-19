@@ -20,10 +20,15 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
+import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
+import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class HclGrammar {
 
@@ -35,9 +40,25 @@ public class HclGrammar {
     this.f = f;
   }
 
+  public FileTree FILE() {
+    return b.<FileTree>nonterminal(HclLexicalGrammar.FILE).is(
+      f.file(b.optional(BODY()), b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)));
+  }
+
   public BodyTree BODY() {
     return b.<BodyTree>nonterminal(HclLexicalGrammar.BODY).is(
-      f.body(b.zeroOrMore(ONE_LINE_BLOCK()), b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)));
+      f.body(b.oneOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK()))));
+  }
+
+  public BlockTree BLOCK() {
+    return b.<BlockTree>nonterminal(HclLexicalGrammar.BLOCK).is(
+      f.block(b.token(HclLexicalGrammar.IDENTIFIER),
+        b.zeroOrMore(LABEL()),
+        b.token(HclPunctuator.LCURLYBRACE),
+        b.token(HclLexicalGrammar.NEWLINE),
+        b.optional(BODY()),
+        b.token(HclPunctuator.RCURLYBRACE)
+        ));
   }
 
   public OneLineBlockTree ONE_LINE_BLOCK() {
@@ -45,6 +66,7 @@ public class HclGrammar {
       f.oneLineBlock(b.token(HclLexicalGrammar.IDENTIFIER),
         b.zeroOrMore(LABEL()),
         b.token(HclPunctuator.LCURLYBRACE),
+        b.optional(ATTRIBUTE()),
         b.token(HclPunctuator.RCURLYBRACE)
       ));
   }
@@ -53,6 +75,28 @@ public class HclGrammar {
     return b.<LabelTree>nonterminal(HclLexicalGrammar.LABEL).is(
       f.label(b.firstOf(b.token(HclLexicalGrammar.STRING_LITERAL), b.token(HclLexicalGrammar.IDENTIFIER)))
     );
+  }
+
+  public AttributeTree ATTRIBUTE() {
+    return b.<AttributeTree>nonterminal(HclLexicalGrammar.ATTRIBUTE).is(
+      f.attribute(b.token(HclLexicalGrammar.IDENTIFIER), b.token(HclPunctuator.EQU), EXPRESSION())
+    );
+  }
+
+  public ExpressionTree EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
+      LITERAL_EXPRESSION()
+    );
+  }
+
+  public ExpressionTree LITERAL_EXPRESSION() {
+    //TODO: in the HCL grammar strings are not part of literals but of TemplateExpr. Do we need this?
+    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.LITERAL_EXPRESSION).is(
+      f.literalExpr(b.firstOf(
+        b.token(HclLexicalGrammar.NUMERIC_LITERAL),
+        b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
+        b.token(HclLexicalGrammar.NULL),
+        b.token(HclLexicalGrammar.STRING_LITERAL))));
   }
 
 }

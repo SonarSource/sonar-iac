@@ -29,6 +29,7 @@ import org.sonar.plugins.iac.terraform.parser.HclGrammar;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 import org.sonar.plugins.iac.terraform.parser.HclNodeBuilder;
 import org.sonar.plugins.iac.terraform.parser.TreeFactory;
+import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
@@ -65,12 +66,11 @@ public class Assertions {
 
     private void parseTillEof(String input) {
       TerraformTree tree = (TerraformTree) actual.parse(input);
-      // TODO: tree children are not added yet
-/*      InternalSyntaxToken lastToken = (InternalSyntaxToken) tree.getLastToken();
+      InternalSyntaxToken lastToken = (InternalSyntaxToken) tree.getLastToken();
       if (lastToken.toIndex() != input.length()) {
         throw new RecognitionException(
           0, "Did not match till EOF, but till line " + lastToken.line() + ": token \"" + lastToken.text() + "\"");
-      }*/
+      }
     }
 
     public ParserAssert matches(String input) {

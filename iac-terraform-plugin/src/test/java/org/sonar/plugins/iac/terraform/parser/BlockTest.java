@@ -17,34 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.tree.impl;
+package org.sonar.plugins.iac.terraform.parser;
 
-import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-import java.util.Collections;
-import java.util.List;
+class BlockTest {
 
-public class LabelTreeImpl extends TerraformTree implements LabelTree {
-  private final SyntaxToken token;
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.BLOCK)
+      .matches("a{\n b = true \nc = null}")
+      .matches("a {\n}")
+      .matches("a \"label\" {\n}");
 
-  public LabelTreeImpl(SyntaxToken token) {
-    this.token = token;
-  }
-
-  @Override
-  public SyntaxToken token() {
-    return token;
-  }
-
-  @Override
-  public String value() {
-    return token.text();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Collections.singletonList(token);
   }
 }

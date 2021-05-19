@@ -19,32 +19,24 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-import java.util.Collections;
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.api.tree.FileTree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-public class LabelTreeImpl extends TerraformTree implements LabelTree {
-  private final SyntaxToken token;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public LabelTreeImpl(SyntaxToken token) {
-    this.token = token;
+class FileTreeImplTest extends TerraformTreeModelTest {
+  
+  @Test
+  void empty_file() {
+    FileTree tree = parse("", HclLexicalGrammar.FILE);
+    assertThat(tree).isInstanceOfSatisfying(FileTreeImpl.class, f -> assertThat(f.body()).isNotPresent());
   }
 
-  @Override
-  public SyntaxToken token() {
-    return token;
-  }
-
-  @Override
-  public String value() {
-    return token.text();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Collections.singletonList(token);
+  @Test
+  void with_body() {
+    FileTree tree = parse("a = 1", HclLexicalGrammar.FILE);
+    assertThat(tree).isInstanceOfSatisfying(FileTreeImpl.class, f -> assertThat(f.body().get().statements()).hasSize(1));
   }
 }

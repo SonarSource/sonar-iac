@@ -19,13 +19,17 @@
  */
 package org.sonar.plugins.iac.terraform.parser.lexical;
 
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
+
+import java.util.List;
 
 public class InternalSyntaxToken extends TerraformTree implements SyntaxToken {
   private String value;
   private int line;
   private int column;
+  private final int startIndex;
   private int endLine;
   private int endColumn;
 
@@ -33,6 +37,7 @@ public class InternalSyntaxToken extends TerraformTree implements SyntaxToken {
     this.value = value;
     this.line = line;
     this.column = column;
+    this.startIndex = startIndex;
     calculateEndOffsets();
   }
 
@@ -69,5 +74,19 @@ public class InternalSyntaxToken extends TerraformTree implements SyntaxToken {
   @Override
   public int endColumn() {
     return endColumn;
+  }
+
+  @Override
+  public List<Tree> children() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public SyntaxToken getLastToken() {
+    return this;
+  }
+
+  public int toIndex() {
+    return startIndex + value.length();
   }
 }
