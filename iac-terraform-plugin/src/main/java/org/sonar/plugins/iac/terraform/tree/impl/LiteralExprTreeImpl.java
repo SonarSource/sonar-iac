@@ -40,7 +40,7 @@ public class LiteralExprTreeImpl extends TerraformTree implements LiteralExprTre
 
   @Override
   public String value() {
-    return token.text();
+    return token.value();
   }
 
   @Override

@@ -40,11 +40,6 @@ public class InternalSyntaxToken extends InternalSyntax implements SyntaxToken {
   }
 
   @Override
-  public List<Tree> children() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public SyntaxToken getLastToken() {
     return this;
   }

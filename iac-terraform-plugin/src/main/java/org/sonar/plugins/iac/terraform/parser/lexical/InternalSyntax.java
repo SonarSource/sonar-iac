@@ -19,16 +19,18 @@
  */
 package org.sonar.plugins.iac.terraform.parser.lexical;
 
+import java.util.List;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.Syntax;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
 
 public abstract class InternalSyntax extends TerraformTree implements Syntax {
 
-  private final String value;
-  private final int startColumn;
-  private final int startLine;
-  private int endLine;
-  private int endColumn;
+  protected final String value;
+  protected final int startColumn;
+  protected final int startLine;
+  protected int endLine;
+  protected int endColumn;
 
   protected InternalSyntax(String value, int startLine, int startColumn) {
     this.value = value;
@@ -70,5 +72,10 @@ public abstract class InternalSyntax extends TerraformTree implements Syntax {
   @Override
   public int endColumn() {
     return endColumn;
+  }
+
+  @Override
+  public List<Tree> children() {
+    throw new UnsupportedOperationException();
   }
 }
