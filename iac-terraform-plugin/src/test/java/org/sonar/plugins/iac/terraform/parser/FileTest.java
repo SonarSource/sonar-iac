@@ -22,17 +22,14 @@ package org.sonar.plugins.iac.terraform.parser;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-class BodyTest {
+class FileTest {
 
   @Test
   void test() {
-    Assertions.assertThat(HclLexicalGrammar.BODY)
-      .matches("a{}")
-      .matches("  a {   }")
-      .matches("a = true")
-      .matches("a = true\nb {}")
-      .matches("a { \n b = true}")
-      .notMatches("a")
-      .notMatches("");
+    Assertions.assertThat(HclLexicalGrammar.FILE)
+      .matches("")
+      .matches("a = 1")
+      .matches("a {}")
+      .notMatches("a {");
   }
 }
