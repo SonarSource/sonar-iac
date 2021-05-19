@@ -21,7 +21,7 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
-import org.sonar.plugins.iac.terraform.api.tree.SeparatedList;
+import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
@@ -32,25 +32,25 @@ import java.util.List;
 
 public class ObjectTreeImpl extends TerraformTree implements ObjectTree {
   private final SyntaxToken openBrace;
-  private final SeparatedList<ObjectElementTree> elements;
+  private final SeparatedTrees<ObjectElementTree> elements;
   private final SyntaxToken closeBrace;
 
-  public ObjectTreeImpl(SyntaxToken openBrace, @Nullable SeparatedList<ObjectElementTree> elements, SyntaxToken closeBrace) {
+  public ObjectTreeImpl(SyntaxToken openBrace, @Nullable SeparatedTrees<ObjectElementTree> elements, SyntaxToken closeBrace) {
     this.openBrace = openBrace;
-    this.elements = elements != null ? elements : SeparatedListImpl.empty();
+    this.elements = elements != null ? elements : SeparatedTreesImpl.empty();
     this.closeBrace = closeBrace;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>(Arrays.asList(openBrace));
-    children.addAll(elements.elementsAndSeparators());
+    children.addAll(elements.treesAndSeparators());
     children.add(closeBrace);
     return children;
   }
 
   @Override
-  public SeparatedList<ObjectElementTree> elements() {
+  public SeparatedTrees<ObjectElementTree> elements() {
     return elements;
   }
 }

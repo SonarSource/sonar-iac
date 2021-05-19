@@ -23,10 +23,8 @@ import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
 import java.util.List;
 
-public interface SeparatedList<T extends Tree> extends List<T> {
-  SyntaxToken getSeparator(int i);
-
-  List<SyntaxToken> getSeparators();
-
-  List<Tree> elementsAndSeparators();
+public interface SeparatedTrees<T extends Tree> {
+  List<T> trees();
+  List<SyntaxToken> separators();
+  List<Tree> treesAndSeparators();
 }
