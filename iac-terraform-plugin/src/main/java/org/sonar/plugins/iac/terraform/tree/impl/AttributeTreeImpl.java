@@ -39,8 +39,8 @@ public class AttributeTreeImpl extends TerraformTree implements AttributeTree {
   }
 
   @Override
-  public String name() {
-    return name.text();
+  public SyntaxToken name() {
+    return name;
   }
 
   @Override
