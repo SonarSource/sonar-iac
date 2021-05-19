@@ -32,6 +32,15 @@ public class LexicalConstant {
   public static final String WHITESPACE = "\\t\\u000B\\f\\u0020\\u00A0\\uFEFF\\p{Zs}";
 
   /**
+   * Comment
+   */
+  private static final String SINGLE_LINE_COMMENT_CONTENT = "(?:[^\\n\\r])*+";
+  private static final String SINGLE_LINE_COMMENT1 = "//" + SINGLE_LINE_COMMENT_CONTENT;
+  private static final String SINGLE_LINE_COMMENT2 = "#" + SINGLE_LINE_COMMENT_CONTENT;
+  private static final String MULTI_LINE_COMMENT = "/\\*[\\s\\S]*?\\*/";
+  public static final String COMMENT = "(?:" + SINGLE_LINE_COMMENT1 + "|" + SINGLE_LINE_COMMENT2 + "|" + MULTI_LINE_COMMENT + ")";
+
+  /**
    * IDENTIFIERS
    */
   public static final String IDENTIFIER = "[a-zA-Z0-9\\-\\_]+";

@@ -31,7 +31,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
   void simple_one_line_block() {
     BlockTree tree = parse("a{\n b = true \nc = null}", HclLexicalGrammar.BLOCK);
     assertThat(tree).isInstanceOfSatisfying(BlockTree.class, o -> {
-      assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.type().value()).isEqualTo("a");
       assertThat(o.labels()).isEmpty();
       assertThat(o.body().get().statements()).hasSize(2);
     });

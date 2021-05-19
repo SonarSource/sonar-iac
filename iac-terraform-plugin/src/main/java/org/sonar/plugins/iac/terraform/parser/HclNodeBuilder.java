@@ -21,16 +21,19 @@ package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.GenericTokenType;
 import com.sonar.sslr.api.Rule;
+import com.sonar.sslr.api.Token;
 import com.sonar.sslr.api.TokenType;
 import com.sonar.sslr.api.Trivia;
 import com.sonar.sslr.api.typed.Input;
 import com.sonar.sslr.api.typed.NodeBuilder;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxTrivia;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
-
-import java.util.List;
 
 public class HclNodeBuilder implements NodeBuilder {
 
@@ -67,6 +70,7 @@ public class HclNodeBuilder implements NodeBuilder {
       lineColumnValue.line + lineOffset,
       column(hasByteOrderMark, lineColumnValue.line, lineColumnValue.column),
       lineColumnValue.value,
+      createTrivias(trivias, hasByteOrderMark),
       startIndex - (hasByteOrderMark ? 1 : 0),
       isEof);
   }
@@ -76,6 +80,16 @@ public class HclNodeBuilder implements NodeBuilder {
       return column - 1;
     }
     return column;
+  }
+
+  private static List<SyntaxTrivia> createTrivias(List<Trivia> trivias, boolean hasByteOrderMark) {
+    List<SyntaxTrivia> result = new ArrayList<>();
+    for (Trivia trivia : trivias) {
+      Token trivialToken = trivia.getToken();
+      int column = column(hasByteOrderMark, trivialToken.getLine(), trivialToken.getColumn());
+      result.add(InternalSyntaxTrivia.create(trivialToken.getValue(), trivialToken.getLine(), column));
+    }
+    return result;
   }
 
   private static LineColumnValue tokenPosition(Input input, int startIndex, int endIndex) {

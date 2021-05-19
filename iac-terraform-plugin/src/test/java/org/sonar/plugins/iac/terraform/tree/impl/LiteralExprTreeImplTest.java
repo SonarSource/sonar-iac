@@ -31,7 +31,7 @@ class LiteralExprTreeImplTest extends TerraformTreeModelTest {
     LiteralExprTree tree = parse("true", HclLexicalGrammar.LITERAL_EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
       assertThat(o.value()).isEqualTo("true");
-      assertThat(o.value()).isEqualTo(o.token().text());
+      assertThat(o.value()).isEqualTo(o.token().value());
     });
   }
 
@@ -40,7 +40,7 @@ class LiteralExprTreeImplTest extends TerraformTreeModelTest {
     LiteralExprTree tree = parse("null", HclLexicalGrammar.LITERAL_EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
       assertThat(o.value()).isEqualTo("null");
-      assertThat(o.value()).isEqualTo(o.token().text());
+      assertThat(o.value()).isEqualTo(o.token().value());
     });
   }
 
@@ -49,7 +49,7 @@ class LiteralExprTreeImplTest extends TerraformTreeModelTest {
     LiteralExprTree tree = parse("\"foo\"", HclLexicalGrammar.LITERAL_EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
       assertThat(o.value()).isEqualTo("\"foo\"");
-      assertThat(o.value()).isEqualTo(o.token().text());
+      assertThat(o.value()).isEqualTo(o.token().value());
     });
   }
 }

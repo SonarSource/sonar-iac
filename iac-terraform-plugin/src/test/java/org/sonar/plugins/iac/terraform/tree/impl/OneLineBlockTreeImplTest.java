@@ -31,7 +31,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
   void simple_one_line_block() {
     OneLineBlockTree tree = parse("a {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.type().value()).isEqualTo("a");
       assertThat(o.labels()).isEmpty();
       assertThat(o.attribute()).isNotPresent();
     });
@@ -41,7 +41,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
   void with_string_label() {
     OneLineBlockTree tree = parse("a \"label\" {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.type().value()).isEqualTo("a");
       assertThat(o.labels()).hasSize(1);
       assertThat(o.labels().get(0).value()).isEqualTo("\"label\"");
     });
@@ -51,7 +51,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
   void with_multiple_strings_labels() {
     OneLineBlockTree tree = parse("a \"label1\" \"label2\" {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.type().value()).isEqualTo("a");
       assertThat(o.labels()).hasSize(2);
       assertThat(o.labels().get(0).value()).isEqualTo("\"label1\"");
       assertThat(o.labels().get(1).value()).isEqualTo("\"label2\"");
@@ -62,7 +62,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
   void with_string_and_identifier_labels() {
     OneLineBlockTree tree = parse("a \"label1\" label2 {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.type().value()).isEqualTo("a");
       assertThat(o.labels()).hasSize(2);
       assertThat(o.labels().get(0).value()).isEqualTo("\"label1\"");
       assertThat(o.labels().get(1).value()).isEqualTo("label2");
@@ -73,9 +73,90 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
   void with_simple_attribute() {
     OneLineBlockTree tree = parse("a { b = true }", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().text()).isEqualTo("a");
+      assertThat(o.type().value()).isEqualTo("a");
       assertThat(o.labels()).isEmpty();
       assertThat(o.attribute().get()).isInstanceOf(AttributeTreeImpl.class);
+    });
+  }
+
+  @Test
+  void with_singleline_comment1() {
+    OneLineBlockTree tree = parse("#comment\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
+    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
+      assertThat(o.type().value()).isEqualTo("a");
+      assertThat(o.type().trivias()).hasSize(1);
+      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+        assertThat(t.value()).isEqualTo("#comment");
+        assertThat(t.line()).isEqualTo(1);
+        assertThat(t.column()).isEqualTo(0);
+        assertThat(t.endLine()).isEqualTo(1);
+        assertThat(t.endColumn()).isEqualTo(8);
+      });
+    });
+  }
+
+  @Test
+  void with_singleline_comment2() {
+    OneLineBlockTree tree = parse("//comment\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
+    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
+      assertThat(o.type().value()).isEqualTo("a");
+      assertThat(o.type().trivias()).hasSize(1);
+      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+        assertThat(t.value()).isEqualTo("//comment");
+        assertThat(t.line()).isEqualTo(1);
+        assertThat(t.column()).isEqualTo(0);
+        assertThat(t.endLine()).isEqualTo(1);
+        assertThat(t.endColumn()).isEqualTo(9);
+      });
+    });
+  }
+
+  @Test
+  void with_multiple_singleline_comment() {
+    OneLineBlockTree tree = parse("#comment1\n#comment2\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
+    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
+      assertThat(o.type().value()).isEqualTo("a");
+      assertThat(o.type().trivias()).hasSize(2);
+      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+        assertThat(t.value()).isEqualTo("#comment1");
+        assertThat(t.line()).isEqualTo(1);
+      });
+      assertThat(o.type().trivias().get(1)).satisfies(t -> {
+        assertThat(t.value()).isEqualTo("#comment2");
+        assertThat(t.line()).isEqualTo(2);
+      });
+    });
+  }
+
+  @Test
+  void with_multiline_comment() {
+    OneLineBlockTree tree = parse("/* line1\nline2 */\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
+    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
+      assertThat(o.type().value()).isEqualTo("a");
+      assertThat(o.type().trivias()).hasSize(1);
+      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+        assertThat(t.value()).isEqualTo("/* line1\nline2 */");
+        assertThat(t.line()).isEqualTo(1);
+        assertThat(t.column()).isEqualTo(0);
+        assertThat(t.endLine()).isEqualTo(2);
+        assertThat(t.endColumn()).isEqualTo(8);
+      });
+    });
+  }
+
+  @Test
+  void with_multiline_comment_same_line() {
+    OneLineBlockTree tree = parse("/* comment */a {}", HclLexicalGrammar.ONE_LINE_BLOCK);
+    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
+      assertThat(o.type().value()).isEqualTo("a");
+      assertThat(o.type().trivias()).hasSize(1);
+      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+        assertThat(t.value()).isEqualTo("/* comment */");
+        assertThat(t.line()).isEqualTo(1);
+        assertThat(t.column()).isEqualTo(0);
+        assertThat(t.endLine()).isEqualTo(1);
+        assertThat(t.endColumn()).isEqualTo(13);
+      });
     });
   }
 }

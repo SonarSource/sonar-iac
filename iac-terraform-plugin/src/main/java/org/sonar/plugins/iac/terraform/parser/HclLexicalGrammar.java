@@ -74,7 +74,11 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
 
   private static void lexical(LexerlessGrammarBuilder b) {
     b.rule(SPACING).is(
-      b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))).skip();
+      b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
+      b.zeroOrMore(
+        b.commentTrivia(b.regexp(LexicalConstant.COMMENT)),
+        b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")))
+    ).skip();
     b.rule(NEWLINE).is(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + "]*+")).skip();
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();

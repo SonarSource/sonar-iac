@@ -31,7 +31,7 @@ class LabelTreeImplTest extends TerraformTreeModelTest {
     LabelTree tree = parse("\"a\"", HclLexicalGrammar.LABEL);
     assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
       assertThat(o.value()).isEqualTo("\"a\"");
-      assertThat(o.value()).isEqualTo(o.token().text());
+      assertThat(o.value()).isEqualTo(o.token().value());
     });
   }
 
@@ -40,7 +40,7 @@ class LabelTreeImplTest extends TerraformTreeModelTest {
     LabelTree tree = parse("id", HclLexicalGrammar.LABEL);
     assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
       assertThat(o.value()).isEqualTo("id");
-      assertThat(o.value()).isEqualTo(o.token().text());
+      assertThat(o.value()).isEqualTo(o.token().value());
     });
   }
 }

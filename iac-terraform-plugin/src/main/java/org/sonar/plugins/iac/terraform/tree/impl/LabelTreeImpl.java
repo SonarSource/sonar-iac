@@ -40,7 +40,7 @@ public class LabelTreeImpl extends TerraformTree implements LabelTree {
 
   @Override
   public String value() {
-    return token.text();
+    return token.value();
   }
 
   @Override

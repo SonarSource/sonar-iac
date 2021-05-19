@@ -19,18 +19,9 @@
  */
 package org.sonar.plugins.iac.terraform.api.tree.lexical;
 
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import java.util.List;
 
-public interface SyntaxToken extends Tree {
+public interface SyntaxToken extends Syntax {
 
-  String text();
-
-  int line();
-
-  int column();
-
-  int endLine();
-
-  int endColumn();
-
+  List<SyntaxTrivia> trivias();
 }

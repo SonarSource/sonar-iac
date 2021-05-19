@@ -69,7 +69,7 @@ public class Assertions {
       InternalSyntaxToken lastToken = (InternalSyntaxToken) tree.getLastToken();
       if (lastToken.toIndex() != input.length()) {
         throw new RecognitionException(
-          0, "Did not match till EOF, but till line " + lastToken.line() + ": token \"" + lastToken.text() + "\"");
+          0, "Did not match till EOF, but till line " + lastToken.line() + ": token \"" + lastToken.value() + "\"");
       }
     }
 

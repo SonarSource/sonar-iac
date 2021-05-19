@@ -17,34 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser.lexical;
+package org.sonar.plugins.iac.terraform.api.tree.lexical;
 
-import java.util.List;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
-
-public class InternalSyntaxToken extends InternalSyntax implements SyntaxToken {
-
-  private List<SyntaxTrivia> trivias;
-  private int startIndex;
-
-  public InternalSyntaxToken(int line, int column, String value, List<SyntaxTrivia> trivias, int startIndex, boolean isEOF) {
-    super(value, line, column);
-    this.trivias = trivias;
-    this.startIndex = startIndex;
-  }
-
-  @Override
-  public List<SyntaxTrivia> trivias() {
-    return trivias;
-  }
-
-  @Override
-  public SyntaxToken getLastToken() {
-    return this;
-  }
-
-  public int toIndex() {
-    return startIndex + value.length();
-  }
+public interface SyntaxTrivia extends Syntax{
 }
