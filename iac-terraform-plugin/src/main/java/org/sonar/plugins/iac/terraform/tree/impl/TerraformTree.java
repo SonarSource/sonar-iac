@@ -19,32 +19,21 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-
 import java.util.List;
+import java.util.stream.Collectors;
+import org.sonar.plugins.iac.terraform.api.tree.TextRange;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 
 public abstract class TerraformTree implements Tree {
-  private SyntaxToken lastToken = null;
 
-  /**
-   * Returns the list of children of this node.
-   * Note that iterator may contain {@code null} elements.
-   */
-  public abstract List<Tree> children();
+  protected TextRange textRange;
 
-  public SyntaxToken getLastToken() {
-    if (lastToken == null) {
-      for (Tree tree : children()) {
-        TerraformTree child = (TerraformTree) tree;
-        if (child != null) {
-          SyntaxToken childLastToken = child.getLastToken();
-          if (childLastToken != null) {
-            lastToken = childLastToken;
-          }
-        }
-      }
+  @Override
+  public TextRange textRange() {
+    if (textRange == null) {
+      List<TextRange> childRanges = descendants().map(Tree::textRange).collect(Collectors.toList());
+      textRange = TextRanges.merge(childRanges);
     }
-    return lastToken;
+    return textRange;
   }
 }

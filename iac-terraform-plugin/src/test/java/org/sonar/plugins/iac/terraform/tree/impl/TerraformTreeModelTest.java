@@ -35,7 +35,7 @@ public abstract class TerraformTreeModelTest {
    * @return the node found for the given kind, null if not found.
    */
   protected <T extends Tree> T parse(String s, GrammarRuleKey rootRule) {
-    p = new HclParser(rootRule, 0);
+    p = new HclParser(rootRule);
     Tree node = p.parse(s);
 
     // TODO: similar to PHP parser, check how far we have parsed. Missing toString implementation for trees now

@@ -23,20 +23,20 @@ import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.typed.ActionParser;
+import java.nio.charset.StandardCharsets;
 import org.fest.assertions.GenericAssert;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.parser.HclGrammar;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 import org.sonar.plugins.iac.terraform.parser.HclNodeBuilder;
 import org.sonar.plugins.iac.terraform.parser.TreeFactory;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
+import org.sonar.plugins.iac.terraform.tree.impl.TextPointerImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.tests.ParsingResultComparisonFailure;
 import org.sonar.sslr.tests.RuleAssert;
-
-import java.nio.charset.StandardCharsets;
+import org.sonarsource.analyzer.commons.TokenLocation;
 
 public class Assertions {
 
@@ -66,10 +66,10 @@ public class Assertions {
 
     private void parseTillEof(String input) {
       TerraformTree tree = (TerraformTree) actual.parse(input);
-      InternalSyntaxToken lastToken = (InternalSyntaxToken) tree.getLastToken();
-      if (lastToken.toIndex() != input.length()) {
+      TokenLocation loc = new TokenLocation(1, 0, input);
+      if (!tree.textRange().end().equals(new TextPointerImpl(loc.endLine(), loc.endLineOffset()))) {
         throw new RecognitionException(
-          0, "Did not match till EOF, but till line " + lastToken.line() + ": token \"" + lastToken.value() + "\"");
+          0, "Did not match till EOF, but till line " + tree.textRange().end().line());
       }
     }
 

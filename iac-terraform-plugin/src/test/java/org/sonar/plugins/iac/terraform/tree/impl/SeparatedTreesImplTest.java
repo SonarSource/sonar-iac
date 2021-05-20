@@ -32,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SeparatedTreesImplTest {
-  private static Tree treeA = new InternalSyntaxToken(1, 1, "a", Collections.emptyList(), 1, false);
-  private static Tree treeB = new InternalSyntaxToken(1, 1, "b", Collections.emptyList(), 1, false);
+  private static Tree treeA = new InternalSyntaxToken("a", null, null);
+  private static Tree treeB = new InternalSyntaxToken("b", null, null);
   private static List<Tree> elementsList = Arrays.asList(treeA, treeB);
-  private static SyntaxToken separator = new InternalSyntaxToken(1, 1, ",", Collections.emptyList(), 1, false);
+  private static SyntaxToken separator = new InternalSyntaxToken(",", null, null);
   private static SeparatedTreesImpl<Tree> list = new SeparatedTreesImpl<>(elementsList, Arrays.asList(separator));
 
   @Test

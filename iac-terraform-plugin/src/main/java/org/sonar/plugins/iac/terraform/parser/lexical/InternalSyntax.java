@@ -19,34 +19,20 @@
  */
 package org.sonar.plugins.iac.terraform.parser.lexical;
 
+import java.util.Collections;
 import java.util.List;
+import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.Syntax;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
 
 public abstract class InternalSyntax extends TerraformTree implements Syntax {
 
-  protected final String value;
-  protected final int startColumn;
-  protected final int startLine;
-  protected int endLine;
-  protected int endColumn;
+  private final String value;
 
-  protected InternalSyntax(String value, int startLine, int startColumn) {
+  protected InternalSyntax(String value, TextRange textRange) {
     this.value = value;
-    this.startLine = startLine;
-    this.startColumn = startColumn;
-    calculateEndOffsets();
-  }
-
-  private void calculateEndOffsets() {
-    String[] lines = value.split("\r\n|\n|\r", -1);
-    endColumn = startColumn + value.length();
-    endLine = startLine + lines.length - 1;
-
-    if (endLine != startLine) {
-      endColumn = lines[lines.length - 1].length();
-    }
+    this.textRange = textRange;
   }
 
   @Override
@@ -55,27 +41,12 @@ public abstract class InternalSyntax extends TerraformTree implements Syntax {
   }
 
   @Override
-  public int line() {
-    return startLine;
-  }
-
-  @Override
-  public int column() {
-    return startColumn;
-  }
-
-  @Override
-  public int endLine() {
-    return endLine;
-  }
-
-  @Override
-  public int endColumn() {
-    return endColumn;
-  }
-
-  @Override
   public List<Tree> children() {
-    throw new UnsupportedOperationException();
+    return Collections.emptyList();
+  }
+
+  @Override
+  public TextRange textRange() {
+    return textRange;
   }
 }

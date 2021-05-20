@@ -28,16 +28,16 @@ import java.nio.charset.StandardCharsets;
 public class HclParser extends ActionParser<Tree> {
 
   public HclParser() {
-    this(HclLexicalGrammar.FILE, 0);
+    this(HclLexicalGrammar.FILE);
   }
 
-  public HclParser(GrammarRuleKey rootRule, int lineOffset) {
+  public HclParser(GrammarRuleKey rootRule) {
     super(
       StandardCharsets.UTF_8,
       HclLexicalGrammar.createGrammarBuilder(),
       HclGrammar.class,
       new TreeFactory(),
-      new HclNodeBuilder(lineOffset),
+      new HclNodeBuilder(),
       rootRule);
   }
 }
