@@ -48,6 +48,8 @@ public class TerraformPlugin implements Plugin {
       TerraformLanguage.class,
       // Sensor
       TerraformSensor.class,
+      //Filter
+      TerraformExclusionsFileFilter.class,
       // Rules and profiles
       TerraformRulesDefinition.class,
       TerraformProfileDefinition.class,
