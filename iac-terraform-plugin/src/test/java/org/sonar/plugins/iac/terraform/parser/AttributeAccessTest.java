@@ -22,18 +22,16 @@ package org.sonar.plugins.iac.terraform.parser;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-class AttributeTest {
+class AttributeAccessTest {
 
   @Test
   void test() {
-    Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE)
-      .matches("a = true")
-      .matches("a = null")
-      .matches("a = \"foo\"")
-      .matches("a = {}")
-      .matches("tags = { Foo = \"bar\"\n Bar = 1}")
-      .matches("a = b.c.d")
-      .notMatches("a")
-      .notMatches("a =");
+    Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE_ACCESS_EXPRESSION)
+      .matches("a.b")
+      .matches("a.b.c")
+      .matches("{}.a")
+      .matches("\"foo\".a")
+      .matches("123.a")
+      .notMatches("a.");
   }
 }

@@ -20,6 +20,7 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
@@ -88,7 +89,30 @@ public class HclGrammar {
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
       b.firstOf(LITERAL_EXPRESSION(),
-        OBJECT())
+        OBJECT(),
+        ATTRIBUTE_ACCESS_EXPRESSION())
+    );
+  }
+
+  public AttributeAccessTree ATTRIBUTE_ACCESS_EXPRESSION() {
+    return b.<AttributeAccessTree>nonterminal(HclLexicalGrammar.ATTRIBUTE_ACCESS_EXPRESSION).is(
+      f.memberExpression(
+        b.firstOf(LITERAL_EXPRESSION(),
+          OBJECT(),
+          b.token(HclLexicalGrammar.IDENTIFIER)),
+        b.oneOrMore(
+          ATTRIBUTE_ACCESS_OPERATOR()
+        )
+      )
+    );
+  }
+
+  public AttributeAccessTree ATTRIBUTE_ACCESS_OPERATOR() {
+    return b.<AttributeAccessTree>nonterminal(HclLexicalGrammar.ATTRIBUTE_ACCESS_OPERATOR).is(
+      f.attributeAccess(
+        b.token(HclPunctuator.DOT),
+        b.token(HclLexicalGrammar.IDENTIFIER)
+      )
     );
   }
 

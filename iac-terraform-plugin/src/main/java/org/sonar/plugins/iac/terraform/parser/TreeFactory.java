@@ -20,6 +20,7 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
@@ -33,6 +34,7 @@ import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.tree.impl.AttributeAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
@@ -113,6 +115,22 @@ public class TreeFactory {
     }
 
     return new SeparatedTreesImpl<>(elements, separators);
+  }
+
+  public AttributeAccessTree attributeAccess(SyntaxToken accessToken, SyntaxToken attribute) {
+    return new AttributeAccessTreeImpl(accessToken, attribute);
+  }
+
+  public AttributeAccessTree memberExpression(Tree object, List<AttributeAccessTree> attributeAccesses) {
+    AttributeAccessTreeImpl result = (AttributeAccessTreeImpl) attributeAccesses.get(0);
+    result.setObject(object);
+
+    for (AttributeAccessTree attribute: attributeAccesses.subList(1, attributeAccesses.size())) {
+      ((AttributeAccessTreeImpl)attribute).setObject(result);
+      result = (AttributeAccessTreeImpl)attribute;
+    }
+
+    return result;
   }
 
   public static class Tuple<T, U> {
