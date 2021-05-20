@@ -17,35 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser.lexical;
-
-import java.util.Collections;
-import java.util.List;
-import org.sonar.plugins.iac.terraform.api.tree.TextRange;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.Syntax;
-import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
-
-public abstract class InternalSyntax extends TerraformTree implements Syntax {
-
-  private final String value;
-
-  protected InternalSyntax(String value, TextRange textRange) {
-    this.value = value;
-    this.textRange = textRange;
-  }
-
-  @Override
-  public String value() {
-    return value;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public TextRange textRange() {
-    return textRange;
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.plugins.iac.terraform.visitors;

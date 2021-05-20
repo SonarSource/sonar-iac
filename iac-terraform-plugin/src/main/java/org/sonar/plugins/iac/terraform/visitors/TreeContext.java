@@ -17,35 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser.lexical;
+package org.sonar.plugins.iac.terraform.visitors;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.plugins.iac.terraform.api.tree.TextRange;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.Syntax;
-import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 
-public abstract class InternalSyntax extends TerraformTree implements Syntax {
+public class TreeContext {
 
-  private final String value;
+  private final Deque<Tree> ancestors;
+  private Tree current;
 
-  protected InternalSyntax(String value, TextRange textRange) {
-    this.value = value;
-    this.textRange = textRange;
+  public TreeContext() {
+    ancestors = new ArrayDeque<>();
   }
 
-  @Override
-  public String value() {
-    return value;
+  public Deque<Tree> ancestors() {
+    return ancestors;
   }
 
-  @Override
-  public List<Tree> children() {
-    return Collections.emptyList();
+  protected void before(Tree root) {
+    ancestors.clear();
   }
 
-  @Override
-  public TextRange textRange() {
-    return textRange;
+  public void enter(Tree node) {
+    if (current != null) {
+      ancestors.push(current);
+    }
+    current = node;
+  }
+
+  public void leave(Tree node) {
+    if (!ancestors.isEmpty()) {
+      current = ancestors.pop();
+    }
   }
 }

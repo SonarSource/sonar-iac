@@ -28,8 +28,9 @@ import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.plugins.iac.terraform.visitors.TreeContext;
 
-public class InputFileContext {
+public class InputFileContext extends TreeContext {
 
   private static final String PARSING_ERROR_RULE_KEY = "S2260";
   public final SensorContext sensorContext;
