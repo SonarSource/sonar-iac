@@ -90,30 +90,29 @@ public class HclGrammar {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
       b.firstOf(LITERAL_EXPRESSION(),
         OBJECT(),
-        ATTRIBUTE_ACCESS_EXPRESSION())
-    );
+        ATTRIBUTE_ACCESS_EXPRESSION(),
+        VARIABLE_EXPRESSION()));
+  }
+
+  public ExpressionTree EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS() {
+    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS).is(
+      b.firstOf(LITERAL_EXPRESSION(),
+        OBJECT(),
+        VARIABLE_EXPRESSION()));
   }
 
   public AttributeAccessTree ATTRIBUTE_ACCESS_EXPRESSION() {
     return b.<AttributeAccessTree>nonterminal(HclLexicalGrammar.ATTRIBUTE_ACCESS_EXPRESSION).is(
-      f.memberExpression(
-        b.firstOf(LITERAL_EXPRESSION(),
-          OBJECT(),
-          b.token(HclLexicalGrammar.IDENTIFIER)),
+      f.memberExpression(EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS(),
         b.oneOrMore(
-          ATTRIBUTE_ACCESS_OPERATOR()
-        )
-      )
-    );
+          ATTRIBUTE_ACCESS_OPERATOR())));
   }
 
   public AttributeAccessTree ATTRIBUTE_ACCESS_OPERATOR() {
     return b.<AttributeAccessTree>nonterminal(HclLexicalGrammar.ATTRIBUTE_ACCESS_OPERATOR).is(
       f.attributeAccess(
         b.token(HclPunctuator.DOT),
-        b.token(HclLexicalGrammar.IDENTIFIER)
-      )
-    );
+        b.token(HclLexicalGrammar.IDENTIFIER)));
   }
 
   public ObjectTree OBJECT() {
@@ -147,6 +146,11 @@ public class HclGrammar {
         b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
         b.token(HclLexicalGrammar.NULL),
         b.token(HclLexicalGrammar.STRING_LITERAL))));
+  }
+
+  public ExpressionTree VARIABLE_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.VARIABLE_EXPRESSION).is(
+      f.variable(b.token(HclLexicalGrammar.IDENTIFIER)));
   }
 
 }

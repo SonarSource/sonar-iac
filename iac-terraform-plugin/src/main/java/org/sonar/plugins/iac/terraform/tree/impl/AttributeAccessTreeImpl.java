@@ -20,6 +20,7 @@
 package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
+import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
@@ -27,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AttributeAccessTreeImpl extends TerraformTree implements AttributeAccessTree {
-  private Tree object;
+  private ExpressionTree object;
   private final SyntaxToken accessToken;
   private final SyntaxToken attribute;
 
@@ -42,7 +43,7 @@ public class AttributeAccessTreeImpl extends TerraformTree implements AttributeA
   }
 
   @Override
-  public Tree object() {
+  public ExpressionTree object() {
     return object;
   }
 
@@ -56,7 +57,7 @@ public class AttributeAccessTreeImpl extends TerraformTree implements AttributeA
     return accessToken;
   }
 
-  public void setObject(Tree object) {
+  public void setObject(ExpressionTree object) {
     this.object = object;
   }
 }

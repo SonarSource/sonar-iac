@@ -17,12 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.api.tree;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-public interface AttributeAccessTree extends ExpressionTree {
-  ExpressionTree object();
-  SyntaxToken attribute();
-  SyntaxToken accessToken();
+import java.util.Arrays;
+import java.util.List;
+
+public class VariableExprTreeImpl extends TerraformTree implements VariableExprTree {
+  private final SyntaxToken token;
+
+  public VariableExprTreeImpl(SyntaxToken token) {
+    this.token = token;
+  }
+
+  @Override
+  public SyntaxToken token() {
+    return token;
+  }
+
+  @Override
+  public String name() {
+    return token.value();
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Arrays.asList(token);
+  }
 }

@@ -45,6 +45,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -121,7 +122,7 @@ public class TreeFactory {
     return new AttributeAccessTreeImpl(accessToken, attribute);
   }
 
-  public AttributeAccessTree memberExpression(Tree object, List<AttributeAccessTree> attributeAccesses) {
+  public AttributeAccessTree memberExpression(ExpressionTree object, List<AttributeAccessTree> attributeAccesses) {
     AttributeAccessTreeImpl result = (AttributeAccessTreeImpl) attributeAccesses.get(0);
     result.setObject(object);
 
@@ -131,6 +132,10 @@ public class TreeFactory {
     }
 
     return result;
+  }
+
+  public ExpressionTree variable(InternalSyntaxToken token) {
+    return new VariableExprTreeImpl(token);
   }
 
   public static class Tuple<T, U> {

@@ -21,8 +21,7 @@ package org.sonar.plugins.iac.terraform.api.tree;
 
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-public interface AttributeAccessTree extends ExpressionTree {
-  ExpressionTree object();
-  SyntaxToken attribute();
-  SyntaxToken accessToken();
+public interface VariableExprTree extends ExpressionTree {
+  SyntaxToken token();
+  String name();
 }
