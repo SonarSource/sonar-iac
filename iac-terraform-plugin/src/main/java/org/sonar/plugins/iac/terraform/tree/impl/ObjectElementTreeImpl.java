@@ -17,25 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-public enum HclPunctuator implements GrammarRuleKey {
-  EQU("="),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  COLON(":"),
-  COMMA(",")
-  ;
+import java.util.Arrays;
+import java.util.List;
 
-  private final String value;
+public class ObjectElementTreeImpl extends TerraformTree implements ObjectElementTree {
+  private final Tree name;
+  private final SyntaxToken equalOrColonSign;
+  private final Tree value;
 
-  HclPunctuator(String value) {
+  public ObjectElementTreeImpl(Tree name, SyntaxToken equalOrColonSign, Tree value) {
+    this.name = name;
+    this.equalOrColonSign = equalOrColonSign;
     this.value = value;
   }
 
-  public String getValue() {
+  @Override
+  public List<Tree> children() {
+    return Arrays.asList(name, equalOrColonSign, value);
+  }
+
+  @Override
+  public Tree name() {
+    return name;
+  }
+
+  @Override
+  public SyntaxToken equalOrColonSign() {
+    return equalOrColonSign;
+  }
+
+  @Override
+  public Tree value() {
     return value;
   }
 }

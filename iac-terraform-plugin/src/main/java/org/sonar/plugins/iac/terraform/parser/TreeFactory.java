@@ -26,17 +26,26 @@ import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.FileTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.ObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TreeFactory {
@@ -68,4 +77,66 @@ public class TreeFactory {
     return new AttributeTreeImpl(name, equalSign, value);
   }
 
+  public ObjectTree object(SyntaxToken openBrace, Optional<SeparatedTrees<ObjectElementTree>> elements, SyntaxToken closeBrace) {
+    return new ObjectTreeImpl(openBrace, elements.orNull(), closeBrace);
+  }
+
+  public ObjectElementTree objectElement(Tree name, SyntaxToken equalOrColonSign, ExpressionTree value) {
+    return new ObjectElementTreeImpl(name, equalOrColonSign, value);
+  }
+
+  public SeparatedTrees<ObjectElementTree> objectElements(
+    ObjectElementTree firstElement,
+    Optional<List<Tuple<SyntaxToken, ObjectElementTree>>> otherElements,
+    Optional<InternalSyntaxToken> trailingComma) {
+    return separatedTrees(firstElement, otherElements, trailingComma.orNull());
+  }
+
+  private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
+    T firstElement,
+    Optional<List<Tuple<SyntaxToken, T>>> tuples,
+    @Nullable SyntaxToken trailingSeparator
+  ) {
+    List<T> elements = new ArrayList<>();
+    List<SyntaxToken> separators = new ArrayList<>();
+
+    elements.add(firstElement);
+    if (tuples.isPresent()) {
+      for (Tuple<SyntaxToken, T> tuple : tuples.get()) {
+        separators.add(tuple.first());
+        elements.add(tuple.second());
+      }
+    }
+
+    if (trailingSeparator != null) {
+      separators.add(trailingSeparator);
+    }
+
+    return new SeparatedTreesImpl<>(elements, separators);
+  }
+
+  public static class Tuple<T, U> {
+
+    private final T first;
+    private final U second;
+
+    public Tuple(T first, U second) {
+      super();
+
+      this.first = first;
+      this.second = second;
+    }
+
+    public T first() {
+      return first;
+    }
+
+    public U second() {
+      return second;
+    }
+  }
+
+  public <T, U> Tuple<T, U> newTuple(T first, U second) {
+    return new Tuple<>(first, second);
+  }
 }

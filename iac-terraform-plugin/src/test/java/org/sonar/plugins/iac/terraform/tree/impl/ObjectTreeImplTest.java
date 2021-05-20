@@ -17,22 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-class AttributeTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ObjectTreeImplTest extends TerraformTreeModelTest {
 
   @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE)
-      .matches("a = true")
-      .matches("a = null")
-      .matches("a = \"foo\"")
-      .matches("a = {}")
-      .matches("tags = { Foo = \"bar\"\n Bar = 1}")
-      .notMatches("a")
-      .notMatches("a =");
+  void simple_object() {
+    ObjectTree tree = parse("{a: 1, b: 2}", HclLexicalGrammar.OBJECT);
+    assertThat(tree).isInstanceOfSatisfying(ObjectTreeImpl.class, o -> assertThat(o.elements().trees()).hasSize(2));
+  }
+
+  @Test
+  void newline_separated_elements() {
+    ObjectTree tree = parse("{a: 1\n b: 2}", HclLexicalGrammar.OBJECT);
+    assertThat(tree).isInstanceOfSatisfying(ObjectTreeImpl.class, o -> assertThat(o.elements().trees()).hasSize(2));
   }
 }

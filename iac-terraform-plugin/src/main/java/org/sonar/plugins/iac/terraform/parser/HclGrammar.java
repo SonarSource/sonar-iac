@@ -26,9 +26,11 @@ import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
+import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
-import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class HclGrammar {
 
@@ -58,7 +60,7 @@ public class HclGrammar {
         b.token(HclLexicalGrammar.NEWLINE),
         b.optional(BODY()),
         b.token(HclPunctuator.RCURLYBRACE)
-        ));
+      ));
   }
 
   public OneLineBlockTree ONE_LINE_BLOCK() {
@@ -85,8 +87,32 @@ public class HclGrammar {
 
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
-      LITERAL_EXPRESSION()
+      b.firstOf(LITERAL_EXPRESSION(),
+        OBJECT())
     );
+  }
+
+  public ObjectTree OBJECT() {
+    return b.<ObjectTree>nonterminal(HclLexicalGrammar.OBJECT).is(
+      f.object(b.token(HclPunctuator.LCURLYBRACE),
+        b.optional(OBJECT_ELEMENTS()),
+        b.token(HclPunctuator.RCURLYBRACE)));
+  }
+
+  public SeparatedTrees<ObjectElementTree> OBJECT_ELEMENTS() {
+    return b.<SeparatedTrees<ObjectElementTree>>nonterminal().is(
+      f.objectElements(OBJECT_ELEMENT(),
+        b.zeroOrMore(f.newTuple(b.firstOf(b.token(HclPunctuator.COMMA), b.token(HclLexicalGrammar.NEWLINE)), OBJECT_ELEMENT())),
+        b.optional(b.token(HclPunctuator.COMMA))
+        ));
+  }
+
+  public ObjectElementTree OBJECT_ELEMENT() {
+    return b.<ObjectElementTree>nonterminal(HclLexicalGrammar.OBJECT_ELEMENT).is(
+      f.objectElement(
+        b.firstOf(b.token(HclLexicalGrammar.IDENTIFIER), EXPRESSION()),
+        b.firstOf(b.token(HclPunctuator.EQU), b.token(HclPunctuator.COLON)),
+        EXPRESSION()));
   }
 
   public ExpressionTree LITERAL_EXPRESSION() {

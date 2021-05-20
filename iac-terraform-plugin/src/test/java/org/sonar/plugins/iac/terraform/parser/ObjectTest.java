@@ -22,17 +22,20 @@ package org.sonar.plugins.iac.terraform.parser;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-class AttributeTest {
+class ObjectTest {
 
   @Test
   void test() {
-    Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE)
-      .matches("a = true")
-      .matches("a = null")
-      .matches("a = \"foo\"")
-      .matches("a = {}")
-      .matches("tags = { Foo = \"bar\"\n Bar = 1}")
-      .notMatches("a")
-      .notMatches("a =");
+    Assertions.assertThat(HclLexicalGrammar.OBJECT)
+      .matches("{ }")
+      .matches("{ a : 1 }")
+      .matches("{ a: 1, b: 2 }")
+      .matches("{ a: 1, b: 2, }")
+      .matches("{ a: 1, b = 2 }")
+      .matches("{ a: 1, b = { c: 3 } }")
+      .matches("{ a: 1\n b = 3 }")
+      .matches("{ a: 1 b = 3 }") //TODO: this shouldn't be valid
+      .notMatches("")
+      .notMatches("{");
   }
 }
