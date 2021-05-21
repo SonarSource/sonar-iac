@@ -123,7 +123,7 @@ public class HclGrammar {
   public SeparatedTrees<ObjectElementTree> OBJECT_ELEMENTS() {
     return b.<SeparatedTrees<ObjectElementTree>>nonterminal().is(
       f.objectElements(OBJECT_ELEMENT(),
-        b.zeroOrMore(f.newTuple(b.firstOf(b.token(HclPunctuator.COMMA), b.token(HclLexicalGrammar.NEWLINE)), OBJECT_ELEMENT())),
+        b.zeroOrMore(f.newPair(b.firstOf(b.token(HclPunctuator.COMMA), b.token(HclLexicalGrammar.NEWLINE)), OBJECT_ELEMENT())),
         b.optional(b.token(HclPunctuator.COMMA))
         ));
   }
@@ -138,7 +138,7 @@ public class HclGrammar {
   public SeparatedTrees<ExpressionTree> TUPLE_ELEMENTS() {
     return b.<SeparatedTrees<ExpressionTree>>nonterminal().is(
       f.tupleElements(EXPRESSION(),
-        b.zeroOrMore(f.newTuple(b.token(HclPunctuator.COMMA), EXPRESSION())),
+        b.zeroOrMore(f.newPair(b.token(HclPunctuator.COMMA), EXPRESSION())),
         b.optional(b.token(HclPunctuator.COMMA))
       ));
   }

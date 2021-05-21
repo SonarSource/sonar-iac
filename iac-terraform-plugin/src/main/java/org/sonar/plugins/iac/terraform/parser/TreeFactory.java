@@ -93,7 +93,7 @@ public class TreeFactory {
 
   public SeparatedTrees<ObjectElementTree> objectElements(
     ObjectElementTree firstElement,
-    Optional<List<Tuple<SyntaxToken, ObjectElementTree>>> otherElements,
+    Optional<List<Pair<SyntaxToken, ObjectElementTree>>> otherElements,
     Optional<InternalSyntaxToken> trailingComma) {
     return separatedTrees(firstElement, otherElements, trailingComma.orNull());
   }
@@ -122,22 +122,22 @@ public class TreeFactory {
 
   public SeparatedTrees<ExpressionTree> tupleElements(
     ExpressionTree firstElement,
-    Optional<List<Tuple<SyntaxToken, ExpressionTree>>> otherElements,
+    Optional<List<Pair<SyntaxToken, ExpressionTree>>> otherElements,
     Optional<SyntaxToken> trailingComma) {
     return separatedTrees(firstElement, otherElements, trailingComma.orNull());
   }
 
   private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
     T firstElement,
-    Optional<List<Tuple<SyntaxToken, T>>> tuples,
+    Optional<List<Pair<SyntaxToken, T>>> pairs,
     @Nullable SyntaxToken trailingSeparator
   ) {
     List<T> elements = new ArrayList<>();
     List<SyntaxToken> separators = new ArrayList<>();
 
     elements.add(firstElement);
-    if (tuples.isPresent()) {
-      for (Tuple<SyntaxToken, T> tuple : tuples.get()) {
+    if (pairs.isPresent()) {
+      for (Pair<SyntaxToken, T> tuple : pairs.get()) {
         separators.add(tuple.first());
         elements.add(tuple.second());
       }
@@ -150,12 +150,12 @@ public class TreeFactory {
     return new SeparatedTreesImpl<>(elements, separators);
   }
 
-  public static class Tuple<T, U> {
+  public static class Pair<T, U> {
 
     private final T first;
     private final U second;
 
-    public Tuple(T first, U second) {
+    public Pair(T first, U second) {
       super();
 
       this.first = first;
@@ -171,8 +171,8 @@ public class TreeFactory {
     }
   }
 
-  public <T, U> Tuple<T, U> newTuple(T first, U second) {
-    return new Tuple<>(first, second);
+  public <T, U> Pair<T, U> newPair(T first, U second) {
+    return new Pair<>(first, second);
   }
 
   private static class PartialAttributeAccess {
