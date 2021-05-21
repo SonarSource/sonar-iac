@@ -19,21 +19,49 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import org.sonar.plugins.iac.terraform.api.tree.TextPointer;
 import org.sonar.plugins.iac.terraform.api.tree.TextRange;
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
 
-public abstract class TerraformTree implements Tree {
+public class TextRangeImpl implements TextRange {
 
-  protected TextRange textRange;
+  private final TextPointer start;
+  private final TextPointer end;
+
+  public TextRangeImpl(TextPointer start, TextPointer end) {
+    this.start = start;
+    this.end = end;
+  }
 
   @Override
-  public TextRange textRange() {
-    if (textRange == null) {
-      List<TextRange> childRanges = children().stream().map(Tree::textRange).collect(Collectors.toList());
-      textRange = TextRanges.merge(childRanges);
+  public TextPointer start() {
+    return start;
+  }
+
+  @Override
+  public TextPointer end() {
+    return end;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-    return textRange;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TextRangeImpl textRange = (TextRangeImpl) o;
+    return Objects.equals(start, textRange.start) && Objects.equals(end, textRange.end);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(start, end);
+  }
+
+  @Override
+  public String toString() {
+    return "TextRange[" + start.line() + ", " + start.column() + ", " + end.line() + ", " + end.column() + ']';
   }
 }

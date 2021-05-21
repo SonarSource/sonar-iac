@@ -25,11 +25,4 @@ public interface Syntax extends Tree {
 
   String value();
 
-  int line();
-
-  int column();
-
-  int endLine();
-
-  int endColumn();
 }

@@ -19,6 +19,11 @@
  */
 package org.sonar.plugins.iac.terraform.api.tree;
 
-public interface Tree {
+import java.util.List;
+
+public interface Tree extends HasTextRange {
   // TODO:  KIND and toString
+
+  List<Tree> children();
+
 }

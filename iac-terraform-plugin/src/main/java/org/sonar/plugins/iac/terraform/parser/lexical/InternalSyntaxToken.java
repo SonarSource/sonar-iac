@@ -20,31 +20,21 @@
 package org.sonar.plugins.iac.terraform.parser.lexical;
 
 import java.util.List;
+import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
 
 public class InternalSyntaxToken extends InternalSyntax implements SyntaxToken {
 
   private List<SyntaxTrivia> trivias;
-  private int startIndex;
 
-  public InternalSyntaxToken(int line, int column, String value, List<SyntaxTrivia> trivias, int startIndex, boolean isEOF) {
-    super(value, line, column);
+  public InternalSyntaxToken(String value, TextRange textRange, List<SyntaxTrivia> trivias) {
+    super(value, textRange);
     this.trivias = trivias;
-    this.startIndex = startIndex;
   }
 
   @Override
   public List<SyntaxTrivia> trivias() {
     return trivias;
-  }
-
-  @Override
-  public SyntaxToken getLastToken() {
-    return this;
-  }
-
-  public int toIndex() {
-    return startIndex + value.length();
   }
 }
