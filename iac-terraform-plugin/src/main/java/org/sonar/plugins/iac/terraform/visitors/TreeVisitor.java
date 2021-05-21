@@ -31,7 +31,7 @@ public class TreeVisitor<C extends TreeContext> {
 
   public void scan(C ctx, @Nullable Tree root) {
     if (root != null) {
-      ctx.before(root);
+      ctx.before();
       before(ctx, root);
       visit(ctx, root);
       after(ctx, root);
@@ -45,7 +45,7 @@ public class TreeVisitor<C extends TreeContext> {
         consumer.accept(ctx, node);
       }
       node.children().forEach(child -> visit(ctx, child));
-      ctx.leave(node);
+      ctx.leave();
     }
   }
 

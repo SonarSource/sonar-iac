@@ -36,7 +36,7 @@ public class TreeContext {
     return ancestors;
   }
 
-  protected void before(Tree root) {
+  protected void before() {
     ancestors.clear();
   }
 
@@ -47,7 +47,7 @@ public class TreeContext {
     current = node;
   }
 
-  public void leave(Tree node) {
+  public void leave() {
     if (!ancestors.isEmpty()) {
       current = ancestors.pop();
     }
