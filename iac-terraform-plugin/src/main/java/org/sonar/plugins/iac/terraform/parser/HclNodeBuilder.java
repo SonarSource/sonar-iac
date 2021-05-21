@@ -48,25 +48,19 @@ public class HclNodeBuilder implements NodeBuilder {
       }
     }
     // TODO: Do we need this ?
-    return new InternalSyntaxSpacing();
+    return new TerraformTree() {
+      @Override
+      public List<Tree> children() {
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 
   @Override
   public Object createTerminal(Input input, int startIndex, int endIndex, List<Trivia> trivias, TokenType type) {
     String value = input.substring(startIndex, endIndex);
     TextRange range = tokenRange(input, startIndex, value);
-    return new InternalSyntaxToken(value, range, createTrivias(trivias));
-  }
-
-  private static List<SyntaxTrivia> createTrivias(List<Trivia> trivias) {
-    List<SyntaxTrivia> result = new ArrayList<>();
-    for (Trivia trivia : trivias) {
-      Token trivialToken = trivia.getToken();
-      String comment = trivialToken.getValue();
-      TextRange range = TextRanges.range(trivialToken.getLine(), trivialToken.getColumn(), comment);
-      result.add(new InternalSyntaxTrivia(comment, range));
-    }
-    return result;
+    return new InternalSyntaxToken(value, range, createComments(trivias));
   }
 
   private static TextRange tokenRange(Input input, int startIndex, String value) {
@@ -81,12 +75,24 @@ public class HclNodeBuilder implements NodeBuilder {
     return hasByteOrderMark ? column - 1 : column;
   }
 
-  private static class InternalSyntaxSpacing extends TerraformTree {
-
-    @Override
-    public List<Tree> children() {
-      throw new UnsupportedOperationException();
+  private static List<SyntaxTrivia> createComments(List<Trivia> trivias) {
+    List<SyntaxTrivia> result = new ArrayList<>();
+    for (Trivia trivia : trivias) {
+      Token trivialToken = trivia.getToken();
+      String text = trivialToken.getValue();
+      TextRange range = TextRanges.range(trivialToken.getLine(), trivialToken.getColumn(), text);
+      result.add(new InternalSyntaxTrivia(text, getCommentContent(text), range));
     }
+    return result;
+  }
 
+  private static String getCommentContent(String comment) {
+    if (comment.startsWith("//")) {
+      return comment.substring(2);
+    } else if (comment.startsWith("#")) {
+      return comment.substring(1);
+    } else {
+      return comment.substring(2, comment.length() - 2);
+    }
   }
 }

@@ -20,4 +20,7 @@
 package org.sonar.plugins.iac.terraform.api.tree.lexical;
 
 public interface SyntaxTrivia extends Syntax{
+
+  String contentText();
+
 }

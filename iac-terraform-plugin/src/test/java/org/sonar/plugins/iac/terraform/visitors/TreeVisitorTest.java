@@ -21,7 +21,6 @@ package org.sonar.plugins.iac.terraform.visitors;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +80,6 @@ class TreeVisitorTest {
   }
 
   private SyntaxToken simpleSyntaxToken(String value) {
-    return new InternalSyntaxToken(0, 0, value, Collections.emptyList(), 0, false);
+    return new InternalSyntaxToken(value, null, null);
   }
 }

@@ -22,6 +22,7 @@ package org.sonar.plugins.iac.terraform.parser.lexical;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.plugins.iac.terraform.api.tree.TextRange;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.Syntax;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
 
