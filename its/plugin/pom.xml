@@ -11,17 +11,8 @@
 
   <artifactId>iac-its-plugin</artifactId>
 
-  <name>SonarSource IaC ITs Ruling</name>
+  <name>SonarSource IaC ITs Plugin</name>
 
-  <profiles>
-    <profile>
-      <id>it-plugin</id>
-      <properties>
-        <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
-        <skipTests>false</skipTests>
-      </properties>
-    </profile>
-  </profiles>
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -46,4 +37,29 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <includes>
+              <include>org/sonarsource/iac/Tests.java</include>
+            </includes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>it-plugin</id>
+      <properties>
+        <surefire.argLine>-Xmx128m -server</surefire.argLine>
+        <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
+        <skipTests>false</skipTests>
+      </properties>
+    </profile>
+  </profiles>
 </project>

@@ -69,6 +69,20 @@ build_task:
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
+qa_plugin_task:
+  <<: *QA_TASK_FILTER
+  <<: *LINUX_4_CPU_8G
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  submodules_script:
+    - git submodule update --init
+  ruling_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - cd its/plugin
+    - mvn verify -Pit-plugin -Dsonar.runtimeVersion=LATEST_RELEASE[8.9] -B -e -V
+  cleanup_before_cache_script: cleanup_maven_repository
+
 qa_ruling_task:
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G
@@ -86,6 +100,7 @@ qa_ruling_task:
 promote_task:
   depends_on:
     - build
+    - qa_plugin
     - qa_ruling
   <<: *ONLY_IF_SONARSOURCE_QA
   <<: *LINUX_1_CPU_1G
