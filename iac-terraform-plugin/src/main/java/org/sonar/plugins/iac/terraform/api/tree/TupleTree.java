@@ -17,20 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
-
-class FileTest {
-
-  @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.FILE)
-      .matches("")
-      .matches("a = 1")
-      .matches("a {}")
-      .matches("a = [1, false]")
-      .notMatches("a {");
-  }
+public interface TupleTree extends ExpressionTree {
+  SeparatedTrees<ExpressionTree> elements();
 }

@@ -32,6 +32,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
@@ -46,6 +47,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
 
 import javax.annotation.Nullable;
@@ -91,32 +93,9 @@ public class TreeFactory {
 
   public SeparatedTrees<ObjectElementTree> objectElements(
     ObjectElementTree firstElement,
-    Optional<List<Tuple<SyntaxToken, ObjectElementTree>>> otherElements,
+    Optional<List<Pair<SyntaxToken, ObjectElementTree>>> otherElements,
     Optional<InternalSyntaxToken> trailingComma) {
     return separatedTrees(firstElement, otherElements, trailingComma.orNull());
-  }
-
-  private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
-    T firstElement,
-    Optional<List<Tuple<SyntaxToken, T>>> tuples,
-    @Nullable SyntaxToken trailingSeparator
-  ) {
-    List<T> elements = new ArrayList<>();
-    List<SyntaxToken> separators = new ArrayList<>();
-
-    elements.add(firstElement);
-    if (tuples.isPresent()) {
-      for (Tuple<SyntaxToken, T> tuple : tuples.get()) {
-        separators.add(tuple.first());
-        elements.add(tuple.second());
-      }
-    }
-
-    if (trailingSeparator != null) {
-      separators.add(trailingSeparator);
-    }
-
-    return new SeparatedTreesImpl<>(elements, separators);
   }
 
   public PartialAttributeAccess partialAttributeAccess(SyntaxToken accessToken, SyntaxToken attribute) {
@@ -137,12 +116,46 @@ public class TreeFactory {
     return new VariableExprTreeImpl(token);
   }
 
-  public static class Tuple<T, U> {
+  public TupleTree tuple(SyntaxToken openbracket, Optional<SeparatedTrees<ExpressionTree>> elements, SyntaxToken closeBracket) {
+    return new TupleTreeImpl(openbracket, elements.orNull(), closeBracket);
+  }
+
+  public SeparatedTrees<ExpressionTree> tupleElements(
+    ExpressionTree firstElement,
+    Optional<List<Pair<SyntaxToken, ExpressionTree>>> otherElements,
+    Optional<SyntaxToken> trailingComma) {
+    return separatedTrees(firstElement, otherElements, trailingComma.orNull());
+  }
+
+  private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
+    T firstElement,
+    Optional<List<Pair<SyntaxToken, T>>> pairs,
+    @Nullable SyntaxToken trailingSeparator
+  ) {
+    List<T> elements = new ArrayList<>();
+    List<SyntaxToken> separators = new ArrayList<>();
+
+    elements.add(firstElement);
+    if (pairs.isPresent()) {
+      for (Pair<SyntaxToken, T> tuple : pairs.get()) {
+        separators.add(tuple.first());
+        elements.add(tuple.second());
+      }
+    }
+
+    if (trailingSeparator != null) {
+      separators.add(trailingSeparator);
+    }
+
+    return new SeparatedTreesImpl<>(elements, separators);
+  }
+
+  public static class Pair<T, U> {
 
     private final T first;
     private final U second;
 
-    public Tuple(T first, U second) {
+    public Pair(T first, U second) {
       super();
 
       this.first = first;
@@ -158,8 +171,8 @@ public class TreeFactory {
     }
   }
 
-  public <T, U> Tuple<T, U> newTuple(T first, U second) {
-    return new Tuple<>(first, second);
+  public <T, U> Pair<T, U> newPair(T first, U second) {
+    return new Pair<>(first, second);
   }
 
   private static class PartialAttributeAccess {

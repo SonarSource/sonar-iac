@@ -17,20 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-class FileTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TupleTreeImplTest extends TerraformTreeModelTest {
 
   @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.FILE)
-      .matches("")
-      .matches("a = 1")
-      .matches("a {}")
-      .matches("a = [1, false]")
-      .notMatches("a {");
+  void simple_tuple() {
+    TupleTree tree = parse("[a, b]", HclLexicalGrammar.TUPLE);
+    assertThat(tree).isInstanceOfSatisfying(TupleTreeImpl.class, o -> {
+      assertThat(o.elements().trees()).hasSize(2);
+      assertThat(o.children()).hasSize(5);
+    });
   }
 }

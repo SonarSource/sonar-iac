@@ -19,16 +19,35 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
-import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class ObjectTreeImpl extends AbstractCollectionValueTree<ObjectElementTree> implements ObjectTree {
+public abstract class AbstractCollectionValueTree<T extends Tree> extends TerraformTree {
+  private final SyntaxToken openBrace;
+  private final SeparatedTrees<T> elements;
+  private final SyntaxToken closeBrace;
 
-  public ObjectTreeImpl(SyntaxToken openBrace, @Nullable SeparatedTrees<ObjectElementTree> elements, SyntaxToken closeBrace) {
-    super(openBrace, elements, closeBrace);
+  AbstractCollectionValueTree(SyntaxToken openBrace, @Nullable SeparatedTrees<T> elements, SyntaxToken closeBrace) {
+    this.openBrace = openBrace;
+    this.elements = elements != null ? elements : SeparatedTreesImpl.empty();
+    this.closeBrace = closeBrace;
+  }
+
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>(Arrays.asList(openBrace));
+    children.addAll(elements.treesAndSeparators());
+    children.add(closeBrace);
+    return children;
+  }
+
+  public SeparatedTrees<T> elements() {
+    return elements;
   }
 }

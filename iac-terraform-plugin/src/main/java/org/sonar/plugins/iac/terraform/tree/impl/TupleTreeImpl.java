@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-class FileTest {
+import javax.annotation.Nullable;
 
-  @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.FILE)
-      .matches("")
-      .matches("a = 1")
-      .matches("a {}")
-      .matches("a = [1, false]")
-      .notMatches("a {");
+public class TupleTreeImpl extends AbstractCollectionValueTree<ExpressionTree> implements TupleTree {
+
+  public TupleTreeImpl(SyntaxToken openBrace, @Nullable SeparatedTrees<ExpressionTree> elements, SyntaxToken closeBrace) {
+    super(openBrace, elements, closeBrace);
   }
 }

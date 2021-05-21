@@ -31,6 +31,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 
@@ -90,6 +91,7 @@ public class HclGrammar {
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
       b.firstOf(LITERAL_EXPRESSION(),
+        TUPLE(),
         OBJECT(),
         ATTRIBUTE_ACCESS_EXPRESSION(),
         VARIABLE_EXPRESSION()));
@@ -98,6 +100,7 @@ public class HclGrammar {
   public ExpressionTree EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS).is(
       b.firstOf(LITERAL_EXPRESSION(),
+        TUPLE(),
         OBJECT(),
         VARIABLE_EXPRESSION()));
   }
@@ -120,9 +123,24 @@ public class HclGrammar {
   public SeparatedTrees<ObjectElementTree> OBJECT_ELEMENTS() {
     return b.<SeparatedTrees<ObjectElementTree>>nonterminal().is(
       f.objectElements(OBJECT_ELEMENT(),
-        b.zeroOrMore(f.newTuple(b.firstOf(b.token(HclPunctuator.COMMA), b.token(HclLexicalGrammar.NEWLINE)), OBJECT_ELEMENT())),
+        b.zeroOrMore(f.newPair(b.firstOf(b.token(HclPunctuator.COMMA), b.token(HclLexicalGrammar.NEWLINE)), OBJECT_ELEMENT())),
         b.optional(b.token(HclPunctuator.COMMA))
         ));
+  }
+
+  public TupleTree TUPLE() {
+    return b.<TupleTree>nonterminal(HclLexicalGrammar.TUPLE).is(
+      f.tuple(b.token(HclPunctuator.LBRACKET),
+        b.optional(TUPLE_ELEMENTS()),
+        b.token(HclPunctuator.RBRACKET)));
+  }
+
+  public SeparatedTrees<ExpressionTree> TUPLE_ELEMENTS() {
+    return b.<SeparatedTrees<ExpressionTree>>nonterminal().is(
+      f.tupleElements(EXPRESSION(),
+        b.zeroOrMore(f.newPair(b.token(HclPunctuator.COMMA), EXPRESSION())),
+        b.optional(b.token(HclPunctuator.COMMA))
+      ));
   }
 
   public ObjectElementTree OBJECT_ELEMENT() {
