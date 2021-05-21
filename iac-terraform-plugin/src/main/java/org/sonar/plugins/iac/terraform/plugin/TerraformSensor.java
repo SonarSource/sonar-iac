@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -33,6 +34,8 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.plugins.iac.terraform.parser.HclParser;
+import org.sonar.plugins.iac.terraform.visitors.MetricsVisitor;
+import org.sonar.plugins.iac.terraform.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class TerraformSensor implements Sensor {
@@ -65,7 +68,7 @@ public class TerraformSensor implements Sensor {
     ProgressReport progressReport = new ProgressReport("Progress of the " + TerraformPlugin.LANGUAGE_NAME + " analysis", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(filenames);
     boolean success = false;
-    Analyzer analyzer = Analyzer.create(new HclParser());
+    Analyzer analyzer = new Analyzer(new HclParser(), visitors());
     try {
       success = analyzer.analyseFiles(sensorContext, inputFiles, progressReport);
     } finally {
@@ -75,5 +78,9 @@ public class TerraformSensor implements Sensor {
         progressReport.cancel();
       }
     }
+  }
+
+  private List<TreeVisitor<InputFileContext>> visitors() {
+    return Collections.singletonList(new MetricsVisitor(fileLinesContextFactory, noSonarFilter));
   }
 }

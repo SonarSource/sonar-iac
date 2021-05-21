@@ -138,6 +138,13 @@ class TerraformSensorTest {
   }
 
   @Test
+  void no_parsing_nor_analysis_error_on_valid_file() {
+    analyse(inputFile("file.tf", "a {}"));
+    assertThat(context.allAnalysisErrors()).isEmpty();
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
   void test_cancellation() {
     context.setCancelled(true);
     analyse(sensor("S2260"), inputFile("parserError.tf", "a {"));
