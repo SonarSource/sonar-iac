@@ -28,11 +28,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AttributeAccessTreeImpl extends TerraformTree implements AttributeAccessTree {
-  private ExpressionTree object;
+  private final ExpressionTree object;
   private final SyntaxToken accessToken;
   private final SyntaxToken attribute;
 
-  public AttributeAccessTreeImpl(SyntaxToken accessToken, SyntaxToken attribute) {
+  public AttributeAccessTreeImpl(ExpressionTree object, SyntaxToken accessToken, SyntaxToken attribute) {
+    this.object = object;
     this.accessToken = accessToken;
     this.attribute = attribute;
   }
@@ -57,7 +58,4 @@ public class AttributeAccessTreeImpl extends TerraformTree implements AttributeA
     return accessToken;
   }
 
-  public void setObject(ExpressionTree object) {
-    this.object = object;
-  }
 }

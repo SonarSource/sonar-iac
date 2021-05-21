@@ -31,6 +31,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 
 public class HclGrammar {
@@ -103,16 +104,10 @@ public class HclGrammar {
 
   public AttributeAccessTree ATTRIBUTE_ACCESS_EXPRESSION() {
     return b.<AttributeAccessTree>nonterminal(HclLexicalGrammar.ATTRIBUTE_ACCESS_EXPRESSION).is(
-      f.memberExpression(EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS(),
-        b.oneOrMore(
-          ATTRIBUTE_ACCESS_OPERATOR())));
-  }
-
-  public AttributeAccessTree ATTRIBUTE_ACCESS_OPERATOR() {
-    return b.<AttributeAccessTree>nonterminal(HclLexicalGrammar.ATTRIBUTE_ACCESS_OPERATOR).is(
-      f.attributeAccess(
-        b.token(HclPunctuator.DOT),
-        b.token(HclLexicalGrammar.IDENTIFIER)));
+      f.attributeAccess(EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS(),
+        b.oneOrMore(f.partialAttributeAccess(
+            b.token(HclPunctuator.DOT),
+            b.token(HclLexicalGrammar.IDENTIFIER)))));
   }
 
   public ObjectTree OBJECT() {
@@ -148,8 +143,8 @@ public class HclGrammar {
         b.token(HclLexicalGrammar.STRING_LITERAL))));
   }
 
-  public ExpressionTree VARIABLE_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.VARIABLE_EXPRESSION).is(
+  public VariableExprTree VARIABLE_EXPRESSION() {
+    return b.<VariableExprTree>nonterminal(HclLexicalGrammar.VARIABLE_EXPRESSION).is(
       f.variable(b.token(HclLexicalGrammar.IDENTIFIER)));
   }
 
