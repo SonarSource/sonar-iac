@@ -26,7 +26,9 @@ public enum HclPunctuator implements GrammarRuleKey {
   COMMA(","),
   DOT("."),
   EQU("="),
+  LBRACKET("["),
   LCURLYBRACE("{"),
+  RBRACKET("]"),
   RCURLYBRACE("}")
   ;
 

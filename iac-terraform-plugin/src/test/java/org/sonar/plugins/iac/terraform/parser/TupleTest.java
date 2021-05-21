@@ -22,15 +22,18 @@ package org.sonar.plugins.iac.terraform.parser;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-class FileTest {
+class TupleTest {
 
   @Test
   void test() {
-    Assertions.assertThat(HclLexicalGrammar.FILE)
-      .matches("")
-      .matches("a = 1")
-      .matches("a {}")
-      .matches("a = [1, false]")
-      .notMatches("a {");
+    Assertions.assertThat(HclLexicalGrammar.TUPLE)
+      .matches("[]")
+      .matches("[1]")
+      .matches("[1, 2]")
+      .matches("[1, 2,]")
+      .matches("[\n1,\n 2\n,]")
+      .matches("[[1,2]]")
+      .matches("[1, \"foo\", {}, id]")
+      .notMatches("[1\n2]");
   }
 }

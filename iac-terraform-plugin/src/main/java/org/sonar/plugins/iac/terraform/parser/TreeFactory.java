@@ -32,6 +32,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
@@ -46,6 +47,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
 
 import javax.annotation.Nullable;
@@ -96,6 +98,35 @@ public class TreeFactory {
     return separatedTrees(firstElement, otherElements, trailingComma.orNull());
   }
 
+  public PartialAttributeAccess partialAttributeAccess(SyntaxToken accessToken, SyntaxToken attribute) {
+    return new PartialAttributeAccess(accessToken, attribute);
+  }
+
+  public AttributeAccessTree attributeAccess(ExpressionTree object, List<PartialAttributeAccess> attributeAccesses) {
+    AttributeAccessTree result = attributeAccesses.get(0).complete(object);
+
+    for (PartialAttributeAccess attribute: attributeAccesses.subList(1, attributeAccesses.size())) {
+      result = attribute.complete(result);
+    }
+
+    return result;
+  }
+
+  public VariableExprTree variable(InternalSyntaxToken token) {
+    return new VariableExprTreeImpl(token);
+  }
+
+  public TupleTree tuple(SyntaxToken openbracket, Optional<SeparatedTrees<ExpressionTree>> elements, SyntaxToken closeBracket) {
+    return new TupleTreeImpl(openbracket, elements.orNull(), closeBracket);
+  }
+
+  public SeparatedTrees<ExpressionTree> tupleElements(
+    ExpressionTree firstElement,
+    Optional<List<Tuple<SyntaxToken, ExpressionTree>>> otherElements,
+    Optional<SyntaxToken> trailingComma) {
+    return separatedTrees(firstElement, otherElements, trailingComma.orNull());
+  }
+
   private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
     T firstElement,
     Optional<List<Tuple<SyntaxToken, T>>> tuples,
@@ -117,24 +148,6 @@ public class TreeFactory {
     }
 
     return new SeparatedTreesImpl<>(elements, separators);
-  }
-
-  public PartialAttributeAccess partialAttributeAccess(SyntaxToken accessToken, SyntaxToken attribute) {
-    return new PartialAttributeAccess(accessToken, attribute);
-  }
-
-  public AttributeAccessTree attributeAccess(ExpressionTree object, List<PartialAttributeAccess> attributeAccesses) {
-    AttributeAccessTree result = attributeAccesses.get(0).complete(object);
-
-    for (PartialAttributeAccess attribute: attributeAccesses.subList(1, attributeAccesses.size())) {
-      result = attribute.complete(result);
-    }
-
-    return result;
-  }
-
-  public VariableExprTree variable(InternalSyntaxToken token) {
-    return new VariableExprTreeImpl(token);
   }
 
   public static class Tuple<T, U> {
