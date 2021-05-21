@@ -20,15 +20,10 @@
 package org.sonar.plugins.iac.terraform.api.tree;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 public interface Tree extends HasTextRange {
   // TODO:  KIND and toString
 
   List<Tree> children();
 
-  default Stream<Tree> descendants() {
-    return children().stream()
-      .flatMap(tree -> Stream.concat(Stream.of(tree), tree.descendants()));
-  }
 }

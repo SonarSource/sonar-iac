@@ -25,11 +25,11 @@ import org.sonar.plugins.iac.terraform.api.tree.TextPointer;
 public class TextPointerImpl implements TextPointer {
 
   private final int line;
-  private final int lineOffset;
+  private final int column;
 
-  public TextPointerImpl(int line, int lineOffset) {
+  public TextPointerImpl(int line, int column) {
     this.line = line;
-    this.lineOffset = lineOffset;
+    this.column = column;
   }
 
   @Override
@@ -38,8 +38,8 @@ public class TextPointerImpl implements TextPointer {
   }
 
   @Override
-  public int lineOffset() {
-    return lineOffset;
+  public int column() {
+    return column;
   }
 
   @Override
@@ -48,7 +48,7 @@ public class TextPointerImpl implements TextPointer {
     if (lineCompare != 0) {
       return lineCompare;
     }
-    return Integer.compare(this.lineOffset(), other.lineOffset());
+    return Integer.compare(this.column(), other.column());
   }
 
   @Override
@@ -60,12 +60,12 @@ public class TextPointerImpl implements TextPointer {
       return false;
     }
     TextPointerImpl that = (TextPointerImpl) o;
-    return line == that.line && lineOffset == that.lineOffset;
+    return line == that.line && column == that.column;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(line, lineOffset);
+    return Objects.hash(line, column);
   }
 
 }

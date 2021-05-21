@@ -31,7 +31,7 @@ public abstract class TerraformTree implements Tree {
   @Override
   public TextRange textRange() {
     if (textRange == null) {
-      List<TextRange> childRanges = descendants().map(Tree::textRange).collect(Collectors.toList());
+      List<TextRange> childRanges = children().stream().map(Tree::textRange).collect(Collectors.toList());
       textRange = TextRanges.merge(childRanges);
     }
     return textRange;

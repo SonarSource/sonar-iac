@@ -29,6 +29,6 @@ public interface TextPointer extends Comparable<TextPointer> {
   /**
    * Starts at 0
    */
-  int lineOffset();
+  int column();
 
 }

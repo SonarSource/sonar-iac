@@ -28,10 +28,6 @@ public class TextRangeImpl implements TextRange {
   private final TextPointer start;
   private final TextPointer end;
 
-  public TextRangeImpl(int startLine, int startLineOffset, int endLine, int endLineOffset) {
-    this(new TextPointerImpl(startLine, startLineOffset), new TextPointerImpl(endLine, endLineOffset));
-  }
-
   public TextRangeImpl(TextPointer start, TextPointer end) {
     this.start = start;
     this.end = end;
@@ -66,6 +62,6 @@ public class TextRangeImpl implements TextRange {
 
   @Override
   public String toString() {
-    return "TextRange[" + start.line() + ", " + start.lineOffset() + ", " + end.line() + ", " + end.lineOffset() + ']';
+    return "TextRange[" + start.line() + ", " + start.column() + ", " + end.line() + ", " + end.column() + ']';
   }
 }

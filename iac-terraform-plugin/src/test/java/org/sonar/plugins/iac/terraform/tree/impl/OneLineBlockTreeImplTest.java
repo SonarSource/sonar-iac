@@ -34,7 +34,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
       assertThat(o.type().value()).isEqualTo("a");
       assertThat(o.labels()).isEmpty();
       assertThat(o.attribute()).isNotPresent();
-      assertThat(o.textRange()).isEqualTo(new TextRangeImpl(1,0,1,4));
+      assertThat(o.textRange()).isEqualTo(TextRangesTest.range(1,0,1,4));
     });
   }
 
@@ -88,7 +88,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
       assertThat(o.type().trivias()).hasSize(1);
       assertThat(o.type().trivias().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("#comment");
-        assertThat(t.textRange()).isEqualTo(new TextRangeImpl(1,0,1,8));
+        assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,1,8));
       });
     });
   }
@@ -101,7 +101,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
       assertThat(o.type().trivias()).hasSize(1);
       assertThat(o.type().trivias().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("//comment");
-        assertThat(t.textRange()).isEqualTo(new TextRangeImpl(1,0,1,9));
+        assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,1,9));
       });
     });
   }
@@ -114,11 +114,11 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
       assertThat(o.type().trivias()).hasSize(2);
       assertThat(o.type().trivias().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("#comment1");
-        assertThat(t.textRange()).isEqualTo(new TextRangeImpl(1,0,1,9));
+        assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,1,9));
       });
       assertThat(o.type().trivias().get(1)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("#comment2");
-        assertThat(t.textRange()).isEqualTo(new TextRangeImpl(2,0,2,9));
+        assertThat(t.textRange()).isEqualTo(TextRangesTest.range(2,0,2,9));
       });
     });
   }
@@ -131,7 +131,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
       assertThat(o.type().trivias()).hasSize(1);
       assertThat(o.type().trivias().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("/* line1\nline2 */");
-        assertThat(t.textRange()).isEqualTo(new TextRangeImpl(1,0,2,8));
+        assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,2,8));
       });
     });
   }
@@ -144,7 +144,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
       assertThat(o.type().trivias()).hasSize(1);
       assertThat(o.type().trivias().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("/* comment */");
-        assertThat(t.textRange()).isEqualTo(new TextRangeImpl(1,0,1,13));
+        assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,1,13));
       });
     });
   }
