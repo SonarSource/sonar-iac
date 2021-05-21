@@ -20,6 +20,7 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
@@ -31,8 +32,10 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.tree.impl.AttributeAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
@@ -43,6 +46,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -115,6 +119,24 @@ public class TreeFactory {
     return new SeparatedTreesImpl<>(elements, separators);
   }
 
+  public PartialAttributeAccess partialAttributeAccess(SyntaxToken accessToken, SyntaxToken attribute) {
+    return new PartialAttributeAccess(accessToken, attribute);
+  }
+
+  public AttributeAccessTree attributeAccess(ExpressionTree object, List<PartialAttributeAccess> attributeAccesses) {
+    AttributeAccessTree result = attributeAccesses.get(0).complete(object);
+
+    for (PartialAttributeAccess attribute: attributeAccesses.subList(1, attributeAccesses.size())) {
+      result = attribute.complete(result);
+    }
+
+    return result;
+  }
+
+  public VariableExprTree variable(InternalSyntaxToken token) {
+    return new VariableExprTreeImpl(token);
+  }
+
   public static class Tuple<T, U> {
 
     private final T first;
@@ -138,5 +160,19 @@ public class TreeFactory {
 
   public <T, U> Tuple<T, U> newTuple(T first, U second) {
     return new Tuple<>(first, second);
+  }
+
+  private static class PartialAttributeAccess {
+    private final SyntaxToken accessToken;
+    private final SyntaxToken attribute;
+
+    public PartialAttributeAccess(SyntaxToken accessToken, SyntaxToken attribute) {
+      this.accessToken = accessToken;
+      this.attribute = attribute;
+    }
+
+    public AttributeAccessTree complete(ExpressionTree object) {
+      return new AttributeAccessTreeImpl(object, accessToken, attribute);
+    }
   }
 }

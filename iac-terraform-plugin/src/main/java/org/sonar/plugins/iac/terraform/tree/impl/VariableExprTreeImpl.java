@@ -17,23 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-class AttributeTest {
+import java.util.Arrays;
+import java.util.List;
 
-  @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE)
-      .matches("a = true")
-      .matches("a = null")
-      .matches("a = \"foo\"")
-      .matches("a = {}")
-      .matches("tags = { Foo = \"bar\"\n Bar = 1}")
-      .matches("a = b.c.d")
-      .notMatches("a")
-      .notMatches("a =");
+public class VariableExprTreeImpl extends TerraformTree implements VariableExprTree {
+  private final SyntaxToken token;
+
+  public VariableExprTreeImpl(SyntaxToken token) {
+    this.token = token;
+  }
+
+  @Override
+  public SyntaxToken token() {
+    return token;
+  }
+
+  @Override
+  public String name() {
+    return token.value();
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Arrays.asList(token);
   }
 }

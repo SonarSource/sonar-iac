@@ -22,11 +22,12 @@ package org.sonar.plugins.iac.terraform.parser;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public enum HclPunctuator implements GrammarRuleKey {
+  COLON(":"),
+  COMMA(","),
+  DOT("."),
   EQU("="),
   LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  COLON(":"),
-  COMMA(",")
+  RCURLYBRACE("}")
   ;
 
   private final String value;

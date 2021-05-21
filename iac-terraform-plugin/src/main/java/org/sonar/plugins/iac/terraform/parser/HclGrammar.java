@@ -20,6 +20,7 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
@@ -30,6 +31,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 
 public class HclGrammar {
@@ -88,8 +90,24 @@ public class HclGrammar {
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
       b.firstOf(LITERAL_EXPRESSION(),
-        OBJECT())
-    );
+        OBJECT(),
+        ATTRIBUTE_ACCESS_EXPRESSION(),
+        VARIABLE_EXPRESSION()));
+  }
+
+  public ExpressionTree EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS() {
+    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS).is(
+      b.firstOf(LITERAL_EXPRESSION(),
+        OBJECT(),
+        VARIABLE_EXPRESSION()));
+  }
+
+  public AttributeAccessTree ATTRIBUTE_ACCESS_EXPRESSION() {
+    return b.<AttributeAccessTree>nonterminal(HclLexicalGrammar.ATTRIBUTE_ACCESS_EXPRESSION).is(
+      f.attributeAccess(EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS(),
+        b.oneOrMore(f.partialAttributeAccess(
+            b.token(HclPunctuator.DOT),
+            b.token(HclLexicalGrammar.IDENTIFIER)))));
   }
 
   public ObjectTree OBJECT() {
@@ -123,6 +141,11 @@ public class HclGrammar {
         b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
         b.token(HclLexicalGrammar.NULL),
         b.token(HclLexicalGrammar.STRING_LITERAL))));
+  }
+
+  public VariableExprTree VARIABLE_EXPRESSION() {
+    return b.<VariableExprTree>nonterminal(HclLexicalGrammar.VARIABLE_EXPRESSION).is(
+      f.variable(b.token(HclLexicalGrammar.IDENTIFIER)));
   }
 
 }

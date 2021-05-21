@@ -30,6 +30,8 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   ONE_LINE_BLOCK,
   BLOCK,
   EXPRESSION,
+  EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS,
+  ATTRIBUTE_ACCESS_EXPRESSION,
   LABEL,
   ATTRIBUTE,
   OBJECT,
@@ -53,6 +55,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
    * Expression
    */
   LITERAL_EXPRESSION,
+  VARIABLE_EXPRESSION,
 
   BOOLEAN_LITERAL,
   NULL
