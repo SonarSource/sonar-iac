@@ -31,6 +31,7 @@ class ObjectElementTest {
       .matches("a = 1")
       .matches("{} : 1")
       .matches("a : {}")
+      .matches("a.b = 1")
       .notMatches("a :")
       .notMatches("a =");
   }

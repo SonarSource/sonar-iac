@@ -32,7 +32,7 @@ class ObjectElementTreeImplTest extends TerraformTreeModelTest {
   void simple_element() {
     ObjectElementTree tree = parse("a : 1", HclLexicalGrammar.OBJECT_ELEMENT);
     assertThat(tree).isInstanceOfSatisfying(ObjectElementTreeImpl.class, o -> {
-      assertThat(o.name()).isInstanceOfSatisfying(InternalSyntaxToken.class, n -> assertThat(n.value()).isEqualTo("a"));
+      assertThat(o.name()).isInstanceOfSatisfying(VariableExprTreeImpl.class, n -> assertThat(n.name()).isEqualTo("a"));
       assertThat(o.equalOrColonSign()).isInstanceOfSatisfying(InternalSyntaxToken.class, n -> assertThat(n.value()).isEqualTo(":"));
       assertThat(o.value()).isInstanceOfSatisfying(LiteralExprTreeImpl.class, n -> assertThat(n.value()).isEqualTo("1"));
     });

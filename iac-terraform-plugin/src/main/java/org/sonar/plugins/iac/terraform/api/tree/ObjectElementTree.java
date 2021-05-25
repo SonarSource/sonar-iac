@@ -22,7 +22,7 @@ package org.sonar.plugins.iac.terraform.api.tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
 public interface ObjectElementTree extends Tree {
-  Tree name();
+  ExpressionTree name();
   SyntaxToken equalOrColonSign();
-  Tree value();
+  ExpressionTree value();
 }

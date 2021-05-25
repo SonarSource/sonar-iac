@@ -87,7 +87,7 @@ public class TreeFactory {
     return new ObjectTreeImpl(openBrace, elements.orNull(), closeBrace);
   }
 
-  public ObjectElementTree objectElement(Tree name, SyntaxToken equalOrColonSign, ExpressionTree value) {
+  public ObjectElementTree objectElement(ExpressionTree name, SyntaxToken equalOrColonSign, ExpressionTree value) {
     return new ObjectElementTreeImpl(name, equalOrColonSign, value);
   }
 

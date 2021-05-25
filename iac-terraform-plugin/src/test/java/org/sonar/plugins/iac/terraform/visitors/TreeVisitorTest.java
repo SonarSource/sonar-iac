@@ -28,10 +28,12 @@ import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,7 +41,7 @@ class TreeVisitorTest {
 
   private TreeVisitor<TreeContext> visitor = new TreeVisitor<>();
 
-  private SyntaxToken identifier = simpleSyntaxToken("var1");
+  private VariableExprTree identifier = new VariableExprTreeImpl(simpleSyntaxToken("var1"));
   private SyntaxToken number = simpleSyntaxToken("1");
   private LiteralExprTree numberExpression = new LiteralExprTreeImpl(number);
   private ObjectElementTree objElement = new ObjectElementTreeImpl(identifier, null, numberExpression);
@@ -49,7 +51,7 @@ class TreeVisitorTest {
     List<Tree> visited = new ArrayList<>();
     visitor.register(Tree.class, (ctx, tree) -> visited.add(tree));
     visitor.scan(new TreeContext(), objElement);
-    assertThat(visited).containsExactly(objElement, identifier, numberExpression, number);
+    assertThat(visited).containsExactly(objElement, identifier, identifier.token(), numberExpression, number);
   }
 
   @Test
