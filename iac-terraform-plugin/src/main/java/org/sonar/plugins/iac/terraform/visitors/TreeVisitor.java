@@ -27,7 +27,7 @@ import org.sonar.plugins.iac.terraform.api.tree.Tree;
 
 public class TreeVisitor<C extends TreeContext> {
 
-  private List<ConsumerFilter<C, ?>> consumers = new ArrayList<>();
+  private final List<ConsumerFilter<C, ?>> consumers = new ArrayList<>();
 
   public void scan(C ctx, @Nullable Tree root) {
     if (root != null) {

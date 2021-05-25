@@ -24,7 +24,7 @@ import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
 
 public class InternalSyntaxTrivia extends InternalSyntax implements SyntaxTrivia {
 
-  private String contentText;
+  private final String contentText;
 
   public InternalSyntaxTrivia(String text, String contentText, TextRange textRange) {
     super(text, textRange);
