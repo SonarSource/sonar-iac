@@ -29,7 +29,7 @@ class IndexAccessExprTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_index_access() {
     IndexAccessExprTree tree = parse("a[1]", HclLexicalGrammar.EXPRESSION);
-    assertThat(tree).isInstanceOfSatisfying(IndexAccessExprTreeImpl.class, a -> {
+    assertThat(tree).satisfies(a -> {
       assertThat(a.subject()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
       assertThat(a.index()).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> assertThat(o.value()).isEqualTo("1"));
       assertThat(a.children()).hasSize(4);
@@ -39,7 +39,7 @@ class IndexAccessExprTreeImplTest extends TerraformTreeModelTest {
   @Test
   void double_index_access() {
     IndexAccessExprTree tree = parse("a[1][2]", HclLexicalGrammar.EXPRESSION);
-    assertThat(tree).isInstanceOfSatisfying(IndexAccessExprTreeImpl.class, a -> {
+    assertThat(tree).satisfies(a -> {
       assertThat(a.subject()).isInstanceOfSatisfying(IndexAccessExprTreeImpl.class, o -> {
         assertThat(o.subject()).isInstanceOfSatisfying(VariableExprTreeImpl.class, ob -> assertThat(ob.name()).isEqualTo("a"));
         assertThat(o.index()).isInstanceOfSatisfying(LiteralExprTreeImpl.class, ob -> assertThat(ob.value()).isEqualTo("1"));
@@ -52,7 +52,7 @@ class IndexAccessExprTreeImplTest extends TerraformTreeModelTest {
   @Test
   void attribute_access_subject() {
     IndexAccessExprTree tree = parse("a.b[1]", HclLexicalGrammar.EXPRESSION);
-    assertThat(tree).isInstanceOfSatisfying(IndexAccessExprTreeImpl.class, a -> {
+    assertThat(tree).satisfies(a -> {
       assertThat(a.subject()).isInstanceOfSatisfying(AttributeAccessTreeImpl.class, o -> {
         assertThat(o.object()).isInstanceOfSatisfying(VariableExprTreeImpl.class, ob -> assertThat(ob.name()).isEqualTo("a"));
         assertThat(o.attribute().value()).isEqualTo("b");
