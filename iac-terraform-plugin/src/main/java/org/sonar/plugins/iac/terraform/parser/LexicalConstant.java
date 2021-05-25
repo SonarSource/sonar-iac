@@ -46,6 +46,11 @@ public class LexicalConstant {
   public static final String IDENTIFIER = "[a-zA-Z0-9\\-\\_]+";
 
   /**
+   * Heredoc
+   */
+  public static final String HEREDOC_LITERAL = "<<-?(" + IDENTIFIER + ")[" + LINE_TERMINATOR + "][\\s\\S]*?" + "[" + LINE_TERMINATOR + "]" + "[" + WHITESPACE + "]*+\\1(?!\\S)";
+
+  /**
    * String
    */
   public static final String STRING_LITERAL = "\"(?:[^\"\\\\]*+(?:\\\\[\\s\\S])?+)*+\"";

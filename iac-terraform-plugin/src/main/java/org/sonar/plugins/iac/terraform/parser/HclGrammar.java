@@ -160,7 +160,8 @@ public class HclGrammar {
         b.token(HclLexicalGrammar.NUMERIC_LITERAL),
         b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
         b.token(HclLexicalGrammar.NULL),
-        b.token(HclLexicalGrammar.STRING_LITERAL))));
+        b.token(HclLexicalGrammar.STRING_LITERAL),
+        b.token(HclLexicalGrammar.HEREDOC_LITERAL))));
   }
 
   public VariableExprTree VARIABLE_EXPRESSION() {
