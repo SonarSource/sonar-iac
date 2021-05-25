@@ -26,6 +26,7 @@ import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
+import org.sonar.plugins.iac.terraform.api.tree.IndexAccessExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
@@ -41,6 +42,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.FileTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.IndexAccessExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
@@ -102,16 +104,6 @@ public class TreeFactory {
     return new PartialAttributeAccess(accessToken, attribute);
   }
 
-  public AttributeAccessTree attributeAccess(ExpressionTree object, List<PartialAttributeAccess> attributeAccesses) {
-    AttributeAccessTree result = attributeAccesses.get(0).complete(object);
-
-    for (PartialAttributeAccess attribute: attributeAccesses.subList(1, attributeAccesses.size())) {
-      result = attribute.complete(result);
-    }
-
-    return result;
-  }
-
   public VariableExprTree variable(InternalSyntaxToken token) {
     return new VariableExprTreeImpl(token);
   }
@@ -125,6 +117,25 @@ public class TreeFactory {
     Optional<List<Pair<SyntaxToken, ExpressionTree>>> otherElements,
     Optional<SyntaxToken> trailingComma) {
     return separatedTrees(firstElement, otherElements, trailingComma.orNull());
+  }
+
+  public PartialIndexAccess partialIndexAccess(SyntaxToken openBracket, ExpressionTree subject, SyntaxToken closeBracket) {
+    return new PartialIndexAccess(openBracket, subject, closeBracket);
+  }
+
+  public ExpressionTree expression(ExpressionTree primary, Optional<List<PartialAccess>> optionalAccesses) {
+    if (!optionalAccesses.isPresent()) {
+      return primary;
+    }
+
+    List<PartialAccess> accesses = optionalAccesses.get();
+
+    ExpressionTree result = accesses.get(0).complete(primary);
+    for (PartialAccess attribute: accesses.subList(1, accesses.size())) {
+      result = attribute.complete(result);
+    }
+
+    return result;
   }
 
   private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
@@ -175,7 +186,11 @@ public class TreeFactory {
     return new Pair<>(first, second);
   }
 
-  private static class PartialAttributeAccess {
+  public interface PartialAccess {
+    ExpressionTree complete(ExpressionTree primary);
+  }
+
+  public static class PartialAttributeAccess implements PartialAccess {
     private final SyntaxToken accessToken;
     private final SyntaxToken attribute;
 
@@ -186,6 +201,22 @@ public class TreeFactory {
 
     public AttributeAccessTree complete(ExpressionTree object) {
       return new AttributeAccessTreeImpl(object, accessToken, attribute);
+    }
+  }
+
+  public static class PartialIndexAccess implements PartialAccess {
+    private final SyntaxToken openBracket;
+    private final ExpressionTree index;
+    private final SyntaxToken closeBracket;
+
+    public PartialIndexAccess(SyntaxToken openBracket, ExpressionTree index, SyntaxToken closeBracket) {
+      this.openBracket = openBracket;
+      this.index = index;
+      this.closeBracket = closeBracket;
+    }
+
+    public IndexAccessExprTree complete(ExpressionTree subject) {
+      return new IndexAccessExprTreeImpl(subject, openBracket, index, closeBracket);
     }
   }
 }

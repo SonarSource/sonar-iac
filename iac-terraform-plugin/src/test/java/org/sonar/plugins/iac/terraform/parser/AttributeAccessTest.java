@@ -26,12 +26,13 @@ class AttributeAccessTest {
 
   @Test
   void test() {
-    Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE_ACCESS_EXPRESSION)
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
       .matches("a.b")
       .matches("a.b.c")
       .matches("{}.a")
       .matches("\"foo\".a")
       .matches("123.a")
+      .matches("a[1].b")
       .notMatches("a.");
   }
 }

@@ -30,7 +30,7 @@ class AttributeAccessTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void simple_attribute_access() {
-    AttributeAccessTree tree = parse("a.b", HclLexicalGrammar.ATTRIBUTE_ACCESS_EXPRESSION);
+    AttributeAccessTree tree = parse("a.b", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(AttributeAccessTreeImpl.class, a -> {
       assertThat(a.attribute().value()).isEqualTo("b");
       assertThat(a.accessToken()).isInstanceOfSatisfying(SyntaxToken.class, s -> assertThat(s.value()).isEqualTo("."));
@@ -40,12 +40,24 @@ class AttributeAccessTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void double_attribute_access() {
-    AttributeAccessTree tree = parse("a.b.c", HclLexicalGrammar.ATTRIBUTE_ACCESS_EXPRESSION);
+    AttributeAccessTree tree = parse("a.b.c", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(AttributeAccessTreeImpl.class, a -> {
       assertThat(a.attribute().value()).isEqualTo("c");
       assertThat(a.object()).isInstanceOfSatisfying(AttributeAccessTreeImpl.class, o -> {
         assertThat(o.attribute().value()).isEqualTo("b");
         assertThat(o.object()).isInstanceOfSatisfying(VariableExprTreeImpl.class, ob -> assertThat(ob.name()).isEqualTo("a"));
+      });
+    });
+  }
+
+  @Test
+  void index_access_object() {
+    AttributeAccessTree tree = parse("a[1].c", HclLexicalGrammar.EXPRESSION);
+    assertThat(tree).isInstanceOfSatisfying(AttributeAccessTreeImpl.class, a -> {
+      assertThat(a.attribute().value()).isEqualTo("c");
+      assertThat(a.object()).isInstanceOfSatisfying(IndexAccessExprTreeImpl.class, o -> {
+        assertThat(o.subject()).isInstanceOfSatisfying(VariableExprTreeImpl.class, ob -> assertThat(ob.name()).isEqualTo("a"));
+        assertThat(o.index()).isInstanceOfSatisfying(LiteralExprTreeImpl.class, ob -> assertThat(ob.value()).isEqualTo("1"));
       });
     });
   }
