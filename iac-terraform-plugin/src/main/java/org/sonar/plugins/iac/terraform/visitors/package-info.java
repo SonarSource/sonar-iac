@@ -17,10 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.api.tree.lexical;
-
-public interface SyntaxTrivia extends Syntax{
-
-  String contentText();
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.plugins.iac.terraform.visitors;

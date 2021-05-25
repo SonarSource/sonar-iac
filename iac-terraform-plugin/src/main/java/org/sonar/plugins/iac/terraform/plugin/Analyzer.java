@@ -21,14 +21,17 @@ package org.sonar.plugins.iac.terraform.plugin;
 
 import com.sonar.sslr.api.RecognitionException;
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.parser.HclParser;
 import org.sonar.plugins.iac.terraform.parser.ParseException;
+import org.sonar.plugins.iac.terraform.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class Analyzer {
@@ -36,13 +39,11 @@ public class Analyzer {
   private static final Pattern EMPTY_FILE_CONTENT_PATTERN = Pattern.compile("\\s*+");
 
   private final HclParser parser;
+  private List<TreeVisitor<InputFileContext>> visitors;
 
-  private Analyzer(HclParser parser) {
+  public Analyzer(HclParser parser, List<TreeVisitor<InputFileContext>> visitors) {
     this.parser = parser;
-  }
-
-  static Analyzer create(HclParser parser) {
-    return new Analyzer(parser);
+    this.visitors = visitors;
   }
 
   boolean analyseFiles(SensorContext sensorContext, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
@@ -75,10 +76,20 @@ public class Analyzer {
       return;
     }
 
+    Tree tree;
     try {
-      parser.parse(content);
+      tree = parser.parse(content);
     } catch (RuntimeException e) {
       throw toParseException("parse", inputFile, e);
+    }
+
+    for (TreeVisitor<InputFileContext> visitor : visitors) {
+      try {
+        visitor.scan(inputFileContext, tree);
+      } catch (RuntimeException e) {
+        inputFileContext.reportAnalysisError(e.getMessage(), null);
+        LOG.error("Cannot analyse '" + inputFile +"': " + e.getMessage(), e);
+      }
     }
   }
 
