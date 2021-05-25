@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -28,27 +28,29 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.plugins.iac.terraform.api.checks.IacCheck;
 import org.sonar.plugins.iac.terraform.parser.HclParser;
+import org.sonar.plugins.iac.terraform.visitors.ChecksVisitor;
 import org.sonar.plugins.iac.terraform.visitors.MetricsVisitor;
 import org.sonar.plugins.iac.terraform.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class TerraformSensor implements Sensor {
 
-  // TODO use for Metrics
   private final FileLinesContextFactory fileLinesContextFactory;
-  // TODO use for Metrics
   private final NoSonarFilter noSonarFilter;
+  private final Checks<IacCheck> checks;
 
   public TerraformSensor(FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory, NoSonarFilter noSonarFilter) {
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.noSonarFilter = noSonarFilter;
-    checkFactory.create(TerraformPlugin.REPOSITORY_KEY);
+    this.checks = checkFactory.create(TerraformPlugin.REPOSITORY_KEY);
   }
 
   @Override
@@ -81,6 +83,13 @@ public class TerraformSensor implements Sensor {
   }
 
   private List<TreeVisitor<InputFileContext>> visitors() {
-    return Collections.singletonList(new MetricsVisitor(fileLinesContextFactory, noSonarFilter));
+    return Arrays.asList(
+      new MetricsVisitor(fileLinesContextFactory, noSonarFilter),
+      new ChecksVisitor(checks())
+    );
+  }
+
+  Checks<IacCheck> checks() {
+    return checks;
   }
 }

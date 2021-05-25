@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.plugin;
+package org.sonar.plugins.iac.terraform.checks;
 
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.iac.terraform.checks.TerraformCheckList;
-import org.sonarsource.analyzer.commons.RuleMetadataLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.sonar.plugins.iac.terraform.api.checks.IacCheck;
+import org.sonar.plugins.iac.terraform.parser.HclParser;
 
-public class TerraformRulesDefinition implements RulesDefinition {
+public class TerraformVerifier {
 
-  private static final String RESOURCE_FOLDER = "org/sonar/l10n/terraform/rules/terraform";
+  private TerraformVerifier() {
 
-  @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(TerraformPlugin.REPOSITORY_KEY, TerraformPlugin.LANGUAGE_KEY)
-      .setName(TerraformPlugin.REPOSITORY_NAME);
-    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
-    metadataLoader.addRulesByAnnotatedClass(repository, TerraformCheckList.checks());
-    repository.done();
+  }
+
+  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  private static final HclParser PARSER = new HclParser();
+
+  public static void verify(String fileName, IacCheck check) {
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
   }
 }

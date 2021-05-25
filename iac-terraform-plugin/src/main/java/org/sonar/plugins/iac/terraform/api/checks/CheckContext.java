@@ -17,21 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.plugin;
+package org.sonar.plugins.iac.terraform.api.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.plugins.iac.terraform.checks.ParsingErrorCheck;
+import org.sonar.plugins.iac.terraform.api.tree.HasTextRange;
+import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 
-public class TerraformCheckList {
+public interface CheckContext {
 
-  private TerraformCheckList() {
+  void reportIssue(TextRange textRange, String message);
 
-  }
-
-  public static List<Class<?>> checks() {
-    return Collections.singletonList(
-      ParsingErrorCheck.class
-    );
-  }
+  void reportIssue(HasTextRange toHighlight, String message);
 }

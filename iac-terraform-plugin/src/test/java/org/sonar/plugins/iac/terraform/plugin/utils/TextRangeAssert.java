@@ -17,23 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.plugin;
+package org.sonar.plugins.iac.terraform.plugin.utils;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import javax.annotation.Nullable;
+import org.assertj.core.api.AbstractAssert;
+import org.sonar.api.batch.fs.TextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TerraformProfileDefinitionTest {
+public class TextRangeAssert extends AbstractAssert<TextRangeAssert, TextRange> {
 
-  @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    TerraformProfileDefinition definition = new TerraformProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("terraform", "Sonar way");
-    assertThat(profile.language()).isEqualTo("terraform");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules().size()).isEqualTo(1);
+  public TextRangeAssert(@Nullable TextRange actual) {
+    super(actual, TextRangeAssert.class);
+  }
+
+  public TextRangeAssert hasRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+    isNotNull();
+    assertThat(actual.start().line()).isEqualTo(startLine);
+    assertThat(actual.start().lineOffset()).isEqualTo(startLineOffset);
+    assertThat(actual.end().line()).isEqualTo(endLine);
+    assertThat(actual.end().lineOffset()).isEqualTo(endLineOffset);
+    return this;
+  }
+
+  public static TextRangeAssert assertTextRange(@Nullable TextRange actual) {
+    return new TextRangeAssert(actual);
   }
 }

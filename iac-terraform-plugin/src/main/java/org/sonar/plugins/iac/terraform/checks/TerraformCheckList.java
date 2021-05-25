@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.plugin;
+package org.sonar.plugins.iac.terraform.checks;
 
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.iac.terraform.checks.TerraformCheckList;
-import org.sonarsource.analyzer.commons.RuleMetadataLoader;
+import java.util.Arrays;
+import java.util.List;
 
-public class TerraformRulesDefinition implements RulesDefinition {
+public class TerraformCheckList {
 
-  private static final String RESOURCE_FOLDER = "org/sonar/l10n/terraform/rules/terraform";
+  private TerraformCheckList() {
 
-  @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(TerraformPlugin.REPOSITORY_KEY, TerraformPlugin.LANGUAGE_KEY)
-      .setName(TerraformPlugin.REPOSITORY_NAME);
-    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
-    metadataLoader.addRulesByAnnotatedClass(repository, TerraformCheckList.checks());
-    repository.done();
+  }
+
+  public static List<Class<?>> checks() {
+    return Arrays.asList(
+      AwsTagNameConventionCheck.class,
+      ParsingErrorCheck.class
+    );
   }
 }

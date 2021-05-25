@@ -38,35 +38,29 @@ import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.plugins.iac.terraform.api.checks.IacCheck;
+import org.sonar.plugins.iac.terraform.checks.AwsTagNameConventionCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.iac.terraform.plugin.utils.TextRangeAssert.assertTextRange;
 
 class TerraformSensorTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  private static final CheckFactory checkFactory = mock(CheckFactory.class);
-  private static final Checks<Object> checks = mock(Checks.class);
   private static final FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
-  private static final FileLinesContext fileLinesContext = mock(FileLinesContext.class);
   private static final NoSonarFilter noSonarFilter = mock(NoSonarFilter.class);
-
-  static {
-    when(checks.addAnnotatedChecks(any(Iterable.class))).thenReturn(checks);
-    when(checkFactory.create(anyString())).thenReturn(checks);
-    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-  }
 
   @TempDir
   File baseDir;
@@ -74,6 +68,8 @@ class TerraformSensorTest {
 
   @BeforeEach
   public void setup() {
+    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     context = SensorContextTester.create(baseDir);
   }
 
@@ -83,6 +79,23 @@ class TerraformSensorTest {
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC Terraform Sensor");
     assertThat(descriptor.languages()).containsOnly("terraform");
+  }
+
+  @Test
+  void test_one_rule() {
+    InputFile inputFile = inputFile("file1.tf", "" +
+      "resource \"aws_s3_bucket\" \"myawsbucket\" {\n" +
+      "  tags = { \"anycompany:cost-center\" = \"\" }\n" +
+      "}");
+    analyse(sensor("S6273"), inputFile);
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.iterator().next();
+    assertThat(issue.ruleKey().rule()).isEqualTo("S6273");
+    IssueLocation location = issue.primaryLocation();
+    assertThat(location.inputComponent()).isEqualTo(inputFile);
+    assertThat(location.message()).isEqualTo("Rename tag key \"anycompany:cost-center\" to match the regular expression \"^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\".");
+    assertTextRange(location.textRange()).hasRange(2, 11, 2, 35);
   }
 
   @Test
@@ -177,7 +190,15 @@ class TerraformSensorTest {
   }
 
   private TerraformSensor sensor(String... rules) {
-    return new TerraformSensor(fileLinesContextFactory, checkFactory(rules), noSonarFilter);
+    CheckFactory checkFactory = checkFactory(rules);
+    return new TerraformSensor(fileLinesContextFactory, checkFactory, noSonarFilter) {
+      @Override
+      protected Checks<IacCheck> checks() {
+        Checks<IacCheck> checks = checkFactory.create(TerraformPlugin.REPOSITORY_KEY);
+        checks.addAnnotatedChecks(AwsTagNameConventionCheck.class);
+        return checks;
+      }
+    };
   }
 
   protected CheckFactory checkFactory(String... ruleKeys) {

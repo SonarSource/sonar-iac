@@ -20,11 +20,18 @@
 package org.sonar.plugins.iac.terraform.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.iac.terraform.api.checks.IacCheck;
+import org.sonar.plugins.iac.terraform.api.checks.InitContext;
 
 /**
  * This class does nothing. It exists only to be present in the SonarQube profile and GUI.
  * Issues for this class are created upfront, during the parsing.
  */
 @Rule(key = "S2260")
-public class ParsingErrorCheck implements TerraformCheck{
+public class ParsingErrorCheck implements IacCheck {
+
+  @Override
+  public void initialize(InitContext init) {
+    // errors are reported in InputFileContext#reportParseError
+  }
 }

@@ -17,22 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.plugin;
+package org.sonar.plugins.iac.terraform.api.checks;
 
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.iac.terraform.checks.TerraformCheckList;
-import org.sonarsource.analyzer.commons.RuleMetadataLoader;
+import java.util.function.BiConsumer;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 
-public class TerraformRulesDefinition implements RulesDefinition {
+public interface InitContext {
 
-  private static final String RESOURCE_FOLDER = "org/sonar/l10n/terraform/rules/terraform";
-
-  @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(TerraformPlugin.REPOSITORY_KEY, TerraformPlugin.LANGUAGE_KEY)
-      .setName(TerraformPlugin.REPOSITORY_NAME);
-    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
-    metadataLoader.addRulesByAnnotatedClass(repository, TerraformCheckList.checks());
-    repository.done();
-  }
+  <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor);
 }

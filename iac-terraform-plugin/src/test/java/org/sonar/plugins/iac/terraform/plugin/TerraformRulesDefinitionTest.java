@@ -21,6 +21,7 @@ package org.sonar.plugins.iac.terraform.plugin;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.plugins.iac.terraform.checks.TerraformCheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
