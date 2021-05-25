@@ -17,24 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
-
-class AttributeTest {
-
-  @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE)
-      .matches("a = true")
-      .matches("a = null")
-      .matches("a = \"foo\"")
-      .matches("a = {}")
-      .matches("tags = { Foo = \"bar\"\n Bar = 1}")
-      .matches("a = b.c.d")
-      .matches("a = a[b[1]][2][3]")
-      .notMatches("a")
-      .notMatches("a =");
-  }
+public interface IndexAccessExprTree extends ExpressionTree {
+  ExpressionTree subject();
+  ExpressionTree index();
 }

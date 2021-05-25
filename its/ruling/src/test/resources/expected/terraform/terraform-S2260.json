@@ -5,9 +5,6 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/cloudtrail_enabled_on_multi_region/main.tf':[
 14,
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/using_public_amis/main.tf':[
-16,
-],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/cloudtrail_not_encrypted/main.tf':[
 22,
 ],
@@ -29,17 +26,11 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/workspace_user_volume_not_encrypted_at_rest/main.tf':[
 6,
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/alb_use_http/main.tf':[
-33,
-],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/cloudfront_distribution_not_encrypted/main.tf':[
 13,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/ecs_task_definition_not_encrypted_in_transit/main.tf':[
 11,
-],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/load_balancer_listener_http/main.tf':[
-16,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/iam-entities/iam_user_inline_policy_attach/main.tf':[
 13,

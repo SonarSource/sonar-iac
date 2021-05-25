@@ -20,7 +20,6 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
-import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
@@ -90,27 +89,30 @@ public class HclGrammar {
 
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
-      b.firstOf(LITERAL_EXPRESSION(),
-        TUPLE(),
-        OBJECT(),
-        ATTRIBUTE_ACCESS_EXPRESSION(),
-        VARIABLE_EXPRESSION()));
+      f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(b.firstOf(INDEX_ACCESS_EXPRESSION(), ATTRIBUTE_ACCESS_EXPRESSION()))));
   }
 
-  public ExpressionTree EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS() {
-    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS).is(
+  public ExpressionTree PRIMARY_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal().is(
       b.firstOf(LITERAL_EXPRESSION(),
         TUPLE(),
         OBJECT(),
         VARIABLE_EXPRESSION()));
   }
 
-  public AttributeAccessTree ATTRIBUTE_ACCESS_EXPRESSION() {
-    return b.<AttributeAccessTree>nonterminal(HclLexicalGrammar.ATTRIBUTE_ACCESS_EXPRESSION).is(
-      f.attributeAccess(EXPRESSION_WITHOUT_ATTRIBUTE_ACCESS(),
-        b.oneOrMore(f.partialAttributeAccess(
-            b.token(HclPunctuator.DOT),
-            b.token(HclLexicalGrammar.IDENTIFIER)))));
+  public TreeFactory.PartialAttributeAccess ATTRIBUTE_ACCESS_EXPRESSION() {
+    return b.<TreeFactory.PartialAttributeAccess>nonterminal().is(
+      f.partialAttributeAccess(
+        b.token(HclPunctuator.DOT),
+        b.token(HclLexicalGrammar.IDENTIFIER)));
+  }
+
+  public TreeFactory.PartialIndexAccess INDEX_ACCESS_EXPRESSION() {
+    return b.<TreeFactory.PartialIndexAccess>nonterminal().is(
+      f.partialIndexAccess(
+        b.token(HclPunctuator.LBRACKET),
+        EXPRESSION(),
+        b.token(HclPunctuator.RBRACKET)));
   }
 
   public ObjectTree OBJECT() {
