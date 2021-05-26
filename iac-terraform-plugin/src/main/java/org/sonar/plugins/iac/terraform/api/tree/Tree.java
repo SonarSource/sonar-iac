@@ -80,10 +80,6 @@ public interface Tree extends HasTextRange {
       this.associatedInterface = associatedInterface;
     }
 
-    public Class<? extends Tree> getAssociatedInterface() {
-      return associatedInterface;
-    }
-
   }
 
 }
