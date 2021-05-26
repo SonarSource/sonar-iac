@@ -1,0 +1,28 @@
+<p>Shared conventions allow teams to collaborate effectively. This rule allows to check that all tag keys match a provided regular expression.</p>
+<h2>Noncompliant Code Example</h2>
+<p>With default provided regular expression ^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$:</p>
+<pre>
+resource "aws_s3_bucket" "mynoncompliantbucket" {
+  bucket = "mybucketname"
+
+  tags = {
+    "anycompany:cost-center" = "Accounting" # Noncompliant
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+resource "aws_s3_bucket" "mycompliantbucket" {
+  bucket = "mybucketname"
+
+  tags = {
+    "AnyCompany:CostCenter" = "Accounting"
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/whitepapers/latest/tagging-best-practices/adopt-a-standardized-approach-for-tag-names.html">AWS
+  Documentation</a>: Adopt a Standardized Approach for Tag Names </li>
+</ul>
+

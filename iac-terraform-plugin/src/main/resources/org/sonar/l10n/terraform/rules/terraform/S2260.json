@@ -1,5 +1,5 @@
 {
-  "title": "Terraform parser failure",
+  "title": "Terraform parsing failure",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

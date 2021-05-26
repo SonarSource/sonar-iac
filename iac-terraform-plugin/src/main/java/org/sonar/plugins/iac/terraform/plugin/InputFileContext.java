@@ -28,6 +28,7 @@ import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.visitors.TreeContext;
 
 public class InputFileContext extends TreeContext {
@@ -39,6 +40,27 @@ public class InputFileContext extends TreeContext {
   public InputFileContext(SensorContext sensorContext, InputFile inputFile) {
     this.sensorContext = sensorContext;
     this.inputFile = inputFile;
+  }
+
+  public void reportIssue(RuleKey ruleKey, @Nullable TextRange textRange, String message) {
+    NewIssue issue = sensorContext.newIssue();
+    NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
+
+    if (textRange != null) {
+      issueLocation.at(textRange(textRange));
+    }
+
+    issue.forRule(ruleKey).at(issueLocation);
+    issue.save();
+  }
+
+  // TODO remove own TextRange implementation and use only sonar api implementation
+  public org.sonar.api.batch.fs.TextRange textRange(TextRange textRange) {
+    return inputFile.newRange(
+      textRange.start().line(),
+      textRange.start().column(),
+      textRange.end().line(),
+      textRange.end().column());
   }
 
   public void reportParseError(@Nullable TextPointer location) {

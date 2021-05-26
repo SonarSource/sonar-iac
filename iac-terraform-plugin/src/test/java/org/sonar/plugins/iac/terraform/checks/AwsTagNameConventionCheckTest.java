@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.plugin;
+package org.sonar.plugins.iac.terraform.checks;
 
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.iac.terraform.checks.TerraformCheckList;
-import org.sonarsource.analyzer.commons.RuleMetadataLoader;
+import org.junit.jupiter.api.Test;
 
-public class TerraformRulesDefinition implements RulesDefinition {
+class AwsTagNameConventionCheckTest {
 
-  private static final String RESOURCE_FOLDER = "org/sonar/l10n/terraform/rules/terraform";
+  @Test
+  void test_default() {
+    TerraformVerifier.verify("AwsTagNameConventionCheck/default.tf", new AwsTagNameConventionCheck());
+  }
 
-  @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(TerraformPlugin.REPOSITORY_KEY, TerraformPlugin.LANGUAGE_KEY)
-      .setName(TerraformPlugin.REPOSITORY_NAME);
-    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
-    metadataLoader.addRulesByAnnotatedClass(repository, TerraformCheckList.checks());
-    repository.done();
+  @Test
+  void test_custom() {
+    AwsTagNameConventionCheck check = new AwsTagNameConventionCheck();
+    check.format = "^([a-z-]*[a-z]:)*([a-z-]*[a-z])$";
+    TerraformVerifier.verify("AwsTagNameConventionCheck/custom.tf", check);
   }
 }
