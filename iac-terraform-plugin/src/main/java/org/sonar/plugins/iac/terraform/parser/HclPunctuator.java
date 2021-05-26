@@ -26,10 +26,13 @@ public enum HclPunctuator implements GrammarRuleKey {
   COMMA(","),
   DOT("."),
   EQU("="),
+  ELLIPSIS("..."),
   LBRACKET("["),
-  LCURLYBRACE("{"),
   RBRACKET("]"),
-  RCURLYBRACE("}")
+  LCURLYBRACE("{"),
+  RCURLYBRACE("}"),
+  LPARENTHESIS("("),
+  RPARENTHESIS(")"),
   ;
 
   private final String value;
