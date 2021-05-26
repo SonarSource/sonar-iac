@@ -21,6 +21,7 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +32,7 @@ class BodyTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_body_with_one_line_block() {
     BodyTree tree = parse("a {}", HclLexicalGrammar.BODY);
-    assertThat(tree).isInstanceOf(BodyTreeImpl.class);
+    assertThat(tree).isInstanceOfSatisfying(BodyTreeImpl.class,  o ->
+      assertThat(o.getKind()).isEqualTo(Tree.Kind.BODY));
   }
 }

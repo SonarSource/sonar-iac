@@ -43,7 +43,7 @@ class TreeVisitorTest {
 
   private VariableExprTree identifier = new VariableExprTreeImpl(simpleSyntaxToken("var1"));
   private SyntaxToken number = simpleSyntaxToken("1");
-  private LiteralExprTree numberExpression = new LiteralExprTreeImpl(number);
+  private LiteralExprTree numberExpression = new LiteralExprTreeImpl(Tree.Kind.NUMERIC_LITERAL, number);
   private ObjectElementTree objElement = new ObjectElementTreeImpl(identifier, null, numberExpression);
 
   @Test

@@ -72,4 +72,9 @@ public class OneLineBlockTreeImpl extends TerraformTree implements OneLineBlockT
     children.add(closeBrace);
     return children;
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.ONE_LINE_BLOCK;
+  }
 }

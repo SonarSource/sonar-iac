@@ -47,11 +47,16 @@ public class HclNodeBuilder implements NodeBuilder {
         return child;
       }
     }
-    // TODO: Do we need this ?
+
     return new TerraformTree() {
       @Override
       public List<Tree> children() {
         throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public Kind getKind() {
+        return Kind.TRIVIA;
       }
     };
   }

@@ -20,6 +20,9 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
@@ -54,10 +57,6 @@ import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-
 public class TreeFactory {
   public FileTree file(Optional<BodyTree> body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileTreeImpl(body.orNull(), eof);
@@ -79,8 +78,24 @@ public class TreeFactory {
     return new LabelTreeImpl(token);
   }
 
-  public LiteralExprTreeImpl literalExpr(SyntaxToken token) {
-    return new LiteralExprTreeImpl(token);
+  public LiteralExprTreeImpl numericLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(Tree.Kind.NUMERIC_LITERAL, token);
+  }
+
+  public LiteralExprTreeImpl booleanLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(Tree.Kind.BOOLEAN_LITERAL, token);
+  }
+
+  public LiteralExprTreeImpl nullLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(Tree.Kind.NULL_LITERAL, token);
+  }
+
+  public LiteralExprTreeImpl stringLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(Tree.Kind.STRING_LITERAL, token);
+  }
+
+  public LiteralExprTreeImpl heredocLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(Tree.Kind.HEREDOC_LITERAL, token);
   }
 
   public AttributeTree attribute(SyntaxToken name, SyntaxToken equalSign, ExpressionTree value) {

@@ -54,4 +54,9 @@ public class IndexAccessExprTreeImpl extends TerraformTree implements IndexAcces
   public List<Tree> children() {
     return Arrays.asList(subject, openBracket, index, closeBracket);
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.INDEX_ACCESS_EXPR;
+  }
 }

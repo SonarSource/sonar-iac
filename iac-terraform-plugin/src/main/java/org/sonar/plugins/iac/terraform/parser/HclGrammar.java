@@ -157,12 +157,13 @@ public class HclGrammar {
 
   public ExpressionTree LITERAL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.LITERAL_EXPRESSION).is(
-      f.literalExpr(b.firstOf(
-        b.token(HclLexicalGrammar.NUMERIC_LITERAL),
-        b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
-        b.token(HclLexicalGrammar.NULL),
-        b.token(HclLexicalGrammar.STRING_LITERAL),
-        b.token(HclLexicalGrammar.HEREDOC_LITERAL))));
+      b.firstOf(
+        f.numericLiteral(b.token(HclLexicalGrammar.NUMERIC_LITERAL)),
+        f.booleanLiteral(b.token(HclLexicalGrammar.BOOLEAN_LITERAL)),
+        f.nullLiteral(b.token(HclLexicalGrammar.NULL)),
+        f.stringLiteral(b.token(HclLexicalGrammar.STRING_LITERAL)),
+        f.heredocLiteral(b.token(HclLexicalGrammar.HEREDOC_LITERAL))
+      ));
   }
 
   public VariableExprTree VARIABLE_EXPRESSION() {

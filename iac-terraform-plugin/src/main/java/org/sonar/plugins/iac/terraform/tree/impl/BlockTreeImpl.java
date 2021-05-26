@@ -70,4 +70,9 @@ public class BlockTreeImpl extends TerraformTree implements BlockTree {
     children.add(closeBrace);
     return children;
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.BLOCK;
+  }
 }

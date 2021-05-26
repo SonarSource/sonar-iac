@@ -27,10 +27,18 @@ import java.util.Collections;
 import java.util.List;
 
 public class LiteralExprTreeImpl extends TerraformTree implements LiteralExprTree {
+
+  private final Kind kind;
   private final SyntaxToken token;
 
-  public LiteralExprTreeImpl(SyntaxToken token) {
+  public LiteralExprTreeImpl(Kind kind, SyntaxToken token) {
+    this.kind = kind;
     this.token = token;
+  }
+
+  @Override
+  public Kind getKind() {
+    return kind;
   }
 
   @Override
@@ -40,6 +48,9 @@ public class LiteralExprTreeImpl extends TerraformTree implements LiteralExprTre
 
   @Override
   public String value() {
+    if (is(Kind.STRING_LITERAL)) {
+      return token.value().substring(1, token.value().length() - 1 );
+    }
     return token.value();
   }
 

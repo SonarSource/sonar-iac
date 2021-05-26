@@ -49,4 +49,9 @@ public class FileTreeImpl extends TerraformTree implements FileTree {
     children.add(eof);
     return children;
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.FILE;
+  }
 }

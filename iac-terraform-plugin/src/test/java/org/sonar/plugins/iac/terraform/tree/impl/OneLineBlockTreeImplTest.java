@@ -21,6 +21,7 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +32,7 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
   void simple_one_line_block() {
     OneLineBlockTree tree = parse("a {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
+      assertThat(o.getKind()).isEqualTo(Tree.Kind.ONE_LINE_BLOCK);
       assertThat(o.type().value()).isEqualTo("a");
       assertThat(o.labels()).isEmpty();
       assertThat(o.attribute()).isNotPresent();

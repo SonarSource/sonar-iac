@@ -57,4 +57,9 @@ public class AttributeTreeImpl extends TerraformTree implements AttributeTree {
   public List<Tree> children() {
     return Arrays.asList(name, equalSign, value);
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.ATTRIBUTE;
+  }
 }

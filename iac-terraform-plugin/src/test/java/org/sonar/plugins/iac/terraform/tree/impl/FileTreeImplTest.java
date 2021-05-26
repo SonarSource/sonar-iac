@@ -22,6 +22,7 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +32,10 @@ class FileTreeImplTest extends TerraformTreeModelTest {
   @Test
   void empty_file() {
     FileTree tree = parse("", HclLexicalGrammar.FILE);
-    assertThat(tree).isInstanceOfSatisfying(FileTreeImpl.class, f -> assertThat(f.body()).isNotPresent());
+    assertThat(tree).isInstanceOfSatisfying(FileTreeImpl.class, f -> {
+      assertThat(f.getKind()).isEqualTo(Tree.Kind.FILE);
+      assertThat(f.body()).isNotPresent();
+    });
   }
 
   @Test

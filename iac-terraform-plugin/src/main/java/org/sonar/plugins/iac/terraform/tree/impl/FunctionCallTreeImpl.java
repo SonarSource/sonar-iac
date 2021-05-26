@@ -60,4 +60,9 @@ public class FunctionCallTreeImpl extends TerraformTree implements FunctionCallT
     children.add(closeParenthesis);
     return children;
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.FUNCTION_CALL;
+  }
 }

@@ -57,4 +57,9 @@ public class ObjectElementTreeImpl extends TerraformTree implements ObjectElemen
   public ExpressionTree value() {
     return value;
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.OBJECT_ELEMENT;
+  }
 }
