@@ -31,4 +31,9 @@ public class TupleTreeImpl extends AbstractCollectionValueTree<ExpressionTree> i
   public TupleTreeImpl(SyntaxToken openBrace, @Nullable SeparatedTrees<ExpressionTree> elements, SyntaxToken closeBrace) {
     super(openBrace, elements, closeBrace);
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.TUPLE;
+  }
 }

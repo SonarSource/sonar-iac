@@ -27,10 +27,12 @@ import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.Tree.Kind;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
@@ -157,12 +159,43 @@ public class HclGrammar {
 
   public ExpressionTree LITERAL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.LITERAL_EXPRESSION).is(
-      f.literalExpr(b.firstOf(
-        b.token(HclLexicalGrammar.NUMERIC_LITERAL),
-        b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
-        b.token(HclLexicalGrammar.NULL),
-        b.token(HclLexicalGrammar.STRING_LITERAL),
-        b.token(HclLexicalGrammar.HEREDOC_LITERAL))));
+      b.firstOf(
+        NUMERIC_LITERAL(),
+        BOOLEAN_LITERAL(),
+        NULL_LITERAL(),
+        STRING_LITERAL(),
+        HEREDOC_LITERAL()
+      ));
+  }
+
+  public LiteralExprTree NUMERIC_LITERAL() {
+    return b.<LiteralExprTree>nonterminal(Kind.NUMERIC_LITERAL).is(
+      f.numericLiteral(b.token(HclLexicalGrammar.NUMERIC_LITERAL))
+    );
+  }
+
+  public LiteralExprTree BOOLEAN_LITERAL() {
+    return b.<LiteralExprTree>nonterminal(Kind.BOOLEAN_LITERAL).is(
+      f.booleanLiteral(b.token(HclLexicalGrammar.BOOLEAN_LITERAL))
+    );
+  }
+
+  public LiteralExprTree NULL_LITERAL() {
+    return b.<LiteralExprTree>nonterminal(Kind.NULL_LITERAL).is(
+      f.nullLiteral(b.token(HclLexicalGrammar.NULL))
+    );
+  }
+
+  public LiteralExprTree STRING_LITERAL() {
+    return b.<LiteralExprTree>nonterminal(Kind.STRING_LITERAL).is(
+      f.stringLiteral(b.token(HclLexicalGrammar.STRING_LITERAL))
+    );
+  }
+
+  public LiteralExprTree HEREDOC_LITERAL() {
+    return b.<LiteralExprTree>nonterminal(Kind.HEREDOC_LITERAL).is(
+      f.heredocLiteral(b.token(HclLexicalGrammar.HEREDOC_LITERAL))
+    );
   }
 
   public VariableExprTree VARIABLE_EXPRESSION() {

@@ -20,10 +20,70 @@
 package org.sonar.plugins.iac.terraform.api.tree;
 
 import java.util.List;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntax;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public interface Tree extends HasTextRange {
-  // TODO:  KIND and toString
+
+  boolean is(Kind... kind);
+
+  Kind getKind();
 
   List<Tree> children();
+
+  enum Kind implements GrammarRuleKey {
+
+    ATTRIBUTE_ACCESS(AttributeAccessTree.class),
+
+    ATTRIBUTE(AttributeTree.class),
+
+    BLOCK(BlockTree.class),
+
+    BODY(BodyTree.class),
+
+    FILE(FileTree.class),
+
+    FUNCTION_CALL(FunctionCallTree.class),
+
+    INDEX_ACCESS_EXPR(IndexAccessExprTree.class),
+
+    LABEL(LabelTree.class),
+
+    NULL_LITERAL(LiteralExprTree.class),
+
+    BOOLEAN_LITERAL(LiteralExprTree.class),
+
+    NUMERIC_LITERAL(LiteralExprTree.class),
+
+    HEREDOC_LITERAL(LiteralExprTree.class),
+
+    STRING_LITERAL(LiteralExprTree.class),
+
+    OBJECT_ELEMENT(ObjectElementTree.class),
+
+    OBJECT(ObjectTree.class),
+
+    ONE_LINE_BLOCK(OneLineBlockTree.class),
+
+    TUPLE(TupleTree.class),
+
+    VARIABLE_EXPR(VariableExprTree.class),
+    // TODO change name of class
+    TOKEN(InternalSyntax.class),
+    // TODO change name of class
+    TRIVIA(SyntaxTrivia.class);
+
+    final Class<? extends Tree> associatedInterface;
+
+    Kind(Class<? extends Tree> associatedInterface) {
+      this.associatedInterface = associatedInterface;
+    }
+
+    public Class<? extends Tree> getAssociatedInterface() {
+      return associatedInterface;
+    }
+
+  }
 
 }

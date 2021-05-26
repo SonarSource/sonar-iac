@@ -29,6 +29,18 @@ public abstract class TerraformTree implements Tree {
   protected TextRange textRange;
 
   @Override
+  public final boolean is(Kind... kind) {
+    if (getKind() != null) {
+      for (Kind kindIter : kind) {
+        if (getKind() == kindIter) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
   public TextRange textRange() {
     if (textRange == null) {
       List<TextRange> childRanges = children().stream().map(Tree::textRange).collect(Collectors.toList());

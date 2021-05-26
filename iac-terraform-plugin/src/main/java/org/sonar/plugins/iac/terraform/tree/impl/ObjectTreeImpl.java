@@ -31,4 +31,9 @@ public class ObjectTreeImpl extends AbstractCollectionValueTree<ObjectElementTre
   public ObjectTreeImpl(SyntaxToken openBrace, @Nullable SeparatedTrees<ObjectElementTree> elements, SyntaxToken closeBrace) {
     super(openBrace, elements, closeBrace);
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.OBJECT;
+  }
 }

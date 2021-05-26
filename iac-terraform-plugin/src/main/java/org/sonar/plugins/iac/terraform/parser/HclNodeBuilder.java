@@ -53,6 +53,11 @@ public class HclNodeBuilder implements NodeBuilder {
       public List<Tree> children() {
         throw new UnsupportedOperationException();
       }
+
+      @Override
+      public Kind getKind() {
+        return null;
+      }
     };
   }
 

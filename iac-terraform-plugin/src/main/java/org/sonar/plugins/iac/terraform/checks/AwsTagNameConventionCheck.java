@@ -29,6 +29,7 @@ import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 
 @Rule(key = "S6273")
 public class AwsTagNameConventionCheck implements IacCheck {
@@ -56,12 +57,11 @@ public class AwsTagNameConventionCheck implements IacCheck {
   private void check(CheckContext ctx, ObjectTree tree) {
     tree.elements().trees().stream()
       .map(ObjectElementTree::name)
-      .filter(LiteralExprTree.class::isInstance)
+      .filter(i -> i.is(Tree.Kind.STRING_LITERAL))
       .forEach(i -> {
-        // TODO SONARIAC-34 Split LiteralExpression in string, numeric and boolean
-        String name = ((LiteralExprTree) i).value().replaceAll("(^\")|(\"$)", "");
-        if (!pattern.matcher(name).matches()) {
-          ctx.reportIssue(i, String.format(MESSAGE, name, format));
+        String value = ((LiteralExprTree) i).value();
+        if (!pattern.matcher(value).matches()) {
+          ctx.reportIssue(i, String.format(MESSAGE, value, format));
         }
       });
   }

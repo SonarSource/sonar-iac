@@ -47,4 +47,9 @@ public class LabelTreeImpl extends TerraformTree implements LabelTree {
   public List<Tree> children() {
     return Collections.singletonList(token);
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.LABEL;
+  }
 }

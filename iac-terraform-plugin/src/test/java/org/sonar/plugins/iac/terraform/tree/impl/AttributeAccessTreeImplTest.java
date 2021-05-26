@@ -21,6 +21,7 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
@@ -32,6 +33,7 @@ class AttributeAccessTreeImplTest extends TerraformTreeModelTest {
   void simple_attribute_access() {
     AttributeAccessTree tree = parse("a.b", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(a -> {
+      assertThat(a.getKind()).isEqualTo(Tree.Kind.ATTRIBUTE_ACCESS);
       assertThat(a.attribute().value()).isEqualTo("b");
       assertThat(a.accessToken()).isInstanceOfSatisfying(SyntaxToken.class, s -> assertThat(s.value()).isEqualTo("."));
       assertThat(a.object()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));

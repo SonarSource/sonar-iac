@@ -37,4 +37,9 @@ public class InternalSyntaxToken extends InternalSyntax implements SyntaxToken {
   public List<SyntaxTrivia> trivias() {
     return trivias;
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.TOKEN;
+  }
 }

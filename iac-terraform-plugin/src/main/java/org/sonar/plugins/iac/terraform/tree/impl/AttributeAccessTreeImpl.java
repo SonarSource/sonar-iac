@@ -58,4 +58,8 @@ public class AttributeAccessTreeImpl extends TerraformTree implements AttributeA
     return accessToken;
   }
 
+  @Override
+  public Kind getKind() {
+    return Kind.ATTRIBUTE_ACCESS;
+  }
 }

@@ -36,4 +36,9 @@ public class InternalSyntaxTrivia extends InternalSyntax implements SyntaxTrivia
   public String contentText() {
     return contentText;
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.TRIVIA;
+  }
 }

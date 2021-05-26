@@ -29,6 +29,7 @@ import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.plugins.iac.terraform.api.tree.IndexAccessExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
@@ -79,8 +80,24 @@ public class TreeFactory {
     return new LabelTreeImpl(token);
   }
 
-  public LiteralExprTreeImpl literalExpr(SyntaxToken token) {
-    return new LiteralExprTreeImpl(token);
+  public LiteralExprTreeImpl numericLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(LiteralExprTree.Kind.NUMERIC_LITERAL, token);
+  }
+
+  public LiteralExprTreeImpl booleanLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(LiteralExprTree.Kind.BOOLEAN_LITERAL, token);
+  }
+
+  public LiteralExprTreeImpl nullLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(LiteralExprTree.Kind.NULL_LITERAL, token);
+  }
+
+  public LiteralExprTreeImpl stringLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(LiteralExprTree.Kind.STRING_LITERAL, token);
+  }
+
+  public LiteralExprTreeImpl heredocLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(LiteralExprTree.Kind.HEREDOC_LITERAL, token);
   }
 
   public AttributeTree attribute(SyntaxToken name, SyntaxToken equalSign, ExpressionTree value) {

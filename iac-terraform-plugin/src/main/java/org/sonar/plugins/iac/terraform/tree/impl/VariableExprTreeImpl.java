@@ -47,4 +47,9 @@ public class VariableExprTreeImpl extends TerraformTree implements VariableExprT
   public List<Tree> children() {
     return Arrays.asList(token);
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.VARIABLE_EXPR;
+  }
 }

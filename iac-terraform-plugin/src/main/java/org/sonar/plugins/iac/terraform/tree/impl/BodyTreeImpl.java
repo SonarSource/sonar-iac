@@ -40,4 +40,9 @@ public class BodyTreeImpl extends TerraformTree implements BodyTree {
   public List<Tree> children() {
     return statements;
   }
+
+  @Override
+  public Kind getKind() {
+    return Kind.BODY;
+  }
 }
