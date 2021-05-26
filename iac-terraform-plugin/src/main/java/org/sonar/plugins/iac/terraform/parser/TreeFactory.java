@@ -26,6 +26,7 @@ import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
+import org.sonar.plugins.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.plugins.iac.terraform.api.tree.IndexAccessExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
@@ -42,6 +43,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.FileTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.FunctionCallTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.IndexAccessExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
@@ -136,6 +138,17 @@ public class TreeFactory {
     }
 
     return result;
+  }
+
+  public FunctionCallTree functionCall(SyntaxToken name, SyntaxToken openParenthesis, Optional<SeparatedTrees<ExpressionTree>> arguments, SyntaxToken closeParenthesis) {
+    return new FunctionCallTreeImpl(name, openParenthesis, arguments.orNull(), closeParenthesis);
+  }
+
+  public SeparatedTrees<ExpressionTree> functionCallArguments(
+    ExpressionTree firstArgument,
+    Optional<List<Pair<SyntaxToken, ExpressionTree>>> otherArguments,
+    Optional<SyntaxToken> trailingToken) {
+    return separatedTrees(firstArgument, otherArguments, trailingToken.orNull());
   }
 
   private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(

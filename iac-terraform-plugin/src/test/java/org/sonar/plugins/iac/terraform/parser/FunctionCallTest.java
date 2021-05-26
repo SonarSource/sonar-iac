@@ -22,20 +22,20 @@ package org.sonar.plugins.iac.terraform.parser;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-class AttributeTest {
+class FunctionCallTest {
 
   @Test
   void test() {
-    Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE)
-      .matches("a = true")
-      .matches("a = null")
-      .matches("a = \"foo\"")
-      .matches("a = {}")
-      .matches("tags = { Foo = \"bar\"\n Bar = 1}")
-      .matches("a = b.c.d")
-      .matches("a = a[b[1]][2][3]")
-      .matches("a = a(1, a, \"foo\", [], {}, b())")
-      .notMatches("a")
-      .notMatches("a =");
+    Assertions.assertThat(HclLexicalGrammar.FUNCTION_CALL)
+      .matches("a()")
+      .matches("a(1, 2)")
+      .matches("a(1, 2,)")
+      .matches("a(1, 2...)")
+      .matches("a(b(1))")
+      .notMatches("a(1")
+      .notMatches("a(,)")
+      .notMatches("a(...)")
+      .notMatches("a(1 2)")
+    ;
   }
 }

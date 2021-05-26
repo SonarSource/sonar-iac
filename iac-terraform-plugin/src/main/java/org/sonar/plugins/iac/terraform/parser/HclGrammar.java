@@ -25,6 +25,7 @@ import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
+import org.sonar.plugins.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
@@ -97,6 +98,7 @@ public class HclGrammar {
       b.firstOf(LITERAL_EXPRESSION(),
         TUPLE(),
         OBJECT(),
+        FUNCTION_CALL(),
         VARIABLE_EXPRESSION()));
   }
 
@@ -168,4 +170,18 @@ public class HclGrammar {
       f.variable(b.token(HclLexicalGrammar.IDENTIFIER)));
   }
 
+  public FunctionCallTree FUNCTION_CALL() {
+    return b.<FunctionCallTree>nonterminal(HclLexicalGrammar.FUNCTION_CALL).is(
+      f.functionCall(b.token(HclLexicalGrammar.IDENTIFIER),
+        b.token(HclPunctuator.LPARENTHESIS),
+        b.optional(FUNCTION_CALL_ARGUMENTS()),
+        b.token(HclPunctuator.RPARENTHESIS)));
+  }
+
+  public SeparatedTrees<ExpressionTree> FUNCTION_CALL_ARGUMENTS() {
+    return b.<SeparatedTrees<ExpressionTree>>nonterminal().is(
+      f.functionCallArguments(EXPRESSION(),
+        b.zeroOrMore(f.newPair(b.token(HclPunctuator.COMMA), EXPRESSION())),
+        b.optional(b.firstOf(b.token(HclPunctuator.COMMA), b.token(HclPunctuator.ELLIPSIS)))));
+  }
 }
