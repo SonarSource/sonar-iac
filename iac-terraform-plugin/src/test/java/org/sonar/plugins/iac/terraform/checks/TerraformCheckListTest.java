@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TerraformCheckListTest {
 
   /**
-   * Enforces that each check declared in list.
+   * Enforces that each check is declared in the list.
    */
   @Test
   void count() {
@@ -48,7 +48,7 @@ class TerraformCheckListTest {
   }
 
   /**
-   * Enforces that each check has test
+   * Enforces that each check has a test
    */
   @Test
   void test() {
