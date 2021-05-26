@@ -47,7 +47,7 @@ public class HclNodeBuilder implements NodeBuilder {
         return child;
       }
     }
-    // TODO: Do we need this ?
+
     return new TerraformTree() {
       @Override
       public List<Tree> children() {
@@ -56,7 +56,7 @@ public class HclNodeBuilder implements NodeBuilder {
 
       @Override
       public Kind getKind() {
-        return null;
+        return Kind.TRIVIA;
       }
     };
   }
