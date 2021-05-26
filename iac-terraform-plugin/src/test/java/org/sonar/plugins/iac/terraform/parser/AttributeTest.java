@@ -29,6 +29,8 @@ class AttributeTest {
     Assertions.assertThat(HclLexicalGrammar.ATTRIBUTE)
       .matches("a = true")
       .matches("a = null")
+      .matches("a = trueFoo")
+      .matches("a = nullFoo")
       .matches("a = \"foo\"")
       .matches("a = {}")
       .matches("tags = { Foo = \"bar\"\n Bar = 1}")

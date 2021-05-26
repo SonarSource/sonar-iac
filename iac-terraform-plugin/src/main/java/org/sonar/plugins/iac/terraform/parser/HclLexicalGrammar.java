@@ -98,6 +98,6 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   }
 
   private static Object word(LexerlessGrammarBuilder b, String word) {
-    return b.sequence(SPACING, b.regexp("(?i)" + word));
+    return b.sequence(SPACING, b.regexp("(?i)" + word), b.nextNot(b.regexp(LexicalConstant.IDENTIFIER)));
   }
 }
