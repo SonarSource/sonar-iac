@@ -154,13 +154,13 @@ public class HclGrammar {
   }
 
   public ExpressionTree LITERAL_EXPRESSION() {
-    //TODO: in the HCL grammar strings are not part of literals but of TemplateExpr. Do we need this?
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.LITERAL_EXPRESSION).is(
       f.literalExpr(b.firstOf(
         b.token(HclLexicalGrammar.NUMERIC_LITERAL),
         b.token(HclLexicalGrammar.BOOLEAN_LITERAL),
         b.token(HclLexicalGrammar.NULL),
-        b.token(HclLexicalGrammar.STRING_LITERAL))));
+        b.token(HclLexicalGrammar.STRING_LITERAL),
+        b.token(HclLexicalGrammar.HEREDOC_LITERAL))));
   }
 
   public VariableExprTree VARIABLE_EXPRESSION() {

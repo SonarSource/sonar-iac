@@ -38,8 +38,17 @@ class LiteralExprTest {
       .matches("12E34")
       .matches("12E+34")
       .matches("12E-34")
+      .matches("<<EOF\n" +
+        "    foo\n" +
+        "    EOFTEST\n" +
+        "EOF")
       .notMatches("12.")
       .notMatches("12E")
-      .notMatches("notBoolean");
+      .notMatches("notBoolean")
+      .notMatches("<<EOF\n" +
+        "    foo\n" +
+        "    bar\n" +
+        "NOT_EOF");
+
   }
 }
