@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
+import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
@@ -27,11 +28,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ObjectElementTreeImpl extends TerraformTree implements ObjectElementTree {
-  private final Tree name;
+  private final ExpressionTree name;
   private final SyntaxToken equalOrColonSign;
-  private final Tree value;
+  private final ExpressionTree value;
 
-  public ObjectElementTreeImpl(Tree name, SyntaxToken equalOrColonSign, Tree value) {
+  public ObjectElementTreeImpl(ExpressionTree name, SyntaxToken equalOrColonSign, ExpressionTree value) {
     this.name = name;
     this.equalOrColonSign = equalOrColonSign;
     this.value = value;
@@ -43,7 +44,7 @@ public class ObjectElementTreeImpl extends TerraformTree implements ObjectElemen
   }
 
   @Override
-  public Tree name() {
+  public ExpressionTree name() {
     return name;
   }
 
@@ -53,7 +54,7 @@ public class ObjectElementTreeImpl extends TerraformTree implements ObjectElemen
   }
 
   @Override
-  public Tree value() {
+  public ExpressionTree value() {
     return value;
   }
 }

@@ -148,7 +148,7 @@ public class HclGrammar {
   public ObjectElementTree OBJECT_ELEMENT() {
     return b.<ObjectElementTree>nonterminal(HclLexicalGrammar.OBJECT_ELEMENT).is(
       f.objectElement(
-        b.firstOf(b.token(HclLexicalGrammar.IDENTIFIER), EXPRESSION()),
+        EXPRESSION(),
         b.firstOf(b.token(HclPunctuator.EQU), b.token(HclPunctuator.COLON)),
         EXPRESSION()));
   }
