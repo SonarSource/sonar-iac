@@ -17,8 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.api.tree;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
-public interface AttributeSplatTree extends ExpressionTree {
-  ExpressionTree object();
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeSplatAccessTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AttributeSplatAccessTreeImplTest extends TerraformTreeModelTest {
+
+  @Test
+  void simple_attribute_splat_access() {
+    AttributeSplatAccessTree tree = parse("a.*", HclLexicalGrammar.EXPRESSION);
+    assertThat(tree).satisfies(a -> {
+      assertThat(a.getKind()).isEqualTo(Tree.Kind.ATTRIBUTE_SPLAT_ACCESS);
+      assertThat(a.children()).hasSize(3);
+      assertThat(a.object()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
+    });
+  }
 }

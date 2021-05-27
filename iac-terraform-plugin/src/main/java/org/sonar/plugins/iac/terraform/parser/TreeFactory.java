@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
-import org.sonar.plugins.iac.terraform.api.tree.AttributeSplatTree;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeSplatAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
@@ -44,7 +44,7 @@ import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeAccessTreeImpl;
-import org.sonar.plugins.iac.terraform.tree.impl.AttributeSplatTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.AttributeSplatAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
@@ -271,8 +271,8 @@ public class TreeFactory {
     }
 
     @Override
-    public AttributeSplatTree complete(ExpressionTree object) {
-      return new AttributeSplatTreeImpl(object, dot, star);
+    public AttributeSplatAccessTree complete(ExpressionTree object) {
+      return new AttributeSplatAccessTreeImpl(object, dot, star);
     }
   }
 

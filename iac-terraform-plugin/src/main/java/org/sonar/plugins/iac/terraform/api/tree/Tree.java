@@ -36,7 +36,7 @@ public interface Tree extends HasTextRange {
 
     ATTRIBUTE_ACCESS(AttributeAccessTree.class),
 
-    ATTRIBUTE_SPLAT(AttributeSplatTree.class),
+    ATTRIBUTE_SPLAT_ACCESS(AttributeSplatAccessTree.class),
 
     ATTRIBUTE(AttributeTree.class),
 

@@ -17,27 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
-
-class SplatAccessTest {
-
-  @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
-      .matches("a.*")
-      .matches("a.b.*")
-      .matches("a.*.b")
-      .matches("a.b.*.c.d")
-      .matches("a[*]")
-      .matches("a[*].b")
-      .matches("a[*].*.b")
-      .matches("a.*[*]") // Not valid HCL, but our parse allows it.
-      .notMatches("*.b")
-      .notMatches("a[*]b")
-      .notMatches("a.[*]")
-    ;
-  }
+public interface AttributeSplatAccessTree extends ExpressionTree {
+  ExpressionTree object();
 }

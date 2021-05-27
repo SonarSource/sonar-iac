@@ -90,7 +90,7 @@ public class HclGrammar {
 
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
-      f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(b.firstOf(INDEX_ACCESS(), ATTRIBUTE_ACCESS(), SPLAT_ACCESS()))));
+      f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(ACCESS())));
   }
 
   public ExpressionTree PRIMARY_EXPRESSION() {
@@ -100,6 +100,11 @@ public class HclGrammar {
         OBJECT(),
         FUNCTION_CALL(),
         VARIABLE_EXPRESSION()));
+  }
+
+  public TreeFactory.PartialAccess ACCESS() {
+    return b.<TreeFactory.PartialAccess>nonterminal().is(
+      b.firstOf(INDEX_ACCESS(), ATTRIBUTE_ACCESS(), INDEX_SPLAT_ACCESS(), ATTRIBUTE_SPLAT_ACCESS()));
   }
 
   public TreeFactory.PartialAttributeAccess ATTRIBUTE_ACCESS() {
@@ -117,15 +122,19 @@ public class HclGrammar {
         b.token(HclPunctuator.RBRACKET)));
   }
 
-  public TreeFactory.PartialAccess SPLAT_ACCESS() {
-    return b.<TreeFactory.PartialAccess>nonterminal().is(
-      b.firstOf(f.partialAttrSplatAccess(
+  public TreeFactory.PartialIndexSplatAccess INDEX_SPLAT_ACCESS() {
+    return b.<TreeFactory.PartialIndexSplatAccess>nonterminal().is(
+      f.partialIndexSplatAccess(
+        b.token(HclPunctuator.LBRACKET),
+        b.token(HclPunctuator.STAR),
+        b.token(HclPunctuator.RBRACKET)));
+  }
+
+  public TreeFactory.PartialAttrSplatAccess ATTRIBUTE_SPLAT_ACCESS() {
+    return b.<TreeFactory.PartialAttrSplatAccess>nonterminal().is(
+      f.partialAttrSplatAccess(
         b.token(HclPunctuator.DOT),
-        b.token(HclPunctuator.STAR)),
-        f.partialIndexSplatAccess(
-          b.token(HclPunctuator.LBRACKET),
-          b.token(HclPunctuator.STAR),
-          b.token(HclPunctuator.RBRACKET))));
+        b.token(HclPunctuator.STAR)));
   }
 
   public ObjectTree OBJECT() {

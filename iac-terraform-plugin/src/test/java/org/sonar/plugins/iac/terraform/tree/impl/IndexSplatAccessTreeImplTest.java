@@ -19,38 +19,22 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.plugins.iac.terraform.api.tree.AttributeSplatTree;
-import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.api.tree.IndexSplatAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-import java.util.Arrays;
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class AttributeSplatTreeImpl extends TerraformTree implements AttributeSplatTree {
-  private final ExpressionTree object;
-  private final SyntaxToken dot;
-  private final SyntaxToken star;
+class IndexSplatAccessTreeImplTest extends TerraformTreeModelTest {
 
-  public AttributeSplatTreeImpl(ExpressionTree object, SyntaxToken dot, SyntaxToken star) {
-    this.object = object;
-    this.dot = dot;
-    this.star = star;
+  @Test
+  void simple_index_splat_access() {
+    IndexSplatAccessTree tree = parse("a[*]", HclLexicalGrammar.EXPRESSION);
+    assertThat(tree).satisfies(a -> {
+      assertThat(a.getKind()).isEqualTo(Tree.Kind.INDEX_SPLAT_ACCESS);
+      assertThat(a.children()).hasSize(4);
+      assertThat(a.subject()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
+    });
   }
-
-  @Override
-  public Kind getKind() {
-    return Kind.ATTRIBUTE_SPLAT;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Arrays.asList(object, dot, star);
-  }
-
-  @Override
-  public ExpressionTree object() {
-    return object;
-  }
-
 }
