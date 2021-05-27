@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -39,10 +40,13 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.plugins.iac.terraform.api.checks.IacCheck;
 import org.sonar.plugins.iac.terraform.checks.AwsTagNameConventionCheck;
@@ -163,6 +167,23 @@ class TerraformSensorTest {
     analyse(sensor("S2260"), inputFile("parserError.tf", "a {"));
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
+  }
+
+  @Test
+  void test_sonarlint_context() {
+    SonarRuntime sonarLintRuntime = SonarRuntimeImpl.forSonarLint(Version.create(6, 0));
+    InputFile inputFile = inputFile("file1.tf", "" +
+      "resource \"aws_s3_bucket\" \"myawsbucket\" {\n" +
+      "  tags = { \"anycompany:cost-center\" = \"\" }\n" +
+      "}");
+    context.setRuntime(sonarLintRuntime);
+
+    analyse(sensor("S6273"), inputFile);
+    assertThat(context.allIssues()).hasSize(1);
+
+    // No highlighting and metrics in SonarLint
+    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
+    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
   }
 
   private void analyse(InputFile... inputFiles) {

@@ -19,11 +19,13 @@
  */
 package org.sonar.plugins.iac.terraform.plugin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -71,7 +73,7 @@ public class TerraformSensor implements Sensor {
     ProgressReport progressReport = new ProgressReport("Progress of the " + TerraformPlugin.LANGUAGE_NAME + " analysis", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(filenames);
     boolean success = false;
-    Analyzer analyzer = new Analyzer(new HclParser(), visitors());
+    Analyzer analyzer = new Analyzer(new HclParser(), visitors(sensorContext));
     try {
       success = analyzer.analyseFiles(sensorContext, inputFiles, progressReport);
     } finally {
@@ -83,12 +85,18 @@ public class TerraformSensor implements Sensor {
     }
   }
 
-  private List<TreeVisitor<InputFileContext>> visitors() {
-    return Arrays.asList(
-      new MetricsVisitor(fileLinesContextFactory, noSonarFilter),
-      new ChecksVisitor(checks()),
-      new SyntaxHighlightingVisitor()
-    );
+  private List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext) {
+    List<TreeVisitor<InputFileContext>> treeVisitors = new ArrayList<>();
+    // mandatory visitor
+    treeVisitors.add(new ChecksVisitor(checks()));
+    // non sonar lint context visitors
+    if (sensorContext.runtime().getProduct() != SonarProduct.SONARLINT) {
+      treeVisitors.addAll(Arrays.asList(
+        new MetricsVisitor(fileLinesContextFactory, noSonarFilter),
+        new SyntaxHighlightingVisitor()
+      ));
+    }
+    return treeVisitors;
   }
 
   Checks<IacCheck> checks() {
