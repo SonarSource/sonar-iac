@@ -19,30 +19,25 @@
  */
 package org.sonar.plugins.iac.terraform.parser;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-public enum HclPunctuator implements GrammarRuleKey {
-  COLON(":"),
-  COMMA(","),
-  DOT("."),
-  EQU("="),
-  ELLIPSIS("..."),
-  LBRACKET("["),
-  RBRACKET("]"),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  LPARENTHESIS("("),
-  RPARENTHESIS(")"),
-  STAR("*")
-  ;
+class SplatAccessTest {
 
-  private final String value;
-
-  HclPunctuator(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
+      .matches("a.*")
+      .matches("a.b.*")
+      .matches("a.*.b")
+      .matches("a.b.*.c.d")
+      .matches("a[*]")
+      .matches("a[*].b")
+      .matches("a[*].*.b")
+      .matches("a.*[*]") // Not valid HCL, but our parse allows it.
+      .notMatches("*.b")
+      .notMatches("a[*]b")
+      .notMatches("a.[*]")
+    ;
   }
 }

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeSplatAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
@@ -31,6 +32,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
 import org.sonar.plugins.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.plugins.iac.terraform.api.tree.IndexAccessExprTree;
+import org.sonar.plugins.iac.terraform.api.tree.IndexSplatAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
@@ -42,12 +44,14 @@ import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeAccessTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.AttributeSplatAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.FileTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.FunctionCallTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.IndexAccessExprTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.IndexSplatAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
@@ -166,6 +170,14 @@ public class TreeFactory {
     return separatedTrees(firstArgument, otherArguments, trailingToken.orNull());
   }
 
+  public PartialAttrSplatAccess partialAttrSplatAccess(SyntaxToken token, SyntaxToken token1) {
+    return new PartialAttrSplatAccess(token, token1);
+  }
+
+  public PartialIndexSplatAccess partialIndexSplatAccess(SyntaxToken openBracket, SyntaxToken star, SyntaxToken closeBracket) {
+    return new PartialIndexSplatAccess(openBracket, star, closeBracket);
+  }
+
   private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
     T firstElement,
     Optional<List<Pair<SyntaxToken, T>>> pairs,
@@ -245,6 +257,40 @@ public class TreeFactory {
 
     public IndexAccessExprTree complete(ExpressionTree subject) {
       return new IndexAccessExprTreeImpl(subject, openBracket, index, closeBracket);
+    }
+  }
+
+  public static class PartialAttrSplatAccess implements PartialAccess {
+
+    private final SyntaxToken dot;
+    private final SyntaxToken star;
+
+    public PartialAttrSplatAccess(SyntaxToken dot, SyntaxToken star) {
+      this.dot = dot;
+      this.star = star;
+    }
+
+    @Override
+    public AttributeSplatAccessTree complete(ExpressionTree object) {
+      return new AttributeSplatAccessTreeImpl(object, dot, star);
+    }
+  }
+
+  public static class PartialIndexSplatAccess implements PartialAccess {
+
+    private final SyntaxToken openBracket;
+    private final SyntaxToken star;
+    private final SyntaxToken closeBracket;
+
+    public PartialIndexSplatAccess(SyntaxToken openBracket, SyntaxToken star, SyntaxToken closeBracket) {
+      this.openBracket = openBracket;
+      this.star = star;
+      this.closeBracket = closeBracket;
+    }
+
+    @Override
+    public IndexSplatAccessTree complete(ExpressionTree object) {
+      return new IndexSplatAccessTreeImpl(object, openBracket, star, closeBracket);
     }
   }
 }

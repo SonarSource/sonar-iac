@@ -36,6 +36,7 @@ class AttributeTest {
       .matches("tags = { Foo = \"bar\"\n Bar = 1}")
       .matches("a = b.c.d")
       .matches("a = a[b[1]][2][3]")
+      .matches("a = x.y.b.*.c")
       .matches("a = a(1, a, \"foo\", [], {}, b())")
       .notMatches("a")
       .notMatches("a =");

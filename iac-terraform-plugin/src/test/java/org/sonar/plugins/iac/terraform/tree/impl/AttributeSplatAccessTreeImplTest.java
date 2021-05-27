@@ -17,32 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeSplatAccessTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-public enum HclPunctuator implements GrammarRuleKey {
-  COLON(":"),
-  COMMA(","),
-  DOT("."),
-  EQU("="),
-  ELLIPSIS("..."),
-  LBRACKET("["),
-  RBRACKET("]"),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  LPARENTHESIS("("),
-  RPARENTHESIS(")"),
-  STAR("*")
-  ;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final String value;
+class AttributeSplatAccessTreeImplTest extends TerraformTreeModelTest {
 
-  HclPunctuator(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
+  @Test
+  void simple_attribute_splat_access() {
+    AttributeSplatAccessTree tree = parse("a.*", HclLexicalGrammar.EXPRESSION);
+    assertThat(tree).satisfies(a -> {
+      assertThat(a.getKind()).isEqualTo(Tree.Kind.ATTRIBUTE_SPLAT_ACCESS);
+      assertThat(a.children()).hasSize(3);
+      assertThat(a.object()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
+    });
   }
 }

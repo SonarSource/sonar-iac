@@ -36,6 +36,8 @@ public interface Tree extends HasTextRange {
 
     ATTRIBUTE_ACCESS(AttributeAccessTree.class),
 
+    ATTRIBUTE_SPLAT_ACCESS(AttributeSplatAccessTree.class),
+
     ATTRIBUTE(AttributeTree.class),
 
     BLOCK(BlockTree.class),
@@ -47,6 +49,8 @@ public interface Tree extends HasTextRange {
     FUNCTION_CALL(FunctionCallTree.class),
 
     INDEX_ACCESS_EXPR(IndexAccessExprTree.class),
+
+    INDEX_SPLAT_ACCESS(IndexSplatAccessTree.class),
 
     LABEL(LabelTree.class),
 
