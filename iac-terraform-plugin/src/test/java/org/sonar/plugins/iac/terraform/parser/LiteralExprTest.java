@@ -45,6 +45,9 @@ class LiteralExprTest {
       .notMatches("12.")
       .notMatches("12E")
       .notMatches("notBoolean")
+      .notMatches("trueFoo")
+      .notMatches("falseFoo")
+      .notMatches("nullFoo")
       .notMatches("<<EOF\n" +
         "    foo\n" +
         "    bar\n" +
