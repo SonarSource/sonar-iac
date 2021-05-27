@@ -22,36 +22,22 @@ package org.sonar.plugins.iac.terraform.parser;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-class LiteralExprTest {
+class SplatAccessTest {
 
   @Test
   void test() {
-    Assertions.assertThat(HclLexicalGrammar.LITERAL_EXPRESSION)
-      .matches("true")
-      .matches("TRUE")
-      .matches("false")
-      .matches("null")
-      .matches("\"foo\"")
-      .matches("1")
-      .matches("12.34")
-      .matches("12e34")
-      .matches("12E34")
-      .matches("12E+34")
-      .matches("12E-34")
-      .matches("<<EOF\n" +
-        "    foo\n" +
-        "    EOFTEST\n" +
-        "EOF")
-      .notMatches("12.")
-      .notMatches("12E")
-      .notMatches("notBoolean")
-      .notMatches("trueFoo")
-      .notMatches("falseFoo")
-      .notMatches("nullFoo")
-      .notMatches("<<EOF\n" +
-        "    foo\n" +
-        "    bar\n" +
-        "NOT_EOF");
-
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
+      .matches("a.*")
+      .matches("a.b.*")
+      .matches("a.*.b")
+      .matches("a.b.*.c.d")
+      .matches("a[*]")
+      .matches("a[*].b")
+      .matches("a[*].*.b")
+      .matches("a.*[*]") // Not valid HCL, but our parse allows it.
+      .notMatches("*.b")
+      .notMatches("a[*]b")
+      .notMatches("a.[*]")
+    ;
   }
 }

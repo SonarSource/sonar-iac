@@ -17,41 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.AttributeSplatAccessTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-class LiteralExprTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AttributeSplatAccessTreeImplTest extends TerraformTreeModelTest {
 
   @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.LITERAL_EXPRESSION)
-      .matches("true")
-      .matches("TRUE")
-      .matches("false")
-      .matches("null")
-      .matches("\"foo\"")
-      .matches("1")
-      .matches("12.34")
-      .matches("12e34")
-      .matches("12E34")
-      .matches("12E+34")
-      .matches("12E-34")
-      .matches("<<EOF\n" +
-        "    foo\n" +
-        "    EOFTEST\n" +
-        "EOF")
-      .notMatches("12.")
-      .notMatches("12E")
-      .notMatches("notBoolean")
-      .notMatches("trueFoo")
-      .notMatches("falseFoo")
-      .notMatches("nullFoo")
-      .notMatches("<<EOF\n" +
-        "    foo\n" +
-        "    bar\n" +
-        "NOT_EOF");
-
+  void simple_attribute_splat_access() {
+    AttributeSplatAccessTree tree = parse("a.*", HclLexicalGrammar.EXPRESSION);
+    assertThat(tree).satisfies(a -> {
+      assertThat(a.getKind()).isEqualTo(Tree.Kind.ATTRIBUTE_SPLAT_ACCESS);
+      assertThat(a.children()).hasSize(3);
+      assertThat(a.object()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
+    });
   }
 }
