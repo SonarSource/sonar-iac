@@ -25,6 +25,8 @@ import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
+import org.sonar.plugins.iac.terraform.api.tree.ForObjectTree;
+import org.sonar.plugins.iac.terraform.api.tree.ForTupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
@@ -34,6 +36,7 @@ import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.tree.impl.AbstractForTree;
 
 public class HclGrammar {
 
@@ -99,7 +102,9 @@ public class HclGrammar {
         TUPLE(),
         OBJECT(),
         FUNCTION_CALL(),
-        VARIABLE_EXPRESSION()));
+        VARIABLE_EXPRESSION(),
+        FOR_TUPLE(),
+        FOR_OBJECT()));
   }
 
   public TreeFactory.PartialAccess ACCESS() {
@@ -142,6 +147,36 @@ public class HclGrammar {
       f.object(b.token(HclPunctuator.LCURLYBRACE),
         b.optional(OBJECT_ELEMENTS()),
         b.token(HclPunctuator.RCURLYBRACE)));
+  }
+
+  public ForTupleTree FOR_TUPLE() {
+    return b.<ForTupleTree>nonterminal().is(
+      f.forTuple(b.token(HclPunctuator.LBRACKET),
+        FOR_INTRO(),
+        EXPRESSION(),
+        b.optional(f.newPair(b.token(HclKeyword.IF), EXPRESSION())),
+        b.token(HclPunctuator.RBRACKET)));
+  }
+
+  public ForObjectTree FOR_OBJECT() {
+    return b.<ForObjectTree>nonterminal().is(
+      f.forObject(b.token(HclPunctuator.LCURLYBRACE),
+        FOR_INTRO(),
+        EXPRESSION(),
+        b.token(HclPunctuator.DOUBLEARROW),
+        EXPRESSION(),
+        b.optional(b.token(HclPunctuator.ELLIPSIS)),
+        b.optional(f.newPair(b.token(HclKeyword.IF), EXPRESSION())),
+        b.token(HclPunctuator.RCURLYBRACE)));
+  }
+
+  public AbstractForTree.ForIntro FOR_INTRO() {
+    return b.<AbstractForTree.ForIntro>nonterminal().is(
+      f.forIntro(b.token(HclKeyword.FOR),
+        f.forIntroIdentifiers(VARIABLE_EXPRESSION(), b.optional(f.newPair(b.token(HclPunctuator.COMMA), VARIABLE_EXPRESSION()))),
+        b.token(HclKeyword.IN),
+        EXPRESSION(),
+        b.token(HclPunctuator.COLON)));
   }
 
   public SeparatedTrees<ObjectElementTree> OBJECT_ELEMENTS() {

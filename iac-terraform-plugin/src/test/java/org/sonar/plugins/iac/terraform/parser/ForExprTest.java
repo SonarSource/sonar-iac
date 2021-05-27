@@ -19,31 +19,25 @@
  */
 package org.sonar.plugins.iac.terraform.parser;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-public enum HclPunctuator implements GrammarRuleKey {
-  COLON(":"),
-  COMMA(","),
-  DOUBLEARROW("=>"),
-  DOT("."),
-  EQU("="),
-  ELLIPSIS("..."),
-  LBRACKET("["),
-  RBRACKET("]"),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  LPARENTHESIS("("),
-  RPARENTHESIS(")"),
-  STAR("*")
-  ;
+class ForExprTest {
 
-  private final String value;
-
-  HclPunctuator(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
+      .matches("[for a in b : c]")
+      .matches("[for a in b : c if d]")
+      .matches("[for a,b in c : d if e]")
+      .matches("{for a in b: c => d}")
+      .matches("{for a,b in b: c => d}")
+      .matches("{for a,b in b: c => d if e}")
+      .matches("{for a in b: c => d...}")
+      .notMatches("[for a, in b : c]")
+      .notMatches("[for a,b,c in b : c]")
+      .notMatches("{for a, in b: c => d}")
+      .notMatches("{for a,b,c in b: c => d}")
+    ;
   }
 }

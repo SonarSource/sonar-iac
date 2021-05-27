@@ -46,6 +46,10 @@ public interface Tree extends HasTextRange {
 
     FILE(FileTree.class),
 
+    FOR_OBJECT(ForObjectTree.class),
+
+    FOR_TUPLE(ForTupleTree.class),
+
     FUNCTION_CALL(FunctionCallTree.class),
 
     INDEX_ACCESS_EXPR(IndexAccessExprTree.class),

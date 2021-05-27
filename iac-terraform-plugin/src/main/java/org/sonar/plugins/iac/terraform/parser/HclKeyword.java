@@ -21,25 +21,14 @@ package org.sonar.plugins.iac.terraform.parser;
 
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public enum HclPunctuator implements GrammarRuleKey {
-  COLON(":"),
-  COMMA(","),
-  DOUBLEARROW("=>"),
-  DOT("."),
-  EQU("="),
-  ELLIPSIS("..."),
-  LBRACKET("["),
-  RBRACKET("]"),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  LPARENTHESIS("("),
-  RPARENTHESIS(")"),
-  STAR("*")
-  ;
+public enum HclKeyword implements GrammarRuleKey {
+  FOR("for"),
+  IF("if"),
+  IN("in");
 
   private final String value;
 
-  HclPunctuator(String value) {
+  HclKeyword(String value) {
     this.value = value;
   }
 
