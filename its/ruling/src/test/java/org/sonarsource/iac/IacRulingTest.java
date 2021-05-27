@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.Location;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +46,7 @@ class IacRulingTest {
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE[8.9]";
   private static final String LITS_VERSION = "0.9.0.1682";
+  private static final String PLUGIN_NAME = "iac-terraform-plugin";
 
   private static Orchestrator orchestrator;
   private static boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
@@ -57,9 +57,8 @@ class IacRulingTest {
   public static void setUp() {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
+      .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../" + PLUGIN_NAME + "/target"), PLUGIN_NAME + "-*.jar"))
       .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION));
-
-    addLanguagePlugins(builder);
 
     orchestrator = builder.build();
     orchestrator.start();
@@ -68,14 +67,6 @@ class IacRulingTest {
 
     File terraformProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "terraform", "terraform", terraformRulesConfiguration, Collections.emptySet());
     orchestrator.getServer().restoreProfile(FileLocation.of(terraformProfile));
-  }
-
-  private static void addLanguagePlugins(OrchestratorBuilder builder) {
-    LANGUAGES.forEach(language -> {
-      String plugin = "iac-" + language +"-plugin";
-      Location pluginLocation = FileLocation.byWildcardMavenFilename(new File("../../" + plugin + "/target"), plugin + "-*.jar");
-      builder.addPlugin(pluginLocation);
-    });
   }
 
   @Test
@@ -107,7 +98,6 @@ class IacRulingTest {
       .setProperty("dump.old", FileLocation.of("src/test/resources/expected/" + project).getFile().getAbsolutePath())
       .setProperty("dump.new", actualDirectory.getAbsolutePath())
       .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
-      .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.scm.disabled", "true")
       .setProperty("sonar.project", project)
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
