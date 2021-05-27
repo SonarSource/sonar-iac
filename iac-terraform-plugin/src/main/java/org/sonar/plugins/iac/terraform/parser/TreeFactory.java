@@ -42,6 +42,7 @@ import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeAccessTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.AttributeSplatTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
@@ -166,6 +167,10 @@ public class TreeFactory {
     return separatedTrees(firstArgument, otherArguments, trailingToken.orNull());
   }
 
+  public PartialAttrSplatAccess partialAttrSplatAccess(SyntaxToken token, SyntaxToken token1) {
+    return new PartialAttrSplatAccess(token, token1);
+  }
+
   private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
     T firstElement,
     Optional<List<Pair<SyntaxToken, T>>> pairs,
@@ -245,6 +250,22 @@ public class TreeFactory {
 
     public IndexAccessExprTree complete(ExpressionTree subject) {
       return new IndexAccessExprTreeImpl(subject, openBracket, index, closeBracket);
+    }
+  }
+
+  public static class PartialAttrSplatAccess implements PartialAccess {
+
+    private final SyntaxToken dot;
+    private final SyntaxToken star;
+
+    public PartialAttrSplatAccess(SyntaxToken dot, SyntaxToken star) {
+      this.dot = dot;
+      this.star = star;
+    }
+
+    @Override
+    public ExpressionTree complete(ExpressionTree object) {
+      return new AttributeSplatTreeImpl(object, dot, star);
     }
   }
 }

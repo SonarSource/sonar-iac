@@ -33,6 +33,7 @@ public enum HclPunctuator implements GrammarRuleKey {
   RCURLYBRACE("}"),
   LPARENTHESIS("("),
   RPARENTHESIS(")"),
+  STAR("*")
   ;
 
   private final String value;
