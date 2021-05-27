@@ -117,11 +117,15 @@ public class HclGrammar {
         b.token(HclPunctuator.RBRACKET)));
   }
 
-  public TreeFactory.PartialAttrSplatAccess SPLAT_ACCESS() {
-    return b.<TreeFactory.PartialAttrSplatAccess>nonterminal().is(
-      f.partialAttrSplatAccess(
+  public TreeFactory.PartialAccess SPLAT_ACCESS() {
+    return b.<TreeFactory.PartialAccess>nonterminal().is(
+      b.firstOf(f.partialAttrSplatAccess(
         b.token(HclPunctuator.DOT),
-        b.token(HclPunctuator.STAR)));
+        b.token(HclPunctuator.STAR)),
+        f.partialIndexSplatAccess(
+          b.token(HclPunctuator.LBRACKET),
+          b.token(HclPunctuator.STAR),
+          b.token(HclPunctuator.RBRACKET))));
   }
 
   public ObjectTree OBJECT() {

@@ -50,6 +50,8 @@ public interface Tree extends HasTextRange {
 
     INDEX_ACCESS_EXPR(IndexAccessExprTree.class),
 
+    INDEX_SPLAT_ACCESS(IndexSplatAccessTree.class),
+
     LABEL(LabelTree.class),
 
     NULL_LITERAL(LiteralExprTree.class),
