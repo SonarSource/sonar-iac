@@ -37,6 +37,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.plugins.iac.terraform.api.checks.IacCheck;
+import org.sonar.plugins.iac.terraform.checks.TerraformCheckList;
 import org.sonar.plugins.iac.terraform.parser.HclParser;
 import org.sonar.plugins.iac.terraform.visitors.ChecksVisitor;
 import org.sonar.plugins.iac.terraform.visitors.MetricsVisitor;
@@ -53,7 +54,8 @@ public class TerraformSensor implements Sensor {
   public TerraformSensor(FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory, NoSonarFilter noSonarFilter) {
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.noSonarFilter = noSonarFilter;
-    this.checks = checkFactory.create(TerraformPlugin.REPOSITORY_KEY);
+    checks = checkFactory.create(TerraformPlugin.REPOSITORY_KEY);
+    checks.addAnnotatedChecks((Iterable<?>) TerraformCheckList.checks());
   }
 
   @Override
