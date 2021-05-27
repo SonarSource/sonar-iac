@@ -38,6 +38,7 @@ import org.sonar.plugins.iac.terraform.api.checks.IacCheck;
 import org.sonar.plugins.iac.terraform.parser.HclParser;
 import org.sonar.plugins.iac.terraform.visitors.ChecksVisitor;
 import org.sonar.plugins.iac.terraform.visitors.MetricsVisitor;
+import org.sonar.plugins.iac.terraform.visitors.SyntaxHighlightingVisitor;
 import org.sonar.plugins.iac.terraform.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
@@ -85,7 +86,8 @@ public class TerraformSensor implements Sensor {
   private List<TreeVisitor<InputFileContext>> visitors() {
     return Arrays.asList(
       new MetricsVisitor(fileLinesContextFactory, noSonarFilter),
-      new ChecksVisitor(checks())
+      new ChecksVisitor(checks()),
+      new SyntaxHighlightingVisitor()
     );
   }
 
