@@ -13,11 +13,6 @@
 
   <name>SonarSource IaC ITs Ruling</name>
 
-  <properties>
-    <surefire.argLine>-server</surefire.argLine>
-    <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.sonarsource.analyzer-commons</groupId>

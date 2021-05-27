@@ -29,6 +29,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   MeasuresTest.class,
+  NoSonarTest.class
 })
 public class Tests {
 
@@ -44,7 +45,7 @@ public class Tests {
     ORCHESTRATOR = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
       .addPlugin(IAC_PLUGIN_LOCATION)
-      .restoreProfileAtStartup(FileLocation.of("src/test/resources/norule.xml"))
+      .restoreProfileAtStartup(FileLocation.of("src/test/resources/nosonar-terraform.xml"))
       .build();
   }
 }
