@@ -89,8 +89,6 @@ public class TerraformSensor implements Sensor {
 
   private List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext) {
     List<TreeVisitor<InputFileContext>> treeVisitors = new ArrayList<>();
-    // mandatory visitor
-    treeVisitors.add(new ChecksVisitor(checks()));
     // non sonar lint context visitors
     if (sensorContext.runtime().getProduct() != SonarProduct.SONARLINT) {
       treeVisitors.addAll(Arrays.asList(
@@ -98,6 +96,8 @@ public class TerraformSensor implements Sensor {
         new SyntaxHighlightingVisitor()
       ));
     }
+    // mandatory visitor
+    treeVisitors.add(new ChecksVisitor(checks()));
     return treeVisitors;
   }
 
