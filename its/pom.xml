@@ -24,6 +24,7 @@
     <license.title>SonarSource IaC</license.title>
     <skipTests>true</skipTests>
     <maven.deploy.skip>true</maven.deploy.skip>
+    <surefire.argLine>-server</surefire.argLine>
   </properties>
 
   <profiles>
