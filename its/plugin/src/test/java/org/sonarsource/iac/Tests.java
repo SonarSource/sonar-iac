@@ -29,7 +29,8 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   MeasuresTest.class,
-  NoSonarTest.class
+  NoSonarTest.class,
+  PropertiesTest.class
 })
 public class Tests {
 
