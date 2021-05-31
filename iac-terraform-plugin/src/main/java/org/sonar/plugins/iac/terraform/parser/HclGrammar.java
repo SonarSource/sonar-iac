@@ -32,6 +32,7 @@ import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.plugins.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
@@ -104,7 +105,13 @@ public class HclGrammar {
         FUNCTION_CALL(),
         VARIABLE_EXPRESSION(),
         FOR_TUPLE(),
-        FOR_OBJECT()));
+        FOR_OBJECT(),
+        PARENTHESIZED_EXPRESSION()));
+  }
+
+  public ParenthesizedExpressionTree PARENTHESIZED_EXPRESSION() {
+    return b.<ParenthesizedExpressionTree>nonterminal().is(
+      f.parenthesizedExpression(b.token(HclPunctuator.LPARENTHESIS), EXPRESSION(), b.token(HclPunctuator.RPARENTHESIS)));
   }
 
   public TreeFactory.PartialAccess POSTFIX_EXPRESSION() {

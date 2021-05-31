@@ -36,6 +36,7 @@ import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.plugins.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
@@ -60,6 +61,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.ParenthesizedExpressionTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
@@ -248,6 +250,10 @@ public class TreeFactory {
 
   public PartialAccess condition(SyntaxToken queryToken, ExpressionTree trueExpression, SyntaxToken colonToken, ExpressionTree falseExpression) {
     return new PartialCondition(queryToken, trueExpression, colonToken, falseExpression);
+  }
+
+  public ParenthesizedExpressionTree parenthesizedExpression(SyntaxToken openParenthesis, ExpressionTree expression, SyntaxToken closeParenthesis) {
+    return new ParenthesizedExpressionTreeImpl(openParenthesis, expression, closeParenthesis);
   }
 
   public static class Pair<T, U> {

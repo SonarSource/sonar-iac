@@ -34,7 +34,8 @@ class SplatAccessTest {
       .matches("a[*]")
       .matches("a[*].b")
       .matches("a[*].*.b")
-      .matches("a.*[*]") // Not valid HCL, but our parse allows it.
+      .matches("a.*[*]") // Not valid HCL, but our parser allows it.
+      .matches("(a).*")
       .notMatches("*.b")
       .notMatches("a[*]b")
       .notMatches("a.[*]")
