@@ -76,6 +76,8 @@ public interface Tree extends HasTextRange {
 
     ONE_LINE_BLOCK(OneLineBlockTree.class),
 
+    PARENTHESIZED_EXPRESSION(ParenthesizedExpressionTree.class),
+
     TUPLE(TupleTree.class),
 
     VARIABLE_EXPR(VariableExprTree.class),

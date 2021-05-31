@@ -17,23 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
+import org.sonar.plugins.iac.terraform.api.tree.ParenthesizedExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
+import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
-class ConditionTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ParenthesizedExpressionTreeImplTest extends TerraformTreeModelTest {
 
   @Test
-  void test() {
-    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
-      .matches("a ? b : c")
-      .matches("a[1] ? b[1] : c[1]")
-      .matches("a.a1 ? b.b1 : c.c1")
-      .matches("a ? a1 : a2 ? b ? b1 : b2 : c ? c1 : c2")
-      .matches("(a ? a1 : a2) ? (b ? b1 : b2) : (c ? c1 : c2)")
-      .notMatches("a ? b")
-      .notMatches("a ? b :")
-    ;
+  void simple_parenthesized_expression() {
+    ParenthesizedExpressionTree tree = parse("(a)", HclLexicalGrammar.EXPRESSION);
+    assertThat(tree).satisfies(o -> {
+      assertThat(o.getKind()).isEqualTo(Tree.Kind.PARENTHESIZED_EXPRESSION);
+      assertThat(o.children()).hasSize(3);
+      assertThat(o.expression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("a"));
+    });
   }
 }

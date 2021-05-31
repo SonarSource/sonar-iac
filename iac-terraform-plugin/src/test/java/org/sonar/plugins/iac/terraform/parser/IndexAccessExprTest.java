@@ -32,6 +32,7 @@ class IndexAccessExprTest {
       .matches("a[b[1]][2]")
       .matches("{}[1]")
       .matches("a.b[1]")
+      .matches("(a)[1]")
       .matches("\"foo\"[1]");
   }
 }

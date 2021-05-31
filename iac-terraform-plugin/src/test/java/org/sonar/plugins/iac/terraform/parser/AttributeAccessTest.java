@@ -33,6 +33,7 @@ class AttributeAccessTest {
       .matches("\"foo\".a")
       .matches("123.a")
       .matches("a[1].b")
+      .matches("(a).b")
       .notMatches("a.");
   }
 }
