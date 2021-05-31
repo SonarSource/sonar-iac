@@ -11,7 +11,7 @@
 
   <artifactId>iac-its-ruling</artifactId>
 
-  <name>SonarSource IaC ITs Ruling</name>
+  <name>SonarSource IaC Analyzer :: ITs :: Ruling</name>
 
   <properties>
     <surefire.argLine>-server</surefire.argLine>

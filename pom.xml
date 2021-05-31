@@ -14,8 +14,7 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>SonarSource IaC</name>
-  <description>Code Analyzer for infrastructure as code issues</description>
+  <name>SonarSource IaC Analyzer</name>
   <inceptionYear>2021</inceptionYear>
   <organization>
     <name>SonarSource</name>
@@ -28,6 +27,19 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <developers>
+    <developer>
+      <id>karim-ouerghemmi-sonarsource</id>
+      <name>Karim El Ouerghemmi</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>nils-werner-sonarsource</id>
+      <name>Nils Werner</name>
+      <organization>SonarSource</organization>
+    </developer>
+  </developers>
 
   <modules>
     <module>iac-terraform-plugin</module>
@@ -61,12 +73,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-plugin-api</artifactId>
-        <version>${version.sonar}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
         <version>${version.sslr}</version>
@@ -79,6 +85,11 @@
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-commons</artifactId>
+        <version>${version.analyzer.commons}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.analyzer-commons</groupId>
+        <artifactId>sonar-analyzer-test-commons</artifactId>
         <version>${version.analyzer.commons}</version>
       </dependency>
 
@@ -100,12 +111,6 @@
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator</artifactId>
         <version>${version.orchestrator}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.analyzer-commons</groupId>
-        <artifactId>sonar-analyzer-test-commons</artifactId>
-        <version>${version.analyzer.commons}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -138,6 +143,14 @@
         <version>${version.mockito}</version>
         <scope>test</scope>
       </dependency>
+
+      <!-- Provided dependencies -->
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-plugin-api</artifactId>
+        <version>${version.sonar}</version>
+        <scope>provided</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -148,6 +161,16 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration/>
+        </plugin>
+        <plugin>
+          <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+          <artifactId>sonar-packaging-maven-plugin</artifactId>
+          <version>${version.sonar-packaging.plugin}</version>
+          <configuration>
+            <sonarLintSupported>true</sonarLintSupported>
+            <sonarQubeMinVersion>8.9</sonarQubeMinVersion>
+            <skipDependenciesPackaging>true</skipDependenciesPackaging>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
