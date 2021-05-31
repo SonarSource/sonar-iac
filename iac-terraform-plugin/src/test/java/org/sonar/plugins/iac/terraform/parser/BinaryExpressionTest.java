@@ -19,44 +19,29 @@
  */
 package org.sonar.plugins.iac.terraform.parser;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-public enum HclPunctuator implements GrammarRuleKey {
-  COLON(":"),
-  COMMA(","),
-  DOUBLEARROW("=>"),
-  DOT("."),
-  EQU("="),
-  ELLIPSIS("..."),
-  LBRACKET("["),
-  RBRACKET("]"),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  LPARENTHESIS("("),
-  RPARENTHESIS(")"),
-  OR("||"),
-  AND("&&"),
-  EQUAL("=="),
-  NOT_EQUAL("!="),
-  GT(">"),
-  GE(">="),
-  LT("<"),
-  LE("<="),
-  PLUS("+"),
-  MINUS("-"),
-  DIV("/"),
-  PERCENT("%"),
-  STAR("*"),
-  QUERY("?")
-  ;
+class BinaryExpressionTest {
 
-  private final String value;
-
-  HclPunctuator(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
+      .matches("a || b")
+      .matches("a && b")
+      .matches("a || b && c")
+      .matches("a == b")
+      .matches("a != b")
+      .matches("a || b && c != d")
+      .matches("a > b")
+      .matches("a >= b")
+      .matches("a < b")
+      .matches("a <= b")
+      .matches("a + b")
+      .matches("a - b")
+      .matches("a * b")
+      .matches("a / b")
+      .matches("a % b")
+      .notMatches("a ||");
   }
 }

@@ -93,8 +93,51 @@ public class HclGrammar {
   }
 
   public ExpressionTree EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
-      f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(POSTFIX_EXPRESSION())));
+    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(CONDITIONAL_OR_EXPR());
+  }
+
+  public ExpressionTree CONDITIONAL_OR_EXPR() {
+    return b.<ExpressionTree>nonterminal().is(
+      f.binaryExpression(CONDITIONAL_AND_EXPR(),
+        b.zeroOrMore(f.newPair(b.token(HclPunctuator.OR), CONDITIONAL_AND_EXPR()))));
+  }
+
+  public ExpressionTree CONDITIONAL_AND_EXPR() {
+    return b.<ExpressionTree>nonterminal().is(
+      f.binaryExpression(EQUALITY_EXPR(),
+        b.zeroOrMore(f.newPair(b.token(HclPunctuator.AND), EQUALITY_EXPR()))));
+  }
+
+  public ExpressionTree EQUALITY_EXPR() {
+    return b.<ExpressionTree>nonterminal().is(
+      f.binaryExpression(RELATIONAL_EXPR(),
+        b.zeroOrMore(f.newPair(
+          b.firstOf(b.token(HclPunctuator.EQUAL), b.token(HclPunctuator.NOT_EQUAL)),
+          RELATIONAL_EXPR()))));
+  }
+
+  public ExpressionTree RELATIONAL_EXPR() {
+    return b.<ExpressionTree>nonterminal().is(
+      f.binaryExpression(ADDITIVE_EXPR(),
+        b.zeroOrMore(f.newPair(
+          b.firstOf(b.token(HclPunctuator.GE), b.token(HclPunctuator.GT), b.token(HclPunctuator.LE), b.token(HclPunctuator.LT)),
+          ADDITIVE_EXPR()))));
+  }
+
+  public ExpressionTree ADDITIVE_EXPR() {
+    return b.<ExpressionTree>nonterminal().is(
+      f.binaryExpression(MULTIPLICATIVE_EXPR(),
+        b.zeroOrMore(f.newPair(
+          b.firstOf(b.token(HclPunctuator.PLUS), b.token(HclPunctuator.MINUS)),
+          MULTIPLICATIVE_EXPR()))));
+  }
+
+  public ExpressionTree MULTIPLICATIVE_EXPR() {
+    return b.<ExpressionTree>nonterminal().is(
+      f.binaryExpression(f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(POSTFIX_EXPRESSION())),
+        b.zeroOrMore(f.newPair(
+          b.firstOf(b.token(HclPunctuator.STAR), b.token(HclPunctuator.DIV), b.token(HclPunctuator.PERCENT)),
+          f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(POSTFIX_EXPRESSION()))))));
   }
 
   public ExpressionTree PRIMARY_EXPRESSION() {
