@@ -44,6 +44,8 @@ public interface Tree extends HasTextRange {
 
     BODY(BodyTree.class),
 
+    CONDITION(ConditionTree.class),
+
     FILE(FileTree.class),
 
     FOR_OBJECT(ForObjectTree.class),

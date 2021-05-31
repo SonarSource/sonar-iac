@@ -20,9 +20,6 @@
 package org.sonar.plugins.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeSplatAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
@@ -51,6 +48,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.AttributeSplatAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.ConditionTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.FileTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ForObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ForTupleTreeImpl;
@@ -65,6 +63,10 @@ import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TreeFactory {
   public FileTree file(Optional<BodyTree> body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
@@ -244,6 +246,10 @@ public class TreeFactory {
     return new SeparatedTreesImpl<>(elements, separators);
   }
 
+  public PartialAccess condition(SyntaxToken queryToken, ExpressionTree trueExpression, SyntaxToken colonToken, ExpressionTree falseExpression) {
+    return new PartialCondition(queryToken, trueExpression, colonToken, falseExpression);
+  }
+
   public static class Pair<T, U> {
 
     private final T first;
@@ -334,6 +340,26 @@ public class TreeFactory {
     @Override
     public IndexSplatAccessTree complete(ExpressionTree object) {
       return new IndexSplatAccessTreeImpl(object, openBracket, star, closeBracket);
+    }
+  }
+
+  public static class PartialCondition implements PartialAccess {
+
+    private final SyntaxToken queryToken;
+    private final ExpressionTree trueExpression;
+    private final SyntaxToken colonToken;
+    private final ExpressionTree falseExpression;
+
+    public PartialCondition(SyntaxToken queryToken, ExpressionTree trueExpression, SyntaxToken colonToken, ExpressionTree falseExpression) {
+      this.queryToken = queryToken;
+      this.trueExpression = trueExpression;
+      this.colonToken = colonToken;
+      this.falseExpression = falseExpression;
+    }
+
+    @Override
+    public ExpressionTree complete(ExpressionTree conditionExpression) {
+      return new ConditionTreeImpl(conditionExpression, queryToken, trueExpression, colonToken, falseExpression);
     }
   }
 }

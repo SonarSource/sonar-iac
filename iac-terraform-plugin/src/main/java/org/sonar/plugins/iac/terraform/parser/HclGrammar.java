@@ -93,7 +93,7 @@ public class HclGrammar {
 
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(HclLexicalGrammar.EXPRESSION).is(
-      f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(ACCESS())));
+      f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(POSTFIX_EXPRESSION())));
   }
 
   public ExpressionTree PRIMARY_EXPRESSION() {
@@ -107,9 +107,14 @@ public class HclGrammar {
         FOR_OBJECT()));
   }
 
-  public TreeFactory.PartialAccess ACCESS() {
+  public TreeFactory.PartialAccess POSTFIX_EXPRESSION() {
     return b.<TreeFactory.PartialAccess>nonterminal().is(
-      b.firstOf(INDEX_ACCESS(), ATTRIBUTE_ACCESS(), INDEX_SPLAT_ACCESS(), ATTRIBUTE_SPLAT_ACCESS()));
+      b.firstOf(INDEX_ACCESS(), ATTRIBUTE_ACCESS(), INDEX_SPLAT_ACCESS(), ATTRIBUTE_SPLAT_ACCESS(), CONDITION()));
+  }
+
+  public TreeFactory.PartialAccess CONDITION() {
+    return b.<TreeFactory.PartialAccess>nonterminal().is(
+      f.condition(b.token(HclPunctuator.QUERY), EXPRESSION(), b.token(HclPunctuator.COLON), EXPRESSION()));
   }
 
   public TreeFactory.PartialAttributeAccess ATTRIBUTE_ACCESS() {
