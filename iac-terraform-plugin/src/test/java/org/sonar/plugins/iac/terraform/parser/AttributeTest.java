@@ -37,6 +37,7 @@ class AttributeTest {
       .matches("a = b.c.d")
       .matches("a = a[b[1]][2][3]")
       .matches("a = x.y.b.*.c")
+      .matches("a = a ? b : c")
       .matches("a = a(1, a, \"foo\", [], {}, b())")
       .notMatches("a")
       .notMatches("a =");

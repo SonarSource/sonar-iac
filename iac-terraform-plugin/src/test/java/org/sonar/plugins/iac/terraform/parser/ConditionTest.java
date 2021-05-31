@@ -19,32 +19,20 @@
  */
 package org.sonar.plugins.iac.terraform.parser;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.parser.utils.Assertions;
 
-public enum HclPunctuator implements GrammarRuleKey {
-  COLON(":"),
-  COMMA(","),
-  DOUBLEARROW("=>"),
-  DOT("."),
-  EQU("="),
-  ELLIPSIS("..."),
-  LBRACKET("["),
-  RBRACKET("]"),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  LPARENTHESIS("("),
-  RPARENTHESIS(")"),
-  STAR("*"),
-  QUERY("?")
-  ;
+class ConditionTest {
 
-  private final String value;
-
-  HclPunctuator(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
+      .matches("a ? b : c")
+      .matches("a[1] ? b[1] : c[1]")
+      .matches("a.a1 ? b.b1 : c.c1")
+      .matches("a ? a1 : a2 ? b ? b1 : b2 : c ? c1 : c2")
+      .notMatches("a ? b")
+      .notMatches("a ? b :")
+    ;
   }
 }
