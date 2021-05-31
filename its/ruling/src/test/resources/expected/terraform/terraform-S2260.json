@@ -1,83 +1,83 @@
 {
-  'terraform-project:ruling/src/test/resources/sources/terraform/parserError.tf':[
-    2,
-  ],
-  'terraform-project:sources/terraform/ibm-tf-training/day_03/file-layout-example/global/workspace-example/main.tf':[
-    17,
-  ],
-  'terraform-project:sources/terraform/ibm-tf-training/s2/workspaces-example/main.tf':[
-    33,
-  ],
-  'terraform-project:sources/terraform/ibm-tf-training/s6/for-expressions/main.tf':[
-    8,
-  ],
-  'terraform-project:sources/terraform/ibm-tf-training/s6/string-directives/main.tf':[
-    11,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/analyzer_baselines.tf':[
-    2,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/bucket.tf':[
-    7,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/config_baselines.tf':[
-    53,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/main.tf':[
-    2,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/alarm-baseline/main.tf':[
-    6,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/analyzer-baseline/main.tf':[
-    2,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/cloudtrail-baseline/main.tf':[
-    5,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/cloudtrail-baseline/outputs.tf':[
-    3,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/config-baseline/main.tf':[
-    6,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/config-baseline/outputs.tf':[
-    3,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/ebs-baseline/main.tf':[
-    5,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/guardduty-baseline/main.tf':[
-    6,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/guardduty-baseline/outputs.tf':[
-    3,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/iam-baseline/main.tf':[
-    14,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/secure-bucket/main.tf':[
-    2,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/secure-bucket/outputs.tf':[
-    3,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/securityhub-baseline/main.tf':[
-    6,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/vpc-baseline/main.tf':[
-    2,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/vpc-baseline/outputs.tf':[
-    3,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/outputs.tf':[
-    146,
-  ],
-  'terraform-project:sources/terraform/terraform-aws-secure-baseline/vpc_baselines.tf':[
-    2,
-  ],
-  'terraform-project:sources/terraform/terragoat/terraform/aws/lambda.tf':[
-    38,
-  ],
+'terraform-project:ruling/src/test/resources/sources/terraform/parserError.tf':[
+2,
+],
+'terraform-project:sources/terraform/ibm-tf-training/day_03/file-layout-example/global/workspace-example/main.tf':[
+17,
+],
+'terraform-project:sources/terraform/ibm-tf-training/s2/workspaces-example/main.tf':[
+33,
+],
+'terraform-project:sources/terraform/ibm-tf-training/s6/for-expressions/main.tf':[
+12,
+],
+'terraform-project:sources/terraform/ibm-tf-training/s6/string-directives/main.tf':[
+11,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/analyzer_baselines.tf':[
+2,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/bucket.tf':[
+7,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/config_baselines.tf':[
+53,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/main.tf':[
+2,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/alarm-baseline/main.tf':[
+6,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/analyzer-baseline/main.tf':[
+2,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/cloudtrail-baseline/main.tf':[
+5,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/cloudtrail-baseline/outputs.tf':[
+3,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/config-baseline/main.tf':[
+6,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/config-baseline/outputs.tf':[
+3,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/ebs-baseline/main.tf':[
+5,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/guardduty-baseline/main.tf':[
+6,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/guardduty-baseline/outputs.tf':[
+3,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/iam-baseline/main.tf':[
+14,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/secure-bucket/main.tf':[
+2,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/secure-bucket/outputs.tf':[
+3,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/securityhub-baseline/main.tf':[
+6,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/vpc-baseline/main.tf':[
+2,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/vpc-baseline/outputs.tf':[
+3,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/outputs.tf':[
+146,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/vpc_baselines.tf':[
+2,
+],
+'terraform-project:sources/terraform/terragoat/terraform/aws/lambda.tf':[
+38,
+],
 }
