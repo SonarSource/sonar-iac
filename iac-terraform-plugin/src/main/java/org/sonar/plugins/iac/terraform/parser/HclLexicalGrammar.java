@@ -68,6 +68,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
 
     lexical(b);
     punctuators(b);
+    keywords(b);
 
     return b;
   }
@@ -95,6 +96,19 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
 
     b.rule(BOOLEAN_LITERAL).is(b.firstOf(word(b, "TRUE"), word(b, "FALSE")));
     b.rule(NULL).is(word(b,"NULL")).skip();
+  }
+
+  private static void keywords(LexerlessGrammarBuilder b) {
+    Object[] rest = new Object[HclKeyword.values().length - 2];
+
+    for (int i = 0; i < HclKeyword.values().length; i++) {
+      HclKeyword tokenType = HclKeyword.values()[i];
+
+      b.rule(tokenType).is(SPACING, b.regexp(tokenType.getValue()), b.nextNot(b.regexp(LexicalConstant.IDENTIFIER))).skip();
+      if (i > 1) {
+        rest[i - 2] = b.regexp(tokenType.getValue());
+      }
+    }
   }
 
   private static Object word(LexerlessGrammarBuilder b, String word) {

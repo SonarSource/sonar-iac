@@ -30,6 +30,8 @@ import org.sonar.plugins.iac.terraform.api.tree.BlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.BodyTree;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.FileTree;
+import org.sonar.plugins.iac.terraform.api.tree.ForObjectTree;
+import org.sonar.plugins.iac.terraform.api.tree.ForTupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.plugins.iac.terraform.api.tree.IndexAccessExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.IndexSplatAccessTree;
@@ -43,12 +45,15 @@ import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.tree.impl.AbstractForTree;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeSplatAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.FileTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.ForObjectTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.ForTupleTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.FunctionCallTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.IndexAccessExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.IndexSplatAccessTreeImpl;
@@ -176,6 +181,44 @@ public class TreeFactory {
 
   public PartialIndexSplatAccess partialIndexSplatAccess(SyntaxToken openBracket, SyntaxToken star, SyntaxToken closeBracket) {
     return new PartialIndexSplatAccess(openBracket, star, closeBracket);
+  }
+
+  public ForTupleTree forTuple(SyntaxToken openBracket,
+                               AbstractForTree.ForIntro intro,
+                               ExpressionTree expression,
+                               Optional<Pair<SyntaxToken, ExpressionTree>> condition,
+                               SyntaxToken closeBracket) {
+    return new ForTupleTreeImpl(openBracket, intro, expression, condition.orNull(), closeBracket);
+  }
+
+  public ForObjectTree forObject(SyntaxToken openBrace,
+                                 AbstractForTree.ForIntro intro,
+                                 ExpressionTree firstExpression,
+                                 SyntaxToken arrow,
+                                 ExpressionTree secondExpression,
+                                 Optional<SyntaxToken> ellipsis,
+                                 Optional<Pair<SyntaxToken, ExpressionTree>> condition,
+                                 SyntaxToken closeBrace) {
+    return new ForObjectTreeImpl(openBrace, intro, firstExpression, arrow, secondExpression, ellipsis.orNull(), condition.orNull(), closeBrace);
+  }
+
+  public AbstractForTree.ForIntro forIntro(SyntaxToken forToken, SeparatedTrees<VariableExprTree> identifiers, SyntaxToken inToken,
+    ExpressionTree inExpression, SyntaxToken colonToken) {
+    return new AbstractForTree.ForIntro(forToken, identifiers, inToken, inExpression, colonToken);
+  }
+
+  public SeparatedTrees<VariableExprTree> forIntroIdentifiers(VariableExprTree first, Optional<Pair<SyntaxToken, VariableExprTree>> second) {
+    List<VariableExprTree> elements = new ArrayList<>();
+    List<SyntaxToken> separators = new ArrayList<>();
+
+    elements.add(first);
+
+    if (second.isPresent()) {
+      separators.add(second.get().first());
+      elements.add(second.get().second());
+    }
+
+    return new SeparatedTreesImpl<>(elements, separators);
   }
 
   private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
