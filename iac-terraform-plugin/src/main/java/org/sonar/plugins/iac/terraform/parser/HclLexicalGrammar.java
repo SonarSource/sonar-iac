@@ -43,6 +43,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   EOF,
   IDENTIFIER,
   STRING_LITERAL,
+  STRING_WITHOUT_INTERPOLATION,
   NUMERIC_LITERAL,
   HEREDOC_LITERAL,
 
@@ -57,10 +58,12 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
    */
   LITERAL_EXPRESSION,
   VARIABLE_EXPRESSION,
+  TEMPLATE_EXPRESSION,
 
   BOOLEAN_LITERAL,
-  NULL
+  NULL,
 
+  QUOTED_TEMPLATE_STRING_CHARACTERS
   ;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
@@ -91,11 +94,14 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(IDENTIFIER).is(SPACING, b.regexp(LexicalConstant.IDENTIFIER));
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(LexicalConstant.STRING_LITERAL));
+    b.rule(STRING_WITHOUT_INTERPOLATION).is(SPACING, b.regexp(LexicalConstant.STRING_WITHOUT_INTERPOLATION));
     b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(LexicalConstant.NUMERIC_LITERAL));
     b.rule(HEREDOC_LITERAL).is(SPACING, b.regexp(LexicalConstant.HEREDOC_LITERAL));
 
     b.rule(BOOLEAN_LITERAL).is(b.firstOf(word(b, "TRUE"), word(b, "FALSE")));
     b.rule(NULL).is(word(b,"NULL")).skip();
+
+    b.rule(QUOTED_TEMPLATE_STRING_CHARACTERS).is(b.regexp(LexicalConstant.QUOTED_TEMPLATE_STRING_CHARACTERS));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

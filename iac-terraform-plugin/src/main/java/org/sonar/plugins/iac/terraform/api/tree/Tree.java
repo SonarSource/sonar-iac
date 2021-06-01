@@ -72,6 +72,8 @@ public interface Tree extends HasTextRange {
 
     STRING_LITERAL(LiteralExprTree.class),
 
+    TEMPLATE_STRING_PART_LITERAL(LiteralExprTree.class),
+
     OBJECT_ELEMENT(ObjectElementTree.class),
 
     OBJECT(ObjectTree.class),
@@ -81,6 +83,10 @@ public interface Tree extends HasTextRange {
     PARENTHESIZED_EXPRESSION(ParenthesizedExpressionTree.class),
 
     PREFIX_EXPRESSION(PrefixExpressionTree.class),
+
+    TEMPLATE_EXPRESSION(TemplateExpressionTree.class),
+
+    TEMPLATE_INTERPOLATION(TemplateInterpolationTree.class),
 
     TUPLE(TupleTree.class),
 
