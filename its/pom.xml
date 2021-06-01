@@ -53,7 +53,7 @@
                   <artifactItems>
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
-                      <artifactId>iac-terraform-plugin</artifactId>
+                      <artifactId>sonar-iac-plugin</artifactId>
                       <version>${project.version}</version>
                       <type>sonar-plugin</type>
                       <overWrite>true</overWrite>
