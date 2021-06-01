@@ -17,47 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
-public enum HclPunctuator implements GrammarRuleKey {
-  COLON(":"),
-  COMMA(","),
-  DOUBLEARROW("=>"),
-  DOT("."),
-  EQU("="),
-  ELLIPSIS("..."),
-  LBRACKET("["),
-  RBRACKET("]"),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  LPARENTHESIS("("),
-  RPARENTHESIS(")"),
-  OR("||"),
-  AND("&&"),
-  EQUAL("=="),
-  NOT_EQUAL("!="),
-  GREATER_THAN(">"),
-  GREATER_OR_EQUAL(">="),
-  LESS_THAN("<"),
-  LESS_OR_EQUAL("<="),
-  PLUS("+"),
-  MINUS("-"),
-  DIV("/"),
-  PERCENT("%"),
-  STAR("*"),
-  QUERY("?"),
-  EXCLAMATION("!")
-  ;
-
-  private final String value;
-
-  HclPunctuator(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
+public interface PrefixExpressionTree extends ExpressionTree {
+  SyntaxToken prefix();
+  ExpressionTree expression();
 }

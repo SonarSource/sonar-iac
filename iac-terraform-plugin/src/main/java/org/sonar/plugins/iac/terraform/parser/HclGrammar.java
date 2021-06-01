@@ -134,10 +134,16 @@ public class HclGrammar {
 
   public ExpressionTree MULTIPLICATIVE_EXPR() {
     return b.<ExpressionTree>nonterminal().is(
-      f.binaryExpression(f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(POSTFIX_EXPRESSION())),
+      f.binaryExpression(PREFIX_EXPRESSION(),
         b.zeroOrMore(f.newPair(
           b.firstOf(b.token(HclPunctuator.STAR), b.token(HclPunctuator.DIV), b.token(HclPunctuator.PERCENT)),
-          f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(POSTFIX_EXPRESSION()))))));
+          PREFIX_EXPRESSION()))));
+  }
+
+  public ExpressionTree PREFIX_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal().is(
+      f.prefixExpression(b.zeroOrMore(b.firstOf(b.token(HclPunctuator.MINUS), b.token(HclPunctuator.EXCLAMATION))),
+        f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(POSTFIX_EXPRESSION()))));
   }
 
   public ExpressionTree PRIMARY_EXPRESSION() {

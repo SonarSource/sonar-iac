@@ -63,12 +63,14 @@ import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ParenthesizedExpressionTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.PrefixExpressionTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TreeFactory {
@@ -265,6 +267,21 @@ public class TreeFactory {
     ExpressionTree result = firstExpression;
     for (Pair<SyntaxToken, ExpressionTree> t : zeroOrMore.get()) {
       result = new BinaryExpressionTreeImpl(result, t.first(), t.second());
+    }
+
+    return result;
+  }
+
+  public ExpressionTree prefixExpression(Optional<List<SyntaxToken>> prefixes, ExpressionTree expression) {
+    if (!prefixes.isPresent()) {
+      return expression;
+    }
+
+    ExpressionTree result = expression;
+    List<SyntaxToken> reversedPrefixes = new ArrayList<>(prefixes.get());
+    Collections.reverse(reversedPrefixes);
+    for (SyntaxToken prefix : reversedPrefixes) {
+      result = new PrefixExpressionTreeImpl(prefix, result);
     }
 
     return result;

@@ -80,6 +80,8 @@ public interface Tree extends HasTextRange {
 
     PARENTHESIZED_EXPRESSION(ParenthesizedExpressionTree.class),
 
+    PREFIX_EXPRESSION(PrefixExpressionTree.class),
+
     TUPLE(TupleTree.class),
 
     VARIABLE_EXPR(VariableExprTree.class),
