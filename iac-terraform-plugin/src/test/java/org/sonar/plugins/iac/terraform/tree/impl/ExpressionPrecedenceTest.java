@@ -78,6 +78,14 @@ public class ExpressionPrecedenceTest extends TerraformTreeModelTest {
     assertPrecedence("a * b / c % e", "((a * b) / c) % e");
   }
 
+  @Test
+  public void binary_operators_combined_with_unary_operators() {
+    assertPrecedence("a && !b", "a && (! b)");
+    assertPrecedence("!a || b", "(! a) || b");
+    assertPrecedence("a + -b", "a + (- b)");
+    assertPrecedence("a + -b - c", "(a + (- b)) - c");
+  }
+
   private void assertPrecedence(String code, String expected) {
     ExpressionTree expression = parse(code, HclLexicalGrammar.EXPRESSION);
     String actual = dumpWithParentheses(expression).stream().collect(Collectors.joining(" "));
