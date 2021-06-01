@@ -13,7 +13,7 @@
   <packaging>sonar-plugin</packaging>
 
   <name>SonarSource IaC Analyzer :: Sonar Plugin</name>
-  <description>Code Analyzer for Iac</description>
+  <description>Code Analyzer for IaC</description>
   <inceptionYear>2021</inceptionYear>
   <organization>
     <name>SonarSource</name>
