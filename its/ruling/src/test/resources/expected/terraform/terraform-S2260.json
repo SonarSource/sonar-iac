@@ -5,10 +5,7 @@
 'terraform-project:sources/terraform/ibm-tf-training/s6/string-directives/main.tf':[
 11,
 ],
-'terraform-project:sources/terraform/terraform-aws-secure-baseline/config_baselines.tf':[
-53,
-],
-'terraform-project:sources/terraform/terragoat/terraform/aws/lambda.tf':[
-38,
+'terraform-project:sources/terraform/terragoat/terraform/aws/eks.tf':[
+147,
 ],
 }
