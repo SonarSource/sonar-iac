@@ -47,6 +47,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.AbstractForTree;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeSplatAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.BinaryExpressionTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ConditionTreeImpl;
@@ -254,6 +255,19 @@ public class TreeFactory {
 
   public ParenthesizedExpressionTree parenthesizedExpression(SyntaxToken openParenthesis, ExpressionTree expression, SyntaxToken closeParenthesis) {
     return new ParenthesizedExpressionTreeImpl(openParenthesis, expression, closeParenthesis);
+  }
+
+  public ExpressionTree binaryExpression(ExpressionTree firstExpression, Optional<List<Pair<SyntaxToken, ExpressionTree>>> zeroOrMore) {
+    if (!zeroOrMore.isPresent()) {
+      return firstExpression;
+    }
+
+    ExpressionTree result = firstExpression;
+    for (Pair<SyntaxToken, ExpressionTree> t : zeroOrMore.get()) {
+      result = new BinaryExpressionTreeImpl(result, t.first(), t.second());
+    }
+
+    return result;
   }
 
   public static class Pair<T, U> {

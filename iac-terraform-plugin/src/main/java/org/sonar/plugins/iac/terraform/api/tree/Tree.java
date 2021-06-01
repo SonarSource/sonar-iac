@@ -40,6 +40,8 @@ public interface Tree extends HasTextRange {
 
     ATTRIBUTE(AttributeTree.class),
 
+    BINARY_EXPRESSION(BinaryExpressionTree.class),
+
     BLOCK(BlockTree.class),
 
     BODY(BodyTree.class),
