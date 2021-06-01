@@ -11,7 +11,7 @@
 
   <artifactId>iac-its-plugin</artifactId>
 
-  <name>SonarSource IaC ITs Plugin</name>
+  <name>SonarSource IaC Analyzer :: ITs :: Plugin</name>
 
   <dependencies>
     <dependency>
