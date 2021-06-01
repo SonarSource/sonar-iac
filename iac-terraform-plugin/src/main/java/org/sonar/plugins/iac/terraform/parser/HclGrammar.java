@@ -120,7 +120,7 @@ public class HclGrammar {
     return b.<ExpressionTree>nonterminal().is(
       f.binaryExpression(ADDITIVE_EXPR(),
         b.zeroOrMore(f.newPair(
-          b.firstOf(b.token(HclPunctuator.GE), b.token(HclPunctuator.GT), b.token(HclPunctuator.LE), b.token(HclPunctuator.LT)),
+          b.firstOf(b.token(HclPunctuator.GREATER_OR_EQUAL), b.token(HclPunctuator.GREATER_THAN), b.token(HclPunctuator.LESS_OR_EQUAL), b.token(HclPunctuator.LESS_THAN)),
           ADDITIVE_EXPR()))));
   }
 
