@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>iac-terraform-plugin</artifactId>
+  <artifactId>sonar-iac-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
 
   <name>SonarSource IaC Analyzer :: Sonar Plugin</name>
