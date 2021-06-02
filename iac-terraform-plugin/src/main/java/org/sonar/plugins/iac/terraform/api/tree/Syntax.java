@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.sonar.plugins.iac.terraform.api.tree.Tree;
-
 public interface Syntax extends Tree {
 
   String value();
