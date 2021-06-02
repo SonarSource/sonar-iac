@@ -2,9 +2,6 @@
 'terraform-project:ruling/src/test/resources/sources/terraform/parserError.tf':[
 2,
 ],
-'terraform-project:sources/terraform/ibm-tf-training/s6/string-directives/main.tf':[
-11,
-],
 'terraform-project:sources/terraform/terragoat/terraform/aws/eks.tf':[
 147,
 ],
