@@ -31,6 +31,7 @@ class AttributeTest {
       .matches("a = null")
       .matches("a = trueFoo")
       .matches("a = nullFoo")
+      .matches("a = null_Foo")
       .matches("a = \"foo\"")
       .matches("a = {}")
       .matches("tags = { Foo = \"bar\"\n Bar = 1}")
