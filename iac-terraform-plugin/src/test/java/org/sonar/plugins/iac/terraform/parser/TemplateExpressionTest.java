@@ -26,7 +26,7 @@ class TemplateExpressionTest {
 
   @Test
   void test() {
-    Assertions.assertThat(HclLexicalGrammar.TEMPLATE_EXPRESSION)
+    Assertions.assertThat(HclLexicalGrammar.QUOTED_TEMPLATE)
       .matches("\"foo\"")
       .matches("\"foo${a}\"")
       .matches("\"foo${\"bar\"}\"")
@@ -36,8 +36,13 @@ class TemplateExpressionTest {
       .matches("\"${\"bar${\"bar\"}\"}\"")
       .matches("\"foo${~ a}\"")
       .matches("\"foo${a ~}\"")
+      .matches("\"%{ if a != 1 }foo%{ endif }\"")
+      .matches("\"%{ if a != 1 }foo%{ else }bar%{ endif }\"")
+      .matches("\"%{ if a != 1 }${ \"foo\" }%{ endif }\"")
+      .matches("\"%%{ if a != 1 }foo\"")
       .notMatches("\"foo$${\"bar\"}\"")
       .notMatches("\"foo${ ~ a}\"")
+      .notMatches("\"%{ if a != 1 }foo%\"")
     ;
   }
 }

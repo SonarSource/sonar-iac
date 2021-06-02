@@ -20,8 +20,10 @@
 package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.plugins.iac.terraform.api.tree.BinaryExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.TemplateExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateIfDirectiveTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
@@ -32,7 +34,7 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void literal_tree_is_produced_when_no_interpolation_exists() {
-    LiteralExprTree tree = parse("\"abc\"", HclLexicalGrammar.TEMPLATE_EXPRESSION);
+    LiteralExprTree tree = parse("\"abc\"", HclLexicalGrammar.QUOTED_TEMPLATE);
     assertThat(tree).satisfies(o -> {
       assertThat(o.getKind()).isEqualTo(Tree.Kind.STRING_LITERAL);
       assertThat(o.value()).isEqualTo("abc");
@@ -41,7 +43,7 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void simple_quoted_interpolation() {
-    TemplateExpressionTree tree = parse("\"ab${x}\"", HclLexicalGrammar.TEMPLATE_EXPRESSION);
+    TemplateExpressionTree tree = parse("\"ab${x}\"", HclLexicalGrammar.QUOTED_TEMPLATE);
     assertThat(tree).satisfies(o -> {
       assertThat(o.getKind()).isEqualTo(Tree.Kind.TEMPLATE_EXPRESSION);
       assertThat(o.parts()).hasSize(2);
@@ -52,6 +54,36 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
       assertThat(o.parts().get(1)).isInstanceOfSatisfying(TemplateInterpolationTreeImpl.class, p -> {
         assertThat(p.getKind()).isEqualTo(Tree.Kind.TEMPLATE_INTERPOLATION);
         assertThat(p.expression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("x"));
+      });
+    });
+  }
+
+  @Test
+  void simple_quoted_if_directive() {
+    TemplateExpressionTree tree = parse("\"%{ if a != 1 }foo%{ else }bar%{ endif }\"", HclLexicalGrammar.QUOTED_TEMPLATE);
+    assertThat(tree).satisfies(o -> {
+      assertThat(o.getKind()).isEqualTo(Tree.Kind.TEMPLATE_EXPRESSION);
+      assertThat(o.parts()).hasSize(1);
+      assertThat(o.parts().get(0)).isInstanceOfSatisfying(TemplateIfDirectiveTree.class, p -> {
+        assertThat(p.getKind()).isEqualTo(Tree.Kind.TEMPLATE_DIRECTIVE_IF);
+        assertThat(p.condition()).isInstanceOf(BinaryExpressionTree.class);
+        assertThat(p.trueExpression()).isInstanceOfSatisfying(LiteralExprTree.class, l -> assertThat(l.value()).isEqualTo("foo"));
+        assertThat(p.falseExpression()).isInstanceOfSatisfying(LiteralExprTree.class, l -> assertThat(l.value()).isEqualTo("bar"));
+      });
+    });
+  }
+
+  @Test
+  void quoted_if_directive_without_else() {
+    TemplateExpressionTree tree = parse("\"%{ if a != 1 }foo%{ endif }\"", HclLexicalGrammar.QUOTED_TEMPLATE);
+    assertThat(tree).satisfies(o -> {
+      assertThat(o.getKind()).isEqualTo(Tree.Kind.TEMPLATE_EXPRESSION);
+      assertThat(o.parts()).hasSize(1);
+      assertThat(o.parts().get(0)).isInstanceOfSatisfying(TemplateIfDirectiveTree.class, p -> {
+        assertThat(p.getKind()).isEqualTo(Tree.Kind.TEMPLATE_DIRECTIVE_IF);
+        assertThat(p.condition()).isInstanceOf(BinaryExpressionTree.class);
+        assertThat(p.trueExpression()).isInstanceOfSatisfying(LiteralExprTree.class, l -> assertThat(l.value()).isEqualTo("foo"));
+        assertThat(p.falseExpression()).isNull();
       });
     });
   }

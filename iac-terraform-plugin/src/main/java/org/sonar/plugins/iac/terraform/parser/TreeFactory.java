@@ -39,6 +39,8 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateIfDirectiveTree;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
@@ -67,6 +69,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.ParenthesizedExpressionTreeImpl
 import org.sonar.plugins.iac.terraform.tree.impl.PrefixExpressionTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TemplateExpressionTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.TemplateIfDirectiveTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TemplateInterpolationTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
@@ -294,12 +297,38 @@ public class TreeFactory {
     return result;
   }
 
-  public ExpressionTree templateInterpolation(SyntaxToken token, ExpressionTree expression, SyntaxToken token1) {
+  public TemplateInterpolationTree templateInterpolation(SyntaxToken token, ExpressionTree expression, SyntaxToken token1) {
     return new TemplateInterpolationTreeImpl(token, expression, token1);
   }
 
   public ExpressionTree templateExpr(Tree spacing, SyntaxToken openQuotes, List<ExpressionTree> oneOrMore, SyntaxToken closeQuotes) {
     return new TemplateExpressionTreeImpl(openQuotes, oneOrMore, closeQuotes);
+  }
+
+  public TemplateIfDirectiveTree templateIfDirective(
+    TemplateIfDirectiveTreeImpl.IfPart ifPart,
+    Optional<TemplateIfDirectiveTreeImpl.ElsePart> elsePart,
+    SyntaxToken endIfOpenToken,
+    SyntaxToken endIfToken,
+    SyntaxToken endIfCloseToken) {
+    return new TemplateIfDirectiveTreeImpl(ifPart, elsePart.orNull(), endIfOpenToken, endIfToken, endIfCloseToken);
+  }
+
+  public TemplateIfDirectiveTreeImpl.ElsePart templateIfDirectiveElsePart(
+    SyntaxToken elseOpenToken,
+    SyntaxToken elseToken,
+    SyntaxToken elseCloseToken,
+    ExpressionTree elseExpression) {
+    return new TemplateIfDirectiveTreeImpl.ElsePart(elseOpenToken, elseToken, elseCloseToken, elseExpression);
+  }
+
+  public TemplateIfDirectiveTreeImpl.IfPart templateIfDirectiveIfPart(
+    SyntaxToken ifOpenToken,
+    SyntaxToken ifToken,
+    ExpressionTree condition,
+    SyntaxToken ifCloseToken,
+    ExpressionTree trueExpression) {
+    return new TemplateIfDirectiveTreeImpl.IfPart(ifOpenToken, ifToken, condition, ifCloseToken, trueExpression);
   }
 
   public static class Pair<T, U> {

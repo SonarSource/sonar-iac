@@ -34,10 +34,13 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateIfDirectiveTree;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
 import org.sonar.plugins.iac.terraform.tree.impl.AbstractForTree;
+import org.sonar.plugins.iac.terraform.tree.impl.TemplateIfDirectiveTreeImpl;
 
 public class HclGrammar {
 
@@ -151,7 +154,7 @@ public class HclGrammar {
       b.firstOf(LITERAL_EXPRESSION(),
         TUPLE(),
         OBJECT(),
-        TEMPLATE_EXPRESSION(),
+        QUOTED_TEMPLATE(),
         FUNCTION_CALL(),
         VARIABLE_EXPRESSION(),
         FOR_TUPLE(),
@@ -159,8 +162,8 @@ public class HclGrammar {
         PARENTHESIZED_EXPRESSION()));
   }
 
-  public ExpressionTree TEMPLATE_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.TEMPLATE_EXPRESSION).is(
+  public ExpressionTree QUOTED_TEMPLATE() {
+    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.QUOTED_TEMPLATE).is(
       b.firstOf(
         f.stringLiteral(b.token(HclLexicalGrammar.STRING_WITHOUT_INTERPOLATION)),
         f.templateExpr(
@@ -169,17 +172,53 @@ public class HclGrammar {
           b.oneOrMore(
             b.firstOf(
               f.templateStringLiteral(b.token(HclLexicalGrammar.QUOTED_TEMPLATE_STRING_CHARACTERS)),
-              TEMPLATE_INTERPOLATION())),
+              TEMPLATE())),
           b.token(HclPunctuator.DOUBLE_QUOTE))
       ));
   }
 
-  public ExpressionTree TEMPLATE_INTERPOLATION() {
+  public ExpressionTree TEMPLATE() {
     return b.<ExpressionTree>nonterminal().is(
+      b.firstOf(TEMPLATE_INTERPOLATION(),
+        TEMPLATE_IF_DIRECTIVE(),
+        f.templateStringLiteral(b.token(HclLexicalGrammar.TEMPLATE_LITERAL))));
+  }
+
+  public TemplateInterpolationTree TEMPLATE_INTERPOLATION() {
+    return b.<TemplateInterpolationTree>nonterminal().is(
       f.templateInterpolation(
         b.firstOf(b.token(HclPunctuator.DOLLAR_LCURLY_TILDE), b.token(HclPunctuator.DOLLAR_LCURLY)),
         EXPRESSION(),
         b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE))));
+  }
+
+  public TemplateIfDirectiveTree TEMPLATE_IF_DIRECTIVE() {
+    return b.<TemplateIfDirectiveTree>nonterminal().is(
+      f.templateIfDirective(
+        TEMPLATE_IF_DIRECTIVE_IF_PART(),
+        b.optional(TEMPLATE_IF_DIRECTIVE_ELSE_PART()),
+        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.token(HclKeyword.END_IF),
+        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE))));
+  }
+
+  public TemplateIfDirectiveTreeImpl.IfPart TEMPLATE_IF_DIRECTIVE_IF_PART() {
+    return b.<TemplateIfDirectiveTreeImpl.IfPart>nonterminal().is(
+      f.templateIfDirectiveIfPart(
+        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.token(HclKeyword.IF),
+        EXPRESSION(),
+        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE)),
+        TEMPLATE()));
+  }
+
+  public TemplateIfDirectiveTreeImpl.ElsePart TEMPLATE_IF_DIRECTIVE_ELSE_PART() {
+    return b.<TemplateIfDirectiveTreeImpl.ElsePart>nonterminal().is(
+      f.templateIfDirectiveElsePart(
+        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.token(HclKeyword.ELSE),
+        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE)),
+        TEMPLATE()));
   }
 
   public ParenthesizedExpressionTree PARENTHESIZED_EXPRESSION() {

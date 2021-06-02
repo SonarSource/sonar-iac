@@ -52,6 +52,8 @@ public enum HclPunctuator implements GrammarRuleKey {
   DOUBLE_QUOTE("\""),
   DOLLAR_LCURLY("${"),
   DOLLAR_LCURLY_TILDE("${~"),
+  PERCENT_LCURLY("%{"),
+  PERCENT_LCURLY_TILDE("%{~"),
   TILDE_RCURLY("~}")
   ;
 
