@@ -43,7 +43,9 @@ public class LexicalConstant {
   /**
    * IDENTIFIERS
    */
-  public static final String IDENTIFIER = "[a-zA-Z][a-zA-Z0-9\\-\\_]*";
+  public static final String IDENTIFIER_START = "[a-zA-Z]";
+  public static final String IDENTIFIER_PART = "[a-zA-Z0-9\\-\\_]";
+  public static final String IDENTIFIER = IDENTIFIER_START + IDENTIFIER_PART + "*+";
 
   /**
    * Heredoc
