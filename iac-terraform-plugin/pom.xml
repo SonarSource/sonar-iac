@@ -84,7 +84,7 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <version>${version.sonar-packaging.plugin}</version>
         <configuration>
-          <sonarLintSupported>true</sonarLintSupported>
+          <sonarLintSupported>false</sonarLintSupported>
           <!-- FIXME: Peach currently runs on 7.9 -->
           <sonarQubeMinVersion>7.9</sonarQubeMinVersion>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
