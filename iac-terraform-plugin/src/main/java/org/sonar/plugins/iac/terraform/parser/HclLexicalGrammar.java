@@ -58,7 +58,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
    */
   LITERAL_EXPRESSION,
   VARIABLE_EXPRESSION,
-  TEMPLATE_EXPRESSION,
+  QUOTED_TEMPLATE,
 
   BOOLEAN_LITERAL,
   NULL,

@@ -39,6 +39,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
@@ -294,7 +295,7 @@ public class TreeFactory {
     return result;
   }
 
-  public ExpressionTree templateInterpolation(SyntaxToken token, ExpressionTree expression, SyntaxToken token1) {
+  public TemplateInterpolationTree templateInterpolation(SyntaxToken token, ExpressionTree expression, SyntaxToken token1) {
     return new TemplateInterpolationTreeImpl(token, expression, token1);
   }
 

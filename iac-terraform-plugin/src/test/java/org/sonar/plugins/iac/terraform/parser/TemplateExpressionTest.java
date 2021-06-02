@@ -26,7 +26,7 @@ class TemplateExpressionTest {
 
   @Test
   void test() {
-    Assertions.assertThat(HclLexicalGrammar.TEMPLATE_EXPRESSION)
+    Assertions.assertThat(HclLexicalGrammar.QUOTED_TEMPLATE)
       .matches("\"foo\"")
       .matches("\"foo${a}\"")
       .matches("\"foo${\"bar\"}\"")

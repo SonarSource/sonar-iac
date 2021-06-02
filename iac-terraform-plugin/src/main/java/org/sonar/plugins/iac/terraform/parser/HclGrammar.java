@@ -34,6 +34,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
@@ -151,7 +152,7 @@ public class HclGrammar {
       b.firstOf(LITERAL_EXPRESSION(),
         TUPLE(),
         OBJECT(),
-        TEMPLATE_EXPRESSION(),
+        QUOTED_TEMPLATE(),
         FUNCTION_CALL(),
         VARIABLE_EXPRESSION(),
         FOR_TUPLE(),
@@ -159,8 +160,8 @@ public class HclGrammar {
         PARENTHESIZED_EXPRESSION()));
   }
 
-  public ExpressionTree TEMPLATE_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.TEMPLATE_EXPRESSION).is(
+  public ExpressionTree QUOTED_TEMPLATE() {
+    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.QUOTED_TEMPLATE).is(
       b.firstOf(
         f.stringLiteral(b.token(HclLexicalGrammar.STRING_WITHOUT_INTERPOLATION)),
         f.templateExpr(
@@ -169,13 +170,18 @@ public class HclGrammar {
           b.oneOrMore(
             b.firstOf(
               f.templateStringLiteral(b.token(HclLexicalGrammar.QUOTED_TEMPLATE_STRING_CHARACTERS)),
-              TEMPLATE_INTERPOLATION())),
+              TEMPLATE())),
           b.token(HclPunctuator.DOUBLE_QUOTE))
       ));
   }
 
-  public ExpressionTree TEMPLATE_INTERPOLATION() {
+  public ExpressionTree TEMPLATE() {
     return b.<ExpressionTree>nonterminal().is(
+      b.firstOf(TEMPLATE_INTERPOLATION()));
+  }
+
+  public TemplateInterpolationTree TEMPLATE_INTERPOLATION() {
+    return b.<TemplateInterpolationTree>nonterminal().is(
       f.templateInterpolation(
         b.firstOf(b.token(HclPunctuator.DOLLAR_LCURLY_TILDE), b.token(HclPunctuator.DOLLAR_LCURLY)),
         EXPRESSION(),

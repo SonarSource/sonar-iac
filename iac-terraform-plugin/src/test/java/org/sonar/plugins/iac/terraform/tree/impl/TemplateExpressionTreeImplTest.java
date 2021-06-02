@@ -32,7 +32,7 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void literal_tree_is_produced_when_no_interpolation_exists() {
-    LiteralExprTree tree = parse("\"abc\"", HclLexicalGrammar.TEMPLATE_EXPRESSION);
+    LiteralExprTree tree = parse("\"abc\"", HclLexicalGrammar.QUOTED_TEMPLATE);
     assertThat(tree).satisfies(o -> {
       assertThat(o.getKind()).isEqualTo(Tree.Kind.STRING_LITERAL);
       assertThat(o.value()).isEqualTo("abc");
@@ -41,7 +41,7 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void simple_quoted_interpolation() {
-    TemplateExpressionTree tree = parse("\"ab${x}\"", HclLexicalGrammar.TEMPLATE_EXPRESSION);
+    TemplateExpressionTree tree = parse("\"ab${x}\"", HclLexicalGrammar.QUOTED_TEMPLATE);
     assertThat(tree).satisfies(o -> {
       assertThat(o.getKind()).isEqualTo(Tree.Kind.TEMPLATE_EXPRESSION);
       assertThat(o.parts()).hasSize(2);
