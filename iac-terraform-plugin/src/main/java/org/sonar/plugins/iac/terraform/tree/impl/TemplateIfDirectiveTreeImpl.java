@@ -20,9 +20,9 @@
 package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.plugins.iac.terraform.api.tree.TemplateIfDirectiveTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
