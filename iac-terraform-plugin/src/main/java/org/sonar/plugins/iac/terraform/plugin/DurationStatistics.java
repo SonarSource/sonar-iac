@@ -69,14 +69,14 @@ public class DurationStatistics {
     if (recordStat) {
       long startTime = System.nanoTime();
       T result = supplier.get();
-      record(id, System.nanoTime() - startTime);
+      addRecord(id, System.nanoTime() - startTime);
       return result;
     } else {
       return supplier.get();
     }
   }
 
-  void record(String id, long elapsedTime) {
+  void addRecord(String id, long elapsedTime) {
     stats.computeIfAbsent(id, key -> new AtomicLong(0)).addAndGet(elapsedTime);
   }
 

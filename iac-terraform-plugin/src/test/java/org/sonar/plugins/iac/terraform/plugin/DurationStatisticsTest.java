@@ -57,8 +57,8 @@ class DurationStatisticsTest {
   void statistics_format() {
     sensorContext.settings().setProperty("sonar.iac.duration.statistics", "true");
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
-    statistics.record("A", 12_000_000L);
-    statistics.record("B", 15_000_000_000L);
+    statistics.addRecord("A", 12_000_000L);
+    statistics.addRecord("B", 15_000_000_000L);
     statistics.log();
     assertThat(logTester.logs(LoggerLevel.INFO)).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.INFO).get(0)).isEqualTo("Duration Statistics, B 15'000 ms, A 12 ms");
@@ -73,6 +73,6 @@ class DurationStatisticsTest {
     statistics
       .time("C", (t, u) -> txt.append(t).append(u))
       .accept("4", "5");
-    assertThat(txt.toString()).isEqualTo("12345");
+    assertThat(txt).hasToString("12345");
   }
 }
