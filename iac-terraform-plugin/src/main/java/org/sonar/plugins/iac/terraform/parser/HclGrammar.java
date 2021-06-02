@@ -34,12 +34,14 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateForDirectiveTree;
 import org.sonar.plugins.iac.terraform.api.tree.TemplateIfDirectiveTree;
 import org.sonar.plugins.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.tree.impl.SyntaxTokenImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AbstractForTree;
+import org.sonar.plugins.iac.terraform.tree.impl.TemplateForDirectiveTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TemplateIfDirectiveTreeImpl;
 
 public class HclGrammar {
@@ -181,6 +183,7 @@ public class HclGrammar {
     return b.<ExpressionTree>nonterminal().is(
       b.firstOf(TEMPLATE_INTERPOLATION(),
         TEMPLATE_IF_DIRECTIVE(),
+        TEMPLATE_FOR_DIRECTIVE(),
         f.templateStringLiteral(b.token(HclLexicalGrammar.TEMPLATE_LITERAL))));
   }
 
@@ -219,6 +222,27 @@ public class HclGrammar {
         b.token(HclKeyword.ELSE),
         b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE)),
         TEMPLATE()));
+  }
+
+  public TemplateForDirectiveTree TEMPLATE_FOR_DIRECTIVE() {
+    return b.<TemplateForDirectiveTree>nonterminal().is(
+      f.templateForDirective(
+        TEMPLATE_FOR_DIRECTIVE_INTRO(),
+        TEMPLATE(),
+        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.token(HclKeyword.END_FOR),
+        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE))));
+  }
+
+  public TemplateForDirectiveTreeImpl.Intro TEMPLATE_FOR_DIRECTIVE_INTRO() {
+    return b.<TemplateForDirectiveTreeImpl.Intro>nonterminal().is(
+      f.templateForDirectiveIntro(
+        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.token(HclKeyword.FOR),
+        f.forIntroIdentifiers(VARIABLE_EXPRESSION(), b.optional(f.newPair(b.token(HclPunctuator.COMMA), VARIABLE_EXPRESSION()))),
+        b.token(HclKeyword.IN),
+        EXPRESSION(),
+        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE))));
   }
 
   public ParenthesizedExpressionTree PARENTHESIZED_EXPRESSION() {

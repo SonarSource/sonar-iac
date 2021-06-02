@@ -39,6 +39,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateForDirectiveTree;
 import org.sonar.plugins.iac.terraform.api.tree.TemplateIfDirectiveTree;
 import org.sonar.plugins.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
@@ -69,6 +70,7 @@ import org.sonar.plugins.iac.terraform.tree.impl.ParenthesizedExpressionTreeImpl
 import org.sonar.plugins.iac.terraform.tree.impl.PrefixExpressionTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TemplateExpressionTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.TemplateForDirectiveTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TemplateIfDirectiveTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TemplateInterpolationTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TupleTreeImpl;
@@ -329,6 +331,25 @@ public class TreeFactory {
     SyntaxToken ifCloseToken,
     ExpressionTree trueExpression) {
     return new TemplateIfDirectiveTreeImpl.IfPart(ifOpenToken, ifToken, condition, ifCloseToken, trueExpression);
+  }
+
+  public TemplateForDirectiveTree templateForDirective(
+    TemplateForDirectiveTreeImpl.Intro intro,
+    ExpressionTree expression,
+    SyntaxToken endForOpenToken,
+    SyntaxToken endForToken,
+    SyntaxToken endForCloseToken) {
+    return new TemplateForDirectiveTreeImpl(intro, expression, endForOpenToken, endForToken, endForCloseToken);
+  }
+
+  public TemplateForDirectiveTreeImpl.Intro templateForDirectiveIntro(
+    SyntaxToken forOpenToken,
+    SyntaxToken forToken,
+    SeparatedTrees<VariableExprTree> loopVariables,
+    SyntaxToken inToken,
+    ExpressionTree loopExpression,
+    SyntaxToken forCloseToken) {
+    return new TemplateForDirectiveTreeImpl.Intro(forOpenToken, forToken, loopVariables, inToken, loopExpression, forCloseToken);
   }
 
   public static class Pair<T, U> {

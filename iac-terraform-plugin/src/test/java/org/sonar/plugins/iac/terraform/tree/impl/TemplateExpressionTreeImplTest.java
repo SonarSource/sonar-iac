@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.BinaryExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.TemplateExpressionTree;
+import org.sonar.plugins.iac.terraform.api.tree.TemplateForDirectiveTree;
 import org.sonar.plugins.iac.terraform.api.tree.TemplateIfDirectiveTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
@@ -84,6 +85,22 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
         assertThat(p.condition()).isInstanceOf(BinaryExpressionTree.class);
         assertThat(p.trueExpression()).isInstanceOfSatisfying(LiteralExprTree.class, l -> assertThat(l.value()).isEqualTo("foo"));
         assertThat(p.falseExpression()).isNull();
+      });
+    });
+  }
+
+  @Test
+  void simple_quoted_for_directive() {
+    TemplateExpressionTree tree = parse("\"%{ for a in b}foo%{ endfor }\"", HclLexicalGrammar.QUOTED_TEMPLATE);
+    assertThat(tree).satisfies(o -> {
+      assertThat(o.getKind()).isEqualTo(Tree.Kind.TEMPLATE_EXPRESSION);
+      assertThat(o.parts()).hasSize(1);
+      assertThat(o.parts().get(0)).isInstanceOfSatisfying(TemplateForDirectiveTree.class, p -> {
+        assertThat(p.getKind()).isEqualTo(Tree.Kind.TEMPLATE_DIRECTIVE_FOR);
+        assertThat(p.loopVariables().treesAndSeparators()).hasSize(1);
+        assertThat(p.loopVariables().trees().get(0)).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("a"));
+        assertThat(p.loopExpression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("b"));
+        assertThat(p.expression()).isInstanceOfSatisfying(LiteralExprTree.class, l -> assertThat(l.value()).isEqualTo("foo"));
       });
     });
   }

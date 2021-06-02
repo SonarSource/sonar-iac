@@ -40,9 +40,13 @@ class TemplateExpressionTest {
       .matches("\"%{ if a != 1 }foo%{ else }bar%{ endif }\"")
       .matches("\"%{ if a != 1 }${ \"foo\" }%{ endif }\"")
       .matches("\"%%{ if a != 1 }foo\"")
+      .matches("\"%{ for a in b}foo%{ endfor }\"")
+      .matches("\"%{ for a,b in b}foo%{ endfor }\"")
       .notMatches("\"foo$${\"bar\"}\"")
       .notMatches("\"foo${ ~ a}\"")
       .notMatches("\"%{ if a != 1 }foo%\"")
+      .notMatches("\"%{ for a,b,c in b}foo%{ endfor }\"")
+      .notMatches("\"%{ for a,b,c in b}foo\"")
     ;
   }
 }

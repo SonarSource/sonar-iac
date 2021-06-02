@@ -87,6 +87,8 @@ public interface Tree extends HasTextRange {
 
     TEMPLATE_INTERPOLATION(TemplateInterpolationTree.class),
 
+    TEMPLATE_DIRECTIVE_FOR(TemplateForDirectiveTree.class),
+
     TEMPLATE_DIRECTIVE_IF(TemplateIfDirectiveTree.class),
 
     TUPLE(TupleTree.class),
