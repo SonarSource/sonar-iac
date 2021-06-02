@@ -31,11 +31,15 @@ import org.sonar.plugins.iac.terraform.api.checks.InitContext;
 import org.sonar.plugins.iac.terraform.api.tree.HasTextRange;
 import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
+import org.sonar.plugins.iac.terraform.plugin.DurationStatistics;
 import org.sonar.plugins.iac.terraform.plugin.InputFileContext;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 
-  public ChecksVisitor(Checks<IacCheck> checks) {
+  private final DurationStatistics statistics;
+
+  public ChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics) {
+    this.statistics = statistics;
     Collection<IacCheck> activeChecks = checks.all();
     for (IacCheck check : activeChecks) {
       RuleKey ruleKey = checks.ruleKey(check);
@@ -55,10 +59,10 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 
     @Override
     public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
-      ChecksVisitor.this.register(cls, (ctx, tree) -> {
+      ChecksVisitor.this.register(cls, statistics.time(ruleKey.rule(), (ctx, tree) -> {
         currentCtx = ctx;
         visitor.accept(this, tree);
-      });
+      }));
     }
 
     @Override

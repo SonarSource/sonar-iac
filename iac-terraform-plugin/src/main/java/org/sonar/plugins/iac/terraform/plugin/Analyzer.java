@@ -40,10 +40,12 @@ public class Analyzer {
 
   private final HclParser parser;
   private List<TreeVisitor<InputFileContext>> visitors;
+  private DurationStatistics statistics;
 
-  public Analyzer(HclParser parser, List<TreeVisitor<InputFileContext>> visitors) {
+  public Analyzer(HclParser parser, List<TreeVisitor<InputFileContext>> visitors, DurationStatistics statistics) {
     this.parser = parser;
     this.visitors = visitors;
+    this.statistics = statistics;
   }
 
   boolean analyseFiles(SensorContext sensorContext, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
@@ -76,16 +78,18 @@ public class Analyzer {
       return;
     }
 
-    Tree tree;
-    try {
-      tree = parser.parse(content);
-    } catch (RuntimeException e) {
-      throw toParseException("parse", inputFile, e);
-    }
+    Tree tree = statistics.time("Parse", () -> {
+      try {
+        return parser.parse(content);
+      } catch (RuntimeException e) {
+        throw toParseException("parse", inputFile, e);
+      }
+    });
 
     for (TreeVisitor<InputFileContext> visitor : visitors) {
       try {
-        visitor.scan(inputFileContext, tree);
+        String visitorId = visitor.getClass().getSimpleName();
+        statistics.time(visitorId, () -> visitor.scan(inputFileContext, tree));
       } catch (RuntimeException e) {
         inputFileContext.reportAnalysisError(e.getMessage(), null);
         LOG.error("Cannot analyse '" + inputFile +"': " + e.getMessage(), e);
