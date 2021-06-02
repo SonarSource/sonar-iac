@@ -46,6 +46,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   STRING_WITHOUT_INTERPOLATION,
   TEMPLATE_LITERAL,
   NUMERIC_LITERAL,
+  NUMERIC_INDEX,
   HEREDOC_LITERAL,
 
   /**
@@ -98,6 +99,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
     b.rule(STRING_WITHOUT_INTERPOLATION).is(SPACING, b.regexp(LexicalConstant.STRING_WITHOUT_INTERPOLATION));
     b.rule(TEMPLATE_LITERAL).is(SPACING, b.regexp(LexicalConstant.TEMPLATE_LITERAL));
     b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(LexicalConstant.NUMERIC_LITERAL));
+    b.rule(NUMERIC_INDEX).is(b.regexp(LexicalConstant.NUMERIC_INDEX));
     b.rule(HEREDOC_LITERAL).is(SPACING, b.regexp(LexicalConstant.HEREDOC_LITERAL));
 
     b.rule(BOOLEAN_LITERAL).is(b.firstOf(word(b, "TRUE"), word(b, "FALSE")));

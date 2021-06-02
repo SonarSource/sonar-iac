@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +62,15 @@ class AttributeAccessTreeImplTest extends TerraformTreeModelTest {
         assertThat(o.subject()).isInstanceOfSatisfying(VariableExprTreeImpl.class, ob -> assertThat(ob.name()).isEqualTo("a"));
         assertThat(o.index()).isInstanceOfSatisfying(LiteralExprTreeImpl.class, ob -> assertThat(ob.value()).isEqualTo("1"));
       });
+    });
+  }
+
+  @Test
+  void legacy_index_access() {
+    AttributeAccessTree tree = parse("a.0", HclLexicalGrammar.EXPRESSION);
+    assertThat(tree).satisfies(a -> {
+      assertThat(a.attribute().value()).isEqualTo("0");
+      assertThat(a.object()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("a"));
     });
   }
 }

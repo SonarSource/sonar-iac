@@ -34,6 +34,9 @@ class AttributeAccessTest {
       .matches("123.a")
       .matches("a[1].b")
       .matches("(a).b")
+      .matches("a.0") // In the spec this is a legacyIndex access. We do parse it as a an attribute access though.
+      .matches("a.0.0.b") // Not allowed in the official parser.
+      .matches("(a).b")
       .notMatches("a.");
   }
 }
