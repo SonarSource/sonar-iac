@@ -264,7 +264,7 @@ public class HclGrammar {
     return b.<TreeFactory.PartialAttributeAccess>nonterminal().is(
       f.partialAttributeAccess(
         b.token(HclPunctuator.DOT),
-        b.token(HclLexicalGrammar.IDENTIFIER)));
+        b.firstOf(b.token(HclLexicalGrammar.IDENTIFIER), b.token(HclLexicalGrammar.NUMERIC_INDEX))));
   }
 
   public TreeFactory.PartialIndexAccess INDEX_ACCESS() {
