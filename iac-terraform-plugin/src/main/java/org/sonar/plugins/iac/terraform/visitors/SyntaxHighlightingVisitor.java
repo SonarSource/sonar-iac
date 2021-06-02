@@ -42,7 +42,7 @@ public class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
     register(BlockTree.class,  (ctx, tree) -> highlight(ctx, tree.type(), KEYWORD));
     register(LabelTree.class, (ctx, tree) -> highlight(ctx, tree, STRING));
     register(LiteralExprTree.class, (ctx, tree) -> highlight(ctx, tree,  tree.is(Tree.Kind.STRING_LITERAL) ? STRING : CONSTANT));
-    register(SyntaxToken.class, (ctx, tree) -> tree.trivias().forEach(comment -> highlight(ctx, comment, COMMENT)));
+    register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> highlight(ctx, comment, COMMENT)));
   }
 
   @Override

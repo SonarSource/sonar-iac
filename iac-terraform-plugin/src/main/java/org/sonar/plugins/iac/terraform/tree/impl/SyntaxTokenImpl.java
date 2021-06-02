@@ -19,27 +19,42 @@
  */
 package org.sonar.plugins.iac.terraform.tree.impl;
 
+import java.util.Collections;
 import java.util.List;
-import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.plugins.iac.terraform.api.tree.SyntaxTrivia;
+import org.sonar.plugins.iac.terraform.api.tree.Comment;
+import org.sonar.plugins.iac.terraform.api.tree.TextRange;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 
-public class SyntaxTokenImpl extends AbstractSyntaxImpl implements SyntaxToken {
+public class SyntaxTokenImpl extends TerraformTree implements SyntaxToken {
 
-  private List<SyntaxTrivia> trivias;
+  private final String value;
+  private final List<Comment> comments;
 
-  public SyntaxTokenImpl(String value, TextRange textRange, List<SyntaxTrivia> trivias) {
-    super(value, textRange);
-    this.trivias = trivias;
+  public SyntaxTokenImpl(String value, TextRange textRange, List<Comment> comments) {
+    this.value = value;
+    this.textRange = textRange;
+    this.comments = comments;
+  }
+
+
+  @Override
+  public String value() {
+    return value;
   }
 
   @Override
-  public List<SyntaxTrivia> trivias() {
-    return trivias;
+  public List<Comment> comments() {
+    return comments;
   }
 
   @Override
   public Kind getKind() {
     return Kind.TOKEN;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Collections.emptyList();
   }
 }

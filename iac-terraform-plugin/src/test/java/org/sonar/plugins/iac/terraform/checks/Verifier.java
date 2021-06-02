@@ -57,7 +57,7 @@ public final class Verifier {
     Tree root = parser.parse(testFileContent);
 
     (new TreeVisitor<>())
-      .register(SyntaxToken.class, (ctx, tree) -> tree.trivias().forEach(comment -> {
+      .register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> {
         TextPointer start = comment.textRange().start();
         verifier.addComment(start.line(), start.column()+1, comment.value(), 2, 0);
       }))

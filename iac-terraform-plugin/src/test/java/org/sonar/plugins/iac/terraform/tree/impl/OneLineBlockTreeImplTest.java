@@ -87,8 +87,8 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
     OneLineBlockTree tree = parse("#comment\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
       assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().trivias()).hasSize(1);
-      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+      assertThat(o.type().comments()).hasSize(1);
+      assertThat(o.type().comments().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("#comment");
         assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,1,8));
       });
@@ -100,8 +100,8 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
     OneLineBlockTree tree = parse("//comment\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
       assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().trivias()).hasSize(1);
-      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+      assertThat(o.type().comments()).hasSize(1);
+      assertThat(o.type().comments().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("//comment");
         assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,1,9));
       });
@@ -113,12 +113,12 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
     OneLineBlockTree tree = parse("#comment1\n#comment2\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
       assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().trivias()).hasSize(2);
-      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+      assertThat(o.type().comments()).hasSize(2);
+      assertThat(o.type().comments().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("#comment1");
         assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,1,9));
       });
-      assertThat(o.type().trivias().get(1)).satisfies(t -> {
+      assertThat(o.type().comments().get(1)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("#comment2");
         assertThat(t.textRange()).isEqualTo(TextRangesTest.range(2,0,2,9));
       });
@@ -130,8 +130,8 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
     OneLineBlockTree tree = parse("/* line1\nline2 */\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
       assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().trivias()).hasSize(1);
-      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+      assertThat(o.type().comments()).hasSize(1);
+      assertThat(o.type().comments().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("/* line1\nline2 */");
         assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,2,8));
       });
@@ -143,8 +143,8 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
     OneLineBlockTree tree = parse("/* comment */a {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
       assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().trivias()).hasSize(1);
-      assertThat(o.type().trivias().get(0)).satisfies(t -> {
+      assertThat(o.type().comments()).hasSize(1);
+      assertThat(o.type().comments().get(0)).satisfies(t -> {
         assertThat(t.value()).isEqualTo("/* comment */");
         assertThat(t.textRange()).isEqualTo(TextRangesTest.range(1,0,1,13));
       });
