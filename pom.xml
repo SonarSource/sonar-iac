@@ -72,10 +72,25 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Provided dependencies -->
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-plugin-api</artifactId>
+        <version>${version.sonar}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- Compile dependencies -->
       <dependency>
         <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
         <version>${version.sslr}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sslr</groupId>
@@ -87,14 +102,8 @@
         <artifactId>sonar-analyzer-commons</artifactId>
         <version>${version.analyzer.commons}</version>
       </dependency>
-      <dependency>
-        <groupId>org.sonarsource.analyzer-commons</groupId>
-        <artifactId>sonar-analyzer-test-commons</artifactId>
-        <version>${version.analyzer.commons}</version>
-      </dependency>
 
       <!-- Test dependencies -->
-
       <dependency>
         <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-testing-harness</artifactId>
@@ -111,6 +120,12 @@
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator</artifactId>
         <version>${version.orchestrator}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.analyzer-commons</groupId>
+        <artifactId>sonar-analyzer-test-commons</artifactId>
+        <version>${version.analyzer.commons}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -143,14 +158,6 @@
         <version>${version.mockito}</version>
         <scope>test</scope>
       </dependency>
-
-      <!-- Provided dependencies -->
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-plugin-api</artifactId>
-        <version>${version.sonar}</version>
-        <scope>provided</scope>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -163,13 +170,10 @@
           <configuration/>
         </plugin>
         <plugin>
-          <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
-          <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <version>${version.sonar-packaging.plugin}</version>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <sonarLintSupported>true</sonarLintSupported>
-            <sonarQubeMinVersion>8.9</sonarQubeMinVersion>
-            <skipDependenciesPackaging>true</skipDependenciesPackaging>
+            <showDeprecation>true</showDeprecation>
           </configuration>
         </plugin>
       </plugins>

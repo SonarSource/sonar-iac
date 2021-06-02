@@ -46,7 +46,6 @@ class IacRulingTest {
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE[8.9]";
   private static final String LITS_VERSION = "0.9.0.1682";
-  private static final String PLUGIN_NAME = "iac-terraform-plugin";
 
   private static Orchestrator orchestrator;
   private static boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
@@ -57,7 +56,7 @@ class IacRulingTest {
   public static void setUp() {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
-      .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../" + PLUGIN_NAME + "/target"), PLUGIN_NAME + "-*.jar"))
+      .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../iac-terraform-plugin/target"), "sonar-iac-plugin-*.jar"))
       .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION));
 
     orchestrator = builder.build();
