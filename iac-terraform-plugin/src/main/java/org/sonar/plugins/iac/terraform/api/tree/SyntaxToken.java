@@ -21,7 +21,10 @@ package org.sonar.plugins.iac.terraform.api.tree;
 
 import java.util.List;
 
-public interface SyntaxToken extends Syntax {
+public interface SyntaxToken extends Tree {
 
-  List<SyntaxTrivia> trivias();
+  String value();
+
+  List<Comment> trivias();
+
 }

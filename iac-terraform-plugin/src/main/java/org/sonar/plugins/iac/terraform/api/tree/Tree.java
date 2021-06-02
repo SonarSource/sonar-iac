@@ -20,7 +20,6 @@
 package org.sonar.plugins.iac.terraform.api.tree;
 
 import java.util.List;
-import org.sonar.plugins.iac.terraform.tree.impl.AbstractSyntaxImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public interface Tree extends HasTextRange {
@@ -92,10 +91,8 @@ public interface Tree extends HasTextRange {
     TUPLE(TupleTree.class),
 
     VARIABLE_EXPR(VariableExprTree.class),
-    // TODO change name of class
-    TOKEN(AbstractSyntaxImpl.class),
-    // TODO change name of class
-    TRIVIA(SyntaxTrivia.class);
+
+    TOKEN(SyntaxToken.class);
 
     final Class<? extends Tree> associatedInterface;
 

@@ -17,10 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.api.tree;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
-public interface Syntax extends Tree {
+import org.sonar.plugins.iac.terraform.api.tree.TextRange;
+import org.sonar.plugins.iac.terraform.api.tree.Comment;
 
-  String value();
+public class CommentImpl implements Comment {
 
+  private final String value;
+  private final String contentText;
+  private final TextRange textRange;
+
+  public CommentImpl(String value, String contentText, TextRange textRange) {
+    this.value = value;
+    this.contentText = contentText;
+    this.textRange = textRange;
+  }
+
+  @Override
+  public String value() {
+    return value;
+  }
+
+  @Override
+  public String contentText() {
+    return contentText;
+  }
+
+  @Override
+  public TextRange textRange() {
+    return textRange;
+  }
 }

@@ -30,7 +30,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.plugins.iac.terraform.api.tree.SyntaxTrivia;
+import org.sonar.plugins.iac.terraform.api.tree.Comment;
 import org.sonar.plugins.iac.terraform.plugin.InputFileContext;
 
 public class MetricsVisitor extends TreeVisitor<InputFileContext> {
@@ -76,8 +76,8 @@ public class MetricsVisitor extends TreeVisitor<InputFileContext> {
     noSonarFilter.noSonarInFile(ctx.inputFile, noSonarLines);
   }
 
-  private void addCommentLines(List<SyntaxTrivia> trivias) {
-    for (SyntaxTrivia trivia : trivias) {
+  private void addCommentLines(List<Comment> trivias) {
+    for (Comment trivia : trivias) {
       String[] commentLines = trivia.contentText().split("(\r)?\n|\r", -1);
       int currentLine = trivia.textRange().start().line();
       for (String commentLine : commentLines) {

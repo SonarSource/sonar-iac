@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.SyntaxTrivia;
+import org.sonar.plugins.iac.terraform.api.tree.Comment;
 import org.sonar.plugins.iac.terraform.tree.impl.SyntaxTokenImpl;
-import org.sonar.plugins.iac.terraform.tree.impl.SyntaxTriviaImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.CommentImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
 import org.sonar.plugins.iac.terraform.tree.impl.TextRanges;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -56,7 +56,7 @@ public class HclNodeBuilder implements NodeBuilder {
 
       @Override
       public Kind getKind() {
-        return Kind.TRIVIA;
+        return Kind.TOKEN;
       }
     };
   }
@@ -80,13 +80,13 @@ public class HclNodeBuilder implements NodeBuilder {
     return hasByteOrderMark ? column - 1 : column;
   }
 
-  private static List<SyntaxTrivia> createComments(List<Trivia> trivias) {
-    List<SyntaxTrivia> result = new ArrayList<>();
+  private static List<Comment> createComments(List<Trivia> trivias) {
+    List<Comment> result = new ArrayList<>();
     for (Trivia trivia : trivias) {
-      Token trivialToken = trivia.getToken();
-      String text = trivialToken.getValue();
-      TextRange range = TextRanges.range(trivialToken.getLine(), trivialToken.getColumn(), text);
-      result.add(new SyntaxTriviaImpl(text, getCommentContent(text), range));
+      Token triviaToken = trivia.getToken();
+      String text = triviaToken.getValue();
+      TextRange range = TextRanges.range(triviaToken.getLine(), triviaToken.getColumn(), text);
+      result.add(new CommentImpl(text, getCommentContent(text), range));
     }
     return result;
   }
