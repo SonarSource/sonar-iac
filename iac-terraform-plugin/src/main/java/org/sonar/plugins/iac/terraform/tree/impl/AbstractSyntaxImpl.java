@@ -17,11 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.api.tree.lexical;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
+import java.util.Collections;
 import java.util.List;
+import org.sonar.plugins.iac.terraform.api.tree.Syntax;
+import org.sonar.plugins.iac.terraform.api.tree.TextRange;
+import org.sonar.plugins.iac.terraform.api.tree.Tree;
 
-public interface SyntaxToken extends Syntax {
+public abstract class AbstractSyntaxImpl extends TerraformTree implements Syntax {
 
-  List<SyntaxTrivia> trivias();
+  private final String value;
+
+  protected AbstractSyntaxImpl(String value, TextRange textRange) {
+    this.value = value;
+    this.textRange = textRange;
+  }
+
+  @Override
+  public String value() {
+    return value;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public TextRange textRange() {
+    return textRange;
+  }
 }

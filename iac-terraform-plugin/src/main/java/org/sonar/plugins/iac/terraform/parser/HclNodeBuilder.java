@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxTrivia;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxTrivia;
+import org.sonar.plugins.iac.terraform.tree.impl.SyntaxTokenImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.SyntaxTriviaImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TerraformTree;
 import org.sonar.plugins.iac.terraform.tree.impl.TextRanges;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -43,7 +43,7 @@ public class HclNodeBuilder implements NodeBuilder {
   @Override
   public Object createNonTerminal(GrammarRuleKey ruleKey, Rule rule, List<Object> children, int startIndex, int endIndex) {
     for (Object child : children) {
-      if (child instanceof InternalSyntaxToken) {
+      if (child instanceof SyntaxTokenImpl) {
         return child;
       }
     }
@@ -65,7 +65,7 @@ public class HclNodeBuilder implements NodeBuilder {
   public Object createTerminal(Input input, int startIndex, int endIndex, List<Trivia> trivias, TokenType type) {
     String value = input.substring(startIndex, endIndex);
     TextRange range = tokenRange(input, startIndex, value);
-    return new InternalSyntaxToken(value, range, createComments(trivias));
+    return new SyntaxTokenImpl(value, range, createComments(trivias));
   }
 
   private static TextRange tokenRange(Input input, int startIndex, String value) {
@@ -86,7 +86,7 @@ public class HclNodeBuilder implements NodeBuilder {
       Token trivialToken = trivia.getToken();
       String text = trivialToken.getValue();
       TextRange range = TextRanges.range(trivialToken.getLine(), trivialToken.getColumn(), text);
-      result.add(new InternalSyntaxTrivia(text, getCommentContent(text), range));
+      result.add(new SyntaxTriviaImpl(text, getCommentContent(text), range));
     }
     return result;
   }

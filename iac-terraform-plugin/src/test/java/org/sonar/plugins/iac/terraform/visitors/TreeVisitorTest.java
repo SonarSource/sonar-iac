@@ -29,8 +29,8 @@ import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.plugins.iac.terraform.tree.impl.SyntaxTokenImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
@@ -82,6 +82,6 @@ class TreeVisitorTest {
   }
 
   private SyntaxToken simpleSyntaxToken(String value) {
-    return new InternalSyntaxToken(value, null, null);
+    return new SyntaxTokenImpl(value, null, null);
   }
 }

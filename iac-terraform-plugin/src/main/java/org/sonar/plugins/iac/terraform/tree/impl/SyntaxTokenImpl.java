@@ -17,28 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser.lexical;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
+import java.util.List;
 import org.sonar.plugins.iac.terraform.api.tree.TextRange;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxTrivia;
 
-public class InternalSyntaxTrivia extends InternalSyntax implements SyntaxTrivia {
+public class SyntaxTokenImpl extends AbstractSyntaxImpl implements SyntaxToken {
 
-  private final String contentText;
+  private List<SyntaxTrivia> trivias;
 
-  public InternalSyntaxTrivia(String text, String contentText, TextRange textRange) {
-    super(text, textRange);
-
-    this.contentText = contentText;
+  public SyntaxTokenImpl(String value, TextRange textRange, List<SyntaxTrivia> trivias) {
+    super(value, textRange);
+    this.trivias = trivias;
   }
 
   @Override
-  public String contentText() {
-    return contentText;
+  public List<SyntaxTrivia> trivias() {
+    return trivias;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.TRIVIA;
+    return Kind.TOKEN;
   }
 }

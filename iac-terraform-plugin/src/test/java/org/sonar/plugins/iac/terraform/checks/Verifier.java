@@ -32,7 +32,7 @@ import org.sonar.plugins.iac.terraform.api.tree.HasTextRange;
 import org.sonar.plugins.iac.terraform.api.tree.TextPointer;
 import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.plugins.iac.terraform.visitors.TreeContext;
 import org.sonar.plugins.iac.terraform.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;

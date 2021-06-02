@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-
 import java.util.List;
 import java.util.Optional;
 
