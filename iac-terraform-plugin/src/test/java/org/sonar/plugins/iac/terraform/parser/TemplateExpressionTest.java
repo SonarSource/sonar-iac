@@ -36,8 +36,13 @@ class TemplateExpressionTest {
       .matches("\"${\"bar${\"bar\"}\"}\"")
       .matches("\"foo${~ a}\"")
       .matches("\"foo${a ~}\"")
+      .matches("\"%{ if a != 1 }foo%{ endif }\"")
+      .matches("\"%{ if a != 1 }foo%{ else }bar%{ endif }\"")
+      .matches("\"%{ if a != 1 }${ \"foo\" }%{ endif }\"")
+      .matches("\"%%{ if a != 1 }foo\"")
       .notMatches("\"foo$${\"bar\"}\"")
       .notMatches("\"foo${ ~ a}\"")
+      .notMatches("\"%{ if a != 1 }foo%\"")
     ;
   }
 }

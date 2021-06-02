@@ -17,24 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.parser;
+package org.sonar.plugins.iac.terraform.api.tree;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import javax.annotation.Nullable;
 
-public enum HclKeyword implements GrammarRuleKey {
-  FOR("for"),
-  IF("if"),
-  ELSE("else"),
-  END_IF("endif"),
-  IN("in");
-
-  private final String value;
-
-  HclKeyword(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
+public interface TemplateIfDirectiveTree extends ExpressionTree {
+  ExpressionTree condition();
+  ExpressionTree trueExpression();
+  @Nullable
+  ExpressionTree falseExpression();
 }
