@@ -2,7 +2,4 @@
 'terraform-project:ruling/src/test/resources/sources/terraform/parserError.tf':[
 2,
 ],
-'terraform-project:sources/terraform/terragoat/terraform/aws/eks.tf':[
-147,
-],
 }
