@@ -44,7 +44,7 @@ public class SyntaxTokenImpl extends TerraformTree implements SyntaxToken {
   }
 
   @Override
-  public List<Comment> trivias() {
+  public List<Comment> comments() {
     return comments;
   }
 

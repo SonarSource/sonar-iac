@@ -25,6 +25,6 @@ public interface SyntaxToken extends Tree {
 
   String value();
 
-  List<Comment> trivias();
+  List<Comment> comments();
 
 }

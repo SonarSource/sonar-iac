@@ -40,7 +40,7 @@ public class MetricsVisitor extends TreeVisitor<InputFileContext> {
   private final NoSonarFilter noSonarFilter;
 
   Set<Integer> linesOfCode;
-  Set<Integer> comments;
+  Set<Integer> commentLines;
   Set<Integer> noSonarLines;
 
   public MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
@@ -54,21 +54,21 @@ public class MetricsVisitor extends TreeVisitor<InputFileContext> {
           linesOfCode.add(i);
         }
       }
-      addCommentLines(token.trivias());
+      addCommentLines(token.comments());
     });
   }
 
   @Override
   protected void before(InputFileContext ctx, Tree root) {
     linesOfCode = new HashSet<>();
-    comments = new HashSet<>();
+    commentLines = new HashSet<>();
     noSonarLines = new HashSet<>();
   }
 
   @Override
   protected void after(InputFileContext ctx, Tree root) {
     saveMetric(ctx, CoreMetrics.NCLOC, linesOfCode.size());
-    saveMetric(ctx, CoreMetrics.COMMENT_LINES, comments.size());
+    saveMetric(ctx, CoreMetrics.COMMENT_LINES, commentLines.size());
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(ctx.inputFile);
     linesOfCode.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1));
@@ -76,15 +76,15 @@ public class MetricsVisitor extends TreeVisitor<InputFileContext> {
     noSonarFilter.noSonarInFile(ctx.inputFile, noSonarLines);
   }
 
-  private void addCommentLines(List<Comment> trivias) {
-    for (Comment trivia : trivias) {
-      String[] commentLines = trivia.contentText().split("(\r)?\n|\r", -1);
-      int currentLine = trivia.textRange().start().line();
+  private void addCommentLines(List<Comment> comments) {
+    for (Comment comment : comments) {
+      String[] commentLines = comment.contentText().split("(\r)?\n|\r", -1);
+      int currentLine = comment.textRange().start().line();
       for (String commentLine : commentLines) {
         if (commentLine.contains(NOSONAR_PREFIX)) {
           noSonarLines.add(currentLine);
         } else if (!isBlank(commentLine)) {
-          comments.add(currentLine);
+          this.commentLines.add(currentLine);
         }
         currentLine++;
       }

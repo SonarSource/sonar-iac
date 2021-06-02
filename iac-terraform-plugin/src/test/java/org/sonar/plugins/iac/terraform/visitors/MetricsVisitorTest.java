@@ -70,7 +70,7 @@ class MetricsVisitorTest {
   void emptySource() throws Exception {
     scan("");
     assertThat(visitor.linesOfCode).isEmpty();
-    assertThat(visitor.comments).isEmpty();
+    assertThat(visitor.commentLines).isEmpty();
     verify(mockNoSonarFilter).noSonarInFile(inputFile, new HashSet<>());
   }
 
@@ -91,7 +91,7 @@ class MetricsVisitorTest {
       "   // comment\n" +
       "   b = {} // comment\n" +
       "}");
-    assertThat(visitor.comments).containsExactly(1, 2, 3);
+    assertThat(visitor.commentLines).containsExactly(1, 2, 3);
   }
 
   @Test
@@ -101,7 +101,7 @@ class MetricsVisitorTest {
       " a = {}\n" +
       " end\n" +
       "*/");
-    assertThat(visitor.comments).containsExactly(1, 2, 3);
+    assertThat(visitor.commentLines).containsExactly(1, 2, 3);
     assertThat(visitor.linesOfCode).isEmpty();
   }
 
