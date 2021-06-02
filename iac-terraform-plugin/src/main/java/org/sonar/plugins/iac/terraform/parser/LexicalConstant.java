@@ -54,6 +54,8 @@ public class LexicalConstant {
    * String
    */
   public static final String STRING_LITERAL = "\"(?:[^\"\\\\]*+(?:\\\\[\\s\\S])?+)*+\"";
+  public static final String QUOTED_TEMPLATE_STRING_CHARACTERS = "(?:[^\"\\\\$]|\\\\[\\s\\S]?|\\$\\$\\{|\\$(?!\\{))++";
+  public static final String STRING_WITHOUT_INTERPOLATION = "\"(?:" + QUOTED_TEMPLATE_STRING_CHARACTERS + ")?+\"";
 
   /**
    * Numeric Literal

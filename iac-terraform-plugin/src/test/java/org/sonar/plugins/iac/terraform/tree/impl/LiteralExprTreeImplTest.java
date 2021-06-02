@@ -48,15 +48,6 @@ class LiteralExprTreeImplTest extends TerraformTreeModelTest {
   }
 
   @Test
-  void string_literal() {
-    LiteralExprTree tree = parse("\"foo\"", HclLexicalGrammar.LITERAL_EXPRESSION);
-    assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.STRING_LITERAL);
-      assertThat(o.value()).isEqualTo("foo");
-    });
-  }
-
-  @Test
   void numeric_literal() {
     LiteralExprTree tree = parse("1", HclLexicalGrammar.LITERAL_EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {

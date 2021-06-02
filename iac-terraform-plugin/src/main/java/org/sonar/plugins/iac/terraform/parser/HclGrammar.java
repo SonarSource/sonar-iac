@@ -151,11 +151,35 @@ public class HclGrammar {
       b.firstOf(LITERAL_EXPRESSION(),
         TUPLE(),
         OBJECT(),
+        TEMPLATE_EXPRESSION(),
         FUNCTION_CALL(),
         VARIABLE_EXPRESSION(),
         FOR_TUPLE(),
         FOR_OBJECT(),
         PARENTHESIZED_EXPRESSION()));
+  }
+
+  public ExpressionTree TEMPLATE_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(HclLexicalGrammar.TEMPLATE_EXPRESSION).is(
+      b.firstOf(
+        f.stringLiteral(b.token(HclLexicalGrammar.STRING_WITHOUT_INTERPOLATION)),
+        f.templateExpr(
+          b.token(HclLexicalGrammar.SPACING),
+          b.token(HclPunctuator.DOUBLE_QUOTE),
+          b.oneOrMore(
+            b.firstOf(
+              f.templateStringLiteral(b.token(HclLexicalGrammar.QUOTED_TEMPLATE_STRING_CHARACTERS)),
+              TEMPLATE_INTERPOLATION())),
+          b.token(HclPunctuator.DOUBLE_QUOTE))
+      ));
+  }
+
+  public ExpressionTree TEMPLATE_INTERPOLATION() {
+    return b.<ExpressionTree>nonterminal().is(
+      f.templateInterpolation(
+        b.firstOf(b.token(HclPunctuator.DOLLAR_LCURLY_TILDE), b.token(HclPunctuator.DOLLAR_LCURLY)),
+        EXPRESSION(),
+        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE))));
   }
 
   public ParenthesizedExpressionTree PARENTHESIZED_EXPRESSION() {
@@ -277,7 +301,6 @@ public class HclGrammar {
         f.numericLiteral(b.token(HclLexicalGrammar.NUMERIC_LITERAL)),
         f.booleanLiteral(b.token(HclLexicalGrammar.BOOLEAN_LITERAL)),
         f.nullLiteral(b.token(HclLexicalGrammar.NULL)),
-        f.stringLiteral(b.token(HclLexicalGrammar.STRING_LITERAL)),
         f.heredocLiteral(b.token(HclLexicalGrammar.HEREDOC_LITERAL))
       ));
   }

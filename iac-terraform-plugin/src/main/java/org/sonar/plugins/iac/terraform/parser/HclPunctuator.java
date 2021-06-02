@@ -48,7 +48,11 @@ public enum HclPunctuator implements GrammarRuleKey {
   PERCENT("%"),
   STAR("*"),
   QUERY("?"),
-  EXCLAMATION("!")
+  EXCLAMATION("!"),
+  DOUBLE_QUOTE("\""),
+  DOLLAR_LCURLY("${"),
+  DOLLAR_LCURLY_TILDE("${~"),
+  TILDE_RCURLY("~}")
   ;
 
   private final String value;

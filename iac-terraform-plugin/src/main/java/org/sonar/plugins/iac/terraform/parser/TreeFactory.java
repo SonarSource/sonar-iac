@@ -33,6 +33,7 @@ import org.sonar.plugins.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.plugins.iac.terraform.api.tree.IndexAccessExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.IndexSplatAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
+import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.plugins.iac.terraform.api.tree.ObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
@@ -65,6 +66,8 @@ import org.sonar.plugins.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.ParenthesizedExpressionTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.PrefixExpressionTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.SeparatedTreesImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.TemplateExpressionTreeImpl;
+import org.sonar.plugins.iac.terraform.tree.impl.TemplateInterpolationTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.VariableExprTreeImpl;
 
@@ -108,6 +111,10 @@ public class TreeFactory {
 
   public LiteralExprTreeImpl stringLiteral(SyntaxToken token) {
     return new LiteralExprTreeImpl(Tree.Kind.STRING_LITERAL, token);
+  }
+
+  public LiteralExprTree templateStringLiteral(SyntaxToken token) {
+    return new LiteralExprTreeImpl(Tree.Kind.TEMPLATE_STRING_PART_LITERAL, token);
   }
 
   public LiteralExprTreeImpl heredocLiteral(SyntaxToken token) {
@@ -285,6 +292,14 @@ public class TreeFactory {
     }
 
     return result;
+  }
+
+  public ExpressionTree templateInterpolation(SyntaxToken token, ExpressionTree expression, SyntaxToken token1) {
+    return new TemplateInterpolationTreeImpl(token, expression, token1);
+  }
+
+  public ExpressionTree templateExpr(Tree spacing, SyntaxToken openQuotes, List<ExpressionTree> oneOrMore, SyntaxToken closeQuotes) {
+    return new TemplateExpressionTreeImpl(openQuotes, oneOrMore, closeQuotes);
   }
 
   public static class Pair<T, U> {
