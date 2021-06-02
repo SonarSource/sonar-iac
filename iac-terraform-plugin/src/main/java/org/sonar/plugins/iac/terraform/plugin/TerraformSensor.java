@@ -66,6 +66,7 @@ public class TerraformSensor implements Sensor {
 
   @Override
   public void execute(SensorContext sensorContext) {
+    DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     FileSystem fileSystem = sensorContext.fileSystem();
     FilePredicate mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasLanguage(TerraformPlugin.LANGUAGE_KEY),
@@ -75,7 +76,7 @@ public class TerraformSensor implements Sensor {
     ProgressReport progressReport = new ProgressReport("Progress of the " + TerraformPlugin.LANGUAGE_NAME + " analysis", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(filenames);
     boolean success = false;
-    Analyzer analyzer = new Analyzer(new HclParser(), visitors(sensorContext));
+    Analyzer analyzer = new Analyzer(new HclParser(), visitors(sensorContext, statistics), statistics);
     try {
       success = analyzer.analyseFiles(sensorContext, inputFiles, progressReport);
     } finally {
@@ -85,9 +86,10 @@ public class TerraformSensor implements Sensor {
         progressReport.cancel();
       }
     }
+    statistics.log();
   }
 
-  private List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext) {
+  private List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> treeVisitors = new ArrayList<>();
     // non sonar lint context visitors
     if (sensorContext.runtime().getProduct() != SonarProduct.SONARLINT) {
@@ -97,7 +99,7 @@ public class TerraformSensor implements Sensor {
       ));
     }
     // mandatory visitor
-    treeVisitors.add(new ChecksVisitor(checks()));
+    treeVisitors.add(new ChecksVisitor(checks(), statistics));
     return treeVisitors;
   }
 
