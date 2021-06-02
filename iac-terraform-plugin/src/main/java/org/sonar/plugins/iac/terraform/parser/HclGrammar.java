@@ -38,16 +38,16 @@ import org.sonar.plugins.iac.terraform.api.tree.TemplateIfDirectiveTree;
 import org.sonar.plugins.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.tree.impl.SyntaxTokenImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AbstractForTree;
 import org.sonar.plugins.iac.terraform.tree.impl.TemplateIfDirectiveTreeImpl;
 
 public class HclGrammar {
 
-  private final GrammarBuilder<InternalSyntaxToken> b;
+  private final GrammarBuilder<SyntaxTokenImpl> b;
   private final TreeFactory f;
 
-  public HclGrammar(GrammarBuilder<InternalSyntaxToken> b, TreeFactory f) {
+  public HclGrammar(GrammarBuilder<SyntaxTokenImpl> b, TreeFactory f) {
     this.b = b;
     this.f = f;
   }

@@ -44,8 +44,8 @@ import org.sonar.plugins.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.TupleTree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.plugins.iac.terraform.tree.impl.SyntaxTokenImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AbstractForTree;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeAccessTreeImpl;
 import org.sonar.plugins.iac.terraform.tree.impl.AttributeSplatAccessTreeImpl;
@@ -139,7 +139,7 @@ public class TreeFactory {
   public SeparatedTrees<ObjectElementTree> objectElements(
     ObjectElementTree firstElement,
     Optional<List<Pair<SyntaxToken, ObjectElementTree>>> otherElements,
-    Optional<InternalSyntaxToken> trailingComma) {
+    Optional<SyntaxTokenImpl> trailingComma) {
     return separatedTrees(firstElement, otherElements, trailingComma.orNull());
   }
 
@@ -147,7 +147,7 @@ public class TreeFactory {
     return new PartialAttributeAccess(accessToken, attribute);
   }
 
-  public VariableExprTree variable(InternalSyntaxToken token) {
+  public VariableExprTree variable(SyntaxTokenImpl token) {
     return new VariableExprTreeImpl(token);
   }
 

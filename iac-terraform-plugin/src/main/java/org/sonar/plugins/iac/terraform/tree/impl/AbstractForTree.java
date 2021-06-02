@@ -24,7 +24,7 @@ import org.sonar.plugins.iac.terraform.api.tree.ForTree;
 import org.sonar.plugins.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -17,10 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac.terraform.api.tree.lexical;
+package org.sonar.plugins.iac.terraform.tree.impl;
 
-public interface SyntaxTrivia extends Syntax{
+import org.sonar.plugins.iac.terraform.api.tree.TextRange;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxTrivia;
 
-  String contentText();
+public class SyntaxTriviaImpl extends AbstractSyntaxImpl implements SyntaxTrivia {
 
+  private final String contentText;
+
+  public SyntaxTriviaImpl(String text, String contentText, TextRange textRange) {
+    super(text, textRange);
+
+    this.contentText = contentText;
+  }
+
+  @Override
+  public String contentText() {
+    return contentText;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.TRIVIA;
+  }
 }

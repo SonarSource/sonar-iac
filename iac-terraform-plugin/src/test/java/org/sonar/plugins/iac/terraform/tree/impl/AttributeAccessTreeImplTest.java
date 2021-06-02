@@ -22,7 +22,7 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;

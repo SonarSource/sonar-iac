@@ -21,7 +21,7 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
 import org.sonar.plugins.iac.terraform.api.tree.VariableExprTree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
 
 import java.util.Arrays;
 import java.util.List;

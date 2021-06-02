@@ -20,8 +20,7 @@
 package org.sonar.plugins.iac.terraform.api.tree;
 
 import java.util.List;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntax;
+import org.sonar.plugins.iac.terraform.tree.impl.AbstractSyntaxImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public interface Tree extends HasTextRange {
@@ -94,7 +93,7 @@ public interface Tree extends HasTextRange {
 
     VARIABLE_EXPR(VariableExprTree.class),
     // TODO change name of class
-    TOKEN(InternalSyntax.class),
+    TOKEN(AbstractSyntaxImpl.class),
     // TODO change name of class
     TRIVIA(SyntaxTrivia.class);
 

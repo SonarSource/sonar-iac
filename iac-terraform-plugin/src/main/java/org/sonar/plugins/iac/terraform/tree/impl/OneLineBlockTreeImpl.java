@@ -23,7 +23,7 @@ import org.sonar.plugins.iac.terraform.api.tree.AttributeTree;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;

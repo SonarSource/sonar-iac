@@ -29,8 +29,8 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.plugins.iac.terraform.api.tree.TextRange;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxTrivia;
 import org.sonar.plugins.iac.terraform.plugin.InputFileContext;
 
 public class MetricsVisitor extends TreeVisitor<InputFileContext> {

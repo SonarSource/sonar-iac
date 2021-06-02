@@ -21,8 +21,7 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.iac.terraform.parser.lexical.InternalSyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,10 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SeparatedTreesImplTest {
-  private static Tree treeA = new InternalSyntaxToken("a", null, null);
-  private static Tree treeB = new InternalSyntaxToken("b", null, null);
+  private static Tree treeA = new SyntaxTokenImpl("a", null, null);
+  private static Tree treeB = new SyntaxTokenImpl("b", null, null);
   private static List<Tree> elementsList = Arrays.asList(treeA, treeB);
-  private static SyntaxToken separator = new InternalSyntaxToken(",", null, null);
+  private static SyntaxToken separator = new SyntaxTokenImpl(",", null, null);
   private static SeparatedTreesImpl<Tree> list = new SeparatedTreesImpl<>(elementsList, Arrays.asList(separator));
 
   @Test

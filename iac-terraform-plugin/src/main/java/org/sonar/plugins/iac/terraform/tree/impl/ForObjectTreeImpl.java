@@ -22,7 +22,7 @@ package org.sonar.plugins.iac.terraform.tree.impl;
 import org.sonar.plugins.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.plugins.iac.terraform.api.tree.ForObjectTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.plugins.iac.terraform.parser.TreeFactory;
 
 import javax.annotation.Nullable;

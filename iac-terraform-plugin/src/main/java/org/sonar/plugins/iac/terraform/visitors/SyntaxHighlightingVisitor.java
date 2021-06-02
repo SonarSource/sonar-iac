@@ -26,7 +26,7 @@ import org.sonar.plugins.iac.terraform.api.tree.HasTextRange;
 import org.sonar.plugins.iac.terraform.api.tree.LabelTree;
 import org.sonar.plugins.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.plugins.iac.terraform.api.tree.Tree;
-import org.sonar.plugins.iac.terraform.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.plugins.iac.terraform.plugin.InputFileContext;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
