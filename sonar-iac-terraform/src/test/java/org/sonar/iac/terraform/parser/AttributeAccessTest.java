@@ -17,17 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.parser;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.parser.utils.Assertions;
 
-public class IacPlugin implements Plugin {
+class AttributeAccessTest {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
+      .matches("a.b")
+      .matches("a.b.c")
+      .matches("{}.a")
+      .matches("\"foo\".a")
+      .matches("123.a")
+      .matches("a[1].b")
+      .matches("(a).b")
+      .matches("a.0") // In the spec this is a legacyIndex access. We do parse it as a an attribute access though.
+      .matches("a.0.0.b") // Not allowed in the official parser.
+      .matches("(a).b")
+      .notMatches("a.");
   }
 }

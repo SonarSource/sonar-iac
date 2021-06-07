@@ -17,17 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.parser;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import com.sonar.sslr.api.typed.ActionParser;
+import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public class IacPlugin implements Plugin {
+import java.nio.charset.StandardCharsets;
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+public class HclParser extends ActionParser<Tree> {
+
+  public HclParser() {
+    this(HclLexicalGrammar.FILE);
+  }
+
+  public HclParser(GrammarRuleKey rootRule) {
+    super(
+      StandardCharsets.UTF_8,
+      HclLexicalGrammar.createGrammarBuilder(),
+      HclGrammar.class,
+      new TreeFactory(),
+      new HclNodeBuilder(),
+      rootRule);
   }
 }

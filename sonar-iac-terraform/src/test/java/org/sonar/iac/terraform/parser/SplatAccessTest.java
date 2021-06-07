@@ -17,17 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.parser;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.parser.utils.Assertions;
 
-public class IacPlugin implements Plugin {
+class SplatAccessTest {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
+      .matches("a.*")
+      .matches("a.b.*")
+      .matches("a.*.b")
+      .matches("a.b.*.c.d")
+      .matches("a[*]")
+      .matches("a[*].b")
+      .matches("a[*].*.b")
+      .matches("a.*[*]") // Not valid HCL, but our parser allows it.
+      .matches("(a).*")
+      .notMatches("*.b")
+      .notMatches("a[*]b")
+      .notMatches("a.[*]")
+    ;
   }
 }

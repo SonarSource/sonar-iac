@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.parser;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public class IacPlugin implements Plugin {
+public enum HclKeyword implements GrammarRuleKey {
+  FOR("for"),
+  IF("if"),
+  ELSE("else"),
+  END_IF("endif"),
+  END_FOR("endfor"),
+  IN("in");
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  private final String value;
+
+  HclKeyword(String value) {
+    this.value = value;
+  }
+
+  public String getValue() {
+    return value;
   }
 }

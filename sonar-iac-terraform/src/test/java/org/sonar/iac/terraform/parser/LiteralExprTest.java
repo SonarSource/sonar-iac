@@ -17,17 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.parser;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.parser.utils.Assertions;
 
-public class IacPlugin implements Plugin {
+class LiteralExprTest {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.LITERAL_EXPRESSION)
+      .matches("true")
+      .matches("TRUE")
+      .matches("false")
+      .matches("null")
+      .matches("1")
+      .matches("12.34")
+      .matches("12e34")
+      .matches("12E34")
+      .matches("12E+34")
+      .matches("12E-34")
+      .matches("<<EOF\n" +
+        "    foo\n" +
+        "    EOFTEST\n" +
+        "EOF")
+      .notMatches("12.")
+      .notMatches("12E")
+      .notMatches("notBoolean")
+      .notMatches("trueFoo")
+      .notMatches("falseFoo")
+      .notMatches("nullFoo")
+      .notMatches("<<EOF\n" +
+        "    foo\n" +
+        "    bar\n" +
+        "NOT_EOF");
+
   }
 }

@@ -17,17 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.api.checks;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import java.util.function.BiConsumer;
+import org.sonar.iac.terraform.api.tree.Tree;
 
-public class IacPlugin implements Plugin {
+public interface InitContext {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
-  }
+  <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor);
 }

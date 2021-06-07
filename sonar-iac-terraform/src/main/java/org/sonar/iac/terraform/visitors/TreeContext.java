@@ -17,17 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.visitors;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import org.sonar.iac.terraform.api.tree.Tree;
 
-public class IacPlugin implements Plugin {
+public class TreeContext {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  private final Deque<Tree> ancestors;
+  private Tree current;
+
+  public TreeContext() {
+    ancestors = new ArrayDeque<>();
+  }
+
+  public Deque<Tree> ancestors() {
+    return ancestors;
+  }
+
+  protected void before() {
+    ancestors.clear();
+  }
+
+  public void enter(Tree node) {
+    if (current != null) {
+      ancestors.push(current);
+    }
+    current = node;
+  }
+
+  public void leave() {
+    if (!ancestors.isEmpty()) {
+      current = ancestors.pop();
+    }
   }
 }

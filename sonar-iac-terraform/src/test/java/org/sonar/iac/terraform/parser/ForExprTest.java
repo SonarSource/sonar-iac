@@ -17,17 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.parser;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.parser.utils.Assertions;
 
-public class IacPlugin implements Plugin {
+class ForExprTest {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
+      .matches("[for a in b : c]")
+      .matches("[for a in b : c if d]")
+      .matches("[for a,b in c : d if e]")
+      .matches("{for a in b: c => d}")
+      .matches("{for a,b in b: c => d}")
+      .matches("{for a,b in b: c => d if e}")
+      .matches("{for a in b: c => d...}")
+      .notMatches("[for a, in b : c]")
+      .notMatches("[for a,b,c in b : c]")
+      .notMatches("{for a, in b: c => d}")
+      .notMatches("{for a,b,c in b: c => d}")
+    ;
   }
 }

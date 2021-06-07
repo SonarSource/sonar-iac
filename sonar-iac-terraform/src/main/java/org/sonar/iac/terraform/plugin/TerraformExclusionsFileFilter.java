@@ -17,17 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.plugin;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFileFilter;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.WildcardPattern;
 
-public class IacPlugin implements Plugin {
+public class TerraformExclusionsFileFilter implements InputFileFilter {
+
+  private final Configuration configuration;
+
+  public TerraformExclusionsFileFilter(Configuration configuration) {
+    this.configuration = configuration;
+  }
 
   @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  public boolean accept(InputFile inputFile) {
+    if (!TerraformExtension.LANGUAGE_KEY.equals(inputFile.language())) {
+      return true;
+    }
+    String[] excludedPatterns = this.configuration.getStringArray(TerraformExtension.EXCLUSIONS_KEY);
+    String relativePath = inputFile.uri().toString();
+    return !WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath);
   }
 }

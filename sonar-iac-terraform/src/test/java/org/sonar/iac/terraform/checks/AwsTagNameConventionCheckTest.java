@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.checks;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
 
-public class IacPlugin implements Plugin {
+class AwsTagNameConventionCheckTest {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  @Test
+  void test_default() {
+    TerraformVerifier.verify("AwsTagNameConventionCheck/default.tf", new AwsTagNameConventionCheck());
+  }
+
+  @Test
+  void test_custom() {
+    AwsTagNameConventionCheck check = new AwsTagNameConventionCheck();
+    check.format = "^([a-z-]*[a-z]:)*([a-z-]*[a-z])$";
+    TerraformVerifier.verify("AwsTagNameConventionCheck/custom.tf", check);
   }
 }

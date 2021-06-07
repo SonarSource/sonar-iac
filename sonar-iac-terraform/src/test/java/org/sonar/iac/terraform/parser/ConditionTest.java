@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.parser;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.parser.utils.Assertions;
 
-public class IacPlugin implements Plugin {
+class ConditionTest {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.EXPRESSION)
+      .matches("a ? b : c")
+      .matches("a[1] ? b[1] : c[1]")
+      .matches("a.a1 ? b.b1 : c.c1")
+      .matches("a ? a1 : a2 ? b ? b1 : b2 : c ? c1 : c2")
+      .matches("(a ? a1 : a2) ? (b ? b1 : b2) : (c ? c1 : c2)")
+      .notMatches("a ? b")
+      .notMatches("a ? b :")
+    ;
   }
 }

@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.checks;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.sonar.iac.terraform.api.checks.IacCheck;
+import org.sonar.iac.terraform.parser.HclParser;
 
-public class IacPlugin implements Plugin {
+public class TerraformVerifier {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  private TerraformVerifier() {
+
+  }
+
+  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  private static final HclParser PARSER = new HclParser();
+
+  public static void verify(String fileName, IacCheck check) {
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
   }
 }

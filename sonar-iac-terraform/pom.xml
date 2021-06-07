@@ -11,13 +11,7 @@
 
   <artifactId>sonar-iac-terraform</artifactId>
 
-  <name>SonarSource IaC Analyzer :: Sonar Plugin</name>
-  <description>Code Analyzer for IaC</description>
-  <inceptionYear>2021</inceptionYear>
-  <organization>
-    <name>SonarSource</name>
-    <url>https://www.sonarsource.com</url>
-  </organization>
+  <name>SonarSource IaC Analyzer :: Terraform</name>
 
   <properties>
     <sonar.pluginClass>org.sonar.plugins.iac.IacPlugin</sonar.pluginClass>

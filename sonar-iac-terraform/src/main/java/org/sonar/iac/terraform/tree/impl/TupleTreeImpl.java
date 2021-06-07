@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.iac.terraform.api.tree.TupleTree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-public class IacPlugin implements Plugin {
+import javax.annotation.Nullable;
+
+public class TupleTreeImpl extends AbstractCollectionValueTree<ExpressionTree> implements TupleTree {
+
+  public TupleTreeImpl(SyntaxToken openBrace, @Nullable SeparatedTrees<ExpressionTree> elements, SyntaxToken closeBrace) {
+    super(openBrace, elements, closeBrace);
+  }
 
   @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  public Kind getKind() {
+    return Kind.TUPLE;
   }
 }

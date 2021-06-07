@@ -17,17 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.parser;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.parser.utils.Assertions;
 
-public class IacPlugin implements Plugin {
+class OneLineBlockTest {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.ONE_LINE_BLOCK)
+      .matches("a{}")
+      .matches("  a {   }")
+      .matches("a { \n }")
+      .matches("a label {}")
+      .matches("a \"label\" {}")
+      .matches("a \"label1\" \"label2\" {}")
+      .matches("a \"label with \\\" quote\" {}")
+      .matches("a \"label1\" label2 {}")
+      .matches("a {b = false}")
+      .notMatches("a")
+      .notMatches("a{");
   }
 }

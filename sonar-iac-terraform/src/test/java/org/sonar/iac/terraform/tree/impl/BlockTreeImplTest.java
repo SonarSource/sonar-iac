@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.parser.HclLexicalGrammar;
+import org.sonar.iac.terraform.api.tree.BlockTree;
 
-public class IacPlugin implements Plugin {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+class BlockTreeImplTest extends TerraformTreeModelTest {
+
+  @Test
+  void simple_one_line_block() {
+    BlockTree tree = parse("a{\n b = true \nc = null}", HclLexicalGrammar.BLOCK);
+    assertThat(tree).isInstanceOfSatisfying(BlockTree.class, o -> {
+      assertThat(o.getKind()).isEqualTo(Tree.Kind.BLOCK);
+      assertThat(o.type().value()).isEqualTo("a");
+      assertThat(o.labels()).isEmpty();
+      assertThat(o.body().get().statements()).hasSize(2);
+    });
   }
 }

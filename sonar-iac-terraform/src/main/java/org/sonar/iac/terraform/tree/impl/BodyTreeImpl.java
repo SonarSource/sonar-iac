@@ -17,17 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.iac.terraform.api.tree.BodyTree;
+import org.sonar.iac.terraform.api.tree.Tree;
 
-public class IacPlugin implements Plugin {
+import java.util.List;
+
+public class BodyTreeImpl extends TerraformTree implements BodyTree {
+  private final List<Tree> statements;
+
+  public BodyTreeImpl(List<Tree> statements) {
+    this.statements = statements;
+  }
 
   @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  public List<Tree> statements() {
+    return statements;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return statements;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.BODY;
   }
 }

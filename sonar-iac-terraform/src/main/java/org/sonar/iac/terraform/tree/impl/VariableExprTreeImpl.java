@@ -17,17 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.VariableExprTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-public class IacPlugin implements Plugin {
+import java.util.Arrays;
+import java.util.List;
+
+public class VariableExprTreeImpl extends TerraformTree implements VariableExprTree {
+  private final SyntaxToken token;
+
+  public VariableExprTreeImpl(SyntaxToken token) {
+    this.token = token;
+  }
 
   @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  public SyntaxToken token() {
+    return token;
+  }
+
+  @Override
+  public String name() {
+    return token.value();
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Arrays.asList(token);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.VARIABLE_EXPR;
   }
 }

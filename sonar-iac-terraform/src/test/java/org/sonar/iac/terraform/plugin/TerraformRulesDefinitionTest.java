@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.plugin;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.iac.terraform.checks.TerraformCheckList;
 
-public class IacPlugin implements Plugin {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+class TerraformRulesDefinitionTest {
+
+  @Test
+  void testActivationSonarLint() {
+    TerraformRulesDefinition rulesDefinition = new TerraformRulesDefinition();
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+    RulesDefinition.Repository repository = context.repository("terraform");
+    assertThat(repository).isNotNull();
+    assertThat(repository.name()).isEqualTo("SonarQube");
+    assertThat(repository.language()).isEqualTo("terraform");
+    assertThat(repository.rules()).hasSize(TerraformCheckList.checks().size());
   }
 }

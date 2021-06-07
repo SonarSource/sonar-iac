@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.checks;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import java.util.Arrays;
+import java.util.List;
 
-public class IacPlugin implements Plugin {
+public class TerraformCheckList {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
+  private TerraformCheckList() {
+
+  }
+
+  public static List<Class<?>> checks() {
+    return Arrays.asList(
+      AwsTagNameConventionCheck.class,
+      ParsingErrorCheck.class
     );
   }
 }

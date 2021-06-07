@@ -17,17 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
 
-public class IacPlugin implements Plugin {
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.FileTree;
+import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+import static org.assertj.core.api.Assertions.assertThat;
+
+class FileTreeImplTest extends TerraformTreeModelTest {
+  
+  @Test
+  void empty_file() {
+    FileTree tree = parse("", HclLexicalGrammar.FILE);
+    assertThat(tree).isInstanceOfSatisfying(FileTreeImpl.class, f -> {
+      assertThat(f.getKind()).isEqualTo(Tree.Kind.FILE);
+      assertThat(f.body()).isNotPresent();
+    });
+  }
+
+  @Test
+  void with_body() {
+    FileTree tree = parse("a = 1", HclLexicalGrammar.FILE);
+    assertThat(tree).isInstanceOfSatisfying(FileTreeImpl.class, f -> assertThat(f.body().get().statements()).hasSize(1));
   }
 }

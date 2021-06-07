@@ -17,17 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.api.checks;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.iac.terraform.api.tree.HasTextRange;
+import org.sonar.iac.terraform.api.tree.TextRange;
 
-public class IacPlugin implements Plugin {
+public interface CheckContext {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
-  }
+  void reportIssue(TextRange textRange, String message);
+
+  void reportIssue(HasTextRange toHighlight, String message);
 }

@@ -17,17 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TextRange;
 
-public class IacPlugin implements Plugin {
+public abstract class TerraformTree implements Tree {
+
+  protected TextRange textRange;
 
   @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  public final boolean is(Kind... kind) {
+    if (getKind() != null) {
+      for (Kind kindIter : kind) {
+        if (getKind() == kindIter) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public TextRange textRange() {
+    if (textRange == null) {
+      List<TextRange> childRanges = children().stream().map(Tree::textRange).collect(Collectors.toList());
+      textRange = TextRanges.merge(childRanges);
+    }
+    return textRange;
   }
 }

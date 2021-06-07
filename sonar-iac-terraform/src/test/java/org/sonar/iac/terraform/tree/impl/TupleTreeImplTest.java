@@ -17,17 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TupleTree;
+import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
-public class IacPlugin implements Plugin {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+class TupleTreeImplTest extends TerraformTreeModelTest {
+
+  @Test
+  void simple_tuple() {
+    TupleTree tree = parse("[a, b]", HclLexicalGrammar.TUPLE);
+    assertThat(tree).isInstanceOfSatisfying(TupleTreeImpl.class, o -> {
+      assertThat(o.getKind()).isEqualTo(Tree.Kind.TUPLE);
+      assertThat(o.elements().trees()).hasSize(2);
+      assertThat(o.children()).hasSize(5);
+    });
   }
 }

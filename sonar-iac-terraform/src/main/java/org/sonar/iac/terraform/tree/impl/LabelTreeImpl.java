@@ -17,17 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.LabelTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-public class IacPlugin implements Plugin {
+import java.util.Collections;
+import java.util.List;
+
+public class LabelTreeImpl extends TerraformTree implements LabelTree {
+  private final SyntaxToken token;
+
+  public LabelTreeImpl(SyntaxToken token) {
+    this.token = token;
+  }
 
   @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  public SyntaxToken token() {
+    return token;
+  }
+
+  @Override
+  public String value() {
+    return token.value();
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Collections.singletonList(token);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.LABEL;
   }
 }

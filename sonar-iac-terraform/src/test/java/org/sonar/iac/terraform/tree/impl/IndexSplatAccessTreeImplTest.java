@@ -17,17 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.api.tree.IndexSplatAccessTree;
+import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
-public class IacPlugin implements Plugin {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+class IndexSplatAccessTreeImplTest extends TerraformTreeModelTest {
+
+  @Test
+  void simple_index_splat_access() {
+    IndexSplatAccessTree tree = parse("a[*]", HclLexicalGrammar.EXPRESSION);
+    assertThat(tree).satisfies(a -> {
+      assertThat(a.getKind()).isEqualTo(Tree.Kind.INDEX_SPLAT_ACCESS);
+      assertThat(a.children()).hasSize(4);
+      assertThat(a.subject()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
+    });
   }
 }

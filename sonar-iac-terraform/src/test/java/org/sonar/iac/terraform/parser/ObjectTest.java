@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.terraform.parser;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.parser.utils.Assertions;
 
-public class IacPlugin implements Plugin {
+class ObjectTest {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(
-      TerraformExtension.getExtensions()
-    );
+  @Test
+  void test() {
+    Assertions.assertThat(HclLexicalGrammar.OBJECT)
+      .matches("{ }")
+      .matches("{ a : 1 }")
+      .matches("{ a: 1, b: 2 }")
+      .matches("{ a: 1, b: 2, }")
+      .matches("{ a: 1, b = 2 }")
+      .matches("{ a: 1, b = { c: 3 } }")
+      .matches("{ a: 1\n b = 3 }")
+      .matches("{ a: 1 b = 3 }") //TODO: this shouldn't be valid
+      .notMatches("")
+      .notMatches("{");
   }
 }
