@@ -23,5 +23,5 @@ import org.sonar.iac.common.tree.api.Tree;
 
 public interface TreeParser<N extends Tree> {
 
-  public N parse(String source);
+  N parse(String source);
 }

@@ -58,6 +58,7 @@ public class TerraformSensor extends IacSensor {
     return TerraformExtension.REPOSITORY_KEY;
   }
 
+  @Override
   public List<TreeVisitor<InputFileContext>> languageSpecificVisitors(SensorContext sensorContext) {
     List<TreeVisitor<InputFileContext>> languageSpecificTreeVisitors = new ArrayList<>();
     // non sonar lint context visitors

@@ -78,7 +78,7 @@ public class HclNodeBuilder implements NodeBuilder {
   }
 
   private static int applyByteOrderMark(int column, boolean hasByteOrderMark) {
-    return hasByteOrderMark ? column - 1 : column;
+    return hasByteOrderMark ? (column - 1) : column;
   }
 
   private static List<Comment> createComments(List<Trivia> trivias) {
