@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class AbstractCollectionValueTree<T extends Tree> extends TerraformTreeImpl {
+public abstract class AbstractCollectionValueTree<T extends TerraformTree> extends TerraformTreeImpl {
   private final SyntaxToken openBrace;
   private final SeparatedTrees<T> elements;
   private final SyntaxToken closeBrace;
@@ -40,8 +40,8 @@ public abstract class AbstractCollectionValueTree<T extends Tree> extends Terraf
   }
 
   @Override
-  public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(Arrays.asList(openBrace));
+  public List<TerraformTree> children() {
+    List<TerraformTree> children = new ArrayList<>(Arrays.asList(openBrace));
     children.addAll(elements.treesAndSeparators());
     children.add(closeBrace);
     return children;

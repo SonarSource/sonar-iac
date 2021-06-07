@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
@@ -27,11 +27,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SeparatedTreesImpl<T extends Tree> implements SeparatedTrees<T> {
+public class SeparatedTreesImpl<T extends TerraformTree> implements SeparatedTrees<T> {
 
   private final List<T> trees;
   private final List<SyntaxToken> separators;
-  private final List<Tree> elementsAndSeparators;
+  private final List<TerraformTree> elementsAndSeparators;
 
   public SeparatedTreesImpl(List<T> trees, List<SyntaxToken> separators) {
     if (!(trees.size() == separators.size() + 1 || trees.size() == separators.size())) {
@@ -52,7 +52,7 @@ public class SeparatedTreesImpl<T extends Tree> implements SeparatedTrees<T> {
     }
   }
 
-  public static <T extends Tree> SeparatedTreesImpl<T> empty() {
+  public static <T extends TerraformTree> SeparatedTreesImpl<T> empty() {
     return new SeparatedTreesImpl<>(Collections.emptyList(), Collections.emptyList());
   }
 
@@ -67,7 +67,7 @@ public class SeparatedTreesImpl<T extends Tree> implements SeparatedTrees<T> {
   }
 
   @Override
-  public List<Tree> treesAndSeparators() {
+  public List<TerraformTree> treesAndSeparators() {
     return elementsAndSeparators;
   }
 

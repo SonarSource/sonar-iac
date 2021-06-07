@@ -22,13 +22,13 @@ package org.sonar.iac.terraform.api.tree;
 import java.util.List;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public interface Tree extends HasTextRange {
+public interface TerraformTree extends HasTextRange {
 
   boolean is(Kind... kind);
 
   Kind getKind();
 
-  List<Tree> children();
+  List<TerraformTree> children();
 
   enum Kind implements GrammarRuleKey {
 
@@ -96,9 +96,9 @@ public interface Tree extends HasTextRange {
 
     TOKEN(SyntaxToken.class);
 
-    final Class<? extends Tree> associatedInterface;
+    final Class<? extends TerraformTree> associatedInterface;
 
-    Kind(Class<? extends Tree> associatedInterface) {
+    Kind(Class<? extends TerraformTree> associatedInterface) {
       this.associatedInterface = associatedInterface;
     }
 

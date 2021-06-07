@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.iac.terraform.plugin.InputFileContext;
 
@@ -45,7 +45,7 @@ class SyntaxHighlighterVisitorTest {
 
   private SyntaxHighlightingVisitor highlightingVisitor = new SyntaxHighlightingVisitor();
   private SensorContextTester sensorContext;
-  private ActionParser<Tree> parser = new HclParser();
+  private ActionParser<TerraformTree> parser = new HclParser();
   private DefaultInputFile inputFile;
 
   @TempDir

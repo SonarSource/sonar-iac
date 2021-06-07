@@ -28,7 +28,7 @@ import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.iac.terraform.parser.ParseException;
 import org.sonar.iac.terraform.visitors.TreeVisitor;
@@ -78,7 +78,7 @@ public class Analyzer {
       return;
     }
 
-    Tree tree = statistics.time("Parse", () -> {
+    TerraformTree tree = statistics.time("Parse", () -> {
       try {
         return parser.parse(content);
       } catch (RuntimeException e) {

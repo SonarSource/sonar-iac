@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.api.tree;
 
 import java.util.List;
 
-public interface BodyTree extends Tree {
+public interface BodyTree extends TerraformTree {
   // TODO: children
-  List<Tree> statements();
+  List<TerraformTree> statements();
 }

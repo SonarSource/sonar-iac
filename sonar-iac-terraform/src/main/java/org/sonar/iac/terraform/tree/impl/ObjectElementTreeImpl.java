@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
@@ -39,7 +39,7 @@ public class ObjectElementTreeImpl extends TerraformTreeImpl implements ObjectEl
   }
 
   @Override
-  public List<Tree> children() {
+  public List<TerraformTree> children() {
     return Arrays.asList(name, equalOrColonSign, value);
   }
 

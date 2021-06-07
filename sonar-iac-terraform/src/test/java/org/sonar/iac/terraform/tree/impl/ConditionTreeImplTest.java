@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.ConditionTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
@@ -59,7 +59,7 @@ class ConditionTreeImplTest extends TerraformTreeModelTest {
 
   private void assertCondition(ExpressionTree tree, String condVarName, String trueVarName, String falseVarName) {
     assertThat(tree).isInstanceOfSatisfying(ConditionTree.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.CONDITION);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.CONDITION);
       assertThat(o.conditionExpression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo(condVarName));
       assertThat(o.trueExpression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo(trueVarName));
       assertThat(o.falseExpression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo(falseVarName));

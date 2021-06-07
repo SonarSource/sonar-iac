@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.tree.impl;
 
 import javax.annotation.Nullable;
 import org.sonar.iac.terraform.api.tree.BodyTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
@@ -63,8 +63,8 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   }
 
   @Override
-  public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(Arrays.asList(type));
+  public List<TerraformTree> children() {
+    List<TerraformTree> children = new ArrayList<>(Arrays.asList(type));
     children.addAll(labels);
     children.add(openBrace);
     body.ifPresent(children::add);

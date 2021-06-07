@@ -20,9 +20,9 @@
 package org.sonar.iac.terraform.api.checks;
 
 import java.util.function.BiConsumer;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 public interface InitContext {
 
-  <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor);
+  <T extends TerraformTree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor);
 }

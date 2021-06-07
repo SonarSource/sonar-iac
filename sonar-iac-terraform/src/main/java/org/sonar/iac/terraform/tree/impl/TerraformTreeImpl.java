@@ -21,10 +21,10 @@ package org.sonar.iac.terraform.tree.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.common.TextRange;
 
-public abstract class TerraformTreeImpl implements Tree {
+public abstract class TerraformTreeImpl implements TerraformTree {
 
   protected TextRange textRange;
 
@@ -43,7 +43,7 @@ public abstract class TerraformTreeImpl implements Tree {
   @Override
   public TextRange textRange() {
     if (textRange == null) {
-      List<TextRange> childRanges = children().stream().map(Tree::textRange).collect(Collectors.toList());
+      List<TextRange> childRanges = children().stream().map(TerraformTree::textRange).collect(Collectors.toList());
       textRange = TextRanges.merge(childRanges);
     }
     return textRange;

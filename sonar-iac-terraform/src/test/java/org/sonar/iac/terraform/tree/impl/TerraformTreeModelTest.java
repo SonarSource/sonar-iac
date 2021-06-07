@@ -20,12 +20,12 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import com.sonar.sslr.api.typed.ActionParser;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public abstract class TerraformTreeModelTest {
-  protected ActionParser<Tree> p;
+  protected ActionParser<TerraformTree> p;
 
   /**
    * Parse the given string and return the first descendant of the given kind.
@@ -34,9 +34,9 @@ public abstract class TerraformTreeModelTest {
    * @param rootRule the rule to start parsing from
    * @return the node found for the given kind, null if not found.
    */
-  protected <T extends Tree> T parse(String s, GrammarRuleKey rootRule) {
+  protected <T extends TerraformTree> T parse(String s, GrammarRuleKey rootRule) {
     p = new HclParser(rootRule);
-    Tree node = p.parse(s);
+    TerraformTree node = p.parse(s);
 
     // TODO: similar to PHP parser, check how far we have parsed. Missing toString implementation for trees now
     //checkFullFidelity(node, s.trim());

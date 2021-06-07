@@ -32,7 +32,7 @@ import org.sonar.iac.terraform.api.checks.IacCheck;
 import org.sonar.iac.terraform.api.checks.InitContext;
 import org.sonar.iac.terraform.api.tree.HasTextRange;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.visitors.TreeContext;
 import org.sonar.iac.terraform.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
@@ -45,16 +45,16 @@ public final class Verifier {
     // utility class
   }
 
-  public static void verify(ActionParser<Tree> parser, Path path, IacCheck check) {
+  public static void verify(ActionParser<TerraformTree> parser, Path path, IacCheck check) {
     createVerifier(parser, path, check).assertOneOrMoreIssues();
   }
 
-  private static SingleFileVerifier createVerifier(ActionParser<Tree> parser, Path path, IacCheck check) {
+  private static SingleFileVerifier createVerifier(ActionParser<TerraformTree> parser, Path path, IacCheck check) {
 
     SingleFileVerifier verifier = SingleFileVerifier.create(path, UTF_8);
 
     String testFileContent = readFile(path);
-    Tree root = parser.parse(testFileContent);
+    TerraformTree root = parser.parse(testFileContent);
 
     (new TreeVisitor<>())
       .register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> {
@@ -88,12 +88,12 @@ public final class Verifier {
       visitor = new TreeVisitor<>();
     }
 
-    public void scan(@Nullable Tree root) {
+    public void scan(@Nullable TerraformTree root) {
       visitor.scan(this, root);
     }
 
     @Override
-    public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
+    public <T extends TerraformTree> void register(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
       visitor.register(cls, (ctx, node) -> consumer.accept(this, node));
     }
 

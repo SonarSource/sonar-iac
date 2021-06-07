@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
@@ -49,7 +49,7 @@ public class ParenthesizedExpressionTreeImpl extends TerraformTreeImpl implement
   }
 
   @Override
-  public List<Tree> children() {
+  public List<TerraformTree> children() {
     return Arrays.asList(openParenthesis, expression, closeParenthesis);
   }
 }

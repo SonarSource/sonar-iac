@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
@@ -44,7 +44,7 @@ public class VariableExprTreeImpl extends TerraformTreeImpl implements VariableE
   }
 
   @Override
-  public List<Tree> children() {
+  public List<TerraformTree> children() {
     return Arrays.asList(token);
   }
 

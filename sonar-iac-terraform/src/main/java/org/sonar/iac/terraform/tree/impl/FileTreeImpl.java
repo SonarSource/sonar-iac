@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.tree.impl;
 
 import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
 import java.util.ArrayList;
@@ -43,8 +43,8 @@ public class FileTreeImpl extends TerraformTreeImpl implements FileTree {
   }
 
   @Override
-  public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
+  public List<TerraformTree> children() {
+    List<TerraformTree> children = new ArrayList<>();
     body.ifPresent(children::add);
     children.add(eof);
     return children;

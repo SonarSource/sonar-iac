@@ -29,7 +29,7 @@ import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.tree.impl.AbstractForTree;
 import org.sonar.iac.terraform.tree.impl.AttributeAccessTreeImpl;
@@ -86,7 +86,7 @@ public class TreeFactory {
     return new FileTreeImpl(body.orNull(), eof);
   }
 
-  public BodyTree body(List<Tree> statements) {
+  public BodyTree body(List<TerraformTree> statements) {
     return new BodyTreeImpl(statements);
   }
 
@@ -103,27 +103,27 @@ public class TreeFactory {
   }
 
   public LiteralExprTreeImpl numericLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(Tree.Kind.NUMERIC_LITERAL, token);
+    return new LiteralExprTreeImpl(TerraformTree.Kind.NUMERIC_LITERAL, token);
   }
 
   public LiteralExprTreeImpl booleanLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(Tree.Kind.BOOLEAN_LITERAL, token);
+    return new LiteralExprTreeImpl(TerraformTree.Kind.BOOLEAN_LITERAL, token);
   }
 
   public LiteralExprTreeImpl nullLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(Tree.Kind.NULL_LITERAL, token);
+    return new LiteralExprTreeImpl(TerraformTree.Kind.NULL_LITERAL, token);
   }
 
   public LiteralExprTreeImpl stringLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(Tree.Kind.STRING_LITERAL, token);
+    return new LiteralExprTreeImpl(TerraformTree.Kind.STRING_LITERAL, token);
   }
 
   public LiteralExprTree templateStringLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(Tree.Kind.TEMPLATE_STRING_PART_LITERAL, token);
+    return new LiteralExprTreeImpl(TerraformTree.Kind.TEMPLATE_STRING_PART_LITERAL, token);
   }
 
   public LiteralExprTreeImpl heredocLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(Tree.Kind.HEREDOC_LITERAL, token);
+    return new LiteralExprTreeImpl(TerraformTree.Kind.HEREDOC_LITERAL, token);
   }
 
   public AttributeTree attribute(SyntaxToken name, SyntaxToken equalSign, ExpressionTree value) {
@@ -240,7 +240,7 @@ public class TreeFactory {
     return new SeparatedTreesImpl<>(elements, separators);
   }
 
-  private static <T extends Tree> SeparatedTreesImpl<T> separatedTrees(
+  private static <T extends TerraformTree> SeparatedTreesImpl<T> separatedTrees(
     T firstElement,
     Optional<List<Pair<SyntaxToken, T>>> pairs,
     @Nullable SyntaxToken trailingSeparator
@@ -303,7 +303,7 @@ public class TreeFactory {
     return new TemplateInterpolationTreeImpl(token, expression, token1);
   }
 
-  public ExpressionTree templateExpr(Tree spacing, SyntaxToken openQuotes, List<ExpressionTree> oneOrMore, SyntaxToken closeQuotes) {
+  public ExpressionTree templateExpr(TerraformTree spacing, SyntaxToken openQuotes, List<ExpressionTree> oneOrMore, SyntaxToken closeQuotes) {
     return new TemplateExpressionTreeImpl(openQuotes, oneOrMore, closeQuotes);
   }
 

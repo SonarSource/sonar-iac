@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-public interface ObjectElementTree extends Tree {
+public interface ObjectElementTree extends TerraformTree {
   ExpressionTree name();
   SyntaxToken equalOrColonSign();
   ExpressionTree value();

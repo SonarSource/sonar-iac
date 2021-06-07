@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.ForTupleTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
@@ -61,8 +61,8 @@ public class ForTupleTreeImpl extends AbstractForTree implements ForTupleTree {
   }
 
   @Override
-  public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
+  public List<TerraformTree> children() {
+    List<TerraformTree> children = new ArrayList<>();
     children.add(openBracket);
     children.addAll(intro.children());
     children.add(expression);

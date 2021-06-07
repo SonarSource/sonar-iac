@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 import org.sonar.iac.terraform.api.tree.ForTupleTree;
@@ -34,7 +34,7 @@ class ForTupleTreeImplTest extends TerraformTreeModelTest {
   void simple_for_tuple() {
     ForTupleTree tree = parse("[for a in b : c]", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.FOR_TUPLE);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.FOR_TUPLE);
       assertThat(o.condition()).isNotPresent();
       assertThat(o.loopVariables().trees()).hasSize(1);
       assertThat(o.loopVariables().trees().get(0)).isInstanceOfSatisfying(VariableExprTree.class, a -> assertThat(a.name()).isEqualTo("a"));
@@ -47,7 +47,7 @@ class ForTupleTreeImplTest extends TerraformTreeModelTest {
   void with_two_loop_variables() {
     ForTupleTree tree = parse("[for a,b in c : d]", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.FOR_TUPLE);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.FOR_TUPLE);
       assertThat(o.condition()).isNotPresent();
       assertThat(o.loopVariables().trees()).hasSize(2);
       assertThat(o.loopVariables().trees().get(0)).isInstanceOfSatisfying(VariableExprTree.class, a -> assertThat(a.name()).isEqualTo("a"));
@@ -61,7 +61,7 @@ class ForTupleTreeImplTest extends TerraformTreeModelTest {
   void with_condition() {
     ForTupleTree tree = parse("[for a in b : c if true]", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.FOR_TUPLE);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.FOR_TUPLE);
       assertThat(o.condition()).isPresent();
       assertThat(o.condition().get()).isInstanceOfSatisfying(LiteralExprTree.class, a -> assertThat(a.value()).isEqualTo("true"));
       assertThat(o.loopVariables().trees()).hasSize(1);

@@ -29,7 +29,7 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.terraform.api.tree.Comment;
 import org.sonar.iac.common.TextRange;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.plugin.InputFileContext;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
@@ -59,14 +59,14 @@ public class MetricsVisitor extends TreeVisitor<InputFileContext> {
   }
 
   @Override
-  protected void before(InputFileContext ctx, Tree root) {
+  protected void before(InputFileContext ctx, TerraformTree root) {
     linesOfCode = new HashSet<>();
     commentLines = new HashSet<>();
     noSonarLines = new HashSet<>();
   }
 
   @Override
-  protected void after(InputFileContext ctx, Tree root) {
+  protected void after(InputFileContext ctx, TerraformTree root) {
     saveMetric(ctx, CoreMetrics.NCLOC, linesOfCode.size());
     saveMetric(ctx, CoreMetrics.COMMENT_LINES, commentLines.size());
 

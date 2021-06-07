@@ -35,7 +35,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.iac.terraform.plugin.InputFileContext;
 
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 class MetricsVisitorTest {
 
   private NoSonarFilter mockNoSonarFilter;
-  private ActionParser<Tree> parser = new HclParser();
+  private ActionParser<TerraformTree> parser = new HclParser();
   private MetricsVisitor visitor;
   private SensorContextTester sensorContext;
   private DefaultInputFile inputFile;

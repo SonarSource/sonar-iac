@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
@@ -54,8 +54,8 @@ public class FunctionCallTreeImpl extends TerraformTreeImpl implements FunctionC
   }
 
   @Override
-  public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(Arrays.asList(name, openParenthesis));
+  public List<TerraformTree> children() {
+    List<TerraformTree> children = new ArrayList<>(Arrays.asList(name, openParenthesis));
     children.addAll(arguments.treesAndSeparators());
     children.add(closeParenthesis);
     return children;

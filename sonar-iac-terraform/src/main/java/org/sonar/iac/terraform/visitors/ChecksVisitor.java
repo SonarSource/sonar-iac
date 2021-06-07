@@ -29,7 +29,7 @@ import org.sonar.iac.terraform.api.checks.CheckContext;
 import org.sonar.iac.terraform.api.checks.IacCheck;
 import org.sonar.iac.terraform.api.checks.InitContext;
 import org.sonar.iac.terraform.api.tree.HasTextRange;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.plugin.DurationStatistics;
 import org.sonar.iac.terraform.plugin.InputFileContext;
 import org.sonar.iac.common.TextRange;
@@ -58,7 +58,7 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
     }
 
     @Override
-    public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
+    public <T extends TerraformTree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
       ChecksVisitor.this.register(cls, statistics.time(ruleKey.rule(), (ctx, tree) -> {
         currentCtx = ctx;
         visitor.accept(this, tree);

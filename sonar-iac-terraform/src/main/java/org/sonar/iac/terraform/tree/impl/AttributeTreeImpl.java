@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
@@ -54,7 +54,7 @@ public class AttributeTreeImpl extends TerraformTreeImpl implements AttributeTre
   }
 
   @Override
-  public List<Tree> children() {
+  public List<TerraformTree> children() {
     return Arrays.asList(name, equalSign, value);
   }
 

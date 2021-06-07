@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.IndexSplatAccessTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
@@ -51,7 +51,7 @@ public class IndexSplatAccessTreeImpl extends TerraformTreeImpl implements Index
   }
 
   @Override
-  public List<Tree> children() {
+  public List<TerraformTree> children() {
     return Arrays.asList(subject, openBracket, star, closeBracket);
   }
 }

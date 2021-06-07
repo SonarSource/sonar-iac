@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.IndexSplatAccessTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +32,7 @@ class IndexSplatAccessTreeImplTest extends TerraformTreeModelTest {
   void simple_index_splat_access() {
     IndexSplatAccessTree tree = parse("a[*]", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(a -> {
-      assertThat(a.getKind()).isEqualTo(Tree.Kind.INDEX_SPLAT_ACCESS);
+      assertThat(a.getKind()).isEqualTo(TerraformTree.Kind.INDEX_SPLAT_ACCESS);
       assertThat(a.children()).hasSize(4);
       assertThat(a.subject()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
     });

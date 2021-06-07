@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
@@ -69,8 +69,8 @@ public class TemplateIfDirectiveTreeImpl extends TerraformTreeImpl implements Te
   }
 
   @Override
-  public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(ifPart.children());
+  public List<TerraformTree> children() {
+    List<TerraformTree> children = new ArrayList<>(ifPart.children());
     if (elsePart != null) {
       children.addAll(elsePart.children());
     }
@@ -103,7 +103,7 @@ public class TemplateIfDirectiveTreeImpl extends TerraformTreeImpl implements Te
     }
 
     @Override
-    public List<Tree> children() {
+    public List<TerraformTree> children() {
       return Arrays.asList(ifOpenToken, ifToken, condition, ifCloseToken, trueExpression);
     }
   }
@@ -128,7 +128,7 @@ public class TemplateIfDirectiveTreeImpl extends TerraformTreeImpl implements Te
     }
 
     @Override
-    public List<Tree> children() {
+    public List<TerraformTree> children() {
       return Arrays.asList(elseOpenToken, elseToken, elseCloseToken, falseExpression);
     }
   }

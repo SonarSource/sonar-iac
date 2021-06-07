@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
@@ -92,14 +92,14 @@ public class ExpressionPrecedenceTest extends TerraformTreeModelTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  private static List<String> dumpWithParentheses(@Nullable Tree tree) {
+  private static List<String> dumpWithParentheses(@Nullable TerraformTree tree) {
     if (tree == null) {
       return Collections.emptyList();
     } else if (tree instanceof SyntaxToken) {
       return Collections.singletonList(((SyntaxToken) tree).value());
     } else {
       List<String> childrenAsString = new ArrayList<>();
-      for (Tree child: tree.children()) {
+      for (TerraformTree child: tree.children()) {
         List<String> childAsString = dumpWithParentheses(child);
         if (childAsString.size() == 1) {
           childrenAsString.add(childAsString.get(0));

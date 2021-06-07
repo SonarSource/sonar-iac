@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 
@@ -32,7 +32,7 @@ class AttributeTreeImplTest extends TerraformTreeModelTest{
   void simple_attribute() {
     AttributeTree tree = parse("a = true", HclLexicalGrammar.ATTRIBUTE);
     assertThat(tree).isInstanceOfSatisfying(AttributeTree.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.ATTRIBUTE);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.ATTRIBUTE);
       assertThat(o.name().value()).isEqualTo("a");
       assertThat(o.equalSign().value()).isEqualTo("=");
       assertThat(o.value()).isInstanceOfSatisfying(LiteralExprTree.class, a -> {

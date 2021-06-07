@@ -22,7 +22,7 @@ package org.sonar.iac.terraform.tree.impl;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.terraform.api.tree.Comment;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.common.TextRange;
 
@@ -54,7 +54,7 @@ public class SyntaxTokenImpl extends TerraformTreeImpl implements SyntaxToken {
   }
 
   @Override
-  public List<Tree> children() {
+  public List<TerraformTree> children() {
     return Collections.emptyList();
   }
 }

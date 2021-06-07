@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.PrefixExpressionTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
@@ -34,7 +34,7 @@ class PrefixExpressionTreeImplTest extends TerraformTreeModelTest {
   void single_prefix() {
     PrefixExpressionTree tree = parse("!a", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.PREFIX_EXPRESSION);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.PREFIX_EXPRESSION);
       assertThat(o.children()).hasSize(2);
       assertThat(o.prefix()).isInstanceOfSatisfying(SyntaxToken.class, v -> assertThat(v.value()).isEqualTo("!"));
       assertThat(o.expression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("a"));

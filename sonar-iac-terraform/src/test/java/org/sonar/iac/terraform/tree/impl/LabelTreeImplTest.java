@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
@@ -31,7 +31,7 @@ class LabelTreeImplTest extends TerraformTreeModelTest {
   void string_literal() {
     LabelTree tree = parse("\"a\"", HclLexicalGrammar.LABEL);
     assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.LABEL);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.LABEL);
       assertThat(o.value()).isEqualTo("\"a\"");
       assertThat(o.value()).isEqualTo(o.token().value());
     });

@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.api.tree;
 
 import java.util.List;
 
-public interface SyntaxToken extends Tree {
+public interface SyntaxToken extends TerraformTree {
 
   String value();
 

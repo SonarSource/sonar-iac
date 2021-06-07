@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +32,7 @@ class ObjectElementTreeImplTest extends TerraformTreeModelTest {
   void simple_element() {
     ObjectElementTree tree = parse("a : 1", HclLexicalGrammar.OBJECT_ELEMENT);
     assertThat(tree).isInstanceOfSatisfying(ObjectElementTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.OBJECT_ELEMENT);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.OBJECT_ELEMENT);
       assertThat(o.name()).isInstanceOfSatisfying(VariableExprTreeImpl.class, n -> assertThat(n.name()).isEqualTo("a"));
       assertThat(o.equalOrColonSign()).isInstanceOfSatisfying(SyntaxTokenImpl.class, n -> assertThat(n.value()).isEqualTo(":"));
       assertThat(o.value()).isInstanceOfSatisfying(LiteralExprTreeImpl.class, n -> assertThat(n.value()).isEqualTo("1"));
