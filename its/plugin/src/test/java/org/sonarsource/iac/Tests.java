@@ -40,7 +40,7 @@ public class Tests {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR;
 
-  public static final FileLocation IAC_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(new File("../../iac-terraform-plugin/target"), "sonar-iac-plugin-*.jar");
+  public static final FileLocation IAC_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(new File("../../sonar-iac-plugin/target"), "sonar-iac-plugin-*.jar");
 
   static {
     ORCHESTRATOR = Orchestrator.builderEnv()
