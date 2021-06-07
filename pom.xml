@@ -60,6 +60,7 @@
   </issueManagement>
 
   <properties>
+    <license.title>SonarQube IaC Plugin</license.title>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <version.sonar>8.9.0.43852</version.sonar>
     <version.analyzer.commons>1.14.1.690</version.analyzer.commons>
