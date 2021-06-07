@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.sonarsource.iac</groupId>
     <artifactId>iac</artifactId>
@@ -22,12 +21,15 @@
 
   <properties>
     <license.title>SonarQube IaC Terraform Plugin</license.title>
-    <sonar.pluginClass>org.sonar.plugins.iac.terraform.plugin.TerraformPlugin</sonar.pluginClass>
+    <sonar.pluginClass>org.sonar.plugins.iac.IacPlugin</sonar.pluginClass>
     <sonar.pluginName>IaC Terraform Code Quality and Security</sonar.pluginName>
   </properties>
 
-
   <dependencies>
+    <dependency>
+      <groupId>org.sonarsource.iac</groupId>
+      <artifactId>sonar-iac-terraform</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
@@ -35,14 +37,6 @@
     <dependency>
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-commons</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonarsource.sslr</groupId>
-      <artifactId>sslr-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonarsource.sslr</groupId>
-      <artifactId>sslr-toolkit</artifactId>
     </dependency>
 
     <!-- unit tests -->
@@ -57,18 +51,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sonarsource.sslr</groupId>
-      <artifactId>sslr-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -151,4 +135,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
