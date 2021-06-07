@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.sonarsource.iac</groupId>
-    <artifactId>iac</artifactId>
+    <artifactId>iac-extensions</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>sonar-iac-cloudformation</artifactId>
+  <artifactId>sonar-iac-terraform</artifactId>
 
-  <name>SonarSource IaC Analyzer :: Cloudformation</name>
+  <name>SonarSource IaC Analyzer :: Extensions :: Terraform</name>
 
   <dependencies>
     <dependency>
