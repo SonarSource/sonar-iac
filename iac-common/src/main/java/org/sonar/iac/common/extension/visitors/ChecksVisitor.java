@@ -32,7 +32,6 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
-import org.sonar.iac.common.extension.InputFileContext;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 

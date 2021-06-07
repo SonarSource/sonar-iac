@@ -32,7 +32,7 @@ import org.sonar.iac.common.api.tree.TextRange;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.common.extension.InputFileContext;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public class MetricsVisitor extends TreeVisitor<InputFileContext> {
 

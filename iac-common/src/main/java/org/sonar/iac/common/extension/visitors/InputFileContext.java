@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.extension;
+package org.sonar.iac.common.extension.visitors;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -29,6 +29,7 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.tree.TextRange;
+import org.sonar.iac.common.extension.visitors.TreeContext;
 
 public class InputFileContext extends TreeContext {
 

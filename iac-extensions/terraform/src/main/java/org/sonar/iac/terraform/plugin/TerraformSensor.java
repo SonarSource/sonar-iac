@@ -29,7 +29,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.IacSensor;
-import org.sonar.iac.common.extension.InputFileContext;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
