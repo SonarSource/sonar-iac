@@ -20,8 +20,8 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.checks.api.IacCheck;
-import org.sonar.iac.common.checks.api.InitContext;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
 
 /**
  * This class does nothing. It exists only to be present in the SonarQube profile and GUI.

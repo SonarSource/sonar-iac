@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.checks;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.terraform.parser.HclParser;
 
 public class TerraformVerifier {

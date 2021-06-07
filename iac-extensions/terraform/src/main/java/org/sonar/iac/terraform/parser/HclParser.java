@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
-import org.sonar.iac.common.TreeParser;
+import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
