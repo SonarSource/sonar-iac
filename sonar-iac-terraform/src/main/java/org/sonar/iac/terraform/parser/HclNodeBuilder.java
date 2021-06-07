@@ -33,7 +33,7 @@ import org.sonar.iac.terraform.tree.impl.CommentImpl;
 import org.sonar.iac.terraform.tree.impl.SyntaxTokenImpl;
 import org.sonar.iac.terraform.tree.impl.TerraformTree;
 import org.sonar.iac.terraform.tree.impl.TextRanges;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.TextRange;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class HclNodeBuilder implements NodeBuilder {

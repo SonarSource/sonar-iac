@@ -24,7 +24,7 @@ import java.util.List;
 import org.sonar.iac.terraform.api.tree.Comment;
 import org.sonar.iac.terraform.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.TextRange;
 
 public class SyntaxTokenImpl extends TerraformTree implements SyntaxToken {
 

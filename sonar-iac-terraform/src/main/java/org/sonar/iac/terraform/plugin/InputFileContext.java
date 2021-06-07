@@ -28,7 +28,7 @@ import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.TextRange;
 import org.sonar.iac.terraform.visitors.TreeContext;
 
 public class InputFileContext extends TreeContext {

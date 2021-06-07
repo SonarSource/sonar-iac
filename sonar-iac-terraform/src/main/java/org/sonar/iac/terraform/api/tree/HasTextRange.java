@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
+import org.sonar.iac.common.TextRange;
+
 public interface HasTextRange {
 
   TextRange textRange();

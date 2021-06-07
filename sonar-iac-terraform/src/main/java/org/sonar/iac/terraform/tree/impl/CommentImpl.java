@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.sonar.iac.terraform.api.tree.Comment;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.TextRange;
 
 public class CommentImpl implements Comment {
 

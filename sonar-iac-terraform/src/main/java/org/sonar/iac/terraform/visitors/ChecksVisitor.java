@@ -32,7 +32,7 @@ import org.sonar.iac.terraform.api.tree.HasTextRange;
 import org.sonar.iac.terraform.api.tree.Tree;
 import org.sonar.iac.terraform.plugin.DurationStatistics;
 import org.sonar.iac.terraform.plugin.InputFileContext;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.TextRange;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 

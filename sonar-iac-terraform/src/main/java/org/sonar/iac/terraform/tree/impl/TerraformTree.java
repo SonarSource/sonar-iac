@@ -22,7 +22,7 @@ package org.sonar.iac.terraform.tree.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.TextRange;
 
 public abstract class TerraformTree implements Tree {
 

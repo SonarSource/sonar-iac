@@ -20,8 +20,8 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import java.util.Objects;
-import org.sonar.iac.terraform.api.tree.TextPointer;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.TextPointer;
+import org.sonar.iac.common.TextRange;
 
 public class TextRangeImpl implements TextRange {
 

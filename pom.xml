@@ -42,6 +42,7 @@
   </developers>
 
   <modules>
+    <module>sonar-iac-common</module>
     <module>sonar-iac-terraform</module>
     <module>sonar-iac-plugin</module>
     <module>its</module>
@@ -75,6 +76,11 @@
   <dependencyManagement>
     <dependencies>
       <!-- Compile dependencies -->
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-iac-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-iac-terraform</artifactId>

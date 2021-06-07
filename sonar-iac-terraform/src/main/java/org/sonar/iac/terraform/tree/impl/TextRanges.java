@@ -21,8 +21,8 @@ package org.sonar.iac.terraform.tree.impl;
 
 import java.util.List;
 import java.util.function.Supplier;
-import org.sonar.iac.terraform.api.tree.TextPointer;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.TextPointer;
+import org.sonar.iac.common.TextRange;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
 import static java.util.Comparator.naturalOrder;
