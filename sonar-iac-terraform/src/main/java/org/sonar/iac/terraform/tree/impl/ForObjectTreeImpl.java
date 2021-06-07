@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
+import org.sonar.iac.common.Tree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.ForObjectTree;
@@ -77,8 +78,8 @@ public class ForObjectTreeImpl extends AbstractForTree implements ForObjectTree 
   }
 
   @Override
-  public List<TerraformTree> children() {
-    List<TerraformTree> children = new ArrayList<>();
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>();
     children.add(openBrace);
     children.addAll(intro.children());
     children.add(firstExpression);

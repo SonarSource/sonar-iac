@@ -17,38 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.tree.impl;
+package org.sonar.iac.common;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.iac.common.Tree;
-import org.sonar.iac.terraform.api.tree.LabelTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
+public interface Comment extends HasTextRange {
 
-public class LabelTreeImpl extends TerraformTreeImpl implements LabelTree {
-  private final SyntaxToken token;
+  String value();
 
-  public LabelTreeImpl(SyntaxToken token) {
-    this.token = token;
-  }
+  String contentText();
 
-  @Override
-  public SyntaxToken token() {
-    return token;
-  }
-
-  @Override
-  public String value() {
-    return token.value();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Collections.singletonList(token);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.LABEL;
-  }
 }

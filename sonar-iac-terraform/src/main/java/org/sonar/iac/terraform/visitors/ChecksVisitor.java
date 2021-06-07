@@ -28,7 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.terraform.api.checks.CheckContext;
 import org.sonar.iac.terraform.api.checks.IacCheck;
 import org.sonar.iac.terraform.api.checks.InitContext;
-import org.sonar.iac.terraform.api.tree.HasTextRange;
+import org.sonar.iac.common.HasTextRange;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.plugin.DurationStatistics;
 import org.sonar.iac.terraform.plugin.InputFileContext;

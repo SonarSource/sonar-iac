@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.api.checks;
 
-import org.sonar.iac.terraform.api.tree.HasTextRange;
+import org.sonar.iac.common.HasTextRange;
 import org.sonar.iac.common.TextRange;
 
 public interface CheckContext {

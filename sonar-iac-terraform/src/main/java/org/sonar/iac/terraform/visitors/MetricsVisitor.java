@@ -27,7 +27,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.terraform.api.tree.Comment;
+import org.sonar.iac.common.Comment;
 import org.sonar.iac.common.TextRange;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.plugin.InputFileContext;

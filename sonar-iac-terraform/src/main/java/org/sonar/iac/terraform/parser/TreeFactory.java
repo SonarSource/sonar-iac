@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
+import org.sonar.iac.common.Tree;
 import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.IndexSplatAccessTree;
@@ -86,7 +87,7 @@ public class TreeFactory {
     return new FileTreeImpl(body.orNull(), eof);
   }
 
-  public BodyTree body(List<TerraformTree> statements) {
+  public BodyTree body(List<Tree> statements) {
     return new BodyTreeImpl(statements);
   }
 

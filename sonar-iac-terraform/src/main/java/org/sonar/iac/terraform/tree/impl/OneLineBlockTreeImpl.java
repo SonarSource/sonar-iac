@@ -19,18 +19,18 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import javax.annotation.Nullable;
-import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.LabelTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.Tree;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
+import org.sonar.iac.terraform.api.tree.LabelTree;
+import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 public class OneLineBlockTreeImpl extends TerraformTreeImpl implements OneLineBlockTree {
   private final SyntaxToken type;
@@ -63,7 +63,7 @@ public class OneLineBlockTreeImpl extends TerraformTreeImpl implements OneLineBl
   }
 
   @Override
-  public List<TerraformTree> children() {
+  public List<Tree> children() {
     List<TerraformTree> children = new ArrayList<>(Arrays.asList(type));
     children.addAll(labels);
     children.add(openBrace);

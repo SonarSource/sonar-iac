@@ -19,13 +19,12 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.iac.common.Tree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 
 public class TemplateExpressionTreeImpl extends TerraformTreeImpl implements TemplateExpressionTree {
 
@@ -50,8 +49,8 @@ public class TemplateExpressionTreeImpl extends TerraformTreeImpl implements Tem
   }
 
   @Override
-  public List<TerraformTree> children() {
-    List<TerraformTree> children = new ArrayList<>();
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>();
     children.add(openQuote);
     children.addAll(parts);
     children.add(closeQuote);

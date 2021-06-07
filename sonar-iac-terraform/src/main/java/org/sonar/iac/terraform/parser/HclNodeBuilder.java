@@ -27,7 +27,8 @@ import com.sonar.sslr.api.typed.Input;
 import com.sonar.sslr.api.typed.NodeBuilder;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.terraform.api.tree.Comment;
+import org.sonar.iac.common.Comment;
+import org.sonar.iac.common.Tree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.tree.impl.CommentImpl;
 import org.sonar.iac.terraform.tree.impl.SyntaxTokenImpl;
@@ -50,7 +51,7 @@ public class HclNodeBuilder implements NodeBuilder {
 
     return new TerraformTreeImpl() {
       @Override
-      public List<TerraformTree> children() {
+      public List<Tree> children() {
         throw new UnsupportedOperationException();
       }
 

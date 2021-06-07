@@ -20,15 +20,16 @@
 package org.sonar.iac.terraform.api.tree;
 
 import java.util.List;
+import org.sonar.iac.common.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public interface TerraformTree extends HasTextRange {
+public interface TerraformTree extends Tree {
 
   boolean is(Kind... kind);
 
   Kind getKind();
 
-  List<TerraformTree> children();
+  List<Tree> children();
 
   enum Kind implements GrammarRuleKey {
 

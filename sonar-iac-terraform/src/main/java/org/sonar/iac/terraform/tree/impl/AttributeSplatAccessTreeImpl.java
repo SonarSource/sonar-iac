@@ -19,13 +19,12 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+import java.util.Arrays;
+import java.util.List;
+import org.sonar.iac.common.Tree;
 import org.sonar.iac.terraform.api.tree.AttributeSplatAccessTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class AttributeSplatAccessTreeImpl extends TerraformTreeImpl implements AttributeSplatAccessTree {
   private final ExpressionTree object;
@@ -44,7 +43,7 @@ public class AttributeSplatAccessTreeImpl extends TerraformTreeImpl implements A
   }
 
   @Override
-  public List<TerraformTree> children() {
+  public List<Tree> children() {
     return Arrays.asList(object, dot, star);
   }
 

@@ -19,16 +19,15 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.ForTupleTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.parser.TreeFactory;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class ForTupleTreeImpl extends AbstractForTree implements ForTupleTree {
   private final SyntaxToken openBracket;
@@ -61,8 +60,8 @@ public class ForTupleTreeImpl extends AbstractForTree implements ForTupleTree {
   }
 
   @Override
-  public List<TerraformTree> children() {
-    List<TerraformTree> children = new ArrayList<>();
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>();
     children.add(openBracket);
     children.addAll(intro.children());
     children.add(expression);

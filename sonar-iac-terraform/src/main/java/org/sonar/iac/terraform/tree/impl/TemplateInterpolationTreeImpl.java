@@ -19,13 +19,12 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.common.Tree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
 
 public class TemplateInterpolationTreeImpl extends TerraformTreeImpl implements TemplateInterpolationTree {
   private final SyntaxToken openDollarCurlyBraceToken;
@@ -49,7 +48,7 @@ public class TemplateInterpolationTreeImpl extends TerraformTreeImpl implements 
   }
 
   @Override
-  public List<TerraformTree> children() {
+  public List<Tree> children() {
     return Arrays.asList(openDollarCurlyBraceToken, expression, closeCurlyBraceToken);
   }
 

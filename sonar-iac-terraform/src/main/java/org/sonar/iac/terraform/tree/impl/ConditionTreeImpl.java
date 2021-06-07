@@ -19,13 +19,12 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.ConditionTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.common.Tree;
+import org.sonar.iac.terraform.api.tree.ConditionTree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
 public class ConditionTreeImpl extends TerraformTreeImpl implements ConditionTree {
   private final ExpressionTree conditionExpression;
@@ -63,7 +62,7 @@ public class ConditionTreeImpl extends TerraformTreeImpl implements ConditionTre
   }
 
   @Override
-  public List<TerraformTree> children() {
+  public List<Tree> children() {
     return Arrays.asList(conditionExpression, queryToken, trueExpression, colonToken, falseExpression);
   }
 }

@@ -19,15 +19,14 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.iac.common.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.ForTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
-import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
 public abstract class AbstractForTree extends TerraformTreeImpl implements ForTree {
   protected final ForIntro intro;
@@ -62,8 +61,8 @@ public abstract class AbstractForTree extends TerraformTreeImpl implements ForTr
       this.colonToken = colonToken;
     }
 
-    public List<TerraformTree> children() {
-      List<TerraformTree> children = new ArrayList<>();
+    public List<Tree> children() {
+      List<Tree> children = new ArrayList<>();
       children.add(forToken);
       children.addAll(loopVariables.treesAndSeparators());
       children.add(inToken);

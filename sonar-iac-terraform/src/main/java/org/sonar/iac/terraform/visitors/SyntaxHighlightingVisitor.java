@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.visitors;
 
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.iac.terraform.api.tree.HasTextRange;
+import org.sonar.iac.common.HasTextRange;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.plugin.InputFileContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
