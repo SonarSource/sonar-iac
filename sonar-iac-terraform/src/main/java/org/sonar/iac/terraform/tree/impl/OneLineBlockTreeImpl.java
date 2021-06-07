@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
+import javax.annotation.Nullable;
 import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.iac.terraform.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
@@ -38,7 +39,7 @@ public class OneLineBlockTreeImpl extends TerraformTree implements OneLineBlockT
   private final Optional<AttributeTree> attribute;
   private final SyntaxToken closeBrace;
 
-  public OneLineBlockTreeImpl(SyntaxToken type, List<LabelTree> labels, SyntaxToken openBrace, AttributeTree attribute, SyntaxToken closeBrace) {
+  public OneLineBlockTreeImpl(SyntaxToken type, @Nullable List<LabelTree> labels, SyntaxToken openBrace, @Nullable AttributeTree attribute, SyntaxToken closeBrace) {
     this.type = type;
     this.labels = labels != null ? labels : Collections.emptyList();
     this.openBrace = openBrace;

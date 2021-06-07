@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
+import javax.annotation.Nullable;
 import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -38,7 +39,7 @@ public class BlockTreeImpl extends TerraformTree implements BlockTree {
   private final Optional<BodyTree> body;
   private final SyntaxToken closeBrace;
 
-  public BlockTreeImpl(SyntaxToken type, List<LabelTree> labels, SyntaxToken openBrace, BodyTree body, SyntaxToken closeBrace) {
+  public BlockTreeImpl(SyntaxToken type, @Nullable List<LabelTree> labels, SyntaxToken openBrace, @Nullable BodyTree body, SyntaxToken closeBrace) {
     this.type = type;
     this.labels = labels != null ? labels : Collections.emptyList();
     this.openBrace = openBrace;
