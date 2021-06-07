@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.visitors;
+package org.sonar.iac.common.visitors;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -31,7 +31,6 @@ import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.common.checks.api.CheckContext;
 import org.sonar.iac.common.checks.api.InitContext;
 import org.sonar.iac.common.checks.api.IacCheck;
-import org.sonar.iac.common.visitors.TreeVisitor;
 import org.sonar.iac.common.DurationStatistics;
 import org.sonar.iac.common.InputFileContext;
 

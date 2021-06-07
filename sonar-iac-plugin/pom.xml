@@ -26,9 +26,14 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.sonarsource.iac</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-iac-terraform</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-iac-cloudformation</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>

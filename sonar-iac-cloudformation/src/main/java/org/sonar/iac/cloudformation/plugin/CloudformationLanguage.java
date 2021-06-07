@@ -17,27 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser;
+package org.sonar.iac.cloudformation.plugin;
 
-import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.StandardCharsets;
-import org.sonar.iac.common.TreeParser;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import java.util.Arrays;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.AbstractLanguage;
 
-public class HclParser extends ActionParser<TerraformTree> implements TreeParser<TerraformTree> {
+public class CloudformationLanguage extends AbstractLanguage {
 
-  public HclParser() {
-    this(HclLexicalGrammar.FILE);
+  private final Configuration configuration;
+
+  public CloudformationLanguage(Configuration configuration) {
+    super(CloudformationExtension.LANGUAGE_KEY, CloudformationExtension.LANGUAGE_NAME);
+    this.configuration = configuration;
   }
 
-  public HclParser(GrammarRuleKey rootRule) {
-    super(
-      StandardCharsets.UTF_8,
-      HclLexicalGrammar.createGrammarBuilder(),
-      HclGrammar.class,
-      new TreeFactory(),
-      new HclNodeBuilder(),
-      rootRule);
+  @Override
+  public String[] getFileSuffixes() {
+    String[] suffixes = Arrays.stream(configuration.getStringArray(CloudformationExtension.FILE_SUFFIXES_KEY))
+      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
+    return suffixes.length > 0 ? suffixes : CloudformationExtension.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
   }
 }

@@ -22,90 +22,56 @@ package org.sonar.iac.terraform.plugin;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.sonar.api.SonarProduct;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.common.DurationStatistics;
+import org.sonar.iac.common.IacSensor;
 import org.sonar.iac.common.InputFileContext;
+import org.sonar.iac.common.TreeParser;
 import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.visitors.TreeVisitor;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
 import org.sonar.iac.terraform.parser.HclParser;
-import org.sonar.iac.terraform.visitors.ChecksVisitor;
-import org.sonar.iac.terraform.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.terraform.visitors.MetricsVisitor;
-import org.sonar.iac.common.visitors.TreeVisitor;
-import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonar.iac.terraform.visitors.SyntaxHighlightingVisitor;
 
-public class TerraformSensor implements Sensor {
+public class TerraformSensor extends IacSensor {
 
-  private final FileLinesContextFactory fileLinesContextFactory;
-  private final NoSonarFilter noSonarFilter;
   private final Checks<IacCheck> checks;
 
-  public TerraformSensor(FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory, NoSonarFilter noSonarFilter) {
-    this.fileLinesContextFactory = fileLinesContextFactory;
-    this.noSonarFilter = noSonarFilter;
+  public TerraformSensor(FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory, NoSonarFilter noSonarFilter, TerraformLanguage language) {
+    super(fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks((Iterable<?>) TerraformCheckList.checks());
   }
 
   @Override
-  public void describe(SensorDescriptor sensorDescriptor) {
-    sensorDescriptor.onlyOnLanguage(TerraformExtension.LANGUAGE_KEY)
-      .name("IaC Terraform Sensor");
+  protected TreeParser treeParser() {
+    return new HclParser();
   }
 
   @Override
-  public void execute(SensorContext sensorContext) {
-    DurationStatistics statistics = new DurationStatistics(sensorContext.config());
-    FileSystem fileSystem = sensorContext.fileSystem();
-    FilePredicate mainFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasLanguage(TerraformExtension.LANGUAGE_KEY),
-      fileSystem.predicates().hasType(InputFile.Type.MAIN));
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate);
-    List<String> filenames = StreamSupport.stream(inputFiles.spliterator(), false).map(InputFile::toString).collect(Collectors.toList());
-    ProgressReport progressReport = new ProgressReport("Progress of the " + TerraformExtension.LANGUAGE_NAME + " analysis", TimeUnit.SECONDS.toMillis(10));
-    progressReport.start(filenames);
-    boolean success = false;
-    Analyzer analyzer = new Analyzer(new HclParser(), visitors(sensorContext, statistics), statistics);
-    try {
-      success = analyzer.analyseFiles(sensorContext, inputFiles, progressReport);
-    } finally {
-      if (success) {
-        progressReport.stop();
-      } else {
-        progressReport.cancel();
-      }
-    }
-    statistics.log();
+  protected String repositoryKey() {
+    return TerraformExtension.REPOSITORY_KEY;
   }
 
-  private List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
-    List<TreeVisitor<InputFileContext>> treeVisitors = new ArrayList<>();
+  public List<TreeVisitor<InputFileContext>> languageSpecificVisitors(SensorContext sensorContext) {
+    List<TreeVisitor<InputFileContext>> languageSpecificTreeVisitors = new ArrayList<>();
     // non sonar lint context visitors
     if (sensorContext.runtime().getProduct() != SonarProduct.SONARLINT) {
-      treeVisitors.addAll(Arrays.asList(
+      languageSpecificTreeVisitors.addAll(Arrays.asList(
         new MetricsVisitor(fileLinesContextFactory, noSonarFilter),
         new SyntaxHighlightingVisitor()
       ));
     }
-    // mandatory visitor
-    treeVisitors.add(new ChecksVisitor(checks(), statistics));
-    return treeVisitors;
+    return languageSpecificTreeVisitors;
   }
 
-  Checks<IacCheck> checks() {
+  @Override
+  protected Checks<IacCheck> checks() {
     return checks;
   }
 }

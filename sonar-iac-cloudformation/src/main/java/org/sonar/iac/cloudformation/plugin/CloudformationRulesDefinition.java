@@ -17,27 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser;
+package org.sonar.iac.cloudformation.plugin;
 
-import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.StandardCharsets;
-import org.sonar.iac.common.TreeParser;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
+import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
-public class HclParser extends ActionParser<TerraformTree> implements TreeParser<TerraformTree> {
+public class CloudformationRulesDefinition implements RulesDefinition {
 
-  public HclParser() {
-    this(HclLexicalGrammar.FILE);
-  }
+  private static final String RESOURCE_FOLDER = "org/sonar/l10n/cloudformation/rules/cloudformation";
 
-  public HclParser(GrammarRuleKey rootRule) {
-    super(
-      StandardCharsets.UTF_8,
-      HclLexicalGrammar.createGrammarBuilder(),
-      HclGrammar.class,
-      new TreeFactory(),
-      new HclNodeBuilder(),
-      rootRule);
+  @Override
+  public void define(Context context) {
+    NewRepository repository = context.createRepository(CloudformationExtension.REPOSITORY_KEY, CloudformationExtension.LANGUAGE_KEY)
+      .setName(CloudformationExtension.REPOSITORY_NAME);
+    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
+    metadataLoader.addRulesByAnnotatedClass(repository, CloudformationCheckList.checks());
+    repository.done();
   }
 }

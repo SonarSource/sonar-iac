@@ -17,23 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser;
+package org.sonar.iac.cloudformation.plugin;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.TextPointer;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-public class ParseException extends RuntimeException {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final transient TextPointer position;
+class CloudformationProfileDefinitionTest {
 
-  public ParseException(String message, @Nullable TextPointer position) {
-    super(message);
-    this.position = position;
-  }
-
-  @CheckForNull
-  public TextPointer getPosition() {
-    return position;
+  @Test
+  void should_create_sonar_way_profile() {
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    CloudformationProfileDefinition definition = new CloudformationProfileDefinition();
+    definition.define(context);
+    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("cloudformation", "Sonar way");
+    assertThat(profile.language()).isEqualTo("cloudformation");
+    assertThat(profile.name()).isEqualTo("Sonar way");
+    assertThat(profile.rules().size()).isEqualTo(0);
   }
 }

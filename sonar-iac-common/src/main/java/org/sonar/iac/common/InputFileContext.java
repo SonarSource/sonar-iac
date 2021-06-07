@@ -30,13 +30,13 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.tree.api.TextRange;
 
-public abstract class InputFileContext extends TreeContext {
+public class InputFileContext extends TreeContext {
 
   private static final String PARSING_ERROR_RULE_KEY = "S2260";
   public final SensorContext sensorContext;
   public final InputFile inputFile;
 
-  protected InputFileContext(SensorContext sensorContext, InputFile inputFile) {
+  public InputFileContext(SensorContext sensorContext, InputFile inputFile) {
     this.sensorContext = sensorContext;
     this.inputFile = inputFile;
   }
@@ -53,8 +53,6 @@ public abstract class InputFileContext extends TreeContext {
     issue.save();
   }
 
-  public abstract String getRepositoryKey();
-
   // TODO remove own TextRange implementation and use only sonar api implementation
   public org.sonar.api.batch.fs.TextRange textRange(TextRange textRange) {
     return inputFile.newRange(
@@ -64,9 +62,9 @@ public abstract class InputFileContext extends TreeContext {
       textRange.end().column());
   }
 
-  public void reportParseError(@Nullable TextPointer location) {
+  public void reportParseError(String repositoryKey, @Nullable TextPointer location) {
     reportAnalysisError("Unable to parse file: " + inputFile, location);
-    RuleKey parsingErrorRuleKey = RuleKey.of(getRepositoryKey(), PARSING_ERROR_RULE_KEY);
+    RuleKey parsingErrorRuleKey = RuleKey.of(repositoryKey, PARSING_ERROR_RULE_KEY);
     if (sensorContext.activeRules().find(parsingErrorRuleKey) == null) {
       return;
     }

@@ -46,6 +46,7 @@
     <module>sonar-iac-terraform</module>
     <module>sonar-iac-plugin</module>
     <module>its</module>
+      <module>sonar-iac-cloudformation</module>
   </modules>
 
   <scm>
@@ -84,6 +85,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-iac-terraform</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-iac-cloudformation</artifactId>
         <version>${project.version}</version>
       </dependency>
 

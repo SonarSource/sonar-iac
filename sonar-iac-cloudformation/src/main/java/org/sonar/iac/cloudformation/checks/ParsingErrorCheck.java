@@ -17,27 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser;
+package org.sonar.iac.cloudformation.checks;
 
-import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.StandardCharsets;
-import org.sonar.iac.common.TreeParser;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.checks.api.InitContext;
 
-public class HclParser extends ActionParser<TerraformTree> implements TreeParser<TerraformTree> {
+/**
+ * This class does nothing. It exists only to be present in the SonarQube profile and GUI.
+ * Issues for this class are created upfront, during the parsing.
+ */
+@Rule(key = "S2260")
+public class ParsingErrorCheck implements IacCheck {
 
-  public HclParser() {
-    this(HclLexicalGrammar.FILE);
-  }
-
-  public HclParser(GrammarRuleKey rootRule) {
-    super(
-      StandardCharsets.UTF_8,
-      HclLexicalGrammar.createGrammarBuilder(),
-      HclGrammar.class,
-      new TreeFactory(),
-      new HclNodeBuilder(),
-      rootRule);
+  @Override
+  public void initialize(InitContext init) {
+    // errors are reported in InputFileContext#reportParseError
   }
 }

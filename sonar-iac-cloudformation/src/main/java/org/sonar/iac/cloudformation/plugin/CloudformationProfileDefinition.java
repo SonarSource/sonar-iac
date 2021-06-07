@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser;
+package org.sonar.iac.cloudformation.plugin;
 
-import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.StandardCharsets;
-import org.sonar.iac.common.TreeParser;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
-public class HclParser extends ActionParser<TerraformTree> implements TreeParser<TerraformTree> {
+public class CloudformationProfileDefinition implements BuiltInQualityProfilesDefinition {
 
-  public HclParser() {
-    this(HclLexicalGrammar.FILE);
-  }
+  static final String SONAR_WAY_PATH = "org/sonar/l10n/cloudformation/rules/cloudformation/Sonar_way_profile.json";
 
-  public HclParser(GrammarRuleKey rootRule) {
-    super(
-      StandardCharsets.UTF_8,
-      HclLexicalGrammar.createGrammarBuilder(),
-      HclGrammar.class,
-      new TreeFactory(),
-      new HclNodeBuilder(),
-      rootRule);
+  @Override
+  public void define(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(CloudformationExtension.PROFILE_NAME, CloudformationExtension.LANGUAGE_KEY);
+    BuiltInQualityProfileJsonLoader.load(profile, CloudformationExtension.REPOSITORY_KEY, SONAR_WAY_PATH);
+    profile.setDefault(true);
+    profile.done();
   }
 }

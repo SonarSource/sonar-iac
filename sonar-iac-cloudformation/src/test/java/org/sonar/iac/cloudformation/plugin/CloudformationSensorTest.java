@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.cloudformation.plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,9 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
@@ -39,19 +37,13 @@ import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.iac.common.checks.api.IacCheck;
-import org.sonar.iac.terraform.checks.AwsTagNameConventionCheck;
-import org.sonar.iac.terraform.plugin.utils.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,7 +51,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-class TerraformSensorTest {
+class CloudformationSensorTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -82,48 +74,32 @@ class TerraformSensorTest {
   void should_return_terraform_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("IaC Terraform Sensor");
-    assertThat(descriptor.languages()).containsOnly("terraform");
-  }
-
-  @Test
-  void test_one_rule() {
-    InputFile inputFile = inputFile("file1.tf", "" +
-      "resource \"aws_s3_bucket\" \"myawsbucket\" {\n" +
-      "  tags = { \"anycompany:cost-center\" = \"\" }\n" +
-      "}");
-    analyse(sensor("S6273"), inputFile);
-    Collection<Issue> issues = context.allIssues();
-    assertThat(issues).hasSize(1);
-    Issue issue = issues.iterator().next();
-    assertThat(issue.ruleKey().rule()).isEqualTo("S6273");
-    IssueLocation location = issue.primaryLocation();
-    assertThat(location.inputComponent()).isEqualTo(inputFile);
-    assertThat(location.message()).isEqualTo("Rename tag key \"anycompany:cost-center\" to match the regular expression \"^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\".");
-    TextRangeAssert.assertTextRange(location.textRange()).hasRange(2, 11, 2, 35);
+    assertThat(descriptor.name()).isEqualTo("IaC Cloudformation Sensor");
+    assertThat(descriptor.languages()).containsOnly("cloudformation");
   }
 
   @Test
   void empty_file_should_raise_no_issue() {
-    analyse(sensor("S2260"), inputFile("empty.tf", ""));
+    analyse(sensor("S2260"), inputFile("empty.json", ""));
     assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
   }
 
   @Test
   void parsing_error_should_raise_an_issue_if_check_rule_is_activated() {
-    analyse(sensor("S2260"), inputFile("parserError.tf", "a {"));
+    analyse(sensor("S2260"), inputFile("parserError.json", "a {"));
 
     assertThat(context.allIssues()).as("One issue must be raised").hasSize(1);
 
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo("S2260");
 
-    TextRange range = issue.primaryLocation().textRange();
-    assertThat(range).isNotNull();
-    assertThat(range.start().line()).isEqualTo(1);
-    assertThat(range.start().lineOffset()).isEqualTo(0);
-    assertThat(range.end().line()).isEqualTo(1);
-    assertThat(range.end().lineOffset()).isEqualTo(3);
+//    TODO: Test specific location of parsing error
+//    TextRange range = issue.primaryLocation().textRange();
+//    assertThat(range).isNotNull();
+//    assertThat(range.start().line()).isEqualTo(1);
+//    assertThat(range.start().lineOffset()).isEqualTo(0);
+//    assertThat(range.end().line()).isEqualTo(1);
+//    assertThat(range.end().lineOffset()).isEqualTo(3);
   }
 
   @Test
@@ -155,12 +131,7 @@ class TerraformSensorTest {
     assertThat(logTester.logs()).contains(String.format("Unable to parse file: %s. ", inputFile.uri()));
   }
 
-  @Test
-  void no_parsing_nor_analysis_error_on_valid_file() {
-    analyse(inputFile("file.tf", "a {}"));
-    assertThat(context.allAnalysisErrors()).isEmpty();
-    assertThat(context.allIssues()).isEmpty();
-  }
+  // TODO test valid file for no parsing error
 
   @Test
   void test_cancellation() {
@@ -170,23 +141,6 @@ class TerraformSensorTest {
     assertThat(issues).isEmpty();
   }
 
-  @Test
-  void test_sonarlint_context() {
-    SonarRuntime sonarLintRuntime = SonarRuntimeImpl.forSonarLint(Version.create(6, 0));
-    InputFile inputFile = inputFile("file1.tf", "" +
-      "resource \"aws_s3_bucket\" \"myawsbucket\" {\n" +
-      "  tags = { \"anycompany:cost-center\" = \"\" }\n" +
-      "}");
-    context.setRuntime(sonarLintRuntime);
-
-    analyse(sensor("S6273"), inputFile);
-    assertThat(context.allIssues()).hasSize(1);
-
-    // No highlighting and metrics in SonarLint
-    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
-    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
-  }
-
   private void analyse(InputFile... inputFiles) {
     for (InputFile inputFile : inputFiles) {
       context.fileSystem().add(inputFile);
@@ -194,7 +148,7 @@ class TerraformSensorTest {
     sensor().execute(context);
   }
 
-  private void analyse(TerraformSensor sensor, InputFile... inputFiles) {
+  private void analyse(CloudformationSensor sensor, InputFile... inputFiles) {
     for (InputFile inputFile : inputFiles) {
       context.fileSystem().add(inputFile);
     }
@@ -205,19 +159,18 @@ class TerraformSensorTest {
     return new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(baseDir.toPath())
       .setType(InputFile.Type.MAIN)
-      .setLanguage(TerraformExtension.LANGUAGE_KEY)
+      .setLanguage(CloudformationExtension.LANGUAGE_KEY)
       .setCharset(StandardCharsets.UTF_8)
       .setContents(content)
       .build();
   }
 
-  private TerraformSensor sensor(String... rules) {
+  private CloudformationSensor sensor(String... rules) {
     CheckFactory checkFactory = checkFactory(rules);
-    return new TerraformSensor(fileLinesContextFactory, checkFactory, noSonarFilter, new TerraformLanguage(new MapSettings().asConfig())) {
+    return new CloudformationSensor(fileLinesContextFactory, checkFactory, noSonarFilter, new CloudformationLanguage(new MapSettings().asConfig())) {
       @Override
       protected Checks<IacCheck> checks() {
-        Checks<IacCheck> checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
-        checks.addAnnotatedChecks(AwsTagNameConventionCheck.class);
+        Checks<IacCheck> checks = checkFactory.create(CloudformationExtension.REPOSITORY_KEY);
         return checks;
       }
     };
@@ -227,7 +180,7 @@ class TerraformSensorTest {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
       NewActiveRule newRule = new NewActiveRule.Builder()
-        .setRuleKey(RuleKey.of(TerraformExtension.REPOSITORY_KEY, ruleKey))
+        .setRuleKey(RuleKey.of(CloudformationExtension.REPOSITORY_KEY, ruleKey))
         .setName(ruleKey)
         .build();
       builder.addRule(newRule);

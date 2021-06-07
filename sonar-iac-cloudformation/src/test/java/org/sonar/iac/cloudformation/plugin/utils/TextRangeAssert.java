@@ -17,30 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.cloudformation.plugin.utils;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import javax.annotation.Nullable;
+import org.assertj.core.api.AbstractAssert;
+import org.sonar.api.batch.fs.TextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class IacPluginTest {
+public class TextRangeAssert extends AbstractAssert<TextRangeAssert, TextRange> {
 
-  private static final Version VERSION_8_9 = Version.create(8, 9);
+  public TextRangeAssert(@Nullable TextRange actual) {
+    super(actual, TextRangeAssert.class);
+  }
 
-  private final IacPlugin iacPlugin = new IacPlugin();
+  public TextRangeAssert hasRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+    isNotNull();
+    assertThat(actual.start().line()).isEqualTo(startLine);
+    assertThat(actual.start().lineOffset()).isEqualTo(startLineOffset);
+    assertThat(actual.end().line()).isEqualTo(endLine);
+    assertThat(actual.end().lineOffset()).isEqualTo(endLineOffset);
+    return this;
+  }
 
-  @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    iacPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(14);
+  public static TextRangeAssert assertTextRange(@Nullable TextRange actual) {
+    return new TextRangeAssert(actual);
   }
 }
-

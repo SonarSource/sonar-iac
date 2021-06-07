@@ -17,27 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser;
+package org.sonar.iac.common;
 
-import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.StandardCharsets;
-import org.sonar.iac.common.TreeParser;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.TextPointer;
 
-public class HclParser extends ActionParser<TerraformTree> implements TreeParser<TerraformTree> {
+public class ParseException extends RuntimeException {
 
-  public HclParser() {
-    this(HclLexicalGrammar.FILE);
+  private final transient TextPointer position;
+
+  public ParseException(String message, @Nullable TextPointer position) {
+    super(message);
+    this.position = position;
   }
 
-  public HclParser(GrammarRuleKey rootRule) {
-    super(
-      StandardCharsets.UTF_8,
-      HclLexicalGrammar.createGrammarBuilder(),
-      HclGrammar.class,
-      new TreeFactory(),
-      new HclNodeBuilder(),
-      rootRule);
+  @CheckForNull
+  public TextPointer getPosition() {
+    return position;
   }
 }
