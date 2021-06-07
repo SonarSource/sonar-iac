@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.iac.common.InputFileContext;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclParser;
 

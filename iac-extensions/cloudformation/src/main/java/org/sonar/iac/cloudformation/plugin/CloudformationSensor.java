@@ -24,10 +24,10 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
-import org.sonar.iac.common.IacSensor;
-import org.sonar.iac.common.TreeParser;
-import org.sonar.iac.common.checks.api.IacCheck;
-import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.tree.Tree;
 
 public class CloudformationSensor extends IacSensor {
 

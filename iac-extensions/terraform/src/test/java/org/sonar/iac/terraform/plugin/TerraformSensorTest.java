@@ -49,9 +49,9 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.terraform.checks.AwsTagNameConventionCheck;
-import org.sonar.iac.terraform.plugin.utils.TextRangeAssert;
+import org.sonar.iac.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

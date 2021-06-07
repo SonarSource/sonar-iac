@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.OneLineBlockTree;

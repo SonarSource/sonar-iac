@@ -43,7 +43,7 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

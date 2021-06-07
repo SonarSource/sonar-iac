@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public interface TerraformTree extends Tree {
