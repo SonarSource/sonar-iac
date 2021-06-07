@@ -10,6 +10,8 @@
 
   <artifactId>sonar-iac-testing</artifactId>
 
+  <name>SonarSource IaC Analyzer :: Testing</name>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
