@@ -29,8 +29,6 @@ public interface TerraformTree extends Tree {
 
   Kind getKind();
 
-  List<Tree> children();
-
   enum Kind implements GrammarRuleKey {
 
     ATTRIBUTE_ACCESS(AttributeAccessTree.class),

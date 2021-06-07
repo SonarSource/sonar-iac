@@ -21,18 +21,18 @@ package org.sonar.iac.terraform.visitors;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.common.Tree;
 
 public class TreeContext {
 
-  private final Deque<TerraformTree> ancestors;
-  private TerraformTree current;
+  private final Deque<Tree> ancestors;
+  private Tree current;
 
   public TreeContext() {
     ancestors = new ArrayDeque<>();
   }
 
-  public Deque<TerraformTree> ancestors() {
+  public Deque<Tree> ancestors() {
     return ancestors;
   }
 
@@ -40,7 +40,7 @@ public class TreeContext {
     ancestors.clear();
   }
 
-  public void enter(TerraformTree node) {
+  public void enter(Tree node) {
     if (current != null) {
       ancestors.push(current);
     }

@@ -22,6 +22,7 @@ package org.sonar.iac.terraform.visitors;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.iac.common.HasTextRange;
+import org.sonar.iac.common.Tree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.plugin.InputFileContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -46,13 +47,13 @@ public class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
   }
 
   @Override
-  protected void before(InputFileContext ctx, TerraformTree root) {
+  protected void before(InputFileContext ctx, Tree root) {
     newHighlighting = ctx.sensorContext.newHighlighting()
       .onFile(ctx.inputFile);
   }
 
   @Override
-  protected void after(InputFileContext ctx, TerraformTree root) {
+  protected void after(InputFileContext ctx, Tree root) {
     newHighlighting.save();
   }
 

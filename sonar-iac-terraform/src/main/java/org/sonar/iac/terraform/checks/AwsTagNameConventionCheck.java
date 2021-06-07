@@ -22,7 +22,7 @@ package org.sonar.iac.terraform.checks;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.iac.terraform.api.checks.CheckContext;
+import org.sonar.iac.common.checks.CheckContext;
 import org.sonar.iac.terraform.api.checks.IacCheck;
 import org.sonar.iac.terraform.api.checks.InitContext;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;

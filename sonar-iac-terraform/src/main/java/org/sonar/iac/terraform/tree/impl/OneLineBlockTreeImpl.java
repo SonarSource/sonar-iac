@@ -30,7 +30,6 @@ import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 public class OneLineBlockTreeImpl extends TerraformTreeImpl implements OneLineBlockTree {
   private final SyntaxToken type;
@@ -64,7 +63,7 @@ public class OneLineBlockTreeImpl extends TerraformTreeImpl implements OneLineBl
 
   @Override
   public List<Tree> children() {
-    List<TerraformTree> children = new ArrayList<>(Arrays.asList(type));
+    List<Tree> children = new ArrayList<>(Arrays.asList(type));
     children.addAll(labels);
     children.add(openBrace);
     if (attribute.isPresent()) {

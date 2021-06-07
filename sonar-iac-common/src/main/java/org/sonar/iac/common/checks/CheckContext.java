@@ -17,36 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.tree.impl;
+package org.sonar.iac.common.checks;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.common.HasTextRange;
 import org.sonar.iac.common.TextRange;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 
-public abstract class TerraformTreeImpl implements TerraformTree {
+public interface CheckContext {
 
-  protected TextRange textRange;
+  void reportIssue(TextRange textRange, String message);
 
-  @Override
-  public final boolean is(Kind... kind) {
-    if (getKind() != null) {
-      for (Kind kindIter : kind) {
-        if (getKind() == kindIter) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public TextRange textRange() {
-    if (textRange == null) {
-      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).collect(Collectors.toList());
-      textRange = TextRanges.merge(childRanges);
-    }
-    return textRange;
-  }
+  void reportIssue(HasTextRange toHighlight, String message);
 }

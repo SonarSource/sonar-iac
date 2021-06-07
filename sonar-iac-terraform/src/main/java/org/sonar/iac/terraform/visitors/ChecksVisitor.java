@@ -25,7 +25,7 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.iac.terraform.api.checks.CheckContext;
+import org.sonar.iac.common.checks.CheckContext;
 import org.sonar.iac.terraform.api.checks.IacCheck;
 import org.sonar.iac.terraform.api.checks.InitContext;
 import org.sonar.iac.common.HasTextRange;

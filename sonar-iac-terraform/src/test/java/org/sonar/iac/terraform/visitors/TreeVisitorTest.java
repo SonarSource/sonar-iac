@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.Tree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
@@ -72,8 +73,8 @@ class TreeVisitorTest {
 
   @Test
   void ancestors() {
-    Map<TerraformTree, List<TerraformTree>> ancestors = new HashMap<>();
-    visitor.register(TerraformTree.class, (ctx, tree) -> ancestors.put(tree, new ArrayList<>(ctx.ancestors())));
+    Map<Tree, List<Tree>> ancestors = new HashMap<>();
+    visitor.register(Tree.class, (ctx, tree) -> ancestors.put(tree, new ArrayList<>(ctx.ancestors())));
     visitor.scan(new TreeContext(), objElement);
     assertThat(ancestors.get(objElement)).isEmpty();
     assertThat(ancestors.get(identifier)).containsExactly(objElement);

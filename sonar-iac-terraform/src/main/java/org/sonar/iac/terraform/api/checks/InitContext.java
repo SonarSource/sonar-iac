@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.api.checks;
 
 import java.util.function.BiConsumer;
+import org.sonar.iac.common.checks.CheckContext;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 public interface InitContext {

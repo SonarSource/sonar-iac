@@ -17,14 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.api.checks;
-
-import org.sonar.iac.common.HasTextRange;
-import org.sonar.iac.common.TextRange;
-
-public interface CheckContext {
-
-  void reportIssue(TextRange textRange, String message);
-
-  void reportIssue(HasTextRange toHighlight, String message);
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.common.checks;
