@@ -17,39 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.visitors;
+package org.sonar.iac.common.tree.impl;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.tree.api.Comment;
+import org.sonar.iac.common.tree.api.TextRange;
 
-public class TreeContext {
+public class CommentImpl implements Comment {
 
-  private final Deque<Tree> ancestors;
-  private Tree current;
+  private final String value;
+  private final String contentText;
+  private final TextRange textRange;
 
-  public TreeContext() {
-    ancestors = new ArrayDeque<>();
+  public CommentImpl(String value, String contentText, TextRange textRange) {
+    this.value = value;
+    this.contentText = contentText;
+    this.textRange = textRange;
   }
 
-  public Deque<Tree> ancestors() {
-    return ancestors;
+  @Override
+  public String value() {
+    return value;
   }
 
-  protected void before() {
-    ancestors.clear();
+  @Override
+  public String contentText() {
+    return contentText;
   }
 
-  public void enter(Tree node) {
-    if (current != null) {
-      ancestors.push(current);
-    }
-    current = node;
-  }
-
-  public void leave() {
-    if (!ancestors.isEmpty()) {
-      current = ancestors.pop();
-    }
+  @Override
+  public TextRange textRange() {
+    return textRange;
   }
 }

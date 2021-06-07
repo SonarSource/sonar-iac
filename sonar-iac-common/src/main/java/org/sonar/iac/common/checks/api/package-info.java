@@ -17,13 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.api.checks;
-
-import java.util.function.BiConsumer;
-import org.sonar.iac.common.checks.CheckContext;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-
-public interface InitContext {
-
-  <T extends TerraformTree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor);
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.common.checks.api;

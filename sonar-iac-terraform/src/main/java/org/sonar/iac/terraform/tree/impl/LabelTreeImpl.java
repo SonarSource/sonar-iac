@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.tree.impl;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 

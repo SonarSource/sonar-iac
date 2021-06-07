@@ -17,5 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.terraform.api.checks;
+package org.sonar.iac.terraform.plugin;
+
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.iac.common.InputFileContext;
+
+public class TerraformFileContext extends InputFileContext {
+
+  public TerraformFileContext(SensorContext sensorContext, InputFile inputFile) {
+    super(sensorContext, inputFile);
+  }
+
+  @Override
+  public String getRepositoryKey() {
+    return TerraformExtension.REPOSITORY_KEY;
+  }
+}

@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.visitors;
+package org.sonar.iac.common.visitors;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.TreeContext;
+import org.sonar.iac.common.tree.api.Tree;
 
 public class TreeVisitor<C extends TreeContext> {
 

@@ -25,16 +25,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.TextPointer;
-import org.sonar.iac.common.TextRange;
-import org.sonar.iac.common.checks.CheckContext;
-import org.sonar.iac.terraform.api.checks.IacCheck;
-import org.sonar.iac.terraform.api.checks.InitContext;
-import org.sonar.iac.common.HasTextRange;
+import org.sonar.iac.common.tree.api.TextPointer;
+import org.sonar.iac.common.tree.api.TextRange;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.checks.api.CheckContext;
+import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.checks.api.InitContext;
+import org.sonar.iac.common.tree.api.HasTextRange;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.visitors.TreeContext;
-import org.sonar.iac.terraform.visitors.TreeVisitor;
+import org.sonar.iac.common.TreeContext;
+import org.sonar.iac.common.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -88,12 +89,12 @@ public final class Verifier {
       visitor = new TreeVisitor<>();
     }
 
-    public void scan(@Nullable TerraformTree root) {
+    public void scan(@Nullable Tree root) {
       visitor.scan(this, root);
     }
 
     @Override
-    public <T extends TerraformTree> void register(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
+    public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> consumer) {
       visitor.register(cls, (ctx, node) -> consumer.accept(this, node));
     }
 

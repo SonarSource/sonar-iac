@@ -20,7 +20,9 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.TextPointer;
+import org.sonar.iac.common.tree.api.TextPointer;
+import org.sonar.iac.common.tree.impl.TextPointerImpl;
+import org.sonar.iac.common.tree.impl.TextRangeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

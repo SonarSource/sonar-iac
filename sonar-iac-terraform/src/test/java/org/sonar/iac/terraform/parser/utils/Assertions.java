@@ -29,7 +29,7 @@ import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 import org.sonar.iac.terraform.parser.TreeFactory;
 import org.sonar.iac.terraform.tree.impl.TerraformTreeImpl;
-import org.sonar.iac.terraform.tree.impl.TextPointerImpl;
+import org.sonar.iac.common.tree.impl.TextPointerImpl;
 import org.sonar.iac.terraform.parser.HclGrammar;
 import org.sonar.iac.terraform.parser.HclNodeBuilder;
 import org.sonar.sslr.grammar.GrammarRuleKey;

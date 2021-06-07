@@ -37,7 +37,8 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclParser;
-import org.sonar.iac.terraform.plugin.InputFileContext;
+import org.sonar.iac.common.InputFileContext;
+import org.sonar.iac.terraform.plugin.TerraformFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -123,7 +124,7 @@ class MetricsVisitorTest {
     inputFile = new TestInputFileBuilder("moduleKey", new File(tempFolder, "file").getName())
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata(code).build();
-    InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
+    InputFileContext ctx = new TerraformFileContext(sensorContext, inputFile);
     visitor.scan(ctx, parser.parse(code));
   }
 

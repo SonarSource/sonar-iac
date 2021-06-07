@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.tree.impl;
+package org.sonar.iac.common.tree.impl;
 
 import java.util.List;
 import java.util.function.Supplier;
-import org.sonar.iac.common.TextPointer;
-import org.sonar.iac.common.TextRange;
+import org.sonar.iac.common.tree.api.TextPointer;
+import org.sonar.iac.common.tree.api.TextRange;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
 import static java.util.Comparator.naturalOrder;

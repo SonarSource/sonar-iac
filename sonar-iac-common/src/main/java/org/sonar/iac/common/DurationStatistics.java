@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.common;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -42,7 +42,7 @@ public class DurationStatistics {
 
   private final boolean recordStat;
 
-  DurationStatistics(Configuration config) {
+  public DurationStatistics(Configuration config) {
     recordStat = config.getBoolean(PROPERTY_KEY).orElse(false);
   }
 
@@ -54,7 +54,7 @@ public class DurationStatistics {
     }
   }
 
-  void time(String id, Runnable runnable) {
+  public void time(String id, Runnable runnable) {
     if (recordStat) {
       time(id, () -> {
         runnable.run();
@@ -65,7 +65,7 @@ public class DurationStatistics {
     }
   }
 
-  <T> T time(String id, Supplier<T> supplier) {
+  public <T> T time(String id, Supplier<T> supplier) {
     if (recordStat) {
       long startTime = System.nanoTime();
       T result = supplier.get();
@@ -80,7 +80,7 @@ public class DurationStatistics {
     stats.computeIfAbsent(id, key -> new AtomicLong(0)).addAndGet(elapsedTime);
   }
 
-  void log() {
+  public void log() {
     if (recordStat) {
       StringBuilder out = new StringBuilder();
       DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);

@@ -21,8 +21,9 @@ package org.sonar.iac.terraform.tree.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.iac.common.HasTextRange;
-import org.sonar.iac.common.TextRange;
+import org.sonar.iac.common.tree.api.HasTextRange;
+import org.sonar.iac.common.tree.api.TextRange;
+import org.sonar.iac.common.tree.impl.TextRanges;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 public abstract class TerraformTreeImpl implements TerraformTree {

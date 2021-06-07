@@ -17,14 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.checks;
+package org.sonar.iac.common;
 
-import org.sonar.iac.common.HasTextRange;
-import org.sonar.iac.common.TextRange;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import org.sonar.iac.common.tree.api.Tree;
 
-public interface CheckContext {
+public class TreeContext {
 
-  void reportIssue(TextRange textRange, String message);
+  private final Deque<Tree> ancestors;
+  private Tree current;
 
-  void reportIssue(HasTextRange toHighlight, String message);
+  public TreeContext() {
+    ancestors = new ArrayDeque<>();
+  }
+
+  public Deque<Tree> ancestors() {
+    return ancestors;
+  }
+
+  public void before() {
+    ancestors.clear();
+  }
+
+  public void enter(Tree node) {
+    if (current != null) {
+      ancestors.push(current);
+    }
+    current = node;
+  }
+
+  public void leave() {
+    if (!ancestors.isEmpty()) {
+      current = ancestors.pop();
+    }
+  }
 }

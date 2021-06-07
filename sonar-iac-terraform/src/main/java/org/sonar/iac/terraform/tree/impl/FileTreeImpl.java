@@ -22,7 +22,7 @@ package org.sonar.iac.terraform.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;

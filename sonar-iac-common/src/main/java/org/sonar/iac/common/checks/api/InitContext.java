@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common;
+package org.sonar.iac.common.checks.api;
 
-public interface Comment extends HasTextRange {
+import java.util.function.BiConsumer;
+import org.sonar.iac.common.tree.api.Tree;
 
-  String value();
+public interface InitContext {
 
-  String contentText();
-
+  <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor);
 }

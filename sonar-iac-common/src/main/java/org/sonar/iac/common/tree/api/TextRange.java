@@ -17,18 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common;
+package org.sonar.iac.common.tree.api;
 
-public interface TextPointer extends Comparable<TextPointer> {
+public interface TextRange {
 
-  /**
-   * Starts at 1
-   */
-  int line();
+  TextPointer start();
 
-  /**
-   * Starts at 0
-   */
-  int column();
+  TextPointer end();
 
 }

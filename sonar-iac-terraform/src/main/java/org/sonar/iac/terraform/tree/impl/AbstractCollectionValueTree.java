@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TerraformTree;

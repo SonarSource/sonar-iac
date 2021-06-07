@@ -19,8 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.common.Tree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.ForObjectTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;

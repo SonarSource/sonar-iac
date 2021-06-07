@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.IndexSplatAccessTree;

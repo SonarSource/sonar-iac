@@ -21,10 +21,11 @@ package org.sonar.iac.terraform.visitors;
 
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.iac.common.HasTextRange;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.tree.api.HasTextRange;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.plugin.InputFileContext;
+import org.sonar.iac.common.InputFileContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;

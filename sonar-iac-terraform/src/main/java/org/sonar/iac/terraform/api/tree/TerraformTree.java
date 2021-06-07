@@ -19,8 +19,7 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-import java.util.List;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public interface TerraformTree extends Tree {

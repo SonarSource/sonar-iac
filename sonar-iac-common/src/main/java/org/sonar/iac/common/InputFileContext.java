@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.common;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -28,16 +28,15 @@ import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.iac.common.TextRange;
-import org.sonar.iac.terraform.visitors.TreeContext;
+import org.sonar.iac.common.tree.api.TextRange;
 
-public class InputFileContext extends TreeContext {
+public abstract class InputFileContext extends TreeContext {
 
   private static final String PARSING_ERROR_RULE_KEY = "S2260";
   public final SensorContext sensorContext;
   public final InputFile inputFile;
 
-  public InputFileContext(SensorContext sensorContext, InputFile inputFile) {
+  protected InputFileContext(SensorContext sensorContext, InputFile inputFile) {
     this.sensorContext = sensorContext;
     this.inputFile = inputFile;
   }
@@ -54,6 +53,8 @@ public class InputFileContext extends TreeContext {
     issue.save();
   }
 
+  public abstract String getRepositoryKey();
+
   // TODO remove own TextRange implementation and use only sonar api implementation
   public org.sonar.api.batch.fs.TextRange textRange(TextRange textRange) {
     return inputFile.newRange(
@@ -65,7 +66,7 @@ public class InputFileContext extends TreeContext {
 
   public void reportParseError(@Nullable TextPointer location) {
     reportAnalysisError("Unable to parse file: " + inputFile, location);
-    RuleKey parsingErrorRuleKey = RuleKey.of(TerraformExtension.REPOSITORY_KEY, PARSING_ERROR_RULE_KEY);
+    RuleKey parsingErrorRuleKey = RuleKey.of(getRepositoryKey(), PARSING_ERROR_RULE_KEY);
     if (sensorContext.activeRules().find(parsingErrorRuleKey) == null) {
       return;
     }

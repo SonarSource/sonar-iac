@@ -21,9 +21,9 @@ package org.sonar.iac.terraform.tree.impl;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.common.Comment;
-import org.sonar.iac.common.TextRange;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.tree.api.Comment;
+import org.sonar.iac.common.tree.api.TextRange;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
 public class SyntaxTokenImpl extends TerraformTreeImpl implements SyntaxToken {

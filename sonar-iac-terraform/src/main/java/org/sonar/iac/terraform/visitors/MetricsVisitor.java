@@ -27,11 +27,12 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.common.Comment;
-import org.sonar.iac.common.TextRange;
-import org.sonar.iac.common.Tree;
+import org.sonar.iac.common.tree.api.Comment;
+import org.sonar.iac.common.tree.api.TextRange;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.plugin.InputFileContext;
+import org.sonar.iac.common.InputFileContext;
 
 public class MetricsVisitor extends TreeVisitor<InputFileContext> {
 
