@@ -17,17 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.cloudformation.plugin;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
+import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
-public class IacPlugin implements Plugin {
+public class CloudformationRulesDefinition implements RulesDefinition {
+
+  private static final String RESOURCE_FOLDER = "org/sonar/l10n/cloudformation/rules/cloudformation";
 
   @Override
   public void define(Context context) {
-    context.addExtensions(TerraformExtension.getExtensions());
-    context.addExtensions(CloudformationExtension.getExtensions());
+    NewRepository repository = context.createRepository(CloudformationExtension.REPOSITORY_KEY, CloudformationExtension.LANGUAGE_KEY)
+      .setName(CloudformationExtension.REPOSITORY_NAME);
+    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
+    metadataLoader.addRulesByAnnotatedClass(repository, CloudformationCheckList.checks());
+    repository.done();
   }
 }

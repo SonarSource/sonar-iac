@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.common;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.TextPointer;
 
-public class IacPlugin implements Plugin {
+public class ParseException extends RuntimeException {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(TerraformExtension.getExtensions());
-    context.addExtensions(CloudformationExtension.getExtensions());
+  private final transient TextPointer position;
+
+  public ParseException(String message, @Nullable TextPointer position) {
+    super(message);
+    this.position = position;
+  }
+
+  @CheckForNull
+  public TextPointer getPosition() {
+    return position;
   }
 }

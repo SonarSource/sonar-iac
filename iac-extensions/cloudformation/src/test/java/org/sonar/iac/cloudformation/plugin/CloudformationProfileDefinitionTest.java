@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.cloudformation.plugin;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-public class IacPlugin implements Plugin {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(TerraformExtension.getExtensions());
-    context.addExtensions(CloudformationExtension.getExtensions());
+class CloudformationProfileDefinitionTest {
+
+  @Test
+  void should_create_sonar_way_profile() {
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    CloudformationProfileDefinition definition = new CloudformationProfileDefinition();
+    definition.define(context);
+    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("cloudformation", "Sonar way");
+    assertThat(profile.language()).isEqualTo("cloudformation");
+    assertThat(profile.name()).isEqualTo("Sonar way");
+    assertThat(profile.rules().size()).isEqualTo(0);
   }
 }

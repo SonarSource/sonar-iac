@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.cloudformation.checks;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.checks.api.InitContext;
 
-public class IacPlugin implements Plugin {
+/**
+ * This class does nothing. It exists only to be present in the SonarQube profile and GUI.
+ * Issues for this class are created upfront, during the parsing.
+ */
+@Rule(key = "S2260")
+public class ParsingErrorCheck implements IacCheck {
 
   @Override
-  public void define(Context context) {
-    context.addExtensions(TerraformExtension.getExtensions());
-    context.addExtensions(CloudformationExtension.getExtensions());
+  public void initialize(InitContext init) {
+    // errors are reported in InputFileContext#reportParseError
   }
 }

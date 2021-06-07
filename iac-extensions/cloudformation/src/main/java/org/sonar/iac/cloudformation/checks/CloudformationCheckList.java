@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.cloudformation.checks;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import java.util.Arrays;
+import java.util.List;
 
-public class IacPlugin implements Plugin {
+public class CloudformationCheckList {
 
-  @Override
-  public void define(Context context) {
-    context.addExtensions(TerraformExtension.getExtensions());
-    context.addExtensions(CloudformationExtension.getExtensions());
+  private CloudformationCheckList() {
+
+  }
+
+  public static List<Class<?>> checks() {
+    return Arrays.asList(
+      ParsingErrorCheck.class
+    );
   }
 }

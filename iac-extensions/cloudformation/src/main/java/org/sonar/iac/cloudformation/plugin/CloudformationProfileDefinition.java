@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.cloudformation.plugin;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
-public class IacPlugin implements Plugin {
+public class CloudformationProfileDefinition implements BuiltInQualityProfilesDefinition {
+
+  static final String SONAR_WAY_PATH = "org/sonar/l10n/cloudformation/rules/cloudformation/Sonar_way_profile.json";
 
   @Override
   public void define(Context context) {
-    context.addExtensions(TerraformExtension.getExtensions());
-    context.addExtensions(CloudformationExtension.getExtensions());
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(CloudformationExtension.PROFILE_NAME, CloudformationExtension.LANGUAGE_KEY);
+    BuiltInQualityProfileJsonLoader.load(profile, CloudformationExtension.REPOSITORY_KEY, SONAR_WAY_PATH);
+    profile.setDefault(true);
+    profile.done();
   }
 }

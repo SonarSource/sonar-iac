@@ -42,8 +42,8 @@
   </developers>
 
   <modules>
-    <module>sonar-iac-common</module>
-    <module>sonar-iac-terraform</module>
+    <module>iac-common</module>
+    <module>iac-extensions</module>
     <module>sonar-iac-plugin</module>
     <module>its</module>
   </modules>
@@ -84,6 +84,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-iac-terraform</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-iac-cloudformation</artifactId>
         <version>${project.version}</version>
       </dependency>
 
