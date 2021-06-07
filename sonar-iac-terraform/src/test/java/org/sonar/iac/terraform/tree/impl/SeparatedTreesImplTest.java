@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
 import java.util.Arrays;
@@ -31,15 +31,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SeparatedTreesImplTest {
-  private static Tree treeA = new SyntaxTokenImpl("a", null, null);
-  private static Tree treeB = new SyntaxTokenImpl("b", null, null);
-  private static List<Tree> elementsList = Arrays.asList(treeA, treeB);
+  private static TerraformTree treeA = new SyntaxTokenImpl("a", null, null);
+  private static TerraformTree treeB = new SyntaxTokenImpl("b", null, null);
+  private static List<TerraformTree> elementsList = Arrays.asList(treeA, treeB);
   private static SyntaxToken separator = new SyntaxTokenImpl(",", null, null);
-  private static SeparatedTreesImpl<Tree> list = new SeparatedTreesImpl<>(elementsList, Arrays.asList(separator));
+  private static SeparatedTreesImpl<TerraformTree> list = new SeparatedTreesImpl<>(elementsList, Arrays.asList(separator));
 
   @Test
   void empty() {
-    SeparatedTreesImpl<Tree> list = SeparatedTreesImpl.empty();
+    SeparatedTreesImpl<TerraformTree> list = SeparatedTreesImpl.empty();
     assertThat(list.trees()).isEmpty();
     assertThat(list.treesAndSeparators()).isEmpty();
   }
@@ -53,7 +53,7 @@ class SeparatedTreesImplTest {
 
   @Test
   void wrong_arguments() {
-    List<Tree> elements = Collections.emptyList();
+    List<TerraformTree> elements = Collections.emptyList();
     List<SyntaxToken> separators = Arrays.asList(separator);
     assertThatThrownBy(() -> new SeparatedTreesImpl<>(elements, separators)).isInstanceOf(IllegalArgumentException.class);
   }

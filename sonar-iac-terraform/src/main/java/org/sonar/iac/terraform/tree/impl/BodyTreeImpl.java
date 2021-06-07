@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.BodyTree;
-import org.sonar.iac.terraform.api.tree.Tree;
-
 import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.BodyTree;
 
-public class BodyTreeImpl extends TerraformTree implements BodyTree {
+public class BodyTreeImpl extends TerraformTreeImpl implements BodyTree {
   private final List<Tree> statements;
 
   public BodyTreeImpl(List<Tree> statements) {

@@ -19,16 +19,16 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.SeparatedTrees;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 
-public abstract class AbstractCollectionValueTree<T extends Tree> extends TerraformTree {
+public abstract class AbstractCollectionValueTree<T extends TerraformTree> extends TerraformTreeImpl {
   private final SyntaxToken openBrace;
   private final SeparatedTrees<T> elements;
   private final SyntaxToken closeBrace;

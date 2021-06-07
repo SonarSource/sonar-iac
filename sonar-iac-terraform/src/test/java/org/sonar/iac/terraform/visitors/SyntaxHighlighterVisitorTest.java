@@ -31,9 +31,10 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclParser;
-import org.sonar.iac.terraform.plugin.InputFileContext;
+import org.sonar.iac.common.InputFileContext;
+import org.sonar.iac.terraform.plugin.TerraformFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
@@ -45,7 +46,7 @@ class SyntaxHighlighterVisitorTest {
 
   private SyntaxHighlightingVisitor highlightingVisitor = new SyntaxHighlightingVisitor();
   private SensorContextTester sensorContext;
-  private ActionParser<Tree> parser = new HclParser();
+  private ActionParser<TerraformTree> parser = new HclParser();
   private DefaultInputFile inputFile;
 
   @TempDir
@@ -111,7 +112,7 @@ class SyntaxHighlighterVisitorTest {
     inputFile = new TestInputFileBuilder("moduleKey", tempFolder.getName())
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata(code).build();
-    InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
+    InputFileContext ctx = new TerraformFileContext(sensorContext, inputFile);
     highlightingVisitor.scan(ctx, parser.parse(code));
   }
 

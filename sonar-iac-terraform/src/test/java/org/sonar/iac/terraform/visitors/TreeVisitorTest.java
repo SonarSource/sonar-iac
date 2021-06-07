@@ -25,9 +25,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.TreeContext;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ObjectElementTreeImpl;
@@ -43,28 +46,28 @@ class TreeVisitorTest {
 
   private VariableExprTree identifier = new VariableExprTreeImpl(simpleSyntaxToken("var1"));
   private SyntaxToken number = simpleSyntaxToken("1");
-  private LiteralExprTree numberExpression = new LiteralExprTreeImpl(Tree.Kind.NUMERIC_LITERAL, number);
+  private LiteralExprTree numberExpression = new LiteralExprTreeImpl(TerraformTree.Kind.NUMERIC_LITERAL, number);
   private ObjectElementTree objElement = new ObjectElementTreeImpl(identifier, null, numberExpression);
 
   @Test
   void visit_simple_tree() {
-    List<Tree> visited = new ArrayList<>();
-    visitor.register(Tree.class, (ctx, tree) -> visited.add(tree));
+    List<TerraformTree> visited = new ArrayList<>();
+    visitor.register(TerraformTree.class, (ctx, tree) -> visited.add(tree));
     visitor.scan(new TreeContext(), objElement);
     assertThat(visited).containsExactly(objElement, identifier, identifier.token(), numberExpression, number);
   }
 
   @Test
   void visit_without_tree() {
-    List<Tree> visited = new ArrayList<>();
-    visitor.register(Tree.class, (ctx, tree) -> visited.add(tree));
+    List<TerraformTree> visited = new ArrayList<>();
+    visitor.register(TerraformTree.class, (ctx, tree) -> visited.add(tree));
     visitor.scan(new TreeContext(), null);
     assertThat(visited).isEmpty();
   }
 
   @Test
   void visit_only_literals() {
-    List<Tree> visited = new ArrayList<>();
+    List<TerraformTree> visited = new ArrayList<>();
     visitor.register(LiteralExprTree.class, (ctx, tree) -> visited.add(tree));
     visitor.scan(new TreeContext(), objElement);
     assertThat(visited).containsExactly(numberExpression);

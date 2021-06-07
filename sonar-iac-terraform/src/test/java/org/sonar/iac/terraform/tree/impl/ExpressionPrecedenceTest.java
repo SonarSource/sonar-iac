@@ -19,17 +19,16 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.junit.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.parser.HclLexicalGrammar;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import org.junit.Test;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

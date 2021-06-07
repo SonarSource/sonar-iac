@@ -19,15 +19,14 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-public class ParenthesizedExpressionTreeImpl extends TerraformTree implements ParenthesizedExpressionTree {
+public class ParenthesizedExpressionTreeImpl extends TerraformTreeImpl implements ParenthesizedExpressionTree {
   private final SyntaxToken openParenthesis;
   private final ExpressionTree expression;
   private final SyntaxToken closeParenthesis;

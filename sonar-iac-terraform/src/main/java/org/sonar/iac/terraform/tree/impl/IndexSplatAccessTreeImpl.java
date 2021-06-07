@@ -19,15 +19,14 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import java.util.Arrays;
+import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.IndexSplatAccessTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-import java.util.Arrays;
-import java.util.List;
-
-public class IndexSplatAccessTreeImpl extends TerraformTree implements IndexSplatAccessTree {
+public class IndexSplatAccessTreeImpl extends TerraformTreeImpl implements IndexSplatAccessTree {
   private final ExpressionTree subject;
   private final SyntaxToken openBracket;
   private final SyntaxToken star;

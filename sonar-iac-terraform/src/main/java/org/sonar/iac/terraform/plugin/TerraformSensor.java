@@ -36,13 +36,15 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.terraform.api.checks.IacCheck;
+import org.sonar.iac.common.DurationStatistics;
+import org.sonar.iac.common.InputFileContext;
+import org.sonar.iac.common.checks.api.IacCheck;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
 import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.iac.terraform.visitors.ChecksVisitor;
 import org.sonar.iac.terraform.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.terraform.visitors.MetricsVisitor;
-import org.sonar.iac.terraform.visitors.TreeVisitor;
+import org.sonar.iac.common.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class TerraformSensor implements Sensor {

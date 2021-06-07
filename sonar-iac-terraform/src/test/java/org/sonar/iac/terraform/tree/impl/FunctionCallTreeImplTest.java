@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 import org.sonar.iac.terraform.api.tree.FunctionCallTree;
@@ -34,7 +34,7 @@ class FunctionCallTreeImplTest extends TerraformTreeModelTest {
   void simple_call() {
     FunctionCallTree tree = parse("a(1,2)", HclLexicalGrammar.FUNCTION_CALL);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.FUNCTION_CALL);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.FUNCTION_CALL);
       assertThat(o.name().value()).isEqualTo("a");
       assertThat(o.arguments().trees()).hasSize(2);
       assertThat(o.arguments().trees().get(0)).isInstanceOfSatisfying(LiteralExprTreeImpl.class, a -> assertThat(a.value()).isEqualTo("1"));

@@ -35,9 +35,10 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclParser;
-import org.sonar.iac.terraform.plugin.InputFileContext;
+import org.sonar.iac.common.InputFileContext;
+import org.sonar.iac.terraform.plugin.TerraformFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,7 +49,7 @@ import static org.mockito.Mockito.when;
 class MetricsVisitorTest {
 
   private NoSonarFilter mockNoSonarFilter;
-  private ActionParser<Tree> parser = new HclParser();
+  private ActionParser<TerraformTree> parser = new HclParser();
   private MetricsVisitor visitor;
   private SensorContextTester sensorContext;
   private DefaultInputFile inputFile;
@@ -123,7 +124,7 @@ class MetricsVisitorTest {
     inputFile = new TestInputFileBuilder("moduleKey", new File(tempFolder, "file").getName())
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata(code).build();
-    InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
+    InputFileContext ctx = new TerraformFileContext(sensorContext, inputFile);
     visitor.scan(ctx, parser.parse(code));
   }
 

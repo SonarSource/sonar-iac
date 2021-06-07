@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-public interface LabelTree extends Tree {
+public interface LabelTree extends TerraformTree {
   SyntaxToken token();
   String value();
 }

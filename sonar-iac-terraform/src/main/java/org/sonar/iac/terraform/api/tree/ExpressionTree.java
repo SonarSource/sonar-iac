@@ -19,5 +19,5 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-public interface ExpressionTree extends Tree {
+public interface ExpressionTree extends TerraformTree {
 }

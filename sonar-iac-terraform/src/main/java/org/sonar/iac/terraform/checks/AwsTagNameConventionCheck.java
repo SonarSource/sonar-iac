@@ -22,11 +22,11 @@ package org.sonar.iac.terraform.checks;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.iac.terraform.api.checks.CheckContext;
-import org.sonar.iac.terraform.api.checks.IacCheck;
-import org.sonar.iac.terraform.api.checks.InitContext;
+import org.sonar.iac.common.checks.api.CheckContext;
+import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.checks.api.InitContext;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
@@ -57,7 +57,7 @@ public class AwsTagNameConventionCheck implements IacCheck {
   private void check(CheckContext ctx, ObjectTree tree) {
     tree.elements().trees().stream()
       .map(ObjectElementTree::name)
-      .filter(i -> i.is(Tree.Kind.STRING_LITERAL))
+      .filter(i -> i.is(TerraformTree.Kind.STRING_LITERAL))
       .forEach(i -> {
         String value = ((LiteralExprTree) i).value();
         if (!pattern.matcher(value).matches()) {

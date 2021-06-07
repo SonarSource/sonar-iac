@@ -21,9 +21,11 @@ package org.sonar.iac.terraform.visitors;
 
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.iac.terraform.api.tree.HasTextRange;
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.plugin.InputFileContext;
+import org.sonar.iac.common.tree.api.HasTextRange;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.visitors.TreeVisitor;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.common.InputFileContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
@@ -41,7 +43,7 @@ public class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
   public SyntaxHighlightingVisitor() {
     register(BlockTree.class,  (ctx, tree) -> highlight(ctx, tree.type(), KEYWORD));
     register(LabelTree.class, (ctx, tree) -> highlight(ctx, tree, STRING));
-    register(LiteralExprTree.class, (ctx, tree) -> highlight(ctx, tree,  tree.is(Tree.Kind.STRING_LITERAL) ? STRING : CONSTANT));
+    register(LiteralExprTree.class, (ctx, tree) -> highlight(ctx, tree,  tree.is(TerraformTree.Kind.STRING_LITERAL) ? STRING : CONSTANT));
     register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> highlight(ctx, comment, COMMENT)));
   }
 

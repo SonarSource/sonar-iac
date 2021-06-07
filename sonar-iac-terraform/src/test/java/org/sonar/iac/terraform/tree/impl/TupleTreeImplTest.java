@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
@@ -32,7 +32,7 @@ class TupleTreeImplTest extends TerraformTreeModelTest {
   void simple_tuple() {
     TupleTree tree = parse("[a, b]", HclLexicalGrammar.TUPLE);
     assertThat(tree).isInstanceOfSatisfying(TupleTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.TUPLE);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.TUPLE);
       assertThat(o.elements().trees()).hasSize(2);
       assertThat(o.children()).hasSize(5);
     });

@@ -21,8 +21,8 @@ package org.sonar.iac.terraform.api.tree;
 
 import java.util.List;
 
-public interface SeparatedTrees<T extends Tree> {
+public interface SeparatedTrees<T extends TerraformTree> {
   List<T> trees();
   List<SyntaxToken> separators();
-  List<Tree> treesAndSeparators();
+  List<TerraformTree> treesAndSeparators();
 }

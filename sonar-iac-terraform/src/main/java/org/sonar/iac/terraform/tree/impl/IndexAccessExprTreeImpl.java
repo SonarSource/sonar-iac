@@ -19,15 +19,15 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import java.util.Arrays;
+import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.IndexAccessExprTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 
-import java.util.Arrays;
-import java.util.List;
-
-public class IndexAccessExprTreeImpl extends TerraformTree implements IndexAccessExprTree {
+public class IndexAccessExprTreeImpl extends TerraformTreeImpl implements IndexAccessExprTree {
   private final ExpressionTree subject;
   private final ExpressionTree index;
   private final SyntaxToken closeBracket;
@@ -56,7 +56,7 @@ public class IndexAccessExprTreeImpl extends TerraformTree implements IndexAcces
   }
 
   @Override
-  public Tree.Kind getKind() {
-    return Tree.Kind.INDEX_ACCESS_EXPR;
+  public TerraformTree.Kind getKind() {
+    return TerraformTree.Kind.INDEX_ACCESS_EXPR;
   }
 }

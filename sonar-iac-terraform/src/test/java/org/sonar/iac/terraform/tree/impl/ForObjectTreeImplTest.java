@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ForObjectTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
@@ -34,7 +34,7 @@ class ForObjectTreeImplTest extends TerraformTreeModelTest {
   void simple_for_tuple() {
     ForObjectTree tree = parse("{for a in b : c => d}", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.FOR_OBJECT);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.FOR_OBJECT);
       assertThat(o.condition()).isNotPresent();
       assertThat(o.hasEllipsis()).isFalse();
       assertThat(o.loopVariables().trees()).hasSize(1);
@@ -49,7 +49,7 @@ class ForObjectTreeImplTest extends TerraformTreeModelTest {
   void with_two_loop_variables() {
     ForObjectTree tree = parse("{for a,b in c : d => e}", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.FOR_OBJECT);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.FOR_OBJECT);
       assertThat(o.condition()).isNotPresent();
       assertThat(o.hasEllipsis()).isFalse();
       assertThat(o.loopVariables().trees()).hasSize(2);
@@ -65,7 +65,7 @@ class ForObjectTreeImplTest extends TerraformTreeModelTest {
   void with_condition() {
     ForObjectTree tree = parse("{for a in b : c => d if true}", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.FOR_OBJECT);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.FOR_OBJECT);
       assertThat(o.condition()).isPresent();
       assertThat(o.condition().get()).isInstanceOfSatisfying(LiteralExprTree.class, a -> assertThat(a.value()).isEqualTo("true"));
       assertThat(o.hasEllipsis()).isFalse();
@@ -81,7 +81,7 @@ class ForObjectTreeImplTest extends TerraformTreeModelTest {
   void with_ellipsis() {
     ForObjectTree tree = parse("{for a in b : c => d...}", HclLexicalGrammar.EXPRESSION);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.FOR_OBJECT);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.FOR_OBJECT);
       assertThat(o.condition()).isNotPresent();
       assertThat(o.hasEllipsis()).isTrue();
       assertThat(o.loopVariables().trees()).hasSize(1);

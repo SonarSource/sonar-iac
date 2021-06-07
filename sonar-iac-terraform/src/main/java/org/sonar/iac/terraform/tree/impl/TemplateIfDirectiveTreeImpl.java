@@ -19,17 +19,16 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
 
-public class TemplateIfDirectiveTreeImpl extends TerraformTree implements TemplateIfDirectiveTree {
+public class TemplateIfDirectiveTreeImpl extends TerraformTreeImpl implements TemplateIfDirectiveTree {
   private final IfPart ifPart;
   private final ElsePart elsePart;
   private final SyntaxToken endIfOpenToken;
@@ -81,7 +80,7 @@ public class TemplateIfDirectiveTreeImpl extends TerraformTree implements Templa
     return children;
   }
 
-  public static class IfPart extends TerraformTree {
+  public static class IfPart extends TerraformTreeImpl {
     private final SyntaxToken ifOpenToken;
     private final SyntaxToken ifToken;
     private final ExpressionTree condition;
@@ -108,7 +107,7 @@ public class TemplateIfDirectiveTreeImpl extends TerraformTree implements Templa
     }
   }
 
-  public static class ElsePart extends TerraformTree {
+  public static class ElsePart extends TerraformTreeImpl {
     private final SyntaxToken elseOpenToken;
     private final SyntaxToken elseToken;
     private final SyntaxToken elseCloseToken;

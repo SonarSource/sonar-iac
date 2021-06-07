@@ -19,15 +19,14 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.PrefixExpressionTree;
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.PrefixExpressionTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-public class PrefixExpressionTreeImpl extends TerraformTree implements PrefixExpressionTree {
+public class PrefixExpressionTreeImpl extends TerraformTreeImpl implements PrefixExpressionTree {
   private final SyntaxToken prefix;
   private final ExpressionTree expression;
 

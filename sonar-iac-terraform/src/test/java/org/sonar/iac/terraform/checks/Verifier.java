@@ -25,16 +25,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import org.sonar.iac.terraform.api.checks.CheckContext;
-import org.sonar.iac.terraform.api.checks.IacCheck;
-import org.sonar.iac.terraform.api.checks.InitContext;
-import org.sonar.iac.terraform.api.tree.HasTextRange;
-import org.sonar.iac.terraform.api.tree.TextPointer;
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.tree.api.TextPointer;
+import org.sonar.iac.common.tree.api.TextRange;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.checks.api.CheckContext;
+import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.checks.api.InitContext;
+import org.sonar.iac.common.tree.api.HasTextRange;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.visitors.TreeContext;
-import org.sonar.iac.terraform.visitors.TreeVisitor;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.common.TreeContext;
+import org.sonar.iac.common.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -45,16 +46,16 @@ public final class Verifier {
     // utility class
   }
 
-  public static void verify(ActionParser<Tree> parser, Path path, IacCheck check) {
+  public static void verify(ActionParser<TerraformTree> parser, Path path, IacCheck check) {
     createVerifier(parser, path, check).assertOneOrMoreIssues();
   }
 
-  private static SingleFileVerifier createVerifier(ActionParser<Tree> parser, Path path, IacCheck check) {
+  private static SingleFileVerifier createVerifier(ActionParser<TerraformTree> parser, Path path, IacCheck check) {
 
     SingleFileVerifier verifier = SingleFileVerifier.create(path, UTF_8);
 
     String testFileContent = readFile(path);
-    Tree root = parser.parse(testFileContent);
+    TerraformTree root = parser.parse(testFileContent);
 
     (new TreeVisitor<>())
       .register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> {

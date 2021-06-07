@@ -22,7 +22,10 @@ package org.sonar.iac.terraform.tree.impl;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.tree.api.TextRange;
+import org.sonar.iac.common.tree.impl.TextPointerImpl;
+import org.sonar.iac.common.tree.impl.TextRangeImpl;
+import org.sonar.iac.common.tree.impl.TextRanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;

@@ -19,17 +19,16 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.ForTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
-import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public abstract class AbstractForTree extends TerraformTree implements ForTree {
+public abstract class AbstractForTree extends TerraformTreeImpl implements ForTree {
   protected final ForIntro intro;
 
   protected AbstractForTree(ForIntro intro) {

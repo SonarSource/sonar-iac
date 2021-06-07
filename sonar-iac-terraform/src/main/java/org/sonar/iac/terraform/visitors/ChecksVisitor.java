@@ -25,14 +25,15 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.iac.terraform.api.checks.CheckContext;
-import org.sonar.iac.terraform.api.checks.IacCheck;
-import org.sonar.iac.terraform.api.checks.InitContext;
-import org.sonar.iac.terraform.api.tree.HasTextRange;
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.plugin.DurationStatistics;
-import org.sonar.iac.terraform.plugin.InputFileContext;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.common.tree.api.HasTextRange;
+import org.sonar.iac.common.tree.api.TextRange;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.common.checks.api.CheckContext;
+import org.sonar.iac.common.checks.api.InitContext;
+import org.sonar.iac.common.checks.api.IacCheck;
+import org.sonar.iac.common.visitors.TreeVisitor;
+import org.sonar.iac.common.DurationStatistics;
+import org.sonar.iac.common.InputFileContext;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 

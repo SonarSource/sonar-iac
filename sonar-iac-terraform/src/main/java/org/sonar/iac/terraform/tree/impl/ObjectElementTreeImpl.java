@@ -19,15 +19,14 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.ObjectElementTree;
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.ObjectElementTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-public class ObjectElementTreeImpl extends TerraformTree implements ObjectElementTree {
+public class ObjectElementTreeImpl extends TerraformTreeImpl implements ObjectElementTree {
   private final ExpressionTree name;
   private final SyntaxToken equalOrColonSign;
   private final ExpressionTree value;

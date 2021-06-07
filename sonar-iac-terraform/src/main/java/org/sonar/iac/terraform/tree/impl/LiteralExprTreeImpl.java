@@ -19,14 +19,13 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import java.util.Collections;
+import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-import java.util.Collections;
-import java.util.List;
-
-public class LiteralExprTreeImpl extends TerraformTree implements LiteralExprTree {
+public class LiteralExprTreeImpl extends TerraformTreeImpl implements LiteralExprTree {
 
   private final Kind kind;
   private final SyntaxToken token;

@@ -19,17 +19,16 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class TemplateForDirectiveTreeImpl extends TerraformTree implements TemplateForDirectiveTree {
+public class TemplateForDirectiveTreeImpl extends TerraformTreeImpl implements TemplateForDirectiveTree {
   private final Intro intro;
   private final ExpressionTree expression;
   private final SyntaxToken endForOpenToken;
@@ -75,7 +74,7 @@ public class TemplateForDirectiveTreeImpl extends TerraformTree implements Templ
     return children;
   }
 
-  public static class Intro extends TerraformTree {
+  public static class Intro extends TerraformTreeImpl {
     private final SyntaxToken forOpenToken;
     private final SyntaxToken forToken;
     private final SeparatedTrees<VariableExprTree> loopVariables;

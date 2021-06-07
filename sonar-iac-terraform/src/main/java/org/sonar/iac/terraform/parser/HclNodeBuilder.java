@@ -27,13 +27,14 @@ import com.sonar.sslr.api.typed.Input;
 import com.sonar.sslr.api.typed.NodeBuilder;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.terraform.api.tree.Comment;
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.tree.impl.CommentImpl;
+import org.sonar.iac.common.tree.api.Comment;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.common.tree.impl.CommentImpl;
 import org.sonar.iac.terraform.tree.impl.SyntaxTokenImpl;
-import org.sonar.iac.terraform.tree.impl.TerraformTree;
-import org.sonar.iac.terraform.tree.impl.TextRanges;
-import org.sonar.iac.terraform.api.tree.TextRange;
+import org.sonar.iac.terraform.tree.impl.TerraformTreeImpl;
+import org.sonar.iac.common.tree.impl.TextRanges;
+import org.sonar.iac.common.tree.api.TextRange;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class HclNodeBuilder implements NodeBuilder {
@@ -48,15 +49,15 @@ public class HclNodeBuilder implements NodeBuilder {
       }
     }
 
-    return new TerraformTree() {
+    return new TerraformTreeImpl() {
       @Override
       public List<Tree> children() {
         throw new UnsupportedOperationException();
       }
 
       @Override
-      public Tree.Kind getKind() {
-        return Tree.Kind.TOKEN;
+      public TerraformTree.Kind getKind() {
+        return TerraformTree.Kind.TOKEN;
       }
     };
   }

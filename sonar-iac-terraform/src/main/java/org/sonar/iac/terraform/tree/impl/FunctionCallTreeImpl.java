@@ -19,18 +19,17 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.tree.api.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-public class FunctionCallTreeImpl extends TerraformTree implements FunctionCallTree {
+public class FunctionCallTreeImpl extends TerraformTreeImpl implements FunctionCallTree {
   private final SyntaxToken name;
   private final SyntaxToken openParenthesis;
   private final SeparatedTrees<ExpressionTree> arguments;

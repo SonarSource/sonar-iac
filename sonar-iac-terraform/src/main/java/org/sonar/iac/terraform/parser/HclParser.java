@@ -20,12 +20,12 @@
 package org.sonar.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.ActionParser;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 import java.nio.charset.StandardCharsets;
 
-public class HclParser extends ActionParser<Tree> {
+public class HclParser extends ActionParser<TerraformTree> {
 
   public HclParser() {
     this(HclLexicalGrammar.FILE);

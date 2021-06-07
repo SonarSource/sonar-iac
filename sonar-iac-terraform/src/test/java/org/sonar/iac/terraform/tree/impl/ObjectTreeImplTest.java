@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
@@ -32,7 +32,7 @@ class ObjectTreeImplTest extends TerraformTreeModelTest {
   void simple_object() {
     ObjectTree tree = parse("{a: 1, b: 2}", HclLexicalGrammar.OBJECT);
     assertThat(tree).isInstanceOfSatisfying(ObjectTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.OBJECT);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.OBJECT);
       assertThat(o.elements().trees()).hasSize(2);
     });
   }

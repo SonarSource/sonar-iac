@@ -19,14 +19,13 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.VariableExprTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
-public class VariableExprTreeImpl extends TerraformTree implements VariableExprTree {
+public class VariableExprTreeImpl extends TerraformTreeImpl implements VariableExprTree {
   private final SyntaxToken token;
 
   public VariableExprTreeImpl(SyntaxToken token) {

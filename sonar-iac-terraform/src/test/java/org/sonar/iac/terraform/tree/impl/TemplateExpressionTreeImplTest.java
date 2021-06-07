@@ -23,7 +23,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.BinaryExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
@@ -38,7 +38,7 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
   void literal_tree_is_produced_when_no_interpolation_exists() {
     LiteralExprTree tree = parse("\"abc\"", HclLexicalGrammar.QUOTED_TEMPLATE);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.STRING_LITERAL);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.STRING_LITERAL);
       assertThat(o.value()).isEqualTo("abc");
     });
   }
@@ -47,14 +47,14 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
   void simple_quoted_interpolation() {
     TemplateExpressionTree tree = parse("\"ab${x}\"", HclLexicalGrammar.QUOTED_TEMPLATE);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.TEMPLATE_EXPRESSION);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.TEMPLATE_EXPRESSION);
       Assertions.assertThat(o.parts()).hasSize(2);
       assertThat(o.parts().get(0)).isInstanceOfSatisfying(LiteralExprTree.class, p -> {
-        assertThat(p.getKind()).isEqualTo(Tree.Kind.TEMPLATE_STRING_PART_LITERAL);
+        assertThat(p.getKind()).isEqualTo(TerraformTree.Kind.TEMPLATE_STRING_PART_LITERAL);
         assertThat(p.value()).isEqualTo("ab");
       });
       assertThat(o.parts().get(1)).isInstanceOfSatisfying(TemplateInterpolationTreeImpl.class, p -> {
-        assertThat(p.getKind()).isEqualTo(Tree.Kind.TEMPLATE_INTERPOLATION);
+        assertThat(p.getKind()).isEqualTo(TerraformTree.Kind.TEMPLATE_INTERPOLATION);
         assertThat(p.expression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("x"));
       });
     });
@@ -64,10 +64,10 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
   void simple_quoted_if_directive() {
     TemplateExpressionTree tree = parse("\"%{ if a != 1 }foo%{ else }bar%{ endif }\"", HclLexicalGrammar.QUOTED_TEMPLATE);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.TEMPLATE_EXPRESSION);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.TEMPLATE_EXPRESSION);
       Assertions.assertThat(o.parts()).hasSize(1);
       assertThat(o.parts().get(0)).isInstanceOfSatisfying(TemplateIfDirectiveTree.class, p -> {
-        assertThat(p.getKind()).isEqualTo(Tree.Kind.TEMPLATE_DIRECTIVE_IF);
+        assertThat(p.getKind()).isEqualTo(TerraformTree.Kind.TEMPLATE_DIRECTIVE_IF);
         assertThat(p.condition()).isInstanceOf(BinaryExpressionTree.class);
         assertThat(p.trueExpression()).isInstanceOfSatisfying(LiteralExprTree.class, l -> assertThat(l.value()).isEqualTo("foo"));
         assertThat(p.falseExpression()).isInstanceOfSatisfying(LiteralExprTree.class, l -> assertThat(l.value()).isEqualTo("bar"));
@@ -79,10 +79,10 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
   void quoted_if_directive_without_else() {
     TemplateExpressionTree tree = parse("\"%{ if a != 1 }foo%{ endif }\"", HclLexicalGrammar.QUOTED_TEMPLATE);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.TEMPLATE_EXPRESSION);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.TEMPLATE_EXPRESSION);
       Assertions.assertThat(o.parts()).hasSize(1);
       assertThat(o.parts().get(0)).isInstanceOfSatisfying(TemplateIfDirectiveTree.class, p -> {
-        assertThat(p.getKind()).isEqualTo(Tree.Kind.TEMPLATE_DIRECTIVE_IF);
+        assertThat(p.getKind()).isEqualTo(TerraformTree.Kind.TEMPLATE_DIRECTIVE_IF);
         assertThat(p.condition()).isInstanceOf(BinaryExpressionTree.class);
         assertThat(p.trueExpression()).isInstanceOfSatisfying(LiteralExprTree.class, l -> assertThat(l.value()).isEqualTo("foo"));
         assertThat(p.falseExpression()).isNull();
@@ -94,10 +94,10 @@ class TemplateExpressionTreeImplTest extends TerraformTreeModelTest {
   void simple_quoted_for_directive() {
     TemplateExpressionTree tree = parse("\"%{ for a in b}foo%{ endfor }\"", HclLexicalGrammar.QUOTED_TEMPLATE);
     assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.TEMPLATE_EXPRESSION);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.TEMPLATE_EXPRESSION);
       Assertions.assertThat(o.parts()).hasSize(1);
       assertThat(o.parts().get(0)).isInstanceOfSatisfying(TemplateForDirectiveTree.class, p -> {
-        assertThat(p.getKind()).isEqualTo(Tree.Kind.TEMPLATE_DIRECTIVE_FOR);
+        assertThat(p.getKind()).isEqualTo(TerraformTree.Kind.TEMPLATE_DIRECTIVE_FOR);
         assertThat(p.loopVariables().treesAndSeparators()).hasSize(1);
         assertThat(p.loopVariables().trees().get(0)).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("a"));
         assertThat(p.loopExpression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("b"));

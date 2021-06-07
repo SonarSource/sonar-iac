@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
@@ -32,8 +32,8 @@ class LiteralExprTreeImplTest extends TerraformTreeModelTest {
   void boolean_literal() {
     LiteralExprTree tree = parse("true", HclLexicalGrammar.LITERAL_EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.BOOLEAN_LITERAL);
-      assertThat(o.is(Tree.Kind.BOOLEAN_LITERAL)).isTrue();
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.BOOLEAN_LITERAL);
+      assertThat(o.is(TerraformTree.Kind.BOOLEAN_LITERAL)).isTrue();
       assertThat(o.value()).isEqualTo("true");
     });
   }
@@ -42,7 +42,7 @@ class LiteralExprTreeImplTest extends TerraformTreeModelTest {
   void null_literal() {
     LiteralExprTree tree = parse("null", HclLexicalGrammar.LITERAL_EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.NULL_LITERAL);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.NULL_LITERAL);
       assertThat(o.value()).isEqualTo("null");
     });
   }
@@ -51,7 +51,7 @@ class LiteralExprTreeImplTest extends TerraformTreeModelTest {
   void numeric_literal() {
     LiteralExprTree tree = parse("1", HclLexicalGrammar.LITERAL_EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.NUMERIC_LITERAL);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.NUMERIC_LITERAL);
       assertThat(o.value()).isEqualTo("1");
     });
   }
@@ -60,7 +60,7 @@ class LiteralExprTreeImplTest extends TerraformTreeModelTest {
   void heredoc_literal() {
     LiteralExprTree tree = parse("<<EOF\nfoo\nEOF", HclLexicalGrammar.LITERAL_EXPRESSION);
     assertThat(tree).isInstanceOfSatisfying(LiteralExprTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(Tree.Kind.HEREDOC_LITERAL);
+      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.HEREDOC_LITERAL);
       assertThat(o.value()).isEqualTo("<<EOF\nfoo\nEOF");
     });
   }

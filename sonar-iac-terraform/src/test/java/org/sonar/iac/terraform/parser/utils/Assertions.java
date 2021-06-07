@@ -25,11 +25,11 @@ import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
 import org.fest.assertions.GenericAssert;
-import org.sonar.iac.terraform.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 import org.sonar.iac.terraform.parser.TreeFactory;
-import org.sonar.iac.terraform.tree.impl.TerraformTree;
-import org.sonar.iac.terraform.tree.impl.TextPointerImpl;
+import org.sonar.iac.terraform.tree.impl.TerraformTreeImpl;
+import org.sonar.iac.common.tree.impl.TextPointerImpl;
 import org.sonar.iac.terraform.parser.HclGrammar;
 import org.sonar.iac.terraform.parser.HclNodeBuilder;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -58,14 +58,14 @@ public class Assertions {
       rule));
   }
 
-  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<Tree>> {
+  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<TerraformTree>> {
 
-    public ParserAssert(ActionParser<Tree> actual) {
+    public ParserAssert(ActionParser<TerraformTree> actual) {
       super(ParserAssert.class, actual);
     }
 
     private void parseTillEof(String input) {
-      TerraformTree tree = (TerraformTree) actual.parse(input);
+      TerraformTreeImpl tree = (TerraformTreeImpl) actual.parse(input);
       TokenLocation loc = new TokenLocation(1, 0, input);
       if (!tree.textRange().end().equals(new TextPointerImpl(loc.endLine(), loc.endLineOffset()))) {
         throw new RecognitionException(

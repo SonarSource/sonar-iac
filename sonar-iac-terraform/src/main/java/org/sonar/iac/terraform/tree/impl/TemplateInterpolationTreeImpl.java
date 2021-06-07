@@ -19,15 +19,14 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.sonar.iac.terraform.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.common.tree.api.Tree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
 
-public class TemplateInterpolationTreeImpl extends TerraformTree implements TemplateInterpolationTree {
+public class TemplateInterpolationTreeImpl extends TerraformTreeImpl implements TemplateInterpolationTree {
   private final SyntaxToken openDollarCurlyBraceToken;
   private final ExpressionTree expression;
   private final SyntaxToken closeCurlyBraceToken;

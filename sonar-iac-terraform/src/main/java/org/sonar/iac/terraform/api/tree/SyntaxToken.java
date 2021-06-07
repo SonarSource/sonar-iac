@@ -20,8 +20,9 @@
 package org.sonar.iac.terraform.api.tree;
 
 import java.util.List;
+import org.sonar.iac.common.tree.api.Comment;
 
-public interface SyntaxToken extends Tree {
+public interface SyntaxToken extends TerraformTree {
 
   String value();
 
