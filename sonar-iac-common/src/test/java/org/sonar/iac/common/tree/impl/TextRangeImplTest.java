@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.tree.impl;
+package org.sonar.iac.common.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.tree.api.TextPointer;
-import org.sonar.iac.common.tree.impl.TextPointerImpl;
-import org.sonar.iac.common.tree.impl.TextRangeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
