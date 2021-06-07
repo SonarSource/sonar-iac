@@ -21,7 +21,6 @@
   </modules>
 
   <properties>
-    <license.title>SonarSource IaC</license.title>
     <skipTests>true</skipTests>
     <maven.deploy.skip>true</maven.deploy.skip>
     <surefire.argLine>-server</surefire.argLine>
@@ -59,7 +58,7 @@
                       <overWrite>true</overWrite>
                     </artifactItem>
                   </artifactItems>
-                  <outputDirectory>../../iac-terraform-plugin/target</outputDirectory>
+                  <outputDirectory>../../sonar-iac-plugin/target</outputDirectory>
                   <overWriteReleases>true</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
                 </configuration>

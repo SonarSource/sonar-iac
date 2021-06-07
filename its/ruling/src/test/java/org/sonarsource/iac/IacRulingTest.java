@@ -1,5 +1,5 @@
 /*
- * SonarSource IaC
+ * SonarQube IaC Plugin
  * Copyright (C) 2021-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
@@ -56,7 +56,7 @@ class IacRulingTest {
   public static void setUp() {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
-      .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../iac-terraform-plugin/target"), "sonar-iac-plugin-*.jar"))
+      .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-iac-plugin/target"), "sonar-iac-plugin-*.jar"))
       .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION));
 
     orchestrator = builder.build();

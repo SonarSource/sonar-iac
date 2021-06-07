@@ -42,7 +42,8 @@
   </developers>
 
   <modules>
-    <module>iac-terraform-plugin</module>
+    <module>sonar-iac-terraform</module>
+    <module>sonar-iac-plugin</module>
     <module>its</module>
   </modules>
 
@@ -59,6 +60,7 @@
   </issueManagement>
 
   <properties>
+    <license.title>SonarQube IaC Plugin</license.title>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <version.sonar>8.9.0.43852</version.sonar>
     <version.analyzer.commons>1.14.1.690</version.analyzer.commons>
@@ -72,15 +74,13 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- Provided dependencies -->
+      <!-- Compile dependencies -->
       <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-plugin-api</artifactId>
-        <version>${version.sonar}</version>
-        <scope>provided</scope>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-iac-terraform</artifactId>
+        <version>${project.version}</version>
       </dependency>
 
-      <!-- Compile dependencies -->
       <dependency>
         <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
@@ -157,6 +157,14 @@
         <artifactId>mockito-core</artifactId>
         <version>${version.mockito}</version>
         <scope>test</scope>
+      </dependency>
+
+      <!-- Provided dependencies -->
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-plugin-api</artifactId>
+        <version>${version.sonar}</version>
+        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
