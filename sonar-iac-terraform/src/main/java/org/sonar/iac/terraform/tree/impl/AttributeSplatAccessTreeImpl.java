@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class AttributeSplatAccessTreeImpl extends TerraformTree implements AttributeSplatAccessTree {
+public class AttributeSplatAccessTreeImpl extends TerraformTreeImpl implements AttributeSplatAccessTree {
   private final ExpressionTree object;
   private final SyntaxToken dot;
   private final SyntaxToken star;

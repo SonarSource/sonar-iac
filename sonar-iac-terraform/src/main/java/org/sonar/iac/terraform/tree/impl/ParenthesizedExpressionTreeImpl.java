@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class ParenthesizedExpressionTreeImpl extends TerraformTree implements ParenthesizedExpressionTree {
+public class ParenthesizedExpressionTreeImpl extends TerraformTreeImpl implements ParenthesizedExpressionTree {
   private final SyntaxToken openParenthesis;
   private final ExpressionTree expression;
   private final SyntaxToken closeParenthesis;

@@ -31,7 +31,7 @@ import org.sonar.iac.terraform.api.tree.Comment;
 import org.sonar.iac.terraform.api.tree.Tree;
 import org.sonar.iac.terraform.tree.impl.CommentImpl;
 import org.sonar.iac.terraform.tree.impl.SyntaxTokenImpl;
-import org.sonar.iac.terraform.tree.impl.TerraformTree;
+import org.sonar.iac.terraform.tree.impl.TerraformTreeImpl;
 import org.sonar.iac.terraform.tree.impl.TextRanges;
 import org.sonar.iac.common.TextRange;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -48,7 +48,7 @@ public class HclNodeBuilder implements NodeBuilder {
       }
     }
 
-    return new TerraformTree() {
+    return new TerraformTreeImpl() {
       @Override
       public List<Tree> children() {
         throw new UnsupportedOperationException();

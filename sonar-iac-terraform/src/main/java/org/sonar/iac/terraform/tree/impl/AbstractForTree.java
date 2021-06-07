@@ -29,7 +29,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractForTree extends TerraformTree implements ForTree {
+public abstract class AbstractForTree extends TerraformTreeImpl implements ForTree {
   protected final ForIntro intro;
 
   protected AbstractForTree(ForIntro intro) {

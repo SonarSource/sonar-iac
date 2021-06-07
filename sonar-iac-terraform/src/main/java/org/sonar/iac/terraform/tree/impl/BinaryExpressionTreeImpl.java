@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class BinaryExpressionTreeImpl extends TerraformTree implements BinaryExpressionTree {
+public class BinaryExpressionTreeImpl extends TerraformTreeImpl implements BinaryExpressionTree {
   private final ExpressionTree leftOperand;
   private final SyntaxToken operator;
   private final ExpressionTree rightOperand;

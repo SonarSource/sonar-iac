@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class TemplateInterpolationTreeImpl extends TerraformTree implements TemplateInterpolationTree {
+public class TemplateInterpolationTreeImpl extends TerraformTreeImpl implements TemplateInterpolationTree {
   private final SyntaxToken openDollarCurlyBraceToken;
   private final ExpressionTree expression;
   private final SyntaxToken closeCurlyBraceToken;

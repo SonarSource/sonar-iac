@@ -26,7 +26,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Collections;
 import java.util.List;
 
-public class LiteralExprTreeImpl extends TerraformTree implements LiteralExprTree {
+public class LiteralExprTreeImpl extends TerraformTreeImpl implements LiteralExprTree {
 
   private final Kind kind;
   private final SyntaxToken token;

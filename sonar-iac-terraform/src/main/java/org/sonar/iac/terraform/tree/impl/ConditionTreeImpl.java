@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class ConditionTreeImpl extends TerraformTree implements ConditionTree {
+public class ConditionTreeImpl extends TerraformTreeImpl implements ConditionTree {
   private final ExpressionTree conditionExpression;
   private final SyntaxToken queryToken;
   private final ExpressionTree trueExpression;

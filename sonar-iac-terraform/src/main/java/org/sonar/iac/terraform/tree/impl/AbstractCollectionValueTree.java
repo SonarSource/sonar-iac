@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class AbstractCollectionValueTree<T extends Tree> extends TerraformTree {
+public abstract class AbstractCollectionValueTree<T extends Tree> extends TerraformTreeImpl {
   private final SyntaxToken openBrace;
   private final SeparatedTrees<T> elements;
   private final SyntaxToken closeBrace;

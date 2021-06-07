@@ -28,7 +28,7 @@ import org.fest.assertions.GenericAssert;
 import org.sonar.iac.terraform.api.tree.Tree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 import org.sonar.iac.terraform.parser.TreeFactory;
-import org.sonar.iac.terraform.tree.impl.TerraformTree;
+import org.sonar.iac.terraform.tree.impl.TerraformTreeImpl;
 import org.sonar.iac.terraform.tree.impl.TextPointerImpl;
 import org.sonar.iac.terraform.parser.HclGrammar;
 import org.sonar.iac.terraform.parser.HclNodeBuilder;
@@ -65,7 +65,7 @@ public class Assertions {
     }
 
     private void parseTillEof(String input) {
-      TerraformTree tree = (TerraformTree) actual.parse(input);
+      TerraformTreeImpl tree = (TerraformTreeImpl) actual.parse(input);
       TokenLocation loc = new TokenLocation(1, 0, input);
       if (!tree.textRange().end().equals(new TextPointerImpl(loc.endLine(), loc.endLineOffset()))) {
         throw new RecognitionException(

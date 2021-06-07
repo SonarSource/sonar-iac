@@ -26,7 +26,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Collections;
 import java.util.List;
 
-public class LabelTreeImpl extends TerraformTree implements LabelTree {
+public class LabelTreeImpl extends TerraformTreeImpl implements LabelTree {
   private final SyntaxToken token;
 
   public LabelTreeImpl(SyntaxToken token) {

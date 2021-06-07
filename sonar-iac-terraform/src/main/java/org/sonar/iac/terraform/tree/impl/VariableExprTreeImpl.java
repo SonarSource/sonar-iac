@@ -26,7 +26,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class VariableExprTreeImpl extends TerraformTree implements VariableExprTree {
+public class VariableExprTreeImpl extends TerraformTreeImpl implements VariableExprTree {
   private final SyntaxToken token;
 
   public VariableExprTreeImpl(SyntaxToken token) {

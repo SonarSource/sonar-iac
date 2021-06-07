@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class FunctionCallTreeImpl extends TerraformTree implements FunctionCallTree {
+public class FunctionCallTreeImpl extends TerraformTreeImpl implements FunctionCallTree {
   private final SyntaxToken name;
   private final SyntaxToken openParenthesis;
   private final SeparatedTrees<ExpressionTree> arguments;

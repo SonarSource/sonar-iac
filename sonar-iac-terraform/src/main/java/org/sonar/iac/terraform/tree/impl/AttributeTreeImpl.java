@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class AttributeTreeImpl extends TerraformTree implements AttributeTree {
+public class AttributeTreeImpl extends TerraformTreeImpl implements AttributeTree {
   private final SyntaxToken name;
   private final SyntaxToken equalSign;
   private final ExpressionTree value;

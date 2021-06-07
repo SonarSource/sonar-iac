@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class IndexAccessExprTreeImpl extends TerraformTree implements IndexAccessExprTree {
+public class IndexAccessExprTreeImpl extends TerraformTreeImpl implements IndexAccessExprTree {
   private final ExpressionTree subject;
   private final ExpressionTree index;
   private final SyntaxToken closeBracket;

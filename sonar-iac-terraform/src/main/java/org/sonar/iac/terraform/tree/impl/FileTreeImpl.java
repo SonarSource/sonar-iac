@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class FileTreeImpl extends TerraformTree implements FileTree {
+public class FileTreeImpl extends TerraformTreeImpl implements FileTree {
   private final Optional<BodyTree> body;
   private final SyntaxToken eof;
 

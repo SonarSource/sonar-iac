@@ -24,7 +24,7 @@ import org.sonar.iac.terraform.api.tree.Tree;
 
 import java.util.List;
 
-public class BodyTreeImpl extends TerraformTree implements BodyTree {
+public class BodyTreeImpl extends TerraformTreeImpl implements BodyTree {
   private final List<Tree> statements;
 
   public BodyTreeImpl(List<Tree> statements) {

@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class BlockTreeImpl extends TerraformTree implements BlockTree {
+public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   private final SyntaxToken type;
   private final List<LabelTree> labels;
   private final SyntaxToken openBrace;

@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class PrefixExpressionTreeImpl extends TerraformTree implements PrefixExpressionTree {
+public class PrefixExpressionTreeImpl extends TerraformTreeImpl implements PrefixExpressionTree {
   private final SyntaxToken prefix;
   private final ExpressionTree expression;
 

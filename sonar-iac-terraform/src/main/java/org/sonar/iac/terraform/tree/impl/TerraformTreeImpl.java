@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.sonar.iac.terraform.api.tree.Tree;
 import org.sonar.iac.common.TextRange;
 
-public abstract class TerraformTree implements Tree {
+public abstract class TerraformTreeImpl implements Tree {
 
   protected TextRange textRange;
 

@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TemplateIfDirectiveTreeImpl extends TerraformTree implements TemplateIfDirectiveTree {
+public class TemplateIfDirectiveTreeImpl extends TerraformTreeImpl implements TemplateIfDirectiveTree {
   private final IfPart ifPart;
   private final ElsePart elsePart;
   private final SyntaxToken endIfOpenToken;
@@ -81,7 +81,7 @@ public class TemplateIfDirectiveTreeImpl extends TerraformTree implements Templa
     return children;
   }
 
-  public static class IfPart extends TerraformTree {
+  public static class IfPart extends TerraformTreeImpl {
     private final SyntaxToken ifOpenToken;
     private final SyntaxToken ifToken;
     private final ExpressionTree condition;
@@ -108,7 +108,7 @@ public class TemplateIfDirectiveTreeImpl extends TerraformTree implements Templa
     }
   }
 
-  public static class ElsePart extends TerraformTree {
+  public static class ElsePart extends TerraformTreeImpl {
     private final SyntaxToken elseOpenToken;
     private final SyntaxToken elseToken;
     private final SyntaxToken elseCloseToken;

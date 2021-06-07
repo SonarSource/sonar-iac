@@ -29,7 +29,7 @@ import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TemplateForDirectiveTreeImpl extends TerraformTree implements TemplateForDirectiveTree {
+public class TemplateForDirectiveTreeImpl extends TerraformTreeImpl implements TemplateForDirectiveTree {
   private final Intro intro;
   private final ExpressionTree expression;
   private final SyntaxToken endForOpenToken;
@@ -75,7 +75,7 @@ public class TemplateForDirectiveTreeImpl extends TerraformTree implements Templ
     return children;
   }
 
-  public static class Intro extends TerraformTree {
+  public static class Intro extends TerraformTreeImpl {
     private final SyntaxToken forOpenToken;
     private final SyntaxToken forToken;
     private final SeparatedTrees<VariableExprTree> loopVariables;

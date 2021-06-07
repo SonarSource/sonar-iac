@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.Arrays;
 import java.util.List;
 
-public class ObjectElementTreeImpl extends TerraformTree implements ObjectElementTree {
+public class ObjectElementTreeImpl extends TerraformTreeImpl implements ObjectElementTree {
   private final ExpressionTree name;
   private final SyntaxToken equalOrColonSign;
   private final ExpressionTree value;

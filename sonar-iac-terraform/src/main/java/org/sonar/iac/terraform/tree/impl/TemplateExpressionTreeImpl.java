@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TemplateExpressionTreeImpl extends TerraformTree implements TemplateExpressionTree {
+public class TemplateExpressionTreeImpl extends TerraformTreeImpl implements TemplateExpressionTree {
 
   private final SyntaxToken openQuote;
   private final List<ExpressionTree> parts;
