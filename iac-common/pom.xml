@@ -21,6 +21,7 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api-impl</artifactId>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.analyzer-commons</groupId>
