@@ -1,0 +1,67 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2021 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.iac.cloudformation.tree.impl;
+
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.nodes.ScalarNode;
+import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+public class ScalarTreeImpl extends CloudformationTreeImpl implements ScalarTree {
+
+  private final String value;
+  private final String tag;
+  private final Style style;
+
+  public ScalarTreeImpl(ScalarNode originalNode, Style style) {
+    this.value = originalNode.getValue();
+    this.tag = originalNode.getTag().getValue();
+    this.style = style;
+
+    Optional<Mark> startMark = originalNode.getStartMark();
+    Optional<Mark> endMark = originalNode.getEndMark();
+    this.textRange = TextRanges.range(startMark.get().getLine() + 1, startMark.get().getColumn(), endMark.get().getLine() + 1, endMark.get().getColumn());
+  }
+
+  @Override
+  public String value() {
+    return value;
+  }
+
+  @Override
+  public Style style() {
+    return style;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public String tag() {
+    return tag;
+  }
+}
