@@ -25,17 +25,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.TextPointer;
-import org.sonar.iac.common.api.tree.TextRange;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -60,7 +60,7 @@ public final class Verifier {
     (new TreeVisitor<>())
       .register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> {
         TextPointer start = comment.textRange().start();
-        verifier.addComment(start.line(), start.column()+1, comment.value(), 2, 0);
+        verifier.addComment(start.line(), start.lineOffset()+1, comment.value(), 2, 0);
       }))
       .scan(new TreeContext(), root);
 
@@ -109,7 +109,7 @@ public final class Verifier {
       TextPointer end = textRange.end();
       verifier
         .reportIssue(message)
-        .onRange(start.line(), start.column() + 1, end.line(), end.column());
+        .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
     }
   }
 }

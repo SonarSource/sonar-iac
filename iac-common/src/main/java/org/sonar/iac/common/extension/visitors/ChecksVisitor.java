@@ -25,12 +25,12 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.TextRange;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {

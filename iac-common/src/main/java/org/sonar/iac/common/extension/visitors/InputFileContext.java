@@ -23,13 +23,12 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.iac.common.api.tree.TextRange;
-import org.sonar.iac.common.extension.visitors.TreeContext;
 
 public class InputFileContext extends TreeContext {
 
@@ -47,20 +46,11 @@ public class InputFileContext extends TreeContext {
     NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
 
     if (textRange != null) {
-      issueLocation.at(textRange(textRange));
+      issueLocation.at(textRange);
     }
 
     issue.forRule(ruleKey).at(issueLocation);
     issue.save();
-  }
-
-  // TODO remove own TextRange implementation and use only sonar api implementation
-  public org.sonar.api.batch.fs.TextRange textRange(TextRange textRange) {
-    return inputFile.newRange(
-      textRange.start().line(),
-      textRange.start().column(),
-      textRange.end().line(),
-      textRange.end().column());
   }
 
   public void reportParseError(String repositoryKey, @Nullable TextPointer location) {

@@ -41,10 +41,10 @@ public class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
   private NewHighlighting newHighlighting;
 
   public SyntaxHighlightingVisitor() {
-    register(BlockTree.class,  (ctx, tree) -> highlight(ctx, tree.type(), KEYWORD));
-    register(LabelTree.class, (ctx, tree) -> highlight(ctx, tree, STRING));
-    register(LiteralExprTree.class, (ctx, tree) -> highlight(ctx, tree,  tree.is(TerraformTree.Kind.STRING_LITERAL) ? STRING : CONSTANT));
-    register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> highlight(ctx, comment, COMMENT)));
+    register(BlockTree.class,  (ctx, tree) -> highlight(tree.type(), KEYWORD));
+    register(LabelTree.class, (ctx, tree) -> highlight(tree, STRING));
+    register(LiteralExprTree.class, (ctx, tree) -> highlight(tree,  tree.is(TerraformTree.Kind.STRING_LITERAL) ? STRING : CONSTANT));
+    register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> highlight(comment, COMMENT)));
   }
 
   @Override
@@ -58,7 +58,7 @@ public class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
     newHighlighting.save();
   }
 
-  private void highlight(InputFileContext ctx, HasTextRange range, TypeOfText typeOfText) {
-    newHighlighting.highlight(ctx.textRange(range.textRange()), typeOfText);
+  private void highlight(HasTextRange range, TypeOfText typeOfText) {
+    newHighlighting.highlight(range.textRange(), typeOfText);
   }
 }

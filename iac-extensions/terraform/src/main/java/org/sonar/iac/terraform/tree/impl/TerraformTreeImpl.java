@@ -21,8 +21,8 @@ package org.sonar.iac.terraform.tree.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 
