@@ -88,6 +88,7 @@ class IacRulingTest {
     properties.put("sonar.inclusions", "sources/cloudformation/**/*.json, , ruling/src/test/resources/sources/cloudformation/**/*.json," +
       "sources/cloudformation/**/*.yaml, , ruling/src/test/resources/sources/cloudformation/**/*.yaml," +
       "sources/cloudformation/**/*.yml, , ruling/src/test/resources/sources/cloudformation/**/*.yml,");
+    properties.put("sonar.cloudformation.file.identifier", "");
     run_ruling_test("cloudformation", properties);
   }
 
