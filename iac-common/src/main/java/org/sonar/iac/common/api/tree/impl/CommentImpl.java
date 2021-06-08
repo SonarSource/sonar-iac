@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.common.api.tree.impl;
 
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.common.api.tree.TextRange;
 
 public class CommentImpl implements Comment {
 

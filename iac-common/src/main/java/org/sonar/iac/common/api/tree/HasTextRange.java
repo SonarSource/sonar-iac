@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.common.api.tree;
 
+import org.sonar.api.batch.fs.TextRange;
+
 public interface HasTextRange {
 
   TextRange textRange();

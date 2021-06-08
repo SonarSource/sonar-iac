@@ -27,14 +27,14 @@ import com.sonar.sslr.api.typed.Input;
 import com.sonar.sslr.api.typed.NodeBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.tree.impl.SyntaxTokenImpl;
 import org.sonar.iac.terraform.tree.impl.TerraformTreeImpl;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.api.tree.TextRange;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class HclNodeBuilder implements NodeBuilder {

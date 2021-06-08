@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.common.api.checks;
 
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.TextRange;
 
 public interface CheckContext {
 

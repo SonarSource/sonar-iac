@@ -22,9 +22,9 @@ package org.sonar.iac.terraform.tree.impl;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextPointerImpl;
-import org.sonar.iac.common.api.tree.impl.TextRangeImpl;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +61,6 @@ class TextRangesTest {
   }
 
   public static TextRange range(int startLine, int startLineColumn, int endLine, int endLineColumn) {
-    return new TextRangeImpl(new TextPointerImpl(startLine, startLineColumn), new TextPointerImpl(endLine, endLineColumn));
+    return new DefaultTextRange(new DefaultTextPointer(startLine, startLineColumn), new DefaultTextPointer(endLine, endLineColumn));
   }
 }
