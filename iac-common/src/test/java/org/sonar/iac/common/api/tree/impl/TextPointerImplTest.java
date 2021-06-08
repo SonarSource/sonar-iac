@@ -17,47 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.api.impl;
+package org.sonar.iac.common.api.tree.impl;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.TextPointer;
-import org.sonar.iac.common.api.tree.impl.TextPointerImpl;
-import org.sonar.iac.common.api.tree.impl.TextRangeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TextRangeImplTest {
-
-  private TextPointer p1 = new TextPointerImpl(1, 2);
-  private TextPointer p2 = new TextPointerImpl(3, 4);
+class TextPointerImplTest {
 
   @Test
   void test_equals() {
-    TextRangeImpl range1 = new TextRangeImpl(p1, p2);
-    assertThat(range1)
-      .isEqualTo(range1)
-      .isEqualTo(new TextRangeImpl(p1, p2))
-      .isNotEqualTo(new TextRangeImpl(p1, p1))
-      .isNotEqualTo(new TextRangeImpl(p2, p2))
+    TextPointerImpl p1 = new TextPointerImpl(1, 2);
+    Assertions.assertThat(p1)
+      .isEqualTo(p1)
+      .isEqualTo(new TextPointerImpl(1, 2))
+      .isNotEqualTo(new TextPointerImpl(1, 3))
+      .isNotEqualTo(new TextPointerImpl(3, 2))
       .isNotEqualTo(null)
       .isNotEqualTo("");
   }
 
   @Test
-  void test_start_and_end() {
-    TextRangeImpl range1 = new TextRangeImpl(p1, p2);
-    assertThat(range1.start()).isEqualTo(p1);
-    assertThat(range1.end()).isEqualTo(p2);
-  }
-
-  @Test
   void test_hashCode() {
-    assertThat(new TextRangeImpl(p1, p2)).hasSameHashCodeAs(new TextRangeImpl(p1, p2));
-    assertThat(new TextRangeImpl(p1, p2).hashCode()).isNotEqualTo(new TextRangeImpl(p1, p1).hashCode());
+    Assertions.assertThat(new TextPointerImpl(1, 2)).hasSameHashCodeAs(new TextPointerImpl(1, 2));
+    assertThat(new TextPointerImpl(1, 2).hashCode()).isNotEqualTo(new TextPointerImpl(1, 3).hashCode());
   }
 
   @Test
-  void test_toString() {
-    assertThat(new TextRangeImpl(p1, p2)).hasToString("TextRange[1, 2, 3, 4]");
+  void test_compareTo() {
+    Assertions.assertThat(new TextPointerImpl(1, 2)).isEqualByComparingTo(new TextPointerImpl(1, 2));
+    assertThat(new TextPointerImpl(1, 2).compareTo(new TextPointerImpl(1, 4))).isEqualTo(-1);
+    assertThat(new TextPointerImpl(1, 2).compareTo(new TextPointerImpl(2, 1))).isEqualTo(-1);
+    assertThat(new TextPointerImpl(1, 2).compareTo(new TextPointerImpl(1, 1))).isEqualTo(1);
   }
 }
