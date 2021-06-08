@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
@@ -86,25 +87,24 @@ class CloudformationSensorTest {
 
   @Test
   void parsing_error_should_raise_an_issue_if_check_rule_is_activated() {
-    analyse(sensor("S2260"), inputFile("parserError.json", "a {"));
+    analyse(sensor("S2260"), inputFile("parserError.json", "\"a'"));
 
     assertThat(context.allIssues()).as("One issue must be raised").hasSize(1);
 
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo("S2260");
 
-//    TODO: Test specific location of parsing error
-//    TextRange range = issue.primaryLocation().textRange();
-//    assertThat(range).isNotNull();
-//    assertThat(range.start().line()).isEqualTo(1);
-//    assertThat(range.start().lineOffset()).isEqualTo(0);
-//    assertThat(range.end().line()).isEqualTo(1);
-//    assertThat(range.end().lineOffset()).isEqualTo(3);
+    TextRange range = issue.primaryLocation().textRange();
+    assertThat(range).isNotNull();
+    assertThat(range.start().line()).isEqualTo(1);
+    assertThat(range.start().lineOffset()).isZero();
+    assertThat(range.end().line()).isEqualTo(1);
+    assertThat(range.end().lineOffset()).isEqualTo(3);
   }
 
   @Test
   void parsing_error_should_raise_issue_in_sensor_context() {
-    analyse(inputFile("parserError.tf", "a {"));
+    analyse(inputFile("parserError.tf", "\"a'"));
     assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 

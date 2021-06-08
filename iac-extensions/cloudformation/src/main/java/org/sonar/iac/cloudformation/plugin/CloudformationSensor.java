@@ -19,15 +19,21 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
-import org.sonar.iac.common.extension.IacSensor;
-import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.cloudformation.parser.CfParser;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.TreeParser;
 
 public class CloudformationSensor extends IacSensor {
 
@@ -41,9 +47,7 @@ public class CloudformationSensor extends IacSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return source -> {
-      throw new RuntimeException("Not implemented");
-    };
+    return new CfParser();
   }
 
   @Override
@@ -53,5 +57,15 @@ public class CloudformationSensor extends IacSensor {
 
   protected Checks<IacCheck> checks() {
     return checks;
+  }
+
+  @Override
+  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
+    TextPointer position = null;
+    if (cause instanceof MarkedYamlEngineException && ((MarkedYamlEngineException) cause).getProblemMark().isPresent()) {
+      Mark problemMark = ((MarkedYamlEngineException) cause).getProblemMark().get();
+      position = inputFile.newPointer(problemMark.getLine() + 1, 0);
+    }
+    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
   }
 }
