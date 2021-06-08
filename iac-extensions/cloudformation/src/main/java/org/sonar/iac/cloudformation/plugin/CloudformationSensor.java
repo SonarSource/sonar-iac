@@ -28,7 +28,7 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
-import org.sonar.iac.cloudformation.parser.CfParser;
+import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.IacSensor;
@@ -49,7 +49,7 @@ public class CloudformationSensor extends IacSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return new CfParser();
+    return new CloudformationParser();
   }
 
   @Override

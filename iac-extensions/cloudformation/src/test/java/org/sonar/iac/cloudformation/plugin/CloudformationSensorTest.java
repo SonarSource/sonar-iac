@@ -45,6 +45,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -99,13 +100,8 @@ class CloudformationSensorTest {
 
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo("S2260");
-
-    TextRange range = issue.primaryLocation().textRange();
-    assertThat(range).isNotNull();
-    assertThat(range.start().line()).isEqualTo(1);
-    assertThat(range.start().lineOffset()).isZero();
-    assertThat(range.end().line()).isEqualTo(1);
-    assertThat(range.end().lineOffset()).isEqualTo(3);
+    
+    TextRangeAssert.assertTextRange(issue.primaryLocation().textRange()).hasRange(1, 0, 1, 3);
   }
 
   @Test

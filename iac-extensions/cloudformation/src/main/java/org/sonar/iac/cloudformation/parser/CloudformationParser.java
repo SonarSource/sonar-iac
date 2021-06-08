@@ -31,7 +31,7 @@ import org.sonar.iac.common.extension.TreeParser;
 
 import java.util.Optional;
 
-public class CfParser implements TreeParser<Tree> {
+public class CloudformationParser implements TreeParser<Tree> {
 
   @Override
   public Tree parse(String source) {
