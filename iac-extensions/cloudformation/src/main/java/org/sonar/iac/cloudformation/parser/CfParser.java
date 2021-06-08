@@ -29,7 +29,9 @@ import org.snakeyaml.engine.v2.scanner.StreamReader;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 
-public class CfParser implements TreeParser {
+import java.util.Optional;
+
+public class CfParser implements TreeParser<Tree> {
 
   @Override
   public Tree parse(String source) {
@@ -37,10 +39,12 @@ public class CfParser implements TreeParser {
     StreamReader reader = new StreamReader(settings, source);
     ScannerImpl scanner = new ScannerImpl(settings, reader);
     Parser parser = new ParserImpl(settings, scanner);
-    Composer composer = new Composer(settings, parser);
-    Node root = composer.getSingleNode().get();
+    Optional<Node> rootNode = new Composer(settings, parser).getSingleNode();
+    if (rootNode.isPresent()) {
+      Node root = rootNode.get();
+    }
 
-    // TODO: return wrap nodes and return root
+    // TODO: wrap nodes and return root
     return null;
   }
 }

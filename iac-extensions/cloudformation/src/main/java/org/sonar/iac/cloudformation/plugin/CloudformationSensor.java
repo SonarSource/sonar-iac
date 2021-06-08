@@ -35,6 +35,8 @@ import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 
+import java.util.Optional;
+
 public class CloudformationSensor extends IacSensor {
 
   private final Checks<IacCheck> checks;
@@ -61,10 +63,14 @@ public class CloudformationSensor extends IacSensor {
 
   @Override
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
+    if (!(cause instanceof MarkedYamlEngineException)) {
+      return super.toParseException(action, inputFile, cause);
+    }
+
+    Optional<Mark> problemMark = ((MarkedYamlEngineException) cause).getProblemMark();
     TextPointer position = null;
-    if (cause instanceof MarkedYamlEngineException && ((MarkedYamlEngineException) cause).getProblemMark().isPresent()) {
-      Mark problemMark = ((MarkedYamlEngineException) cause).getProblemMark().get();
-      position = inputFile.newPointer(problemMark.getLine() + 1, 0);
+    if (problemMark.isPresent()) {
+      position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);
     }
     return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
   }

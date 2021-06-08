@@ -86,6 +86,12 @@ class CloudformationSensorTest {
   }
 
   @Test
+  void yaml_only_comment_should_raise_no_issue() {
+    analyse(sensor("S2260"), inputFile("comment.json", "# Some Comment"));
+    assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
+  }
+
+  @Test
   void parsing_error_should_raise_an_issue_if_check_rule_is_activated() {
     analyse(sensor("S2260"), inputFile("parserError.json", "\"a'"));
 
