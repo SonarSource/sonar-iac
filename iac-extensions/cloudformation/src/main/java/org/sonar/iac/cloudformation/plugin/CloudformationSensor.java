@@ -19,15 +19,23 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
-import org.sonar.iac.common.extension.IacSensor;
-import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.TreeParser;
+
+import java.util.Optional;
 
 public class CloudformationSensor extends IacSensor {
 
@@ -41,9 +49,7 @@ public class CloudformationSensor extends IacSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return source -> {
-      throw new RuntimeException("Not implemented");
-    };
+    return new CloudformationParser();
   }
 
   @Override
@@ -53,5 +59,19 @@ public class CloudformationSensor extends IacSensor {
 
   protected Checks<IacCheck> checks() {
     return checks;
+  }
+
+  @Override
+  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
+    if (!(cause instanceof MarkedYamlEngineException)) {
+      return super.toParseException(action, inputFile, cause);
+    }
+
+    Optional<Mark> problemMark = ((MarkedYamlEngineException) cause).getProblemMark();
+    TextPointer position = null;
+    if (problemMark.isPresent()) {
+      position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);
+    }
+    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
   }
 }

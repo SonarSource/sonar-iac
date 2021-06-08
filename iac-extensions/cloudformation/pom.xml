@@ -34,6 +34,11 @@
       <groupId>org.sonarsource.sslr</groupId>
       <artifactId>sslr-toolkit</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.snakeyaml</groupId>
+      <artifactId>snakeyaml-engine</artifactId>
+      <version>${version.snakeyaml}</version>
+    </dependency>
 
     <!-- unit tests -->
     <dependency>
@@ -64,6 +69,10 @@
     <dependency>
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-test-commons</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.iac</groupId>
+      <artifactId>sonar-iac-testing</artifactId>
     </dependency>
   </dependencies>
 </project>

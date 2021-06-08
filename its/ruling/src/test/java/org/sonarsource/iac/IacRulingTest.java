@@ -50,7 +50,11 @@ class IacRulingTest {
   private static Orchestrator orchestrator;
   private static boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
 
-  private static final Set<String> LANGUAGES = new HashSet<>(Collections.singletonList("terraform"));
+  private static final Set<String> LANGUAGES = new HashSet<>();
+  static {
+    LANGUAGES.add("terraform");
+    LANGUAGES.add("cloudformation");
+  }
 
   @BeforeAll
   public static void setUp() {
@@ -63,9 +67,12 @@ class IacRulingTest {
     orchestrator.start();
 
     ProfileGenerator.RulesConfiguration terraformRulesConfiguration = new ProfileGenerator.RulesConfiguration();
-
     File terraformProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "terraform", "terraform", terraformRulesConfiguration, Collections.emptySet());
     orchestrator.getServer().restoreProfile(FileLocation.of(terraformProfile));
+
+    ProfileGenerator.RulesConfiguration cloudformationRulesConfiguration = new ProfileGenerator.RulesConfiguration();
+    File cloudformationProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "cloudformation", "cloudformation", cloudformationRulesConfiguration, Collections.emptySet());
+    orchestrator.getServer().restoreProfile(FileLocation.of(cloudformationProfile));
   }
 
   @Test
@@ -73,6 +80,15 @@ class IacRulingTest {
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.inclusions", "sources/terraform/**/*.tf, ruling/src/test/resources/sources/terraform/**/*.tf");
     run_ruling_test("terraform", properties);
+  }
+
+  @Test
+  void test_cloudformation() throws IOException {
+    Map<String, String> properties = new HashMap<>();
+    properties.put("sonar.inclusions", "sources/cloudformation/**/*.json, , ruling/src/test/resources/sources/cloudformation/**/*.json," +
+      "sources/cloudformation/**/*.yaml, , ruling/src/test/resources/sources/cloudformation/**/*.yaml," +
+      "sources/cloudformation/**/*.yml, , ruling/src/test/resources/sources/cloudformation/**/*.yml,");
+    run_ruling_test("cloudformation", properties);
   }
 
   private void run_ruling_test(String project, Map<String, String> projectProperties) throws IOException {

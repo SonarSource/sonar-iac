@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.common.extension;
 
-import com.sonar.sslr.api.RecognitionException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -111,6 +110,9 @@ public abstract class IacSensor implements Sensor {
     return Collections.emptyList();
   }
 
+  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
+    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), null);
+  }
 
   private class Analyzer {
 
@@ -171,14 +173,6 @@ public abstract class IacSensor implements Sensor {
           LOG.error("Cannot analyse '" + inputFile +"': " + e.getMessage(), e);
         }
       }
-    }
-
-    private ParseException toParseException(String action, InputFile inputFile, Exception cause) {
-      TextPointer position = null;
-      if (cause instanceof RecognitionException) {
-        position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
-      }
-      return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
     }
 
     private void logParsingError(InputFile inputFile, ParseException e) {
