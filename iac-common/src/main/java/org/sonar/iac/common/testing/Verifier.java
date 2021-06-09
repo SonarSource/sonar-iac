@@ -59,12 +59,12 @@ public final class Verifier {
 
     (new TreeVisitor<>())
       .register(Tree.class, (ctx, tree) -> {
-          if (tree instanceof HasComments) {
-            for (Comment comment : ((HasComments) tree).comments()) {
-              TextPointer start = comment.textRange().start();
-              verifier.addComment(start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
-            }
+        if (tree instanceof HasComments) {
+          for (Comment comment : ((HasComments) tree).comments()) {
+            TextPointer start = comment.textRange().start();
+            verifier.addComment(start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
           }
+        }
       }).scan(new TreeContext(), root);
 
     TestContext ctx = new TestContext(verifier);
