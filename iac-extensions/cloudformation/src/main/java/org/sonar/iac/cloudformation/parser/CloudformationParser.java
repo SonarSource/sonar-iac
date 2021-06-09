@@ -26,25 +26,32 @@ import org.snakeyaml.engine.v2.parser.Parser;
 import org.snakeyaml.engine.v2.parser.ParserImpl;
 import org.snakeyaml.engine.v2.scanner.ScannerImpl;
 import org.snakeyaml.engine.v2.scanner.StreamReader;
+import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CloudformationParser implements TreeParser<Tree> {
 
   @Override
-  public Tree parse(String source) {
-    LoadSettings settings = LoadSettings.builder().build();
+  public FileTree parse(String source) {
+    LoadSettings settings = LoadSettings.builder().setParseComments(true).build();
     StreamReader reader = new StreamReader(settings, source);
     ScannerImpl scanner = new ScannerImpl(settings, reader);
     Parser parser = new ParserImpl(settings, scanner);
-    Optional<Node> rootNode = new Composer(settings, parser).getSingleNode();
-    if (rootNode.isPresent()) {
-      Node root = rootNode.get();
-    }
+    Composer composer = new Composer(settings, parser);
+    List<Node> nodes = composerNodes(composer);
 
-    // TODO: wrap nodes and return root
-    return null;
+    return CloudformationConverter.convertFile(nodes);
+  }
+
+  private static List<Node> composerNodes(Composer composer) {
+    List<Node> nodes = new ArrayList<>();
+    while (composer.hasNext()) {
+      nodes.add(composer.next());
+    }
+    return nodes;
   }
 }
