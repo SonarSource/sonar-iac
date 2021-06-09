@@ -37,6 +37,13 @@ public class PropertiesTest extends TestBase {
     checkCustomExclusionsForLanguage("terraformCustomExclusions", "terraform", "**/excludedDir/**", 2);
   }
 
+  @Test
+  public void test_cloudformation_identifier() {
+    checkCustomFileIdentifierForLanguage("cloudformationDefaultIdentifier", "cloudformation", "AWSTemplateFormatVersion", 3);
+    checkCustomFileIdentifierForLanguage("cloudformationCustomIdentifier", "cloudformation", "CustomIdentifier", 1);
+    checkCustomFileIdentifierForLanguage("cloudformationEmptyIdentifier", "cloudformation", "", 4);
+  }
+
   private void checkCustomFileSuffixesForLanguage(String projectKey, String language, String suffixes, int expectedFiles) {
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "file_suffixes/", language)
       .setProperty("sonar." + language + ".file.suffixes", suffixes));
@@ -46,6 +53,12 @@ public class PropertiesTest extends TestBase {
   private void checkCustomExclusionsForLanguage(String projectKey, String language, String exclusions, int expectedFiles) {
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "exclusions/", language)
       .setProperty("sonar." + language + ".exclusions", exclusions));
+    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
+  }
+
+  private void checkCustomFileIdentifierForLanguage(String projectKey, String language, String identifier, int expectedFiles) {
+    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "identifier/", language)
+      .setProperty("sonar." + language + ".file.identifier", identifier));
     assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
   }
 }

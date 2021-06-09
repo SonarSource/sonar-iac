@@ -42,6 +42,9 @@ public class CloudformationExtension {
   public static final String FILE_SUFFIXES_DEFAULT_VALUE = ".json,.yaml,.yml";
   public static final String FILE_SUFFIXES_KEY = "sonar.cloudformation.file.suffixes";
 
+  public static final String FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
+  public static final String FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
+
   private static final List<Object> EXTENSIONS = Arrays.asList(
     //Language
     CloudformationLanguage.class,
@@ -70,6 +73,15 @@ public class CloudformationExtension {
       .onQualifiers(Qualifiers.PROJECT)
       .category(CloudformationExtension.CLOUDFORMATION_CATEGORY)
       .multiValues(true)
+      .subCategory(CloudformationExtension.GENERAL_SUBCATEGORY)
+      .build(),
+
+    PropertyDefinition.builder(CloudformationExtension.FILE_IDENTIFIER_KEY)
+      .defaultValue(CloudformationExtension.FILE_IDENTIFIER_DEFAULT_VALUE)
+      .name("File Identifier")
+      .description("Files without the identifier are excluded from the analysis. The identifier can be anywhere in the file.")
+      .onQualifiers(Qualifiers.PROJECT)
+      .category(CloudformationExtension.CLOUDFORMATION_CATEGORY)
       .subCategory(CloudformationExtension.GENERAL_SUBCATEGORY)
       .build()
   );
