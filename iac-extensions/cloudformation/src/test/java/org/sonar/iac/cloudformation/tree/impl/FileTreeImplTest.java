@@ -26,7 +26,7 @@ import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.sonar.iac.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class FileTreeImplTest extends CloudformationTreeTest {
 

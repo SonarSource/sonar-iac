@@ -19,12 +19,9 @@
  */
 package org.sonar.iac.cloudformation.api.tree;
 
-import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
 
-import java.util.List;
-
-public interface CloudformationTree extends Tree {
-  List<Comment> comments();
+public interface CloudformationTree extends HasComments, Tree {
   String tag();
 }

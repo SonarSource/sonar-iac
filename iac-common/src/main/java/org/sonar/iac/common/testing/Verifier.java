@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
@@ -57,11 +58,14 @@ public final class Verifier {
     Tree root = parser.parse(testFileContent);
 
     (new TreeVisitor<>())
-      .register(HasComments.class, (ctx, tree) -> tree.comments().forEach(comment -> {
-        TextPointer start = comment.textRange().start();
-        verifier.addComment(start.line(), start.lineOffset()+1, comment.value(), 2, 0);
-      }))
-      .scan(new TreeContext(), root);
+      .register(Tree.class, (ctx, tree) -> {
+          if (tree instanceof HasComments) {
+            for (Comment comment : ((HasComments) tree).comments()) {
+              TextPointer start = comment.textRange().start();
+              verifier.addComment(start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
+            }
+          }
+      }).scan(new TreeContext(), root);
 
     TestContext ctx = new TestContext(verifier);
     check.initialize(ctx);

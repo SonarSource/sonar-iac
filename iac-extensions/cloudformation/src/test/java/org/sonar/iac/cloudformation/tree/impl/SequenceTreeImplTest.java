@@ -24,7 +24,7 @@ import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class SequenceTreeImplTest extends CloudformationTreeTest {
 

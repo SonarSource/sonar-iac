@@ -21,7 +21,7 @@ package org.sonar.iac.common.api.tree;
 
 import java.util.List;
 
-public interface HasComments extends Tree {
+public interface HasComments {
 
   List<Comment> comments();
 }
