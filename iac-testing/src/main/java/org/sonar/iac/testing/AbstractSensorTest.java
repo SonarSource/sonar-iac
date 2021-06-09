@@ -53,7 +53,7 @@ public abstract class AbstractSensorTest {
   protected SensorContextTester context;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     FileLinesContext fileLinesContext = Mockito.mock(FileLinesContext.class);
     Mockito.when(fileLinesContextFactory.createFor(ArgumentMatchers.any(InputFile.class))).thenReturn(fileLinesContext);
     context = SensorContextTester.create(baseDir);
