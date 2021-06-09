@@ -19,23 +19,33 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 class CloudformationExclusionsFileFilterTest {
 
   // TODO add test cases for yaml
 
+  private static MapSettings settings = new MapSettings();
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+
   @Test
   void default_should_exclude_nothing_by_path() {
-    MapSettings settings = new MapSettings();
     settings.setProperty(CloudformationExtension.EXCLUSIONS_KEY, CloudformationExtension.EXCLUSIONS_DEFAULT_VALUE);
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
     assertTrue(filter.accept(inputFile("file.json")));
@@ -46,8 +56,6 @@ class CloudformationExclusionsFileFilterTest {
 
   @Test
   void should_exclude_using_custom_path_regex() {
-    MapSettings settings = new MapSettings();
-
     settings.setProperty(CloudformationExtension.EXCLUSIONS_KEY, "**/path/**");
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
 
@@ -59,8 +67,6 @@ class CloudformationExclusionsFileFilterTest {
 
   @Test
   void should_exclude_other_language() {
-    MapSettings settings = new MapSettings();
-
     settings.setProperty(CloudformationExtension.EXCLUSIONS_KEY, "**/path/**");
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
 
@@ -70,7 +76,6 @@ class CloudformationExclusionsFileFilterTest {
 
   @Test
   void should_ignore_empty_path_regex() {
-    MapSettings settings = new MapSettings();
     settings.setProperty(CloudformationExtension.EXCLUSIONS_KEY, "," + CloudformationExtension.EXCLUSIONS_DEFAULT_VALUE + ",");
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
 
@@ -79,7 +84,6 @@ class CloudformationExclusionsFileFilterTest {
 
   @Test
   void default_should_exclude_only_files_without_identifier() {
-    MapSettings settings = new MapSettings();
     settings.setProperty(CloudformationExtension.FILE_IDENTIFIER_KEY, CloudformationExtension.FILE_IDENTIFIER_DEFAULT_VALUE);
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
     assertTrue(filter.accept(inputFile("file.json", "AWSTemplateFormatVersion")));
@@ -90,7 +94,6 @@ class CloudformationExclusionsFileFilterTest {
 
   @Test
   void should_exclude_nothing_with_empty_identifier() {
-    MapSettings settings = new MapSettings();
     settings.setProperty(CloudformationExtension.FILE_IDENTIFIER_KEY, "");
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
     assertTrue(filter.accept(inputFile("file.json", "AWSTemplateFormatVersion")));
@@ -100,7 +103,6 @@ class CloudformationExclusionsFileFilterTest {
 
   @Test
   void should_exclude_using_custom_identifier_regex() {
-    MapSettings settings = new MapSettings();
     settings.setProperty(CloudformationExtension.FILE_IDENTIFIER_KEY, "DifferentIdentifier");
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
     assertFalse(filter.accept(inputFile("file.json", "AWSTemplateFormatVersion")));
@@ -110,18 +112,29 @@ class CloudformationExclusionsFileFilterTest {
 
   @Test
   void should_exclude_identifier_case_sensitive() {
-    MapSettings settings = new MapSettings();
     settings.setProperty(CloudformationExtension.FILE_IDENTIFIER_KEY, CloudformationExtension.FILE_IDENTIFIER_DEFAULT_VALUE);
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
     assertTrue(filter.accept(inputFile("file.json", "AWSTemplateFormatVersion")));
     assertFalse(filter.accept(inputFile("file.json", "awstemplateformatversion")));
   }
 
-  private DefaultInputFile inputFile(String filename) {
+  @Test
+  void test_invalid_file() throws IOException {
+    InputFile inputFile = inputFile("fakeFile.json", "");
+    InputFile spyInputFile = spy(inputFile);
+    when(spyInputFile.inputStream()).thenThrow(IOException.class);
+    settings.setProperty(CloudformationExtension.FILE_IDENTIFIER_KEY, CloudformationExtension.FILE_IDENTIFIER_DEFAULT_VALUE);
+    InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
+    assertFalse(filter.accept(spyInputFile));
+
+    assertThat(logTester.logs()).contains(String.format("Unable to read file: %s.", inputFile.uri()));
+  }
+
+  private InputFile inputFile(String filename) {
     return inputFile(filename, CloudformationExtension.FILE_IDENTIFIER_DEFAULT_VALUE);
   }
 
-  private DefaultInputFile inputFile(String filename, String contents) {
+  private InputFile inputFile(String filename, String contents) {
     return new TestInputFileBuilder("test","test_path/" + filename)
       .setCharset(StandardCharsets.UTF_8)
       .setLanguage(language(filename))
