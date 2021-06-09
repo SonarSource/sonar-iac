@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.cloudformation.api.tree;
 
-import org.sonar.iac.common.api.tree.Tree;
-
 public interface FileTree extends CloudformationTree {
-  Tree root();
+  CloudformationTree root();
 }

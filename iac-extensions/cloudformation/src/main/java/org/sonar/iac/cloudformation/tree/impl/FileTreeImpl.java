@@ -20,6 +20,7 @@
 package org.sonar.iac.cloudformation.tree.impl;
 
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -27,16 +28,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class FileTreeImpl extends CloudformationTreeImpl implements FileTree {
-  private final Tree root;
+  private final CloudformationTree root;
 
-  public FileTreeImpl(Tree root, TextRange textRange) {
+  public FileTreeImpl(CloudformationTree root, TextRange textRange) {
     // A file on its own has no comments. They will be attached to the root node.
     super(textRange, Collections.emptyList());
     this.root = root;
   }
 
   @Override
-  public Tree root() {
+  public CloudformationTree root() {
     return root;
   }
 

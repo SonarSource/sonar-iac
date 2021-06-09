@@ -19,9 +19,7 @@
  */
 package org.sonar.iac.cloudformation.api.tree;
 
-import org.sonar.iac.common.api.tree.Tree;
-
 public interface TupleTree extends CloudformationTree {
-  Tree key();
-  Tree value();
+  CloudformationTree key();
+  CloudformationTree value();
 }

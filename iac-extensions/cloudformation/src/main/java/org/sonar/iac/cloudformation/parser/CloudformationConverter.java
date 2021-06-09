@@ -28,16 +28,16 @@ import org.snakeyaml.engine.v2.nodes.NodeTuple;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.snakeyaml.engine.v2.nodes.SequenceNode;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.cloudformation.tree.impl.FileTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.MappingTreeImpl;
-import org.sonar.iac.cloudformation.tree.impl.SequenceTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.ScalarTreeImpl;
+import org.sonar.iac.cloudformation.tree.impl.SequenceTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.TupleTreeImpl;
 import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
@@ -52,7 +52,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 class CloudformationConverter {
-  private static final Map<Class<?>, Function<Node, Tree>> converters = new HashMap<>();
+  private static final Map<Class<?>, Function<Node, CloudformationTree>> converters = new HashMap<>();
   static {
     converters.put(MappingNode.class, CloudformationConverter::convertMapping);
     converters.put(ScalarNode.class, CloudformationConverter::convertScalar);
@@ -70,17 +70,17 @@ class CloudformationConverter {
     return new FileTreeImpl(null, TextRanges.range(0, 0, 0, 0));
   }
 
-  public static Tree convert(Node node) {
+  public static CloudformationTree convert(Node node) {
     return converters.get(node.getClass()).apply(node);
   }
 
   private static TupleTree convertTuple(NodeTuple tuple) {
-    Tree key = convert(tuple.getKeyNode());
-    Tree value = convert(tuple.getValueNode());
+    CloudformationTree key = convert(tuple.getKeyNode());
+    CloudformationTree value = convert(tuple.getValueNode());
     return new TupleTreeImpl(key, value, TextRanges.merge(Arrays.asList(key.textRange(), value.textRange())));
   }
 
-  private static Tree convertMapping(Node node) {
+  private static CloudformationTree convertMapping(Node node) {
     MappingNode mappingNode = (MappingNode) node;
     List<TupleTree> elements = new ArrayList<>();
 
@@ -91,14 +91,14 @@ class CloudformationConverter {
     return new MappingTreeImpl(elements, tag(node), range(node), comments(node));
   }
 
-  private static Tree convertScalar(Node node) {
+  private static CloudformationTree convertScalar(Node node) {
     ScalarNode scalarNode = (ScalarNode) node;
     return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()), tag(scalarNode), range(scalarNode), comments(node));
   }
 
-  private static Tree convertSequence(Node node) {
+  private static CloudformationTree convertSequence(Node node) {
     SequenceNode sequenceNode = (SequenceNode) node;
-    List<Tree> elements = new ArrayList<>();
+    List<CloudformationTree> elements = new ArrayList<>();
 
     for (Node elementNode : sequenceNode.getValue()) {
       elements.add(CloudformationConverter.convert(elementNode));

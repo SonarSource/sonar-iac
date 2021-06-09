@@ -20,17 +20,19 @@
 package org.sonar.iac.cloudformation.tree.impl;
 
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SequenceTreeImpl extends CloudformationTreeImpl implements SequenceTree {
-  private final List<Tree> elements;
+  private final List<CloudformationTree> elements;
   private final String tag;
 
-  public SequenceTreeImpl(List<Tree> elements, String tag, TextRange textRange, List<Comment> comments) {
+  public SequenceTreeImpl(List<CloudformationTree> elements, String tag, TextRange textRange, List<Comment> comments) {
     super(textRange, comments);
     this.elements = elements;
     this.tag = tag;
@@ -38,11 +40,11 @@ public class SequenceTreeImpl extends CloudformationTreeImpl implements Sequence
 
   @Override
   public List<Tree> children() {
-    return elements;
+    return new ArrayList<>(elements);
   }
 
   @Override
-  public List<Tree> elements() {
+  public List<CloudformationTree> elements() {
     return elements;
   }
 
