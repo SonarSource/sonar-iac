@@ -30,8 +30,9 @@ public class FileTreeImpl extends CloudformationTreeImpl implements FileTree {
   private final Tree root;
 
   public FileTreeImpl(Tree root, TextRange textRange) {
+    // A file on its own has no comments. They will be attached to the root node.
+    super(textRange, Collections.emptyList());
     this.root = root;
-    this.textRange = textRange;
   }
 
   @Override
@@ -41,6 +42,9 @@ public class FileTreeImpl extends CloudformationTreeImpl implements FileTree {
 
   @Override
   public List<Tree> children() {
+    if (root == null) {
+      return Collections.emptyList();
+    }
     return Collections.singletonList(root);
   }
 

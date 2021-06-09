@@ -22,6 +22,7 @@ package org.sonar.iac.cloudformation.tree.impl;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
 import java.util.ArrayList;
@@ -31,10 +32,10 @@ public class MappingTreeImpl extends CloudformationTreeImpl implements MappingTr
   private final List<TupleTree> elements;
   private final String tag;
 
-  public MappingTreeImpl(List<TupleTree> elements, String tag, TextRange textRange) {
+  public MappingTreeImpl(List<TupleTree> elements, String tag, TextRange textRange, List<Comment> comments) {
+    super(textRange, comments);
     this.elements = elements;
     this.tag = tag;
-    this.textRange = textRange;
   }
 
   @Override

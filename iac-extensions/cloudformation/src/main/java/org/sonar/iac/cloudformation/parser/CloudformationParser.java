@@ -30,18 +30,28 @@ import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CloudformationParser implements TreeParser<Tree> {
 
   @Override
   public FileTree parse(String source) {
-    LoadSettings settings = LoadSettings.builder().build();
+    LoadSettings settings = LoadSettings.builder().setParseComments(true).build();
     StreamReader reader = new StreamReader(settings, source);
     ScannerImpl scanner = new ScannerImpl(settings, reader);
     Parser parser = new ParserImpl(settings, scanner);
-    Optional<Node> rootNode = new Composer(settings, parser).getSingleNode();
-    // TODO: when does it happen if the optional is not present? do we raise an exception?
-    return rootNode.map(CloudformationConverter::convertFile).orElse(null);
+    Composer composer = new Composer(settings, parser);
+    List<Node> nodes = composerNodes(composer);
+
+    return CloudformationConverter.convertFile(nodes);
+  }
+
+  private List<Node> composerNodes(Composer composer) {
+    List<Node> nodes = new ArrayList<>();
+    while (composer.hasNext()) {
+      nodes.add(composer.next());
+    }
+    return nodes;
   }
 }

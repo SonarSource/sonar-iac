@@ -21,6 +21,7 @@ package org.sonar.iac.cloudformation.tree.impl;
 
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
 import java.util.Collections;
@@ -32,11 +33,11 @@ public class ScalarTreeImpl extends CloudformationTreeImpl implements ScalarTree
   private final String tag;
   private final Style style;
 
-  public ScalarTreeImpl(String value, Style style, String tag, TextRange range) {
+  public ScalarTreeImpl(String value, Style style, String tag, TextRange textRange, List<Comment> comments) {
+    super(textRange, comments);
     this.value = value;
     this.style = style;
     this.tag = tag;
-    this.textRange = range;
   }
 
   @Override

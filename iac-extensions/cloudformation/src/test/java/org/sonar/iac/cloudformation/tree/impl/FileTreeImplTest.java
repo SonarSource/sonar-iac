@@ -20,6 +20,7 @@
 package org.sonar.iac.cloudformation.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 
@@ -35,5 +36,23 @@ class FileTreeImplTest extends CloudformationTreeTest {
     assertThat(tree.root()).isInstanceOf(MappingTree.class);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 4);
     assertThat(tree.textRange()).isEqualTo(tree.root().textRange());
+  }
+
+  @Test
+  void empty_file() {
+    FileTree tree = parse("");
+    assertThat(tree.root()).isNull();
+    assertThat(tree.children()).isEmpty();
+  }
+
+  @Test
+  void file_with_only_a_comment() {
+    FileTree tree = parse("# foo");
+    assertThat(tree.tag()).isEqualTo("FILE");
+    assertThat(tree.root()).isInstanceOf(MappingTree.class);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 0);
+    // TODO: having to cast here is not nice. We should work with CloudformationTree in the interfaces
+    assertThat(((CloudformationTree) tree.root()).comments()).hasSize(1);
+    assertThat(((CloudformationTree) tree.root()).comments().get(0).value()).isEqualTo(" foo");
   }
 }

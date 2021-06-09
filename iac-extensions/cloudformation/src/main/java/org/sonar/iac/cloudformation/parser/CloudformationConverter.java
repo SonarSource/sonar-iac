@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.cloudformation.parser;
 
+import org.snakeyaml.engine.v2.comments.CommentLine;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
@@ -35,10 +36,15 @@ import org.sonar.iac.cloudformation.tree.impl.MappingTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.SequenceTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.ScalarTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.TupleTreeImpl;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +61,13 @@ class CloudformationConverter {
 
   private CloudformationConverter() {}
 
-  public static FileTree convertFile(Node rootNode) {
-    return new FileTreeImpl(convert(rootNode), range(rootNode));
+  public static FileTree convertFile(List<Node> nodes) {
+    if (!nodes.isEmpty()) {
+      return new FileTreeImpl(convert(nodes.get(0)), range(nodes.get(0)));
+    }
+
+    // empty file
+    return new FileTreeImpl(null, TextRanges.range(0, 0, 0, 0));
   }
 
   public static Tree convert(Node node) {
@@ -64,7 +75,9 @@ class CloudformationConverter {
   }
 
   private static TupleTree convertTuple(NodeTuple tuple) {
-    return new TupleTreeImpl(convert(tuple.getKeyNode()), convert(tuple.getValueNode()));
+    Tree key = convert(tuple.getKeyNode());
+    Tree value = convert(tuple.getValueNode());
+    return new TupleTreeImpl(key, value, TextRanges.merge(Arrays.asList(key.textRange(), value.textRange())));
   }
 
   private static Tree convertMapping(Node node) {
@@ -75,12 +88,12 @@ class CloudformationConverter {
       elements.add(CloudformationConverter.convertTuple(elementNode));
     }
 
-    return new MappingTreeImpl(elements, tag(node), range(node));
+    return new MappingTreeImpl(elements, tag(node), range(node), comments(node));
   }
 
   private static Tree convertScalar(Node node) {
     ScalarNode scalarNode = (ScalarNode) node;
-    return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()), tag(scalarNode), range(scalarNode));
+    return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()), tag(scalarNode), range(scalarNode), comments(node));
   }
 
   private static Tree convertSequence(Node node) {
@@ -91,22 +104,52 @@ class CloudformationConverter {
       elements.add(CloudformationConverter.convert(elementNode));
     }
 
-    return new SequenceTreeImpl(elements, tag(node), range(node));
+    return new SequenceTreeImpl(elements, tag(node), range(node), comments(node));
   }
 
   private static TextRange range(Node node) {
-    Optional<Mark> startMark = node.getStartMark();
-    Optional<Mark> endMark = node.getEndMark();
+    return range(node.getStartMark(), node.getEndMark());
+  }
 
-    if (!startMark.isPresent() || !endMark.isPresent()) {
-      throw new IllegalArgumentException("Nodes are expected to have start and end marks during conversion");
+  private static TextRange range(Optional<Mark> startMark, Optional<Mark> endMark) {
+    if (!startMark.isPresent()) {
+      throw new IllegalArgumentException("Nodes are expected to have a start mark during conversion");
     }
 
-    return TextRanges.range(startMark.get().getLine() + 1, startMark.get().getColumn(), endMark.get().getLine() + 1, endMark.get().getColumn());
+    if (endMark.isPresent()) {
+      return TextRanges.range(startMark.get().getLine() + 1, startMark.get().getColumn(), endMark.get().getLine() + 1, endMark.get().getColumn());
+    }
+
+    // endMark is not present. This happens for example when we have a file with only a comment.
+    // in that case, the root node will be an empty MappingNode with only a startMark to which the comment is attached
+    return TextRanges.range(startMark.get().getLine() + 1, startMark.get().getColumn(), startMark.get().getLine() + 1, startMark.get().getColumn());
   }
 
   private static String tag(Node node) {
     return node.getTag().getValue();
+  }
+
+  private static List<Comment> comments(Node node) {
+    // For now we group all comments together. This might change, once we have a reason to separate them.
+    List<Comment> comments = new ArrayList<>(comments(node.getBlockComments()));
+    comments.addAll(comments(node.getInLineComments()));
+    comments.addAll(comments(node.getEndComments()));
+    return comments;
+  }
+
+  private static List<Comment> comments(@Nullable List<CommentLine> commentLines) {
+    if (commentLines == null) {
+      return Collections.emptyList();
+    }
+    List<Comment> comments = new ArrayList<>();
+    for (CommentLine comment : commentLines) {
+      comments.add(comment(comment));
+    }
+    return comments;
+  }
+
+  private static Comment comment(CommentLine comment) {
+    return new CommentImpl(comment.getValue(), comment.getValue(), range(comment.getStartMark(), comment.getEndMark()));
   }
 
   private static ScalarTree.Style scalarStyleConvert(ScalarStyle style) {
