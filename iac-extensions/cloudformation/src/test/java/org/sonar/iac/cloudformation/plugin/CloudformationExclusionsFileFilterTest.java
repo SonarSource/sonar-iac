@@ -39,7 +39,7 @@ class CloudformationExclusionsFileFilterTest {
 
   // TODO add test cases for yaml
 
-  private static MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings();
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
