@@ -33,10 +33,10 @@ public class TextRangeAssert extends AbstractAssert<TextRangeAssert, TextRange> 
 
   public TextRangeAssert hasRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
     isNotNull();
-    assertThat(actual.start().line()).isEqualTo(startLine);
-    assertThat(actual.start().lineOffset()).isEqualTo(startLineOffset);
-    assertThat(actual.end().line()).isEqualTo(endLine);
-    assertThat(actual.end().lineOffset()).isEqualTo(endLineOffset);
+    assertThat(actual.start().line()).as("startLine mismatch").isEqualTo(startLine);
+    assertThat(actual.start().lineOffset()).as("startLineOffset mismatch").isEqualTo(startLineOffset);
+    assertThat(actual.end().line()).as("endLine mismatch").isEqualTo(endLine);
+    assertThat(actual.end().lineOffset()).as("endLineOffset mismatch").isEqualTo(endLineOffset);
     return this;
   }
 

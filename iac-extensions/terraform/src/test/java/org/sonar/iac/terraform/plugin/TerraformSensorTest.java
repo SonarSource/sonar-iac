@@ -19,64 +19,32 @@
  */
 package org.sonar.iac.terraform.plugin;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.terraform.checks.AwsTagNameConventionCheck;
+import org.sonar.iac.testing.AbstractSensorTest;
 import org.sonar.iac.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-class TerraformSensorTest {
-
-  @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
-
-  private static final FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
-  private static final NoSonarFilter noSonarFilter = mock(NoSonarFilter.class);
-
-  @TempDir
-  File baseDir;
-  SensorContextTester context;
-
-  @BeforeEach
-  public void setup() {
-    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
-    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    context = SensorContextTester.create(baseDir);
-  }
+class TerraformSensorTest extends AbstractSensorTest {
 
   @Test
   void should_return_terraform_descriptor() {
@@ -102,6 +70,7 @@ class TerraformSensorTest {
     assertThat(location.message()).isEqualTo("Rename tag key \"anycompany:cost-center\" to match the regular expression \"^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\".");
     TextRangeAssert.assertTextRange(location.textRange()).hasRange(2, 11, 2, 35);
   }
+
 
   @Test
   void empty_file_should_raise_no_issue() {
@@ -155,19 +124,12 @@ class TerraformSensorTest {
     assertThat(logTester.logs()).contains(String.format("Unable to parse file: %s. ", inputFile.uri()));
   }
 
+
   @Test
   void no_parsing_nor_analysis_error_on_valid_file() {
     analyse(inputFile("file.tf", "a {}"));
     assertThat(context.allAnalysisErrors()).isEmpty();
     assertThat(context.allIssues()).isEmpty();
-  }
-
-  @Test
-  void test_cancellation() {
-    context.setCancelled(true);
-    analyse(sensor("S2260"), inputFile("parserError.tf", "a {"));
-    Collection<Issue> issues = context.allIssues();
-    assertThat(issues).isEmpty();
   }
 
   @Test
@@ -187,52 +149,29 @@ class TerraformSensorTest {
     assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
   }
 
-  private void analyse(InputFile... inputFiles) {
-    for (InputFile inputFile : inputFiles) {
-      context.fileSystem().add(inputFile);
-    }
-    sensor().execute(context);
-  }
-
-  private void analyse(TerraformSensor sensor, InputFile... inputFiles) {
-    for (InputFile inputFile : inputFiles) {
-      context.fileSystem().add(inputFile);
-    }
-    sensor.execute(context);
-  }
-
-  private InputFile inputFile(String relativePath, String content) {
-    return new TestInputFileBuilder("moduleKey", relativePath)
-      .setModuleBaseDir(baseDir.toPath())
-      .setType(InputFile.Type.MAIN)
-      .setLanguage(TerraformExtension.LANGUAGE_KEY)
-      .setCharset(StandardCharsets.UTF_8)
-      .setContents(content)
-      .build();
-  }
-
   private TerraformSensor sensor(String... rules) {
-    CheckFactory checkFactory = checkFactory(rules);
-    return new TerraformSensor(fileLinesContextFactory, checkFactory, noSonarFilter, new TerraformLanguage(new MapSettings().asConfig())) {
+    return sensor(checkFactory(rules));
+  }
+
+  @Override
+  protected TerraformSensor sensor(CheckFactory checkFactory) {
+    return new TerraformSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language()) {
       @Override
       protected Checks<IacCheck> checks() {
-        Checks<IacCheck> checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
+        Checks<IacCheck> checks = checkFactory.create(repositoryKey());
         checks.addAnnotatedChecks(AwsTagNameConventionCheck.class);
         return checks;
       }
     };
   }
 
-  protected CheckFactory checkFactory(String... ruleKeys) {
-    ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    for (String ruleKey : ruleKeys) {
-      NewActiveRule newRule = new NewActiveRule.Builder()
-        .setRuleKey(RuleKey.of(TerraformExtension.REPOSITORY_KEY, ruleKey))
-        .setName(ruleKey)
-        .build();
-      builder.addRule(newRule);
-    }
-    context.setActiveRules(builder.build());
-    return new CheckFactory(context.activeRules());
+  @Override
+  protected String repositoryKey() {
+    return TerraformExtension.REPOSITORY_KEY;
+  }
+
+  @Override
+  protected TerraformLanguage language() {
+    return new TerraformLanguage(new MapSettings().asConfig());
   }
 }

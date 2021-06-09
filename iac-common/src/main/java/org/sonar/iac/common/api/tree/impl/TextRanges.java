@@ -37,6 +37,10 @@ public class TextRanges {
   private TextRanges() {
   }
 
+  public static TextRange range(int startLine, int startColumn, int endLine, int endColumn) {
+    return new DefaultTextRange(new DefaultTextPointer(startLine, startColumn), new DefaultTextPointer(endLine, endColumn));
+  }
+
   public static TextRange range(int line, int column, String value) {
     TokenLocation location = new TokenLocation(line, column, value);
     TextPointer startPointer = new DefaultTextPointer(location.startLine(), location.startLineOffset());

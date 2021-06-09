@@ -19,58 +19,19 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.testing.AbstractSensorTest;
 import org.sonar.iac.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
-class CloudformationSensorTest {
-
-  @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
-
-  private static final FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
-  private static final NoSonarFilter noSonarFilter = mock(NoSonarFilter.class);
-
-  @TempDir
-  File baseDir;
-  SensorContextTester context;
-
-  @BeforeEach
-  public void setup() {
-    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
-    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    context = SensorContextTester.create(baseDir);
-  }
+class CloudformationSensorTest extends AbstractSensorTest {
 
   @Test
   void should_return_terraform_descriptor() {
@@ -100,7 +61,7 @@ class CloudformationSensorTest {
 
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo("S2260");
-    
+
     TextRangeAssert.assertTextRange(issue.primaryLocation().textRange()).hasRange(1, 0, 1, 3);
   }
 
@@ -116,78 +77,28 @@ class CloudformationSensorTest {
     assertThat(context.allIssues()).as("One issue must be raised").isEmpty();
   }
 
-  @Test
-  void analysis_error_should_raise_issue_in_sensor_context() throws IOException {
-    InputFile inputFile = inputFile("fakeFile.tf", "");
-    InputFile spyInputFile = spy(inputFile);
-    when(spyInputFile.contents()).thenThrow(IOException.class);
-    analyse(spyInputFile);
-
-    Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();
-    assertThat(analysisErrors).hasSize(1);
-    AnalysisError analysisError = analysisErrors.iterator().next();
-    assertThat(analysisError.inputFile()).isEqualTo(spyInputFile);
-    assertThat(analysisError.message()).isEqualTo("Unable to parse file: fakeFile.tf");
-    assertThat(analysisError.location()).isNull();
-
-    assertThat(logTester.logs()).contains(String.format("Unable to parse file: %s. ", inputFile.uri()));
-  }
-
-  // TODO test valid file for no parsing error
-
-  @Test
-  void test_cancellation() {
-    context.setCancelled(true);
-    analyse(sensor("S2260"), inputFile("parserError.tf", "a {"));
-    Collection<Issue> issues = context.allIssues();
-    assertThat(issues).isEmpty();
-  }
-
-  private void analyse(InputFile... inputFiles) {
-    for (InputFile inputFile : inputFiles) {
-      context.fileSystem().add(inputFile);
-    }
-    sensor().execute(context);
-  }
-
-  private void analyse(CloudformationSensor sensor, InputFile... inputFiles) {
-    for (InputFile inputFile : inputFiles) {
-      context.fileSystem().add(inputFile);
-    }
-    sensor.execute(context);
-  }
-
-  private InputFile inputFile(String relativePath, String content) {
-    return new TestInputFileBuilder("moduleKey", relativePath)
-      .setModuleBaseDir(baseDir.toPath())
-      .setType(InputFile.Type.MAIN)
-      .setLanguage(CloudformationExtension.LANGUAGE_KEY)
-      .setCharset(StandardCharsets.UTF_8)
-      .setContents(content)
-      .build();
-  }
-
   private CloudformationSensor sensor(String... rules) {
-    CheckFactory checkFactory = checkFactory(rules);
-    return new CloudformationSensor(fileLinesContextFactory, checkFactory, noSonarFilter, new CloudformationLanguage(new MapSettings().asConfig())) {
+    return sensor(checkFactory(rules));
+  }
+
+  @Override
+  protected CloudformationSensor sensor(CheckFactory checkFactory) {
+    return new CloudformationSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language()) {
       @Override
       protected Checks<IacCheck> checks() {
-        Checks<IacCheck> checks = checkFactory.create(CloudformationExtension.REPOSITORY_KEY);
+        Checks<IacCheck> checks = checkFactory.create(repositoryKey());
         return checks;
       }
     };
   }
 
-  protected CheckFactory checkFactory(String... ruleKeys) {
-    ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    for (String ruleKey : ruleKeys) {
-      NewActiveRule newRule = new NewActiveRule.Builder()
-        .setRuleKey(RuleKey.of(CloudformationExtension.REPOSITORY_KEY, ruleKey))
-        .setName(ruleKey)
-        .build();
-      builder.addRule(newRule);
-    }
-    context.setActiveRules(builder.build());
-    return new CheckFactory(context.activeRules());
+  @Override
+  protected String repositoryKey() {
+    return CloudformationExtension.REPOSITORY_KEY;
+  }
+
+  @Override
+  protected CloudformationLanguage language() {
+    return new CloudformationLanguage(new MapSettings().asConfig());
   }
 }
