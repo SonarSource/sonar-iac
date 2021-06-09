@@ -17,16 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.api.tree;
+package org.sonar.iac.common.api.tree;
 
 import java.util.List;
-import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.common.api.tree.HasComments;
 
-public interface SyntaxToken extends TerraformTree, HasComments {
-
-  String value();
+public interface HasComments extends Tree {
 
   List<Comment> comments();
-
 }

@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks;
+package org.sonar.iac.common.testing;
 
-import com.sonar.sslr.api.typed.ActionParser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,12 +29,12 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -46,19 +45,19 @@ public final class Verifier {
     // utility class
   }
 
-  public static void verify(ActionParser<TerraformTree> parser, Path path, IacCheck check) {
+  public static void verify(TreeParser parser, Path path, IacCheck check) {
     createVerifier(parser, path, check).assertOneOrMoreIssues();
   }
 
-  private static SingleFileVerifier createVerifier(ActionParser<TerraformTree> parser, Path path, IacCheck check) {
+  private static SingleFileVerifier createVerifier(TreeParser parser, Path path, IacCheck check) {
 
     SingleFileVerifier verifier = SingleFileVerifier.create(path, UTF_8);
 
     String testFileContent = readFile(path);
-    TerraformTree root = parser.parse(testFileContent);
+    Tree root = parser.parse(testFileContent);
 
     (new TreeVisitor<>())
-      .register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> {
+      .register(HasComments.class, (ctx, tree) -> tree.comments().forEach(comment -> {
         TextPointer start = comment.textRange().start();
         verifier.addComment(start.line(), start.lineOffset()+1, comment.value(), 2, 0);
       }))
