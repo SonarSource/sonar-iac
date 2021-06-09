@@ -31,6 +31,7 @@ class TupleTreeImplTest extends CloudformationTreeTest {
   @Test
   void simple_tuple() {
     TupleTree tree = ((MappingTree) parse("a: b").root()).elements().get(0);
+    assertThat(tree.tag()).isEqualTo("TUPLE");
     assertThat(tree.key()).isInstanceOfSatisfying(ScalarTree.class, k -> assertThat(k.value()).isEqualTo("a"));
     assertThat(tree.value()).isInstanceOfSatisfying(ScalarTree.class, k -> assertThat(k.value()).isEqualTo("b"));
   }

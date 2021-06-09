@@ -46,7 +46,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 class CloudformationConverter {
-  private static final Map<Class, Function<Node, Tree>> converters = new HashMap<>();
+  private static final Map<Class<?>, Function<Node, Tree>> converters = new HashMap<>();
   static {
     converters.put(MappingNode.class, CloudformationConverter::convertMapping);
     converters.put(ScalarNode.class, CloudformationConverter::convertScalar);

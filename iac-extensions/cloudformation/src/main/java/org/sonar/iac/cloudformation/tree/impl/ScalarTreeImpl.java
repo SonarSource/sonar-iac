@@ -19,16 +19,12 @@
  */
 package org.sonar.iac.cloudformation.tree.impl;
 
-import org.snakeyaml.engine.v2.exceptions.Mark;
-import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public class ScalarTreeImpl extends CloudformationTreeImpl implements ScalarTree {
 

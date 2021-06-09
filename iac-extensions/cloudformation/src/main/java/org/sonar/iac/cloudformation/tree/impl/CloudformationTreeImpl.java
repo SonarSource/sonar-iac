@@ -21,11 +21,6 @@ package org.sonar.iac.cloudformation.tree.impl;
 
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class CloudformationTreeImpl implements CloudformationTree {
   protected TextRange textRange;

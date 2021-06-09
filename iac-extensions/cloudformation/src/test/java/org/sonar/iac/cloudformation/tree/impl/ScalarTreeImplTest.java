@@ -30,51 +30,54 @@ class ScalarTreeImplTest extends CloudformationTreeTest {
   @Test
   void double_quoted() {
     ScalarTree tree = (ScalarTree) parse("\"a\"").root();
-    assertThat(tree).satisfies(s -> {
-      assertThat(s.value()).isEqualTo("a");
-      assertTextRange(s.textRange()).hasRange(1, 0, 1, 3);
-      assertThat(s.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED);
-    });
+    assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 3);
+    assertThat(tree.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED);
   }
 
   @Test
   void single_quoted() {
     ScalarTree tree = (ScalarTree) parse("'a'").root();
-    assertThat(tree).satisfies(s -> {
-      assertThat(s.value()).isEqualTo("a");
-      assertTextRange(s.textRange()).hasRange(1, 0, 1, 3);
-      assertThat(s.style()).isEqualTo(ScalarTree.Style.SINGLE_QUOTED);
-    });
+    assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 3);
+    assertThat(tree.style()).isEqualTo(ScalarTree.Style.SINGLE_QUOTED);
   }
 
   @Test
   void literal() {
     ScalarTree tree = (ScalarTree) parse("| \n a").root();
-    assertThat(tree).satisfies(s -> {
-      assertThat(s.value()).isEqualTo("a");
-      assertTextRange(s.textRange()).hasRange(1, 0, 2, 2);
-      assertThat(s.style()).isEqualTo(ScalarTree.Style.LITERAL);
-    });
+    assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 2, 2);
+    assertThat(tree.style()).isEqualTo(ScalarTree.Style.LITERAL);
   }
 
   @Test
   void folded() {
     ScalarTree tree = (ScalarTree) parse("> \n a").root();
-    assertThat(tree).satisfies(s -> {
-      assertThat(s.value()).isEqualTo("a");
-      assertTextRange(s.textRange()).hasRange(1, 0, 2, 2);
-      assertThat(s.style()).isEqualTo(ScalarTree.Style.FOLDED);
-    });
+    assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 2, 2);
+    assertThat(tree.style()).isEqualTo(ScalarTree.Style.FOLDED);
   }
 
   @Test
   void plain() {
     ScalarTree tree = (ScalarTree) parse("a").root();
-    assertThat(tree).satisfies(s -> {
-      assertThat(s.value()).isEqualTo("a");
-      assertTextRange(s.textRange()).hasRange(1, 0, 1, 1);
-      assertThat(s.style()).isEqualTo(ScalarTree.Style.PLAIN);
-    });
+    assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 1);
+    assertThat(tree.style()).isEqualTo(ScalarTree.Style.PLAIN);
   }
 
+  @Test
+  void plain_integer() {
+    ScalarTree tree = (ScalarTree) parse("123").root();
+    assertThat(tree.value()).isEqualTo("123");
+    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:int");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 3);
+    assertThat(tree.style()).isEqualTo(ScalarTree.Style.PLAIN);
+  }
 }

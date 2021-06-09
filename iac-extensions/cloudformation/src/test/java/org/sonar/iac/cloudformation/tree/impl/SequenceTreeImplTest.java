@@ -31,11 +31,9 @@ class SequenceTreeImplTest extends CloudformationTreeTest {
   @Test
   void simple_sequence() {
     SequenceTree tree = (SequenceTree) parse("[1, \"a\"]").root();
-    assertThat(tree).satisfies(s -> {
-      assertThat(s.elements()).hasSize(2);
-      assertTextRange(s.textRange()).hasRange(1, 0, 1, 8);
-      assertThat(s.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
-      assertThat(s.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
-    });
+    assertThat(tree.elements()).hasSize(2);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
+    assertThat(tree.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
+    assertThat(tree.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
   }
 }

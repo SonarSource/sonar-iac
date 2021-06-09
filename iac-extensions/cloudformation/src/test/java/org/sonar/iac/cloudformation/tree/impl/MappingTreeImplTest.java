@@ -30,9 +30,8 @@ class MappingTreeImplTest extends CloudformationTreeTest {
   @Test
   void simple_mapping() {
     MappingTree tree = (MappingTree) parse("a: b").root();
-    assertThat(tree).satisfies(m -> {
-      assertThat(m.elements()).hasSize(1);
-      assertThat(m.elements().get(0)).isInstanceOf(TupleTree.class);
-    });
+    assertThat(tree.elements()).hasSize(1);
+    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:map");
+    assertThat(tree.elements().get(0)).isInstanceOf(TupleTree.class);
   }
 }
