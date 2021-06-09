@@ -26,17 +26,17 @@ import org.snakeyaml.engine.v2.parser.Parser;
 import org.snakeyaml.engine.v2.parser.ParserImpl;
 import org.snakeyaml.engine.v2.scanner.ScannerImpl;
 import org.snakeyaml.engine.v2.scanner.StreamReader;
+import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.tree.impl.FileTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 
-import java.util.Collections;
 import java.util.Optional;
 
 public class CloudformationParser implements TreeParser<Tree> {
 
   @Override
-  public Tree parse(String source) {
+  public FileTree parse(String source) {
     LoadSettings settings = LoadSettings.builder().build();
     StreamReader reader = new StreamReader(settings, source);
     ScannerImpl scanner = new ScannerImpl(settings, reader);
