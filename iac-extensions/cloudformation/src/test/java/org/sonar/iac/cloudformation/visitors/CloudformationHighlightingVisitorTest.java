@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.visitors;
+package org.sonar.iac.cloudformation.visitors;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -30,20 +30,19 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.terraform.parser.HclParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
-import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CONSTANT;
-import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 
-class TerraformHighlighterVisitorTest {
+class CloudformationHighlightingVisitorTest {
 
-  private final TerraformHighlightingVisitor highlightingVisitor = new TerraformHighlightingVisitor();
+  private final CloudformationHighlightingVisitor highlightingVisitor = new CloudformationHighlightingVisitor();
   private SensorContextTester sensorContext;
-  private final HclParser parser = new HclParser();
+  private final CloudformationParser parser = new CloudformationParser();
   private DefaultInputFile inputFile;
 
   @TempDir
@@ -55,54 +54,99 @@ class TerraformHighlighterVisitorTest {
   }
 
   @Test
-  void empty_input() {
-    highlight("");
-    assertHighlighting(1, 0, 0, null);
-  }
-
-  @Test
   void single_line_comment() {
-    highlight("  // Comment ");
+    highlight("  # Comment ");
     assertHighlighting(0, 1, null);
-    assertHighlighting(2, 12, COMMENT);
+    assertHighlighting(2, 11, COMMENT);
   }
 
   @Test
-  void comment() {
-    highlight("  /*Comment*/ ");
-    assertHighlighting(0, 1, null);
-    assertHighlighting(2, 12, COMMENT);
-    assertHighlighting(13, 13, null);
+  void scalar() {
+    highlight("key");
+    assertHighlighting(0, 2, STRING);
   }
 
   @Test
-  void multiline_comment() {
-    highlight("/*\nComment\n*/ ");
-    assertHighlighting(1, 0, 1, COMMENT);
-    assertHighlighting(2, 0, 6, COMMENT);
-    assertHighlighting(3, 0, 1, COMMENT);
-    assertHighlighting(3, 2, 2, null);
+  void scalar_key() {
+    highlight("key:");
+    assertHighlighting(0, 2, KEYWORD);
+    assertHighlighting(3, 3, null);
   }
 
   @Test
-  void block_type() {
-    highlight("block {}");
+  void scalar_key_scalar_value() {
+    highlight("key: value");
+    assertHighlighting(0, 2, KEYWORD);
+    assertHighlighting(3, 4, null);
+    assertHighlighting(5, 9, STRING);
+  }
+
+  @Test
+  void inline_comment() {
+    highlight("key: value  # Comment");
+    assertHighlighting(0, 2, KEYWORD);
+    assertHighlighting(3, 4, null);
+    assertHighlighting(5, 9, STRING);
+    assertHighlighting(12, 20, COMMENT);
+  }
+
+  @Test
+  void scalar_key_sq_value() {
+    highlight("key: 'value'");
+    assertHighlighting(0, 2, KEYWORD);
+    assertHighlighting(3, 4, null);
+    assertHighlighting(5, 11, STRING);
+  }
+
+  @Test
+  void scalar_key_dq_value() {
+    highlight("key: \"value\"");
+    assertHighlighting(0, 2, KEYWORD);
+    assertHighlighting(3, 4, null);
+    assertHighlighting(5, 11, STRING);
+  }
+
+  @Test
+  void sq_key_scalar_value() {
+    highlight("'key': value");
     assertHighlighting(0, 4, KEYWORD);
-    assertHighlighting(5, 7, null);
+    assertHighlighting(5, 6, null);
+    assertHighlighting(7, 11, STRING);
   }
 
   @Test
-  void string_literal() {
-    highlight("a = \"abc\"");
-    assertHighlighting(0, 3, null);
-    assertHighlighting(4, 8, STRING);
+  void dq_key_scalar_value() {
+    highlight("\"key\": value");
+    assertHighlighting(0, 4, KEYWORD);
+    assertHighlighting(5, 6, null);
+    assertHighlighting(7, 11, STRING);
   }
 
   @Test
-  void non_string_literal() {
-    highlight("a = 12");
-    assertHighlighting(0, 3, null);
-    assertHighlighting(4, 5, CONSTANT);
+  void scalar_key_folded_value() {
+    highlight("key: >\n  value");
+    assertHighlighting(1, 0, 2, KEYWORD);
+    assertHighlighting(1, 3, 4, null);
+    assertHighlighting(1, 5, 6, STRING);
+    assertHighlighting(2, 2, 6, STRING);
+  }
+
+  @Test
+  void scalar_key_literal_value() {
+    highlight("key: |\n  value");
+    assertHighlighting(1, 0, 2, KEYWORD);
+    assertHighlighting(1, 3, 4, null);
+    assertHighlighting(1, 5, 6, STRING);
+    assertHighlighting(2, 2, 6, STRING);
+  }
+
+  @Test
+  void scalar_key_list_value() {
+    highlight("key:\n  - value");
+    assertHighlighting(1, 0, 2, KEYWORD);
+    assertHighlighting(1, 3, 4, null);
+    assertHighlighting(2, 0, 3, null);
+    assertHighlighting(2, 4, 6, STRING);
   }
 
   private void highlight(String code) {

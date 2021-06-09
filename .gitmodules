@@ -13,3 +13,6 @@
 [submodule "its/sources/terraform/terragoat"]
 	path = its/sources/terraform/terragoat
 	url = https://github.com/bridgecrewio/terragoat.git
+[submodule "its/sources/cloudformation/taskcat"]
+	path = its/sources/cloudformation/taskcat
+	url = https://github.com/aws-quickstart/taskcat.git

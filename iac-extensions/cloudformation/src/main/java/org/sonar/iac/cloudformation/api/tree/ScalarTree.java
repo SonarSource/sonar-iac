@@ -26,7 +26,7 @@ public interface ScalarTree extends CloudformationTree {
     LITERAL,
     FOLDED,
     PLAIN,
-    OTHER;
+    OTHER
   }
 
   String value();

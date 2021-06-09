@@ -41,7 +41,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
 import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.iac.terraform.visitors.MetricsVisitor;
-import org.sonar.iac.terraform.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.terraform.visitors.TerraformHighlightingVisitor;
 
 public class TerraformSensor extends IacSensor {
 
@@ -70,7 +70,7 @@ public class TerraformSensor extends IacSensor {
     if (sensorContext.runtime().getProduct() != SonarProduct.SONARLINT) {
       languageSpecificTreeVisitors.addAll(Arrays.asList(
         new MetricsVisitor(fileLinesContextFactory, noSonarFilter),
-        new SyntaxHighlightingVisitor()
+        new TerraformHighlightingVisitor()
       ));
     }
     return languageSpecificTreeVisitors;
