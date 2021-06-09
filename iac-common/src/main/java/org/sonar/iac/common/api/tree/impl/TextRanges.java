@@ -48,12 +48,6 @@ public class TextRanges {
     return new DefaultTextRange(startPointer, endPointer);
   }
 
-  public static TextRange range(int startLine, int startColumn, int endLine, int endColumn) {
-    TextPointer startPointer = new DefaultTextPointer(startLine, startColumn);
-    TextPointer endPointer =  new DefaultTextPointer(endLine, endColumn);
-    return new DefaultTextRange(startPointer, endPointer);
-  }
-
   public static TextRange merge(List<TextRange> ranges) {
     return new DefaultTextRange(
       ranges.stream().map(TextRange::start).min(naturalOrder()).orElseThrow(MERGE_EXCEPTION_SUPPLIER),

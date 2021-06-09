@@ -22,8 +22,10 @@ package org.sonar.iac.cloudformation.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
+import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.sonar.iac.testing.TextRangeAssert.assertTextRange;
 
 class FileTreeImplTest extends CloudformationTreeTest {
@@ -38,10 +40,8 @@ class FileTreeImplTest extends CloudformationTreeTest {
   }
 
   @Test
-  void empty_file() {
-    FileTree tree = parse("");
-    assertThat(tree.root()).isNull();
-    assertThat(tree.children()).isEmpty();
+  void empty_content_given_to_parser() {
+    assertThrows(ParseException.class, () -> parse(""));
   }
 
   @Test

@@ -40,6 +40,7 @@ import org.sonar.iac.cloudformation.tree.impl.TupleTreeImpl;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.ParseException;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ import java.util.function.Function;
 class CloudformationConverter {
   private static final Map<Class<?>, Function<Node, CloudformationTree>> converters = new HashMap<>();
   static {
+    // TODO: conversion for anchor nodes SONARIAC-77
     converters.put(MappingNode.class, CloudformationConverter::convertMapping);
     converters.put(ScalarNode.class, CloudformationConverter::convertScalar);
     converters.put(SequenceNode.class, CloudformationConverter::convertSequence);
@@ -62,12 +64,11 @@ class CloudformationConverter {
   private CloudformationConverter() {}
 
   public static FileTree convertFile(List<Node> nodes) {
-    if (!nodes.isEmpty()) {
-      return new FileTreeImpl(convert(nodes.get(0)), range(nodes.get(0)));
+    if (nodes.isEmpty()) {
+      throw new ParseException("Unexpected empty nodes list while converting file", null);
     }
 
-    // empty file
-    return new FileTreeImpl(null, TextRanges.range(0, 0, 0, 0));
+    return new FileTreeImpl(convert(nodes.get(0)), range(nodes.get(0)));
   }
 
   public static CloudformationTree convert(Node node) {
