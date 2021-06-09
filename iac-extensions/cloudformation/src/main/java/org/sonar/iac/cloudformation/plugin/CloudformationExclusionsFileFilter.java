@@ -72,7 +72,7 @@ public class CloudformationExclusionsFileFilter implements InputFileFilter {
         }
       }
     } catch (IOException e) {
-      LOG.error(String.format("Unable to parse file: %s.", inputFile.uri()));
+      LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
       LOG.error(e.getMessage());
     }
 

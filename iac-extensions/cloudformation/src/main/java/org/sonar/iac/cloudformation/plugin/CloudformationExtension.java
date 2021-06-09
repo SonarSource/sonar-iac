@@ -79,9 +79,7 @@ public class CloudformationExtension {
     PropertyDefinition.builder(CloudformationExtension.FILE_IDENTIFIER_KEY)
       .defaultValue(CloudformationExtension.FILE_IDENTIFIER_DEFAULT_VALUE)
       .name("File Identifier")
-      .description("Files without the identifier are excluded from the analysis." +
-        "The identifier can be anywhere in the file.If the property specifies an empty identifier," +
-        "files without identifier will also be analyzed,")
+      .description("Files without the identifier are excluded from the analysis. The identifier can be anywhere in the file.")
       .onQualifiers(Qualifiers.PROJECT)
       .category(CloudformationExtension.CLOUDFORMATION_CATEGORY)
       .subCategory(CloudformationExtension.GENERAL_SUBCATEGORY)
