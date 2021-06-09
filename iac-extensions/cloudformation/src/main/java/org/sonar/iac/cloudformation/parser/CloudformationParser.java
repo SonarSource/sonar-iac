@@ -47,7 +47,7 @@ public class CloudformationParser implements TreeParser<Tree> {
     return CloudformationConverter.convertFile(nodes);
   }
 
-  private List<Node> composerNodes(Composer composer) {
+  private static List<Node> composerNodes(Composer composer) {
     List<Node> nodes = new ArrayList<>();
     while (composer.hasNext()) {
       nodes.add(composer.next());
