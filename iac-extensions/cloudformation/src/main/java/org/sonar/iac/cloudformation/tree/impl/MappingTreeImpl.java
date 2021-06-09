@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.cloudformation.tree.impl;
 
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -30,9 +31,10 @@ public class MappingTreeImpl extends CloudformationTreeImpl implements MappingTr
   private final List<TupleTree> elements;
   private final String tag;
 
-  public MappingTreeImpl(List<TupleTree> elements, String tag) {
+  public MappingTreeImpl(List<TupleTree> elements, String tag, TextRange textRange) {
     this.elements = elements;
     this.tag = tag;
+    this.textRange = textRange;
   }
 
   @Override

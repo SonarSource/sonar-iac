@@ -32,10 +32,6 @@ public abstract class CloudformationTreeImpl implements CloudformationTree {
 
   @Override
   public TextRange textRange() {
-    if (textRange == null) {
-      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).collect(Collectors.toList());
-      textRange = TextRanges.merge(childRanges);
-    }
     return textRange;
   }
 }

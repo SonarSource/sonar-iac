@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.cloudformation.tree.impl;
 
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -28,8 +29,9 @@ import java.util.List;
 public class FileTreeImpl extends CloudformationTreeImpl implements FileTree {
   private final Tree root;
 
-  public FileTreeImpl(Tree root) {
+  public FileTreeImpl(Tree root, TextRange textRange) {
     this.root = root;
+    this.textRange = textRange;
   }
 
   @Override

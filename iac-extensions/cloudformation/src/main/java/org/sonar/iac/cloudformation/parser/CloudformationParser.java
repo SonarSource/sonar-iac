@@ -27,7 +27,6 @@ import org.snakeyaml.engine.v2.parser.ParserImpl;
 import org.snakeyaml.engine.v2.scanner.ScannerImpl;
 import org.snakeyaml.engine.v2.scanner.StreamReader;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
-import org.sonar.iac.cloudformation.tree.impl.FileTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 
@@ -43,6 +42,6 @@ public class CloudformationParser implements TreeParser<Tree> {
     Parser parser = new ParserImpl(settings, scanner);
     Optional<Node> rootNode = new Composer(settings, parser).getSingleNode();
     // TODO: when does it happen if the optional is not present? do we raise an exception?
-    return rootNode.map(node -> new FileTreeImpl(CloudformationConverter.convert(node))).orElse(null);
+    return rootNode.map(CloudformationConverter::convertFile).orElse(null);
   }
 }

@@ -20,23 +20,29 @@
 package org.sonar.iac.cloudformation.parser;
 
 import org.snakeyaml.engine.v2.common.ScalarStyle;
+import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.snakeyaml.engine.v2.nodes.SequenceNode;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.cloudformation.tree.impl.FileTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.MappingTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.SequenceTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.ScalarTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.TupleTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 class CloudformationConverter {
@@ -49,12 +55,16 @@ class CloudformationConverter {
 
   private CloudformationConverter() {}
 
+  public static FileTree convertFile(Node rootNode) {
+    return new FileTreeImpl(convert(rootNode), range(rootNode));
+  }
+
   public static Tree convert(Node node) {
     return converters.get(node.getClass()).apply(node);
   }
 
   private static TupleTree convertTuple(NodeTuple tuple) {
-    return new TupleTreeImpl(CloudformationConverter.convert(tuple.getKeyNode()), CloudformationConverter.convert(tuple.getValueNode()));
+    return new TupleTreeImpl(convert(tuple.getKeyNode()), convert(tuple.getValueNode()));
   }
 
   private static Tree convertMapping(Node node) {
@@ -65,11 +75,12 @@ class CloudformationConverter {
       elements.add(CloudformationConverter.convertTuple(elementNode));
     }
 
-    return new MappingTreeImpl(elements, node.getTag().getValue());
+    return new MappingTreeImpl(elements, tag(node), range(node));
   }
 
   private static Tree convertScalar(Node node) {
-    return new ScalarTreeImpl((ScalarNode) node, scalarStyleConvert(((ScalarNode) node).getScalarStyle()));
+    ScalarNode scalarNode = (ScalarNode) node;
+    return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()), tag(scalarNode), range(scalarNode));
   }
 
   private static Tree convertSequence(Node node) {
@@ -80,7 +91,22 @@ class CloudformationConverter {
       elements.add(CloudformationConverter.convert(elementNode));
     }
 
-    return new SequenceTreeImpl(elements, node.getTag().getValue());
+    return new SequenceTreeImpl(elements, tag(node), range(node));
+  }
+
+  private static TextRange range(Node node) {
+    Optional<Mark> startMark = node.getStartMark();
+    Optional<Mark> endMark = node.getEndMark();
+
+    if (!startMark.isPresent() || !endMark.isPresent()) {
+      throw new IllegalArgumentException("Nodes are expected to have start and end marks during conversion");
+    }
+
+    return TextRanges.range(startMark.get().getLine() + 1, startMark.get().getColumn(), endMark.get().getLine() + 1, endMark.get().getColumn());
+  }
+
+  private static String tag(Node node) {
+    return node.getTag().getValue();
   }
 
   private static ScalarTree.Style scalarStyleConvert(ScalarStyle style) {

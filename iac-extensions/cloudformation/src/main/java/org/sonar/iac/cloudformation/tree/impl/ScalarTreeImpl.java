@@ -21,6 +21,7 @@ package org.sonar.iac.cloudformation.tree.impl;
 
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -35,14 +36,11 @@ public class ScalarTreeImpl extends CloudformationTreeImpl implements ScalarTree
   private final String tag;
   private final Style style;
 
-  public ScalarTreeImpl(ScalarNode originalNode, Style style) {
-    this.value = originalNode.getValue();
-    this.tag = originalNode.getTag().getValue();
+  public ScalarTreeImpl(String value, Style style, String tag, TextRange range) {
+    this.value = value;
     this.style = style;
-
-    Optional<Mark> startMark = originalNode.getStartMark();
-    Optional<Mark> endMark = originalNode.getEndMark();
-    this.textRange = TextRanges.range(startMark.get().getLine() + 1, startMark.get().getColumn(), endMark.get().getLine() + 1, endMark.get().getColumn());
+    this.tag = tag;
+    this.textRange = range;
   }
 
   @Override

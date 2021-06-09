@@ -33,8 +33,7 @@ class SequenceTreeImplTest extends CloudformationTreeTest {
     SequenceTree tree = (SequenceTree) parse("[1, \"a\"]").root();
     assertThat(tree).satisfies(s -> {
       assertThat(s.elements()).hasSize(2);
-      // TODO: start and end columns are wrong, it is not taking into account the brackets
-      assertTextRange(s.textRange()).hasRange(1, 1, 1, 7);
+      assertTextRange(s.textRange()).hasRange(1, 0, 1, 8);
       assertThat(s.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
       assertThat(s.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
     });
