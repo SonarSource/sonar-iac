@@ -8,4 +8,7 @@
 'cloudformation-project:ruling/src/test/resources/sources/cloudformation/parseError.yml':[
 3,
 ],
+'cloudformation-project:ruling/src/test/resources/sources/cloudformation/recursiveAnchorParseError.yaml':[
+3,
+],
 }
