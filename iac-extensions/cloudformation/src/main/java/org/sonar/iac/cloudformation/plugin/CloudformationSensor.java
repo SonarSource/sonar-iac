@@ -29,6 +29,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
+import org.sonar.iac.cloudformation.parser.ConversionException;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.IacSensor;
@@ -63,11 +64,17 @@ public class CloudformationSensor extends IacSensor {
 
   @Override
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
-    if (!(cause instanceof MarkedYamlEngineException)) {
+    if (!(cause instanceof MarkedYamlEngineException || cause instanceof ConversionException)) {
       return super.toParseException(action, inputFile, cause);
     }
 
-    Optional<Mark> problemMark = ((MarkedYamlEngineException) cause).getProblemMark();
+    Optional<Mark> problemMark;
+    if (cause instanceof MarkedYamlEngineException) {
+      problemMark = ((MarkedYamlEngineException) cause).getProblemMark();
+    } else {
+      problemMark = Optional.ofNullable(((ConversionException) cause).getProblemMark());
+    }
+
     TextPointer position = null;
     if (problemMark.isPresent()) {
       position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);
