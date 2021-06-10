@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: "mybucketname"
+      Tags:
+        - Key: "anycompany:cost-center" # Compliant
+          Value: "Accounting"
+        - Key: "Anycompany:CostCenter" # Noncompliant {{Rename tag key "Anycompany:CostCenter" to match the regular expression "^([a-z-]*[a-z]:)*([a-z-]*[a-z])$".}}
+          Value: "Accounting"

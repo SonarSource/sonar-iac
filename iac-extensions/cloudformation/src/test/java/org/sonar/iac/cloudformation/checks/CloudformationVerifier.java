@@ -19,19 +19,23 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.iac.cloudformation.parser.CloudformationParser;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.testing.Verifier;
 
-public class CloudformationCheckList {
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-  private CloudformationCheckList() {
+public class CloudformationVerifier {
+
+  private CloudformationVerifier() {
 
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      AwsTagNameConventionCheck.class,
-      ParsingErrorCheck.class
-    );
+  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  private static final CloudformationParser PARSER = new CloudformationParser();
+
+  public static void verify(String fileName, IacCheck check) {
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
   }
 }

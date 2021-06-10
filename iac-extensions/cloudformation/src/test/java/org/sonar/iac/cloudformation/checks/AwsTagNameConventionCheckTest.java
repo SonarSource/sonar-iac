@@ -19,19 +19,27 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.Arrays;
-import java.util.List;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class CloudformationCheckList {
+class AwsTagNameConventionCheckTest {
 
-  private CloudformationCheckList() {
-
+  @Test
+  void test_default_yaml() {
+    CloudformationVerifier.verify("AwsTagNameConventionCheck/default.yaml", new AwsTagNameConventionCheck());
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      AwsTagNameConventionCheck.class,
-      ParsingErrorCheck.class
-    );
+  @Test
+  void test_custom() {
+    AwsTagNameConventionCheck check = new AwsTagNameConventionCheck();
+    check.format = "^([a-z-]*[a-z]:)*([a-z-]*[a-z])$";
+    CloudformationVerifier.verify("AwsTagNameConventionCheck/custom.yaml", check);
+  }
+
+  @Test
+  @Disabled("Verifier for files without comments has to be implemented")
+  void test_default_json() {
+    // TODO: verifier for files without comments
+    CloudformationVerifier.verify("AwsTagNameConventionCheck/default.json", new AwsTagNameConventionCheck());
   }
 }

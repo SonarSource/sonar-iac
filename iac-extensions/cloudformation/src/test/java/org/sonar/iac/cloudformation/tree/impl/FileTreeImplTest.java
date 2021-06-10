@@ -51,6 +51,7 @@ class FileTreeImplTest extends CloudformationTreeTest {
     assertThat(tree.root()).isInstanceOf(MappingTree.class);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 0);
     assertThat(tree.root().comments()).hasSize(1);
-    assertThat(tree.root().comments().get(0).value()).isEqualTo(" foo");
+    assertThat(tree.root().comments().get(0).value()).isEqualTo("# foo");
+    assertThat(tree.root().comments().get(0).contentText()).isEqualTo(" foo");
   }
 }
