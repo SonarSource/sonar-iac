@@ -49,9 +49,9 @@ class SyntaxHighlightingVisitorTest extends AbstractHighlightingTest {
   @Test
   void test_highlighting() {
     highlight("foo #comment");
-    assertHighlighting(1, 0, 2, KEYWORD);
-    assertHighlighting(1, 3, 3, null);
-    assertHighlighting(1, 4, 11, COMMENT);
+    assertHighlighting(0, 2, KEYWORD);
+    assertHighlighting(3, 3, null);
+    assertHighlighting(4, 11, COMMENT);
   }
 
   static class TestTree implements Tree, HasComments {
