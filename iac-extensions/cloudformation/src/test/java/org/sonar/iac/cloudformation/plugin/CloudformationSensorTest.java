@@ -54,6 +54,19 @@ class CloudformationSensorTest extends AbstractSensorTest {
   }
 
   @Test
+  void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
+    analyse(sensor("S2260"), inputFile("comment.json", "foo: &fooanchor\n" +
+      " bar: *fooanchor"));
+
+    assertThat(context.allIssues()).as("").hasSize(1);
+
+    Issue issue = context.allIssues().iterator().next();
+    assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo("S2260");
+
+    TextRangeAssert.assertTextRange(issue.primaryLocation().textRange()).hasRange(1, 0, 1, 15);
+  }
+
+  @Test
   void parsing_error_should_raise_an_issue_if_check_rule_is_activated() {
     analyse(sensor("S2260"), inputFile("parserError.json", "\"a'"));
 

@@ -22,6 +22,7 @@ package org.sonar.iac.cloudformation.parser;
 import org.snakeyaml.engine.v2.comments.CommentLine;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
@@ -55,7 +56,6 @@ import java.util.function.Function;
 class CloudformationConverter {
   private static final Map<Class<?>, Function<Node, CloudformationTree>> converters = new HashMap<>();
   static {
-    // TODO: conversion for anchor nodes SONARIAC-77
     converters.put(MappingNode.class, CloudformationConverter::convertMapping);
     converters.put(ScalarNode.class, CloudformationConverter::convertScalar);
     converters.put(SequenceNode.class, CloudformationConverter::convertSequence);
@@ -72,6 +72,9 @@ class CloudformationConverter {
   }
 
   public static CloudformationTree convert(Node node) {
+    if (node.isRecursive()) {
+      throw new ParserException("Recursive node found", node.getStartMark());
+    }
     return converters.get(node.getClass()).apply(node);
   }
 
@@ -114,7 +117,7 @@ class CloudformationConverter {
 
   private static TextRange range(Optional<Mark> startMark, Optional<Mark> endMark) {
     if (!startMark.isPresent()) {
-      throw new IllegalArgumentException("Nodes are expected to have a start mark during conversion");
+      throw new ParseException("Nodes are expected to have a start mark during conversion", null);
     }
 
     if (endMark.isPresent()) {
