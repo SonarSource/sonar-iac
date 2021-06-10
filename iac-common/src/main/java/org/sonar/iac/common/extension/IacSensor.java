@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -44,6 +45,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
@@ -75,6 +77,8 @@ public abstract class IacSensor implements Sensor {
 
   protected abstract String repositoryKey();
 
+  protected abstract SyntaxHighlightingVisitor syntaxHighlightingVisitor();
+
   @Override
   public void execute(SensorContext sensorContext) {
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
@@ -102,6 +106,9 @@ public abstract class IacSensor implements Sensor {
 
   public List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> treeVisitors = new ArrayList<>(languageSpecificVisitors(sensorContext));
+    if (sensorContext.runtime().getProduct() != SonarProduct.SONARLINT) {
+      treeVisitors.add(syntaxHighlightingVisitor());
+    }
     treeVisitors.add(new ChecksVisitor(checks(), statistics));
     return treeVisitors;
   }

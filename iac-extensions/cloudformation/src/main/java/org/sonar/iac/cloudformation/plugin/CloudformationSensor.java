@@ -19,17 +19,13 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
@@ -40,8 +36,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 
 public class CloudformationSensor extends IacSensor {
 
@@ -68,6 +63,11 @@ public class CloudformationSensor extends IacSensor {
   }
 
   @Override
+  protected SyntaxHighlightingVisitor syntaxHighlightingVisitor() {
+    return new CloudformationHighlightingVisitor();
+  }
+
+  @Override
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
     if (!(cause instanceof MarkedYamlEngineException)) {
       return super.toParseException(action, inputFile, cause);
@@ -79,15 +79,5 @@ public class CloudformationSensor extends IacSensor {
       position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);
     }
     return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
-  }
-
-  @Override
-  protected List<TreeVisitor<InputFileContext>> languageSpecificVisitors(SensorContext sensorContext) {
-    List<TreeVisitor<InputFileContext>> languageSpecificTreeVisitors = new ArrayList<>();
-    // non sonar lint context visitors
-    if (sensorContext.runtime().getProduct() != SonarProduct.SONARLINT) {
-      languageSpecificTreeVisitors.add(new CloudformationHighlightingVisitor());
-    }
-    return languageSpecificTreeVisitors;
   }
 }
