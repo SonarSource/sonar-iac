@@ -37,8 +37,8 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.terraform.checks.AwsTagNameConventionCheck;
-import org.sonar.iac.testing.AbstractSensorTest;
-import org.sonar.iac.testing.TextRangeAssert;
+import org.sonar.iac.common.testing.AbstractSensorTest;
+import org.sonar.iac.common.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;

@@ -40,13 +40,13 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.testing.AbstractSensorTest;
+import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class IacSensorTest extends AbstractSensorTest {
 

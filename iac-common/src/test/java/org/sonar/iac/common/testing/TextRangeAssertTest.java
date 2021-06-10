@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.testing;
+package org.sonar.iac.common.testing;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import org.sonar.api.batch.fs.TextRange;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class TextRangeAssertTest {
 

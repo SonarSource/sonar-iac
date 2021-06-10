@@ -43,7 +43,6 @@
 
   <modules>
     <module>iac-common</module>
-    <module>iac-testing</module>
     <module>iac-extensions</module>
     <module>sonar-iac-plugin</module>
     <module>its</module>
@@ -117,12 +116,6 @@
       </dependency>
 
       <!-- Test dependencies -->
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-iac-testing</artifactId>
-        <version>${project.version}</version>
-        <scope>test</scope>
-      </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-testing-harness</artifactId>

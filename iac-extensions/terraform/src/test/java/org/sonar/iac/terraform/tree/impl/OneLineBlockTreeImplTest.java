@@ -26,7 +26,7 @@ import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
 

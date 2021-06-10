@@ -70,9 +70,5 @@
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-test-commons</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sonarsource.iac</groupId>
-      <artifactId>sonar-iac-testing</artifactId>
-    </dependency>
   </dependencies>
 </project>

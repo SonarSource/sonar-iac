@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class ScalarTreeImplTest extends CloudformationTreeTest {
 

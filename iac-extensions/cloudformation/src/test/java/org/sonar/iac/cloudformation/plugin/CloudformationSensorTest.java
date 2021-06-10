@@ -26,8 +26,8 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.testing.AbstractSensorTest;
-import org.sonar.iac.testing.TextRangeAssert;
+import org.sonar.iac.common.testing.AbstractSensorTest;
+import org.sonar.iac.common.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
