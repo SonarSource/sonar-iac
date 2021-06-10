@@ -37,7 +37,10 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
         ((HasComments) tree).comments().forEach(comment -> highlight(comment, COMMENT));
       }
     });
+    languageSpecificHighlighting();
   }
+
+  protected abstract void languageSpecificHighlighting();
 
   @Override
   protected void before(InputFileContext ctx, Tree root) {
