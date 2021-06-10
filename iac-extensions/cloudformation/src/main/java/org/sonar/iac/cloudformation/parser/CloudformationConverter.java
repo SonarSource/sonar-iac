@@ -22,6 +22,7 @@ package org.sonar.iac.cloudformation.parser;
 import org.snakeyaml.engine.v2.comments.CommentLine;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
@@ -40,6 +41,7 @@ import org.sonar.iac.cloudformation.tree.impl.TupleTreeImpl;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.ParseException;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -63,7 +65,7 @@ class CloudformationConverter {
 
   public static FileTree convertFile(List<Node> nodes) {
     if (nodes.isEmpty()) {
-      throw new ConversionException("Unexpected empty nodes list while converting file", null);
+      throw new ParseException("Unexpected empty nodes list while converting file", null);
     }
 
     return new FileTreeImpl(convert(nodes.get(0)), range(nodes.get(0)));
@@ -71,7 +73,7 @@ class CloudformationConverter {
 
   public static CloudformationTree convert(Node node) {
     if (node.isRecursive()) {
-      throw new ConversionException("Recursive node found", node.getStartMark().orElse(null));
+      throw new ParserException("Recursive node found", node.getStartMark());
     }
     return converters.get(node.getClass()).apply(node);
   }
@@ -115,7 +117,7 @@ class CloudformationConverter {
 
   private static TextRange range(Optional<Mark> startMark, Optional<Mark> endMark) {
     if (!startMark.isPresent()) {
-      throw new ConversionException("Nodes are expected to have a start mark during conversion", null);
+      throw new ParseException("Nodes are expected to have a start mark during conversion", null);
     }
 
     if (endMark.isPresent()) {

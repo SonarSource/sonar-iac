@@ -22,7 +22,6 @@ package org.sonar.iac.cloudformation.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.parser.ConversionException;
 import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +41,7 @@ class FileTreeImplTest extends CloudformationTreeTest {
 
   @Test
   void empty_content_given_to_parser() {
-    assertThrows(ConversionException.class, () -> parse(""));
+    assertThrows(ParseException.class, () -> parse(""));
   }
 
   @Test
