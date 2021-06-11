@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
@@ -33,123 +32,103 @@ class OneLineBlockTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_one_line_block() {
     OneLineBlockTree tree = parse("a {}", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.ONE_LINE_BLOCK);
-      assertThat(o.type().value()).isEqualTo("a");
-      Assertions.assertThat(o.labels()).isEmpty();
-      assertThat(o.attribute()).isNotPresent();
-      assertTextRange(o.textRange()).hasRange(1,0,1,4);
-    });
+    assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.ONE_LINE_BLOCK);
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.labels()).isEmpty();
+    assertThat(tree.attribute()).isNotPresent();
+    assertTextRange(tree.textRange()).hasRange(1,0,1,4);
   }
 
   @Test
   void with_string_label() {
     OneLineBlockTree tree = parse("a \"label\" {}", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().value()).isEqualTo("a");
-      Assertions.assertThat(o.labels()).hasSize(1);
-      Assertions.assertThat(o.labels().get(0).value()).isEqualTo("\"label\"");
-    });
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.labels()).hasSize(1);
+    assertThat(tree.labels().get(0).value()).isEqualTo("\"label\"");
   }
 
   @Test
   void with_multiple_strings_labels() {
     OneLineBlockTree tree = parse("a \"label1\" \"label2\" {}", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().value()).isEqualTo("a");
-      Assertions.assertThat(o.labels()).hasSize(2);
-      Assertions.assertThat(o.labels().get(0).value()).isEqualTo("\"label1\"");
-      Assertions.assertThat(o.labels().get(1).value()).isEqualTo("\"label2\"");
-    });
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.labels()).hasSize(2);
+    assertThat(tree.labels().get(0).value()).isEqualTo("\"label1\"");
+    assertThat(tree.labels().get(1).value()).isEqualTo("\"label2\"");
   }
 
   @Test
   void with_string_and_identifier_labels() {
     OneLineBlockTree tree = parse("a \"label1\" label2 {}", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().value()).isEqualTo("a");
-      Assertions.assertThat(o.labels()).hasSize(2);
-      Assertions.assertThat(o.labels().get(0).value()).isEqualTo("\"label1\"");
-      Assertions.assertThat(o.labels().get(1).value()).isEqualTo("label2");
-    });
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.labels()).hasSize(2);
+    assertThat(tree.labels().get(0).value()).isEqualTo("\"label1\"");
+    assertThat(tree.labels().get(1).value()).isEqualTo("label2");
   }
 
   @Test
   void with_simple_attribute() {
     OneLineBlockTree tree = parse("a { b = true }", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().value()).isEqualTo("a");
-      Assertions.assertThat(o.labels()).isEmpty();
-      assertThat(o.attribute().get()).isInstanceOf(AttributeTreeImpl.class);
-    });
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.labels()).isEmpty();
+    assertThat(tree.attribute().get()).isInstanceOf(AttributeTreeImpl.class);
   }
 
   @Test
   void with_singleline_comment1() {
     OneLineBlockTree tree = parse("#comment\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().comments()).hasSize(1);
-      assertThat(o.type().comments().get(0)).satisfies(t -> {
-        assertThat(t.value()).isEqualTo("#comment");
-        assertTextRange(t.textRange()).hasRange(1,0,1,8);
-      });
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.type().comments()).hasSize(1);
+    assertThat(tree.type().comments().get(0)).satisfies(t -> {
+      assertThat(t.value()).isEqualTo("#comment");
+      assertTextRange(t.textRange()).hasRange(1,0,1,8);
     });
   }
 
   @Test
   void with_singleline_comment2() {
     OneLineBlockTree tree = parse("//comment\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().comments()).hasSize(1);
-      assertThat(o.type().comments().get(0)).satisfies(t -> {
-        assertThat(t.value()).isEqualTo("//comment");
-        assertTextRange(t.textRange()).hasRange(1,0,1,9);
-      });
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.type().comments()).hasSize(1);
+    assertThat(tree.type().comments().get(0)).satisfies(t -> {
+      assertThat(t.value()).isEqualTo("//comment");
+      assertTextRange(t.textRange()).hasRange(1,0,1,9);
     });
   }
 
   @Test
   void with_multiple_singleline_comment() {
     OneLineBlockTree tree = parse("#comment1\n#comment2\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().comments()).hasSize(2);
-      assertThat(o.type().comments().get(0)).satisfies(t -> {
-        assertThat(t.value()).isEqualTo("#comment1");
-        assertTextRange(t.textRange()).hasRange(1,0,1,9);
-      });
-      assertThat(o.type().comments().get(1)).satisfies(t -> {
-        assertThat(t.value()).isEqualTo("#comment2");
-        assertTextRange(t.textRange()).hasRange(2,0,2,9);
-      });
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.type().comments()).hasSize(2);
+    assertThat(tree.type().comments().get(0)).satisfies(t -> {
+      assertThat(t.value()).isEqualTo("#comment1");
+      assertTextRange(t.textRange()).hasRange(1,0,1,9);
+    });
+    assertThat(tree.type().comments().get(1)).satisfies(t -> {
+      assertThat(t.value()).isEqualTo("#comment2");
+      assertTextRange(t.textRange()).hasRange(2,0,2,9);
     });
   }
 
   @Test
   void with_multiline_comment() {
     OneLineBlockTree tree = parse("/* line1\nline2 */\na {}", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().comments()).hasSize(1);
-      assertThat(o.type().comments().get(0)).satisfies(t -> {
-        assertThat(t.value()).isEqualTo("/* line1\nline2 */");
-        assertTextRange(t.textRange()).hasRange(1,0,2,8);
-      });
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.type().comments()).hasSize(1);
+    assertThat(tree.type().comments().get(0)).satisfies(t -> {
+      assertThat(t.value()).isEqualTo("/* line1\nline2 */");
+      assertTextRange(t.textRange()).hasRange(1,0,2,8);
     });
   }
 
   @Test
   void with_multiline_comment_same_line() {
     OneLineBlockTree tree = parse("/* comment */a {}", HclLexicalGrammar.ONE_LINE_BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(OneLineBlockTreeImpl.class, o -> {
-      assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.type().comments()).hasSize(1);
-      assertThat(o.type().comments().get(0)).satisfies(t -> {
-        assertThat(t.value()).isEqualTo("/* comment */");
-        assertTextRange(t.textRange()).hasRange(1,0,1,13);
-      });
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.type().comments()).hasSize(1);
+    assertThat(tree.type().comments().get(0)).satisfies(t -> {
+      assertThat(t.value()).isEqualTo("/* comment */");
+      assertTextRange(t.textRange()).hasRange(1,0,1,13);
     });
   }
 }

@@ -21,8 +21,8 @@ package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.ConditionTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 

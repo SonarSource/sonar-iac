@@ -32,7 +32,6 @@ class BodyTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_body_with_one_line_block() {
     BodyTree tree = parse("a {}", HclLexicalGrammar.BODY);
-    assertThat(tree).isInstanceOfSatisfying(BodyTreeImpl.class,  o ->
-      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.BODY));
+    assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.BODY);
   }
 }

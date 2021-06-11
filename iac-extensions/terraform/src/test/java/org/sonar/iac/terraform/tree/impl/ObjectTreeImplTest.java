@@ -31,10 +31,8 @@ class ObjectTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_object() {
     ObjectTree tree = parse("{a: 1, b: 2}", HclLexicalGrammar.OBJECT);
-    assertThat(tree).isInstanceOfSatisfying(ObjectTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.OBJECT);
-      assertThat(o.elements().trees()).hasSize(2);
-    });
+    assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.OBJECT);
+    assertThat(tree.elements().trees()).hasSize(2);
   }
 
   @Test

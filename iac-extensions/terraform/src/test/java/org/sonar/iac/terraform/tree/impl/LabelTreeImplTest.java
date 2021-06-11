@@ -20,29 +20,26 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LabelTreeImplTest extends TerraformTreeModelTest {
+
   @Test
   void string_literal() {
     LabelTree tree = parse("\"a\"", HclLexicalGrammar.LABEL);
-    assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.LABEL);
-      assertThat(o.value()).isEqualTo("\"a\"");
-      assertThat(o.value()).isEqualTo(o.token().value());
-    });
+    assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.LABEL);
+    assertThat(tree.value()).isEqualTo("\"a\"");
+    assertThat(tree.value()).isEqualTo(tree.token().value());
   }
 
   @Test
   void identifier() {
     LabelTree tree = parse("id", HclLexicalGrammar.LABEL);
-    assertThat(tree).isInstanceOfSatisfying(LabelTreeImpl.class, o -> {
-      assertThat(o.value()).isEqualTo("id");
-      assertThat(o.value()).isEqualTo(o.token().value());
-    });
+    assertThat(tree.value()).isEqualTo("id");
+    assertThat(tree.value()).isEqualTo(tree.token().value());
   }
 }

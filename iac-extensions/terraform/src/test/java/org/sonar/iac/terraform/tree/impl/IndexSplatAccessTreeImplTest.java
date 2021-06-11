@@ -31,10 +31,8 @@ class IndexSplatAccessTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_index_splat_access() {
     IndexSplatAccessTree tree = parse("a[*]", HclLexicalGrammar.EXPRESSION);
-    assertThat(tree).satisfies(a -> {
-      assertThat(a.getKind()).isEqualTo(TerraformTree.Kind.INDEX_SPLAT_ACCESS);
-      assertThat(a.children()).hasSize(4);
-      assertThat(a.subject()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
-    });
+    assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.INDEX_SPLAT_ACCESS);
+    assertThat(tree.children()).hasSize(4);
+    assertThat(tree.subject()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
   }
 }
