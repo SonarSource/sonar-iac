@@ -1,4 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
+testAnchor: &testAnchor
+  Key: "anycompany:cost-center" # Noncompliant - Currently we do raise two issue in this location. We should avoid this SONARIAC-78
+  Value: "Accounting"
 Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket'
@@ -13,3 +16,5 @@ Resources:
           Value: "Accounting"
         - Key: "Anycompany:EnvironmentType"
           Value: "PROD"
+        - *testAnchor
+        - *testAnchor
