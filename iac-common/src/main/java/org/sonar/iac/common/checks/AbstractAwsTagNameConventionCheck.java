@@ -17,21 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.checks;
+package org.sonar.iac.common.checks;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.regex.Pattern;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-public class CloudformationCheckList {
+@Rule(key = "S6273")
+public abstract class AbstractAwsTagNameConventionCheck implements IacCheck {
+  protected static final String MESSAGE = "Rename tag key \"%s\" to match the regular expression \"%s\".";
+  public static final String DEFAULT = "^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$";
+  protected Pattern pattern;
 
-  private CloudformationCheckList() {
-
-  }
-
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      AwsTagNameConventionCheck.class,
-      ParsingErrorCheck.class
-    );
-  }
+  @RuleProperty(
+    key = "format",
+    description = "Regular expression used to check the tag keys against.",
+    defaultValue = DEFAULT)
+  public String format = DEFAULT;
 }

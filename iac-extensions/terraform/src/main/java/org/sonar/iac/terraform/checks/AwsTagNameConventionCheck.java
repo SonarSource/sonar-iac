@@ -20,29 +20,16 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.regex.Pattern;
-import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.terraform.api.tree.ObjectElementTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.common.checks.AbstractAwsTagNameConventionCheck;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
+import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 
-@Rule(key = "S6273")
-public class AwsTagNameConventionCheck implements IacCheck {
-
-  private static final String MESSAGE = "Rename tag key \"%s\" to match the regular expression \"%s\".";
-  public static final String DEFAULT = "^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$";
-  private Pattern pattern;
-
-  @RuleProperty(
-    key = "format",
-    description = "Regular expression used to check the tag keys against.",
-    defaultValue = DEFAULT)
-  String format = DEFAULT;
+public class AwsTagNameConventionCheck extends AbstractAwsTagNameConventionCheck {
 
   @Override
   public void initialize(InitContext init) {

@@ -153,7 +153,8 @@ class CloudformationConverter {
   }
 
   private static Comment comment(CommentLine comment) {
-    return new CommentImpl(comment.getValue(), comment.getValue(), range(comment.getStartMark(), comment.getEndMark()));
+    // We prefix the comment value with # as it is already stripped away when arrive at this point.
+    return new CommentImpl('#' + comment.getValue(), comment.getValue(), range(comment.getStartMark(), comment.getEndMark()));
   }
 
   private static ScalarTree.Style scalarStyleConvert(ScalarStyle style) {

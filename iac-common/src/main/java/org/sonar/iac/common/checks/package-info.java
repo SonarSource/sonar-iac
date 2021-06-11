@@ -17,21 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.checks;
-
-import java.util.Arrays;
-import java.util.List;
-
-public class CloudformationCheckList {
-
-  private CloudformationCheckList() {
-
-  }
-
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      AwsTagNameConventionCheck.class,
-      ParsingErrorCheck.class
-    );
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.common.checks;
