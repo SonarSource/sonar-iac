@@ -31,10 +31,8 @@ class TupleTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_tuple() {
     TupleTree tree = parse("[a, b]", HclLexicalGrammar.TUPLE);
-    assertThat(tree).isInstanceOfSatisfying(TupleTreeImpl.class, o -> {
-      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.TUPLE);
-      assertThat(o.elements().trees()).hasSize(2);
-      assertThat(o.children()).hasSize(5);
-    });
+    assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.TUPLE);
+    assertThat(tree.elements().trees()).hasSize(2);
+    assertThat(tree.children()).hasSize(5);
   }
 }

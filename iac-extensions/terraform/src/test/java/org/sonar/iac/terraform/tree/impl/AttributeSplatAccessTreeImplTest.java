@@ -31,10 +31,8 @@ class AttributeSplatAccessTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_attribute_splat_access() {
     AttributeSplatAccessTree tree = parse("a.*", HclLexicalGrammar.EXPRESSION);
-    assertThat(tree).satisfies(a -> {
-      assertThat(a.getKind()).isEqualTo(TerraformTree.Kind.ATTRIBUTE_SPLAT_ACCESS);
-      assertThat(a.children()).hasSize(3);
-      assertThat(a.object()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
-    });
+    assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.ATTRIBUTE_SPLAT_ACCESS);
+    assertThat(tree.children()).hasSize(3);
+    assertThat(tree.object()).isInstanceOfSatisfying(VariableExprTreeImpl.class, o -> assertThat(o.name()).isEqualTo("a"));
   }
 }

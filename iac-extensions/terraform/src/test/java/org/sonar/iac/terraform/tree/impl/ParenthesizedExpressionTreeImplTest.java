@@ -20,8 +20,8 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
 
@@ -32,10 +32,8 @@ class ParenthesizedExpressionTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_parenthesized_expression() {
     ParenthesizedExpressionTree tree = parse("(a)", HclLexicalGrammar.EXPRESSION);
-    assertThat(tree).satisfies(o -> {
-      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.PARENTHESIZED_EXPRESSION);
-      assertThat(o.children()).hasSize(3);
-      assertThat(o.expression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("a"));
-    });
+    assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.PARENTHESIZED_EXPRESSION);
+    assertThat(tree.children()).hasSize(3);
+    assertThat(tree.expression()).isInstanceOfSatisfying(VariableExprTree.class, v -> assertThat(v.name()).isEqualTo("a"));
   }
 }

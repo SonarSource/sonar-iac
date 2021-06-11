@@ -20,9 +20,9 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclLexicalGrammar;
-import org.sonar.iac.terraform.api.tree.BlockTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,11 +31,9 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
   @Test
   void simple_one_line_block() {
     BlockTree tree = parse("a{\n b = true \nc = null}", HclLexicalGrammar.BLOCK);
-    assertThat(tree).isInstanceOfSatisfying(BlockTree.class, o -> {
-      assertThat(o.getKind()).isEqualTo(TerraformTree.Kind.BLOCK);
-      assertThat(o.type().value()).isEqualTo("a");
-      assertThat(o.labels()).isEmpty();
-      assertThat(o.body().get().statements()).hasSize(2);
-    });
+    assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.BLOCK);
+    assertThat(tree.type().value()).isEqualTo("a");
+    assertThat(tree.labels()).isEmpty();
+    assertThat(tree.body().get().statements()).hasSize(2);
   }
 }
