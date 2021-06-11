@@ -59,7 +59,7 @@ public class AwsTagNameConventionCheck implements IacCheck {
 
   private void check(CheckContext ctx, SequenceTree tree) {
     tree.elements().stream()
-      .map(this::tagKey)
+      .map(AwsTagNameConventionCheck::tagKey)
       .filter(Optional::isPresent)
       .map(Optional::get)
       .forEach(key -> {
@@ -70,7 +70,7 @@ public class AwsTagNameConventionCheck implements IacCheck {
       });
   }
 
-  private Optional<ScalarTree> tagKey(CloudformationTree tree) {
+  private static Optional<ScalarTree> tagKey(CloudformationTree tree) {
     if (!(tree instanceof MappingTree)) {
       return Optional.empty();
     }
