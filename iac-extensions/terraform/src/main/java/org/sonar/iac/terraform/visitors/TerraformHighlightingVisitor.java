@@ -19,46 +19,23 @@
  */
 package org.sonar.iac.terraform.visitors;
 
-import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 
-import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CONSTANT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
 
-public class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
+public class TerraformHighlightingVisitor extends SyntaxHighlightingVisitor {
 
-  private NewHighlighting newHighlighting;
-
-  public SyntaxHighlightingVisitor() {
+  @Override
+  protected void languageSpecificHighlighting() {
     register(BlockTree.class,  (ctx, tree) -> highlight(tree.type(), KEYWORD));
     register(LabelTree.class, (ctx, tree) -> highlight(tree, STRING));
     register(LiteralExprTree.class, (ctx, tree) -> highlight(tree,  tree.is(TerraformTree.Kind.STRING_LITERAL) ? STRING : CONSTANT));
-    register(SyntaxToken.class, (ctx, tree) -> tree.comments().forEach(comment -> highlight(comment, COMMENT)));
   }
 
-  @Override
-  protected void before(InputFileContext ctx, Tree root) {
-    newHighlighting = ctx.sensorContext.newHighlighting()
-      .onFile(ctx.inputFile);
-  }
-
-  @Override
-  protected void after(InputFileContext ctx, Tree root) {
-    newHighlighting.save();
-  }
-
-  private void highlight(HasTextRange range, TypeOfText typeOfText) {
-    newHighlighting.highlight(range.textRange(), typeOfText);
-  }
 }

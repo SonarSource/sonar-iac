@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
+import java.util.Optional;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.InputFile;
@@ -29,13 +30,13 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
+import org.sonar.iac.cloudformation.visitors.CloudformationHighlightingVisitor;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
-
-import java.util.Optional;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 
 public class CloudformationSensor extends IacSensor {
 
@@ -59,6 +60,11 @@ public class CloudformationSensor extends IacSensor {
 
   protected Checks<IacCheck> checks() {
     return checks;
+  }
+
+  @Override
+  protected SyntaxHighlightingVisitor syntaxHighlightingVisitor() {
+    return new CloudformationHighlightingVisitor();
   }
 
   @Override

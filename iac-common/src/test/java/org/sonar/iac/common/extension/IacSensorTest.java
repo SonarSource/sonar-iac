@@ -40,6 +40,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -227,6 +228,16 @@ class IacSensorTest extends AbstractSensorTest {
       @Override
       protected String repositoryKey() {
         return IacSensorTest.this.repositoryKey();
+      }
+
+      @Override
+      protected SyntaxHighlightingVisitor syntaxHighlightingVisitor() {
+        return new SyntaxHighlightingVisitor() {
+          @Override
+          protected void languageSpecificHighlighting() {
+
+          }
+        };
       }
     };
   }

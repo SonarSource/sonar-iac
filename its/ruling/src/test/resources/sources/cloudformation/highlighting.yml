@@ -1,0 +1,5 @@
+AWSTemplateFormatVersion: '2010-09-09'
+foo: &fooanchor
+  K1: "One"
+  K2: "Two"
+bar: *fooanchor
