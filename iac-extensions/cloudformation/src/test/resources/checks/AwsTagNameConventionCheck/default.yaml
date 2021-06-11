@@ -9,7 +9,21 @@ Resources:
           Value: "Accounting"
         - Key: "anycompany:EnvironmentType" # Noncompliant
           Value: "PROD"
+        - Key: 'anycompany:EnvironmentType' # Noncompliant
+          Value: "PROD"
         - Key: "Anycompany:CostCenter" # Compliant
           Value: "Accounting"
         - Key: "Anycompany:EnvironmentType" # Compliant
           Value: "PROD"
+
+    CoverageProperties:
+      Tags:
+        - Key: ["not what we expect"]
+          Value: "PROD"
+        - Key: noString # Compliant
+          Value: "PROD"
+        - [foo]: bar
+        - "no key value mapping"
+      [foo]: bar
+    CoverageProperties2:
+      Tags: "not what we expect"
