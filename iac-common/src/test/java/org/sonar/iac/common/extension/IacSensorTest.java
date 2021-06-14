@@ -166,6 +166,29 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
+  void test_issue_not_raised_twice_on_same_range() {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks checks = mock(Checks.class);
+    IacCheck validCheck = init ->
+      init.register(Tree.class, (ctx, tree) -> {
+        ctx.reportIssue(tree.textRange(), "testIssue");
+        ctx.reportIssue(tree.textRange(), "testIssue");
+      });
+
+    when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
+    when(checkFactory.create(repositoryKey())).thenReturn(checks);
+    when(checks.all()).thenReturn(Collections.singletonList(validCheck));
+    testParser = source -> new TestTree();
+    sensor(checkFactory).execute(context);
+
+    InputFile inputFile = inputFile("file1.iac", "foo");
+    analyse(sensor(checkFactory), inputFile);
+
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+  }
+
+  @Test
   void test_failure_in_check() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
