@@ -22,6 +22,8 @@ package org.sonar.iac.common.testing;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.TextPointer;
@@ -57,13 +59,15 @@ public final class Verifier {
     String testFileContent = readFile(path);
     Tree root = parser.parse(testFileContent);
 
+    final Set<TextRange> alreadyAdded = new HashSet<>();
     (new TreeVisitor<>())
       .register(Tree.class, (ctx, tree) -> {
-        if (tree instanceof HasComments) {
+        if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
           for (Comment comment : ((HasComments) tree).comments()) {
             TextPointer start = comment.textRange().start();
             verifier.addComment(start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
           }
+          alreadyAdded.add(tree.textRange());
         }
       }).scan(new TreeContext(), root);
 
@@ -86,6 +90,7 @@ public final class Verifier {
 
     private final TreeVisitor<TestContext> visitor;
     private final SingleFileVerifier verifier;
+    private final Set<TextRange> raisedIssues = new HashSet<>();
 
     public TestContext(SingleFileVerifier verifier) {
       this.verifier = verifier;
@@ -108,11 +113,14 @@ public final class Verifier {
 
     @Override
     public void reportIssue(TextRange textRange, String message) {
-      TextPointer start = textRange.start();
-      TextPointer end = textRange.end();
-      verifier
-        .reportIssue(message)
-        .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
+      if (!raisedIssues.contains(textRange)) {
+        TextPointer start = textRange.start();
+        TextPointer end = textRange.end();
+        verifier
+          .reportIssue(message)
+          .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
+        raisedIssues.add(textRange);
+      }
     }
   }
 }

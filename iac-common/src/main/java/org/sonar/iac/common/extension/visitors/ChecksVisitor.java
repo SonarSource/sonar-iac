@@ -20,16 +20,18 @@
 package org.sonar.iac.common.extension.visitors;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
 
@@ -51,6 +53,7 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 
     public final RuleKey ruleKey;
     private InputFileContext currentCtx;
+    private final Set<TextRange> raisedIssues = new HashSet<>();
 
     public ContextAdapter(RuleKey ruleKey) {
       this.ruleKey = ruleKey;
@@ -71,7 +74,12 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 
     @Override
     public void reportIssue(@Nullable TextRange textRange, String message) {
-      currentCtx.reportIssue(ruleKey, textRange, message);
+      // We avoid raising an issue on text ranges on which we already raised one. This is to avoid duplicate ones which might happen, for example, with Yaml anchors SONARIAC-78.
+      // Once we'll need to introduce a secondary locations mechanism, a more sophisticated mechanism has to be used to detect duplicates.
+      if (!raisedIssues.contains(textRange)) {
+        currentCtx.reportIssue(ruleKey, textRange, message);
+        raisedIssues.add(textRange);
+      }
     }
   }
 }
