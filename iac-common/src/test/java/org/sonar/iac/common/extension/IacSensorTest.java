@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -40,7 +41,9 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -204,11 +207,22 @@ class IacSensorTest extends AbstractSensorTest {
 
   @Override
   protected IacSensor sensor(CheckFactory checkFactory) {
+
     return new IacSensor(fileLinesContextFactory, noSonarFilter, IacLanguage.IAC) {
 
       @Override
       protected TreeParser<Tree> treeParser() {
         return testParser;
+      }
+
+      @Override
+      protected String repositoryKey() {
+        return IacSensorTest.this.repositoryKey();
+      }
+
+      @Override
+      protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
+        return Collections.singletonList(new ChecksVisitor(checkFactory.create(repositoryKey()), statistics));
       }
 
       @Override
@@ -218,26 +232,6 @@ class IacSensorTest extends AbstractSensorTest {
           return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
         }
         return super.toParseException(action, inputFile, cause);
-      }
-
-      @Override
-      protected Checks<IacCheck> checks() {
-        return checkFactory.create(repositoryKey());
-      }
-
-      @Override
-      protected String repositoryKey() {
-        return IacSensorTest.this.repositoryKey();
-      }
-
-      @Override
-      protected SyntaxHighlightingVisitor syntaxHighlightingVisitor() {
-        return new SyntaxHighlightingVisitor() {
-          @Override
-          protected void languageSpecificHighlighting() {
-
-          }
-        };
       }
     };
   }

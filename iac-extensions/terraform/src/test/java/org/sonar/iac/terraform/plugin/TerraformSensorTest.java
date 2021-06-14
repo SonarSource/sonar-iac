@@ -26,7 +26,6 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -35,8 +34,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.terraform.checks.AwsTagNameConventionCheck;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
@@ -155,14 +152,7 @@ class TerraformSensorTest extends AbstractSensorTest {
 
   @Override
   protected TerraformSensor sensor(CheckFactory checkFactory) {
-    return new TerraformSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language()) {
-      @Override
-      protected Checks<IacCheck> checks() {
-        Checks<IacCheck> checks = checkFactory.create(repositoryKey());
-        checks.addAnnotatedChecks(AwsTagNameConventionCheck.class);
-        return checks;
-      }
-    };
+    return new TerraformSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language());
   }
 
   @Override

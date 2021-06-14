@@ -21,11 +21,9 @@ package org.sonar.iac.cloudformation.plugin;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
@@ -96,13 +94,7 @@ class CloudformationSensorTest extends AbstractSensorTest {
 
   @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    return new CloudformationSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language()) {
-      @Override
-      protected Checks<IacCheck> checks() {
-        Checks<IacCheck> checks = checkFactory.create(repositoryKey());
-        return checks;
-      }
-    };
+    return new CloudformationSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language());
   }
 
   @Override

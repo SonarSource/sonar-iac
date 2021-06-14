@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.visitors;
+package org.sonar.iac.common.extension.visitors;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
@@ -30,34 +29,24 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
-public class MetricsVisitor extends TreeVisitor<InputFileContext> {
+public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
 
   public static final String NOSONAR_PREFIX = "NOSONAR";
   private final FileLinesContextFactory fileLinesContextFactory;
   private final NoSonarFilter noSonarFilter;
 
-  Set<Integer> linesOfCode;
-  Set<Integer> commentLines;
-  Set<Integer> noSonarLines;
+  private Set<Integer> linesOfCode;
+  private Set<Integer> commentLines;
+  private Set<Integer> noSonarLines;
 
-  public MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
+  protected MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.noSonarFilter = noSonarFilter;
-
-    register(SyntaxToken.class, (ctx, token) -> {
-      if (!token.value().isEmpty()) {
-        TextRange range = token.textRange();
-        for (int i = range.start().line(); i <= range.end().line(); i++) {
-          linesOfCode.add(i);
-        }
-      }
-      addCommentLines(token.comments());
-    });
+    languageSpecificMetrics();
   }
+
+  protected abstract void languageSpecificMetrics();
 
   @Override
   protected void before(InputFileContext ctx, Tree root) {
@@ -77,7 +66,7 @@ public class MetricsVisitor extends TreeVisitor<InputFileContext> {
     noSonarFilter.noSonarInFile(ctx.inputFile, noSonarLines);
   }
 
-  private void addCommentLines(List<Comment> comments) {
+  protected void addCommentLines(List<Comment> comments) {
     for (Comment comment : comments) {
       String[] lines = comment.contentText().split("(\r)?\n|\r", -1);
       int currentLine = comment.textRange().start().line();
@@ -102,5 +91,17 @@ public class MetricsVisitor extends TreeVisitor<InputFileContext> {
       .forMetric(metric)
       .withValue(value)
       .save();
+  }
+
+  public Set<Integer> linesOfCode() {
+    return linesOfCode;
+  }
+
+  public Set<Integer> commentLines() {
+    return commentLines;
+  }
+
+  public Set<Integer> noSonarLines() {
+    return noSonarLines;
   }
 }

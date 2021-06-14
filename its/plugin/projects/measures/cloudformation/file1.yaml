@@ -1,0 +1,7 @@
+AWSTemplateFormatVersion: '2010-09-09'
+# Comment
+#
+Resources:
+  Test:
+    Type: AWS::CloudFormation::WaitConditionHandle # NOSONAR
+    Properties: {}
