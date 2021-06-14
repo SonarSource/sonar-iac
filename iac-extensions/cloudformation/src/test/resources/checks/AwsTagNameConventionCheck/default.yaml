@@ -1,4 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
+testAnchor: &testAnchor
+  Key: "anycompany:cost-center" # Noncompliant
+  Value: "Accounting"
 Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket'
@@ -15,6 +18,8 @@ Resources:
           Value: "Accounting"
         - Key: "Anycompany:EnvironmentType" # Compliant
           Value: "PROD"
+        - *testAnchor
+        - *testAnchor
 
     CoverageProperties:
       Tags:
