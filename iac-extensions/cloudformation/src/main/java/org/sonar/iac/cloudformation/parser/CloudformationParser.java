@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.cloudformation.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import javax.annotation.Nullable;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.composer.Composer;
 import org.snakeyaml.engine.v2.nodes.Node;
@@ -29,15 +33,14 @@ import org.snakeyaml.engine.v2.scanner.StreamReader;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public class CloudformationParser implements TreeParser<Tree> {
 
   @Override
-  public FileTree parse(String source) {
-    LoadSettings settings = LoadSettings.builder().setParseComments(true).build();
+  public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
+    boolean parseComments = inputFileContext == null || !inputFileContext.inputFile().filename().toLowerCase(Locale.ROOT).endsWith(".json");
+    LoadSettings settings = LoadSettings.builder().setParseComments(parseComments).build();
     StreamReader reader = new StreamReader(settings, source);
     ScannerImpl scanner = new ScannerImpl(settings, reader);
     Parser parser = new ParserImpl(settings, scanner);

@@ -57,7 +57,7 @@ public final class Verifier {
     SingleFileVerifier verifier = SingleFileVerifier.create(path, UTF_8);
 
     String testFileContent = readFile(path);
-    Tree root = parser.parse(testFileContent);
+    Tree root = parser.parse(testFileContent, null);
 
     final Set<TextRange> alreadyAdded = new HashSet<>();
     (new TreeVisitor<>())

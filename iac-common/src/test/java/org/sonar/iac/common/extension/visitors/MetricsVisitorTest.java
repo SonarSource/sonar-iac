@@ -42,7 +42,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected TreeParser treeParser() {
-    return source -> new TestTree();
+    return (source, inputFileContext) -> new TestTree();
   }
 
   @Override

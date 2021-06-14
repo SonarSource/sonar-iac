@@ -21,6 +21,7 @@ package org.sonar.iac.common.extension;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -148,7 +149,7 @@ public abstract class IacSensor implements Sensor {
 
       Tree tree = statistics.time("Parse", () -> {
         try {
-          return parser.parse(content);
+          return parser.parse(content, inputFileContext);
         } catch (RuntimeException e) {
           throw toParseException("parse", inputFile, e);
         }
