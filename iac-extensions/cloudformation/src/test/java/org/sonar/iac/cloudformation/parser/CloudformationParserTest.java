@@ -22,6 +22,7 @@ package org.sonar.iac.cloudformation.parser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
@@ -30,15 +31,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class CloudformationParserTest {
-  InputFileContext inputFileContext;
+  private InputFileContext inputFileContext;
   private InputFile inputFile;
   private final CloudformationParser parser = new CloudformationParser();
 
   @BeforeEach
   void setup() {
-    inputFileContext = mock(InputFileContext.class);
     inputFile = mock(InputFile.class);
-    when(inputFileContext.inputFile()).thenReturn(inputFile);
+    inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
   }
 
   @Test

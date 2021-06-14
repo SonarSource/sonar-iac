@@ -39,7 +39,7 @@ public class CloudformationParser implements TreeParser<Tree> {
 
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    boolean parseComments = inputFileContext == null || !inputFileContext.inputFile().filename().toLowerCase(Locale.ROOT).endsWith(".json");
+    boolean parseComments = inputFileContext == null || !inputFileContext.inputFile.filename().toLowerCase(Locale.ROOT).endsWith(".json");
     LoadSettings settings = LoadSettings.builder().setParseComments(parseComments).build();
     StreamReader reader = new StreamReader(settings, source);
     ScannerImpl scanner = new ScannerImpl(settings, reader);

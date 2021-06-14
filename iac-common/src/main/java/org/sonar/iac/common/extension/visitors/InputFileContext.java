@@ -88,8 +88,4 @@ public class InputFileContext extends TreeContext {
 
     error.save();
   }
-
-  public InputFile inputFile() {
-    return inputFile;
-  }
 }
