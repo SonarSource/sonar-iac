@@ -41,7 +41,7 @@ public class CloudformationMetricsVisitor extends MetricsVisitor {
     register(CloudformationTree.class, (ctx, tree) -> addCommentLines(tree.comments()));
   }
 
-  private int endLine(ScalarTree tree) {
+  private static int endLine(ScalarTree tree) {
     return tree.textRange().end().line() - (tree.value().endsWith("\n") ? 1 : 0);
   }
 }
