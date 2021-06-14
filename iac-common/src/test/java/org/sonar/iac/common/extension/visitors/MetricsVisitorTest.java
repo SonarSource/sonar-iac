@@ -63,7 +63,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Test
   void test_metrics() {
-    scan("#comment\nfoo\n#NOSONAR");
+    scan("#comment\nfoo\n#NOSONAR\n#");
     assertThat(visitor.commentLines()).containsExactly(1);
     assertThat(visitor.linesOfCode()).containsExactly(2);
     assertThat(visitor.noSonarLines()).containsExactly(3);
@@ -78,7 +78,8 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     public List<Comment> comments() {
       return Arrays.asList(
         new CommentImpl("#comment", "comment", TextRanges.range(1, 0, "#comment")),
-        new CommentImpl("#NOSONAR", "NOSONAR", TextRanges.range(3, 0, "#NOSONAR"))
+        new CommentImpl("#NOSONAR", "NOSONAR", TextRanges.range(3, 0, "#NOSONAR")),
+        new CommentImpl("#", "", TextRanges.range(4, 0, "#"))
       );
     }
 

@@ -84,7 +84,7 @@ public class MeasuresTest extends TestBase {
     assertThat(getMeasureAsInt(file1, "ncloc")).isEqualTo(5);
 
     //assertThat(getMeasure(emptyFile, "comment_lines")).isNull();
-    assertThat(getMeasureAsInt(file1, "comment_lines")).isEqualTo(0);
+    assertThat(getMeasureAsInt(file1, "comment_lines")).isZero();
 
     //assertThat(getMeasure(emptyFile, "ncloc_data")).isNull();
     assertThat(getMeasure(file1, "ncloc_data").getValue()).isEqualTo("2=1;3=1;4=1;5=1;6=1");

@@ -35,11 +35,9 @@ public class CloudformationMetricsVisitor extends MetricsVisitor {
   @Override
   protected void languageSpecificMetrics() {
     register(ScalarTree.class, (ctx, tree) -> {
-      if (!tree.value().isEmpty()) {
-        TextRange range = tree.textRange();
-        for (int i = range.start().line(); i <= range.end().line(); i++) {
-          linesOfCode().add(i);
-        }
+      TextRange range = tree.textRange();
+      for (int i = range.start().line(); i <= range.end().line(); i++) {
+        linesOfCode().add(i);
       }
     });
     register(CloudformationTree.class, (ctx, tree) -> addCommentLines(tree.comments()));
