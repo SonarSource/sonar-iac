@@ -53,11 +53,10 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 
     public final RuleKey ruleKey;
     private InputFileContext currentCtx;
-    private final Set<TextRange> raisedIssues;
+    private final Set<TextRange> raisedIssues = new HashSet<>();
 
     public ContextAdapter(RuleKey ruleKey) {
       this.ruleKey = ruleKey;
-      raisedIssues = new HashSet<>();
     }
 
     @Override
