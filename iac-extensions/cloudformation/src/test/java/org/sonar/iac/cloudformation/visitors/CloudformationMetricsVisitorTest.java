@@ -57,14 +57,24 @@ class CloudformationMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.linesOfCode()).containsExactly(2);
   }
 
-  // FIXME SONARIAC-80: Do not add line to range if scalar ends with new line
   @Test
-  void multiline_scalar_value() {
+  void multiline_literal_scalar() {
     scan("" +
       "key: |\n" +
-      "  value\n" +
-      "  value\n");
-    assertThat(visitor.linesOfCode()).containsExactly(1,2,3,4);
+      "  value1\n" +
+      "  value2\n"
+    );
+    assertThat(visitor.linesOfCode()).containsExactly(1,2,3);
+  }
+
+  @Test
+  void multiline_folded_scalar() {
+    scan("" +
+      "key: >\n" +
+      "  value1\n" +
+      "  value2\n"
+    );
+    assertThat(visitor.linesOfCode()).containsExactly(1,2,3);
   }
 
   @Test
