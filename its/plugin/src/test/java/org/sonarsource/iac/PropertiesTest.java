@@ -33,9 +33,20 @@ public class PropertiesTest extends TestBase {
   }
 
   @Test
+  public void test_cloudformation_custom_file_suffixes() {
+    checkCustomFileSuffixesForLanguage("cloudformationCustomFileSuffixes", "cloudformation", ".cloud", 1);
+  }
+
+  @Test
   public void test_terraform_exclusions() {
     checkCustomExclusionsForLanguage("terraformCustomExclusions", "terraform", "**/excludedDir/**", 2);
   }
+
+  @Test
+  public void test_cloudformation_exclusions() {
+    checkCustomExclusionsForLanguage("cloudformationCustomExclusions", "cloudformation", "**/excludedDir/**", 2);
+  }
+
 
   @Test
   public void test_cloudformation_identifier() {
