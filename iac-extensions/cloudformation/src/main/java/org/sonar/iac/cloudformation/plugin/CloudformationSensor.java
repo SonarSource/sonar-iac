@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
@@ -26,17 +28,22 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.cloudformation.visitors.CloudformationHighlightingVisitor;
+import org.sonar.iac.cloudformation.visitors.CloudformationMetricsVisitor;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
-import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
 public class CloudformationSensor extends IacSensor {
 
@@ -58,13 +65,15 @@ public class CloudformationSensor extends IacSensor {
     return CloudformationExtension.REPOSITORY_KEY;
   }
 
-  protected Checks<IacCheck> checks() {
-    return checks;
-  }
-
   @Override
-  protected SyntaxHighlightingVisitor syntaxHighlightingVisitor() {
-    return new CloudformationHighlightingVisitor();
+  protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
+    List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+    if (isSonarLintContext(sensorContext)) {
+      visitors.add(new CloudformationHighlightingVisitor());
+      visitors.add(new CloudformationMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+    }
+    visitors.add(new ChecksVisitor(checks, statistics));
+    return visitors;
   }
 
   @Override

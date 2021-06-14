@@ -20,8 +20,6 @@
 package org.sonar.iac.common.extension;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -32,7 +30,6 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -41,11 +38,8 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
@@ -73,11 +67,9 @@ public abstract class IacSensor implements Sensor {
 
   protected abstract TreeParser<Tree> treeParser();
 
-  protected abstract Checks<IacCheck> checks();
-
   protected abstract String repositoryKey();
 
-  protected abstract SyntaxHighlightingVisitor syntaxHighlightingVisitor();
+  protected abstract List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics);
 
   @Override
   public void execute(SensorContext sensorContext) {
@@ -104,17 +96,8 @@ public abstract class IacSensor implements Sensor {
     statistics.log();
   }
 
-  public List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
-    List<TreeVisitor<InputFileContext>> treeVisitors = new ArrayList<>(languageSpecificVisitors(sensorContext));
-    if (sensorContext.runtime().getProduct() != SonarProduct.SONARLINT) {
-      treeVisitors.add(syntaxHighlightingVisitor());
-    }
-    treeVisitors.add(new ChecksVisitor(checks(), statistics));
-    return treeVisitors;
-  }
-
-  protected List<TreeVisitor<InputFileContext>> languageSpecificVisitors(SensorContext sensorContext) {
-    return Collections.emptyList();
+  protected boolean isSonarLintContext(SensorContext sensorContext) {
+    return sensorContext.runtime().getProduct() != SonarProduct.SONARLINT;
   }
 
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {

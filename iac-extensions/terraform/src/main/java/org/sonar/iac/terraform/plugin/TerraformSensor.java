@@ -19,12 +19,9 @@
  */
 package org.sonar.iac.terraform.plugin;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.sonar.sslr.api.RecognitionException;
-import org.sonar.api.SonarProduct;
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -32,17 +29,18 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.TreeParser;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
 import org.sonar.iac.terraform.parser.HclParser;
-import org.sonar.iac.terraform.visitors.MetricsVisitor;
 import org.sonar.iac.terraform.visitors.TerraformHighlightingVisitor;
+import org.sonar.iac.terraform.visitors.TerraformMetricsVisitor;
 
 public class TerraformSensor extends IacSensor {
 
@@ -65,25 +63,14 @@ public class TerraformSensor extends IacSensor {
   }
 
   @Override
-  public List<TreeVisitor<InputFileContext>> languageSpecificVisitors(SensorContext sensorContext) {
-    List<TreeVisitor<InputFileContext>> languageSpecificTreeVisitors = new ArrayList<>();
-    // non sonar lint context visitors
-    if (sensorContext.runtime().getProduct() != SonarProduct.SONARLINT) {
-      languageSpecificTreeVisitors.addAll(Arrays.asList(
-        new MetricsVisitor(fileLinesContextFactory, noSonarFilter)
-      ));
+  protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
+    List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+    if (isSonarLintContext(sensorContext)) {
+      visitors.add(new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+      visitors.add(new TerraformHighlightingVisitor());
     }
-    return languageSpecificTreeVisitors;
-  }
-
-  @Override
-  protected Checks<IacCheck> checks() {
-    return checks;
-  }
-
-  @Override
-  protected SyntaxHighlightingVisitor syntaxHighlightingVisitor() {
-    return new TerraformHighlightingVisitor();
+    visitors.add(new ChecksVisitor(checks, statistics));
+    return visitors;
   }
 
   @Override
