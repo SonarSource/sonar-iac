@@ -22,8 +22,14 @@ package org.sonar.iac.common.testing;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
@@ -42,7 +48,6 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public final class Verifier {
 
@@ -57,13 +62,19 @@ public final class Verifier {
     verifier.assertOneOrMoreIssues();
   }
 
-  public static void verify(TreeParser parser, Path path, IacCheck check, TextRange... expectedIssues) {
+  public static void verify(TreeParser parser, Path path, IacCheck check, TestIssue... expectedIssues) {
     Tree root = parse(parser, path);
-    Set<TextRange> actualIssues = runAnalysis(null, check, root);
-    assertThat(actualIssues).containsExactlyInAnyOrderElementsOf(Arrays.asList(expectedIssues));
+    List<TestIssue> actualIssues = runAnalysis(null, check, root);
+    compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
-  private static Set<TextRange> runAnalysis(@Nullable SingleFileVerifier verifier, IacCheck check, Tree root) {
+  public static void verifyNoIssue(TreeParser parser, Path path, IacCheck check) {
+    Tree root = parse(parser, path);
+    List<TestIssue> actualIssues = runAnalysis(null, check, root);
+    compare(actualIssues, Collections.emptyList());
+  }
+
+  private static List<TestIssue> runAnalysis(@Nullable SingleFileVerifier verifier, IacCheck check, Tree root) {
     TestContext ctx = new TestContext(verifier);
     check.initialize(ctx);
     ctx.scan(root);
@@ -106,7 +117,7 @@ public final class Verifier {
 
     private final TreeVisitor<TestContext> visitor;
     private final SingleFileVerifier verifier;
-    private final Set<TextRange> raisedIssues = new HashSet<>();
+    private final List<TestIssue> raisedIssues = new ArrayList<>();
 
     public TestContext(@Nullable SingleFileVerifier verifier) {
       this.verifier = verifier;
@@ -129,12 +140,129 @@ public final class Verifier {
 
     @Override
     public void reportIssue(TextRange textRange, String message) {
-      if (verifier != null && !raisedIssues.contains(textRange)) {
-        TextPointer start = textRange.start();
-        TextPointer end = textRange.end();
-        verifier.reportIssue(message).onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
+      TestIssue issue = new TestIssue(textRange, message);
+      if (!raisedIssues.contains(issue)) {
+        if (verifier != null) {
+          TextPointer start = textRange.start();
+          TextPointer end = textRange.end();
+          verifier.reportIssue(message).onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
+        }
+        raisedIssues.add(issue);
       }
-      raisedIssues.add(textRange);
+    }
+  }
+
+  public static class TestIssue {
+    private final TextRange textRange;
+    private final String message;
+
+    public TestIssue(TextRange textRange, @Nullable String message) {
+      this.textRange = textRange;
+      this.message = message;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      TestIssue testIssue = (TestIssue) o;
+      return textRange.equals(testIssue.textRange) && Objects.equals(message, testIssue.message);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(textRange, message);
+    }
+  }
+
+  private static void compare(List<TestIssue> actualIssues, List<TestIssue> expectedIssues) {
+    Map<TextRange, Tuple> map = new HashMap<>();
+
+    for (TestIssue issue : actualIssues) {
+      // TODO: 16.06.21 line -> range
+      TextRange line = issue.textRange;
+      if (map.get(line) == null) {
+        Tuple tuple = new Tuple();
+        tuple.addActual(issue);
+        map.put(line, tuple);
+      } else {
+        map.get(line).addActual(issue);
+      }
+    }
+
+    for (TestIssue issue : expectedIssues) {
+      TextRange line = issue.textRange;
+      if (map.get(line) == null) {
+        Tuple tuple = new Tuple();
+        tuple.addExpected(issue);
+        map.put(line, tuple);
+      } else {
+        map.get(line).addExpected(issue);
+      }
+    }
+
+    StringBuilder errorBuilder = new StringBuilder();
+    for (Tuple tuple : map.values()) {
+      errorBuilder.append(tuple.check());
+    }
+
+    String errorMessage = errorBuilder.toString();
+    if (!errorMessage.isEmpty()) {
+      throw new AssertionError("\n\n" + errorMessage);
+    }
+  }
+
+  private static class Tuple {
+    private static final String NO_ISSUE = "* [NO_ISSUE] Expected but no issue on range %s.\n\n";
+    private static final String WRONG_MESSAGE = "* [WRONG_MESSAGE] Issue at %s : \nExpected message : %s\nActual message : %s\n\n";
+    private static final String UNEXPECTED_ISSUE = "* [UNEXPECTED_ISSUE] at %s with a message: \"%s\"\n\n";
+    private static final String WRONG_NUMBER = "* [WRONG_NUMBER] Range %s: Expecting %s issue, but actual issues number is %s\n\n";
+
+    List<TestIssue> actual = new ArrayList<>();
+    List<TestIssue> expected = new ArrayList<>();
+
+    void addActual(TestIssue actual) {
+      this.actual.add(actual);
+    }
+
+    void addExpected(TestIssue expected) {
+      this.expected.add(expected);
+    }
+
+    String check() {
+      if (!actual.isEmpty() && expected.isEmpty()) {
+        return String.format(UNEXPECTED_ISSUE, actual.get(0).textRange, actual.get(0).message);
+
+      } else if (actual.isEmpty() && !expected.isEmpty()) {
+        return String.format(NO_ISSUE, expected.get(0).textRange);
+
+      } else if (actual.size() == 1 && expected.size() == 1) {
+        TestIssue expectedIssue = expected.get(0);
+        TestIssue actualIssue = actual.get(0);
+        return compareIssues(expectedIssue, actualIssue);
+
+      } else if (actual.size() != expected.size()) {
+        return String.format(WRONG_NUMBER, actual.get(0).textRange, expected.size(), actual.size());
+
+      } else {
+        for (int i = 0; i < actual.size(); i++) {
+          if (!actual.get(i).message.equals(expected.get(i).message)) {
+            return String.format(WRONG_MESSAGE, actual.get(i).textRange, expected.get(i).message, actual.get(i).message);
+          }
+        }
+      }
+
+      return "";
+    }
+
+    private static String compareIssues(TestIssue expectedIssue, TestIssue actualIssue) {
+      String expectedMessage = expectedIssue.message;
+
+      if (expectedMessage != null && !actualIssue.message.equals(expectedMessage)) {
+        return String.format(WRONG_MESSAGE, actualIssue.textRange, expectedMessage, actualIssue.message);
+      }
+
+      return "";
     }
   }
 }
