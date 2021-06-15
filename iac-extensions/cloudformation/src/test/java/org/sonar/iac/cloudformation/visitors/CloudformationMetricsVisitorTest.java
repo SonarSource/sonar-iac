@@ -68,6 +68,16 @@ class CloudformationMetricsVisitorTest extends AbstractMetricsTest {
   }
 
   @Test
+  void multiline_literal_scalar_with_spaces_ending() {
+    scan("" +
+      "key: |\n" +
+      "  value1\n" +
+      "  value2\n    "
+    );
+    assertThat(visitor.linesOfCode()).containsExactly(1,2,3,4);
+  }
+
+  @Test
   void multiline_folded_scalar() {
     scan("" +
       "key: >\n" +
