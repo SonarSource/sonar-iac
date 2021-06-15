@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.cloudformation.visitors;
 
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
@@ -35,11 +34,14 @@ public class CloudformationMetricsVisitor extends MetricsVisitor {
   @Override
   protected void languageSpecificMetrics() {
     register(ScalarTree.class, (ctx, tree) -> {
-      TextRange range = tree.textRange();
-      for (int i = range.start().line(); i <= range.end().line(); i++) {
+      for (int i = tree.textRange().start().line(); i <= endLine(tree); i++) {
         linesOfCode().add(i);
       }
     });
     register(CloudformationTree.class, (ctx, tree) -> addCommentLines(tree.comments()));
+  }
+
+  private static int endLine(ScalarTree tree) {
+    return tree.textRange().end().line() - (tree.value().endsWith("\n") ? 1 : 0);
   }
 }
