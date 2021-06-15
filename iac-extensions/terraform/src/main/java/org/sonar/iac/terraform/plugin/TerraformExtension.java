@@ -23,11 +23,8 @@ import org.sonar.api.Plugin;
 
 public class TerraformExtension {
 
-  public static final String LANGUAGE_KEY = "terraform";
-  public static final String LANGUAGE_NAME = "Terraform";
   public static final String REPOSITORY_KEY = "terraform";
   public static final String REPOSITORY_NAME = "SonarQube";
-  public static final String PROFILE_NAME = "Sonar way";
 
   private TerraformExtension() {
   }

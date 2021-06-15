@@ -24,11 +24,12 @@ import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 public class TerraformProfileDefinition implements BuiltInQualityProfilesDefinition {
 
+  static final String PROFILE_NAME = "Sonar way";
   static final String SONAR_WAY_PATH = "org/sonar/l10n/terraform/rules/terraform/Sonar_way_profile.json";
 
   @Override
   public void define(Context context) {
-    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(TerraformExtension.PROFILE_NAME, TerraformExtension.LANGUAGE_KEY);
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, TerraformLanguage.KEY);
     BuiltInQualityProfileJsonLoader.load(profile, TerraformExtension.REPOSITORY_KEY, SONAR_WAY_PATH);
     profile.setDefault(true);
     profile.done();

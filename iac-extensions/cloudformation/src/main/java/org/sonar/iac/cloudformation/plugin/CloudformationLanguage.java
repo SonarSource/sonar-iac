@@ -25,10 +25,13 @@ import org.sonar.api.resources.AbstractLanguage;
 
 public class CloudformationLanguage extends AbstractLanguage {
 
+  public static final String KEY = "cloudformation";
+  public static final String NAME = "Cloudformation";
+
   private final Configuration configuration;
 
   public CloudformationLanguage(Configuration configuration) {
-    super(CloudformationExtension.LANGUAGE_KEY, CloudformationExtension.LANGUAGE_NAME);
+    super(KEY, NAME);
     this.configuration = configuration;
   }
 

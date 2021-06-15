@@ -34,7 +34,7 @@ public class TerraformExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
-    if (!TerraformExtension.LANGUAGE_KEY.equals(inputFile.language())) {
+    if (!TerraformLanguage.KEY.equals(inputFile.language())) {
       return true;
     }
     String[] excludedPatterns = this.configuration.getStringArray(TerraformSettings.EXCLUSIONS_KEY);

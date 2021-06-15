@@ -25,10 +25,13 @@ import org.sonar.api.resources.AbstractLanguage;
 
 public class TerraformLanguage extends AbstractLanguage {
 
+  static final String KEY = "terraform";
+  static final String NAME = "Terraform";
+
   private final Configuration configuration;
 
   public TerraformLanguage(Configuration configuration) {
-    super(TerraformExtension.LANGUAGE_KEY, TerraformExtension.LANGUAGE_NAME);
+    super(KEY, NAME);
     this.configuration = configuration;
   }
 

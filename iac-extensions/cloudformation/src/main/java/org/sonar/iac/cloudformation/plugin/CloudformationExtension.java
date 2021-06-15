@@ -23,11 +23,8 @@ import org.sonar.api.Plugin;
 
 public class CloudformationExtension {
 
-  public static final String LANGUAGE_KEY = "cloudformation";
-  public static final String LANGUAGE_NAME = "Cloudformation";
   public static final String REPOSITORY_KEY = "cloudformation";
   public static final String REPOSITORY_NAME = "SonarQube";
-  public static final String PROFILE_NAME = "Sonar way";
 
   private CloudformationExtension() {
   }

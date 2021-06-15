@@ -29,7 +29,7 @@ public class TerraformRulesDefinition implements RulesDefinition {
 
   @Override
   public void define(Context context) {
-    NewRepository repository = context.createRepository(TerraformExtension.REPOSITORY_KEY, TerraformExtension.LANGUAGE_KEY)
+    NewRepository repository = context.createRepository(TerraformExtension.REPOSITORY_KEY, TerraformLanguage.KEY)
       .setName(TerraformExtension.REPOSITORY_NAME);
     RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
     metadataLoader.addRulesByAnnotatedClass(repository, TerraformCheckList.checks());
