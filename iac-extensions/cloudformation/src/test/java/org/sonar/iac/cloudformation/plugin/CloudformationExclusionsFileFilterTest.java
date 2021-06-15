@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 class CloudformationExclusionsFileFilterTest {
 
-  // TODO add test cases for yaml
+  // TODO: SONARIAC-85 Add test cases for yaml files
 
   private final MapSettings settings = new MapSettings();
 

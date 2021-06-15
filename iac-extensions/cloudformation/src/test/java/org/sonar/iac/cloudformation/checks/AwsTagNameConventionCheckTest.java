@@ -39,7 +39,7 @@ class AwsTagNameConventionCheckTest {
   @Test
   @Disabled("Verifier for files without comments has to be implemented")
   void test_default_json() {
-    // TODO: verifier for files without comments
+    // TODO: SONARIAC-84 Verifier for files without comments
     CloudformationVerifier.verify("AwsTagNameConventionCheck/default.json", new AwsTagNameConventionCheck());
   }
 }
