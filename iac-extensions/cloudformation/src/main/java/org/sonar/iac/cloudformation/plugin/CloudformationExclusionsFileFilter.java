@@ -36,8 +36,8 @@ public class CloudformationExclusionsFileFilter implements InputFileFilter {
   private final String fileIdentifier;
 
   public CloudformationExclusionsFileFilter(Configuration configuration) {
-    this.excludedPatterns = WildcardPattern.create(configuration.getStringArray(CloudformationExtension.EXCLUSIONS_KEY));
-    this.fileIdentifier = configuration.get(CloudformationExtension.FILE_IDENTIFIER_KEY).orElse("");
+    this.excludedPatterns = WildcardPattern.create(configuration.getStringArray(CloudformationSettings.EXCLUSIONS_KEY));
+    this.fileIdentifier = configuration.get(CloudformationSettings.FILE_IDENTIFIER_KEY).orElse("");
   }
 
   @Override
@@ -48,7 +48,7 @@ public class CloudformationExclusionsFileFilter implements InputFileFilter {
 
     String relativePath = inputFile.uri().toString();
     if (WildcardPattern.match(excludedPatterns, relativePath)) {
-      LOG.debug("File [" + inputFile.uri() + "] is excluded by '" + CloudformationExtension.EXCLUSIONS_KEY + "' property and will not be analyzed");
+      LOG.debug("File [" + inputFile.uri() + "] is excluded by '" + CloudformationSettings.EXCLUSIONS_KEY + "' property and will not be analyzed");
       return false;
     }
 

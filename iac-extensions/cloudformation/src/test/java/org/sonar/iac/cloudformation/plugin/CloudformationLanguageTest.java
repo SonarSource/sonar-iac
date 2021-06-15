@@ -33,13 +33,13 @@ class CloudformationLanguageTest {
     CloudformationLanguage language = new CloudformationLanguage(settings.asConfig());
     assertThat(language.getFileSuffixes()).containsExactly(".json",".yaml",".yml");
 
-    settings.setProperty(CloudformationExtension.FILE_SUFFIXES_KEY, "");
+    settings.setProperty(CloudformationSettings.FILE_SUFFIXES_KEY, "");
     assertThat(language.getFileSuffixes()).containsExactly(".json",".yaml",".yml");
 
-    settings.setProperty(CloudformationExtension.FILE_SUFFIXES_KEY, ".bar, .foo");
+    settings.setProperty(CloudformationSettings.FILE_SUFFIXES_KEY, ".bar, .foo");
     assertThat(language.getFileSuffixes()).containsOnly(".bar", ".foo");
 
-    settings.setProperty(CloudformationExtension.FILE_SUFFIXES_KEY, ".foo, , ");
+    settings.setProperty(CloudformationSettings.FILE_SUFFIXES_KEY, ".foo, , ");
     assertThat(language.getFileSuffixes()).containsOnly(".foo");
   }
 }

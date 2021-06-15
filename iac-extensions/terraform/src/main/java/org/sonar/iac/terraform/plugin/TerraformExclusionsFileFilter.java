@@ -37,7 +37,7 @@ public class TerraformExclusionsFileFilter implements InputFileFilter {
     if (!TerraformExtension.LANGUAGE_KEY.equals(inputFile.language())) {
       return true;
     }
-    String[] excludedPatterns = this.configuration.getStringArray(TerraformExtension.EXCLUSIONS_KEY);
+    String[] excludedPatterns = this.configuration.getStringArray(TerraformSettings.EXCLUSIONS_KEY);
     String relativePath = inputFile.uri().toString();
     return !WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath);
   }

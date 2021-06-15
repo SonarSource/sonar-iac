@@ -17,25 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.terraform.plugin;
 
-import java.util.Arrays;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.AbstractLanguage;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.Plugin;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 
-public class CloudformationLanguage extends AbstractLanguage {
+import static org.assertj.core.api.Assertions.assertThat;
+class TerraformExtensionTest {
 
-  private final Configuration configuration;
+  private static final Version VERSION_8_9 = Version.create(8, 9);
 
-  public CloudformationLanguage(Configuration configuration) {
-    super(CloudformationExtension.LANGUAGE_KEY, CloudformationExtension.LANGUAGE_NAME);
-    this.configuration = configuration;
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(configuration.getStringArray(CloudformationSettings.FILE_SUFFIXES_KEY))
-      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
-    return suffixes.length > 0 ? suffixes : CloudformationSettings.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
+  @Test
+  void sonarqube_extensions() {
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    Plugin.Context context = new Plugin.Context(runtime);
+    TerraformExtension.define(context);
+    assertThat(context.getExtensions()).hasSize(7);
   }
 }
