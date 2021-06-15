@@ -33,13 +33,13 @@ class TerraformLanguageTest {
     TerraformLanguage language = new TerraformLanguage(settings.asConfig());
     assertThat(language.getFileSuffixes()).containsOnly(".tf");
 
-    settings.setProperty(TerraformExtension.FILE_SUFFIXES_KEY, "");
+    settings.setProperty(TerraformSettings.FILE_SUFFIXES_KEY, "");
     assertThat(language.getFileSuffixes()).containsOnly(".tf");
 
-    settings.setProperty(TerraformExtension.FILE_SUFFIXES_KEY, ".bar, .foo");
+    settings.setProperty(TerraformSettings.FILE_SUFFIXES_KEY, ".bar, .foo");
     assertThat(language.getFileSuffixes()).containsOnly(".bar", ".foo");
 
-    settings.setProperty(TerraformExtension.FILE_SUFFIXES_KEY, ".foo, , ");
+    settings.setProperty(TerraformSettings.FILE_SUFFIXES_KEY, ".foo, , ");
     assertThat(language.getFileSuffixes()).containsOnly(".foo");
   }
 }

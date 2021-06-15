@@ -27,7 +27,7 @@ public class IacPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
-    context.addExtensions(TerraformExtension.getExtensions());
-    context.addExtensions(CloudformationExtension.getExtensions());
+    TerraformExtension.define(context);
+    CloudformationExtension.define(context);
   }
 }

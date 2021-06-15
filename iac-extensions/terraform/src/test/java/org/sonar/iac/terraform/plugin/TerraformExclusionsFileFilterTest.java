@@ -33,7 +33,7 @@ class TerraformExclusionsFileFilterTest {
   @Test
   void default_should_exclude_nothing() {
     MapSettings settings = new MapSettings();
-    settings.setProperty(TerraformExtension.EXCLUSIONS_KEY, TerraformExtension.EXCLUSIONS_DEFAULT_VALUE);
+    settings.setProperty(TerraformSettings.EXCLUSIONS_KEY, TerraformSettings.EXCLUSIONS_DEFAULT_VALUE);
     InputFileFilter filter = new TerraformExclusionsFileFilter(settings.asConfig());
     assertTrue(filter.accept(inputFile("file.tf")));
     assertTrue(filter.accept(inputFile("vendor/file.tf")));
@@ -45,7 +45,7 @@ class TerraformExclusionsFileFilterTest {
   void should_exclude_using_custom_path_regex() {
     MapSettings settings = new MapSettings();
 
-    settings.setProperty(TerraformExtension.EXCLUSIONS_KEY, "**/path/**");
+    settings.setProperty(TerraformSettings.EXCLUSIONS_KEY, "**/path/**");
     InputFileFilter filter = new TerraformExclusionsFileFilter(settings.asConfig());
 
     assertTrue(filter.accept(inputFile("file.tf")));
@@ -58,7 +58,7 @@ class TerraformExclusionsFileFilterTest {
   void should_exclude_other_language() {
     MapSettings settings = new MapSettings();
 
-    settings.setProperty(TerraformExtension.EXCLUSIONS_KEY, "**/path/**");
+    settings.setProperty(TerraformSettings.EXCLUSIONS_KEY, "**/path/**");
     InputFileFilter filter = new TerraformExclusionsFileFilter(settings.asConfig());
 
     assertFalse(filter.accept(inputFile("path/file.tf")));
@@ -68,7 +68,7 @@ class TerraformExclusionsFileFilterTest {
   @Test
   void should_ignore_empty_path_regex() {
     MapSettings settings = new MapSettings();
-    settings.setProperty(TerraformExtension.EXCLUSIONS_KEY, "," + TerraformExtension.EXCLUSIONS_DEFAULT_VALUE + ",");
+    settings.setProperty(TerraformSettings.EXCLUSIONS_KEY, "," + TerraformSettings.EXCLUSIONS_DEFAULT_VALUE + ",");
     InputFileFilter filter = new TerraformExclusionsFileFilter(settings.asConfig());
 
     assertTrue(filter.accept(inputFile("file.tf")));

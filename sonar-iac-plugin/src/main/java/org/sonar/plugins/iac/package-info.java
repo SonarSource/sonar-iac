@@ -17,25 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
-
-import java.util.Arrays;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.AbstractLanguage;
-
-public class CloudformationLanguage extends AbstractLanguage {
-
-  private final Configuration configuration;
-
-  public CloudformationLanguage(Configuration configuration) {
-    super(CloudformationExtension.LANGUAGE_KEY, CloudformationExtension.LANGUAGE_NAME);
-    this.configuration = configuration;
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(configuration.getStringArray(CloudformationSettings.FILE_SUFFIXES_KEY))
-      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
-    return suffixes.length > 0 ? suffixes : CloudformationSettings.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.plugins.iac;
