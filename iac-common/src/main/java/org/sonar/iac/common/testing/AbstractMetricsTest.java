@@ -69,6 +69,6 @@ public abstract class AbstractMetricsTest {
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata(code).build();
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
-    visitor.scan(ctx, parser.parse(code));
+    visitor.scan(ctx, parser.parse(code, null));
   }
 }

@@ -26,6 +26,6 @@ public abstract class CloudformationTreeTest {
 
   protected FileTree parse(String source) {
     CloudformationParser parser = new CloudformationParser();
-    return parser.parse(source);
+    return parser.parse(source, null);
   }
 }

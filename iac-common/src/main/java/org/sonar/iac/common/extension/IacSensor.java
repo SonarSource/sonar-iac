@@ -148,7 +148,7 @@ public abstract class IacSensor implements Sensor {
 
       Tree tree = statistics.time("Parse", () -> {
         try {
-          return parser.parse(content);
+          return parser.parse(content, inputFileContext);
         } catch (RuntimeException e) {
           throw toParseException("parse", inputFile, e);
         }

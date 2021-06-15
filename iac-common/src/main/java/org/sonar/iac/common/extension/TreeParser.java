@@ -19,9 +19,12 @@
  */
 package org.sonar.iac.common.extension;
 
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public interface TreeParser<N extends Tree> {
 
-  N parse(String source);
+  N parse(String source, @Nullable InputFileContext inputFileContext);
+
 }

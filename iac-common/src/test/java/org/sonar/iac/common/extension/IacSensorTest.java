@@ -54,7 +54,7 @@ import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class IacSensorTest extends AbstractSensorTest {
 
-  TreeParser<Tree> testParser = source -> {
+  TreeParser<Tree> testParser = (source, inputFileContext) -> {
     throw new RuntimeException();
   };
 
@@ -152,7 +152,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
-    testParser = source -> new TestTree();
+    testParser = (source, inputFileContext) -> new TestTree();
     sensor(checkFactory).execute(context);
 
     InputFile inputFile = inputFile("file1.iac", "foo");
@@ -181,7 +181,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
-    testParser = source -> new TestTree();
+    testParser = (source, inputFileContext) -> new TestTree();
     sensor(checkFactory).execute(context);
 
     InputFile inputFile = inputFile("file1.iac", "foo");
@@ -202,7 +202,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.ruleKey(failingCheck)).thenReturn(RuleKey.of(repositoryKey(), "failing"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(failingCheck));
-    testParser = source -> new TestTree();
+    testParser = (source, inputFileContext) -> new TestTree();
 
     InputFile inputFile = inputFile("file1.iac", "foo");
     analyse(sensor(checkFactory), inputFile);

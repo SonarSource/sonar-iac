@@ -60,7 +60,7 @@ public abstract class AbstractHighlightingTest {
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata(code).build();
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
-    highlightingVisitor.scan(ctx, parser.parse(code));
+    highlightingVisitor.scan(ctx, parser.parse(code, null));
   }
 
   protected void assertHighlighting(int columnFirst, int columnLast, @Nullable TypeOfText type) {

@@ -43,7 +43,7 @@ class SyntaxHighlightingVisitorTest extends AbstractHighlightingTest {
       protected void languageSpecificHighlighting() {
         register(Tree.class, (ctx, tree) -> highlight(tree, KEYWORD));
       }
-    }, source -> testTree);
+    }, (source, inputFileContext) -> testTree);
   }
 
   @Test

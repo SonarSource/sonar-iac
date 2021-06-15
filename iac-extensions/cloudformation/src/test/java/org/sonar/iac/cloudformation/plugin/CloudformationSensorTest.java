@@ -47,7 +47,7 @@ class CloudformationSensorTest extends AbstractSensorTest {
 
   @Test
   void yaml_only_comment_should_raise_no_issue() {
-    analyse(sensor("S2260"), inputFile("comment.json", "# Some Comment"));
+    analyse(sensor("S2260"), inputFile("comment.yaml", "# Some Comment"));
     assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
   }
 
