@@ -42,7 +42,7 @@ public class CloudformationExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
-    if (!CloudformationExtension.LANGUAGE_KEY.equals(inputFile.language())) {
+    if (!CloudformationLanguage.KEY.equals(inputFile.language())) {
       return true;
     }
 

@@ -29,7 +29,7 @@ public class CloudformationRulesDefinition implements RulesDefinition {
 
   @Override
   public void define(Context context) {
-    NewRepository repository = context.createRepository(CloudformationExtension.REPOSITORY_KEY, CloudformationExtension.LANGUAGE_KEY)
+    NewRepository repository = context.createRepository(CloudformationExtension.REPOSITORY_KEY, CloudformationLanguage.KEY)
       .setName(CloudformationExtension.REPOSITORY_NAME);
     RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
     metadataLoader.addRulesByAnnotatedClass(repository, CloudformationCheckList.checks());
