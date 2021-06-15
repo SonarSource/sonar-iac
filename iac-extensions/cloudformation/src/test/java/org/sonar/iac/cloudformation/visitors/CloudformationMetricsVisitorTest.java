@@ -86,7 +86,7 @@ class CloudformationMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.commentLines()).isEmpty();
   }
 
-  // FIXME json brackets are not considered
+  // TODO: SONARIAC-82 Lines which contain only brackets should also be counted for metrics
   @Test
   void json_mapping() {
     scan("" +
@@ -96,7 +96,7 @@ class CloudformationMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.linesOfCode()).containsExactly(2);
   }
 
-  // FIXME json brackets are not considered
+  // TODO: SONARIAC-82 Lines which contain only brackets should also be counted for metrics
   @Test
   void json_sequence() {
     scan("" +

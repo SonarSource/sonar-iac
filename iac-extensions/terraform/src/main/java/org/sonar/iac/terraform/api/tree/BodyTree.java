@@ -23,6 +23,5 @@ import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 
 public interface BodyTree extends TerraformTree {
-  // TODO: children
   List<Tree> statements();
 }
