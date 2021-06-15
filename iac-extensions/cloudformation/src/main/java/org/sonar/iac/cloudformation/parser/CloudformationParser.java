@@ -39,8 +39,7 @@ public class CloudformationParser implements TreeParser<Tree> {
 
   @Override
   public FileTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    boolean parseComments = inputFileContext == null || !inputFileContext.inputFile.filename().toLowerCase(Locale.ROOT).endsWith(".json");
-    LoadSettings settings = LoadSettings.builder().setParseComments(parseComments).build();
+    LoadSettings settings = LoadSettings.builder().setParseComments(shouldParseComments(inputFileContext)).build();
     StreamReader reader = new StreamReader(settings, source);
     ScannerImpl scanner = new ScannerImpl(settings, reader);
     Parser parser = new ParserImpl(settings, scanner);
@@ -56,5 +55,9 @@ public class CloudformationParser implements TreeParser<Tree> {
       nodes.add(composer.next());
     }
     return nodes;
+  }
+
+  private static boolean shouldParseComments(@Nullable InputFileContext inputFileContext) {
+    return inputFileContext == null || !inputFileContext.inputFile.filename().toLowerCase(Locale.ROOT).endsWith(".json");
   }
 }
