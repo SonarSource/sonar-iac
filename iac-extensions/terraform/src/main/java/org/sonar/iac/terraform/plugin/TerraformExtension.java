@@ -40,7 +40,7 @@ public class TerraformExtension {
   public static final String EXCLUSIONS_KEY = "sonar.terraform.exclusions";
   public static final String EXCLUSIONS_DEFAULT_VALUE = "";
   public static final String FILE_SUFFIXES_DEFAULT_VALUE = ".tf";
-  public static final String FILE_SUFFIXES_KEY = "sonar.hcl.file.suffixes";
+  public static final String FILE_SUFFIXES_KEY = "sonar.terraform.file.suffixes";
 
   private static final List<Object> EXTENSIONS = Arrays.asList(
     //Language
