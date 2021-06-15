@@ -21,6 +21,7 @@ package org.sonar.iac.cloudformation.checks;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 class AwsTagNameConventionCheckTest {
 
@@ -39,7 +40,7 @@ class AwsTagNameConventionCheckTest {
   @Test
   @Disabled("Verifier for files without comments has to be implemented")
   void test_default_json() {
-    // TODO: SONARIAC-84 Verifier for files without comments
-    CloudformationVerifier.verify("AwsTagNameConventionCheck/default.json", new AwsTagNameConventionCheck());
+    CloudformationVerifier.verify("AwsTagNameConventionCheck/default.json", new AwsTagNameConventionCheck(),
+      TextRanges.range(10, 10, 10, 10));
   }
 }

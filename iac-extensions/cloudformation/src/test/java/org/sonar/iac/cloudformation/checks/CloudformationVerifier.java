@@ -19,12 +19,12 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.testing.Verifier;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class CloudformationVerifier {
 
@@ -37,5 +37,9 @@ public class CloudformationVerifier {
 
   public static void verify(String fileName, IacCheck check) {
     Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
+  }
+
+  public static void verify(String fileName, IacCheck check, TextRange... expectedIssues) {
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, expectedIssues);
   }
 }

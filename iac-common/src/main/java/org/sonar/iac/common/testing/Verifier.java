@@ -22,6 +22,7 @@ package org.sonar.iac.common.testing;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -41,6 +42,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public final class Verifier {
 
@@ -49,15 +51,33 @@ public final class Verifier {
   }
 
   public static void verify(TreeParser parser, Path path, IacCheck check) {
-    createVerifier(parser, path, check).assertOneOrMoreIssues();
+    Tree root = parse(parser, path);
+    SingleFileVerifier verifier = createVerifier(path, root);
+    runAnalysis(verifier, check, root);
+    verifier.assertOneOrMoreIssues();
   }
 
-  private static SingleFileVerifier createVerifier(TreeParser parser, Path path, IacCheck check) {
+  public static void verify(TreeParser parser, Path path, IacCheck check, TextRange... expectedIssues) {
+    Tree root = parse(parser, path);
+    Set<TextRange> actualIssues = runAnalysis(null, check, root);
+    assertThat(actualIssues).containsExactlyInAnyOrderElementsOf(Arrays.asList(expectedIssues));
+  }
+
+  private static Set<TextRange> runAnalysis(@Nullable SingleFileVerifier verifier, IacCheck check, Tree root) {
+    TestContext ctx = new TestContext(verifier);
+    check.initialize(ctx);
+    ctx.scan(root);
+    return ctx.raisedIssues;
+  }
+
+  private static Tree parse(TreeParser<Tree> parser, Path path) {
+    String testFileContent = readFile(path);
+    return parser.parse(testFileContent, null);
+  }
+
+  private static SingleFileVerifier createVerifier(Path path, Tree root) {
 
     SingleFileVerifier verifier = SingleFileVerifier.create(path, UTF_8);
-
-    String testFileContent = readFile(path);
-    Tree root = parser.parse(testFileContent, null);
 
     final Set<TextRange> alreadyAdded = new HashSet<>();
     (new TreeVisitor<>())
@@ -70,10 +90,6 @@ public final class Verifier {
           alreadyAdded.add(tree.textRange());
         }
       }).scan(new TreeContext(), root);
-
-    TestContext ctx = new TestContext(verifier);
-    check.initialize(ctx);
-    ctx.scan(root);
 
     return verifier;
   }
@@ -92,7 +108,7 @@ public final class Verifier {
     private final SingleFileVerifier verifier;
     private final Set<TextRange> raisedIssues = new HashSet<>();
 
-    public TestContext(SingleFileVerifier verifier) {
+    public TestContext(@Nullable SingleFileVerifier verifier) {
       this.verifier = verifier;
       visitor = new TreeVisitor<>();
     }
@@ -113,14 +129,12 @@ public final class Verifier {
 
     @Override
     public void reportIssue(TextRange textRange, String message) {
-      if (!raisedIssues.contains(textRange)) {
+      if (verifier != null && !raisedIssues.contains(textRange)) {
         TextPointer start = textRange.start();
         TextPointer end = textRange.end();
-        verifier
-          .reportIssue(message)
-          .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
-        raisedIssues.add(textRange);
+        verifier.reportIssue(message).onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
       }
+      raisedIssues.add(textRange);
     }
   }
 }
