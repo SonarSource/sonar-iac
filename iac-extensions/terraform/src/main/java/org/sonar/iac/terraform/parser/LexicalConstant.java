@@ -24,7 +24,6 @@ public class LexicalConstant {
   private LexicalConstant() {
   }
 
-  // TODO: linte_terminator, whitespace, and identifier are currently just copied from PHP parser. Verify spec if this needs to be adapted
   /**
    * LF, CR, LS, PS
    */
