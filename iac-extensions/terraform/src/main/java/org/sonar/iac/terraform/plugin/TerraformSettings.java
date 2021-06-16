@@ -21,6 +21,7 @@ package org.sonar.iac.terraform.plugin;
 
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
@@ -28,6 +29,9 @@ public class TerraformSettings {
 
   private static final String TERRAFORM_CATEGORY = "Terraform";
   private static final String GENERAL_SUBCATEGORY = "General";
+
+  static final String ACTIVATION_KEY = "sonar.terraform.activate";
+  static final String ACTIVATION_DEFAULT_VALUE = "false";
 
   static final String EXCLUSIONS_KEY = "sonar.terraform.exclusions";
   static final String EXCLUSIONS_DEFAULT_VALUE = "";
@@ -40,6 +44,16 @@ public class TerraformSettings {
 
   public static List<PropertyDefinition> getProperties() {
     return Arrays.asList(
+      PropertyDefinition.builder(ACTIVATION_KEY)
+        .defaultValue(ACTIVATION_DEFAULT_VALUE)
+        .name("Activate Terraform analysis")
+        .description("Activate analysis of Terraform files.")
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(TERRAFORM_CATEGORY)
+        .subCategory(GENERAL_SUBCATEGORY)
+        .build(),
+
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
         .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
         .name("File Suffixes")

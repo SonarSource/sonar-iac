@@ -75,7 +75,7 @@ public class TerraformSensor extends IacSensor {
 
   @Override
   protected boolean isActive(SensorContext sensorContext) {
-    return true;
+    return sensorContext.config().getBoolean(TerraformSettings.ACTIVATION_KEY).orElse(false);
   }
 
   @Override

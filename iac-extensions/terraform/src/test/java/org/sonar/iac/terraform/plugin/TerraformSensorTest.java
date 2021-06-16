@@ -152,7 +152,7 @@ class TerraformSensorTest extends AbstractSensorTest {
 
   @Override
   protected String getActivationSettingKey() {
-    return "";
+    return TerraformSettings.ACTIVATION_KEY;
   }
 
   @Override
