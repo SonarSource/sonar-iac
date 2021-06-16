@@ -88,6 +88,16 @@ class CloudformationSensorTest extends AbstractSensorTest {
     assertThat(context.allIssues()).as("One issue must be raised").isEmpty();
   }
 
+  @Test
+  void should_raise_no_issue_when_sensor_deactivated() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(getActivationSettingKey(), false);
+    context.setSettings(settings);
+
+    analyse(sensor("S2260"), inputFile("parserError.json", "\"a'"));
+    assertThat(context.allIssues()).as("One issue must be raised").isEmpty();
+  }
+
   private CloudformationSensor sensor(String... rules) {
     return sensor(checkFactory(rules));
   }

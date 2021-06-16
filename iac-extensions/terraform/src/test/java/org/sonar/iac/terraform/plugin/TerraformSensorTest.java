@@ -146,6 +146,16 @@ class TerraformSensorTest extends AbstractSensorTest {
     assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
   }
 
+  @Test
+  void should_raise_no_issue_when_sensor_deactivated() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(getActivationSettingKey(), false);
+    context.setSettings(settings);
+
+    analyse(sensor("S2260"), inputFile("parserError.tf", "a {"));
+    assertThat(context.allIssues()).as("One issue must be raised").isEmpty();
+  }
+
   private TerraformSensor sensor(String... rules) {
     return sensor(checkFactory(rules));
   }
