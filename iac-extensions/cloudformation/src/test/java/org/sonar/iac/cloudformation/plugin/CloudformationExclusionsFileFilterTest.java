@@ -21,8 +21,12 @@ package org.sonar.iac.cloudformation.plugin;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -37,32 +41,33 @@ import static org.mockito.Mockito.when;
 
 class CloudformationExclusionsFileFilterTest {
 
-  // TODO: SONARIAC-85 Add test cases for yaml files
+  private static final List<String> EXTENSIONS = Arrays.asList("json","yaml","yml");
 
   private final MapSettings settings = new MapSettings();
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Test
-  void default_should_exclude_nothing_by_path() {
+  @ParameterizedTest
+  @ValueSource(strings = {"json","yaml","yml"})
+  void default_should_exclude_nothing_by_path(String extension) {
     settings.setProperty(CloudformationSettings.EXCLUSIONS_KEY, CloudformationSettings.EXCLUSIONS_DEFAULT_VALUE);
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
-    assertTrue(filter.accept(inputFile("file.json")));
-    assertTrue(filter.accept(inputFile("vendor/file.json")));
-    assertTrue(filter.accept(inputFile("vendor/someDir/file.json")));
-    assertTrue(filter.accept(inputFile("someDir/vendor/file.json")));
+    assertTrue(filter.accept(inputFile("file." + extension)));
+    assertTrue(filter.accept(inputFile("vendor/file." + extension)));
+    assertTrue(filter.accept(inputFile("vendor/someDir/file." + extension)));
+    assertTrue(filter.accept(inputFile("someDir/vendor/file." + extension)));
   }
 
-  @Test
-  void should_exclude_using_custom_path_regex() {
+  @ParameterizedTest
+  @ValueSource(strings = {"json","yaml","yml"})
+  void should_exclude_using_custom_path_regex(String extension) {
     settings.setProperty(CloudformationSettings.EXCLUSIONS_KEY, "**/path/**");
     InputFileFilter filter = new CloudformationExclusionsFileFilter(settings.asConfig());
-
-    assertTrue(filter.accept(inputFile("file.json")));
-    assertTrue(filter.accept(inputFile("someDir/file.json")));
-    assertFalse(filter.accept(inputFile("path/file.json")));
-    assertFalse(filter.accept(inputFile("someDir/path/file.json")));
+    assertTrue(filter.accept(inputFile("file." + extension)));
+    assertTrue(filter.accept(inputFile("someDir/file." + extension)));
+    assertFalse(filter.accept(inputFile("path/file." + extension)));
+    assertFalse(filter.accept(inputFile("someDir/path/file." + extension)));
   }
 
   @Test
@@ -144,6 +149,6 @@ class CloudformationExclusionsFileFilterTest {
 
   private static String language(String filename) {
     String extension = filename.split("\\.")[1];
-    return  "json".equals(extension) ? "cloudformation" : extension;
+    return EXTENSIONS.contains(extension) ? "cloudformation" : extension;
   }
 }
