@@ -61,7 +61,6 @@ public class MeasuresTest extends TestBase {
     assertThat(getMeasure(file1, "ncloc_data").getValue()).isEqualTo("1=1;4=1;5=1;6=1;7=1");
   }
 
-  // TODO: SONARIAC-82 Lines which contain only brackets should also be counted for metrics
   @Test
   public void cloudformation_json_measures() {
     final String projectKey = "cloudformationJsonMeasures";
@@ -71,8 +70,8 @@ public class MeasuresTest extends TestBase {
 
     final String file1 = projectKey + ":file1.json";
 
-    assertThat(getMeasureAsInt(file1, "ncloc")).isEqualTo(5);
+    assertThat(getMeasureAsInt(file1, "ncloc")).isEqualTo(9);
     assertThat(getMeasureAsInt(file1, "comment_lines")).isZero();
-    assertThat(getMeasure(file1, "ncloc_data").getValue()).isEqualTo("2=1;3=1;4=1;5=1;6=1");
+    assertThat(getMeasure(file1, "ncloc_data").getValue()).isEqualTo("1=1;2=1;3=1;4=1;5=1;6=1;7=1;8=1;9=1");
   }
 }
