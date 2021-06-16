@@ -229,6 +229,11 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Override
+  protected String getActivationSettingKey() {
+    return "";
+  }
+
+  @Override
   protected IacSensor sensor(CheckFactory checkFactory) {
 
     return new IacSensor(fileLinesContextFactory, noSonarFilter, IacLanguage.IAC) {
@@ -246,6 +251,11 @@ class IacSensorTest extends AbstractSensorTest {
       @Override
       protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
         return Collections.singletonList(new ChecksVisitor(checkFactory.create(repositoryKey()), statistics));
+      }
+
+      @Override
+      protected boolean isActive(SensorContext sensorContext) {
+        return true;
       }
 
       @Override

@@ -71,8 +71,14 @@ public abstract class IacSensor implements Sensor {
 
   protected abstract List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics);
 
+  protected abstract boolean isActive(SensorContext sensorContext);
+
   @Override
   public void execute(SensorContext sensorContext) {
+    if (!isActive(sensorContext)) {
+      return;
+    }
+
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     FileSystem fileSystem = sensorContext.fileSystem();
     FilePredicate mainFilePredicate = fileSystem.predicates().and(

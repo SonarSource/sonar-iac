@@ -77,6 +77,11 @@ public class CloudformationSensor extends IacSensor {
   }
 
   @Override
+  protected boolean isActive(SensorContext sensorContext) {
+    return sensorContext.config().getBoolean(CloudformationSettings.ACTIVATION_KEY).orElse(false);
+  }
+
+  @Override
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
     if (!(cause instanceof MarkedYamlEngineException)) {
       return super.toParseException(action, inputFile, cause);

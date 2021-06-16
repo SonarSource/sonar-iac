@@ -93,6 +93,11 @@ class CloudformationSensorTest extends AbstractSensorTest {
   }
 
   @Override
+  protected String getActivationSettingKey() {
+    return CloudformationSettings.ACTIVATION_KEY;
+  }
+
+  @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
     return new CloudformationSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language());
   }

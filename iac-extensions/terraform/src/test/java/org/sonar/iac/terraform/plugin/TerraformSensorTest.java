@@ -151,6 +151,11 @@ class TerraformSensorTest extends AbstractSensorTest {
   }
 
   @Override
+  protected String getActivationSettingKey() {
+    return "";
+  }
+
+  @Override
   protected TerraformSensor sensor(CheckFactory checkFactory) {
     return new TerraformSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language());
   }

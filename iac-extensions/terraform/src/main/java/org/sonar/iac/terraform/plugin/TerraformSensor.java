@@ -74,6 +74,11 @@ public class TerraformSensor extends IacSensor {
   }
 
   @Override
+  protected boolean isActive(SensorContext sensorContext) {
+    return true;
+  }
+
+  @Override
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
     TextPointer position = null;
     if (cause instanceof RecognitionException) {

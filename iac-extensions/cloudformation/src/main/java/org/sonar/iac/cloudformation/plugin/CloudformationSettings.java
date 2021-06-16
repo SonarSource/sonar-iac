@@ -21,6 +21,7 @@ package org.sonar.iac.cloudformation.plugin;
 
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
@@ -28,6 +29,9 @@ public class CloudformationSettings {
 
   private static final String CLOUDFORMATION_CATEGORY = "Cloudformation";
   private static final String GENERAL_SUBCATEGORY = "General";
+
+  static final String ACTIVATION_KEY = "sonar.cloudformation.activate";
+  static final String ACTIVATION_DEFAULT_VALUE = "false";
 
   static final String EXCLUSIONS_KEY = "sonar.cloudformation.exclusions";
   static final String EXCLUSIONS_DEFAULT_VALUE = "";
@@ -43,6 +47,16 @@ public class CloudformationSettings {
 
   public static List<PropertyDefinition> getProperties() {
     return Arrays.asList(
+      PropertyDefinition.builder(ACTIVATION_KEY)
+        .defaultValue(ACTIVATION_DEFAULT_VALUE)
+        .name("Activate Cloudformation analysis")
+        .description("Activate analysis of JSON and Yaml files recognized as Cloudformation files.")
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CLOUDFORMATION_CATEGORY)
+        .subCategory(GENERAL_SUBCATEGORY)
+        .build(),
+
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
         .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
         .name("File Suffixes")
