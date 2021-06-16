@@ -55,6 +55,6 @@ public class CloudformationMetricsVisitor extends MetricsVisitor {
   // SONARIAC-80 Do not add line to range if tree ends with new line
   private static int endLine(HasTextRange tree) {
     int endLine = tree.textRange().end().line();
-    return tree.textRange().end().lineOffset() == 0 ? endLine - 1 : endLine;
+    return tree.textRange().end().lineOffset() == 0 ? (endLine - 1) : endLine;
   }
 }
