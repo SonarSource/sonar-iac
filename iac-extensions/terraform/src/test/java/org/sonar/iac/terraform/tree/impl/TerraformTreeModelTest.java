@@ -38,7 +38,7 @@ public abstract class TerraformTreeModelTest {
     p = new HclParser(rootRule);
     TerraformTree node = p.parse(s);
 
-    // TODO: similar to PHP parser, check how far we have parsed. Missing toString implementation for trees now
+    //TODO: SONARIAC-91 similar to PHP parser, check how far we have parsed. Missing possibility to represent trees as string for now
     //checkFullFidelity(node, s.trim());
 
     return (T) node;
