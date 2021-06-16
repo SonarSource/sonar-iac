@@ -106,17 +106,15 @@ class CloudformationMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.commentLines()).isEmpty();
   }
 
-  // TODO: SONARIAC-82 Lines which contain only brackets should also be counted for metrics
   @Test
   void json_mapping() {
     scan("" +
       "{\n" +
       "  \"foo\": \"bar\"\n" +
-      "}");
-    assertThat(visitor.linesOfCode()).containsExactly(2);
+      "}\n");
+    assertThat(visitor.linesOfCode()).containsExactly(1,2,3);
   }
 
-  // TODO: SONARIAC-82 Lines which contain only brackets should also be counted for metrics
   @Test
   void json_sequence() {
     scan("" +
@@ -124,8 +122,8 @@ class CloudformationMetricsVisitorTest extends AbstractMetricsTest {
       "  \"foo\": [\n" +
       "    \"bar\"\n" +
       "  ]\n" +
-      "}");
-    assertThat(visitor.linesOfCode()).containsExactly(2,3);
+      "}\n");
+    assertThat(visitor.linesOfCode()).containsExactly(1,2,3,4,5);
   }
 
   @Test
