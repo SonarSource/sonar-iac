@@ -38,7 +38,7 @@ public class CloudformationVerifier {
     Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
   }
 
-  public static void verify(String fileName, IacCheck check, Verifier.TestIssue... expectedIssues) {
+  public static void verify(String fileName, IacCheck check, Verifier.Issue... expectedIssues) {
     Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, expectedIssues);
   }
 }

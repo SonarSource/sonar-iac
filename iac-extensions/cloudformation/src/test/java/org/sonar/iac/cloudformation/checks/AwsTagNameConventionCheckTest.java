@@ -40,7 +40,8 @@ class AwsTagNameConventionCheckTest {
   @Test
   void test_default_json() {
     CloudformationVerifier.verify("AwsTagNameConventionCheck/default.json", new AwsTagNameConventionCheck(),
-      new Verifier.TestIssue(TextRanges.range(10, 19, 10, 43), null),
-      new Verifier.TestIssue(TextRanges.range(14, 19, 14, 47), null));
+      new Verifier.Issue(TextRanges.range(10, 19, 10, 43),
+        "Rename tag key \"anycompany:cost-center\" to match the regular expression \"^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\"."),
+      new Verifier.Issue(TextRanges.range(14, 19, 14, 47)));
   }
 }

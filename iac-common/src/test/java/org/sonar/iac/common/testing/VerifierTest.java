@@ -72,24 +72,24 @@ class VerifierTest {
 
   @Test
   void issues_list_verifier_success() {
-    assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheck, new Verifier.TestIssue(DummyNonCompliantTree.range, null)));
+    assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheck, new Verifier.Issue(DummyNonCompliantTree.range)));
   }
 
   @Test
   void issues_list_verifier_success_correct_message() {
-    assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheck, new Verifier.TestIssue(DummyNonCompliantTree.range, "issue message")));
+    assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheck, new Verifier.Issue(DummyNonCompliantTree.range, "issue message")));
   }
 
   @Test
   void issues_list_verifier_failure_wrong_message() {
-    Verifier.TestIssue expectedIssue = new Verifier.TestIssue(DummyNonCompliantTree.range, "another message");
+    Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "another message");
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheck, expectedIssue));
     assertThat(exception.getMessage()).contains("[WRONG_MESSAGE]");
   }
 
   @Test
   void issues_list_verifier_failure_expected_but_not_found() {
-    Verifier.TestIssue expectedIssue = new Verifier.TestIssue(DummyNonCompliantTree.range, null);
+    Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range);
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, noIssueRaiseCheck, expectedIssue));
     assertThat(exception.getMessage()).contains("[NO_ISSUE]");
   }
@@ -102,7 +102,7 @@ class VerifierTest {
 
   @Test
   void issues_list_verifier_failure_wrong_number() {
-    Verifier.TestIssue expectedIssue = new Verifier.TestIssue(DummyNonCompliantTree.range, null);
+    Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range);
     // we expect the issue twice
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheck, expectedIssue, expectedIssue));
     assertThat(exception.getMessage()).contains("[WRONG_NUMBER]");
@@ -110,8 +110,8 @@ class VerifierTest {
 
   @Test
   void issues_list_verifier_failure_multiple_issues_wrong_message() {
-    Verifier.TestIssue firstExpectedIssue = new Verifier.TestIssue(DummyNonCompliantTree.range, "issue message");
-    Verifier.TestIssue secondExpectedIssue = new Verifier.TestIssue(DummyNonCompliantTree.range, "issue message");
+    Verifier.Issue firstExpectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message");
+    Verifier.Issue secondExpectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message");
     // raise two issues with one have an unexpected message
     IacCheck check = init -> init.register(Tree.class, (ctx, tree) -> {
       ctx.reportIssue(tree.textRange(), "issue message");
@@ -123,8 +123,8 @@ class VerifierTest {
 
   @Test
   void issues_list_verifier_success_multiple_issues_same_range_with_message() {
-    Verifier.TestIssue firstExpectedIssue = new Verifier.TestIssue(DummyNonCompliantTree.range, "issue message");
-    Verifier.TestIssue secondExpectedIssue = new Verifier.TestIssue(DummyNonCompliantTree.range, "issue message2");
+    Verifier.Issue firstExpectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message");
+    Verifier.Issue secondExpectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message2");
     IacCheck check = init -> init.register(Tree.class, (ctx, tree) -> {
       ctx.reportIssue(tree.textRange(), "issue message");
       ctx.reportIssue(tree.textRange(), "issue message2");

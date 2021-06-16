@@ -62,19 +62,22 @@ public final class Verifier {
     verifier.assertOneOrMoreIssues();
   }
 
-  public static void verify(TreeParser parser, Path path, IacCheck check, TestIssue... expectedIssues) {
+  /**
+   * This method should only be used if "Noncompliant" comments in the code cannot be used to verify the issues.
+   */
+  public static void verify(TreeParser parser, Path path, IacCheck check, Issue... expectedIssues) {
     Tree root = parse(parser, path);
-    List<TestIssue> actualIssues = runAnalysis(null, check, root);
+    List<Issue> actualIssues = runAnalysis(null, check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
   public static void verifyNoIssue(TreeParser parser, Path path, IacCheck check) {
     Tree root = parse(parser, path);
-    List<TestIssue> actualIssues = runAnalysis(null, check, root);
+    List<Issue> actualIssues = runAnalysis(null, check, root);
     compare(actualIssues, Collections.emptyList());
   }
 
-  private static List<TestIssue> runAnalysis(@Nullable SingleFileVerifier verifier, IacCheck check, Tree root) {
+  private static List<Issue> runAnalysis(@Nullable SingleFileVerifier verifier, IacCheck check, Tree root) {
     TestContext ctx = new TestContext(verifier);
     check.initialize(ctx);
     ctx.scan(root);
@@ -117,7 +120,7 @@ public final class Verifier {
 
     private final TreeVisitor<TestContext> visitor;
     private final SingleFileVerifier verifier;
-    private final List<TestIssue> raisedIssues = new ArrayList<>();
+    private final List<Issue> raisedIssues = new ArrayList<>();
 
     public TestContext(@Nullable SingleFileVerifier verifier) {
       this.verifier = verifier;
@@ -140,7 +143,7 @@ public final class Verifier {
 
     @Override
     public void reportIssue(TextRange textRange, String message) {
-      TestIssue issue = new TestIssue(textRange, message);
+      Issue issue = new Issue(textRange, message);
       if (!raisedIssues.contains(issue)) {
         if (verifier != null) {
           TextPointer start = textRange.start();
@@ -152,21 +155,26 @@ public final class Verifier {
     }
   }
 
-  public static class TestIssue {
+  public static class Issue {
     private final TextRange textRange;
     private final String message;
 
-    public TestIssue(TextRange textRange, @Nullable String message) {
+    public Issue(TextRange textRange, String message) {
       this.textRange = textRange;
       this.message = message;
+    }
+
+    public Issue(TextRange textRange) {
+      this.textRange = textRange;
+      this.message = null;
     }
 
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
-      TestIssue testIssue = (TestIssue) o;
-      return textRange.equals(testIssue.textRange) && Objects.equals(message, testIssue.message);
+      Issue issue = (Issue) o;
+      return textRange.equals(issue.textRange) && Objects.equals(message, issue.message);
     }
 
     @Override
@@ -175,29 +183,28 @@ public final class Verifier {
     }
   }
 
-  private static void compare(List<TestIssue> actualIssues, List<TestIssue> expectedIssues) {
+  private static void compare(List<Issue> actualIssues, List<Issue> expectedIssues) {
     Map<TextRange, Tuple> map = new HashMap<>();
 
-    for (TestIssue issue : actualIssues) {
-      // TODO: 16.06.21 line -> range
-      TextRange line = issue.textRange;
-      if (map.get(line) == null) {
+    for (Issue issue : actualIssues) {
+      TextRange range = issue.textRange;
+      if (map.get(range) == null) {
         Tuple tuple = new Tuple();
         tuple.addActual(issue);
-        map.put(line, tuple);
+        map.put(range, tuple);
       } else {
-        map.get(line).addActual(issue);
+        map.get(range).addActual(issue);
       }
     }
 
-    for (TestIssue issue : expectedIssues) {
-      TextRange line = issue.textRange;
-      if (map.get(line) == null) {
+    for (Issue issue : expectedIssues) {
+      TextRange range = issue.textRange;
+      if (map.get(range) == null) {
         Tuple tuple = new Tuple();
         tuple.addExpected(issue);
-        map.put(line, tuple);
+        map.put(range, tuple);
       } else {
-        map.get(line).addExpected(issue);
+        map.get(range).addExpected(issue);
       }
     }
 
@@ -218,14 +225,14 @@ public final class Verifier {
     private static final String UNEXPECTED_ISSUE = "* [UNEXPECTED_ISSUE] at %s with a message: \"%s\"\n\n";
     private static final String WRONG_NUMBER = "* [WRONG_NUMBER] Range %s: Expecting %s issue, but actual issues number is %s\n\n";
 
-    List<TestIssue> actual = new ArrayList<>();
-    List<TestIssue> expected = new ArrayList<>();
+    List<Issue> actual = new ArrayList<>();
+    List<Issue> expected = new ArrayList<>();
 
-    void addActual(TestIssue actual) {
+    void addActual(Issue actual) {
       this.actual.add(actual);
     }
 
-    void addExpected(TestIssue expected) {
+    void addExpected(Issue expected) {
       this.expected.add(expected);
     }
 
@@ -237,8 +244,8 @@ public final class Verifier {
         return String.format(NO_ISSUE, expected.get(0).textRange);
 
       } else if (actual.size() == 1 && expected.size() == 1) {
-        TestIssue expectedIssue = expected.get(0);
-        TestIssue actualIssue = actual.get(0);
+        Issue expectedIssue = expected.get(0);
+        Issue actualIssue = actual.get(0);
         return compareIssues(expectedIssue, actualIssue);
 
       } else if (actual.size() != expected.size()) {
@@ -255,7 +262,7 @@ public final class Verifier {
       return "";
     }
 
-    private static String compareIssues(TestIssue expectedIssue, TestIssue actualIssue) {
+    private static String compareIssues(Issue expectedIssue, Issue actualIssue) {
       String expectedMessage = expectedIssue.message;
 
       if (expectedMessage != null && !actualIssue.message.equals(expectedMessage)) {
