@@ -30,6 +30,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.when;
 public abstract class AbstractMetricsTest {
 
   protected NoSonarFilter noSonarFilter = mock(NoSonarFilter.class);
-  protected TreeParser parser;
+  protected TreeParser<Tree> parser;
   protected MetricsVisitor visitor;
   protected SensorContextTester sensorContext;
   protected DefaultInputFile inputFile;
@@ -60,7 +61,7 @@ public abstract class AbstractMetricsTest {
     visitor = metricsVisitor(fileLinesContextFactory);
   }
 
-  protected abstract TreeParser treeParser();
+  protected abstract TreeParser<Tree> treeParser();
 
   protected abstract MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory);
 

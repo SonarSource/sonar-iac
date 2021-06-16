@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
@@ -38,11 +39,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractHighlightingTest {
 
   private final SyntaxHighlightingVisitor highlightingVisitor;
-  private final TreeParser parser;
+  private final TreeParser<Tree> parser;
   private SensorContextTester sensorContext;
   private DefaultInputFile inputFile;
 
-  protected AbstractHighlightingTest(SyntaxHighlightingVisitor highlightingVisitor, TreeParser parser) {
+  protected AbstractHighlightingTest(SyntaxHighlightingVisitor highlightingVisitor, TreeParser<Tree> parser) {
     this.highlightingVisitor = highlightingVisitor;
     this.parser = parser;
   }
