@@ -40,7 +40,6 @@ import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 class IacRulingTest {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
@@ -79,6 +78,7 @@ class IacRulingTest {
   void test_terraform() throws IOException {
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.inclusions", "sources/terraform/**/*.tf, ruling/src/test/resources/sources/terraform/**/*.tf");
+    properties.put("sonar.terraform.activate", "true");
     run_ruling_test("terraform", properties);
   }
 
@@ -89,6 +89,7 @@ class IacRulingTest {
       "sources/cloudformation/**/*.yaml, , ruling/src/test/resources/sources/cloudformation/**/*.yaml," +
       "sources/cloudformation/**/*.yml, , ruling/src/test/resources/sources/cloudformation/**/*.yml,");
     properties.put("sonar.cloudformation.file.identifier", "");
+    properties.put("sonar.cloudformation.activate", "true");
     run_ruling_test("cloudformation", properties);
   }
 
