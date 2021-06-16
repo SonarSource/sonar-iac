@@ -35,6 +35,7 @@ import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -214,6 +215,18 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(logTester.logs()).contains("Cannot analyse 'file1.iac': Crash");
   }
 
+  @Test
+  void shoud_not_raise_issue_when_sensor_is_deactivated() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(getActivationSettingKey(), false);
+    context.setSettings(settings);
+    InputFile inputFile = inputFile("file1.iac", "\n{}");
+    analyse(sensor("S2260"), inputFile);
+
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).isEmpty();
+  }
+
   @Override
   protected String repositoryKey() {
     return "iac";
@@ -230,7 +243,7 @@ class IacSensorTest extends AbstractSensorTest {
 
   @Override
   protected String getActivationSettingKey() {
-    return "";
+    return "testsensor.active";
   }
 
   @Override
@@ -255,7 +268,7 @@ class IacSensorTest extends AbstractSensorTest {
 
       @Override
       protected boolean isActive(SensorContext sensorContext) {
-        return true;
+        return sensorContext.config().getBoolean("testsensor.active").orElse(false);
       }
 
       @Override
