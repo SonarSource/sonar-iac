@@ -33,7 +33,6 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -53,7 +52,7 @@ public class TerraformSensor extends IacSensor {
   }
 
   @Override
-  protected TreeParser treeParser() {
+  protected HclParser treeParser() {
     return new HclParser();
   }
 

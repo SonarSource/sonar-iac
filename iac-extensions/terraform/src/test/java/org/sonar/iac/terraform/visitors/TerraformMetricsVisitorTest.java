@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 import org.sonar.iac.terraform.parser.HclParser;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.verify;
 class TerraformMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
-  protected TreeParser treeParser() {
+  protected HclParser treeParser() {
     return new HclParser();
   }
 

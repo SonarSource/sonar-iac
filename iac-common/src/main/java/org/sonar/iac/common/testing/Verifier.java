@@ -55,7 +55,7 @@ public final class Verifier {
     // utility class
   }
 
-  public static void verify(TreeParser parser, Path path, IacCheck check) {
+  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check) {
     Tree root = parse(parser, path);
     SingleFileVerifier verifier = createVerifier(path, root);
     runAnalysis(verifier, check, root);
@@ -65,13 +65,13 @@ public final class Verifier {
   /**
    * This method should only be used if "Noncompliant" comments in the code cannot be used to verify the issues.
    */
-  public static void verify(TreeParser parser, Path path, IacCheck check, Issue... expectedIssues) {
+  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Issue... expectedIssues) {
     Tree root = parse(parser, path);
     List<Issue> actualIssues = runAnalysis(null, check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
-  public static void verifyNoIssue(TreeParser parser, Path path, IacCheck check) {
+  public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check) {
     Tree root = parse(parser, path);
     List<Issue> actualIssues = runAnalysis(null, check, root);
     compare(actualIssues, Collections.emptyList());

@@ -25,7 +25,6 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
-import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 
@@ -35,7 +34,7 @@ import static org.mockito.Mockito.verify;
 class CloudformationMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
-  protected TreeParser treeParser() {
+  protected CloudformationParser treeParser() {
     return new CloudformationParser();
   }
 

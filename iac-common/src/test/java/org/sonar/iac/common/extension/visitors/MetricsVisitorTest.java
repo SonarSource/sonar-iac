@@ -41,7 +41,7 @@ import static org.mockito.Mockito.verify;
 class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
-  protected TreeParser treeParser() {
+  protected TreeParser<Tree> treeParser() {
     return (source, inputFileContext) -> new TestTree();
   }
 
