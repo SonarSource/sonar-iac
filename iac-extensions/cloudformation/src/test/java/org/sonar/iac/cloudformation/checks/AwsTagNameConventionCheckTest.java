@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.Verifier;
 
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+
 class AwsTagNameConventionCheckTest {
 
   @Test
@@ -40,8 +42,8 @@ class AwsTagNameConventionCheckTest {
   @Test
   void test_default_json() {
     CloudformationVerifier.verify("AwsTagNameConventionCheck/default.json", new AwsTagNameConventionCheck(),
-      new Verifier.Issue(TextRanges.range(10, 19, 10, 43),
+      new Verifier.Issue(range(10, 19, 10, 43),
         "Rename tag key \"anycompany:cost-center\" to match the regular expression \"^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\"."),
-      new Verifier.Issue(TextRanges.range(14, 19, 14, 47)));
+      new Verifier.Issue(range(14, 19, 14, 47)));
   }
 }
