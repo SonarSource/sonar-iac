@@ -32,13 +32,13 @@ public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, AbstractResourceCheck.Resource resource) {
-    if (isS3Bucket(resource.type()) && isBucketEncrypted(resource)) {
+    if (isS3Bucket(resource.type()) && !isBucketEncrypted(resource)) {
       ctx.reportIssue(resource.type(), MESSAGE);
     }
   }
 
   private static boolean isBucketEncrypted(AbstractResourceCheck.Resource resource) {
-    return resource.properties() instanceof MappingTree && !MappingTreeUtils.getValue((MappingTree) resource.properties(), "BucketEncryption").isPresent();
+    return !(resource.properties() instanceof MappingTree) || MappingTreeUtils.getValue((MappingTree) resource.properties(), "BucketEncryption").isPresent();
   }
 
   private static boolean isS3Bucket(CloudformationTree type) {
