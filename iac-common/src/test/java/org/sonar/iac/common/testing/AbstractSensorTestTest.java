@@ -122,6 +122,11 @@ class AbstractSensorTestTest {
     }
 
     @Override
+    protected String getActivationSettingKey() {
+      return "";
+    }
+
+    @Override
     protected String repositoryKey() {
       return "myRepo";
     }

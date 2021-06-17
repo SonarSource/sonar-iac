@@ -77,6 +77,11 @@ public class CloudformationSensor extends IacSensor {
   }
 
   @Override
+  protected String getActivationSettingKey() {
+    return CloudformationSettings.ACTIVATION_KEY;
+  }
+
+  @Override
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
     if (!(cause instanceof MarkedYamlEngineException)) {
       return super.toParseException(action, inputFile, cause);
