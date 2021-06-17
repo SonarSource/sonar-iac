@@ -77,8 +77,8 @@ public class CloudformationSensor extends IacSensor {
   }
 
   @Override
-  protected boolean isActive(SensorContext sensorContext) {
-    return sensorContext.config().getBoolean(CloudformationSettings.ACTIVATION_KEY).orElse(false);
+  protected String getActivationSettingKey() {
+    return CloudformationSettings.ACTIVATION_KEY;
   }
 
   @Override

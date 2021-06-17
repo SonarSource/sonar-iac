@@ -71,7 +71,7 @@ public abstract class IacSensor implements Sensor {
 
   protected abstract List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics);
 
-  protected abstract boolean isActive(SensorContext sensorContext);
+  protected abstract String getActivationSettingKey();
 
   @Override
   public void execute(SensorContext sensorContext) {
@@ -108,6 +108,10 @@ public abstract class IacSensor implements Sensor {
 
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
     return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), null);
+  }
+
+  private boolean isActive(SensorContext sensorContext) {
+    return sensorContext.config().getBoolean(getActivationSettingKey()).orElse(false);
   }
 
   private class Analyzer {

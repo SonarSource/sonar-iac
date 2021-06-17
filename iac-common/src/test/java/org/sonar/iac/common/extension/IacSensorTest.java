@@ -267,8 +267,8 @@ class IacSensorTest extends AbstractSensorTest {
       }
 
       @Override
-      protected boolean isActive(SensorContext sensorContext) {
-        return sensorContext.config().getBoolean("testsensor.active").orElse(false);
+      protected String getActivationSettingKey() {
+        return "testsensor.active";
       }
 
       @Override
