@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser;
+package org.sonar.iac.terraform.parser.grammar;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
 import org.sonar.iac.terraform.api.tree.BodyTree;
@@ -29,6 +29,7 @@ import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
+import org.sonar.iac.terraform.parser.TreeFactory;
 import org.sonar.iac.terraform.tree.impl.AbstractForTree;
 import org.sonar.iac.terraform.tree.impl.SyntaxTokenImpl;
 import org.sonar.iac.terraform.tree.impl.TemplateForDirectiveTreeImpl;

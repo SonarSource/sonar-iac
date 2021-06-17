@@ -26,6 +26,8 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.terraform.parser.grammar.HclGrammar;
+import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class HclParser extends ActionParser<TerraformTree> implements TreeParser<Tree> {

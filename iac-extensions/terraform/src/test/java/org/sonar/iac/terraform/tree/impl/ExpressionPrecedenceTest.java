@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.parser.HclLexicalGrammar;
+import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

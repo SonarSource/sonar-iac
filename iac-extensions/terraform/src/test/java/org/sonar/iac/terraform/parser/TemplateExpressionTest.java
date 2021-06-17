@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.parser;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 import org.sonar.iac.terraform.parser.utils.Assertions;
 
 class TemplateExpressionTest {

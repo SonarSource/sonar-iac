@@ -24,7 +24,7 @@ import org.sonar.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
-import org.sonar.iac.terraform.parser.HclLexicalGrammar;
+import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

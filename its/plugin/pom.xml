@@ -38,19 +38,17 @@
   </dependencies>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <argLine>-Xmx128m -server</argLine>
-            <includes>
-              <include>org/sonarsource/iac/Tests.java</include>
-            </includes>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>-Xmx128m -server</argLine>
+          <includes>
+            <include>org/sonarsource/iac/Tests.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
   <profiles>

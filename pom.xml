@@ -22,9 +22,7 @@
   </organization>
   <licenses>
     <license>
-      <name>GNU LGPL v3</name>
-      <url>https://www.gnu.org/licenses/lgpl.txt</url>
-      <distribution>repo</distribution>
+      <name>SonarSource</name>
     </license>
   </licenses>
 
@@ -72,6 +70,9 @@
     <version.mockito>3.9.0</version.mockito>
     <version.snakeyaml>2.3</version.snakeyaml>
     <gitRepositoryName>sonar-iac</gitRepositoryName>
+    <!-- Plugins -->
+    <version.antrun.plugin>1.8</version.antrun.plugin>
+    <version.build-helper.plugin>3.0.0</version.build-helper.plugin>
   </properties>
 
   <dependencyManagement>
@@ -185,6 +186,16 @@
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${version.antrun.plugin}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${version.build-helper.plugin}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration/>
         </plugin>
@@ -194,6 +205,10 @@
           <configuration>
             <showDeprecation>true</showDeprecation>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
         </plugin>
       </plugins>
     </pluginManagement>

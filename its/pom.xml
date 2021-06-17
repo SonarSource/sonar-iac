@@ -68,6 +68,14 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>its</id>
+      <properties>
+        <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
+        <skipTests>false</skipTests>
+      </properties>
+    </profile>
   </profiles>
 
 </project>
