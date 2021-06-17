@@ -37,11 +37,11 @@ public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
     }
   }
 
-  private boolean isBucketEncrypted(AbstractResourceCheck.Resource resource) {
+  private static boolean isBucketEncrypted(AbstractResourceCheck.Resource resource) {
     return resource.properties() instanceof MappingTree && !MappingTreeUtils.getValue((MappingTree) resource.properties(), "BucketEncryption").isPresent();
   }
 
-  private boolean isS3Bucket(CloudformationTree type) {
+  private static boolean isS3Bucket(CloudformationTree type) {
     return type instanceof ScalarTree && "AWS::S3::Bucket".equalsIgnoreCase(((ScalarTree) type).value());
   }
 }

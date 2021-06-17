@@ -12,3 +12,16 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
+  BucketWithNoPropertiesSet:
+    Type: 'AWS::S3::Bucket'
+  NoBucket:
+    Type: 'Not a Bucket'
+    Properties:
+      name: "not a bucket"
+  NoBucket2:
+    Properties:
+      name: "not a bucket"
+  NoBucket3:
+    Type: []
+    Properties:
+      name: "not a bucket"
