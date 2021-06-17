@@ -171,7 +171,6 @@
                         <keep>
                           <class classes="private" methods="private" fields="private">
                             <patternset>
-                              <include name="org.sonar.plugins.iac.IacPlugin" />
                               <include name="com.sonar.sslr.**.*" />
                               <include name="org.sonar.sslr.**.*" />
                               <include name="org.sonar.iac.terraform.parser.grammar" />
