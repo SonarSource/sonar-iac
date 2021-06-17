@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.checks;
+package org.sonar.iac.cloudformation.checks.utils;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
+import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
+import org.sonar.iac.cloudformation.api.tree.MappingTree;
+import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.cloudformation.api.tree.TupleTree;
 
-public class CloudformationCheckList {
+public class MappingTreeUtils {
 
-  private CloudformationCheckList() {
-
+  private MappingTreeUtils() {
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      AwsTagNameConventionCheck.class,
-      DisabledS3EncryptionCheck.class,
-      ParsingErrorCheck.class
-    );
+  public static Optional<CloudformationTree> getValue(MappingTree map, String key) {
+    return map.elements().stream()
+      .filter(e -> e.key() instanceof ScalarTree && key.equals(((ScalarTree) e.key()).value()))
+      .map(TupleTree::value)
+      .findFirst();
   }
 }
