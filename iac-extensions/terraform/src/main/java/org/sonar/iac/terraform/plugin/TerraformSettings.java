@@ -45,6 +45,7 @@ public class TerraformSettings {
   public static List<PropertyDefinition> getProperties() {
     return Arrays.asList(
       PropertyDefinition.builder(ACTIVATION_KEY)
+        .index(1)
         .defaultValue(ACTIVATION_DEFAULT_VALUE)
         .name("Activate Terraform analysis")
         .description("Activate analysis of Terraform files.")
@@ -55,6 +56,7 @@ public class TerraformSettings {
         .build(),
 
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
+        .index(2)
         .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
         .name("File Suffixes")
         .description("List of suffixes of Terraform files to analyze.")
@@ -65,6 +67,7 @@ public class TerraformSettings {
         .build(),
 
       PropertyDefinition.builder(EXCLUSIONS_KEY)
+        .index(3)
         .defaultValue(EXCLUSIONS_DEFAULT_VALUE)
         .name("Terraform Exclusions")
         .description("List of file path patterns to be excluded from analysis of Terraform files.")

@@ -48,6 +48,7 @@ public class CloudformationSettings {
   public static List<PropertyDefinition> getProperties() {
     return Arrays.asList(
       PropertyDefinition.builder(ACTIVATION_KEY)
+        .index(1)
         .defaultValue(ACTIVATION_DEFAULT_VALUE)
         .name("Activate Cloudformation analysis")
         .description("Activate analysis of JSON and Yaml files recognized as Cloudformation files.")
@@ -58,6 +59,7 @@ public class CloudformationSettings {
         .build(),
 
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
+        .index(2)
         .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
         .name("File Suffixes")
         .description("List of suffixes of Cloudformation files to analyze.")
@@ -68,6 +70,7 @@ public class CloudformationSettings {
         .build(),
 
       PropertyDefinition.builder(EXCLUSIONS_KEY)
+        .index(3)
         .defaultValue(EXCLUSIONS_DEFAULT_VALUE)
         .name("Cloudformation Exclusions")
         .description("List of file path patterns to be excluded from analysis of Cloudformation files.")
@@ -78,6 +81,7 @@ public class CloudformationSettings {
         .build(),
 
       PropertyDefinition.builder(FILE_IDENTIFIER_KEY)
+        .index(4)
         .defaultValue(FILE_IDENTIFIER_DEFAULT_VALUE)
         .name("File Identifier")
         .description("Files without the identifier are excluded from the analysis. The identifier can be anywhere in the file.")
