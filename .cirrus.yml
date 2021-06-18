@@ -65,7 +65,7 @@ build_task:
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   build_script:
-    - source cirrus-env BUILD
+    - source cirrus-env BUILD-PRIVATE
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
