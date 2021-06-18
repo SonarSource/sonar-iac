@@ -1,4 +1,5 @@
-resource "aws_s3_bucket" "mynoncompliantbuckets6245" { # Noncompliant
+resource "aws_s3_bucket" "mynoncompliantbuckets6245" { # Noncompliant {{Make sure not using server-side encryption is safe here.}}
+  #      ^^^^^^^^^^^^^^^
   bucket = "mynoncompliantbuckets6245"
 }
 
