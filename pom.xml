@@ -4,9 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonarsource.parent</groupId>
+    <groupId>com.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>59.0.29</version>
+    <version>54.0.29</version>
   </parent>
 
   <groupId>org.sonarsource.iac</groupId>
@@ -22,9 +22,7 @@
   </organization>
   <licenses>
     <license>
-      <name>GNU LGPL v3</name>
-      <url>https://www.gnu.org/licenses/lgpl.txt</url>
-      <distribution>repo</distribution>
+      <name>SonarSource</name>
     </license>
   </licenses>
 
@@ -194,6 +192,11 @@
           <configuration>
             <showDeprecation>true</showDeprecation>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${version.shade.plugin}</version>
         </plugin>
       </plugins>
     </pluginManagement>

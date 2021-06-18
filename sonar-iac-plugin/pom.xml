@@ -70,7 +70,6 @@
       <plugin>
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <version>${version.sonar-packaging.plugin}</version>
         <configuration>
           <sonarLintSupported>false</sonarLintSupported>
           <!-- FIXME: Peach currently runs on 7.9 -->
@@ -91,8 +90,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>680000</maxsize>
-                  <minsize>600000</minsize>
+                  <maxsize>520000</maxsize>
+                  <minsize>450000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
@@ -139,5 +138,83 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>obfuscation</id>
+      <activation>
+        <property>
+          <name>!skipObfuscation</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <dependencies>
+              <dependency>
+                <groupId>com.yworks</groupId>
+                <artifactId>yguard</artifactId>
+                <version>2.6</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <configuration>
+                  <target>
+                    <property refid="maven.compile.classpath" name="mvn.classpath" />
+                    <taskdef name="yguard" classname="com.yworks.yguard.YGuardTask" />
+                    <yguard>
+                      <inoutpair in="${project.build.directory}/${project.build.finalName}.jar" out="${project.build.directory}/${project.build.finalName}.jar" />
+                      <rename logfile="${project.build.directory}/yguard.log.xml" replaceClassNameStrings="true">
+                        <keep>
+                          <class classes="private" methods="private" fields="private">
+                            <patternset>
+                              <include name="com.sonar.sslr.**.*" />
+                              <include name="org.sonar.sslr.**.*" />
+                              <include name="org.sonar.iac.terraform.parser.grammar" />
+                            </patternset>
+                          </class>
+                        </keep>
+                        <adjust replaceContent="false" replacePath="false" replaceName="false">
+                          <include name="org/sonar/l10n/**/*.*" />
+                        </adjust>
+                      </rename>
+                    </yguard>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-artifacts</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>attach-artifact</goal>
+                </goals>
+                <configuration>
+                  <artifacts>
+                    <artifact>
+                      <file>target/yguard.log.xml</file>
+                      <type>xml</type>
+                      <classifier>yguard</classifier>
+                    </artifact>
+                  </artifacts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
