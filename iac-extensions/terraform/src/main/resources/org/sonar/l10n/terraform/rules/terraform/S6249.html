@@ -1,0 +1,100 @@
+<p>By default, S3 buckets can be accessed through HTTP and HTTPs protocols.</p>
+<p>Only HTTPs prevents data breaches by encrypting network communications.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The S3 bucket stores sensitive information. </li>
+  <li> The infrastructure needs to comply to some regulations, like HIPAA or PCI DSS, and other standards. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to deny all HTTP requests:</p>
+<ul>
+  <li> for all objects (<code>*</code>) of the bucket </li>
+  <li> for all principals (<code>*</code>) </li>
+  <li> for all actions (<code>*</code>) </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<p>No secure policy is attached to this bucket:</p>
+<pre>
+resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
+  bucket = "mynoncompliantbucketname"
+}
+</pre>
+<p>A policy that forces, only for some users, HTTPs is used:</p>
+<pre>
+resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
+  bucket = "mynoncompliantbucketname"
+}
+
+resource "aws_s3_bucket_policy" "mynoncompliantbucketpolicy" {
+  bucket = "mynoncompliantbucketname"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "mynoncompliantbucketpolicy"
+    Statement = [
+      {
+        Sid       = "HTTPSOnly"
+        Effect    = "Deny"
+        Principal = [
+          "arn:aws:iam::123456789123:root"
+        ] # secondary location: only one principal is forced to use https
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.mynoncompliantbucketpolicy.arn,
+          "${aws_s3_bucket.mynoncompliantbucketpolicy.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>A secure policy that denies all HTTP requests is used:</p>
+<pre>
+resource "aws_s3_bucket" "mycompliantbucket" {
+  bucket = "mycompliantbucketname"
+}
+
+resource "aws_s3_bucket_policy" "mycompliantpolicy" {
+  bucket = "mycompliantbucketname"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "mycompliantpolicy"
+    Statement = [
+      {
+        Sid       = "HTTPSOnly"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.mycompliantbucket.arn,
+          "${aws_s3_bucket.mycompliantbucket.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html#transit">AWS documentation</a> - Enforce encryption
+  of data in transit </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/319.html">MITRE, CWE-319</a> - Cleartext Transmission of Sensitive Information </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
+  </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+</ul>
+
