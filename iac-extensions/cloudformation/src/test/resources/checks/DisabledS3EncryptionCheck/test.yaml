@@ -1,7 +1,8 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   S3Bucket:
-    Type: 'AWS::S3::Bucket' # Noncompliant
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure not using server-side encryption is safe here.}}
+    #     ^^^^^^^^^^^^^^^^^
     Properties:
       BucketName: "mynoncompliantbuckets6245"
   S3Bucket2:

@@ -44,8 +44,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
 
       ((MappingTree) resourcesTree).elements().stream()
         .filter(element -> element.value() instanceof MappingTree)
-        .map(element -> new Resource(MappingTreeUtils.getValue((MappingTree) element.value(), "Type").orElse(null),
-          MappingTreeUtils.getValue((MappingTree) element.value(), "Properties").orElse(null)))
+        .map(element -> Resource.fromMapping((MappingTree) element.value()))
         .forEach(r -> checkResource(ctx, r));
     });
   }
@@ -59,6 +58,10 @@ public abstract class AbstractResourceCheck implements IacCheck {
     private Resource(@Nullable CloudformationTree type, @Nullable CloudformationTree properties) {
       this.type = type;
       this.properties = properties;
+    }
+
+    private static Resource fromMapping(MappingTree mapping) {
+      return new Resource(MappingTreeUtils.getValue(mapping, "Type").orElse(null), MappingTreeUtils.getValue(mapping, "Properties").orElse(null));
     }
 
     public CloudformationTree type() {
