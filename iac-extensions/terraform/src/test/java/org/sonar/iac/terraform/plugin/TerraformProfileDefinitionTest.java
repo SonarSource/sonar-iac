@@ -34,6 +34,6 @@ class TerraformProfileDefinitionTest {
     BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("terraform", "Sonar way");
     assertThat(profile.language()).isEqualTo("terraform");
     assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules().size()).isEqualTo(1);
+    assertThat(profile.rules().size()).isEqualTo(2);
   }
 }

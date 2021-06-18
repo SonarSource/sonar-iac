@@ -19,20 +19,12 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.Arrays;
-import java.util.List;
+import org.junit.jupiter.api.Test;
 
-public class TerraformCheckList {
+class DisabledS3EncryptionCheckTest {
 
-  private TerraformCheckList() {
-
-  }
-
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      AwsTagNameConventionCheck.class,
-      DisabledS3EncryptionCheck.class,
-      ParsingErrorCheck.class
-    );
+  @Test
+  void test() {
+    TerraformVerifier.verify("DisabledS3EncryptionCheck/test.tf", new DisabledS3EncryptionCheck());
   }
 }
