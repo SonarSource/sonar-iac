@@ -5,6 +5,13 @@ resource "aws_s3_bucket" "mynoncompliantbuckets6245" { # Noncompliant
 resource "aws_s3_bucket" "mynoncompliantbuckets6245" { # Noncompliant
 }
 
+resource "aws_s3_bucket" "mynoncompliantbuckets6245" { # Noncompliant
+  bucket = "mycompliantbuckets6245"
+
+  not_server_side_encryption {
+  }
+}
+
 resource "aws_s3_bucket" "mycompliantbuckets6245" { # Compliant
   bucket = "mycompliantbuckets6245"
 
@@ -16,3 +23,7 @@ resource "aws_s3_bucket" "mycompliantbuckets6245" { # Compliant
     }
   }
 }
+
+resource "not_a_bucket" "mynoncompliantbuckets6245" {}
+
+resource {} # no labels
