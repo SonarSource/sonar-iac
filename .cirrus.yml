@@ -17,7 +17,7 @@ env:
   # Use bash (instead of sh on linux or cmd.exe on windows)
   CIRRUS_SHELL: bash
   # Allows to run builds for the 50 last commits in a branch:
-  CIRRUS_CLONE_DEPTH: 20
+  CIRRUS_CLONE_DEPTH: 1
 
 linux_image_template: &LINUX_IMAGE
   image: gcr.io/language-team/base:latest
