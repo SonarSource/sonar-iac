@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  resource1:
+    Type: 'type1'
+  resource2:
+    Type: 'type2'
+  resource3:
+    Type: 'type3'
+  resource4:
+    Resources: # Does not count as it is not a main resource
+      resource5:
+        Type: 'type4'

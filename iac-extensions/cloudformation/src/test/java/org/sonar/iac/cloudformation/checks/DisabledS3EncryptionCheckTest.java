@@ -19,30 +19,22 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.sonar.iac.cloudformation.parser.CloudformationParser;
-import org.sonar.iac.common.api.checks.IacCheck;
+import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.testing.Verifier;
 
-public class CloudformationVerifier {
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
-  private CloudformationVerifier() {
+class DisabledS3EncryptionCheckTest {
 
+  @Test
+  void test_yaml() {
+    CloudformationVerifier.verify("DisabledS3EncryptionCheck/test.yaml", new DisabledS3EncryptionCheck());
   }
 
-  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
-  private static final CloudformationParser PARSER = new CloudformationParser();
-
-  public static void verify(String fileName, IacCheck check) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
-  }
-
-  public static void verify(String fileName, IacCheck check, Verifier.Issue... expectedIssues) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, expectedIssues);
-  }
-
-  public static void verifyNoIssue(String fileName, IacCheck check) {
-    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+  @Test
+  void test_json() {
+    CloudformationVerifier.verify("DisabledS3EncryptionCheck/test.json", new DisabledS3EncryptionCheck(),
+      new Verifier.Issue(range(5, 14, 5, 31),
+        "Make sure not using server-side encryption is safe here."));
   }
 }

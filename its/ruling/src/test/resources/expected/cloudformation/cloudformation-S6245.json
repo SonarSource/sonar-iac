@@ -1,0 +1,15 @@
+{
+'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6273.json':[
+5,
+],
+'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6273.yaml':[
+7,
+],
+'cloudformation-project:sources/cloudformation/taskcat/tests/data/retain-resources/test.template.yaml':[
+26,
+33,
+],
+'cloudformation-project:sources/cloudformation/taskcat/tests/data/update_ami/generic/generic.template.json':[
+18,
+],
+}
