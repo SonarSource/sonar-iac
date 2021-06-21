@@ -7,6 +7,7 @@ package org.sonar.iac.cloudformation.plugin;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,6 +21,9 @@ class CloudformationProfileDefinitionTest {
     BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("cloudformation", "Sonar way");
     assertThat(profile.language()).isEqualTo("cloudformation");
     assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules().size()).isEqualTo(3);
+    assertThat(profile.rules().size()).isGreaterThan(3);
+    assertThat(profile.rules()).extracting(BuiltInActiveRule::ruleKey)
+      .contains("S6245") // DisabledS3EncryptionCheck
+      .doesNotContain("S2260"); // ParsingErrorCheck
   }
 }

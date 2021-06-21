@@ -1,0 +1,48 @@
+<p>Server access logging records the requests that are made to S3 buckets and this allow to track who is doing what on S3 buckets.</p>
+<p>When server access logging is deactivated, infrastructure administrators are blind and can’t answer to any regulatory requests.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The infrastructure requires security monitoring, to comply to some regulations or not. </li>
+  <li> There is a need to understand what objects are requested by S3 customers. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to enable S3 server access logs.</p>
+<h2>Sensitive Code Example</h2>
+<p>S3 server access logging is disabled:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    Properties:
+      BucketName: "mynoncompliantbucket"
+</pre>
+<h2>Compliant Solution</h2>
+<p>S3 server access logging is enabled:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3BucketLogs:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: "mycompliantloggingbucket"
+      AccessControl: LogDeliveryWrite
+
+  S3Bucket:
+    Type: 'AWS::S3::Bucket' # Compliant
+    Properties:
+      BucketName: "mycompliantbucket"
+      LoggingConfiguration:
+        DestinationBucketName: !Ref S3BucketLogs
+        LogFilePrefix: testing-logs
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html">AWS Documentation</a> - Logging requests using server access
+  logging </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/778.html">MITRE, CWE-778</a> - Insufficient Logging </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A10_2017-Insufficient_Logging%2526Monitoring">OWASP Top 10 2017 Category A10</a> -
+  Insufficient Logging and Monitoring </li>
+</ul>
+
