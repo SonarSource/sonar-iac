@@ -71,9 +71,9 @@ class IacRulingTest {
   @Test
   void test_cloudformation() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/cloudformation/**/*.json, , ruling/src/test/resources/sources/cloudformation/**/*.json," +
-      "sources/cloudformation/**/*.yaml, , ruling/src/test/resources/sources/cloudformation/**/*.yaml," +
-      "sources/cloudformation/**/*.yml, , ruling/src/test/resources/sources/cloudformation/**/*.yml,");
+    properties.put("sonar.inclusions", "sources/cloudformation/**/*.json, ruling/src/test/resources/sources/cloudformation/**/*.json," +
+      "sources/cloudformation/**/*.yaml, ruling/src/test/resources/sources/cloudformation/**/*.yaml," +
+      "sources/cloudformation/**/*.yml, ruling/src/test/resources/sources/cloudformation/**/*.yml,");
     properties.put("sonar.cloudformation.file.identifier", "");
     properties.put("sonar.cloudformation.activate", "true");
     run_ruling_test("cloudformation", properties);

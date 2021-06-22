@@ -6,11 +6,9 @@
 package org.sonar.iac.common.checks;
 
 import java.util.regex.Pattern;
-import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.IacCheck;
 
-@Rule(key = "S6273")
 public abstract class AbstractAwsTagNameConventionCheck implements IacCheck {
   protected static final String MESSAGE = "Rename tag key \"%s\" to match the regular expression \"%s\".";
   public static final String DEFAULT = "^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$";

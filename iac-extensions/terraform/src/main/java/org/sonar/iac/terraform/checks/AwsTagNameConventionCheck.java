@@ -6,6 +6,7 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.regex.Pattern;
+import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.AbstractAwsTagNameConventionCheck;
@@ -15,6 +16,7 @@ import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 
+@Rule(key = "S6273")
 public class AwsTagNameConventionCheck extends AbstractAwsTagNameConventionCheck {
 
   @Override

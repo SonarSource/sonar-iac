@@ -1,0 +1,46 @@
+<p>S3 buckets can be in three states related to versioning:</p>
+<ul>
+  <li> unversioned (default one) </li>
+  <li> enabled </li>
+  <li> suspended </li>
+</ul>
+<p>When the S3 bucket is unversioned or has versioning suspended it means that a new version of an object overwrites an existing one in the S3
+bucket.</p>
+<p>It can lead to unintentional or intentional information loss.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The S3 bucket stores sensitive information that is required to be preserved on the long term. </li>
+  <li> The S3 bucket grants write permission to many users. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to enable S3 versioning and thus to have the possibility to retrieve and restore different versions of an object.</p>
+<h2>Sensitive Code Example</h2>
+<p>Versioning is disabled by default:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket' # Sensitive
+    Properties:
+      BucketName: "mynonompliantbucket"
+</pre>
+<h2>Compliant Solution</h2>
+<p>Versioning is enabled:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket' # Compliant
+    Properties:
+      BucketName: "mycompliantbucket"
+      VersioningConfiguration:
+        Status: Enabled
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html">AWS documentation</a> - Using versioning in S3 buckets </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+</ul>
+

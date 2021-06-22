@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3BucketEnabledVersioning:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+
+  S3BucketEnabledVersioning2:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      VersioningConfiguration: {Status: Enabled}
+
+  S3BucketSupendedVersioning:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      VersioningConfiguration:
+        Status: Suspended # Noncompliant {{Make sure using suspended versioned S3 bucket is safe here.}}
+#               ^^^^^^^^^
+
+  S3BucketWithoutVersioning:
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
+    Properties:
+      VersioningConfiguration:
+        Foo: Enabled
+
+  S3BucketUnkownVersioning:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      VersioningConfiguration:
+        Status: !Ref GlobalBucketVersioning
+
+  S3BucketShortNotation:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    VersioningConfiguration.Status: Enabled
+
+  BucketWithNoPropertiesSet:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+
+  NoBucket:
+    Type: 'Not a Bucket'
+    Properties:
+      name: "not a bucket"
+
+  NoBucket2:
+    Properties:
+      name: "not a bucket"
+
+  NoBucket3:
+    Type: []
+    Properties:
+      name: "not a bucket"
