@@ -24,8 +24,7 @@ class UnversionedS3BucketCheckTest {
         "Make sure using suspended versioned S3 bucket is safe here."),
       new Verifier.Issue(range(29, 14, 29, 31),
         "Make sure using unversioned S3 bucket is safe here."),
-      new Verifier.Issue(range(45, 14, 45, 31)),
-      new Verifier.Issue(range(49, 14, 49, 31)));
+      new Verifier.Issue(range(45, 14, 45, 31)));
   }
 
 }
