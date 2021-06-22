@@ -19,6 +19,6 @@ public class ScalarTreeUtils {
       return Optional.empty();
     }
 
-    return Optional.ofNullable(((ScalarTree) scalar).value());
+    return Optional.of(((ScalarTree) scalar).value());
   }
 }

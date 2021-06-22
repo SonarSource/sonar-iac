@@ -84,6 +84,6 @@ public class InputFileContext extends TreeContext {
   }
 
   private int issueHash(RuleKey ruleKey, @Nullable TextRange textRange) {
-    return Objects.hash(inputFile, ruleKey, textRange);
+    return Objects.hash(ruleKey, textRange);
   }
 }
