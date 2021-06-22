@@ -41,10 +41,6 @@
         }
       }
     },
-    "S3BucketShortNotation": {
-      "Type": "AWS::S3::Bucket",
-      "VersioningConfiguration.Status": "Enabled"
-    },
     "BucketWithNoPropertiesSet": {
       "Type": "AWS::S3::Bucket"
     },

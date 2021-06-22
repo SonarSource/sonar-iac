@@ -30,9 +30,9 @@ Resources:
       VersioningConfiguration:
         Status: !Ref GlobalBucketVersioning
 
-  S3BucketShortNotation:
-    Type: 'AWS::S3::Bucket' # Noncompliant
-    VersioningConfiguration.Status: Enabled
+  MyBucket S3::Bucket:
+    AccessControl: PublicRead
+    VersioningConfiguration.Status: Suspended # FN SONARIAC-102 we do not support shorthand notation yet.
 
   BucketWithNoPropertiesSet:
     Type: 'AWS::S3::Bucket' # Noncompliant
