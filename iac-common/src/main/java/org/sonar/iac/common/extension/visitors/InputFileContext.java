@@ -83,7 +83,7 @@ public class InputFileContext extends TreeContext {
     error.save();
   }
 
-  private int issueHash(RuleKey ruleKey, @Nullable TextRange textRange) {
+  private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange) {
     return Objects.hash(ruleKey, textRange);
   }
 }
