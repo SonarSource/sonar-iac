@@ -5,13 +5,11 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class BucketsInsecureHttpCheckTest {
 
   @Test
-  @Disabled
   void test() {
     TerraformVerifier.verify("BucketsInsecureHttpCheck/test.tf", new BucketsInsecureHttpCheck());
   }
