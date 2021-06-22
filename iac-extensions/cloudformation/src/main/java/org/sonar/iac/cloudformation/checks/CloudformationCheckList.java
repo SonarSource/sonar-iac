@@ -18,7 +18,8 @@ public class CloudformationCheckList {
     return Arrays.asList(
       AwsTagNameConventionCheck.class,
       DisabledS3EncryptionCheck.class,
-      ParsingErrorCheck.class
+      ParsingErrorCheck.class,
+      UnversionedS3BucketCheck.class
     );
   }
 }

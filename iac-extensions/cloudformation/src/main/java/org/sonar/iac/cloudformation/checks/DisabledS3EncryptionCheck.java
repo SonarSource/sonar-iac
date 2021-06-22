@@ -6,9 +6,7 @@
 package org.sonar.iac.cloudformation.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 
@@ -18,16 +16,12 @@ public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, AbstractResourceCheck.Resource resource) {
-    if (isS3Bucket(resource.type()) && !isBucketEncrypted(resource)) {
+    if (isS3Bucket(resource) && !isBucketEncrypted(resource)) {
       ctx.reportIssue(resource.type(), MESSAGE);
     }
   }
 
   private static boolean isBucketEncrypted(AbstractResourceCheck.Resource resource) {
-    return !(resource.properties() instanceof MappingTree) || MappingTreeUtils.getValue((MappingTree) resource.properties(), "BucketEncryption").isPresent();
-  }
-
-  private static boolean isS3Bucket(CloudformationTree type) {
-    return type instanceof ScalarTree && "AWS::S3::Bucket".equalsIgnoreCase(((ScalarTree) type).value());
+    return !(resource.properties() instanceof MappingTree) || MappingTreeUtils.getValue(resource.properties(), "BucketEncryption").isPresent();
   }
 }

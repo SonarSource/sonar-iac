@@ -16,8 +16,12 @@ public class MappingTreeUtils {
   private MappingTreeUtils() {
   }
 
-  public static Optional<CloudformationTree> getValue(MappingTree map, String key) {
-    return map.elements().stream()
+  public static Optional<CloudformationTree> getValue(CloudformationTree map, String key) {
+    if (!(map instanceof MappingTree)) {
+      return Optional.empty();
+    }
+
+    return ((MappingTree) map).elements().stream()
       .filter(e -> e.key() instanceof ScalarTree && key.equals(((ScalarTree) e.key()).value()))
       .map(TupleTree::value)
       .findFirst();

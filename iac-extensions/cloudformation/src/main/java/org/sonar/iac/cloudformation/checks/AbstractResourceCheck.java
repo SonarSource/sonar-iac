@@ -10,6 +10,7 @@ import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
+import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -19,11 +20,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(FileTree.class, (ctx, tree) -> {
-      if (!(tree.root() instanceof MappingTree)) {
-        return;
-      }
-
-      CloudformationTree resourcesTree = MappingTreeUtils.getValue((MappingTree) tree.root(), "Resources").orElse(null);
+      CloudformationTree resourcesTree = MappingTreeUtils.getValue(tree.root(), "Resources").orElse(null);
       if (!(resourcesTree instanceof MappingTree)) {
         return;
       }
@@ -41,7 +38,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
     private final CloudformationTree type;
     private final CloudformationTree properties;
 
-    private Resource(@Nullable CloudformationTree type, @Nullable CloudformationTree properties) {
+    Resource(@Nullable CloudformationTree type, @Nullable CloudformationTree properties) {
       this.type = type;
       this.properties = properties;
     }
@@ -57,5 +54,10 @@ public abstract class AbstractResourceCheck implements IacCheck {
     public CloudformationTree properties() {
       return properties;
     }
+  }
+
+  static boolean isS3Bucket(Resource resource) {
+    String type = ScalarTreeUtils.getValue(resource.type).orElse("null");
+    return "AWS::S3::Bucket".equalsIgnoreCase(type);
   }
 }

@@ -5,7 +5,10 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
@@ -21,6 +24,7 @@ public class InputFileContext extends TreeContext {
   private static final String PARSING_ERROR_RULE_KEY = "S2260";
   public final SensorContext sensorContext;
   public final InputFile inputFile;
+  private final Set<Integer> raisedIssues = new HashSet<>();
 
   public InputFileContext(SensorContext sensorContext, InputFile inputFile) {
     this.sensorContext = sensorContext;
@@ -28,15 +32,19 @@ public class InputFileContext extends TreeContext {
   }
 
   public void reportIssue(RuleKey ruleKey, @Nullable TextRange textRange, String message) {
-    NewIssue issue = sensorContext.newIssue();
-    NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
+    // We avoid raising an issue on text ranges on which we already raised one. This is to avoid duplicate ones which might happen, for example, with Yaml anchors SONARIAC-78.
+    // Once we'll need to introduce a secondary locations mechanism, a more sophisticated mechanism has to be used to detect duplicates.
+    if (raisedIssues.add(issueHash(ruleKey, textRange))) {
+      NewIssue issue = sensorContext.newIssue();
+      NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
 
-    if (textRange != null) {
-      issueLocation.at(textRange);
+      if (textRange != null) {
+        issueLocation.at(textRange);
+      }
+
+      issue.forRule(ruleKey).at(issueLocation);
+      issue.save();
     }
-
-    issue.forRule(ruleKey).at(issueLocation);
-    issue.save();
   }
 
   public void reportParseError(String repositoryKey, @Nullable TextPointer location) {
@@ -73,5 +81,9 @@ public class InputFileContext extends TreeContext {
     }
 
     error.save();
+  }
+
+  private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange) {
+    return Objects.hash(ruleKey, textRange);
   }
 }

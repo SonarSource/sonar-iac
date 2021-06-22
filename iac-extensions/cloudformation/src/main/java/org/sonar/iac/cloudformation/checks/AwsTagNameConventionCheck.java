@@ -7,6 +7,7 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
+import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
@@ -16,6 +17,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.AbstractAwsTagNameConventionCheck;
 
+@Rule(key = "S6273")
 public class AwsTagNameConventionCheck extends AbstractAwsTagNameConventionCheck {
 
   @Override

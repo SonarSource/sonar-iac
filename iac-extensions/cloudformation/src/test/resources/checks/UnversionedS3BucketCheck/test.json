@@ -1,0 +1,65 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09T00:00:00.000Z",
+  "Resources": {
+    "S3BucketEnabledVersioning": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      }
+    },
+    "S3BucketEnabledVersioning2": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      }
+    },
+    "S3BucketSupendedVersioning": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "VersioningConfiguration": {
+          "Status": "Suspended"
+        }
+      }
+    },
+    "S3BucketWithoutVersioning": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "VersioningConfiguration": {
+          "Foo": "Enabled"
+        }
+      }
+    },
+    "S3BucketUnkownVersioning": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "VersioningConfiguration": {
+          "Status": "GlobalBucketVersioning"
+        }
+      }
+    },
+    "BucketWithNoPropertiesSet": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "NoBucket": {
+      "Type": "Not a Bucket",
+      "Properties": {
+        "name": "not a bucket"
+      }
+    },
+    "NoBucket2": {
+      "Properties": {
+        "name": "not a bucket"
+      }
+    },
+    "NoBucket3": {
+      "Type": [],
+      "Properties": {
+        "name": "not a bucket"
+      }
+    }
+  }
+}
