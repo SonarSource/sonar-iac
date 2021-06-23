@@ -11,6 +11,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.BodyTree;
 
@@ -31,7 +32,7 @@ public class DisabledS3EncryptionCheck implements IacCheck {
     Optional<BodyTree> body = tree.body();
     if (body.isPresent()) {
       for (Tree bodyStatement : body.get().statements()) {
-        if (isSetEncryptionBlock(bodyStatement)) {
+        if (isSetEncryption(bodyStatement)) {
           return;
         }
       }
@@ -39,8 +40,9 @@ public class DisabledS3EncryptionCheck implements IacCheck {
     ctx.reportIssue(tree.labels().get(0), MESSAGE);
   }
 
-  private static boolean isSetEncryptionBlock(Tree tree) {
-    return tree instanceof BlockTree && "server_side_encryption_configuration".equals(((BlockTree) tree).type().value());
+  private static boolean isSetEncryption(Tree tree) {
+    return (tree instanceof BlockTree && "server_side_encryption_configuration".equals(((BlockTree) tree).type().value())) ||
+      (tree instanceof AttributeTree && "server_side_encryption_configuration".equals(((AttributeTree) tree).name().value()));
   }
 
   private static boolean isS3Bucket(BlockTree tree) {
