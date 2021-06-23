@@ -291,6 +291,7 @@ public final class Verifier {
       }
 
       if (!expectedIssue.secondaryLocations.equals(actualIssue.secondaryLocations)) {
+        // TODO: Add more meaningful message
         return WRONG_SECONDARY;
       }
 
