@@ -64,7 +64,7 @@ public final class Verifier {
     compare(actualIssues, Collections.emptyList());
   }
 
-  private static List<Issue> runAnalysis(@Nullable SingleFileVerifier verifier, IacCheck check, Tree root) {
+  private static List<Issue> runAnalysis(SingleFileVerifier verifier, IacCheck check, Tree root) {
     TestContext ctx = new TestContext(verifier);
     check.initialize(ctx);
     ctx.scan(root);
@@ -109,7 +109,7 @@ public final class Verifier {
     private final SingleFileVerifier verifier;
     private final List<Issue> raisedIssues = new ArrayList<>();
 
-    public TestContext(@Nullable SingleFileVerifier verifier) {
+    public TestContext(SingleFileVerifier verifier) {
       this.verifier = verifier;
       visitor = new TreeVisitor<>();
     }
@@ -146,19 +146,17 @@ public final class Verifier {
     private void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       Issue issue = new Issue(textRange, message, secondaryLocations);
       if (!raisedIssues.contains(issue)) {
-        if (verifier != null) {
-          TextPointer start = textRange.start();
-          TextPointer end = textRange.end();
-          SingleFileVerifier.Issue reportedIssue = verifier
-            .reportIssue(message)
-            .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
-          secondaryLocations.forEach(secondary -> reportedIssue.addSecondary(
-            secondary.textRange.start().line(),
-            secondary.textRange.start().lineOffset() + 1,
-            secondary.textRange.end().line(),
-            secondary.textRange.end().lineOffset(),
-            secondary.message));
-        }
+        TextPointer start = textRange.start();
+        TextPointer end = textRange.end();
+        SingleFileVerifier.Issue reportedIssue = verifier
+          .reportIssue(message)
+          .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
+        secondaryLocations.forEach(secondary -> reportedIssue.addSecondary(
+          secondary.textRange.start().line(),
+          secondary.textRange.start().lineOffset() + 1,
+          secondary.textRange.end().line(),
+          secondary.textRange.end().lineOffset(),
+          secondary.message));
         raisedIssues.add(issue);
       }
     }
