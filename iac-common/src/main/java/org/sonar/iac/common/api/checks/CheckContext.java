@@ -5,6 +5,7 @@
  */
 package org.sonar.iac.common.api.checks;
 
+import java.util.List;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
 
@@ -13,4 +14,8 @@ public interface CheckContext {
   void reportIssue(TextRange textRange, String message);
 
   void reportIssue(HasTextRange toHighlight, String message);
+
+  void reportIssue(HasTextRange toHighlight, String message, SecondaryLocation secondaryLocation);
+
+  void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations);
 }

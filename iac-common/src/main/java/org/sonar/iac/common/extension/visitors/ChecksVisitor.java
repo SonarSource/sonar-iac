@@ -6,6 +6,8 @@
 package org.sonar.iac.common.extension.visitors;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
@@ -15,6 +17,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
@@ -51,13 +54,27 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
     }
 
     @Override
-    public void reportIssue(HasTextRange toHighlight, String message) {
-      reportIssue(toHighlight.textRange(), message);
+    public void reportIssue(TextRange textRange, String message) {
+      reportIssue(textRange, message, Collections.emptyList());
     }
 
     @Override
-    public void reportIssue(@Nullable TextRange textRange, String message) {
-      currentCtx.reportIssue(ruleKey, textRange, message);
+    public void reportIssue(HasTextRange toHighlight, String message) {
+      reportIssue(toHighlight.textRange(), message, Collections.emptyList());
+    }
+
+    @Override
+    public void reportIssue(HasTextRange toHighlight, String message, SecondaryLocation secondaryLocation) {
+      reportIssue(toHighlight.textRange(), message, Collections.singletonList(secondaryLocation));
+    }
+
+    @Override
+    public void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations) {
+      reportIssue(toHighlight.textRange(), message, secondaryLocations);
+    }
+
+    private void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+      currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations);
     }
   }
 }
