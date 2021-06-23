@@ -45,8 +45,8 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     });
   }
 
-  private static void checkBucketsAndPolicies(CheckContext ctx, Map<BlockTree, BlockTree> bucketsToPolicies) {
-    for (Map.Entry<BlockTree, BlockTree> entry : bucketsToPolicies.entrySet()) {
+  private static void checkBucketsAndPolicies(CheckContext ctx, Map<BlockTree, Tree> bucketsToPolicies) {
+    for (Map.Entry<BlockTree, Tree> entry : bucketsToPolicies.entrySet()) {
       boolean isInsecure;
       if (entry.getValue() == null) {
         // no policy found for the bucket
@@ -63,17 +63,28 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
   }
 
-  private static Map<BlockTree, BlockTree> bucketsToPolicies(List<BlockTree> buckets, List<BlockTree> policies) {
+  private static Map<BlockTree, Tree> bucketsToPolicies(List<BlockTree> buckets, List<BlockTree> policies) {
     Map<Tree, BlockTree> bucketIdToPolicies = new HashMap<>();
     for (BlockTree policy : policies) {
       getAttributeValue(policy, "bucket").ifPresent(tree -> bucketIdToPolicies.put(tree, policy));
     }
 
-    Map<BlockTree, BlockTree> result = new HashMap<>();
+    Map<BlockTree, Tree> result = new HashMap<>();
     for (BlockTree bucket : buckets) {
-      Optional<BlockTree> policy = bucketIdToPolicies.entrySet().stream()
+      // the bucket might directly contain the policy as an attribute
+      Optional<Tree> nestedPolicy = getAttributeValue(bucket, "policy");
+      if (nestedPolicy.isPresent()) {
+        result.put(bucket, nestedPolicy.get());
+        continue;
+      }
+
+      // if no nested policy was found, check if one of the collected aws_s3_bucket_policy resources are linked to the bucket
+      Optional<Tree> policy = bucketIdToPolicies.entrySet().stream()
         .filter(e -> correspondsToBucket(e.getKey(), bucket))
         .map(Map.Entry::getValue)
+        .map(p -> getAttributeValue(p, "policy"))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .findFirst();
       result.put(bucket, policy.orElse(null));
     }
@@ -145,17 +156,12 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       this.condition = condition;
     }
 
-    private static Policy fromResourceBlock(BlockTree block) {
-      Optional<Tree> policyAttribute = getAttributeValue(block, "policy");
-      if (!policyAttribute.isPresent()) {
+    private static Policy fromResourceBlock(Tree policy) {
+      if (!(policy instanceof FunctionCallTree) || ((FunctionCallTree) policy).arguments().trees().isEmpty()) {
         return null;
       }
 
-      if (!(policyAttribute.get() instanceof FunctionCallTree) || ((FunctionCallTree) policyAttribute.get()).arguments().trees().isEmpty()) {
-        return null;
-      }
-
-      ExpressionTree policyArgument = ((FunctionCallTree) policyAttribute.get()).arguments().trees().get(0);
+      ExpressionTree policyArgument = ((FunctionCallTree) policy).arguments().trees().get(0);
       if (!(policyArgument instanceof ObjectTree)) {
         return null;
       }

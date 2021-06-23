@@ -186,6 +186,32 @@ resource "aws_s3_bucket_policy" "mycomplianthardcodedpolicys6249" {
   })
 }
 
+resource "aws_s3_bucket" "compliant_policy_part_of_resource" {
+  bucket = "compliant_policy_part_of_resource"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "mycomplianthardcodedpolicys6249"
+    Statement = [
+      {
+        Sid       = "HTTPSOnly"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.compliant_policy_part_of_resource.arn,
+          "${aws_s3_bucket.compliant_policy_part_of_resource.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
+}
+
 resource "aws_s3_bucket" "mycompliantrefs6249" {
   bucket = "mycompliantrefs6249myname"
 }
@@ -214,7 +240,7 @@ resource "aws_s3_bucket_policy" "mycompliantrefpolicys6249" {
   })
 }
 
-resource "aws_s3_bucket" "mycompliantrefs62491" {
+resource "aws_s3_bucket" "mycompliantrefs62491" { # Noncompliant
   bucket = "mycompliantrefs62491myname"
 }
 resource "aws_s3_bucket_policy" "mycompliantrefpolicys62491" {
