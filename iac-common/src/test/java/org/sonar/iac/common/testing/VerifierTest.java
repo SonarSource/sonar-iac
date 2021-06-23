@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
@@ -67,6 +68,14 @@ class VerifierTest {
   }
 
   @Test
+  void issues_list_verifier_success_correct_message_and_secondary_location() {
+    SecondaryLocation secondaryLocation = new SecondaryLocation(DummyNonCompliantTree.range, "secondary message");
+    IacCheck issueRaiseCheckSecondary = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "issue message", secondaryLocation));
+    Verifier.Issue issue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message", secondaryLocation);
+    assertDoesNotThrow(() -> Verifier.verify(mockParser, path, issueRaiseCheckSecondary, issue));
+  }
+
+  @Test
   void issues_list_verifier_failure_wrong_message() {
     Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "another message");
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheck, expectedIssue));
@@ -92,6 +101,16 @@ class VerifierTest {
     // we expect the issue twice
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheck, expectedIssue, expectedIssue));
     assertThat(exception.getMessage()).contains("[WRONG_NUMBER]");
+  }
+
+  @Test
+  void issues_list_verifier_failure_wrong_secondary_location() {
+    SecondaryLocation secondaryLocationRaised = new SecondaryLocation(DummyNonCompliantTree.range, "secondary message");
+    IacCheck issueRaiseCheckSecondary = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "issue message", secondaryLocationRaised));
+    SecondaryLocation secondaryLocationExpected = new SecondaryLocation(DummyNonCompliantTree.range, "different message");
+    Verifier.Issue issue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message", secondaryLocationExpected);
+    AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheckSecondary, issue));
+    assertThat(exception.getMessage()).contains("[WRONG_SECONDARIES]");
   }
 
   @Test

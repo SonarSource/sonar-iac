@@ -24,6 +24,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -53,17 +54,17 @@ public final class Verifier {
    */
   public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Issue... expectedIssues) {
     Tree root = parse(parser, path);
-    List<Issue> actualIssues = runAnalysis(null, check, root);
+    List<Issue> actualIssues = runAnalysis(createVerifier(path, root), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
   public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check) {
     Tree root = parse(parser, path);
-    List<Issue> actualIssues = runAnalysis(null, check, root);
+    List<Issue> actualIssues = runAnalysis(createVerifier(path, root), check, root);
     compare(actualIssues, Collections.emptyList());
   }
 
-  private static List<Issue> runAnalysis(@Nullable SingleFileVerifier verifier, IacCheck check, Tree root) {
+  private static List<Issue> runAnalysis(SingleFileVerifier verifier, IacCheck check, Tree root) {
     TestContext ctx = new TestContext(verifier);
     check.initialize(ctx);
     ctx.scan(root);
@@ -108,7 +109,7 @@ public final class Verifier {
     private final SingleFileVerifier verifier;
     private final List<Issue> raisedIssues = new ArrayList<>();
 
-    public TestContext(@Nullable SingleFileVerifier verifier) {
+    public TestContext(SingleFileVerifier verifier) {
       this.verifier = verifier;
       visitor = new TreeVisitor<>();
     }
@@ -123,19 +124,39 @@ public final class Verifier {
     }
 
     @Override
-    public void reportIssue(HasTextRange toHighlight, String message) {
-      reportIssue(toHighlight.textRange(), message);
+    public void reportIssue(TextRange textRange, String message) {
+      reportIssue(textRange, message, Collections.emptyList());
     }
 
     @Override
-    public void reportIssue(TextRange textRange, String message) {
-      Issue issue = new Issue(textRange, message);
+    public void reportIssue(HasTextRange toHighlight, String message) {
+      reportIssue(toHighlight.textRange(), message, Collections.emptyList());
+    }
+
+    @Override
+    public void reportIssue(HasTextRange toHighlight, String message, SecondaryLocation secondaryLocations) {
+      reportIssue(toHighlight.textRange(), message, Collections.singletonList(secondaryLocations));
+    }
+
+    @Override
+    public void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations) {
+      reportIssue(toHighlight.textRange(), message, secondaryLocations);
+    }
+
+    private void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+      Issue issue = new Issue(textRange, message, secondaryLocations);
       if (!raisedIssues.contains(issue)) {
-        if (verifier != null) {
-          TextPointer start = textRange.start();
-          TextPointer end = textRange.end();
-          verifier.reportIssue(message).onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
-        }
+        TextPointer start = textRange.start();
+        TextPointer end = textRange.end();
+        SingleFileVerifier.Issue reportedIssue = verifier
+          .reportIssue(message)
+          .onRange(start.line(), start.lineOffset() + 1, end.line(), end.lineOffset());
+        secondaryLocations.forEach(secondary -> reportedIssue.addSecondary(
+          secondary.textRange.start().line(),
+          secondary.textRange.start().lineOffset() + 1,
+          secondary.textRange.end().line(),
+          secondary.textRange.end().lineOffset(),
+          secondary.message));
         raisedIssues.add(issue);
       }
     }
@@ -144,28 +165,39 @@ public final class Verifier {
   public static class Issue {
     private final TextRange textRange;
     private final String message;
+    private final List<SecondaryLocation> secondaryLocations;
 
-    public Issue(TextRange textRange, String message) {
+    public Issue(TextRange textRange, @Nullable String message, List<SecondaryLocation> secondaryLocations) {
       this.textRange = textRange;
       this.message = message;
+      this.secondaryLocations = secondaryLocations;
+    }
+
+    public Issue(TextRange textRange, @Nullable String message, SecondaryLocation secondaryLocation) {
+      this(textRange, message, Collections.singletonList(secondaryLocation));
+    }
+
+    public Issue(TextRange textRange, @Nullable String message) {
+      this(textRange, message, Collections.emptyList());
     }
 
     public Issue(TextRange textRange) {
-      this.textRange = textRange;
-      this.message = null;
+      this(textRange, null);
     }
 
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
-      Issue issue = (Issue) o;
-      return textRange.equals(issue.textRange) && Objects.equals(message, issue.message);
+      Issue other = (Issue) o;
+      return this.textRange.equals(other.textRange)
+        && Objects.equals(this.message, other.message)
+        && this.secondaryLocations.equals(other.secondaryLocations);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(textRange, message);
+      return Objects.hash(textRange, message, secondaryLocations);
     }
   }
 
@@ -210,6 +242,7 @@ public final class Verifier {
     private static final String WRONG_MESSAGE = "* [WRONG_MESSAGE] Issue at %s : \nExpected message : %s\nActual message : %s\n\n";
     private static final String UNEXPECTED_ISSUE = "* [UNEXPECTED_ISSUE] at %s with a message: \"%s\"\n\n";
     private static final String WRONG_NUMBER = "* [WRONG_NUMBER] Range %s: Expecting %s issue, but actual issues number is %s\n\n";
+    private static final String WRONG_SECONDARY = "* [WRONG_SECONDARIES]";
 
     List<Issue> actual = new ArrayList<>();
     List<Issue> expected = new ArrayList<>();
@@ -253,6 +286,11 @@ public final class Verifier {
 
       if (expectedMessage != null && !actualIssue.message.equals(expectedMessage)) {
         return String.format(WRONG_MESSAGE, actualIssue.textRange, expectedMessage, actualIssue.message);
+      }
+
+      if (!expectedIssue.secondaryLocations.equals(actualIssue.secondaryLocations)) {
+        // TODO: Add more meaningful message
+        return WRONG_SECONDARY;
       }
 
       return "";

@@ -26,6 +26,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
@@ -133,8 +134,7 @@ class IacSensorTest extends AbstractSensorTest {
   void test_valid_check() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
-    IacCheck validCheck = init ->
-      init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue"));
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue"));
 
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
@@ -153,6 +153,37 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("testIssue");
     assertTextRange(location.textRange()).hasRange(1, 0, 1, 2);
+  }
+
+  @Test
+  void test_valid_check_with_secondary() {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks checks = mock(Checks.class);
+    IacCheck validCheck = init ->
+      init.register(Tree.class, (ctx, tree) ->
+        ctx.reportIssue(tree, "testIssue", new SecondaryLocation(tree, "testSecondary")));
+
+    when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
+    when(checkFactory.create(repositoryKey())).thenReturn(checks);
+    when(checks.all()).thenReturn(Collections.singletonList(validCheck));
+    testParser = (source, inputFileContext) -> new TestTree();
+    sensor(checkFactory).execute(context);
+
+    InputFile inputFile = inputFile("file1.iac", "foo");
+    analyse(sensor(checkFactory), inputFile);
+
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.iterator().next();
+
+    assertThat(issue.flows()).satisfies(flows -> {
+        assertThat(flows.size()).isOne();
+        assertThat(flows.get(0).locations()).satisfies(flow -> {
+          assertThat(flow.size()).isOne();
+          assertThat(flow.get(0).message()).isEqualTo("testSecondary");
+        });
+      }
+    );
   }
 
   @Test

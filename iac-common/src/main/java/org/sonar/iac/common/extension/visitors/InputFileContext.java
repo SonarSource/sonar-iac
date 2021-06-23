@@ -6,6 +6,7 @@
 package org.sonar.iac.common.extension.visitors;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -18,6 +19,7 @@ import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 
 public class InputFileContext extends TreeContext {
 
@@ -31,10 +33,10 @@ public class InputFileContext extends TreeContext {
     this.inputFile = inputFile;
   }
 
-  public void reportIssue(RuleKey ruleKey, @Nullable TextRange textRange, String message) {
+  public void reportIssue(RuleKey ruleKey, @Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
     // We avoid raising an issue on text ranges on which we already raised one. This is to avoid duplicate ones which might happen, for example, with Yaml anchors SONARIAC-78.
     // Once we'll need to introduce a secondary locations mechanism, a more sophisticated mechanism has to be used to detect duplicates.
-    if (raisedIssues.add(issueHash(ruleKey, textRange))) {
+    if (raisedIssues.add(issueHash(ruleKey, textRange, secondaryLocations))) {
       NewIssue issue = sensorContext.newIssue();
       NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
 
@@ -43,6 +45,14 @@ public class InputFileContext extends TreeContext {
       }
 
       issue.forRule(ruleKey).at(issueLocation);
+
+      secondaryLocations.forEach(secondary -> issue.addLocation(
+        issue.newLocation()
+          .on(inputFile)
+          .at(secondary.textRange)
+          .message(secondary.message)
+      ));
+
       issue.save();
     }
   }
@@ -83,7 +93,7 @@ public class InputFileContext extends TreeContext {
     error.save();
   }
 
-  private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange) {
-    return Objects.hash(ruleKey, textRange);
+  private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange, List<SecondaryLocation> secondaryLocations) {
+    return Objects.hash(ruleKey, textRange, secondaryLocations);
   }
 }
