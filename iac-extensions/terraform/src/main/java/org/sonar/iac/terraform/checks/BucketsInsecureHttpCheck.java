@@ -15,6 +15,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -35,6 +36,11 @@ import org.sonar.iac.terraform.api.tree.VariableExprTree;
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
   private static final String MESSAGE = "Make sure authorizing HTTP requests is safe here.";
+  private static final String MESSAGE_SECONDARY_CONDITION = "HTTPS requests are denied.";
+  private static final String MESSAGE_SECONDARY_EFFECT = "Non-conforming requests should be denied.";
+  private static final String MESSAGE_SECONDARY_ACTION = "All S3 actions should be restricted.";
+  private static final String MESSAGE_SECONDARY_PRINCIPAL = "All principals should be restricted.";
+  private static final String MESSAGE_SECONDARY_RESOURCE = "All resources should be restricted.";
 
   @Override
   public void initialize(InitContext init) {
@@ -45,48 +51,61 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     });
   }
 
-  private static void checkBucketsAndPolicies(CheckContext ctx, Map<BlockTree, Tree> bucketsToPolicies) {
-    for (Map.Entry<BlockTree, Tree> entry : bucketsToPolicies.entrySet()) {
-      boolean isInsecure;
+  private static void checkBucketsAndPolicies(CheckContext ctx, Map<BlockTree, Policy> bucketsToPolicies) {
+    for (Map.Entry<BlockTree, Policy> entry : bucketsToPolicies.entrySet()) {
       if (entry.getValue() == null) {
         // no policy found for the bucket
-        isInsecure = true;
-      } else {
-        Policy policy = Policy.fromResourceBlock(entry.getValue());
-        isInsecure = policy != null && policy.isInsecure();
-      }
-
-      if (isInsecure) {
-        // TODO: secondary locations
         ctx.reportIssue(entry.getKey().labels().get(0), MESSAGE);
+      } else {
+        checkBucketPolicy(ctx, entry.getKey(), entry.getValue());
       }
     }
   }
 
-  private static Map<BlockTree, Tree> bucketsToPolicies(List<BlockTree> buckets, List<BlockTree> policies) {
+  private static void checkBucketPolicy(CheckContext ctx, BlockTree bucket, Policy policy) {
+    Map<Tree, String> insecureValues = policy.getInsecureValues();
+
+    if (insecureValues.isEmpty()) {
+      return;
+    }
+
+    List<SecondaryLocation> secondaryLocations = new ArrayList<>();
+    insecureValues.entrySet().stream()
+      .filter(e -> e.getKey() != null)
+      .forEach(e -> secondaryLocations.add(new SecondaryLocation(e.getKey(), e.getValue())));
+
+    ctx.reportIssue(bucket.labels().get(0), MESSAGE, secondaryLocations);
+  }
+
+  private static Map<BlockTree, Policy> bucketsToPolicies(List<BlockTree> buckets, List<BlockTree> policies) {
     Map<Tree, BlockTree> bucketIdToPolicies = new HashMap<>();
     for (BlockTree policy : policies) {
       getAttributeValue(policy, "bucket").ifPresent(tree -> bucketIdToPolicies.put(tree, policy));
     }
 
-    Map<BlockTree, Tree> result = new HashMap<>();
+    Map<BlockTree, Policy> result = new HashMap<>();
     for (BlockTree bucket : buckets) {
       // the bucket might directly contain the policy as an attribute
       Optional<Tree> nestedPolicy = getAttributeValue(bucket, "policy");
       if (nestedPolicy.isPresent()) {
-        result.put(bucket, nestedPolicy.get());
+        result.put(bucket, Policy.from(nestedPolicy.get()));
         continue;
       }
 
       // if no nested policy was found, check if one of the collected aws_s3_bucket_policy resources are linked to the bucket
-      Optional<Tree> policy = bucketIdToPolicies.entrySet().stream()
+      Optional<Tree> policyTree = bucketIdToPolicies.entrySet().stream()
         .filter(e -> correspondsToBucket(e.getKey(), bucket))
         .map(Map.Entry::getValue)
         .map(p -> getAttributeValue(p, "policy"))
         .filter(Optional::isPresent)
         .map(Optional::get)
         .findFirst();
-      result.put(bucket, policy.orElse(null));
+
+      if (policyTree.isPresent()) {
+        result.put(bucket, Policy.from(policyTree.get()));
+      } else {
+        result.put(bucket, null);
+      }
     }
     return result;
   }
@@ -156,21 +175,25 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       this.condition = condition;
     }
 
-    private static Policy fromResourceBlock(Tree policy) {
+    private Policy() {
+      this(null, null, null, null, null);
+    }
+
+    private static Policy from(Tree policy) {
       if (!(policy instanceof FunctionCallTree) || ((FunctionCallTree) policy).arguments().trees().isEmpty()) {
-        return null;
+        return new Policy();
       }
 
       ExpressionTree policyArgument = ((FunctionCallTree) policy).arguments().trees().get(0);
       if (!(policyArgument instanceof ObjectTree)) {
-        return null;
+        return new Policy();
       }
 
       Optional<ExpressionTree> statementField = getFieldValue((ObjectTree)policyArgument, "Statement");
       if (!statementField.isPresent() || !(statementField.get() instanceof TupleTree) ||
         ((TupleTree) statementField.get()).elements().trees().isEmpty() ||
         !(((TupleTree) statementField.get()).elements().trees().get(0) instanceof ObjectTree)) {
-        return null;
+        return new Policy();
       }
 
       ObjectTree policyStatement = (ObjectTree) ((TupleTree) statementField.get()).elements().trees().get(0);
@@ -192,8 +215,25 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       return Optional.empty();
     }
 
-    private boolean isInsecure() {
-      return isInsecureEffect() || isInsecureCondition() || isInsecureAction() || isInsecurePrincipal() || isInsecureResource();
+    private Map<Tree, String> getInsecureValues() {
+      Map<Tree, String> result = new HashMap<>();
+      if (isInsecureEffect()) {
+        result.put(effect, MESSAGE_SECONDARY_EFFECT);
+      }
+      if (isInsecureCondition()) {
+        result.put(condition, MESSAGE_SECONDARY_CONDITION);
+      }
+      if (isInsecureAction()) {
+        result.put(action, MESSAGE_SECONDARY_ACTION);
+      }
+      if (isInsecurePrincipal()) {
+        result.put(principal, MESSAGE_SECONDARY_PRINCIPAL);
+      }
+      if (isInsecureResource()) {
+        result.put(resource, MESSAGE_SECONDARY_RESOURCE);
+      }
+
+      return result;
     }
 
     private boolean isInsecureResource() {
@@ -211,7 +251,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
         }
       }
 
-      return true;
+      return !resourceIdentifiers.isEmpty();
     }
 
     private static boolean isResourceIdentifierSecure(Tree resourceIdentifier) {
