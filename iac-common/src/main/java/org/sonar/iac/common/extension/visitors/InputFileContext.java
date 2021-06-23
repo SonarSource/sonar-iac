@@ -36,7 +36,7 @@ public class InputFileContext extends TreeContext {
   public void reportIssue(RuleKey ruleKey, @Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
     // We avoid raising an issue on text ranges on which we already raised one. This is to avoid duplicate ones which might happen, for example, with Yaml anchors SONARIAC-78.
     // Once we'll need to introduce a secondary locations mechanism, a more sophisticated mechanism has to be used to detect duplicates.
-    if (raisedIssues.add(issueHash(ruleKey, textRange))) {
+    if (raisedIssues.add(issueHash(ruleKey, textRange, secondaryLocations))) {
       NewIssue issue = sensorContext.newIssue();
       NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
 
@@ -93,7 +93,7 @@ public class InputFileContext extends TreeContext {
     error.save();
   }
 
-  private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange) {
-    return Objects.hash(ruleKey, textRange);
+  private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange, List<SecondaryLocation> secondaryLocations) {
+    return Objects.hash(ruleKey, textRange, secondaryLocations);
   }
 }
