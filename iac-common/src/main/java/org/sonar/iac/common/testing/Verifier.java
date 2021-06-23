@@ -54,13 +54,13 @@ public final class Verifier {
    */
   public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Issue... expectedIssues) {
     Tree root = parse(parser, path);
-    List<Issue> actualIssues = runAnalysis(null, check, root);
+    List<Issue> actualIssues = runAnalysis(createVerifier(path, root), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
   public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check) {
     Tree root = parse(parser, path);
-    List<Issue> actualIssues = runAnalysis(null, check, root);
+    List<Issue> actualIssues = runAnalysis(createVerifier(path, root), check, root);
     compare(actualIssues, Collections.emptyList());
   }
 

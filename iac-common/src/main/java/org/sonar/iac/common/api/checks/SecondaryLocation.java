@@ -7,7 +7,7 @@ package org.sonar.iac.common.api.checks;
 
 import java.util.Objects;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.HasTextRange;
 
 public class SecondaryLocation {
 
@@ -15,7 +15,7 @@ public class SecondaryLocation {
 
   public final String message;
 
-  public SecondaryLocation(Tree tree, String message) {
+  public SecondaryLocation(HasTextRange tree, String message) {
     this(tree.textRange(), message);
   }
 
