@@ -16,7 +16,10 @@ class BlockTest {
     Assertions.assertThat(HclLexicalGrammar.BLOCK)
       .matches("a{\n b = true \nc = null}")
       .matches("a {\n}")
-      .matches("a \"label\" {\n}");
-
+      .matches("a \"label\" {\n}")
+      .matches("a{}")
+      .matches("  a {   }")
+      .notMatches("a")
+      .notMatches("");
   }
 }

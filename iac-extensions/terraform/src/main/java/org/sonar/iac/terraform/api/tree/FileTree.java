@@ -5,8 +5,8 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface FileTree extends TerraformTree {
-  Optional<BodyTree> body();
+  List<TerraformTree> statements();
 }

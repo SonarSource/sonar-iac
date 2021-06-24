@@ -6,30 +6,29 @@
 package org.sonar.iac.terraform.parser.grammar;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
-import org.sonar.iac.terraform.api.tree.BodyTree;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
+import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
+import org.sonar.iac.terraform.api.tree.ForObjectTree;
+import org.sonar.iac.terraform.api.tree.ForTupleTree;
+import org.sonar.iac.terraform.api.tree.FunctionCallTree;
+import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
 import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
+import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
+import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.parser.TreeFactory;
 import org.sonar.iac.terraform.tree.impl.AbstractForTree;
 import org.sonar.iac.terraform.tree.impl.SyntaxTokenImpl;
 import org.sonar.iac.terraform.tree.impl.TemplateForDirectiveTreeImpl;
 import org.sonar.iac.terraform.tree.impl.TemplateIfDirectiveTreeImpl;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.ForObjectTree;
-import org.sonar.iac.terraform.api.tree.ForTupleTree;
-import org.sonar.iac.terraform.api.tree.FunctionCallTree;
-import org.sonar.iac.terraform.api.tree.LabelTree;
-import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
-import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
-import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
 public class HclGrammar {
 
@@ -43,12 +42,9 @@ public class HclGrammar {
 
   public FileTree FILE() {
     return b.<FileTree>nonterminal(HclLexicalGrammar.FILE).is(
-      f.file(b.optional(BODY()), b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)));
-  }
-
-  public BodyTree BODY() {
-    return b.<BodyTree>nonterminal(HclLexicalGrammar.BODY).is(
-      f.body(b.oneOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK()))));
+      f.file(b.zeroOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK())),
+        b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)
+      ));
   }
 
   public BlockTree BLOCK() {
@@ -57,7 +53,7 @@ public class HclGrammar {
         b.zeroOrMore(LABEL()),
         b.token(HclPunctuator.LCURLYBRACE),
         b.token(HclLexicalGrammar.NEWLINE),
-        b.optional(BODY()),
+        b.zeroOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK())),
         b.token(HclPunctuator.RCURLYBRACE)
       ));
   }

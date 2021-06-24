@@ -6,10 +6,9 @@
 package org.sonar.iac.terraform.api.tree;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface BlockTree extends TerraformTree {
   SyntaxToken type();
   List<LabelTree> labels();
-  Optional<BodyTree> body();
+  List<TerraformTree> statements();
 }

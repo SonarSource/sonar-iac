@@ -12,7 +12,6 @@ import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 public enum HclLexicalGrammar implements GrammarRuleKey {
 
   FILE,
-  BODY,
   ONE_LINE_BLOCK,
   BLOCK,
   EXPRESSION,
