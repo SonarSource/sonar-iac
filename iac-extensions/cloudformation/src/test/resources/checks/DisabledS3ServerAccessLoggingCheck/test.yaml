@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  NonCompliantS3Bucket:
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure disabling S3 server access logs is safe here.}}
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "NonCompliantS3Bucket"
+  S3BucketWithAccessControl:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: "S3BucketWithAccessControl"
+      AccessControl: LogDeliveryWrite
+  S3BucketWithLoggingConfiguration:
+    Type: 'AWS::S3::Bucket' # Compliant
+    Properties:
+      BucketName: "mycompliantbucket"
+      LoggingConfiguration:
+        DestinationBucketName: !Ref S3BucketLogs
+        LogFilePrefix: testing-logs
+  S3BucketWithoutProperties:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+  NotS3Bucket:
+    Type: 'Not a Bucket'
