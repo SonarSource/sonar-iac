@@ -5,7 +5,6 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -13,7 +12,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.BodyTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 @Rule(key = "S6245")
 public class DisabledS3EncryptionCheck implements IacCheck {
@@ -29,12 +28,9 @@ public class DisabledS3EncryptionCheck implements IacCheck {
   }
 
   private static void checkBucket(CheckContext ctx, BlockTree tree) {
-    Optional<BodyTree> body = tree.body();
-    if (body.isPresent()) {
-      for (Tree bodyStatement : body.get().statements()) {
-        if (isSetEncryption(bodyStatement)) {
-          return;
-        }
+    for (TerraformTree bodyStatement : tree.statements()) {
+      if (isSetEncryption(bodyStatement)) {
+        return;
       }
     }
     ctx.reportIssue(tree.labels().get(0), MESSAGE);

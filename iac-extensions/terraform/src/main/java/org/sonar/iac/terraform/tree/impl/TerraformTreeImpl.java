@@ -6,6 +6,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -31,8 +32,10 @@ public abstract class TerraformTreeImpl implements TerraformTree {
   @Override
   public TextRange textRange() {
     if (textRange == null) {
-      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).collect(Collectors.toList());
-      textRange = TextRanges.merge(childRanges);
+      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).filter(Objects::nonNull).collect(Collectors.toList());
+      if (!childRanges.isEmpty()) {
+        textRange = TextRanges.merge(childRanges);
+      }
     }
     return textRange;
   }

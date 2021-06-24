@@ -6,25 +6,41 @@
 package org.sonar.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.Optional;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.BodyTree;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
+import org.sonar.iac.terraform.api.tree.AttributeSplatAccessTree;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
+import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
+import org.sonar.iac.terraform.api.tree.ForObjectTree;
+import org.sonar.iac.terraform.api.tree.ForTupleTree;
+import org.sonar.iac.terraform.api.tree.FunctionCallTree;
+import org.sonar.iac.terraform.api.tree.IndexAccessExprTree;
 import org.sonar.iac.terraform.api.tree.IndexSplatAccessTree;
+import org.sonar.iac.terraform.api.tree.LabelTree;
+import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
+import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
 import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
+import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
+import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.tree.impl.AbstractForTree;
 import org.sonar.iac.terraform.tree.impl.AttributeAccessTreeImpl;
 import org.sonar.iac.terraform.tree.impl.AttributeSplatAccessTreeImpl;
 import org.sonar.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.iac.terraform.tree.impl.BinaryExpressionTreeImpl;
 import org.sonar.iac.terraform.tree.impl.BlockTreeImpl;
-import org.sonar.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ConditionTreeImpl;
 import org.sonar.iac.terraform.tree.impl.FileTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ForObjectTreeImpl;
@@ -47,38 +63,19 @@ import org.sonar.iac.terraform.tree.impl.TemplateIfDirectiveTreeImpl;
 import org.sonar.iac.terraform.tree.impl.TemplateInterpolationTreeImpl;
 import org.sonar.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.iac.terraform.tree.impl.VariableExprTreeImpl;
-import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
-import org.sonar.iac.terraform.api.tree.AttributeSplatAccessTree;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.ForObjectTree;
-import org.sonar.iac.terraform.api.tree.ForTupleTree;
-import org.sonar.iac.terraform.api.tree.FunctionCallTree;
-import org.sonar.iac.terraform.api.tree.IndexAccessExprTree;
-import org.sonar.iac.terraform.api.tree.LabelTree;
-import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
-import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
-import org.sonar.iac.terraform.api.tree.VariableExprTree;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class TreeFactory {
-  public FileTree file(Optional<BodyTree> body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileTreeImpl(body.orNull(), eof);
+  public FileTree file(Optional<List<TerraformTree>> statements, Optional<SyntaxToken> spacing, SyntaxToken eof) {
+    return new FileTreeImpl(statements.or(Collections.emptyList()), eof);
   }
 
-  public BodyTree body(List<Tree> statements) {
-    return new BodyTreeImpl(statements);
-  }
-
-  public BlockTree block(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, SyntaxToken newLine, Optional<BodyTree> body, SyntaxToken closeBrace) {
-    return new BlockTreeImpl(type, labels.orNull(), openBrace, body.orNull(), closeBrace);
+  public BlockTree block(SyntaxToken type,
+    Optional<List<LabelTree>> labels,
+    SyntaxToken openBrace,
+    SyntaxToken newLine,
+    Optional<List<TerraformTree>> statements,
+    SyntaxToken closeBrace) {
+    return new BlockTreeImpl(type, labels.orNull(), openBrace, statements.or(Collections.emptyList()), closeBrace);
   }
 
   public OneLineBlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
