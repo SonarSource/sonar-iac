@@ -22,7 +22,6 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.FunctionCallTree;
@@ -30,6 +29,7 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
@@ -125,12 +125,9 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   }
 
   private static Optional<Tree> getAttributeValue(BlockTree block, String name) {
-    Optional<BodyTree> body = block.body();
-    if (body.isPresent()) {
-      for (Tree statement : body.get().statements()) {
-        if (statement instanceof AttributeTree && name.equals(((AttributeTree) statement).name().value())) {
-          return Optional.of(((AttributeTree)statement).value());
-        }
+    for (TerraformTree statement : block.statements()) {
+      if (statement instanceof AttributeTree && name.equals(((AttributeTree) statement).name().value())) {
+        return Optional.of(((AttributeTree)statement).value());
       }
     }
 
