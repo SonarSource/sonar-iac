@@ -22,13 +22,15 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   private final SyntaxToken openBrace;
   private final List<TerraformTree> statements;
   private final SyntaxToken closeBrace;
+  private Kind kind;
 
-  public BlockTreeImpl(SyntaxToken type, @Nullable List<LabelTree> labels, SyntaxToken openBrace, List<TerraformTree> statements, SyntaxToken closeBrace) {
+  public BlockTreeImpl(SyntaxToken type, @Nullable List<LabelTree> labels, SyntaxToken openBrace, List<TerraformTree> statements, SyntaxToken closeBrace, Kind kind) {
     this.type = type;
     this.labels = labels != null ? labels : Collections.emptyList();
     this.openBrace = openBrace;
     this.statements = statements;
     this.closeBrace = closeBrace;
+    this.kind = kind;
   }
 
   @Override
@@ -58,6 +60,6 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
 
   @Override
   public Kind getKind() {
-    return Kind.BLOCK;
+    return kind;
   }
 }

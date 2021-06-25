@@ -16,7 +16,6 @@ import org.sonar.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
-import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
@@ -58,8 +57,8 @@ public class HclGrammar {
       ));
   }
 
-  public OneLineBlockTree ONE_LINE_BLOCK() {
-    return b.<OneLineBlockTree>nonterminal(HclLexicalGrammar.ONE_LINE_BLOCK).is(
+  public BlockTree ONE_LINE_BLOCK() {
+    return b.<BlockTree>nonterminal(HclLexicalGrammar.ONE_LINE_BLOCK).is(
       f.oneLineBlock(b.token(HclLexicalGrammar.IDENTIFIER),
         b.zeroOrMore(LABEL()),
         b.token(HclPunctuator.LCURLYBRACE),

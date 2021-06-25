@@ -25,7 +25,6 @@ import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
-import org.sonar.iac.terraform.api.tree.OneLineBlockTree;
 import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
@@ -33,6 +32,7 @@ import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
 import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
 import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.tree.impl.AbstractForTree;
@@ -52,7 +52,6 @@ import org.sonar.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ObjectElementTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ObjectTreeImpl;
-import org.sonar.iac.terraform.tree.impl.OneLineBlockTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ParenthesizedExpressionTreeImpl;
 import org.sonar.iac.terraform.tree.impl.PrefixExpressionTreeImpl;
 import org.sonar.iac.terraform.tree.impl.SeparatedTreesImpl;
@@ -75,11 +74,12 @@ public class TreeFactory {
     SyntaxToken newLine,
     Optional<List<TerraformTree>> statements,
     SyntaxToken closeBrace) {
-    return new BlockTreeImpl(type, labels.orNull(), openBrace, statements.or(Collections.emptyList()), closeBrace);
+    return new BlockTreeImpl(type, labels.orNull(), openBrace, statements.or(Collections.emptyList()), closeBrace, Kind.BLOCK);
   }
 
-  public OneLineBlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
-    return new OneLineBlockTreeImpl(type, labels.orNull(), openBrace, attribute.orNull(), closeBrace);
+  public BlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
+    List<TerraformTree> statements = attribute.isPresent() ? Collections.singletonList(attribute.get()) : Collections.emptyList();
+    return new BlockTreeImpl(type, labels.orNull(), openBrace, statements, closeBrace, Kind.ONE_LINE_BLOCK);
   }
 
   public LabelTree label(SyntaxToken token) {
@@ -87,27 +87,27 @@ public class TreeFactory {
   }
 
   public LiteralExprTreeImpl numericLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(TerraformTree.Kind.NUMERIC_LITERAL, token);
+    return new LiteralExprTreeImpl(Kind.NUMERIC_LITERAL, token);
   }
 
   public LiteralExprTreeImpl booleanLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(TerraformTree.Kind.BOOLEAN_LITERAL, token);
+    return new LiteralExprTreeImpl(Kind.BOOLEAN_LITERAL, token);
   }
 
   public LiteralExprTreeImpl nullLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(TerraformTree.Kind.NULL_LITERAL, token);
+    return new LiteralExprTreeImpl(Kind.NULL_LITERAL, token);
   }
 
   public LiteralExprTreeImpl stringLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(TerraformTree.Kind.STRING_LITERAL, token);
+    return new LiteralExprTreeImpl(Kind.STRING_LITERAL, token);
   }
 
   public LiteralExprTree templateStringLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(TerraformTree.Kind.TEMPLATE_STRING_PART_LITERAL, token);
+    return new LiteralExprTreeImpl(Kind.TEMPLATE_STRING_PART_LITERAL, token);
   }
 
   public LiteralExprTreeImpl heredocLiteral(SyntaxToken token) {
-    return new LiteralExprTreeImpl(TerraformTree.Kind.HEREDOC_LITERAL, token);
+    return new LiteralExprTreeImpl(Kind.HEREDOC_LITERAL, token);
   }
 
   public AttributeTree attribute(SyntaxToken name, SyntaxToken equalSign, ExpressionTree value) {
