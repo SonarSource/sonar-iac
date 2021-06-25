@@ -5,5 +5,8 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-public interface FileTree extends TerraformTree, HasStatements {
+import java.util.List;
+
+public interface HasStatements {
+  List<TerraformTree> statements();
 }

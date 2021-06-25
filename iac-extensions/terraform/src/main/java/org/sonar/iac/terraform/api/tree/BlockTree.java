@@ -7,8 +7,7 @@ package org.sonar.iac.terraform.api.tree;
 
 import java.util.List;
 
-public interface BlockTree extends TerraformTree {
+public interface BlockTree extends TerraformTree, HasStatements {
   SyntaxToken type();
   List<LabelTree> labels();
-  List<TerraformTree> statements();
 }

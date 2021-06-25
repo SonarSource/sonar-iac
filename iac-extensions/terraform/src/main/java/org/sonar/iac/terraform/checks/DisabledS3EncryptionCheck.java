@@ -7,41 +7,18 @@ package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
+import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6245")
-public class DisabledS3EncryptionCheck implements IacCheck {
+public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure not using server-side encryption is safe here.";
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(BlockTree.class, (ctx, tree) -> {
-      if (isS3Bucket(tree)) {
-        checkBucket(ctx, tree);
-      }
-    });
-  }
-
-  private static void checkBucket(CheckContext ctx, BlockTree tree) {
-    for (TerraformTree bodyStatement : tree.statements()) {
-      if (isSetEncryption(bodyStatement)) {
-        return;
-      }
+  protected void checkS3Bucket(CheckContext ctx, BlockTree block) {
+    if (!StatementUtils.hasStatement(block, "server_side_encryption_configuration", Kind.ATTRIBUTE, Kind.BLOCK)) {
+      ctx.reportIssue(block.labels().get(0), MESSAGE);
     }
-    ctx.reportIssue(tree.labels().get(0), MESSAGE);
-  }
-
-  private static boolean isSetEncryption(Tree tree) {
-    return (tree instanceof BlockTree && "server_side_encryption_configuration".equals(((BlockTree) tree).type().value())) ||
-      (tree instanceof AttributeTree && "server_side_encryption_configuration".equals(((AttributeTree) tree).name().value()));
-  }
-
-  private static boolean isS3Bucket(BlockTree tree) {
-    return !tree.labels().isEmpty() && "\"aws_s3_bucket\"".equals(tree.labels().get(0).value());
   }
 }
