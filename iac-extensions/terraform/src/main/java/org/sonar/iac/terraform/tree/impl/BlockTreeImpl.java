@@ -13,19 +13,19 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
+import org.sonar.iac.terraform.api.tree.Statement;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
-  private final SyntaxToken type;
+  private final SyntaxToken identifier;
   private final List<LabelTree> labels;
   private final SyntaxToken openBrace;
-  private final List<TerraformTree> statements;
+  private final List<Statement> statements;
   private final SyntaxToken closeBrace;
   private Kind kind;
 
-  public BlockTreeImpl(SyntaxToken type, @Nullable List<LabelTree> labels, SyntaxToken openBrace, List<TerraformTree> statements, SyntaxToken closeBrace, Kind kind) {
-    this.type = type;
+  public BlockTreeImpl(SyntaxToken identifier, @Nullable List<LabelTree> labels, SyntaxToken openBrace, List<Statement> statements, SyntaxToken closeBrace, Kind kind) {
+    this.identifier = identifier;
     this.labels = labels != null ? labels : Collections.emptyList();
     this.openBrace = openBrace;
     this.statements = statements;
@@ -34,8 +34,8 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   }
 
   @Override
-  public SyntaxToken type() {
-    return type;
+  public SyntaxToken identifier() {
+    return identifier;
   }
 
   @Override
@@ -44,13 +44,13 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   }
 
   @Override
-  public List<TerraformTree> statements() {
+  public List<Statement> statements() {
     return statements;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(Arrays.asList(type));
+    List<Tree> children = new ArrayList<>(Arrays.asList(identifier));
     children.addAll(labels);
     children.add(openBrace);
     children.addAll(statements);

@@ -129,7 +129,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
   private static Optional<Tree> getAttributeValue(BlockTree block, String name) {
     for (TerraformTree statement : block.statements()) {
-      if (statement instanceof AttributeTree && name.equals(((AttributeTree) statement).name().value())) {
+      if (statement instanceof AttributeTree && name.equals(((AttributeTree) statement).identifier().value())) {
         return Optional.of(((AttributeTree)statement).value());
       }
     }

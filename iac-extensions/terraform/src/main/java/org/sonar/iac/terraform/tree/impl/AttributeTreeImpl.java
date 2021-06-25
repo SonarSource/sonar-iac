@@ -13,19 +13,19 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
 public class AttributeTreeImpl extends TerraformTreeImpl implements AttributeTree {
-  private final SyntaxToken name;
+  private final SyntaxToken identifier;
   private final SyntaxToken equalSign;
   private final ExpressionTree value;
 
-  public AttributeTreeImpl(SyntaxToken name, SyntaxToken equalSign, ExpressionTree value) {
-    this.name = name;
+  public AttributeTreeImpl(SyntaxToken identifier, SyntaxToken equalSign, ExpressionTree value) {
+    this.identifier = identifier;
     this.equalSign = equalSign;
     this.value = value;
   }
 
   @Override
-  public SyntaxToken name() {
-    return name;
+  public SyntaxToken identifier() {
+    return identifier;
   }
 
   @Override
@@ -40,7 +40,7 @@ public class AttributeTreeImpl extends TerraformTreeImpl implements AttributeTre
 
   @Override
   public List<Tree> children() {
-    return Arrays.asList(name, equalSign, value);
+    return Arrays.asList(identifier, equalSign, value);
   }
 
   @Override

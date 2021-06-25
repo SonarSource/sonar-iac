@@ -9,20 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.FileTree;
+import org.sonar.iac.terraform.api.tree.Statement;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 public class FileTreeImpl extends TerraformTreeImpl implements FileTree {
-  private final List<TerraformTree> statements;
+  private final List<Statement> statements;
   private final SyntaxToken eof;
 
-  public FileTreeImpl(List<TerraformTree> statements, SyntaxToken eof) {
+  public FileTreeImpl(List<Statement> statements, SyntaxToken eof) {
     this.statements = statements;
     this.eof = eof;
   }
 
   @Override
-  public List<TerraformTree> statements() {
+  public List<Statement> statements() {
     return statements;
   }
 
