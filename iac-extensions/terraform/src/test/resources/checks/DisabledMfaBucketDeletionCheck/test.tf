@@ -26,3 +26,7 @@ resource "aws_s3_bucket" "mycompliantbuckets6255" { # Compliant
     mfa_delete = true
   }
 }
+
+resource "not_a_bucket" "name" {
+  bucket = "mycompliantbuckets6255"
+}
