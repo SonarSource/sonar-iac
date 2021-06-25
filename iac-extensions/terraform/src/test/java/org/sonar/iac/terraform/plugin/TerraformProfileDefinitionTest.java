@@ -20,7 +20,7 @@ class TerraformProfileDefinitionTest {
     BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("terraform", "Sonar way");
     assertThat(profile.language()).isEqualTo("terraform");
     assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules().size()).isGreaterThan(2);
+    assertThat(profile.rules().size()).isGreaterThan(3);
     assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
       .contains("S6245") // DisabledS3EncryptionCheck
       .doesNotContain("S2260"); // ParsingErrorCheck

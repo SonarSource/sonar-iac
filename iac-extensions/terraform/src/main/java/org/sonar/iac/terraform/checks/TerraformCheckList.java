@@ -20,6 +20,7 @@ public class TerraformCheckList {
       BucketsInsecureHttpCheck.class,
       DisabledMfaBucketDeletionCheck.class,
       DisabledS3EncryptionCheck.class,
+      DisabledS3ServerAccessLoggingCheck.class,
       ParsingErrorCheck.class
     );
   }
