@@ -8,6 +8,5 @@ package org.sonar.iac.terraform.api.tree;
 import java.util.List;
 
 public interface BlockTree extends HasStatements, Statement {
-  SyntaxToken identifier();
   List<LabelTree> labels();
 }
