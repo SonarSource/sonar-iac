@@ -33,6 +33,9 @@ import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
+
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
   private static final String MESSAGE = "Make sure authorizing HTTP requests is safe here.";
@@ -140,20 +143,12 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
     public BucketsAndPoliciesCollector() {
       register(BlockTree.class, (ctx, tree) -> {
-        if (isS3Bucket(tree)) {
+        if (isS3BucketResource(tree)) {
           buckets.add(tree);
-        } else if (isPolicy(tree)) {
+        } else if (isResource(tree, "\"aws_s3_bucket_policy\"")) {
           policies.add(tree);
         }
       });
-    }
-
-    protected static boolean isPolicy(BlockTree tree) {
-      return !tree.labels().isEmpty() && "\"aws_s3_bucket_policy\"".equals(tree.labels().get(0).value());
-    }
-
-    private static boolean isS3Bucket(BlockTree tree) {
-      return !tree.labels().isEmpty() && "\"aws_s3_bucket\"".equals(tree.labels().get(0).value());
     }
   }
 

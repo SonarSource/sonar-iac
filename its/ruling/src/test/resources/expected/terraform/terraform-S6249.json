@@ -8,9 +8,6 @@
 'terraform-project:sources/terraform/ibm-tf-training/s2/s3/main.tf':[
 414,
 ],
-'terraform-project:sources/terraform/terraform-aws-secure-baseline/bucket.tf':[
-20,
-],
 'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/secure-bucket/main.tf':[
 23,
 72,
