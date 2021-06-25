@@ -7,9 +7,8 @@ package org.sonar.iac.terraform;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -30,28 +29,11 @@ public class TestTreeBuilders {
 
   public static class SyntaxTokenBuilder {
 
-    private String value;
-    private TextRange textRange;
-    private List<Comment> comments = new ArrayList<>();
-
     private SyntaxTokenBuilder() {
     }
 
-    public static SyntaxTokenBuilder token() {
-      return new SyntaxTokenBuilder();
-    }
-
     public static SyntaxToken token(String value) {
-      return token().value(value).build();
-    }
-
-    public SyntaxTokenBuilder value(String value) {
-      this.value = value;
-      return this;
-    }
-
-    public SyntaxToken build() {
-      return new SyntaxTokenImpl(value, textRange, comments);
+      return new SyntaxTokenImpl(value, null , Collections.emptyList());
     }
   }
 

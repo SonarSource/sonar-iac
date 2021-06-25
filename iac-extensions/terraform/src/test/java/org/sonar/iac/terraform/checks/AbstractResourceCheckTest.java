@@ -21,24 +21,49 @@ class AbstractResourceCheckTest {
 
   @ParameterizedTest
   @CsvSource({
+    "resource, true",
+    "Resource, false",
+    "data, false"
+  })
+  void test_isResource(String type, boolean isS3Bucket) {
+    BlockTree blockTree = block()
+      .type(type)
+      .build();
+    assertThat(AbstractResourceCheck.isResource(blockTree)).isEqualTo(isS3Bucket);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "\"aws_s3_bucket\", true",
+    "\"not_a_bucket\", false",
+    "aws_s3_bucket, false"
+  })
+  void test_isS3Bucket(String label, boolean isS3Bucket) {
+    BlockTree blockTree = block()
+      .labels(label(label))
+      .build();
+    assertThat(AbstractResourceCheck.isS3Bucket(blockTree)).isEqualTo(isS3Bucket);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
     "resource, \"aws_s3_bucket\", true",
     "resource, \"not_a_bucket\", false",
-    "resource, aws_s3_bucket, false",
-    "other_type, \"aws_s3_bucket\", false"
+    "date, \"aws_s3_bucket\", false"
   })
   void test_isS3Bucket(String type, String label, boolean isS3Bucket) {
     BlockTree blockTree = block()
       .type(type)
       .labels(label(label))
       .build();
-    assertThat(AbstractResourceCheck.isS3Bucket(blockTree)).isEqualTo(isS3Bucket);
+    assertThat(AbstractResourceCheck.isS3BucketResource(blockTree)).isEqualTo(isS3Bucket);
   }
 
   @Test
-  void test_checkS3Bucket() {
+  void checkResource() {
     TestAbstractResourceCheck check = new TestAbstractResourceCheck();
     TerraformVerifier.verifyNoIssue("AbstractResourceCheck/test.tf", check);
-    assertThat(check.visitedBlocks).hasSize(1);
+    assertThat(check.visitedBlocks).hasSize(2);
   }
 
   static class TestAbstractResourceCheck extends AbstractResourceCheck {
@@ -46,7 +71,7 @@ class AbstractResourceCheckTest {
     public final Set<BlockTree> visitedBlocks = new HashSet<>();
 
     @Override
-    protected void checkS3Bucket(CheckContext ctx, BlockTree tree) {
+    protected void checkResource(CheckContext ctx, BlockTree tree) {
       visitedBlocks.add(tree);
     }
   }

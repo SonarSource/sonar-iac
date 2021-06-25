@@ -18,22 +18,38 @@ public class StatementUtils {
   private StatementUtils() {
   }
 
-  public static boolean hasStatement(HasStatements tree, String name, Kind... kinds) {
-    return getStatements(tree).anyMatch(s -> isStatement(s, name, kinds));
+  public static boolean hasBlock(HasStatements tree, String type) {
+    return hasStatement(tree, type, Kind.BLOCK);
   }
 
-  public static Optional<TerraformTree> getStatement(HasStatements tree, String name, Kind... kinds) {
-    return getStatements(tree).filter(statement -> isStatement(statement, name, kinds)).findFirst();
+  public static boolean hasAttribute(HasStatements tree, String name) {
+    return hasStatement(tree, name, Kind.ATTRIBUTE);
+  }
+
+  public static Optional<AttributeTree> getAttribute(HasStatements tree, String name) {
+    return getStatement(tree, name, Kind.ATTRIBUTE);
+  }
+
+  public static Optional<AttributeTree> getBlock(HasStatements tree, String name) {
+    return getStatement(tree, name, Kind.BLOCK);
+  }
+
+  private static boolean hasStatement(HasStatements tree, String key, Kind kind) {
+    return getStatements(tree).anyMatch(s -> isStatement(s, key, kind));
+  }
+
+  private static <T extends TerraformTree> Optional<T> getStatement(HasStatements tree, String name, Kind kind) {
+    return getStatements(tree).filter(s -> isStatement(s, name, kind)).findFirst().map(terraformTree -> (T) terraformTree);
   }
 
   private static Stream<TerraformTree> getStatements(HasStatements tree) {
     return tree.statements().stream().map(TerraformTree.class::cast);
   }
 
-  private static boolean isStatement(TerraformTree tree, String name, Kind... kinds) {
-    if (tree.is(kinds)) {
-      if (tree.is(Kind.BLOCK)) return name.equals(((BlockTree) tree).type().value());
-      if (tree.is(Kind.ATTRIBUTE)) return name.equals(((AttributeTree) tree).name().value());
+  private static boolean isStatement(TerraformTree tree, String key, Kind kind) {
+    if (tree.is(kind)) {
+      if (tree.is(Kind.BLOCK)) return key.equals(((BlockTree) tree).type().value());
+      if (tree.is(Kind.ATTRIBUTE)) return key.equals(((AttributeTree) tree).name().value());
     }
     return false;
   }

@@ -15,23 +15,22 @@ public abstract class AbstractResourceCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(BlockTree.class, (ctx, tree) -> {
-      if (isS3Bucket(tree)) {
-        checkS3Bucket(ctx, tree);
+      if (isResource(tree)) {
+        checkResource(ctx, tree);
       }
     });
   }
-
-  // This method can be set later as non-abstract and a further checkResource method can be implemented.
-  // This also allows checks without S3 bucket access that utils can use.
-  protected abstract void checkS3Bucket(CheckContext ctx, BlockTree tree);
+  protected abstract void checkResource(CheckContext ctx, BlockTree tree);
 
   public static boolean isResource(BlockTree tree) {
     return "resource".equals(tree.type().value());
   }
 
   public static boolean isS3Bucket(BlockTree tree) {
-    return isResource(tree)
-      && !tree.labels().isEmpty()
-      && "\"aws_s3_bucket\"".equals(tree.labels().get(0).value());
+    return !tree.labels().isEmpty() && "\"aws_s3_bucket\"".equals(tree.labels().get(0).value());
+  }
+
+  public static boolean isS3BucketResource(BlockTree tree) {
+    return isResource(tree) && isS3Bucket(tree);
   }
 }
