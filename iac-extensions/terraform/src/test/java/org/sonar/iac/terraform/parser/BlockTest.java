@@ -12,7 +12,7 @@ import org.sonar.iac.terraform.parser.utils.Assertions;
 class BlockTest {
 
   @Test
-  void test() {
+  void test_block() {
     Assertions.assertThat(HclLexicalGrammar.BLOCK)
       .matches("a{\n b = true \nc = null}")
       .matches("a {\n}")
@@ -21,5 +21,21 @@ class BlockTest {
       .matches("  a {   }")
       .notMatches("a")
       .notMatches("");
+  }
+
+  @Test
+  void test_oneLineBlock() {
+    Assertions.assertThat(HclLexicalGrammar.ONE_LINE_BLOCK)
+      .matches("a{}")
+      .matches("  a {   }")
+      .matches("a { \n }")
+      .matches("a label {}")
+      .matches("a \"label\" {}")
+      .matches("a \"label1\" \"label2\" {}")
+      .matches("a \"label with \\\" quote\" {}")
+      .matches("a \"label1\" label2 {}")
+      .matches("a {b = false}")
+      .notMatches("a")
+      .notMatches("a{");
   }
 }

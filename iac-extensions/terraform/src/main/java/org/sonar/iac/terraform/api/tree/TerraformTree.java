@@ -58,7 +58,7 @@ public interface TerraformTree extends Tree {
 
     OBJECT(ObjectTree.class),
 
-    ONE_LINE_BLOCK(OneLineBlockTree.class),
+    ONE_LINE_BLOCK(BlockTree.class),
 
     PARENTHESIZED_EXPRESSION(ParenthesizedExpressionTree.class),
 
