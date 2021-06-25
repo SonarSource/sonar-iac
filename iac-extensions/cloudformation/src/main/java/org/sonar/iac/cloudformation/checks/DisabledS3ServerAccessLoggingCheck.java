@@ -5,8 +5,10 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
+import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 
 import static org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils.getValue;
@@ -20,10 +22,15 @@ public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (isS3Bucket(resource)) {
       CloudformationTree properties = resource.properties();
-      if (!getValue(properties, "LoggingConfiguration").isPresent() && !getValue(properties, "AccessControl").isPresent()) {
+      if (!getValue(properties, "LoggingConfiguration").isPresent() && !isLoggingBucket(properties)) {
         ctx.reportIssue(resource.type(), MESSAGE);
       }
     }
+  }
+
+  private static boolean isLoggingBucket(CloudformationTree properties) {
+    Optional<CloudformationTree> acl = getValue(properties, "AccessControl");
+    return acl.isPresent() && ScalarTreeUtils.getValue(acl.get()).orElse("").equals("LogDeliveryWrite");
   }
 
 }
