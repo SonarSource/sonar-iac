@@ -5,9 +5,13 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.LiteralExprTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6258")
@@ -17,8 +21,16 @@ public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree block) {
-    if (isS3BucketResource(block) && !StatementUtils.hasAttribute(block, "acl") && !StatementUtils.hasBlock(block, "logging")) {
+    if (isS3BucketResource(block) && !isLoggingBucket(block) && !StatementUtils.hasBlock(block, "logging")) {
       ctx.reportIssue(block.labels().get(0), MESSAGE);
     }
+  }
+
+  private static boolean isLoggingBucket(BlockTree block) {
+    Optional<String> acl = StatementUtils.getAttribute(block, "acl")
+      .map(AttributeTree::value)
+      .filter(x -> x.is(Kind.STRING_LITERAL))
+      .map(x -> ((LiteralExprTree) x).value());
+    return acl.isPresent() && acl.get().equals("log-delivery-write");
   }
 }

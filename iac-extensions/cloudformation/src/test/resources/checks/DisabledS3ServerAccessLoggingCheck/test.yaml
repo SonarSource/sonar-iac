@@ -10,6 +10,11 @@ Resources:
     Properties:
       BucketName: "S3BucketWithAccessControl"
       AccessControl: LogDeliveryWrite
+  S3BucketWithUnrelatedAccessControl:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    Properties:
+      BucketName: "S3BucketWithUnrelatedAccessControl"
+      AccessControl: xxx
   S3BucketWithLoggingConfiguration:
     Type: 'AWS::S3::Bucket' # Compliant
     Properties:
