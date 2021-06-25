@@ -118,8 +118,8 @@ resource "aws_s3_bucket_policy" "mynoncompliantallowpolicys6249" {
         Effect    = "Deny"
         Principal = { "AWS": "*" }
         Action    = "s3:*"
-        Resource = ["${aws_s3_bucket.mynoncompliantallowbuckets6245.arn}/foo",]
-        #          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^<
+        Resource = ["${aws_s3_bucket.mynoncompliantallowbuckets6245.arn}/foo"]
+        #          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^<
         Condition = { Bool = { "aws:SecureTransport" = "false" } }
       },
     ]

@@ -176,6 +176,27 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       this(null, null, null, null, null);
     }
 
+    /**
+     * Attempt to create a policy instance to reason about out of a structure like the following:
+     *
+     * jsonencode({
+     *     Version = "2012-10-17"
+     *     Id      = "somePolicy"
+     *     Statement = [
+     *       {
+     *         Sid       = "HTTPSOnly"
+     *         Effect    = "Deny"
+     *         Principal = "*"
+     *         Action    = "s3:*"
+     *         Resource = ["someResource"]
+     *         Condition = { Bool = { "aws:SecureTransport" = "false" } }
+     *       },
+     *     ]
+     * })
+     *
+     * In case the policy tree does not have the expected structure (e.g., is provided as a heredoc), we create an incomplete policy
+     * which we consider as safe as we cannot reason about it.
+     */
     private static Policy from(Tree policy) {
       if (!(policy instanceof FunctionCallTree) || ((FunctionCallTree) policy).arguments().trees().isEmpty()) {
         return new Policy();
