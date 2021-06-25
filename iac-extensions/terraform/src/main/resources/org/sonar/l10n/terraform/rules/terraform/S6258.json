@@ -1,0 +1,28 @@
+{
+  "title": " Disabling S3 server access logging is security sensitive ",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a10"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6258",
+  "sqKey": "S6258",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      778
+    ],
+    "OWASP": [
+      "A10"
+    ],
+    "CIS": [
+      "3.6"
+    ]
+  }
+}
