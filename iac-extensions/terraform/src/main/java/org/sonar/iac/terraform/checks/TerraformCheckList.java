@@ -17,6 +17,7 @@ public class TerraformCheckList {
   public static List<Class<?>> checks() {
     return Arrays.asList(
       AwsTagNameConventionCheck.class,
+      BucketsInsecureHttpCheck.class,
       DisabledS3EncryptionCheck.class,
       ParsingErrorCheck.class
     );
