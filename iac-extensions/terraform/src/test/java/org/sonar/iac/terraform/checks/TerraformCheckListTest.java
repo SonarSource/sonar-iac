@@ -26,7 +26,7 @@ class TerraformCheckListTest {
       files.addAll(Arrays.asList(new File(folder).listFiles((f, name) -> name.endsWith("java"))));
     }
     for (File file : files) {
-      if (file.getName().endsWith("Check.java")) {
+      if (file.getName().endsWith("Check.java") && !file.getName().startsWith("Abstract")) {
         count++;
       }
     }
