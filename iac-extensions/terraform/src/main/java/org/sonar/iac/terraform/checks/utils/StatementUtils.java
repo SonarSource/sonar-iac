@@ -30,7 +30,7 @@ public class StatementUtils {
     return getStatement(tree, name, Kind.ATTRIBUTE);
   }
 
-  public static Optional<AttributeTree> getBlock(HasStatements tree, String name) {
+  public static Optional<BlockTree> getBlock(HasStatements tree, String name) {
     return getStatement(tree, name, Kind.BLOCK);
   }
 

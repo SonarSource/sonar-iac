@@ -18,6 +18,7 @@ public class TerraformCheckList {
     return Arrays.asList(
       AwsTagNameConventionCheck.class,
       BucketsInsecureHttpCheck.class,
+      DisabledMfaBucketDeletionCheck.class,
       DisabledS3EncryptionCheck.class,
       ParsingErrorCheck.class
     );

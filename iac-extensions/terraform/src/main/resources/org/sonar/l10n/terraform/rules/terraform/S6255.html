@@ -1,0 +1,49 @@
+<p>When S3 buckets versioning is enabled it’s possible to add an additional authentication factor before being allowed to delete versions of an object
+or changing the versioning state of a bucket. It prevents accidental object deletion by forcing the user sending the delete request to prove that he
+has a valid MFA device and a corresponding valid token.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The S3 bucket stores sensitive information that is required to be preserved on the long term. </li>
+  <li> The S3 bucket grants delete permission to many users. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to enable S3 MFA delete, note that:</p>
+<ul>
+  <li> MFA delete can only be enabled with the AWS CLI or API and with the root account. </li>
+  <li> To delete an object version, the API should be used with the <code>x-amz-mfa</code> header. </li>
+  <li> The API request, with the <code>x-amz-mfa</code> header, can only be used in HTTPS. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<p>A versioned S3 bucket doesn’t have MFA delete enabled:</p>
+<pre>
+resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
+  bucket = "mynoncompliantbucketname"
+
+  versioning {
+    enabled = true
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>MFA delete is enabled (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/629">it’s not possible to set this option</a> to a new
+S3 bucket with Terraform but the Terraform template can be updated that way it reflects the state):</p>
+<pre>
+resource "aws_s3_bucket" "mycompliantbucket" { # Compliant
+  bucket = "mycompliantbucketname"
+
+  versioning {
+    enabled = true
+    mfa_delete = true
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiFactorAuthenticationDelete.html">AWS documentation</a> - Configuring MFA
+  delete </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/308.html">MITRE, CWE-308</a> - Use of Single-factor Authentication </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A2_2017-Broken_Authentication">OWASP Top 10 2017 Category A2</a> - Broken Authentication
+  </li>
+</ul>
+

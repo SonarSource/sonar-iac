@@ -1,0 +1,25 @@
+{
+  "title": "Disabling S3 bucket MFA delete is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a2"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6255",
+  "sqKey": "S6255",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      308
+    ],
+    "OWASP": [
+      "A2"
+    ]
+  }
+}
