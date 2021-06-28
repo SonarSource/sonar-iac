@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
-import org.sonar.iac.terraform.api.tree.Statement;
+import org.sonar.iac.terraform.api.tree.StatementTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
 import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
@@ -65,7 +65,7 @@ import org.sonar.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.iac.terraform.tree.impl.VariableExprTreeImpl;
 
 public class TreeFactory {
-  public FileTree file(Optional<List<Statement>> statements, Optional<SyntaxToken> spacing, SyntaxToken eof) {
+  public FileTree file(Optional<List<StatementTree>> statements, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileTreeImpl(statements.or(Collections.emptyList()), eof);
   }
 
@@ -73,13 +73,13 @@ public class TreeFactory {
     Optional<List<LabelTree>> labels,
     SyntaxToken openBrace,
     SyntaxToken newLine,
-    Optional<List<Statement>> statements,
+    Optional<List<StatementTree>> statements,
     SyntaxToken closeBrace) {
     return new BlockTreeImpl(type, labels.orNull(), openBrace, statements.or(Collections.emptyList()), closeBrace, Kind.BLOCK);
   }
 
   public BlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
-    List<Statement> statements = attribute.isPresent() ? Collections.singletonList(attribute.get()) : Collections.emptyList();
+    List<StatementTree> statements = attribute.isPresent() ? Collections.singletonList(attribute.get()) : Collections.emptyList();
     return new BlockTreeImpl(type, labels.orNull(), openBrace, statements, closeBrace, Kind.ONE_LINE_BLOCK);
   }
 

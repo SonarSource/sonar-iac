@@ -14,7 +14,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.Statement;
+import org.sonar.iac.terraform.api.tree.StatementTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.tree.impl.AttributeTreeImpl;
@@ -42,7 +42,7 @@ public class TestTreeBuilders {
 
     private SyntaxToken identifier;
     private List<LabelTree> labels = new ArrayList<>();
-    private List<Statement> statements = new ArrayList<>();
+    private List<StatementTree> statements = new ArrayList<>();
 
     private BlockBuilder() {
     }
@@ -65,7 +65,7 @@ public class TestTreeBuilders {
       return this;
     }
 
-    public BlockBuilder statements(List<Statement> statements) {
+    public BlockBuilder statements(List<StatementTree> statements) {
       this.statements = statements;
       return this;
     }

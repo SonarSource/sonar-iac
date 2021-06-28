@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.HasStatements;
-import org.sonar.iac.terraform.api.tree.Statement;
+import org.sonar.iac.terraform.api.tree.StatementTree;
 
 public class StatementUtils {
 
@@ -40,14 +40,14 @@ public class StatementUtils {
     return getStatement(tree, identifier, BlockTree.class);
   }
 
-  private static <T extends Statement> Optional<T> getStatement(HasStatements tree, String identifier, Class<T> tClass) {
+  private static <T extends StatementTree> Optional<T> getStatement(HasStatements tree, String identifier, Class<T> tClass) {
     return tree.statements().stream()
       .filter(s -> isStatement(s, identifier))
       .filter(tClass::isInstance)
       .findFirst().map(terraformTree -> (T) terraformTree);
   }
 
-  private static boolean isStatement(Statement statement, String identifier) {
+  private static boolean isStatement(StatementTree statement, String identifier) {
     return identifier.equals(statement.identifier().value());
   }
 }

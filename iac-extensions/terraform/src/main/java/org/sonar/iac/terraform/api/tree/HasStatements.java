@@ -8,5 +8,5 @@ package org.sonar.iac.terraform.api.tree;
 import java.util.List;
 
 public interface HasStatements {
-  List<Statement> statements();
+  List<StatementTree> statements();
 }
