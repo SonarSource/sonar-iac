@@ -29,9 +29,9 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
+import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
@@ -128,13 +128,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   }
 
   private static Optional<Tree> getAttributeValue(BlockTree block, String name) {
-    for (TerraformTree statement : block.statements()) {
-      if (statement instanceof AttributeTree && name.equals(((AttributeTree) statement).identifier().value())) {
-        return Optional.of(((AttributeTree)statement).value());
-      }
-    }
-
-    return Optional.empty();
+    return StatementUtils.getAttribute(block, name).map(AttributeTree::value);
   }
 
   private static class BucketsAndPoliciesCollector extends TreeVisitor<TreeContext> {
