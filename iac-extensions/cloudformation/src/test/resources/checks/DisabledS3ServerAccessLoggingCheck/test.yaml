@@ -15,6 +15,12 @@ Resources:
     Properties:
       BucketName: "S3BucketWithUnrelatedAccessControl"
       AccessControl: xxx
+  S3BucketWithNonIdentifierAccessControl:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: "S3BucketWithNonIdentifierAccessControl"
+      AccessControl:
+        Something: xxx
   S3BucketWithLoggingConfiguration:
     Type: 'AWS::S3::Bucket' # Compliant
     Properties:

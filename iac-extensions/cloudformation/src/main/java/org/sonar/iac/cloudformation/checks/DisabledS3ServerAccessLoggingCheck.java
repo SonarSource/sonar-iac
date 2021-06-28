@@ -22,15 +22,19 @@ public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (isS3Bucket(resource)) {
       CloudformationTree properties = resource.properties();
-      if (!getValue(properties, "LoggingConfiguration").isPresent() && !isLoggingBucket(properties)) {
+      if (!getValue(properties, "LoggingConfiguration").isPresent() && !isMaybeLoggingBucket(properties)) {
         ctx.reportIssue(resource.type(), MESSAGE);
       }
     }
   }
 
-  private static boolean isLoggingBucket(CloudformationTree properties) {
+  private static boolean isMaybeLoggingBucket(CloudformationTree properties) {
     Optional<CloudformationTree> acl = getValue(properties, "AccessControl");
-    return acl.isPresent() && ScalarTreeUtils.getValue(acl.get()).orElse("").equals("LogDeliveryWrite");
+    if (acl.isPresent()) {
+      Optional<String> scalarValue = ScalarTreeUtils.getValue(acl.get());
+      return scalarValue.map(s -> s.equals("LogDeliveryWrite")).orElse(true);
+    }
+    return false;
   }
 
 }

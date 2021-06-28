@@ -8,6 +8,11 @@ resource "aws_s3_bucket" "bucket_with_unrelated_acl" { # Noncompliant
   acl    = "xxx"
 }
 
+resource "aws_s3_bucket" "bucket_with_unrelated_acl" {
+  bucket = "bucket_with_unrelated_acl_name"
+  acl    = var.acl
+}
+
 resource "aws_s3_bucket" "mycompliantbuckets6258" {
   bucket = "mycompliantbuckets6258name"
 
