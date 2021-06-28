@@ -1,0 +1,21 @@
+{
+  "title": "Unversioned or suspended versioned S3 bucket is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "owasp-a6"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6252",
+  "sqKey": "S6252",
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A6"
+    ]
+  }
+}
