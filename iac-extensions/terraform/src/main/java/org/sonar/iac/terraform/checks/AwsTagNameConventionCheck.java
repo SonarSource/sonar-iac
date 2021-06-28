@@ -23,7 +23,7 @@ public class AwsTagNameConventionCheck extends AbstractAwsTagNameConventionCheck
   public void initialize(InitContext init) {
     pattern = Pattern.compile(format);
     init.register(AttributeTree.class, (ctx, tree) -> {
-      if ("tags".equals(tree.name().value()) && tree.value() instanceof ObjectTree) {
+      if ("tags".equals(tree.identifier().value()) && tree.value() instanceof ObjectTree) {
         check(ctx, (ObjectTree) tree.value());
       }
     });

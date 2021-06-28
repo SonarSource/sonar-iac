@@ -23,7 +23,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
   protected abstract void checkResource(CheckContext ctx, BlockTree tree);
 
   public static boolean isResource(BlockTree tree) {
-    return "resource".equals(tree.type().value());
+    return "resource".equals(tree.identifier().value());
   }
 
   public static boolean isResource(BlockTree tree, String type) {

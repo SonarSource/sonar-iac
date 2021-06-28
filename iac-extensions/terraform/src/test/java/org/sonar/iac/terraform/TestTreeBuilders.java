@@ -14,6 +14,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
+import org.sonar.iac.terraform.api.tree.StatementTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.tree.impl.AttributeTreeImpl;
@@ -39,9 +40,9 @@ public class TestTreeBuilders {
 
   public static class BlockBuilder {
 
-    private SyntaxToken type;
+    private SyntaxToken identifier;
     private List<LabelTree> labels = new ArrayList<>();
-    private List<TerraformTree> statements = new ArrayList<>();
+    private List<StatementTree> statements = new ArrayList<>();
 
     private BlockBuilder() {
     }
@@ -50,8 +51,8 @@ public class TestTreeBuilders {
       return new BlockBuilder();
     }
 
-    public BlockBuilder type(String type) {
-      this.type = token(type);
+    public BlockBuilder identifier(String identifier) {
+      this.identifier = token(identifier);
       return this;
     }
 
@@ -64,13 +65,13 @@ public class TestTreeBuilders {
       return this;
     }
 
-    public BlockBuilder statements(List<TerraformTree> statements) {
+    public BlockBuilder statements(List<StatementTree> statements) {
       this.statements = statements;
       return this;
     }
 
     public BlockTree build() {
-      return new BlockTreeImpl(type, labels, token("{"), statements, token("}"), TerraformTree.Kind.BLOCK);
+      return new BlockTreeImpl(identifier, labels, token("{"), statements, token("}"), TerraformTree.Kind.BLOCK);
     }
   }
 
@@ -85,7 +86,7 @@ public class TestTreeBuilders {
   }
 
   public static class AttributeBuilder {
-    private SyntaxToken name;
+    private SyntaxToken identifier;
     private ExpressionTree value;
 
     private AttributeBuilder() {
@@ -96,8 +97,8 @@ public class TestTreeBuilders {
       return new AttributeBuilder();
     }
 
-    public AttributeBuilder name(String  name) {
-      this.name = token(name);
+    public AttributeBuilder identifier(String identifier) {
+      this.identifier = token(identifier);
       return this;
     }
 
@@ -107,7 +108,7 @@ public class TestTreeBuilders {
     }
 
     public AttributeTree build() {
-      return new AttributeTreeImpl(name, token("="), value);
+      return new AttributeTreeImpl(identifier, token("="), value);
     }
   }
 

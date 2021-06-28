@@ -17,7 +17,7 @@ public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree block) {
-    if (isS3Bucket(block) && !StatementUtils.hasAttribute(block, STATEMENT_KEY) && !StatementUtils.hasBlock(block, STATEMENT_KEY)) {
+    if (isS3Bucket(block) && !StatementUtils.hasStatement(block, STATEMENT_KEY)) {
       ctx.reportIssue(block.labels().get(0), MESSAGE);
     }
   }

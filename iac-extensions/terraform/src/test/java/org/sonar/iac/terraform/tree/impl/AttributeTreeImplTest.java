@@ -19,7 +19,7 @@ class AttributeTreeImplTest extends TerraformTreeModelTest{
   void simple_attribute() {
     AttributeTree tree = parse("a = true", HclLexicalGrammar.ATTRIBUTE);
     assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.ATTRIBUTE);
-    assertThat(tree.name().value()).isEqualTo("a");
+    assertThat(tree.identifier().value()).isEqualTo("a");
     assertThat(tree.equalSign().value()).isEqualTo("=");
     assertThat(tree.value()).isInstanceOfSatisfying(LiteralExprTree.class, a -> assertThat(a.value()).isEqualTo("true"));
   }

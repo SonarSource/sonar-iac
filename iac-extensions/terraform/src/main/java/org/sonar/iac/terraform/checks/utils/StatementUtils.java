@@ -6,51 +6,48 @@
 package org.sonar.iac.terraform.checks.utils;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.HasStatements;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
+import org.sonar.iac.terraform.api.tree.StatementTree;
 
 public class StatementUtils {
 
   private StatementUtils() {
   }
 
-  public static boolean hasBlock(HasStatements tree, String type) {
-    return hasStatement(tree, type, Kind.BLOCK);
+  public static boolean hasBlock(HasStatements tree, String identifier) {
+    return tree.statements().stream()
+      .filter(BlockTree.class::isInstance)
+      .anyMatch(s -> isStatement(s, identifier));
   }
 
-  public static boolean hasAttribute(HasStatements tree, String name) {
-    return hasStatement(tree, name, Kind.ATTRIBUTE);
+  public static boolean hasAttribute(HasStatements tree, String identifier) {
+    return tree.statements().stream()
+      .filter(AttributeTree.class::isInstance)
+      .anyMatch(s -> isStatement(s, identifier));
   }
 
-  public static Optional<AttributeTree> getAttribute(HasStatements tree, String name) {
-    return getStatement(tree, name, Kind.ATTRIBUTE);
+  public static boolean hasStatement(HasStatements tree, String identifier) {
+    return tree.statements().stream().anyMatch(s -> isStatement(s, identifier));
   }
 
-  public static Optional<BlockTree> getBlock(HasStatements tree, String name) {
-    return getStatement(tree, name, Kind.BLOCK);
+  public static Optional<AttributeTree> getAttribute(HasStatements tree, String identifier) {
+    return getStatement(tree, identifier, AttributeTree.class);
   }
 
-  private static boolean hasStatement(HasStatements tree, String key, Kind kind) {
-    return getStatements(tree).anyMatch(s -> isStatement(s, key, kind));
+  public static Optional<BlockTree> getBlock(HasStatements tree, String identifier) {
+    return getStatement(tree, identifier, BlockTree.class);
   }
 
-  private static <T extends TerraformTree> Optional<T> getStatement(HasStatements tree, String name, Kind kind) {
-    return getStatements(tree).filter(s -> isStatement(s, name, kind)).findFirst().map(terraformTree -> (T) terraformTree);
+  private static <T extends StatementTree> Optional<T> getStatement(HasStatements tree, String identifier, Class<T> tClass) {
+    return tree.statements().stream()
+      .filter(s -> isStatement(s, identifier))
+      .filter(tClass::isInstance)
+      .findFirst().map(terraformTree -> (T) terraformTree);
   }
 
-  private static Stream<TerraformTree> getStatements(HasStatements tree) {
-    return tree.statements().stream().map(TerraformTree.class::cast);
-  }
-
-  private static boolean isStatement(TerraformTree tree, String key, Kind kind) {
-    if (tree.is(kind)) {
-      if (tree.is(Kind.BLOCK)) return key.equals(((BlockTree) tree).type().value());
-      if (tree.is(Kind.ATTRIBUTE)) return key.equals(((AttributeTree) tree).name().value());
-    }
-    return false;
+  private static boolean isStatement(StatementTree statement, String identifier) {
+    return identifier.equals(statement.identifier().value());
   }
 }

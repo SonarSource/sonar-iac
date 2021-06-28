@@ -5,7 +5,6 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-public interface AttributeTree extends StatementTree {
-  SyntaxToken equalSign();
-  ExpressionTree value();
+public interface StatementTree extends TerraformTree {
+  SyntaxToken identifier();
 }
