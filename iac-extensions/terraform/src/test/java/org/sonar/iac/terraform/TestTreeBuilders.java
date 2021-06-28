@@ -71,7 +71,7 @@ public class TestTreeBuilders {
     }
 
     public BlockTree build() {
-      return new BlockTreeImpl(identifier, labels, token("{"), statements, token("}"), TerraformTree.Kind.BLOCK);
+      return new BlockTreeImpl(identifier, labels, token("{"), token("\n"), statements, token("}"), TerraformTree.Kind.BLOCK);
     }
   }
 
