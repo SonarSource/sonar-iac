@@ -11,7 +11,6 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.HasStatements;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.checks.utils.AttributeUtils;
 import org.sonar.iac.terraform.checks.utils.StatementUtils;
@@ -31,12 +30,14 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     }
     LabelTree bucketLabel = block.labels().get(0);
     Optional<BlockTree> versioning = StatementUtils.getBlock(block, "versioning");
-    if (versioning.isPresent() && versioning.get() instanceof HasStatements) {
+    if (versioning.isPresent()) {
       Optional<AttributeTree> enabled = StatementUtils.getAttribute(versioning.get(), "enabled");
-      if (enabled.isPresent() && AttributeUtils.isFalse(enabled.get())) {
-        ctx.reportIssue(bucketLabel, String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(enabled.get(), SUSPENDED_MSG_SECONDARY));
+      if (enabled.isPresent()) {
+        if (AttributeUtils.isFalse(enabled.get())) {
+          ctx.reportIssue(bucketLabel, String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(enabled.get(), SUSPENDED_MSG_SECONDARY));
+        }
+        return;
       }
-      return;
     }
     ctx.reportIssue(bucketLabel, String.format(MESSAGE, UNVERSIONED_MSG));
   }

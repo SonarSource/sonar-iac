@@ -11,6 +11,13 @@ resource "aws_s3_bucket" "mycompliantbucket" { # Compliant
   }
 }
 
+resource "aws_s3_bucket" "mynoncompliantbucket123454" { # Noncompliant
+  bucket = "mycompliantbucketname"
+
+  versioning {
+  }
+}
+
 resource "aws_s3_bucket" "mynoncompliantfalsebuckets6252" { # Noncompliant {{Make sure using suspended versioned S3 bucket is safe here.}}
   #      ^^^^^^^^^^^^^^^
   bucket = "mynoncompliantfalsebuckets6252name"
