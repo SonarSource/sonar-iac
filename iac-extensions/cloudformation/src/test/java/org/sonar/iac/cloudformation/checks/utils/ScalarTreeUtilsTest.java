@@ -17,14 +17,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ScalarTreeUtilsTest {
 
   @Test
-  void test_simple_scalar() {
+  void test_getValue_simple_scalar() {
     ScalarTree scalarTree = new ScalarTreeImpl("foo", null, null, null, Collections.emptyList());
     assertThat(ScalarTreeUtils.getValue(scalarTree)).isPresent().get().isEqualTo("foo");
   }
 
   @Test
-  void test_without_scalar() {
+  void test_getValue_without_scalar() {
     MappingTree mappingTree = new MappingTreeImpl(Collections.emptyList(), null, null, Collections.emptyList());
     assertThat(ScalarTreeUtils.getValue(mappingTree)).isNotPresent();
+  }
+
+  @Test
+  void test_getValue_null() {
+    assertThat(ScalarTreeUtils.getValue(null)).isNotPresent();
+  }
+
+  @Test
+  void test_isValue_simple_scalar() {
+    ScalarTree scalarTree = new ScalarTreeImpl("foo", null, null, null, Collections.emptyList());
+    assertThat(ScalarTreeUtils.isValue(scalarTree, "foo")).isTrue();
+    assertThat(ScalarTreeUtils.isValue(scalarTree, "bar")).isFalse();
   }
 }

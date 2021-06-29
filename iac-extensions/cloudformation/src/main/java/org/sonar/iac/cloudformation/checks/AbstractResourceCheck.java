@@ -54,10 +54,13 @@ public abstract class AbstractResourceCheck implements IacCheck {
     public CloudformationTree properties() {
       return properties;
     }
+
+    public boolean isType(String expectedType) {
+      return ScalarTreeUtils.getValue(type).orElse("null").equalsIgnoreCase(expectedType);
+    }
   }
 
   static boolean isS3Bucket(Resource resource) {
-    String type = ScalarTreeUtils.getValue(resource.type).orElse("null");
-    return "AWS::S3::Bucket".equalsIgnoreCase(type);
+    return resource.isType("AWS::S3::Bucket");
   }
 }
