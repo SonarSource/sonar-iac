@@ -5,9 +5,10 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
@@ -28,8 +29,8 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (resource.isType("AWS::S3::BucketPolicy") && isAllowingPolicy(resource.properties())) {
       // Due to the fact that for now secondary locations are not supported we only raise a single issue if one principal allows anonymous access
-      anonymousPrincipal(resource.properties())
-        .ifPresent(p -> ctx.reportIssue(resource.type(), MESSAGE, new SecondaryLocation(p, SECONDARY_MSG)));
+      anonymousPrincipals(resource.properties())
+        .ifPresent(p -> ctx.reportIssue(resource.type(), MESSAGE, secondaryLocations(p)));
     }
   }
 
@@ -38,28 +39,36 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
     return ScalarTreeUtils.isValue(effect, "Allow");
   }
 
-  private static Optional<CloudformationTree> anonymousPrincipal(CloudformationTree properties) {
+  /**
+   * Policies can have multiple principals which can have multiple rules defining the access level.
+   * We collect every rule location within a single bucket policy to show them as secondary locations.
+   */
+  private static Optional<List<CloudformationTree>> anonymousPrincipals(CloudformationTree properties) {
     Optional<CloudformationTree> principal = XPathUtils.getSingleTree(properties, "/PolicyDocument/Statement[]/Principal");
     if (principal.isPresent() && principal.get() instanceof MappingTree) {
-      return identifyPrincipalWithWildcardRule((MappingTree) principal.get());
+      List<CloudformationTree> principalWithWildcard = ((MappingTree) principal.get()).elements().stream()
+        .map(TupleTree::value)
+        .map(AnonymousBucketAccessCheck::getWildcardRules)
+        .flatMap(List::stream).collect(Collectors.toList());
+      if (!principalWithWildcard.isEmpty()) {
+        return Optional.of(principalWithWildcard);
+      }
     }
     return Optional.empty();
   }
 
-  private static Optional<CloudformationTree> identifyPrincipalWithWildcardRule(MappingTree tree) {
-    for (TupleTree tuple: tree.elements()) {
-      CloudformationTree principalWithWildcard = isWildcardRule(tuple.value());
-      if (principalWithWildcard != null) return Optional.of(principalWithWildcard);
-    }
-    return Optional.empty();
-  }
-
-  @CheckForNull
-  private static CloudformationTree isWildcardRule(CloudformationTree principalRule) {
+  private static List<CloudformationTree> getWildcardRules(CloudformationTree principalRule) {
+    List<CloudformationTree> wildcardRules = new ArrayList<>();
     if (principalRule instanceof SequenceTree) {
-      return ((SequenceTree) principalRule).elements().stream()
-        .map(AnonymousBucketAccessCheck::isWildcardRule).filter(Objects::nonNull).findFirst().orElse(null);
+      ((SequenceTree) principalRule).elements().stream()
+        .map(AnonymousBucketAccessCheck::getWildcardRules).forEach(wildcardRules::addAll);
+    } else if (ScalarTreeUtils.isValue(principalRule, "*")) {
+      wildcardRules.add(principalRule);
     }
-    return ScalarTreeUtils.isValue(principalRule, "*") ? principalRule : null;
+    return wildcardRules;
+  }
+
+  private static List<SecondaryLocation> secondaryLocations(List<CloudformationTree> anonymousPrincipals) {
+    return anonymousPrincipals.stream().map(s -> new SecondaryLocation(s, SECONDARY_MSG)).collect(Collectors.toList());
   }
 }

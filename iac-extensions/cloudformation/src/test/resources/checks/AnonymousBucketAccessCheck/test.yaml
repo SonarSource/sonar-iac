@@ -59,6 +59,21 @@ Resources:
                 - "ecs.amazonaws.com"
                 - "*"
 
+  SensitiveMultipleAffectedRulesS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy' # Noncompliant
+       #  ^^^^^^^^^^^^^^^^^^^^^^^
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Foo: "*"
+            #      ^^^<
+              Service:
+                - "ecs.amazonaws.com"
+                - "*"
+            #     ^^^<
+
   SafeDenyPrincipalS3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
