@@ -145,6 +145,10 @@ public class TestTreeBuilders {
       return new ObjectBuilder();
     }
 
+    public ObjectBuilder element(ObjectElementTree element) {
+      elements.add(element);
+      return this;
+    }
     public ObjectBuilder element(String identifier, ExpressionTree value) {
       elements.add(new ObjectElementTreeImpl(new VariableExprTreeImpl(token(identifier)), token(":"), value));
       return this;
