@@ -110,7 +110,8 @@ class VerifierTest {
     SecondaryLocation secondaryLocationExpected = new SecondaryLocation(DummyNonCompliantTree.range, "different message");
     Verifier.Issue issue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message", secondaryLocationExpected);
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheckSecondary, issue));
-    assertThat(exception.getMessage()).contains("[WRONG_SECONDARIES]");
+    assertThat(exception.getMessage()).contains("[NO_SECONDARY]");
+    assertThat(exception.getMessage()).contains("[UNEXPECTED_SECONDARY]");
   }
 
   @Test

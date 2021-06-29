@@ -242,7 +242,8 @@ public final class Verifier {
     private static final String WRONG_MESSAGE = "* [WRONG_MESSAGE] Issue at %s : \nExpected message : %s\nActual message : %s\n\n";
     private static final String UNEXPECTED_ISSUE = "* [UNEXPECTED_ISSUE] at %s with a message: \"%s\"\n\n";
     private static final String WRONG_NUMBER = "* [WRONG_NUMBER] Range %s: Expecting %s issue, but actual issues number is %s\n\n";
-    private static final String WRONG_SECONDARY = "* [WRONG_SECONDARIES]";
+    private static final String NO_SECONDARY = "* [NO_SECONDARY] Expected but no secondary location for issue at line %d on range %s.\n\n";
+    private static final String UNEXPECTED_SECONDARY = "* [UNEXPECTED_SECONDARY] for issue at line %s at %s with a message: \"%s\"\n\n";
 
     List<Issue> actual = new ArrayList<>();
     List<Issue> expected = new ArrayList<>();
@@ -288,12 +289,17 @@ public final class Verifier {
         return String.format(WRONG_MESSAGE, actualIssue.textRange, expectedMessage, actualIssue.message);
       }
 
-      if (!expectedIssue.secondaryLocations.equals(actualIssue.secondaryLocations)) {
-        // TODO: Add more meaningful message
-        return WRONG_SECONDARY;
-      }
+      StringBuilder secondaryMessages = new StringBuilder();
 
-      return "";
+      expectedIssue.secondaryLocations.stream()
+        .filter(e -> !actualIssue.secondaryLocations.contains(e))
+        .forEach(second -> secondaryMessages.append(String.format(NO_SECONDARY, expectedIssue.textRange.start().line(), second.textRange)));
+
+      actualIssue.secondaryLocations.stream()
+        .filter(e -> !expectedIssue.secondaryLocations.contains(e))
+        .forEach(second -> secondaryMessages.append(String.format(UNEXPECTED_SECONDARY, actualIssue.textRange.start().line(), second.textRange, second.message)));
+
+      return secondaryMessages.toString();
     }
   }
 }
