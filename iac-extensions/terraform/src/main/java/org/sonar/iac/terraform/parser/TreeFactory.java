@@ -72,15 +72,15 @@ public class TreeFactory {
   public BlockTree block(SyntaxToken type,
     Optional<List<LabelTree>> labels,
     SyntaxToken openBrace,
-    SyntaxToken newLine,
+    SyntaxToken newline,
     Optional<List<StatementTree>> statements,
     SyntaxToken closeBrace) {
-    return new BlockTreeImpl(type, labels.orNull(), openBrace, statements.or(Collections.emptyList()), closeBrace, Kind.BLOCK);
+    return new BlockTreeImpl(type, labels.orNull(), openBrace, newline, statements.or(Collections.emptyList()), closeBrace, Kind.BLOCK);
   }
 
   public BlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
     List<StatementTree> statements = attribute.isPresent() ? Collections.singletonList(attribute.get()) : Collections.emptyList();
-    return new BlockTreeImpl(type, labels.orNull(), openBrace, statements, closeBrace, Kind.ONE_LINE_BLOCK);
+    return new BlockTreeImpl(type, labels.orNull(), openBrace, null, statements, closeBrace, Kind.ONE_LINE_BLOCK);
   }
 
   public LabelTree label(SyntaxToken token) {

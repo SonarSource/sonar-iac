@@ -20,7 +20,7 @@ public class TerraformMetricsVisitor extends MetricsVisitor {
   @Override
   protected void languageSpecificMetrics() {
     register(SyntaxToken.class, (ctx, token) -> {
-      if (!token.value().isEmpty()) {
+      if (!token.value().trim().isEmpty()) {
         TextRange range = token.textRange();
         for (int i = range.start().line(); i <= range.end().line(); i++) {
           linesOfCode().add(i);

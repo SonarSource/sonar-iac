@@ -17,8 +17,9 @@ class BlockTest {
       .matches("a{\n b = true \nc = null}")
       .matches("a {\n}")
       .matches("a \"label\" {\n}")
-      .matches("a{}")
-      .matches("  a {   }")
+      .matches("  a {\n   }")
+      .matches("a { /* a */  /* b */\n}")
+      .notMatches("a{}")
       .notMatches("a")
       .notMatches("");
   }
