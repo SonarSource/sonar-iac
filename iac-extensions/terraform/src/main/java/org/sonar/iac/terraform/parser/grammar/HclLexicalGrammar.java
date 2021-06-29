@@ -79,8 +79,9 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
 
     b.rule(NEWLINE).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.WHITESPACE + "]*+")),
-      b.zeroOrMore(b.commentTrivia(b.regexp(LexicalConstant.COMMENT))),
-      b.skippedTrivia(b.regexp("[" + LexicalConstant.WHITESPACE + "]*+")),
+      b.zeroOrMore(
+        b.commentTrivia(b.regexp(LexicalConstant.COMMENT)),
+        b.skippedTrivia(b.regexp("[" + LexicalConstant.WHITESPACE + "]*+"))),
       b.regexp("[" + LexicalConstant.LINE_TERMINATOR + "]")).skip();
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
