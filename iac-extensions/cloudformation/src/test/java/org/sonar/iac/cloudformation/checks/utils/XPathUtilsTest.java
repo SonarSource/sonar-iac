@@ -20,17 +20,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class XPathUtilsTest {
 
-  private TestXPathCheck check;
+  private CloudformationTree root;
 
   @BeforeEach
   void setUp() {
-    check = new TestXPathCheck();
+    TestXPathCheck check = new TestXPathCheck();
     CloudformationVerifier.verifyNoIssue("AbstractXPathCheck/test.yaml", check);
+    this.root = check.root;
   }
 
   @Test
   void test_getTrees() {
-    assertThat(XPathUtils.getTrees(check.root, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]/Principal/AWS"))
+    assertThat(XPathUtils.getTrees(root, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]/Principal/AWS"))
       .isNotEmpty().hasSize(1)
       .satisfies(t -> { CloudformationTree tree = t.get(0);
         assertThat(tree).isInstanceOfSatisfying(SequenceTree.class, s ->
@@ -43,28 +44,28 @@ class XPathUtilsTest {
 
   @Test
   void test_getSingleTree() {
-    assertThat(XPathUtils.getSingleTree(check.root, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]"))
+    assertThat(XPathUtils.getSingleTree(root, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]"))
       .isNotPresent();
-    assertThat(XPathUtils.getSingleTree(check.root, "/Resources/S3BucketPolicy/Properties/PolicyDocument"))
+    assertThat(XPathUtils.getSingleTree(root, "/Resources/S3BucketPolicy/Properties/PolicyDocument"))
       .isPresent();
   }
 
   @Test
   void test_getSingleTree_with_custom_root() {
-    assertThat(XPathUtils.getSingleTree(check.root,"/Resources/S3BucketPolicy")).isPresent()
+    assertThat(XPathUtils.getSingleTree(root,"/Resources/S3BucketPolicy")).isPresent()
       .satisfies(o ->
         assertThat(XPathUtils.getSingleTree(o.get(), "/Properties/PolicyDocument")).isPresent());
   }
 
   @Test
   void test_invalid_expression() {
-    assertThatThrownBy(() -> XPathUtils.getSingleTree(check.root,"Resources/S3BucketPolicy"))
+    assertThatThrownBy(() -> XPathUtils.getSingleTree(root,"Resources/S3BucketPolicy"))
       .isInstanceOf(XPathUtils.InvalidXPathExpression.class);
   }
 
   @Test
   void test_only_root_expression() {
-    assertThat(XPathUtils.getSingleTree(check.root,"/")).isPresent().get().isEqualTo(check.root);
+    assertThat(XPathUtils.getSingleTree(root,"/")).isPresent().get().isEqualTo(root);
   }
 
   private static class TestXPathCheck implements IacCheck {

@@ -6,14 +6,12 @@
 package org.sonar.iac.cloudformation.checks.utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.stream.Stream;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 
@@ -34,21 +32,11 @@ public class XPathUtils {
 
   public static List<CloudformationTree> getTrees(CloudformationTree root, String expression) {
     if (!expression.startsWith("/")) {
-      // for now all paths have to start with slash
-      throw new InvalidXPathExpression();
+      throw new InvalidXPathExpression("For now all paths have to start with slash");
     }
     XPathUtils utils = new XPathUtils();
-    StringTokenizer tokenizer = new StringTokenizer(expression, "/");
-    if (tokenizer.countTokens() > 0) {
-      utils.visitTree(root, tokenizer);
-    } else {
-      return Collections.singletonList(root);
-    }
+    utils.visitTree(root, new StringTokenizer(expression, "/"));
     return utils.result;
-  }
-
-  static boolean keyMatch(CloudformationTree key, String token) {
-    return key instanceof ScalarTree && ((ScalarTree) key).value().equals(token);
   }
 
   void visitTree(CloudformationTree tree, StringTokenizer tokenizer) {
@@ -69,7 +57,7 @@ public class XPathUtils {
     if (tree instanceof MappingTree) {
       String finalToken = token;
       Stream<TupleTree> tuples = ((MappingTree) tree).elements().stream()
-        .filter(t -> keyMatch(t.key(), finalToken));
+        .filter(t -> ScalarTreeUtils.isValue(t.key(), finalToken));
 
       if (expectSequence) {
         tuples
@@ -90,6 +78,8 @@ public class XPathUtils {
   }
 
   static class InvalidXPathExpression extends RuntimeException {
-
+    public InvalidXPathExpression(String message) {
+      super(message);
+    }
   }
 }
