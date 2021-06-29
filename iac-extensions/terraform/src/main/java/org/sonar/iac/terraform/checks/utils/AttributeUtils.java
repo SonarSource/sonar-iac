@@ -6,15 +6,14 @@
 package org.sonar.iac.terraform.checks.utils;
 
 import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 
 public class AttributeUtils {
 
   private AttributeUtils() {
   }
 
+  @Deprecated
   public static boolean isFalse(AttributeTree attribute) {
-    return attribute.value().is(Kind.BOOLEAN_LITERAL) && "FALSE".equalsIgnoreCase(((LiteralExprTree) attribute.value()).value());
+    return LiteralUtils.isFalse(attribute.value());
   }
 }

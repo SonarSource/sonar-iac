@@ -9,11 +9,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
+import org.sonar.iac.terraform.api.tree.ObjectElementTree;
+import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.StatementTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
@@ -21,7 +25,11 @@ import org.sonar.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.iac.terraform.tree.impl.BlockTreeImpl;
 import org.sonar.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.iac.terraform.tree.impl.LiteralExprTreeImpl;
+import org.sonar.iac.terraform.tree.impl.ObjectElementTreeImpl;
+import org.sonar.iac.terraform.tree.impl.ObjectTreeImpl;
+import org.sonar.iac.terraform.tree.impl.SeparatedTreesImpl;
 import org.sonar.iac.terraform.tree.impl.SyntaxTokenImpl;
+import org.sonar.iac.terraform.tree.impl.VariableExprTreeImpl;
 
 import static org.sonar.iac.terraform.TestTreeBuilders.SyntaxTokenBuilder.token;
 
@@ -123,6 +131,31 @@ public class TestTreeBuilders {
 
     public static LiteralExprTree stringExpr(String value) {
       return new LiteralExprTreeImpl(TerraformTree.Kind.STRING_LITERAL, token(value));
+    }
+  }
+
+  public static class ObjectBuilder {
+
+    private List<ObjectElementTree> elements = new ArrayList<>();
+
+    private ObjectBuilder() {
+    }
+
+    public static ObjectBuilder object() {
+      return new ObjectBuilder();
+    }
+
+    public ObjectBuilder element(String identifier, ExpressionTree value) {
+      elements.add(new ObjectElementTreeImpl(new VariableExprTreeImpl(token(identifier)), token(":"), value));
+      return this;
+    }
+
+    public ObjectTree build() {
+      return new ObjectTreeImpl(token("{"), new SeparatedTreesImpl<>(elements, getSeparators()),token("}"));
+    }
+
+    private List<SyntaxToken> getSeparators() {
+      return Stream.generate(() -> token(",")).limit(elements.size()).collect(Collectors.toList());
     }
   }
 }
