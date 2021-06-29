@@ -6,7 +6,9 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 
@@ -34,7 +36,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
   }
 
   @Test
-  void simple_one_line_block() {
+  void empty_one_line_block() {
     BlockTree tree = parse("a {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.ONE_LINE_BLOCK);
     assertThat(tree.identifier().value()).isEqualTo("a");
@@ -134,6 +136,31 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     assertThat(tree.identifier().comments().get(0)).satisfies(t -> {
       assertThat(t.value()).isEqualTo("/* comment */");
       assertTextRange(t.textRange()).hasRange(1,0,1,13);
+    });
+  }
+
+  @Test
+  void block_with_comment_before_newline() {
+    BlockTree tree = parse("a { /* comment */ \n}", HclLexicalGrammar.BLOCK);
+    assertThat(tree.identifier().value()).isEqualTo("a");
+    assertThat(tree.children()).hasSize(4);
+    Tree newline = tree.children().get(2);
+    assertThat(newline).isInstanceOfSatisfying(SyntaxToken.class, t -> {
+      assertThat(t.comments()).hasSize(1);
+      assertThat(t.comments().get(0).value()).isEqualTo("/* comment */");
+    });
+  }
+
+  @Test
+  void block_with_multiple_comments_before_newline() {
+    BlockTree tree = parse("a { /* comment */ /* comment2 */ \n}", HclLexicalGrammar.BLOCK);
+    assertThat(tree.identifier().value()).isEqualTo("a");
+    assertThat(tree.children()).hasSize(4);
+    Tree newline = tree.children().get(2);
+    assertThat(newline).isInstanceOfSatisfying(SyntaxToken.class, t -> {
+      assertThat(t.comments()).hasSize(2);
+      assertThat(t.comments().get(0).value()).isEqualTo("/* comment */");
+      assertThat(t.comments().get(1).value()).isEqualTo("/* comment2 */");
     });
   }
 }
