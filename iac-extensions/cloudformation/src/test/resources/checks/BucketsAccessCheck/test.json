@@ -1,0 +1,45 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "S3BucketPublicReadWrite": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "S3BucketPublicReadWrite",
+        "AccessControl": "PublicReadWrite"
+      }
+    },
+    "S3BucketPublicRead": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "S3BucketPublicRead",
+        "AccessControl": "PublicRead"
+      }
+    },
+    "S3BucketAuthenticatedRead": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "S3BucketAuthenticatedRead",
+        "AccessControl": "AuthenticatedRead"
+      }
+    },
+    "S3BucketDefaultPrivate": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "S3BucketDefaultPrivate"
+      }
+    },
+    "S3BucketExplicitPrivate": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "S3BucketExplicitPrivate",
+        "AccessControl": "Private"
+      }
+    },
+    "NotABucket": {
+      "Type": "AWS::NOT::BUCKET",
+      "Properties": {
+        "AccessControl": "PublicRead"
+      }
+    }
+  }
+}

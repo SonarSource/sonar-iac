@@ -17,6 +17,7 @@ public class CloudformationCheckList {
   public static List<Class<?>> checks() {
     return Arrays.asList(
       AwsTagNameConventionCheck.class,
+      BucketsAccessCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledS3ServerAccessLoggingCheck.class,
       ParsingErrorCheck.class,
