@@ -26,8 +26,10 @@ import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck.Policy;
+import org.sonar.iac.terraform.checks.utils.LiteralUtils;
 import org.sonar.iac.terraform.checks.utils.ObjectUtils;
 import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
@@ -192,16 +194,17 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
 
     private static boolean isInsecurePrincipal(ExpressionTree principal) {
-      Optional<ExpressionTree> aws = ObjectUtils.getElementValue(principal, "AWS");
-      return aws.isPresent() && (aws.get() instanceof TupleTree || (aws.get() instanceof LiteralExprTree && !"*".equals(((LiteralExprTree) aws.get()).value())));
+      return ObjectUtils.getElementValue(principal, "AWS")
+        .filter(awsPrincipal -> awsPrincipal.is(Kind.TUPLE) || LiteralUtils.isNotValue(awsPrincipal, "*"))
+        .isPresent();
     }
 
     private static boolean isInsecureAction(ExpressionTree action) {
-      return action instanceof LiteralExprTree && !("*".equals(((LiteralExprTree) action).value()) || "s3:*".equals(((LiteralExprTree) action).value()));
+      return LiteralUtils.isNotValue(action, "*") && LiteralUtils.isNotValue(action, "s3:*");
     }
 
     private static boolean isInsecureEffect(ExpressionTree effect) {
-      return effect instanceof LiteralExprTree && !"Deny".equals(((LiteralExprTree) effect).value());
+      return LiteralUtils.isNotValue(effect, "Deny");
     }
 
     private static boolean isInsecureCondition(ExpressionTree condition) {

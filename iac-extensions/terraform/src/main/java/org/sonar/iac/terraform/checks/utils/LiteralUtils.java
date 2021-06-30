@@ -21,4 +21,9 @@ public class LiteralUtils {
   public static boolean isValue(ExpressionTree expr, String expectedValue) {
     return expr instanceof LiteralExprTree && expectedValue.equals(((LiteralExprTree) expr).value());
   }
+
+  public static boolean isNotValue(ExpressionTree expr, String unexpectedValue) {
+    return expr instanceof LiteralExprTree && !unexpectedValue.equals(((LiteralExprTree) expr).value());
+  }
+
 }

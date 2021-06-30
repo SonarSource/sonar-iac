@@ -33,4 +33,11 @@ class LiteralUtilsTest {
     assertThat(LiteralUtils.isValue(new VariableExprTreeImpl(null), "false")).isFalse();
   }
 
+  @Test
+  void test_isNotValue() {
+    assertThat(LiteralUtils.isNotValue(booleanExpr("FALSE"), "TRUE")).isTrue();
+    assertThat(LiteralUtils.isNotValue(booleanExpr("FALSE"), "FALSE")).isFalse();
+    assertThat(LiteralUtils.isNotValue(new VariableExprTreeImpl(null), "false")).isFalse();
+  }
+
 }
