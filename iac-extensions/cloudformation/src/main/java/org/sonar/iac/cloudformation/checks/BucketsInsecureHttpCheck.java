@@ -18,6 +18,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
+  private static final String MESSAGE = "Make sure authorizing HTTP requests is safe here.";
 
   @Override
   public void initialize(InitContext init) {
@@ -36,7 +37,17 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   }
 
   private static void checkBucketsAndPolicies(CheckContext ctx, Map<Resource, Resource> bucketsToPolicies) {
-    // TODO: Implement
+    for (Map.Entry<Resource, Resource> bucketToPolicy : bucketsToPolicies.entrySet()) {
+      if (bucketToPolicy.getValue() == null) {
+        ctx.reportIssue(bucketToPolicy.getKey().type(), MESSAGE);
+      } else {
+        checkBucketPolicy(bucketToPolicy.getKey(), bucketToPolicy.getValue());
+      }
+    }
+  }
+
+  private static void checkBucketPolicy(Resource bucket, Resource policy) {
+    // TODO: Implement 
   }
 
   private static Map<Resource, Resource> bucketsToPolicies(List<Resource> buckets, List<Resource> policies) {
