@@ -24,10 +24,32 @@ resource "aws_s3_bucket" "mynoncompliantfalsebuckets6252" { # Noncompliant {{Mak
 
   versioning {
     enabled = false
-  # ^^^^^^^^^^^^^^^< {{Suspended versioning.}}
+  #           ^^^^^< {{Suspended versioning.}}
   }
 }
 
 resource "not_a_bucket" "mynoncompliantbuckets6245" {}
 
 resource {} # no labels
+
+resource "aws_s3_bucket" "mynoncompliantbuckets6245" {
+  versioning = {
+    enabled = true
+  }
+}
+
+resource "aws_s3_bucket" "mynoncompliantbuckets6245" { # Noncompliant
+  versioning = {
+    enabled = false
+  }
+}
+
+locals {
+  versioning = {
+    enabled = false
+  }
+}
+
+resource "aws_s3_bucket" "mynoncompliantbuckets6245" { # FN
+  versioning     = "${local.versioning}"
+}

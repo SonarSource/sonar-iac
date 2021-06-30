@@ -11,7 +11,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.utils.AttributeUtils;
+import org.sonar.iac.terraform.checks.utils.LiteralUtils;
 import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6255")
@@ -30,7 +30,7 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
       Optional<AttributeTree> mfaDeleteAttribute = StatementUtils.getAttribute(versioning.get(), "mfa_delete");
       if (!mfaDeleteAttribute.isPresent()) {
         ctx.reportIssue(tree.labels().get(0), MESSAGE);
-      } else if (AttributeUtils.isFalse(mfaDeleteAttribute.get())) {
+      } else if (LiteralUtils.isFalse(mfaDeleteAttribute.get().value())) {
         ctx.reportIssue(tree.labels().get(0), MESSAGE, new SecondaryLocation(mfaDeleteAttribute.get(), MESSAGE_SECONDARY));
       }
     } else {
