@@ -6,6 +6,7 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,9 +29,10 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (resource.isType("AWS::S3::BucketPolicy") && isAllowingPolicy(resource.properties())) {
-      // Due to the fact that for now secondary locations are not supported we only raise a single issue if one principal allows anonymous access
-      anonymousPrincipals(resource.properties())
-        .ifPresent(p -> ctx.reportIssue(resource.type(), MESSAGE, secondaryLocations(p)));
+      List<CloudformationTree> anonymousPrincipals = anonymousPrincipals(resource.properties());
+      if (!anonymousPrincipals.isEmpty()) {
+        ctx.reportIssue(resource.type(), MESSAGE, secondaryLocations(anonymousPrincipals));
+      }
     }
   }
 
@@ -43,18 +45,15 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
    * Policies can have multiple principals which can have multiple rules defining the access level.
    * We collect every rule location within a single bucket policy to show them as secondary locations.
    */
-  private static Optional<List<CloudformationTree>> anonymousPrincipals(CloudformationTree properties) {
+  private static List<CloudformationTree> anonymousPrincipals(CloudformationTree properties) {
     Optional<CloudformationTree> principal = XPathUtils.getSingleTree(properties, "/PolicyDocument/Statement[]/Principal");
     if (principal.isPresent() && principal.get() instanceof MappingTree) {
-      List<CloudformationTree> principalWithWildcard = ((MappingTree) principal.get()).elements().stream()
+      return ((MappingTree) principal.get()).elements().stream()
         .map(TupleTree::value)
         .map(AnonymousBucketAccessCheck::getWildcardRules)
         .flatMap(List::stream).collect(Collectors.toList());
-      if (!principalWithWildcard.isEmpty()) {
-        return Optional.of(principalWithWildcard);
-      }
     }
-    return Optional.empty();
+    return Collections.emptyList();
   }
 
   private static List<CloudformationTree> getWildcardRules(CloudformationTree principalRule) {
