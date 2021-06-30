@@ -1,7 +1,174 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
-  S3Bucket:
+  S3BucketWithoutPolicy:
     Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure authorizing HTTP requests is safe here.}}
     #     ^^^^^^^^^^^^^^^^^
     Properties:
       BucketName: "mynoncompliantbuckets6249"
+
+  S3BucketWrongCondition:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantbuckets6249"
+  S3BucketPolicyWrongCondition:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketWrongCondition
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*"
+            Action: "*"
+            Resource: arn:aws:s3:::mynoncompliantbuckets6249/*
+            Condition:
+              Bool:
+                "aws:SecureTransport": true
+#                                      ^^^^< {{HTTPS requests are denied.}}
+  S3BucketWrongPrincipal:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantbuckets6249"
+  S3BucketPolicyWrongPrincipal:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketWrongPrincipal
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny # ok requests are denied
+            Principal:
+              AWS:
+            # ^[el=+3;ec=12]< {{All principals should be restricted.}}
+                - 'arn:aws:iam::127311923021:root'
+            Action: "*" # ok for any actions
+            Resource: arn:aws:s3:::mynoncompliantbuckets6249/* # ok for any resources
+            Condition:
+              Bool:
+                "aws:SecureTransport": false # ok http requests are denied
+
+  S3BucketWrongEffect:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantbuckets6249"
+  S3BucketPolicyWrongEffect:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketWrongEffect
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            #       ^^^^^< {{Non-conforming requests should be denied.}}
+            Principal:
+              AWS: "*"
+            Action: "*"
+            Resource: arn:aws:s3:::mynoncompliantbuckets6249/*
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketWrongAction:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantbuckets6249"
+  S3BucketPolicyWrongAction:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketWrongAction
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*"
+            Action: "notAll"
+            #       ^^^^^^^^< {{All S3 actions should be restricted.}}
+            Resource: arn:aws:s3:::mynoncompliantbuckets6249/*
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketWrongResource:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantbuckets6249"
+  S3BucketPolicyWrongResource:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketWrongResource
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*"
+            Action: "*"
+            Resource: arn:aws:s3:::mynoncompliantbuckets6249/foo
+                 #    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{All resources should be restricted.}}
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketCompliant:
+    Type: 'AWS::S3::Bucket' # Compliant
+    Properties:
+      BucketName: "mycompliantbuckets6249"
+  S3BucketPolicyCompliant:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: "mycompliantbuckets6249"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: arn:aws:s3:::mycompliantbuckets6249/* # for any resources
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketCompliantStringPrincipal:
+    Type: 'AWS::S3::Bucket' # Compliant
+    Properties:
+      BucketName: "S3BucketCompliantStringPrincipal"
+  S3BucketPolicyCompliantStringPrincipal:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketCompliantStringPrincipal
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "*" # for any actions
+            Resource: arn:aws:s3:::mycompliantbuckets6249/* # for any resources
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketWithBrokenBucketLink:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: arn:aws:s3:::mycompliantbuckets6249/* # for any resources
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+  SomeRandomResource:
+    Type: 'NoBucketAndNoPolicy'
