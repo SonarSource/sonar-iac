@@ -5,6 +5,9 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
@@ -19,32 +22,40 @@ public abstract class AbstractResourceCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(FileTree.class, (ctx, tree) -> {
-      CloudformationTree resourcesTree = MappingTreeUtils.getValue(tree.root(), "Resources").orElse(null);
-      if (!(resourcesTree instanceof MappingTree)) {
-        return;
-      }
+    init.register(FileTree.class, (ctx, tree) -> getFileResources(tree).forEach(r -> checkResource(ctx, r)));
+  }
 
-      ((MappingTree) resourcesTree).elements().stream()
-        .filter(element -> element.value() instanceof MappingTree)
-        .map(element -> Resource.fromMapping((MappingTree) element.value()))
-        .forEach(r -> checkResource(ctx, r));
-    });
+  public static List<Resource> getFileResources(FileTree file) {
+    CloudformationTree resourcesTree = MappingTreeUtils.getValue(file.root(), "Resources").orElse(null);
+    if (!(resourcesTree instanceof MappingTree)) {
+      return Collections.emptyList();
+    }
+
+    return ((MappingTree) resourcesTree).elements().stream()
+      .filter(element -> element.value() instanceof MappingTree)
+      .map(element -> Resource.fromMapping(element.key(), (MappingTree) element.value()))
+      .collect(Collectors.toList());
   }
 
   protected abstract void checkResource(CheckContext ctx, Resource resource);
 
   public static class Resource {
+    private final CloudformationTree name;
     private final CloudformationTree type;
     private final CloudformationTree properties;
 
-    Resource(@Nullable CloudformationTree type, @Nullable CloudformationTree properties) {
+    Resource(CloudformationTree name, @Nullable CloudformationTree type, @Nullable CloudformationTree properties) {
+      this.name = name;
       this.type = type;
       this.properties = properties;
     }
 
-    private static Resource fromMapping(MappingTree mapping) {
-      return new Resource(MappingTreeUtils.getValue(mapping, "Type").orElse(null), MappingTreeUtils.getValue(mapping, "Properties").orElse(null));
+    private static Resource fromMapping(CloudformationTree name, MappingTree mapping) {
+      return new Resource(name, MappingTreeUtils.getValue(mapping, "Type").orElse(null), MappingTreeUtils.getValue(mapping, "Properties").orElse(null));
+    }
+
+    public CloudformationTree name() {
+      return name;
     }
 
     public CloudformationTree type() {
