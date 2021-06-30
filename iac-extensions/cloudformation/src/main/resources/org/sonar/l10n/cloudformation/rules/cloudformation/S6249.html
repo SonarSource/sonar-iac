@@ -1,0 +1,86 @@
+<p>By default, S3 buckets can be accessed through HTTP and HTTPs protocols.</p>
+<p>Only HTTPs prevents data breaches by encrypting network communications.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The S3 bucket stores sensitive information. </li>
+  <li> The infrastructure needs to comply to some regulations, like HIPAA or PCI DSS, and other standards. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to deny all HTTP requests:</p>
+<ul>
+  <li> for all objects (<code>*</code>) of the bucket </li>
+  <li> for all principals (<code>*</code>) </li>
+  <li> for all actions (<code>*</code>) </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<p>No secure policy is attached to this S3 bucket:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket' # Sensitive
+</pre>
+<p>A policy that forces the use of HTTPs only for some users:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket' # Sensitive
+    Properties:
+      BucketName: "mynoncompliantbucket"
+
+  S3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: # Sensitive: only one principal is forced to use https
+                - 'arn:aws:iam::123456789123:root'
+            Action: "*"
+            Resource: arn:aws:s3:::mynoncompliantbuckets6249/*
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+</pre>
+<h2>Compliant Solution</h2>
+<p>A secure policy that denies the use of all HTTP requests:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket' # Compliant
+    Properties:
+      BucketName: "mycompliantbucket"
+
+  S3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: "mycompliantbucket"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: arn:aws:s3:::mycompliantbucket/* # for any resources
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html#transit">AWS documentation</a> - Enforce encryption
+  of data in transit </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/319.html">MITRE, CWE-319</a> - Cleartext Transmission of Sensitive Information </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
+  </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+</ul>
+
