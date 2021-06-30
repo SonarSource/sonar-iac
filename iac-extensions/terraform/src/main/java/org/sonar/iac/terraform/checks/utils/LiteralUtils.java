@@ -17,4 +17,8 @@ public class LiteralUtils {
   public static boolean isFalse(ExpressionTree expr) {
     return expr.is(Kind.BOOLEAN_LITERAL) && "FALSE".equalsIgnoreCase(((LiteralExprTree) expr).value());
   }
+
+  public static boolean isValue(ExpressionTree expr, String expectedValue) {
+    return expr instanceof LiteralExprTree && expectedValue.equals(((LiteralExprTree) expr).value());
+  }
 }

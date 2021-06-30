@@ -9,14 +9,17 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.terraform.TestTreeBuilders.AttributeBuilder.attribute;
 import static org.sonar.iac.terraform.TestTreeBuilders.BlockBuilder.block;
+import static org.sonar.iac.terraform.TestTreeBuilders.LiteralExprBuilder.stringExpr;
 
 class StatementUtilsTest {
 
-  private static final AttributeTree attr1 = attribute().identifier("statement1").build();
+  private static final LiteralExprTree str = stringExpr("foo");
+  private static final AttributeTree attr1 = attribute().identifier("statement1").value(str).build();
   private static final AttributeTree attr2 = attribute().identifier("statement2").build();
   private static final BlockTree block1 = block().identifier("statement1").build();
   private static final BlockTree block2 = block().identifier("statement3").build();
@@ -47,6 +50,12 @@ class StatementUtilsTest {
   void test_getAttribute() {
     assertThat(StatementUtils.getAttribute(blockTree, "statement1")).isPresent().get().isEqualTo(attr1);
     assertThat(StatementUtils.getAttribute(blockTree, "statement3")).isNotPresent();
+  }
+
+  @Test
+  void test_getAttributeValue() {
+    assertThat(StatementUtils.getAttributeValue(blockTree, "statement1")).isPresent().get().isEqualTo(str);
+    assertThat(StatementUtils.getAttributeValue(blockTree, "statement3")).isNotPresent();
   }
 
   @Test

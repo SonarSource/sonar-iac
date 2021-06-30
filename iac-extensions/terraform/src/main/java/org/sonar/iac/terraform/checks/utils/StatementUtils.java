@@ -8,6 +8,7 @@ package org.sonar.iac.terraform.checks.utils;
 import java.util.Optional;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.HasStatements;
 import org.sonar.iac.terraform.api.tree.StatementTree;
 
@@ -34,6 +35,10 @@ public class StatementUtils {
 
   public static Optional<AttributeTree> getAttribute(HasStatements tree, String identifier) {
     return getStatement(tree, identifier, AttributeTree.class);
+  }
+
+  public static Optional<ExpressionTree> getAttributeValue(HasStatements tree, String identifier) {
+    return getAttribute(tree, identifier).map(AttributeTree::value);
   }
 
   public static Optional<BlockTree> getBlock(HasStatements tree, String identifier) {
