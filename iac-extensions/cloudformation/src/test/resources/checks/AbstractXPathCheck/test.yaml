@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket' # Sensitive
+    Properties:
+      BucketName: "mynoncompliantbucket"
+
+  S3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: # Sensitive: only one principal is forced to use https
+                - 'arn:aws:iam::123456789123:root'
+          - Foo: Bar

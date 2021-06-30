@@ -1,0 +1,129 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09T00:00:00.000Z",
+  "Resources": {
+    "S3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "mycompliantbuckets6270"
+      }
+    },
+    "CompliantS3BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": [
+                  "arn:aws:iam::${AWS::AccountId}:root"
+                ]
+              },
+              "Action": "s3:PutObject",
+              "Resource": "arn:aws:s3:::mycompliantbuckets6270/*"
+            }
+          ]
+        }
+      }
+    },
+    "SensitiveS3BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "s3:PutObject",
+              "Resource": "arn:aws:s3:::mynoncompliantbuckets6270/*"
+            }
+          ]
+        }
+      }
+    },
+    "SensitiveS3BucketPolicyWithSequence": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": [
+                  "*"
+                ]
+              },
+              "Action": "s3:PutObject",
+              "Resource": "arn:aws:s3:::mynoncompliantbuckets6270/*"
+            }
+          ]
+        }
+      }
+    },
+    "SensitiveMultiplePrincipalS3BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Foo": "bar",
+                "Service": [
+                  "ecs.amazonaws.com",
+                  "*"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SafeDenyPrincipalS3BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": {
+                "Service": "*"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SafeNoMappingPrincipalS3BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": [
+                "*"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "SafeNoPrincipalS3BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
