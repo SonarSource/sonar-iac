@@ -113,3 +113,19 @@ resource "aws_s3_bucket" "compliant_bucket_without_effect" { # Compliant
     }]
   })
 }
+
+resource "aws_s3_bucket_policy" "compliant_policy_with_no_valid_principal" {
+  bucket = aws_s3_bucket
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect: "Allow",
+        Principal: {
+          "AWS": {
+            "not_valid" = "*"
+          }
+        }
+      }
+    ]
+  })
+}
