@@ -1,0 +1,29 @@
+{
+  "title": "Having policies granting anonymous access to S3 buckets is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a5"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-6270",
+  "sqKey": "S6270",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284,
+      732
+    ],
+    "OWASP": [
+      "A5"
+    ],
+    "CIS": [
+      "3.3"
+    ]
+  }
+}
