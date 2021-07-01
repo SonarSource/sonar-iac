@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
+import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -46,6 +47,8 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
     List<SecondaryLocation> problems = configurationProblems(configuration);
     if (!problems.isEmpty()) {
       ctx.reportIssue(resource.type(), MESSAGE, problems);
+    } else if (configuration instanceof MappingTree && notAllConfigurationsSet(configuration)) {
+      ctx.reportIssue(resource.type(), MESSAGE);
     }
   }
 
@@ -55,5 +58,14 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
       .filter(c -> ScalarTreeUtils.isValue(c, "false"))
       .ifPresent(c -> problems.add(new SecondaryLocation(c, message))));
     return problems;
+  }
+
+  private static boolean notAllConfigurationsSet(CloudformationTree configuration) {
+    for (String attribute : ATTRIBUTE_TO_MESSAGE.keySet()) {
+      if (!MappingTreeUtils.getValue(configuration, attribute).isPresent()) {
+        return true;
+      }
+    }
+    return false;
   }
 }

@@ -53,6 +53,16 @@ Resources:
         RestrictPublicBuckets: false
         #                      ^^^^^< {{Public Buckets are not restricted.}}
 
+  S3Bucket5:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantfourthbuckets6281"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Compliant
     Properties:
