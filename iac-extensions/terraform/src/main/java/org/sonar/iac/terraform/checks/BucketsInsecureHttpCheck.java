@@ -195,16 +195,16 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
     private static boolean isInsecurePrincipal(ExpressionTree principal) {
       return ObjectUtils.getElementValue(principal, "AWS")
-        .filter(awsPrincipal -> awsPrincipal.is(Kind.TUPLE) || LiteralUtils.isNotValue(awsPrincipal, "*"))
+        .filter(awsPrincipal -> awsPrincipal.is(Kind.TUPLE) || LiteralUtils.isValue(awsPrincipal, "*").isFalse())
         .isPresent();
     }
 
     private static boolean isInsecureAction(ExpressionTree action) {
-      return LiteralUtils.isNotValue(action, "*") && LiteralUtils.isNotValue(action, "s3:*");
+      return LiteralUtils.isValue(action, "*").isFalse() && LiteralUtils.isValue(action, "s3:*").isFalse();
     }
 
     private static boolean isInsecureEffect(ExpressionTree effect) {
-      return LiteralUtils.isNotValue(effect, "Deny");
+      return LiteralUtils.isValue(effect, "Deny").isFalse();
     }
 
     private static boolean isInsecureCondition(ExpressionTree condition) {

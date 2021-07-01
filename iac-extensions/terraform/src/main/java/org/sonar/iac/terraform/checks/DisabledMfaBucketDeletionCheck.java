@@ -30,7 +30,7 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
       Optional<AttributeTree> mfaDeleteAttribute = StatementUtils.getAttribute(versioning.get(), "mfa_delete");
       if (!mfaDeleteAttribute.isPresent()) {
         ctx.reportIssue(tree.labels().get(0), MESSAGE);
-      } else if (LiteralUtils.isFalse(mfaDeleteAttribute.get().value())) {
+      } else if (LiteralUtils.isBooleanFalse(mfaDeleteAttribute.get().value()).isTrue()) {
         ctx.reportIssue(tree.labels().get(0), MESSAGE, new SecondaryLocation(mfaDeleteAttribute.get(), MESSAGE_SECONDARY));
       }
     } else {

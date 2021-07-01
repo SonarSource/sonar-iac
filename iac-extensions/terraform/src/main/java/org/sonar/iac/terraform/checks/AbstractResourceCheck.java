@@ -55,11 +55,11 @@ public abstract class AbstractResourceCheck implements IacCheck {
     }
 
     private Policy(ObjectTree statement) {
-      ObjectUtils.getElementValue(statement, "Effect").ifPresent(e -> this.effect = e);
-      ObjectUtils.getElementValue(statement, "Principal").ifPresent(e -> this.principal = e);
-      ObjectUtils.getElementValue(statement, "Action").ifPresent(e -> this.action = e);
-      ObjectUtils.getElementValue(statement, "Resource").ifPresent(e -> this.resource = e);
-      ObjectUtils.getElementValue(statement, "Condition").ifPresent(e -> this.condition = e);
+      this.effect = ObjectUtils.getElementValue(statement, "Effect").orElse(null);
+      this.principal = ObjectUtils.getElementValue(statement, "Principal").orElse(null);
+      this.action = ObjectUtils.getElementValue(statement, "Action").orElse(null);
+      this.resource = ObjectUtils.getElementValue(statement, "Resource").orElse(null);
+      this.condition = ObjectUtils.getElementValue(statement, "Condition").orElse(null);
     }
 
     /**
