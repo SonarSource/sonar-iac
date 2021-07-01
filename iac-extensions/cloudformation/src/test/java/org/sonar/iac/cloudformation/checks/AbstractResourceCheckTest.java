@@ -40,17 +40,17 @@ class AbstractResourceCheckTest {
   })
   void test_isS3Bucket(String type, boolean isBucket) {
     ScalarTree typeScalar = new ScalarTreeImpl(type, null, null, null, Collections.emptyList());
-    AbstractResourceCheck.Resource resource = new AbstractResourceCheck.Resource(typeScalar, null);
+    AbstractResourceCheck.Resource resource = new AbstractResourceCheck.Resource(null, typeScalar, null);
     assertThat(AbstractResourceCheck.isS3Bucket(resource)).isEqualTo(isBucket);
   }
 
   @Test
   void test_isS3Bucket_without_scalar() {
-    AbstractResourceCheck.Resource resource = new AbstractResourceCheck.Resource(null, null);
+    AbstractResourceCheck.Resource resource = new AbstractResourceCheck.Resource(null, null, null);
     assertThat(AbstractResourceCheck.isS3Bucket(resource)).isFalse();
 
     MappingTree type = new MappingTreeImpl(Collections.emptyList(), null, null, Collections.emptyList());
-    resource = new AbstractResourceCheck.Resource(type, null);
+    resource = new AbstractResourceCheck.Resource(null, type, null);
     assertThat(AbstractResourceCheck.isS3Bucket(resource)).isFalse();
   }
 

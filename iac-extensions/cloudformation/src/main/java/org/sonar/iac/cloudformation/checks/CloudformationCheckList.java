@@ -19,6 +19,7 @@ public class CloudformationCheckList {
       AnonymousBucketAccessCheck.class,
       AwsTagNameConventionCheck.class,
       BucketsAccessCheck.class,
+      BucketsInsecureHttpCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledS3ServerAccessLoggingCheck.class,
       ParsingErrorCheck.class,

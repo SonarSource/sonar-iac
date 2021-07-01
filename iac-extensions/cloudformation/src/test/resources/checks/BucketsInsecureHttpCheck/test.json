@@ -1,0 +1,260 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "S3BucketWithoutPolicy": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "mynoncompliantbuckets6249"
+      }
+    },
+    "S3BucketWrongCondition": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "mynoncompliantbuckets6249"
+      }
+    },
+    "S3BucketPolicyWrongCondition": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "S3BucketWrongCondition"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "*",
+              "Resource": "arn:aws:s3:::mynoncompliantbuckets6249/*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3BucketWrongPrincipal": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "mynoncompliantbuckets6249"
+      }
+    },
+    "S3BucketPolicyWrongPrincipal": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "S3BucketWrongPrincipal"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": [
+                  "arn:aws:iam::127311923021:root"
+                ]
+              },
+              "Action": "*",
+              "Resource": "arn:aws:s3:::mynoncompliantbuckets6249/*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3BucketWrongEffect": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "mynoncompliantbuckets6249"
+      }
+    },
+    "S3BucketPolicyWrongEffect": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "S3BucketWrongEffect"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "*",
+              "Resource": "arn:aws:s3:::mynoncompliantbuckets6249/*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3BucketWrongAction": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "mynoncompliantbuckets6249"
+      }
+    },
+    "S3BucketPolicyWrongAction": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "S3BucketWrongAction"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "notAll",
+              "Resource": "arn:aws:s3:::mynoncompliantbuckets6249/*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3BucketWrongResource": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "mynoncompliantbuckets6249"
+      }
+    },
+    "S3BucketPolicyWrongResource": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "S3BucketWrongResource"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "*",
+              "Resource": "arn:aws:s3:::mynoncompliantbuckets6249/foo",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3BucketCompliant": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "mycompliantbuckets6249"
+      }
+    },
+    "S3BucketPolicyCompliant": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": "mycompliantbuckets6249",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "*",
+              "Resource": "arn:aws:s3:::mycompliantbuckets6249/*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3BucketCompliantStringPrincipal": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "S3BucketCompliantStringPrincipal"
+      }
+    },
+    "S3BucketPolicyCompliantStringPrincipal": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "S3BucketCompliantStringPrincipal"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "*",
+              "Resource": "arn:aws:s3:::mycompliantbuckets6249/*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3BucketWithBrokenBucketLink": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": [],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": "*",
+              "Resource": "arn:aws:s3:::mycompliantbuckets6249/*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SomeRandomResource": {
+      "Type": "NoBucketAndNoPolicy"
+    }
+  }
+}
