@@ -11,10 +11,30 @@ import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 
 public class LiteralUtils {
 
+  protected static final Kind[] LITERAL = {
+    Kind.BOOLEAN_LITERAL,
+    Kind.STRING_LITERAL,
+    Kind.NULL_LITERAL,
+    Kind.NUMERIC_LITERAL,
+    Kind.HEREDOC_LITERAL,
+    Kind.TEMPLATE_STRING_PART_LITERAL
+  };
+
   private LiteralUtils() {
   }
 
-  public static boolean isFalse(ExpressionTree expr) {
-    return expr.is(Kind.BOOLEAN_LITERAL) && "FALSE".equalsIgnoreCase(((LiteralExprTree) expr).value());
+  public static Trilean isBooleanFalse(ExpressionTree expr) {
+    if (expr.is(Kind.BOOLEAN_LITERAL)) {
+      return "FALSE".equalsIgnoreCase(((LiteralExprTree) expr).value()) ? Trilean.TRUE : Trilean.FALSE;
+    }
+    return Trilean.UNKNOWN;
   }
+
+  public static Trilean isValue(ExpressionTree expr, String expectedValue) {
+    if (expr.is(LITERAL)) {
+      return expectedValue.equals(((LiteralExprTree) expr).value()) ? Trilean.TRUE : Trilean.FALSE;
+    }
+    return Trilean.UNKNOWN;
+  }
+
 }

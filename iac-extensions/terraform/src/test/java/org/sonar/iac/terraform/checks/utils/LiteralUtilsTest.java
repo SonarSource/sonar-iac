@@ -17,11 +17,20 @@ class LiteralUtilsTest {
 
   @Test
   void test_isFalse() {
-    assertThat(LiteralUtils.isFalse(booleanExpr("FALSE"))).isTrue();
-    assertThat(LiteralUtils.isFalse(booleanExpr("TRUE"))).isFalse();
-    assertThat(LiteralUtils.isFalse(booleanExpr("false"))).isTrue();
-    assertThat(LiteralUtils.isFalse(stringExpr("false"))).isFalse();
-    assertThat(LiteralUtils.isFalse(new VariableExprTreeImpl(null))).isFalse();
+    assertThat(LiteralUtils.isBooleanFalse(booleanExpr("FALSE"))).isEqualTo(Trilean.TRUE);
+    assertThat(LiteralUtils.isBooleanFalse(booleanExpr("TRUE"))).isEqualTo(Trilean.FALSE);
+    assertThat(LiteralUtils.isBooleanFalse(booleanExpr("false"))).isEqualTo(Trilean.TRUE);
+    assertThat(LiteralUtils.isBooleanFalse(stringExpr("false"))).isEqualTo(Trilean.UNKNOWN);
+    assertThat(LiteralUtils.isBooleanFalse(new VariableExprTreeImpl(null))).isEqualTo(Trilean.UNKNOWN);
+  }
+
+  @Test
+  void test_isValue() {
+    assertThat(LiteralUtils.isValue(booleanExpr("FALSE"), "FALSE")).isEqualTo(Trilean.TRUE);
+    assertThat(LiteralUtils.isValue(booleanExpr("FALSE"), "false")).isEqualTo(Trilean.FALSE);
+    assertThat(LiteralUtils.isValue(stringExpr("\"false\""), "false")).isEqualTo(Trilean.TRUE);
+    assertThat(LiteralUtils.isValue(stringExpr("false"), "false")).isEqualTo(Trilean.FALSE);
+    assertThat(LiteralUtils.isValue(new VariableExprTreeImpl(null), "false")).isEqualTo(Trilean.UNKNOWN);
   }
 
 }

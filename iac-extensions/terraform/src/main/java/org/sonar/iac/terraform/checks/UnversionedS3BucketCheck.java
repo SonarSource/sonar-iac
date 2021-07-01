@@ -54,7 +54,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   }
 
   private static void checkSuspendedVersioning(CheckContext ctx, LabelTree bucket, ExpressionTree setting) {
-    if (LiteralUtils.isFalse(setting)) {
+    if (LiteralUtils.isBooleanFalse(setting).isTrue()) {
       ctx.reportIssue(bucket, String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(setting, SUSPENDED_MSG_SECONDARY));
     }
   }
