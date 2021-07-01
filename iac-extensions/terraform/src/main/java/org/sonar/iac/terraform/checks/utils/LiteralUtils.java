@@ -11,7 +11,7 @@ import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 
 public class LiteralUtils {
 
-  public static final Kind[] LITERAL = {
+  protected static final Kind[] LITERAL = {
     Kind.BOOLEAN_LITERAL,
     Kind.STRING_LITERAL,
     Kind.NULL_LITERAL,
