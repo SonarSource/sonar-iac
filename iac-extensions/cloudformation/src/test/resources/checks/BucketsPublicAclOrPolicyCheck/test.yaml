@@ -62,3 +62,8 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
+
+  NotAS3Bucket:
+    Type: 'NotAS3Bucket' # Compliant
+    Properties:
+      BucketName: "mynoncompliantdefaultbuckets6281"
