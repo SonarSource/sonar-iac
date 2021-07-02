@@ -21,7 +21,7 @@ class CloudformationSensorTest extends AbstractSensorTest {
   void should_return_terraform_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("IaC Cloudformation Sensor");
+    assertThat(descriptor.name()).isEqualTo("IaC CloudFormation Sensor");
     assertThat(descriptor.languages()).containsOnly("cloudformation");
   }
 

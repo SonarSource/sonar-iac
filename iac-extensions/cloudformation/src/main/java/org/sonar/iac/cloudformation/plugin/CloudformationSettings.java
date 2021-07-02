@@ -13,7 +13,7 @@ import org.sonar.api.resources.Qualifiers;
 
 public class CloudformationSettings {
 
-  private static final String CLOUDFORMATION_CATEGORY = "Cloudformation";
+  private static final String CLOUDFORMATION_CATEGORY = "CloudFormation";
   private static final String GENERAL_SUBCATEGORY = "General";
 
   static final String ACTIVATION_KEY = "sonar.cloudformation.activate";
@@ -36,7 +36,7 @@ public class CloudformationSettings {
       PropertyDefinition.builder(ACTIVATION_KEY)
         .index(1)
         .defaultValue(ACTIVATION_DEFAULT_VALUE)
-        .name("Activate Cloudformation analysis")
+        .name("Activate CloudFormation analysis")
         .description("Activate analysis of JSON and Yaml files recognized as Cloudformation files.")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
@@ -58,7 +58,7 @@ public class CloudformationSettings {
       PropertyDefinition.builder(EXCLUSIONS_KEY)
         .index(3)
         .defaultValue(EXCLUSIONS_DEFAULT_VALUE)
-        .name("Cloudformation Exclusions")
+        .name("CloudFormation Exclusions")
         .description("List of file path patterns to be excluded from analysis of Cloudformation files.")
         .onQualifiers(Qualifiers.PROJECT)
         .category(CLOUDFORMATION_CATEGORY)
