@@ -13,6 +13,8 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
+import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -21,6 +23,8 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 @Rule(key = "S6281")
 public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure allowing public policy/acl access is safe here.";
+  private static final String MISSING_MULTI_MSG = "\"%s\" settings are missing.";
+  private static final String MISSING_SINGLE_MSG = "\"%s\" setting is missing.";
   private static final Map<String, String> ATTRIBUTE_TO_MESSAGE = new HashMap<>();
   static {
     ATTRIBUTE_TO_MESSAGE.put("BlockPublicAcls", "Public ACLs are allowed.");
@@ -47,8 +51,15 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
     List<SecondaryLocation> problems = configurationProblems(configuration);
     if (!problems.isEmpty()) {
       ctx.reportIssue(resource.type(), MESSAGE, problems);
-    } else if (configuration instanceof MappingTree && notAllConfigurationsSet(configuration)) {
-      ctx.reportIssue(resource.type(), MESSAGE);
+    }
+
+    List<String> missingSettings = missingSettings(configuration);
+    if (configuration instanceof MappingTree && !missingSettings.isEmpty()) {
+      String secondaryMessage = String.format(MISSING_SINGLE_MSG, missingSettings.get(0));
+      if (missingSettings.size() > 1) {
+        secondaryMessage = String.format(MISSING_MULTI_MSG, String.join(", ", missingSettings));
+      }
+      ctx.reportIssue(resource.type(), MESSAGE, new SecondaryLocation(getKey(resource.properties()).orElse(configuration), secondaryMessage));
     }
   }
 
@@ -60,12 +71,20 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
     return problems;
   }
 
-  private static boolean notAllConfigurationsSet(CloudformationTree configuration) {
+  private static List<String> missingSettings(CloudformationTree configuration) {
+    List<String> result = new ArrayList<>();
     for (String attribute : ATTRIBUTE_TO_MESSAGE.keySet()) {
       if (!MappingTreeUtils.getValue(configuration, attribute).isPresent()) {
-        return true;
+        result.add(attribute);
       }
     }
-    return false;
+    return result;
+  }
+
+  private static Optional<CloudformationTree> getKey(CloudformationTree properties) {
+    return ((MappingTree) properties).elements().stream()
+      .map(TupleTree::key)
+      .filter(k -> k instanceof ScalarTree && "PublicAccessBlockConfiguration".equals(((ScalarTree) k).value()))
+      .findFirst();
   }
 }
