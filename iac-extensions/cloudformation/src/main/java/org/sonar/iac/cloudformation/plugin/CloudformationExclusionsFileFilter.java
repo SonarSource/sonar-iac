@@ -39,7 +39,7 @@ public class CloudformationExclusionsFileFilter implements InputFileFilter {
     }
 
     if (!hasFileIdentifier(inputFile)) {
-      LOG.debug("File [" + inputFile.uri() + "] is because it does not contain the identifier.");
+      LOG.debug("File [" + inputFile.uri() + "] is excluded because it does not contain the identifier.");
       return false;
     }
 
