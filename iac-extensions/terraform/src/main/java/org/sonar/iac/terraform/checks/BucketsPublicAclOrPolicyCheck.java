@@ -56,7 +56,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
       .forEach(bucket -> checkS3Bucket(ctx, bucket)));
   }
 
-  private void checkS3Bucket(CheckContext ctx, S3Bucket bucket) {
+  private static void checkS3Bucket(CheckContext ctx, S3Bucket bucket) {
     Optional<BlockTree> publicAccessBlock = bucket.resource(PAB);
     if (publicAccessBlock.isPresent()) {
       List<SecondaryLocation> secLoc = checkPublicAccessBlock(publicAccessBlock.get());
@@ -88,7 +88,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
     return secondaryLocations;
   }
 
-  protected static class S3Bucket {
+  private static class S3Bucket {
     private final Map<String, BlockTree> resources = new HashMap<>();
     private final LabelTree label;
     private final String resourceName;
