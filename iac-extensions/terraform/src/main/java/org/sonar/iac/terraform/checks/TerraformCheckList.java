@@ -20,6 +20,7 @@ public class TerraformCheckList {
       AwsTagNameConventionCheck.class,
       BucketsAccessCheck.class,
       BucketsInsecureHttpCheck.class,
+      BucketsPublicAclOrPolicyCheck.class,
       DisabledMfaBucketDeletionCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledS3ServerAccessLoggingCheck.class,
