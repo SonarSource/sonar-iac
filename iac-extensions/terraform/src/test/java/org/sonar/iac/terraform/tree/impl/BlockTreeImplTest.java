@@ -50,7 +50,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     BlockTree tree = parse("a \"label\" {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree.identifier().value()).isEqualTo("a");
     assertThat(tree.labels()).hasSize(1);
-    assertThat(tree.labels().get(0).value()).isEqualTo("\"label\"");
+    assertThat(tree.labels().get(0).value()).isEqualTo("label");
   }
 
   @Test
@@ -58,8 +58,8 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     BlockTree tree = parse("a \"label1\" \"label2\" {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree.identifier().value()).isEqualTo("a");
     assertThat(tree.labels()).hasSize(2);
-    assertThat(tree.labels().get(0).value()).isEqualTo("\"label1\"");
-    assertThat(tree.labels().get(1).value()).isEqualTo("\"label2\"");
+    assertThat(tree.labels().get(0).value()).isEqualTo("label1");
+    assertThat(tree.labels().get(1).value()).isEqualTo("label2");
   }
 
   @Test
@@ -67,7 +67,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     BlockTree tree = parse("a \"label1\" label2 {}", HclLexicalGrammar.ONE_LINE_BLOCK);
     assertThat(tree.identifier().value()).isEqualTo("a");
     assertThat(tree.labels()).hasSize(2);
-    assertThat(tree.labels().get(0).value()).isEqualTo("\"label1\"");
+    assertThat(tree.labels().get(0).value()).isEqualTo("label1");
     assertThat(tree.labels().get(1).value()).isEqualTo("label2");
   }
 
