@@ -155,8 +155,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
     }
 
     private void assignByBucketName(LiteralExprTree bucketName, BlockTree resource) {
-      String name = bucketName.value();
-      buckets.stream().filter(bucket -> name.equals(bucket.bucketName)).forEach(bucket -> bucket.assignResource(resource));
+      buckets.stream().filter(bucket -> bucketName.value().equals(bucket.bucketName)).forEach(bucket -> bucket.assignResource(resource));
     }
 
     private List<S3Bucket> getAssignedBuckets() {
