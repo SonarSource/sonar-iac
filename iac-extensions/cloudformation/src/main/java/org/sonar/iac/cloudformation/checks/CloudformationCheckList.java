@@ -20,6 +20,7 @@ public class CloudformationCheckList {
       AwsTagNameConventionCheck.class,
       BucketsAccessCheck.class,
       BucketsInsecureHttpCheck.class,
+      BucketsPublicAclOrPolicyCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledS3ServerAccessLoggingCheck.class,
       ParsingErrorCheck.class,

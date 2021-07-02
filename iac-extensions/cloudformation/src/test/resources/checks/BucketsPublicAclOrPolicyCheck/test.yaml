@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3Bucketdefault:
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
+    Properties:
+      BucketName: "mynoncompliantdefaultbuckets6281"
+
+  S3Bucket1:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantfirstbuckets6281"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+              #          ^^^^^< {{Public ACLs are allowed.}}
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  S3Bucket2:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantsecondbuckets6281"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: false
+                       #   ^^^^^< {{Public Policies are allowed.}}
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  S3Bucket3:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantthirdbuckets6281"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: false
+                  #       ^^^^^< {{Public ACLs are not ignored.}}
+        RestrictPublicBuckets: true
+
+  S3Bucket4:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantfourthbuckets6281"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: false
+        #                      ^^^^^< {{Public Buckets are not restricted.}}
+
+  S3Bucket5:
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
+    #     ^^^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "mynoncompliantfourthbuckets6281"
+      PublicAccessBlockConfiguration:
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{"RestrictPublicBuckets" setting is missing.}}
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+
+  S3Bucket:
+    Type: 'AWS::S3::Bucket' # Compliant
+    Properties:
+      BucketName: "mycompliantbuckets6281"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  NotAS3Bucket:
+    Type: 'NotAS3Bucket' # Compliant
+    Properties:
+      BucketName: "mynoncompliantdefaultbuckets6281"
