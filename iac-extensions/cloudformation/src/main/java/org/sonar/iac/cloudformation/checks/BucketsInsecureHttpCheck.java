@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
@@ -88,7 +89,15 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     return result;
   }
 
-  private static boolean correspondsToBucket(CloudformationTree policyBucketId, Resource bucket) {
+  private static boolean correspondsToBucket(@Nullable CloudformationTree policyBucketId, Resource bucket) {
+    if (policyBucketId instanceof MappingTree) {
+      // In JSON format to reference a bucket, an object having a Ref field has to be provided
+      return MappingTreeUtils.getValue(policyBucketId, "Ref")
+        .filter(ScalarTree.class::isInstance)
+        .filter(ref -> ScalarTreeUtils.isValue(bucket.name(), ((ScalarTree) ref).value()))
+        .isPresent();
+    }
+
     if (!(policyBucketId instanceof ScalarTree)) {
       return false;
     }

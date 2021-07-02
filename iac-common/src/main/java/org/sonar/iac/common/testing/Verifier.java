@@ -291,13 +291,15 @@ public final class Verifier {
 
       StringBuilder secondaryMessages = new StringBuilder();
 
-      expectedIssue.secondaryLocations.stream()
-        .filter(e -> !actualIssue.secondaryLocations.contains(e))
-        .forEach(second -> secondaryMessages.append(String.format(NO_SECONDARY, expectedIssue.textRange.start().line(), second.textRange)));
+      if (!expectedIssue.secondaryLocations.isEmpty()) {
+        expectedIssue.secondaryLocations.stream()
+          .filter(e -> !actualIssue.secondaryLocations.contains(e))
+          .forEach(second -> secondaryMessages.append(String.format(NO_SECONDARY, expectedIssue.textRange.start().line(), second.textRange)));
 
-      actualIssue.secondaryLocations.stream()
-        .filter(e -> !expectedIssue.secondaryLocations.contains(e))
-        .forEach(second -> secondaryMessages.append(String.format(UNEXPECTED_SECONDARY, actualIssue.textRange.start().line(), second.textRange, second.message)));
+        actualIssue.secondaryLocations.stream()
+          .filter(e -> !expectedIssue.secondaryLocations.contains(e))
+          .forEach(second -> secondaryMessages.append(String.format(UNEXPECTED_SECONDARY, actualIssue.textRange.start().line(), second.textRange, second.message)));
+      }
 
       return secondaryMessages.toString();
     }
