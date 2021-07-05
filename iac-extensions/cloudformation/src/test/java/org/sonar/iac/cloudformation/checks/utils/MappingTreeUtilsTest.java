@@ -17,6 +17,7 @@ import org.sonar.iac.cloudformation.tree.impl.MappingTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.ScalarTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.TupleTreeImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.checks.Trilean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,6 +34,17 @@ class MappingTreeUtilsTest {
 
     assertThat(MappingTreeUtils.getValue(mapping, "key2")).isPresent().get().isInstanceOf(ScalarTree.class).isEqualTo(expectedValue);
     assertThat(MappingTreeUtils.getValue(mapping, "unknown")).isNotPresent();
+  }
+
+  @Test
+  void test_has_value() {
+    List<TupleTree> elements = new ArrayList<>();
+    elements.add(new TupleTreeImpl(scalar("key1"), scalar("value1"), range));
+    MappingTree mapping = new MappingTreeImpl(elements, "tag", range, Collections.emptyList());
+
+    assertThat(MappingTreeUtils.hasValue(mapping, "key1")).isEqualTo(Trilean.TRUE);
+    assertThat(MappingTreeUtils.hasValue(mapping, "key2")).isEqualTo(Trilean.FALSE);
+    assertThat(MappingTreeUtils.hasValue(scalar("key1"), "key1")).isEqualTo(Trilean.UNKNOWN);
   }
 
   private static ScalarTreeImpl scalar(String value) {

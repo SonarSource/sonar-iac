@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  CompliantLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${MyLambdaFunction}'
+      RetentionInDays: 7
+
+  SenstiveLogGroup:
+    Type: AWS::Logs::LogGroup # Noncompliant {{Make sure missing "RetentionInDays" property is intended here.}}
+    #     ^^^^^^^^^^^^^^^^^^^
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${MyLambdaFunction}'
+
+  NoPropertiesLogGroup:
+    Type: AWS::Logs::LogGroup # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^^^
+
+  NoLogGroupResource:
+    Type: Some::Other::Type
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${MyLambdaFunction}'
