@@ -37,11 +37,11 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   public static boolean isS3Bucket(BlockTree tree) {
-    return !tree.labels().isEmpty() && "\"aws_s3_bucket\"".equals(tree.labels().get(0).value());
+    return !tree.labels().isEmpty() && "aws_s3_bucket".equals(tree.labels().get(0).value());
   }
 
   public static boolean isS3BucketResource(BlockTree tree) {
-    return isResource(tree, "\"aws_s3_bucket\"");
+    return isResource(tree, "aws_s3_bucket");
   }
 
   protected static class Policy {

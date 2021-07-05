@@ -18,8 +18,8 @@ class LabelTreeImplTest extends TerraformTreeModelTest {
   void string_literal() {
     LabelTree tree = parse("\"a\"", HclLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.LABEL);
-    assertThat(tree.value()).isEqualTo("\"a\"");
-    assertThat(tree.value()).isEqualTo(tree.token().value());
+    assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.value()).isNotEqualTo(tree.token().value());
   }
 
   @Test

@@ -36,7 +36,7 @@ class AbstractResourceCheckTest {
   @CsvSource({
     "\"aws_s3_bucket\", true",
     "\"not_a_bucket\", false",
-    "aws_s3_bucket, false"
+    "aws_s3_bucket, true"
   })
   void test_isS3Bucket(String label, boolean isS3Bucket) {
     BlockTree blockTree = block()

@@ -96,13 +96,13 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
     private S3Bucket(BlockTree bucket) {
       this.label = bucket.labels().get(0);
-      this.resourceName = bucket.labels().size() >= 2 ? bucket.labels().get(1).value().replaceAll("(^\")|(\"$)", "") : null;
+      this.resourceName = bucket.labels().size() >= 2 ? bucket.labels().get(1).value() : null;
       this.bucketName = StatementUtils.getAttributeValue(bucket, "bucket")
         .filter(LiteralExprTree.class::isInstance).map(e -> ((LiteralExprTree) e).value()).orElse(null);
     }
 
     private void assignResource(BlockTree resource) {
-      resources.put(resource.labels().get(0).value().replaceAll("(^\")|(\"$)", ""), resource);
+      resources.put(resource.labels().get(0).value(), resource);
     }
 
     public Optional<BlockTree> resource(String resourceName) {

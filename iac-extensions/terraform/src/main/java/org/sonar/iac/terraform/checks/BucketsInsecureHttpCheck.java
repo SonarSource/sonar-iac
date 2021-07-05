@@ -121,7 +121,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       }
     } else if (key instanceof AttributeAccessTree && ((AttributeAccessTree) key).object() instanceof AttributeAccessTree && bucket.labels().size() >= 2) {
       AttributeAccessTree object = (AttributeAccessTree) ((AttributeAccessTree) key).object();
-      return object.attribute().value().equals(bucket.labels().get(1).value().replaceAll("(^\")|(\"$)", ""));
+      return object.attribute().value().equals(bucket.labels().get(1).value());
     }
 
     return false;
@@ -135,7 +135,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       register(BlockTree.class, (ctx, tree) -> {
         if (isS3BucketResource(tree)) {
           buckets.add(tree);
-        } else if (isResource(tree, "\"aws_s3_bucket_policy\"")) {
+        } else if (isResource(tree, "aws_s3_bucket_policy")) {
           policies.add(tree);
         }
       });

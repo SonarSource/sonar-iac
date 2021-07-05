@@ -28,7 +28,7 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "\"aws_s3_bucket_policy\"") || isS3Bucket(resource)) {
+    if (isResource(resource, "aws_s3_bucket_policy") || isS3Bucket(resource)) {
       // Handle policy statement if present in s3_bucket_policy or s3_bucket
       StatementUtils.getAttributeValue(resource, "policy").map(Policy::from)
         // Filter resolvable and allowing policies only. Resolvable means effect and principal exist in the policy.

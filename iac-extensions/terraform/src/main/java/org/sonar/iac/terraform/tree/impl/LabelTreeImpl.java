@@ -25,8 +25,8 @@ public class LabelTreeImpl extends TerraformTreeImpl implements LabelTree {
 
   @Override
   public String value() {
-    //TODO: Label value should be given without quotes.
-    return token.value();
+    // Terraform allows labels to be quoted or unquoted. The meaning however is the same.
+    return token.value().replaceAll("(^\")|(\"$)", "");
   }
 
   @Override
