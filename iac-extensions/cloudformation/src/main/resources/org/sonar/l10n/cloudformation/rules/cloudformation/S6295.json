@@ -1,0 +1,17 @@
+{
+  "title": "\"Log Groups\" should be configured with a retention policy",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "convention",
+    "aws"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6295",
+  "sqKey": "S6295",
+  "scope": "Main"
+}

@@ -3,7 +3,7 @@
  * All rights reserved
  * mailto:info AT sonarsource DOT com
  */
-package org.sonar.iac.terraform.checks.utils;
+package org.sonar.iac.common.checks;
 
 
 import org.junit.jupiter.api.Test;

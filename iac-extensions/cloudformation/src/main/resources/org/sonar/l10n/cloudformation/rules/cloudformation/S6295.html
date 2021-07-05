@@ -1,0 +1,34 @@
+<p>Log streams created on AWS will stay forever unless the <code>AWS::Logs::LogGroup</code> to which they belong to was configured with a retention
+policy. <code>Log Groups</code> should have their “RetentionInDays” property set with a valid value to be sure the log events are kept only for the
+expected duration.</p>
+<p>When the property is not set, the log events will be kept for ever or will be deleted only when the Log Group is removed.</p>
+<p>Keeping the logs for ever doesn’t come for free: AWS will charge for keeping these logs. Also from a security point of view, keeping the data for
+ever may be not compliant with company policy or regulatory rules.</p>
+<p>Note: this rule doesn’t check if the value provided to "RetentionInDays" is valid because AWS CloudFormation Linter (cfn-lint) do it already</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs12.x
+      Description: Example of Lambda Function
+
+  MyFunctionLogGroup:                                                                                                                                                 Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]
+      # Noncompliant: "RetentionInDays" property is not set: logs are kept for ever
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs12.x
+      Description: Example of Lambda Function
+
+  MyFunctionLogGroup:                                                                                                                                                 Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]
+      RetentionInDays: 30
+</pre>
+

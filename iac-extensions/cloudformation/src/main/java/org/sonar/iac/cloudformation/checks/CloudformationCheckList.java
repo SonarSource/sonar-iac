@@ -23,6 +23,7 @@ public class CloudformationCheckList {
       BucketsPublicAclOrPolicyCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledS3ServerAccessLoggingCheck.class,
+      LogGroupRetentionPolicyCheck.class,
       ParsingErrorCheck.class,
       UnversionedS3BucketCheck.class
     );

@@ -5,6 +5,7 @@
  */
 package org.sonar.iac.terraform.checks.utils;
 
+import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;

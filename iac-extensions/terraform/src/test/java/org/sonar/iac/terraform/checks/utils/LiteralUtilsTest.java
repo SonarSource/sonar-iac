@@ -7,6 +7,7 @@ package org.sonar.iac.terraform.checks.utils;
 
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.terraform.tree.impl.VariableExprTreeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
