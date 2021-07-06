@@ -25,7 +25,8 @@ public class CloudformationExtension {
       CloudformationExclusionsFileFilter.class,
       // Rules and profiles
       CloudformationRulesDefinition.class,
-      CloudformationProfileDefinition.class
+      CloudformationProfileDefinition.class,
+      CfnLintRulesDefinition.class
     );
     context.addExtensions(CloudformationSettings.getProperties());
   }
