@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+
+  SensitiveLambdaFunction:
+    Type: AWS::Lambda::Function # Noncompliant {{Make sure missing "Log Groups" declaration is intended here.}}
+    #     ^^^^^^^^^^^^^^^^^^^^^
+
+  SensitiveOtherServerlessFunction:
+    Type: AWS::Serverless::Function # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  SensitiveApiGateway:
+    Type: AWS::ApiGatewayV2::Api # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^^^^^^
+
+  SensitiveCodeBuildProject:
+    Type: AWS::CodeBuild::Project # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^^^^^^^
+
+  CompliantLambdaFunction:
+    Type: AWS::Lambda::Function
+
+  CompliantFunctionLogGroupSub:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${CompliantLambdaFunction}'
+
+  CompliantServerlessFunction:
+    Type: AWS::Serverless::Function
+
+  CompliantServerlessFunctionLogGroupSub:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${CompliantServerlessFunction}'
+
+  CompliantApiGateway:
+    Type: AWS::ApiGatewayV2::Api
+
+  CompliantApiGatewayLogGroupSub:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${CompliantApiGateway}'
+
+  CompliantCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+
+  CompliantCodeBuildProjectLogGroupSub:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${CompliantCodeBuildProject}'
+
+  OtherCompliantCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+
+  OtherCompliantCodeBuildProjectLogGroupFnSub:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: '/aws/lambda/${OtherCompliantCodeBuildProject}'
+
+  NoRelevantResource:
+    Type: AWS::S3::Bucket

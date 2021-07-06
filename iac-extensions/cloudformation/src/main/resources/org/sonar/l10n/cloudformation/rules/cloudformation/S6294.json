@@ -1,0 +1,17 @@
+{
+  "title": "\"Log Groups\" should be declared explicitly",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "convention",
+    "aws"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6294",
+  "sqKey": "S6294",
+  "scope": "Main"
+}

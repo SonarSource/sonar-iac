@@ -1,0 +1,57 @@
+<p>Some AWS services create <code>Log Groups</code> implicitly and don’t let the developer choose the <code>Log Group</code> name. This means that
+CloudFormation does not require the developer to declare the <code>Log Group</code> that the resource will write to.</p>
+<p>If a <code>Log Group</code> is not declared within CloudFormation, then this <code>Log Group</code> will be automatically created at run time and
+it won’t be managed by CloudFormation. The consequences are that the:</p>
+<ul>
+  <li> <code>Log Group</code> will not be removed when the <code>Stack</code> is removed. </li>
+  <li> <code>Log Group</code> attributes (such as retention) won’t be managed "as code" within CloudFormation. </li>
+</ul>
+<p>These automatically created <code>Log Groups</code> will remain forever which can have huge impact on costs and security (the data stay forever
+while this is unexpected from company or regulatory rules).</p>
+<p>A good practice is to declare the target <code>Log Group</code> with CloudFormation, matching the name that the AWS will use so that the <code>Log
+Group</code> resource is managed as code.</p>
+<p>This rule applies to the following resources:</p>
+<ul>
+  <li> AWS::Lambda::Function </li>
+  <li> AWS::Serverless::Function </li>
+  <li> AWS::ApiGatewayV2::Api </li>
+  <li> AWS::CodeBuild::Project </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<pre>
+  # There is no "Log Group" declared corresponding to "MyLambdaFunction": logs will not be managed by CloudFormation
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs12.x
+      Description: Example of Lambda Function
+</pre>
+<h2>Compliant Solution</h2>
+<p>Example with Join</p>
+<pre>
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs12.x
+      Description: Example of Lambda Function
+
+  MyFunctionLogGroup:                                                                                                                                                 Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]
+      RetentionInDays: 30
+</pre>
+<p>Example with Sub</p>
+<pre>
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs12.x
+      Description: Example of Lambda Function
+
+  MyFunctionLogGroupSub:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${MyLambdaFunction}’
+      RetentionInDays: 30
+</pre>
+
