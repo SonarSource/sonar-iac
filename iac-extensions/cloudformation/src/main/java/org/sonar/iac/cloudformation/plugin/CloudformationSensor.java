@@ -30,6 +30,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 public class CloudformationSensor extends IacSensor {
 
@@ -60,6 +61,12 @@ public class CloudformationSensor extends IacSensor {
     }
     visitors.add(new ChecksVisitor(checks, statistics));
     return visitors;
+  }
+
+  @Override
+  protected void importExternalReports(SensorContext sensorContext) {
+    ExternalReportProvider.getReportFiles(sensorContext, CloudformationSettings.CFN_LINT_REPORTS_KEY)
+      .forEach(report -> CfnLintImporter.importReport(sensorContext, report));
   }
 
   @Override
