@@ -28,6 +28,8 @@ public class CloudformationSettings {
   static final String FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
   static final String FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
 
+  static final String CFN_LINT_REPORTS_KEY = "sonar.cloudformation.cfn-lint.reportPaths";
+
   private CloudformationSettings() {
   }
 
@@ -74,7 +76,17 @@ public class CloudformationSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(CLOUDFORMATION_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
-        .build()
-    );
+        .build(),
+
+      PropertyDefinition.builder(CFN_LINT_REPORTS_KEY)
+        .index(33)
+        .name("Cfn-Lint Report Files")
+        .description("Paths (absolute or relative) to the files with Cfn-Lint issues.")
+        .category(CLOUDFORMATION_CATEGORY)
+        .subCategory(GENERAL_SUBCATEGORY)
+        .onQualifiers(Qualifiers.PROJECT)
+        .defaultValue("")
+        .multiValues(true)
+        .build());
   }
 }
