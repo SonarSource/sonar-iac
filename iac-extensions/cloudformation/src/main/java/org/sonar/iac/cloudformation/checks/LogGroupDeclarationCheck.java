@@ -14,9 +14,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
+import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -71,12 +73,23 @@ public class LogGroupDeclarationCheck implements IacCheck {
     public RelationCollector() {
       register(ScalarTree.class, (ctx, tree) -> {
         if ("!Sub".equals(tree.tag())) {
-          Matcher m = SUB_PARAMETERS.matcher(tree.value());
-          while (m.find()) {
-            subParameter.add(m.group(1));
-          }
+          collectSubParameter(tree);
         }
       });
+      register(TupleTree.class, (ctx, tree) -> {
+        if (ScalarTreeUtils.isValue(tree.key(), "Fn::Sub")) {
+          collectSubParameter(tree.value());
+        }
+      });
+    }
+
+    private void collectSubParameter(CloudformationTree sub) {
+      if (sub instanceof ScalarTree) {
+        Matcher m = SUB_PARAMETERS.matcher(((ScalarTree) sub).value());
+        while (m.find()) {
+          subParameter.add(m.group(1));
+        }
+      }
     }
 
     public static RelationCollector collect(MappingTree properties) {

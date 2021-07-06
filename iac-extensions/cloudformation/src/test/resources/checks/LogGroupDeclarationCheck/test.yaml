@@ -49,5 +49,14 @@ Resources:
     Properties:
       LogGroupName: !Sub '/aws/lambda/${CompliantCodeBuildProject}'
 
+  OtherCompliantCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+
+  OtherCompliantCodeBuildProjectLogGroupFnSub:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: '/aws/lambda/${OtherCompliantCodeBuildProject}'
+
   NoRelevantResource:
     Type: AWS::S3::Bucket
