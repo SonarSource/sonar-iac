@@ -70,6 +70,20 @@
     },
     "NoRelevantResource": {
       "Type": "AWS::S3::Bucket"
+    },
+    "OneMoreCompliantCodeBuildProject": {
+      "Type": "AWS::CodeBuild::Project"
+    },
+    "CompliantCodeBuildProjectLogGroupFnRef": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Join": ["/", [
+              "/aws/lambda", {"Ref": "OneMoreCompliantCodeBuildProject"}
+            ]
+          ]
+        }
+      }
     }
   }
 }

@@ -50,52 +50,61 @@ public class LogGroupDeclarationCheck implements IacCheck {
 
       resources.stream().filter(resource -> resource.isType("AWS::Logs::LogGroup"))
         .filter(resource -> resource.properties() instanceof MappingTree)
-        .forEach(this::resolveRelation);
+        .forEach(this::resolveReferences);
 
       resourceWithoutLogGroup.forEach((name, resource) -> ctx.reportIssue(resource.type(), MESSAGE));
       resourceWithoutLogGroup.clear();
     });
   }
 
-  private void resolveRelation(Resource resource) {
-    RelationCollector collector = RelationCollector.collect((MappingTree) resource.properties());
-    collector.subParameter.forEach(resourceWithoutLogGroup::remove);
+  private void resolveReferences(Resource resource) {
+    ReferenceCollector.getReferences((MappingTree) resource.properties()).forEach(resourceWithoutLogGroup::remove);
   }
 
   private static boolean isRelevantResource(Resource resource) {
     return RELEVANT_RESOURCE.contains(ScalarTreeUtils.getValue(resource.type()).orElse(null));
   }
 
-  static class RelationCollector extends TreeVisitor<TreeContext> {
+  static class ReferenceCollector extends TreeVisitor<TreeContext> {
     private static final Pattern SUB_PARAMETERS = Pattern.compile("\\$\\{([a-zA-Z0-9.]*)}");
-    protected final Set<String> subParameter = new HashSet<>();
+    private final Set<String> references = new HashSet<>();
 
-    public RelationCollector() {
+    public ReferenceCollector() {
       register(ScalarTree.class, (ctx, tree) -> {
         if ("!Sub".equals(tree.tag())) {
-          collectSubParameter(tree);
+          collectSubParameters(tree);
+        } else if ("!Ref".equals(tree.tag())) {
+          collectRefParameter(tree);
         }
       });
       register(TupleTree.class, (ctx, tree) -> {
         if (ScalarTreeUtils.isValue(tree.key(), "Fn::Sub")) {
-          collectSubParameter(tree.value());
+          collectSubParameters(tree.value());
+        } else if(ScalarTreeUtils.isValue(tree.key(), "Ref")) {
+          collectRefParameter(tree.value());
         }
       });
     }
 
-    private void collectSubParameter(CloudformationTree sub) {
+    private void collectSubParameters(CloudformationTree sub) {
       if (sub instanceof ScalarTree) {
         Matcher m = SUB_PARAMETERS.matcher(((ScalarTree) sub).value());
         while (m.find()) {
-          subParameter.add(m.group(1));
+          references.add(m.group(1));
         }
       }
     }
 
-    public static RelationCollector collect(MappingTree properties) {
-      RelationCollector collector = new RelationCollector();
+    private void collectRefParameter(CloudformationTree ref) {
+      if (ref instanceof ScalarTree) {
+        references.add(((ScalarTree) ref).value());
+      }
+    }
+
+    public static Set<String> getReferences(MappingTree properties) {
+      ReferenceCollector collector = new ReferenceCollector();
       collector.scan(new TreeContext(), properties);
-      return collector;
+      return collector.references;
     }
   }
 }
