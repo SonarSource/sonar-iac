@@ -60,3 +60,24 @@ Resources:
 
   NoRelevantResource:
     Type: AWS::S3::Bucket
+
+  YetAnotherCompliantCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+
+  CompliantCodeBuildProjectLogGroupRef:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref YetAnotherCompliantCodeBuildProject]]
+
+  OneMoreCompliantCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+
+  CompliantCodeBuildProjectLogGroupFnRef:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Join:
+          - '/'
+          -
+            - '/aws/lambda'
+            - Ref: OneMoreCompliantCodeBuildProject
