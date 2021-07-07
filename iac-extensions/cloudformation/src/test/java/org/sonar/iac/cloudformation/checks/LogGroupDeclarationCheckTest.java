@@ -23,7 +23,8 @@ class LogGroupDeclarationCheckTest {
       new Verifier.Issue(range(5, 14, 5, 37), "Make sure missing \"Log Groups\" declaration is intended here."),
       new Verifier.Issue(range(8, 14, 8, 41)),
       new Verifier.Issue(range(11, 14, 11, 38)),
-      new Verifier.Issue(range(14, 14, 14, 39)));
+      new Verifier.Issue(range(14, 14, 14, 39)),
+      new Verifier.Issue(range(101, 14, 101, 37)));
   }
 
 }

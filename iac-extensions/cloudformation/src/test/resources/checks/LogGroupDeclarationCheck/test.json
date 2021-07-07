@@ -84,6 +84,30 @@
           ]
         }
       }
+    },
+    "CompliantLambdaFunctionWithFunctionName": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "my-lambda-function-name"
+      }
+    },
+    "CompliantLambdaFunctionLogGroupWithFunctionName": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/my-lambda-function-name"
+      }
+    },
+    "SensitiveLambdaFunctionWithFunctionName": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "my-sensitive-lambda-function-name"
+      }
+    },
+    "SensitiveLambdaFunctionLogGroupWithMissingFunctionName": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": ""
+      }
     }
   }
 }
