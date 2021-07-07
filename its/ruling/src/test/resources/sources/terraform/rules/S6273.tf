@@ -5,5 +5,5 @@ resource "aws_s3_bucket" "myawsbucket" {
     "AnyCompany:CostCenter:Bar" = ""
   }
 
-  tags = { "anycompany:CostCenter" = "" } # Noncompliant
+  tags = { "anycompany:CostCenter" = "" } # No valid syntax to have more than one tag statement
 }
