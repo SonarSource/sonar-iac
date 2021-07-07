@@ -75,7 +75,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
   private static Set<String> resolveIdentifiersFromProperty(CloudformationTree property) {
     // We have to check the tag type and not the property value instance due to some functions are also represented as ScalarTrees
     if (property.tag().endsWith("str")) {
-      // extreact function name from LogGroupName (e.g /aws/lambda/my-function-name -> my-function-name)
+      // extract function name from LogGroupName (e.g /aws/lambda/my-function-name -> my-function-name)
       return Collections.singleton(StringUtils.substringAfterLast(((ScalarTree) property).value(), "/"));
     }
     return FunctionReferenceCollector.get(property);
