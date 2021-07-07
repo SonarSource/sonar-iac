@@ -108,6 +108,36 @@
       "Properties": {
         "LogGroupName": ""
       }
+    },
+    "CompliantFunctionWithLogEvent": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Events": {
+          "OtherEvent": {
+            "Type": "NoLogType"
+          },
+          "CWLogEvent": {
+            "Type": "CloudWatchLogs",
+            "Properties": {
+              "LogGroupName": "MyCWLogGroup",
+              "FilterPattern": "My filter pattern"
+            }
+          }
+        }
+      }
+    },
+    "SensitiveFunctionWithLogEventMissingLogGroupName": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Events": {
+          "CWLogEvent": {
+            "Type": "CloudWatchLogs",
+            "Properties": {
+              "FilterPattern": "My filter pattern"
+            }
+          }
+        }
+      }
     }
   }
 }
