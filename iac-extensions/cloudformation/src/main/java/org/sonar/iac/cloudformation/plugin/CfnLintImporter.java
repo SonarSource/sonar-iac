@@ -100,9 +100,9 @@ public class CfnLintImporter {
     TextRange range;
     try {
       range = inputFile.newRange(getIntOutOfJson(start.get(LINE_NUMBER_KEY)),
-        getIntOutOfJson(start.get(COLUMN_NUMBER_KEY)),
+        getIntOutOfJson(start.get(COLUMN_NUMBER_KEY)) - 1,
         getIntOutOfJson(end.get(LINE_NUMBER_KEY)),
-        getIntOutOfJson(end.get(COLUMN_NUMBER_KEY)));
+        getIntOutOfJson(end.get(COLUMN_NUMBER_KEY)) - 1);
     } catch (IllegalArgumentException e) {
       // as a fallback, if start and end positions with columns are not valid for the file, let's try taking just the line
       range = inputFile.selectLine(getIntOutOfJson(end.get(LINE_NUMBER_KEY)));
