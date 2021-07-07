@@ -2,7 +2,7 @@
   {
     "key": "E0000",
     "name": "Parsing error found when parsing the template",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "base"
     ],
@@ -14,7 +14,7 @@
   {
     "key": "E0001",
     "name": "Error found when transforming the template",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "base",
       "transform"
@@ -27,7 +27,7 @@
   {
     "key": "E0002",
     "name": "Error processing rule on the template",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "base",
       "rule"
@@ -40,7 +40,7 @@
   {
     "key": "E1001",
     "name": "Basic CloudFormation Template Configuration",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "base"
     ],
@@ -465,7 +465,7 @@
   {
     "key": "E2520",
     "name": "Check Properties that are mutually exclusive",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "resources"
     ],
@@ -477,7 +477,7 @@
   {
     "key": "E2521",
     "name": "Check Properties that are required together",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "resources"
     ],
@@ -489,7 +489,7 @@
   {
     "key": "E2522",
     "name": "Check Properties that need at least one of a list of properties",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "resources"
     ],
@@ -501,7 +501,7 @@
   {
     "key": "E2523",
     "name": "Check Properties that need only one of a list of properties",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "resources"
     ],
@@ -591,7 +591,7 @@
   {
     "key": "E3001",
     "name": "Basic CloudFormation Resource Check",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "resources"
     ],
@@ -627,7 +627,7 @@
   {
     "key": "E3004",
     "name": "Resource dependencies are not circular",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "resources",
       "circularly",
@@ -979,7 +979,7 @@
   {
     "key": "E3038",
     "name": "Check if Serverless Resources have Serverless Transform",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "resources",
       "transform"
@@ -1470,7 +1470,7 @@
   {
     "key": "I3013",
     "name": "Check resources with auto expiring content have explicit retention period",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "resources",
       "retentionperiod"
@@ -1642,7 +1642,7 @@
   {
     "key": "W2001",
     "name": "Check if Parameters are Used",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "parameters"
     ],
@@ -1780,7 +1780,7 @@
   {
     "key": "W3010",
     "name": "Availability Zone Parameters should not be hardcoded",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "parameters",
       "availabilityzone"
@@ -1846,7 +1846,7 @@
   {
     "key": "W6001",
     "name": "Check Outputs using ImportValue",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "outputs",
       "importvalue"
@@ -1859,7 +1859,7 @@
   {
     "key": "W7001",
     "name": "Check if Mappings are Used",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "mappings"
     ],
@@ -1871,7 +1871,7 @@
   {
     "key": "W8001",
     "name": "Check if Conditions are Used",
-    "url": "https://github.com/aws-cloudformation/cfn-python-lint",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [
       "conditions"
     ],
