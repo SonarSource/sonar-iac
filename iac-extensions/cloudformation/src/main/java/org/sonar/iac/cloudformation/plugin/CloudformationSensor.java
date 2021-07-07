@@ -19,6 +19,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
+import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.cloudformation.visitors.CloudformationHighlightingVisitor;
 import org.sonar.iac.cloudformation.visitors.CloudformationMetricsVisitor;
 import org.sonar.iac.common.api.checks.IacCheck;

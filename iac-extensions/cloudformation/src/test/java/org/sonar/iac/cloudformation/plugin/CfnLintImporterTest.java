@@ -19,6 +19,7 @@ import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 

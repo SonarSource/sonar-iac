@@ -13,7 +13,7 @@ public class CfnLintRulesDefinition implements RulesDefinition {
   public static final String LINTER_NAME = "AWS CloudFormation Linter";
   private static final String RULES_JSON = "org/sonar/l10n/cloudformation/rules/cfn-lint/rules.json";
 
-  static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, CloudformationLanguage.KEY);
+  public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, CloudformationLanguage.KEY);
 
   @Override
   public void define(Context context) {
