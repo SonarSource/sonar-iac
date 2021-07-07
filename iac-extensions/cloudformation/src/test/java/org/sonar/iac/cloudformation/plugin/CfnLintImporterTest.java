@@ -86,4 +86,14 @@ class CfnLintImporterTest {
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(String.format("Cfn-lint report importing: could not save 1 out of 2 issues from %s", reportFile.getPath()));
   }
+
+  @Test
+  void unknown_rule() {
+    File reportFile = new File("src/test/resources/cfn-lint/unknownRule.json");
+    CfnLintImporter.importReport(context, reportFile);
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    assertThat(issue.ruleId()).isEqualTo("cfn-lint.fallback");
+    assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
+  }
 }

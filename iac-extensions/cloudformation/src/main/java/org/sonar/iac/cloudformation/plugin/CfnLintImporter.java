@@ -77,8 +77,9 @@ public class CfnLintImporter {
     Objects.requireNonNull(inputFile);
 
     String ruleId = (String) ((JSONObject) issueJson.get("Rule")).get("Id");
-    // TODO: Fallback ruleId if it cannot be found in the keys of CfnLintRulesDefinition.RULE_LOADER ?
-    // https://github.com/SonarSource/sonar-kotlin/blob/9feb37316ce2a3620c583943ee298268a32de70b/sonar-kotlin-plugin/src/main/resources/org/sonar/l10n/kotlin/rules/ktlint/rules.json#L495
+    if (!CfnLintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
+      ruleId = "cfn-lint.fallback";
+    }
 
     NewExternalIssue externalIssue = context.newExternalIssue()
       .ruleId(ruleId)

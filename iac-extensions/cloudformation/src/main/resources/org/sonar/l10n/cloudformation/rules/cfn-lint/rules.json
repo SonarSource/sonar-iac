@@ -1879,5 +1879,17 @@
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
+  },
+  {
+    "key": "cfn-lint.fallback",
+    "name": "Cfn-lint Rule",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [
+      "cfn-lint"
+    ],
+    "description": "This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer.",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
   }
 ]
