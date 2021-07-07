@@ -25,6 +25,7 @@ import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
+import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.extension.visitors.TreeContext;
@@ -91,7 +92,17 @@ public class LogGroupDeclarationCheck implements IacCheck {
   }
 
   private static boolean isRelevantResource(Resource resource) {
-    return RELEVANT_RESOURCE.contains(ScalarTreeUtils.getValue(resource.type()).orElse(null));
+    return RELEVANT_RESOURCE.contains(ScalarTreeUtils
+      .getValue(resource.type())
+      .orElse(null)) && !hasLogEvent(resource);
+  }
+
+  private static boolean hasLogEvent(Resource resource) {
+    return MappingTreeUtils.getValue(resource.properties(), "Events")
+      .filter(MappingTree.class::isInstance).map(e -> ((MappingTree) e).elements())
+      .orElse(Collections.emptyList()).stream()
+      .map(TupleTree::value)
+      .anyMatch(e -> XPathUtils.getSingleTree(e, "/Properties/LogGroupName").isPresent());
   }
 
   // Instinct functions can be nested in the LogGroupName property value and can be extracted by a collecting TreeVisitor

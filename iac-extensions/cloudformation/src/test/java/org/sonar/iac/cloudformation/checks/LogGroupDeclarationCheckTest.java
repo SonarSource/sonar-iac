@@ -24,7 +24,8 @@ class LogGroupDeclarationCheckTest {
       new Verifier.Issue(range(8, 14, 8, 41)),
       new Verifier.Issue(range(11, 14, 11, 38)),
       new Verifier.Issue(range(14, 14, 14, 39)),
-      new Verifier.Issue(range(101, 14, 101, 37)));
+      new Verifier.Issue(range(101, 14, 101, 37)),
+      new Verifier.Issue(range(130, 14, 130, 41)));
   }
 
 }
