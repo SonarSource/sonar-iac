@@ -65,6 +65,8 @@ public abstract class IacSensor implements Sensor {
       return;
     }
 
+    importExternalReports(sensorContext);
+
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     FileSystem fileSystem = sensorContext.fileSystem();
     FilePredicate mainFilePredicate = fileSystem.predicates().and(
@@ -86,6 +88,10 @@ public abstract class IacSensor implements Sensor {
       }
     }
     statistics.log();
+  }
+
+  protected void importExternalReports(SensorContext sensorContext) {
+    // Default is to do nothing. An child-sensor that does require importing external reports should override this
   }
 
   protected boolean isSonarLintContext(SensorContext sensorContext) {

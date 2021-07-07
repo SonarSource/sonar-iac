@@ -19,6 +19,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
+import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.cloudformation.visitors.CloudformationHighlightingVisitor;
 import org.sonar.iac.cloudformation.visitors.CloudformationMetricsVisitor;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -30,6 +31,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 public class CloudformationSensor extends IacSensor {
 
@@ -60,6 +62,12 @@ public class CloudformationSensor extends IacSensor {
     }
     visitors.add(new ChecksVisitor(checks, statistics));
     return visitors;
+  }
+
+  @Override
+  protected void importExternalReports(SensorContext sensorContext) {
+    ExternalReportProvider.getReportFiles(sensorContext, CloudformationSettings.CFN_LINT_REPORTS_KEY)
+      .forEach(report -> CfnLintImporter.importReport(sensorContext, report));
   }
 
   @Override
