@@ -94,7 +94,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
     return RELEVANT_RESOURCE.contains(ScalarTreeUtils.getValue(resource.type()).orElse(null));
   }
 
-  // Instinct functions can be nested in the LogGroupName property value and can extracted by a collecting TreeVisitor
+  // Instinct functions can be nested in the LogGroupName property value and can be extracted by a collecting TreeVisitor
   static class FunctionReferenceCollector extends TreeVisitor<TreeContext> {
     private static final Pattern SUB_PARAMETERS = Pattern.compile("\\$\\{([a-zA-Z0-9.]*)}");
     private final Set<String> references = new HashSet<>();
