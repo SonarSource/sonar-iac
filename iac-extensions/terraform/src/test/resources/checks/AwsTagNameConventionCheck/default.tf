@@ -13,11 +13,11 @@ resource "aws_s3_bucket" "myawsbucket" {
     Name = ""
   }
 
-  tags = { "anycompany:CostCenter" = "" } # Noncompliant
-
   foo = {
     "anycompany:CostCenter" = ""
   }
+}
 
+resource "aws_s3_bucket" "wrong_tags_statement" {
   tags = "bar"
 }

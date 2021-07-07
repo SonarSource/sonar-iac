@@ -6,38 +6,49 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.checks.AbstractAwsTagNameConventionCheck;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
+import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6273")
-public class AwsTagNameConventionCheck extends AbstractAwsTagNameConventionCheck {
+public class AwsTagNameConventionCheck extends AbstractResourceCheck {
+  protected static final String MESSAGE = "Rename tag key \"%s\" to match the regular expression \"%s\".";
+  public static final String DEFAULT = "^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$";
+  protected Pattern pattern;
+
+  @RuleProperty(
+    key = "format",
+    description = "Regular expression used to check the tag keys against.",
+    defaultValue = DEFAULT)
+  public String format = DEFAULT;
 
   @Override
   public void initialize(InitContext init) {
     pattern = Pattern.compile(format);
-    init.register(AttributeTree.class, (ctx, tree) -> {
-      if ("tags".equals(tree.identifier().value()) && tree.value() instanceof ObjectTree) {
-        check(ctx, (ObjectTree) tree.value());
-      }
-    });
+    super.initialize(init);
   }
 
-  private void check(CheckContext ctx, ObjectTree tree) {
-    tree.elements().trees().stream()
-      .map(ObjectElementTree::name)
-      .filter(i -> i.is(TerraformTree.Kind.STRING_LITERAL))
-      .forEach(i -> {
-        String value = ((LiteralExprTree) i).value();
-        if (!pattern.matcher(value).matches()) {
-          ctx.reportIssue(i, String.format(MESSAGE, value, format));
-        }
-      });
+  @Override
+  protected void checkResource(CheckContext ctx, BlockTree resource) {
+    getTagKeyStream(resource)
+      .filter(this::isMismatchingKey)
+      .forEach(tagKey -> ctx.reportIssue(tagKey, String.format(MESSAGE, tagKey.value(), format)));
+  }
+
+  private static Stream<LiteralExprTree> getTagKeyStream(BlockTree resource) {
+    return StatementUtils.getAttributeValue(resource, "tags").filter(ObjectTree.class::isInstance)
+      .map(o -> ((ObjectTree) o).elements().trees().stream()).orElse(Stream.empty())
+      .map(ObjectElementTree::name).filter(LiteralExprTree.class::isInstance).map(LiteralExprTree.class::cast);
+  }
+
+  private boolean isMismatchingKey(LiteralExprTree tagKey) {
+    return !pattern.matcher(tagKey.value()).matches();
   }
 }
