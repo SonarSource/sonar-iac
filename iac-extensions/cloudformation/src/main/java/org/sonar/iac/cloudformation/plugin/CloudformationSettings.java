@@ -15,6 +15,7 @@ public class CloudformationSettings {
 
   private static final String CLOUDFORMATION_CATEGORY = "CloudFormation";
   private static final String GENERAL_SUBCATEGORY = "General";
+  private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
 
   static final String ACTIVATION_KEY = "sonar.cloudformation.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "false";
@@ -82,10 +83,9 @@ public class CloudformationSettings {
         .index(33)
         .name("Cfn-Lint Report Files")
         .description("Paths (absolute or relative) to the files with Cfn-Lint issues.")
-        .category(CLOUDFORMATION_CATEGORY)
-        .subCategory(GENERAL_SUBCATEGORY)
+        .category(EXTERNAL_ANALYZERS_CATEGORY)
+        .subCategory(CLOUDFORMATION_CATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
-        .defaultValue("")
         .multiValues(true)
         .build());
   }
