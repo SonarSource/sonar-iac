@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
@@ -77,7 +76,8 @@ public class LogGroupDeclarationCheck implements IacCheck {
     // We have to check the tag type and not the property value instance due to some functions are also represented as ScalarTrees
     if (property.tag().endsWith("str")) {
       // extract function name from LogGroupName (e.g /aws/lambda/my-function-name -> my-function-name)
-      return Collections.singleton(StringUtils.substringAfterLast(((ScalarTree) property).value(), "/"));
+      String value = ((ScalarTree) property).value();
+      return Collections.singleton(value.substring(value.lastIndexOf("/") + 1));
     }
     return FunctionReferenceCollector.get(property);
   }
