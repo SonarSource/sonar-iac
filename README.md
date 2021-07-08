@@ -7,7 +7,15 @@ Code Quality and Security for Infrastructure as Code
 * [Issue tracking](https://jira.sonarsource.com/projects/SONARIAC)
 
 ## Structure
-TODO
+This project is one analyzer/plugin that scans and raises issues on files associated with multiple languages. Currently, these languages are CloudFormation and Terraform.
+
+The main point of registration of the plugin to the API is in `sonar-iac-plugin`. The analyses of the different languages is separated into "extensions" which get loaded by the
+main plugin class, and which are structured in a way similar to other analyzers (i.e., parser, visitors, checks, rule resources, etc...).
+
+#### Using sonar-rule-api:
+
+When using the sonar-rule-api to generate or update metadata of rules it has to be done in the different extension folders: to update/generate rule for CloudFormation, run
+ sonar-rule-api in `iac-extensions/cloudformation`, and for Terraform in `iac-extensions/terraform`.
 
 ## Build & Test
 The project uses Maven as a build tool.
