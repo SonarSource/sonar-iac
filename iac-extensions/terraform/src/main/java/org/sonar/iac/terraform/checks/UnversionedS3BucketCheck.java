@@ -9,13 +9,13 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
-import org.sonar.iac.terraform.checks.utils.LiteralUtils;
 import org.sonar.iac.terraform.checks.utils.ObjectUtils;
 import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
@@ -54,7 +54,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   }
 
   private static void checkSuspendedVersioning(CheckContext ctx, LabelTree bucket, ExpressionTree setting) {
-    if (LiteralUtils.isBooleanFalse(setting).isTrue()) {
+    if (TextUtils.isValueFalse(setting)) {
       ctx.reportIssue(bucket, String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(setting, SUSPENDED_MSG_SECONDARY));
     }
   }

@@ -23,10 +23,10 @@ import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
-import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
@@ -92,7 +92,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
   }
 
   private static boolean isRelevantResource(Resource resource) {
-    return RELEVANT_RESOURCE.contains(ScalarTreeUtils
+    return RELEVANT_RESOURCE.contains(TextUtils
       .getValue(resource.type())
       .orElse(null)) && !hasLogEvent(resource);
   }
@@ -119,9 +119,9 @@ public class LogGroupDeclarationCheck implements IacCheck {
         }
       });
       register(TupleTree.class, (ctx, tree) -> {
-        if (ScalarTreeUtils.isValue(tree.key(), "Fn::Sub")) {
+        if (TextUtils.isValue(tree.key(), "Fn::Sub").isTrue()) {
           collectSubParameters(tree.value());
-        } else if(ScalarTreeUtils.isValue(tree.key(), "Ref")) {
+        } else if(TextUtils.isValue(tree.key(), "Ref").isTrue()) {
           collectRefParameter(tree.value());
         }
       });

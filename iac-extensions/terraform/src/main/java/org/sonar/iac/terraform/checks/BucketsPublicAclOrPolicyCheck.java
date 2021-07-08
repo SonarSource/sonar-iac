@@ -14,12 +14,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
@@ -28,7 +30,6 @@ import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.checks.utils.LiteralUtils;
 import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
@@ -81,8 +82,8 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
     PAB_STATEMENTS.stream()
       .map(e -> StatementUtils.getAttributeValue(publicAccessBlock, e))
-      .filter(Optional::isPresent)
-      .filter(value -> LiteralUtils.isBooleanFalse(value.get()).isTrue())
+      .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
+      .filter(TextUtils::isValueFalse)
       .forEach(value -> secondaryLocations.add(new SecondaryLocation(publicAccessBlock, FALSE_MSG)));
 
     return secondaryLocations;

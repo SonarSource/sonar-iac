@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.Trilean;
 
 public class MappingTreeUtils {
@@ -22,7 +23,7 @@ public class MappingTreeUtils {
     }
 
     return ((MappingTree) map).elements().stream()
-      .anyMatch(e -> ScalarTreeUtils.isValue(e.key(), key)) ? Trilean.TRUE : Trilean.FALSE;
+      .anyMatch(e -> TextUtils.isValue(e.key(), key).isTrue()) ? Trilean.TRUE : Trilean.FALSE;
   }
 
   public static Optional<CloudformationTree> getValue(CloudformationTree map, String key) {
@@ -31,7 +32,7 @@ public class MappingTreeUtils {
     }
 
     return ((MappingTree) map).elements().stream()
-      .filter(e -> ScalarTreeUtils.isValue(e.key(), key))
+      .filter(e -> TextUtils.isValue(e.key(), key).isTrue())
       .map(TupleTree::value)
       .findFirst();
   }

@@ -17,6 +17,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
@@ -29,7 +30,6 @@ import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck.Policy;
-import org.sonar.iac.terraform.checks.utils.LiteralUtils;
 import org.sonar.iac.terraform.checks.utils.ObjectUtils;
 import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
@@ -195,16 +195,16 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
     private static boolean isInsecurePrincipal(ExpressionTree principal) {
       return ObjectUtils.getElementValue(principal, "AWS")
-        .filter(awsPrincipal -> awsPrincipal.is(Kind.TUPLE) || LiteralUtils.isValue(awsPrincipal, "*").isFalse())
+        .filter(awsPrincipal -> awsPrincipal.is(Kind.TUPLE) || TextUtils.isValue(awsPrincipal, "*").isFalse())
         .isPresent();
     }
 
     private static boolean isInsecureAction(ExpressionTree action) {
-      return LiteralUtils.isValue(action, "*").isFalse() && LiteralUtils.isValue(action, "s3:*").isFalse();
+      return TextUtils.isValue(action, "*").isFalse() && TextUtils.isValue(action, "s3:*").isFalse();
     }
 
     private static boolean isInsecureEffect(ExpressionTree effect) {
-      return LiteralUtils.isValue(effect, "Deny").isFalse();
+      return TextUtils.isValue(effect, "Deny").isFalse();
     }
 
     private static boolean isInsecureCondition(ExpressionTree condition) {
@@ -213,9 +213,8 @@ public class BucketsInsecureHttpCheck implements IacCheck {
         return false;
       }
 
-      Optional<ExpressionTree> secureTransport = ObjectUtils.getElementValue((ObjectTree) bool.get(), "aws:SecureTransport");
-      return secureTransport.isPresent() && secureTransport.get() instanceof LiteralExprTree &&
-        !"false".equals(((LiteralExprTree) secureTransport.get()).value());
+      return ObjectUtils.getElementValue((ObjectTree) bool.get(), "aws:SecureTransport")
+        .filter(e -> !TextUtils.isValueFalse(e)).isPresent();
     }
   }
 

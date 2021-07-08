@@ -15,10 +15,10 @@ import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
-import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6270")
 public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
@@ -38,7 +38,7 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
 
   private static boolean isAllowingPolicy(CloudformationTree properties) {
     CloudformationTree effect = XPathUtils.getSingleTree(properties, "/PolicyDocument/Statement[]/Effect").orElse(null);
-    return ScalarTreeUtils.isValue(effect, "Allow");
+    return TextUtils.isValue(effect, "Allow").isTrue();
   }
 
   /**
@@ -61,7 +61,7 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
     if (principalRule instanceof SequenceTree) {
       ((SequenceTree) principalRule).elements().stream()
         .map(AnonymousBucketAccessCheck::getWildcardRules).forEach(wildcardRules::addAll);
-    } else if (ScalarTreeUtils.isValue(principalRule, "*")) {
+    } else if (TextUtils.isValue(principalRule, "*").isTrue()) {
       wildcardRules.add(principalRule);
     }
     return wildcardRules;

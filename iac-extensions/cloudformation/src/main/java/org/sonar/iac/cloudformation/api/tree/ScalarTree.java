@@ -5,7 +5,9 @@
  */
 package org.sonar.iac.cloudformation.api.tree;
 
-public interface ScalarTree extends CloudformationTree {
+import org.sonar.iac.common.api.tree.TextTree;
+
+public interface ScalarTree extends TextTree, CloudformationTree {
   enum Style {
     DOUBLE_QUOTED,
     SINGLE_QUOTED,
@@ -15,6 +17,5 @@ public interface ScalarTree extends CloudformationTree {
     OTHER
   }
 
-  String value();
   Style style();
 }

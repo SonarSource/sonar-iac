@@ -19,12 +19,12 @@ import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
-import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
@@ -94,7 +94,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       // In JSON format to reference a bucket, an object having a Ref field has to be provided
       return MappingTreeUtils.getValue(policyBucketId, "Ref")
         .filter(ScalarTree.class::isInstance)
-        .filter(ref -> ScalarTreeUtils.isValue(bucket.name(), ((ScalarTree) ref).value()))
+        .filter(ref -> TextUtils.isValue(bucket.name(), ((ScalarTree) ref).value()).isTrue())
         .isPresent();
     }
 
@@ -104,11 +104,11 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
     String policyBucketIdValue = ((ScalarTree) policyBucketId).value();
     if ("!Ref".equals(policyBucketId.tag())) {
-      return ScalarTreeUtils.isValue(bucket.name(), policyBucketIdValue);
+      return TextUtils.isValue(bucket.name(), policyBucketIdValue).isTrue();
     }
 
     Optional<CloudformationTree> bucketName = MappingTreeUtils.getValue(bucket.properties(), "BucketName");
-    return bucketName.isPresent() && ScalarTreeUtils.isValue(bucketName.get(), policyBucketIdValue);
+    return bucketName.isPresent() && TextUtils.isValue(bucketName.get(), policyBucketIdValue).isTrue();
   }
 
   private static class PolicyValidator {
@@ -142,19 +142,19 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       if (principal instanceof MappingTree) {
         valueToCheck = MappingTreeUtils.getValue(principal, "AWS").orElse(null);
       }
-      return !ScalarTreeUtils.isValue(valueToCheck, "*");
+      return !TextUtils.isValue(valueToCheck, "*").isTrue();
     }
 
     private static boolean isInsecureAction(CloudformationTree action) {
-      return !(ScalarTreeUtils.isValue(action, "*") || ScalarTreeUtils.isValue(action, "s3:*"));
+      return !(TextUtils.isValue(action, "*").isTrue() || TextUtils.isValue(action, "s3:*").isTrue());
     }
 
     private static boolean isInsecureCondition(CloudformationTree condition) {
-      return ScalarTreeUtils.isValue(condition, "true");
+      return TextUtils.isValue(condition, "true").isTrue();
     }
 
     private static boolean isInsecureEffect(CloudformationTree effect) {
-      return ScalarTreeUtils.isValue(effect, "Allow");
+      return TextUtils.isValue(effect, "Allow").isTrue();
     }
   }
 }

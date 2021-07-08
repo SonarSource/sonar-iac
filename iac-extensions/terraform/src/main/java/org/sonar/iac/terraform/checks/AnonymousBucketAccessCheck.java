@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
-import org.sonar.iac.terraform.checks.utils.LiteralUtils;
 import org.sonar.iac.terraform.checks.utils.ObjectUtils;
 import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
@@ -44,7 +44,7 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
 
   private static List<LiteralExprTree> getWildcardRules(ExpressionTree principal) {
     List<LiteralExprTree> wildcardRules = new ArrayList<>();
-    if (LiteralUtils.isValue(principal, "*").isTrue()) {
+    if (TextUtils.isValue(principal, "*").isTrue()) {
       wildcardRules.add((LiteralExprTree) principal);
     } else {
       // We focus on the element only on the AWS element at the moment, if it is an object mapping.
@@ -68,6 +68,6 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
   }
 
   private static boolean isAllowingPolicy(ExpressionTree effect) {
-    return LiteralUtils.isValue(effect, "Allow").isTrue();
+    return TextUtils.isValue(effect, "Allow").isTrue();
   }
 }

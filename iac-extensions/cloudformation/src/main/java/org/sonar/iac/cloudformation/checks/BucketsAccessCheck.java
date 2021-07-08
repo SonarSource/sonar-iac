@@ -9,8 +9,8 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
-import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6265")
 public class BucketsAccessCheck extends AbstractResourceCheck {
@@ -24,7 +24,7 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
 
     Optional<String> acl = MappingTreeUtils.getValue(resource.properties(), "AccessControl")
       .filter(ScalarTree.class::isInstance)
-      .flatMap(ScalarTreeUtils::getValue);
+      .flatMap(TextUtils::getValue);
 
     if (acl.isPresent()) {
       if ("PublicReadWrite".equals(acl.get()) || "PublicRead".equals(acl.get())) {

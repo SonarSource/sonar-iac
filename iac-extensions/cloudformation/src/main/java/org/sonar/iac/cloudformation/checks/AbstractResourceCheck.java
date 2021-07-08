@@ -14,10 +14,10 @@ import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
-import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.TextUtils;
 
 public abstract class AbstractResourceCheck implements IacCheck {
 
@@ -68,7 +68,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
     }
 
     public boolean isType(String expectedType) {
-      return ScalarTreeUtils.getValue(type).orElse("null").equalsIgnoreCase(expectedType);
+      return TextUtils.getValue(type).orElse("null").equalsIgnoreCase(expectedType);
     }
   }
 

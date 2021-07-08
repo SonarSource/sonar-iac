@@ -14,6 +14,7 @@ import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.common.checks.TextUtils;
 
 public class XPathUtils {
 
@@ -57,7 +58,7 @@ public class XPathUtils {
     if (tree instanceof MappingTree) {
       String finalToken = token;
       Stream<TupleTree> tuples = ((MappingTree) tree).elements().stream()
-        .filter(t -> ScalarTreeUtils.isValue(t.key(), finalToken));
+        .filter(t -> TextUtils.isValue(t.key(), finalToken).isTrue());
 
       if (expectSequence) {
         tuples
