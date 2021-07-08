@@ -16,9 +16,9 @@ import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
-import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6281")
 public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
@@ -66,7 +66,7 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
   private static List<SecondaryLocation> configurationProblems(CloudformationTree configuration) {
     List<SecondaryLocation> problems = new ArrayList<>();
     ATTRIBUTE_TO_MESSAGE.forEach((attribute, message) -> MappingTreeUtils.getValue(configuration, attribute)
-      .filter(c -> ScalarTreeUtils.isValue(c, "false"))
+      .filter(TextUtils::isValueFalse)
       .ifPresent(c -> problems.add(new SecondaryLocation(c, message))));
     return problems;
   }

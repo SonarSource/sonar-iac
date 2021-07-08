@@ -9,9 +9,9 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
-import org.sonar.iac.cloudformation.checks.utils.ScalarTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.TextUtils;
 
 
 @Rule(key = "S6252")
@@ -38,7 +38,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     if (versioning.isPresent()) {
       Optional<CloudformationTree> status = MappingTreeUtils.getValue(versioning.get(), "Status");
       if (status.isPresent()) {
-        ScalarTreeUtils.getValue(status.get()).filter(SUSPENDED_VALUE::equals).ifPresent(
+        TextUtils.getValue(status.get()).filter(SUSPENDED_VALUE::equals).ifPresent(
          s -> ctx.reportIssue(resource.type(), String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(status.get(), SUSPENDED_MSG_SECONDARY)));
         return;
       }
