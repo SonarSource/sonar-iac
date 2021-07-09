@@ -1,5 +1,5 @@
 {
-  "title": "Cloudformation parsing failure",
+  "title": "CloudFormation parsing failure",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
