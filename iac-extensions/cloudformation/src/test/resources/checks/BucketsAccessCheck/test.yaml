@@ -1,20 +1,26 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   S3BucketPublicReadWrite:
-    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure granting access to AllUsers group is safe here.}}
+    Type: 'AWS::S3::Bucket'
+    #     ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       BucketName: "S3BucketPublicReadWrite"
-      AccessControl: "PublicReadWrite"
+      AccessControl: "PublicReadWrite" # Noncompliant {{Make sure granting access to AllUsers group is safe here.}}
+      #              ^^^^^^^^^^^^^^^^^
   S3BucketPublicRead:
-    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure granting access to AllUsers group is safe here.}}
+    Type: 'AWS::S3::Bucket'
+    #     ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       BucketName: "S3BucketPublicRead"
-      AccessControl: "PublicRead"
+      AccessControl: "PublicRead" # Noncompliant {{Make sure granting access to AllUsers group is safe here.}}
+      #              ^^^^^^^^^^^^
   S3BucketAuthenticatedRead:
-    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure granting access to AuthenticatedUsers group is safe here.}}
+    Type: 'AWS::S3::Bucket'
+    #     ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       BucketName: "S3BucketAuthenticatedRead"
-      AccessControl: "AuthenticatedRead"
+      AccessControl: "AuthenticatedRead" # Noncompliant {{Make sure granting access to AuthenticatedUsers group is safe here.}}
+      #              ^^^^^^^^^^^^^^^^^^^
   S3BucketDefaultPrivate:
     Type: 'AWS::S3::Bucket' # Compliant
     Properties:

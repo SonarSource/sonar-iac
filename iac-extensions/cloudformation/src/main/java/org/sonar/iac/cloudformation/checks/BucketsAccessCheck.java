@@ -10,11 +10,12 @@ import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 
 @Rule(key = "S6265")
 public class BucketsAccessCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure granting access to %s group is safe here.";
+  private static final String SECONDARY_MSG = "Related bucket";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -22,15 +23,16 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
       return;
     }
 
-    Optional<String> acl = MappingTreeUtils.getValue(resource.properties(), "AccessControl")
+    Optional<ScalarTree> acl = MappingTreeUtils.getValue(resource.properties(), "AccessControl")
       .filter(ScalarTree.class::isInstance)
-      .flatMap(TextUtils::getValue);
+      .map(ScalarTree.class::cast);
 
     if (acl.isPresent()) {
-      if ("PublicReadWrite".equals(acl.get()) || "PublicRead".equals(acl.get())) {
-        ctx.reportIssue(resource.type(), String.format(MESSAGE, "AllUsers"));
-      } else if ("AuthenticatedRead".equals(acl.get())) {
-        ctx.reportIssue(resource.type(), String.format(MESSAGE, "AuthenticatedUsers"));
+      String aclValue = acl.get().value();
+      if ("PublicReadWrite".equals(aclValue) || "PublicRead".equals(aclValue)) {
+        ctx.reportIssue(acl.get(), String.format(MESSAGE, "AllUsers"), new SecondaryLocation(resource.type(), SECONDARY_MSG));
+      } else if ("AuthenticatedRead".equals(aclValue)) {
+        ctx.reportIssue(acl.get(), String.format(MESSAGE, "AuthenticatedUsers"), new SecondaryLocation(resource.type(), SECONDARY_MSG));
       }
     }
   }
