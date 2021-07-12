@@ -23,7 +23,6 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.HasAttributes;
 import org.sonar.iac.common.checks.AttributeUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
