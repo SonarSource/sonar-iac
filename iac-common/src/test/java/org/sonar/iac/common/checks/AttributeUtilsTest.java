@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.AttributeTree;
+import org.sonar.iac.common.api.tree.HasAttributes;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -93,7 +94,7 @@ class AttributeUtilsTest {
     }
   }
 
-  static class TestTree extends AbstractTestTree {
+  static class TestTree extends AbstractTestTree implements HasAttributes {
 
     private final List<AttributeTree> attributes = new ArrayList<>();
 

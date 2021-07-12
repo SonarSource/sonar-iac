@@ -7,6 +7,6 @@ package org.sonar.iac.common.api.tree;
 
 import java.util.List;
 
-public interface Tree extends HasTextRange {
-  List<Tree> children();
+public interface HasAttributes {
+  <T extends AttributeTree> List<T> attributes();
 }

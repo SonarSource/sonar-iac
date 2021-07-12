@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.AttributeTree;
+import org.sonar.iac.common.api.tree.HasAttributes;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class AttributeUtils {
@@ -19,8 +20,8 @@ public class AttributeUtils {
   }
 
   public static Trilean has(@Nullable Tree tree, String key) {
-    if (tree != null) {
-      List<Trilean> elementTrileans = tree.attributes().stream().map(element -> TextUtils.isValue(element.key(), key)).collect(Collectors.toList());
+    if (tree instanceof HasAttributes) {
+      List<Trilean> elementTrileans = ((HasAttributes) tree).attributes().stream().map(element -> TextUtils.isValue(element.key(), key)).collect(Collectors.toList());
       if (elementTrileans.stream().anyMatch(Trilean::isTrue)) return Trilean.TRUE;
       if (elementTrileans.stream().anyMatch(Trilean::isUnknown)) return Trilean.UNKNOWN;
     }
@@ -28,9 +29,9 @@ public class AttributeUtils {
   }
 
   public static <T extends AttributeTree> Optional<T> get(@Nullable Tree tree, String key) {
-    if (tree == null) return Optional.empty();
+    if (!(tree instanceof HasAttributes)) return Optional.empty();
     try {
-      return tree.attributes().stream()
+      return ((HasAttributes) tree).attributes().stream()
         .filter(attribute -> TextUtils.isValue(attribute.key(), key).isTrue())
         .map(attribute -> (T) attribute)
         .findFirst();
