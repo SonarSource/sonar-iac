@@ -28,6 +28,7 @@ public class AttributeUtils {
   }
 
   public static <T extends AttributeTree> Optional<T> get(@Nullable Tree tree, String key) {
+    if (tree == null) return Optional.empty();
     try {
       return tree.attributes().stream()
         .filter(attribute -> TextUtils.isValue(attribute.key(), key).isTrue())

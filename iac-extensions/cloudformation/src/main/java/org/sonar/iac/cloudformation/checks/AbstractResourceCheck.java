@@ -8,7 +8,6 @@ package org.sonar.iac.cloudformation.checks;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
@@ -60,12 +59,10 @@ public abstract class AbstractResourceCheck implements IacCheck {
       return name;
     }
 
-    @CheckForNull
     public CloudformationTree type() {
       return type;
     }
 
-    @CheckForNull
     public CloudformationTree properties() {
       return properties;
     }

@@ -9,5 +9,4 @@ import java.util.List;
 
 public interface MappingTree extends CloudformationTree {
   List<TupleTree> elements();
-  List<TupleTree> attributes();
 }
