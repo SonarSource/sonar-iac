@@ -6,7 +6,6 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -49,7 +48,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     }
   }
 
-  private static CloudformationTree versioningKey(@Nullable CloudformationTree properties) {
+  private static CloudformationTree versioningKey(CloudformationTree properties) {
     return AttributeUtils.<CloudformationTree>key(properties, "VersioningConfiguration").orElse(properties);
   }
 }
