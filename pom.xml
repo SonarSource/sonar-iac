@@ -70,6 +70,8 @@
     <version.mockito>3.9.0</version.mockito>
     <version.snakeyaml>2.3</version.snakeyaml>
     <gitRepositoryName>sonar-iac</gitRepositoryName>
+    <!-- Release: enable publication to Bintray -->
+    <artifactsToPublish>${project.groupId}:sonar-iac-plugin:jar</artifactsToPublish>
   </properties>
 
   <dependencyManagement>
