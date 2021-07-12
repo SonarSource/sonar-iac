@@ -9,7 +9,7 @@
 1,
 ],
 'terraform-project:sources/terraform/ibm-tf-training/day_03/file-layout-example/global/s3/main.tf':[
-15,
+21,
 ],
 'terraform-project:sources/terraform/ibm-tf-training/s2/s3/main.tf':[
 414,
@@ -19,7 +19,7 @@
 ],
 'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/secure-bucket/main.tf':[
 23,
-72,
+92,
 ],
 'terraform-project:sources/terraform/terragoat/terraform/aws/ec2.tf':[
 271,
@@ -27,9 +27,9 @@
 'terraform-project:sources/terraform/terragoat/terraform/aws/s3.tf':[
 1,
 43,
-66,
-91,
-115,
+71,
+95,
+118,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/cloudfront_not_using_waf/main.tf':[
 1,
