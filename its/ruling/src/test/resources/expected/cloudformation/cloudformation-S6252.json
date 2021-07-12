@@ -1,13 +1,13 @@
 {
 'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6252.json':[
-21,
-29,
+24,
+31,
 45,
 49,
 ],
 'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6252.yaml':[
-15,
-22,
+18,
+24,
 34,
 38,
 ],

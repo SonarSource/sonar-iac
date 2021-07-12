@@ -12,18 +12,19 @@ Resources:
       VersioningConfiguration: {Status: Enabled}
 
   S3BucketSupendedVersioning:
-    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure using suspended versioned S3 bucket is safe here.}}
-#         ^^^^^^^^^^^^^^^^^
+    Type: 'AWS::S3::Bucket'
+#         ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       VersioningConfiguration:
-        Status: Suspended
-#              <^^^^^^^^^
+        Status: Suspended # Noncompliant {{Make sure using suspended versioned S3 bucket is safe here.}}
+#               ^^^^^^^^^
 
   S3BucketWithoutVersioning:
-    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
-#         ^^^^^^^^^^^^^^^^^
+    Type: 'AWS::S3::Bucket'
+#         ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
-      VersioningConfiguration:
+      VersioningConfiguration: # Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
+   #  ^^^^^^^^^^^^^^^^^^^^^^^
         Foo: Enabled
 
   S3BucketUnkownVersioning:
