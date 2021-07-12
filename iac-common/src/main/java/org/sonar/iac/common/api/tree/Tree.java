@@ -5,9 +5,14 @@
  */
 package org.sonar.iac.common.api.tree;
 
+import java.util.Collections;
 import java.util.List;
 
 public interface Tree extends HasTextRange {
+
+  default <T extends AttributeTree> List<T> attributes() {
+    return Collections.emptyList();
+  }
 
   List<Tree> children();
 }

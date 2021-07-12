@@ -8,9 +8,10 @@ package org.sonar.iac.cloudformation.checks;
 import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.AttributeUtils;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6265")
 public class BucketsAccessCheck extends AbstractResourceCheck {
@@ -23,17 +24,14 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
       return;
     }
 
-    Optional<ScalarTree> acl = MappingTreeUtils.getValue(resource.properties(), "AccessControl")
-      .filter(ScalarTree.class::isInstance)
-      .map(ScalarTree.class::cast);
-
-    if (acl.isPresent()) {
-      String aclValue = acl.get().value();
-      if ("PublicReadWrite".equals(aclValue) || "PublicRead".equals(aclValue)) {
-        ctx.reportIssue(acl.get(), String.format(MESSAGE, "AllUsers"), new SecondaryLocation(resource.type(), SECONDARY_MSG));
-      } else if ("AuthenticatedRead".equals(aclValue)) {
-        ctx.reportIssue(acl.get(), String.format(MESSAGE, "AuthenticatedUsers"), new SecondaryLocation(resource.type(), SECONDARY_MSG));
-      }
-    }
+    AttributeUtils.<ScalarTree>value(resource.properties(), "AccessControl")
+      .ifPresent(acl -> {
+        String aclValue = TextUtils.getValue(acl).orElse(null);
+        if ("PublicReadWrite".equals(aclValue) || "PublicRead".equals(aclValue)) {
+          ctx.reportIssue(acl, String.format(MESSAGE, "AllUsers"), new SecondaryLocation(resource.type(), SECONDARY_MSG));
+        } else if ("AuthenticatedRead".equals(aclValue)) {
+          ctx.reportIssue(acl, String.format(MESSAGE, "AuthenticatedUsers"), new SecondaryLocation(resource.type(), SECONDARY_MSG));
+        }
+      });
   }
 }

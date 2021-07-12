@@ -25,4 +25,11 @@ class TrileanTest {
     assertThat(Trilean.FALSE.isFalse()).isTrue();
     assertThat(Trilean.UNKNOWN.isFalse()).isFalse();
   }
+
+  @Test
+  void isUnknown() {
+    assertThat(Trilean.TRUE.isUnknown()).isFalse();
+    assertThat(Trilean.FALSE.isUnknown()).isFalse();
+    assertThat(Trilean.UNKNOWN.isUnknown()).isTrue();
+  }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Comment;
@@ -138,7 +139,7 @@ class VerifierTest {
     assertDoesNotThrow(() -> Verifier.verify(mockParser, path, check, firstExpectedIssue, secondExpectedIssue));
   }
 
-  private static class DummyNonCompliantTree implements Tree, HasComments {
+  private static class DummyNonCompliantTree extends AbstractTestTree implements HasComments {
     private static final TextRange range = TextRanges.range(1, 1, 1, 4);
 
     @Override
@@ -150,11 +151,6 @@ class VerifierTest {
     @Override
     public TextRange textRange() {
       return range;
-    }
-
-    @Override
-    public List<Tree> children() {
-      return Collections.emptyList();
     }
   }
 }

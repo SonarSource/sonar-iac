@@ -6,8 +6,8 @@
 package org.sonar.iac.cloudformation.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.checks.AttributeUtils;
 
 @Rule(key = "S6295")
 public class LogGroupRetentionPolicyCheck extends AbstractResourceCheck {
@@ -17,7 +17,7 @@ public class LogGroupRetentionPolicyCheck extends AbstractResourceCheck {
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (resource.isType("AWS::Logs::LogGroup")
-      && !MappingTreeUtils.hasValue(resource.properties(), "RetentionInDays").isTrue()) {
+      && !AttributeUtils.has(resource.properties(), "RetentionInDays").isTrue()) {
       ctx.reportIssue(resource.type(), MESSAGE);
     }
   }

@@ -18,12 +18,12 @@ import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
-import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.AttributeUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6249")
@@ -74,7 +74,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   private static Map<Resource, Resource> bucketsToPolicies(List<Resource> buckets, List<Resource> policies) {
     Map<CloudformationTree, Resource> bucketIdToPolicies = new HashMap<>();
     for (Resource policy : policies) {
-      MappingTreeUtils.getValue(policy.properties(), "Bucket").ifPresent(b -> bucketIdToPolicies.put(b, policy));
+      AttributeUtils.<CloudformationTree>value(policy.properties(), "Bucket").ifPresent(b -> bucketIdToPolicies.put(b, policy));
     }
 
     Map<Resource, Resource> result = new HashMap<>();
@@ -92,7 +92,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   private static boolean correspondsToBucket(@Nullable CloudformationTree policyBucketId, Resource bucket) {
     if (policyBucketId instanceof MappingTree) {
       // In JSON format to reference a bucket, an object having a Ref field has to be provided
-      return MappingTreeUtils.getValue(policyBucketId, "Ref")
+      return AttributeUtils.value(policyBucketId, "Ref")
         .filter(ScalarTree.class::isInstance)
         .filter(ref -> TextUtils.isValue(bucket.name(), ((ScalarTree) ref).value()).isTrue())
         .isPresent();
@@ -107,7 +107,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       return TextUtils.isValue(bucket.name(), policyBucketIdValue).isTrue();
     }
 
-    Optional<CloudformationTree> bucketName = MappingTreeUtils.getValue(bucket.properties(), "BucketName");
+    Optional<CloudformationTree> bucketName = AttributeUtils.value(bucket.properties(), "BucketName");
     return bucketName.isPresent() && TextUtils.isValue(bucketName.get(), policyBucketIdValue).isTrue();
   }
 
@@ -140,7 +140,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     private static boolean isInsecurePrincipal(CloudformationTree principal) {
       CloudformationTree valueToCheck = principal;
       if (principal instanceof MappingTree) {
-        valueToCheck = MappingTreeUtils.getValue(principal, "AWS").orElse(null);
+        valueToCheck = AttributeUtils.valueOrNull(principal, "AWS");
       }
       return !TextUtils.isValue(valueToCheck, "*").isTrue();
     }

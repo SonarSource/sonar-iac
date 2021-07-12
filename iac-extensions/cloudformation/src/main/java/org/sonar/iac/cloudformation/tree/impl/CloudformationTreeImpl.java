@@ -5,11 +5,10 @@
  */
 package org.sonar.iac.cloudformation.tree.impl;
 
+import java.util.List;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.common.api.tree.Comment;
-
-import java.util.List;
 
 public abstract class CloudformationTreeImpl implements CloudformationTree {
   protected final TextRange textRange;

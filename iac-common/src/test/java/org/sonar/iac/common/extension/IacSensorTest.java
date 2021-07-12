@@ -25,6 +25,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
@@ -318,16 +319,10 @@ class IacSensorTest extends AbstractSensorTest {
     }
   }
 
-  private static class TestTree implements Tree {
-
+  private static class TestTree extends AbstractTestTree {
     @Override
     public TextRange textRange() {
       return TextRanges.range(1,0, 1, 2);
-    }
-
-    @Override
-    public List<Tree> children() {
-      return Collections.emptyList();
     }
   }
 }

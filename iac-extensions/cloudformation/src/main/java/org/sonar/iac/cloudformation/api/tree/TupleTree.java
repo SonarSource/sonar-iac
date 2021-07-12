@@ -5,7 +5,9 @@
  */
 package org.sonar.iac.cloudformation.api.tree;
 
-public interface TupleTree extends CloudformationTree {
+import org.sonar.iac.common.api.tree.AttributeTree;
+
+public interface TupleTree extends CloudformationTree, AttributeTree {
   CloudformationTree key();
   CloudformationTree value();
 }
