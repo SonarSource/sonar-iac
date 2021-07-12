@@ -14,7 +14,9 @@ import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
+import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.checks.utils.ObjectUtils;
 import org.sonar.iac.terraform.checks.utils.StatementUtils;
@@ -25,7 +27,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure using %s S3 bucket is safe here.";
   private static final String UNVERSIONED_MSG = "unversioned";
   private static final String SUSPENDED_MSG = "suspended versioned";
-  private static final String SUSPENDED_MSG_SECONDARY = "Suspended versioning.";
+  private static final String SECONDARY_MESSAGE = "Related bucket";
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree block) {
@@ -35,28 +37,39 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     LabelTree bucketLabel = block.labels().get(0);
 
     Optional<BlockTree> versioningBlock = StatementUtils.getBlock(block, "versioning");
-    if (versioningBlock.isPresent()) {
-      Optional<AttributeTree> enabled = StatementUtils.getAttribute(versioningBlock.get(), "enabled");
-      if (enabled.isPresent()) {
-        checkSuspendedVersioning(ctx, bucketLabel, enabled.get().value());
-        return;
-      }
-    }
+    versioningBlock.ifPresent(b -> checkBlock(ctx, bucketLabel, b));
+
     Optional<AttributeTree> versioningAttribute = StatementUtils.getAttribute(block, "versioning");
-    if (versioningAttribute.isPresent()) {
-      if (versioningAttribute.get().value().is(Kind.OBJECT)) {
-        ObjectUtils.getElement((ObjectTree) versioningAttribute.get().value(), "enabled")
-          .ifPresent(objectElementTree -> checkSuspendedVersioning(ctx, bucketLabel, objectElementTree.value()));
+    versioningAttribute.ifPresent(a -> checkAttribute(ctx, bucketLabel, a));
+
+    if (!versioningBlock.isPresent() && !versioningAttribute.isPresent()) {
+      ctx.reportIssue(bucketLabel, String.format(MESSAGE, UNVERSIONED_MSG));
+    }
+  }
+
+  private static void checkBlock(CheckContext ctx, LabelTree bucket, BlockTree block) {
+    Optional<AttributeTree> enabled = StatementUtils.getAttribute(block, "enabled");
+    if (enabled.isPresent()) {
+      checkSuspendedVersioning(ctx, bucket, enabled.get(), enabled.get().value());
+    } else {
+      ctx.reportIssue(block.identifier(), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(bucket, SECONDARY_MESSAGE));
+    }
+  }
+
+  private static void checkAttribute(CheckContext ctx, LabelTree bucketLabel, AttributeTree attribute) {
+    if (attribute.value().is(Kind.OBJECT)) {
+      Optional<ObjectElementTree> enabled = ObjectUtils.getElement((ObjectTree) attribute.value(), "enabled");
+      if (enabled.isPresent()) {
+        checkSuspendedVersioning(ctx, bucketLabel, enabled.get(), enabled.get().value());
+      } else {
+        ctx.reportIssue(attribute.identifier(), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(bucketLabel, SECONDARY_MESSAGE));
       }
-      return;
-    }
-    ctx.reportIssue(bucketLabel, String.format(MESSAGE, UNVERSIONED_MSG));
-  }
-
-  private static void checkSuspendedVersioning(CheckContext ctx, LabelTree bucket, ExpressionTree setting) {
-    if (TextUtils.isValueFalse(setting)) {
-      ctx.reportIssue(bucket, String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(setting, SUSPENDED_MSG_SECONDARY));
     }
   }
 
+  private static void checkSuspendedVersioning(CheckContext ctx, LabelTree bucket, TerraformTree setting, ExpressionTree value) {
+    if (TextUtils.isValueFalse(value)) {
+      ctx.reportIssue(setting, String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(bucket, SECONDARY_MESSAGE));
+    }
+  }
 }
