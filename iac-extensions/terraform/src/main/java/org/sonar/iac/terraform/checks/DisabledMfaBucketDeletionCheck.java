@@ -18,7 +18,7 @@ import org.sonar.iac.terraform.checks.utils.StatementUtils;
 @Rule(key = "S6255")
 public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure allowing object deletion of a S3 versioned bucket without MFA is safe here.";
-  private static final String MESSAGE_SECONDARY = "Should be true";
+  private static final String MESSAGE_SECONDARY = "Related bucket";
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree tree) {
@@ -29,13 +29,15 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
     Optional<BlockTree> versioning = StatementUtils.getBlock(tree, "versioning");
     if (versioning.isPresent()) {
       Optional<AttributeTree> mfaDeleteAttribute = StatementUtils.getAttribute(versioning.get(), "mfa_delete");
-      if(mfaDeleteAttribute.isPresent()) {
+      if (mfaDeleteAttribute.isPresent()) {
         ExpressionTree value = mfaDeleteAttribute.get().value();
         if (TextUtils.isValueFalse(value)) {
-          ctx.reportIssue(tree.labels().get(0), MESSAGE, new SecondaryLocation(mfaDeleteAttribute.get(), MESSAGE_SECONDARY));
+          ctx.reportIssue(mfaDeleteAttribute.get(), MESSAGE, new SecondaryLocation(tree.labels().get(0), MESSAGE_SECONDARY));
         }
         return;
       }
+      ctx.reportIssue(versioning.get().identifier(), MESSAGE, new SecondaryLocation(tree.labels().get(0), MESSAGE_SECONDARY));
+      return;
     }
     ctx.reportIssue(tree.labels().get(0), MESSAGE);
   }
