@@ -19,9 +19,9 @@ Resources:
 #               ^^^^^^^^^
 
   S3BucketWithoutVersioning:
-    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
+    Type: 'AWS::S3::Bucket'
     Properties:
-      VersioningConfiguration:
+      VersioningConfiguration: # Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
         Foo: Enabled
 
   S3BucketUnkownVersioning:
