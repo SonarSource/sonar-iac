@@ -21,8 +21,6 @@ public class TerraformExtension {
       TerraformLanguage.class,
       // Sensor
       TerraformSensor.class,
-      //Filter
-      TerraformExclusionsFileFilter.class,
       // Rules and profiles
       TerraformRulesDefinition.class,
       TerraformProfileDefinition.class
