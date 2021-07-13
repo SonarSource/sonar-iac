@@ -27,7 +27,7 @@ class BucketsPublicAclOrPolicyCheckTest {
       new Verifier.Issue(range(5, 14, 5, 31)),
       new Verifier.Issue(range(14, 8, 14, 40), message, Arrays.asList(
         new SecondaryLocation(range(11, 14, 11, 31), "Related bucket"),
-        new SecondaryLocation(range(15, 29, 15, 34), "set this property to true"))),
+        new SecondaryLocation(range(15, 29, 15, 34), "Set this property to true"))),
       new Verifier.Issue(range(26, 8, 26, 40), message),
       new Verifier.Issue(range(38, 8, 38, 40), message),
       new Verifier.Issue(range(50, 8, 50, 40), message)

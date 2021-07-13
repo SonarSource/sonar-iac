@@ -25,7 +25,7 @@ resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_publicaccess_1
   bucket = aws_s3_bucket.mynoncompliantfirstbuckets6281.id
 
   block_public_acls       = false
-  #                         ^^^^^< {{set this property to true}}
+  #                         ^^^^^< {{Set this property to true}}
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true

@@ -13,7 +13,7 @@ Resources:
       PublicAccessBlockConfiguration: # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         BlockPublicAcls: false
-        #                ^^^^^< {{set this property to true}}
+        #                ^^^^^< {{Set this property to true}}
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
@@ -27,7 +27,7 @@ Resources:
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         BlockPublicAcls: true
         BlockPublicPolicy: false
-                       #   ^^^^^< {{set this property to true}}
+                       #   ^^^^^< {{Set this property to true}}
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
 
@@ -41,7 +41,7 @@ Resources:
         BlockPublicAcls: true
         BlockPublicPolicy: true
         IgnorePublicAcls: false
-                  #       ^^^^^< {{set this property to true}}
+                  #       ^^^^^< {{Set this property to true}}
         RestrictPublicBuckets: true
 
   S3Bucket4:
@@ -55,7 +55,7 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: false
-        #                      ^^^^^< {{set this property to true}}
+        #                      ^^^^^< {{Set this property to true}}
 
   S3Bucket5:
     Type: 'AWS::S3::Bucket'
@@ -78,7 +78,7 @@ Resources:
         BlockPublicAcls: true
         BlockPublicPolicy: true
         IgnorePublicAcls: false
-        #                 ^^^^^< {{set this property to true}}
+        #                 ^^^^^< {{Set this property to true}}
 
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Compliant
