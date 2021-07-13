@@ -69,10 +69,7 @@ public abstract class IacSensor implements Sensor {
 
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     FileSystem fileSystem = sensorContext.fileSystem();
-    FilePredicate mainFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasLanguage(language.getKey()),
-      fileSystem.predicates().hasType(InputFile.Type.MAIN));
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate);
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate(sensorContext));
     List<String> filenames = StreamSupport.stream(inputFiles.spliterator(), false).map(InputFile::toString).collect(Collectors.toList());
     ProgressReport progressReport = new ProgressReport("Progress of the " + language.getName() + " analysis", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(filenames);
@@ -88,6 +85,13 @@ public abstract class IacSensor implements Sensor {
       }
     }
     statistics.log();
+  }
+
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+    FileSystem fileSystem = sensorContext.fileSystem();
+    return fileSystem.predicates().and(
+      fileSystem.predicates().hasLanguage(language.getKey()),
+      fileSystem.predicates().hasType(InputFile.Type.MAIN));
   }
 
   protected void importExternalReports(SensorContext sensorContext) {

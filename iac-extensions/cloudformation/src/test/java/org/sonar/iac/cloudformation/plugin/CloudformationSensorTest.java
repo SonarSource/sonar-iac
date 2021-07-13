@@ -84,6 +84,28 @@ class CloudformationSensorTest extends AbstractSensorTest {
     assertThat(context.allIssues()).as("One issue must be raised").isEmpty();
   }
 
+  @Test
+  void should_raise_no_parsing_issue_in_file_without_identifier() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, "myIdentifier");
+    settings.setProperty(getActivationSettingKey(), true);
+    context.setSettings(settings);
+
+    analyse(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
+  void should_raise_parsing_issue_in_file_with_identifier() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, "myIdentifier");
+    settings.setProperty(getActivationSettingKey(), true);
+    context.setSettings(settings);
+
+    analyse(sensor("S2260"), inputFile("parserError.json", "\"myIdentifier'"));
+    assertThat(context.allIssues()).hasSize(1);
+  }
+
   private CloudformationSensor sensor(String... rules) {
     return sensor(checkFactory(rules));
   }

@@ -21,8 +21,6 @@ public class CloudformationExtension {
       CloudformationLanguage.class,
       // Sensor
       CloudformationSensor.class,
-      //Filter
-      CloudformationExclusionsFileFilter.class,
       // Rules and profiles
       CloudformationRulesDefinition.class,
       CloudformationProfileDefinition.class,

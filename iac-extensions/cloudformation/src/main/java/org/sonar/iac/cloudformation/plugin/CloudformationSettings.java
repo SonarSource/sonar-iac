@@ -20,9 +20,6 @@ public class CloudformationSettings {
   static final String ACTIVATION_KEY = "sonar.cloudformation.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "false";
 
-  static final String EXCLUSIONS_KEY = "sonar.cloudformation.exclusions";
-  static final String EXCLUSIONS_DEFAULT_VALUE = "";
-
   static final String FILE_SUFFIXES_KEY = "sonar.cloudformation.file.suffixes";
   static final String FILE_SUFFIXES_DEFAULT_VALUE = ".json,.yaml,.yml";
 
@@ -52,17 +49,6 @@ public class CloudformationSettings {
         .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
         .name("File Suffixes")
         .description("List of suffixes of CloudFormation files to analyze.")
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CLOUDFORMATION_CATEGORY)
-        .multiValues(true)
-        .subCategory(GENERAL_SUBCATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(EXCLUSIONS_KEY)
-        .index(3)
-        .defaultValue(EXCLUSIONS_DEFAULT_VALUE)
-        .name("CloudFormation Exclusions")
-        .description("List of file path patterns to be excluded from analysis of CloudFormation files.")
         .onQualifiers(Qualifiers.PROJECT)
         .category(CLOUDFORMATION_CATEGORY)
         .multiValues(true)
