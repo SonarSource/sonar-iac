@@ -5,6 +5,7 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.testing.Verifier;
@@ -24,14 +25,12 @@ class BucketsPublicAclOrPolicyCheckTest {
 
     CloudformationVerifier.verify("BucketsPublicAclOrPolicyCheck/test.json", new BucketsPublicAclOrPolicyCheck(),
       new Verifier.Issue(range(5, 14, 5, 31)),
-      new Verifier.Issue(range(11, 14, 11, 31), message,
-        new SecondaryLocation(range(15, 29, 15, 34), "Public ACLs are allowed.")),
-      new Verifier.Issue(range(23, 14, 23, 31), message,
-        new SecondaryLocation(range(28, 31, 28, 36), "Public Policies are allowed.")),
-      new Verifier.Issue(range(35, 14, 35, 31), message,
-        new SecondaryLocation(range(41, 30, 41, 35), "Public ACLs are not ignored.")),
-      new Verifier.Issue(range(47, 14, 47, 31), message,
-        new SecondaryLocation(range(54, 35, 54, 40), "Public Buckets are not restricted."))
+      new Verifier.Issue(range(14, 8, 14, 40), message, Arrays.asList(
+        new SecondaryLocation(range(11, 14, 11, 31), "Related bucket"),
+        new SecondaryLocation(range(15, 29, 15, 34), "Set this property to true"))),
+      new Verifier.Issue(range(26, 8, 26, 40), message),
+      new Verifier.Issue(range(38, 8, 38, 40), message),
+      new Verifier.Issue(range(50, 8, 50, 40), message)
       );
   }
 }

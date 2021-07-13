@@ -38,10 +38,9 @@ import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketRes
 @Rule(key = "S6281")
 public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
-  private static final String MESSAGE = "Make sure allowing public access is safe here.";
-  private static final String MISSING_MULTI_MSG = "\"%s\" settings are missing.";
-  private static final String MISSING_SINGLE_MSG = "\"%s\" setting is missing.";
-  private static final String FALSE_MSG = "Is set to false.";
+  private static final String MESSAGE = "Make sure allowing public policy/acl access is safe here.";
+  private static final String SECONDARY_MSG_PROPERTY = "Set this property to true";
+  private static final String SECONDARY_MSG_BUCKET = "Related bucket";
   private static final String PAB = "aws_s3_bucket_public_access_block";
 
   private static final Set<String> PAB_STATEMENTS = new HashSet<>(Arrays.asList(
@@ -59,10 +58,12 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
   private static void checkS3Bucket(CheckContext ctx, S3Bucket bucket) {
     Optional<BlockTree> publicAccessBlock = bucket.resource(PAB);
-    if (publicAccessBlock.isPresent()) {
+    if (publicAccessBlock.isPresent())  {
+      LabelTree publicAccessBlockType = publicAccessBlock.get().labels().get(0);
       List<SecondaryLocation> secLoc = checkPublicAccessBlock(publicAccessBlock.get());
-      if (!secLoc.isEmpty()) {
-        ctx.reportIssue(bucket.label(), MESSAGE, secLoc);
+      if (!secLoc.isEmpty() || hasMissingStatement(publicAccessBlock.get())) {
+        secLoc.add(new SecondaryLocation(bucket.label(), SECONDARY_MSG_BUCKET));
+        ctx.reportIssue(publicAccessBlockType, MESSAGE, secLoc);
       }
     } else {
       ctx.reportIssue(bucket.label(), MESSAGE);
@@ -70,23 +71,16 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
   }
 
   private static List<SecondaryLocation> checkPublicAccessBlock(BlockTree publicAccessBlock) {
-    List<SecondaryLocation> secondaryLocations = new ArrayList<>();
-    List<String> missingSettings = PAB_STATEMENTS.stream()
-      .filter(e -> !StatementUtils.hasStatement(publicAccessBlock, e)).collect(Collectors.toList());
-
-    if (!missingSettings.isEmpty()) {
-      String settings = String.join("\", \"", missingSettings);
-      String message = missingSettings.size() > 1 ? MISSING_MULTI_MSG : MISSING_SINGLE_MSG;
-      secondaryLocations.add(new SecondaryLocation(publicAccessBlock.labels().get(0), String.format(message, settings)));
-    }
-
-    PAB_STATEMENTS.stream()
+    return PAB_STATEMENTS.stream()
       .map(e -> StatementUtils.getAttributeValue(publicAccessBlock, e))
       .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
       .filter(TextUtils::isValueFalse)
-      .forEach(value -> secondaryLocations.add(new SecondaryLocation(publicAccessBlock, FALSE_MSG)));
+      .map(value -> new SecondaryLocation(value, SECONDARY_MSG_PROPERTY))
+      .collect(Collectors.toList());
+  }
 
-    return secondaryLocations;
+  private static boolean hasMissingStatement(BlockTree publicAccessBlock) {
+    return PAB_STATEMENTS.stream().anyMatch(e -> !StatementUtils.hasStatement(publicAccessBlock, e));
   }
 
   private static class S3Bucket {
