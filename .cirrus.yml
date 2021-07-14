@@ -7,7 +7,7 @@ env:
   ARTIFACTORY_DEPLOY_USERNAME: repox-qa-deployer
   ARTIFACTORY_DEPLOY_PASSWORD: ENCRYPTED[!d484e19f33c9ce63b165f70e414a33b1ac6c215a126791aacbf8059626caf0fd8a78e999a20af5c1a4ba01c0b0247921!]
   #Possible values for ARTIFACTORY_DEPLOY_REPO: sonarsource-private-qa, sonarsource-public-qa
-  ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
+  ARTIFACTORY_DEPLOY_REPO: sonarsource-private-qa
   ARTIFACTORY_API_KEY: ENCRYPTED[!35ca4446564213d4fd2d1a96e42a871d5de6e6aac4e1dd3e89342892a60a2badf74a966bcc8e885e9c9d09a775ffe4c0!]
   # burgr notification
   BURGR_URL: ENCRYPTED[!c7e294da94762d7bac144abef6310c5db300c95979daed4454ca977776bfd5edeb557e1237e3aa8ed722336243af2d78!]
