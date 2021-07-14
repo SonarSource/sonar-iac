@@ -35,6 +35,7 @@ class AttributeUtilsTest {
 
     tree.addElement(attribute((Tree) null, value2));
     assertThat(AttributeUtils.has(tree, "key3")).isEqualTo(Trilean.UNKNOWN);
+    assertThat(AttributeUtils.has(null, "key2")).isEqualTo(Trilean.FALSE);
   }
 
   @Test
