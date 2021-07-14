@@ -30,7 +30,7 @@ class AbstractResourceCheckTest {
     assertType(check.foundResources.get(0), "type1");
     assertType(check.foundResources.get(1), "type2");
     assertType(check.foundResources.get(2), "type3");
-    assertThat(check.foundResources.get(3).type()).isNull();
+    assertThat(check.foundResources.get(3).properties()).isNull();
   }
 
   @ParameterizedTest

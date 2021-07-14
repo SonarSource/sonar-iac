@@ -35,14 +35,15 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   }
 
   protected void checkVersioning(CheckContext ctx, Resource resource) {
-    Optional<Tree> versioning = AttributeUtils.value(resource.properties(), "VersioningConfiguration");
+    CloudformationTree properties = resource.properties();
+    Optional<Tree> versioning = AttributeUtils.value(properties, "VersioningConfiguration");
     if (versioning.isPresent()) {
       Optional<Tree> status = AttributeUtils.value(versioning.get(), "Status");
       if (status.isPresent()) {
         TextUtils.getValue(status.get()).filter(SUSPENDED_VALUE::equals).ifPresent(
          s -> ctx.reportIssue(status.get(), String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG)));
-      } else {
-        ctx.reportIssue(versioningKey(resource.properties()), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG));
+      } else if (properties != null){
+        ctx.reportIssue(versioningKey(properties), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG));
       }
     } else {
       ctx.reportIssue(resource.type(), String.format(MESSAGE, UNVERSIONED_MSG));

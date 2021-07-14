@@ -7,7 +7,10 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
@@ -36,6 +39,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
     return ((MappingTree) resourcesTree).elements().stream()
       .filter(element -> element.key() instanceof ScalarTree && element.value() instanceof MappingTree)
       .map(element -> Resource.fromMapping((ScalarTree) element.key(), (MappingTree) element.value()))
+      .filter(Objects::nonNull)
       .collect(Collectors.toList());
   }
 
@@ -46,16 +50,22 @@ public abstract class AbstractResourceCheck implements IacCheck {
     private final CloudformationTree type;
     private final CloudformationTree properties;
 
-    Resource(ScalarTree name, @Nullable CloudformationTree type, @Nullable CloudformationTree properties) {
+    Resource(ScalarTree name, CloudformationTree type, @Nullable CloudformationTree properties) {
       this.name = name;
       this.type = type;
       this.properties = properties;
     }
 
+    @CheckForNull
     private static Resource fromMapping(ScalarTree name, MappingTree mapping) {
+      Optional<CloudformationTree> typeTree = AttributeUtils.value(mapping, "Type", CloudformationTree.class);
+      if (!typeTree.isPresent()) {
+        return null;
+      }
+
       return new Resource(
         name,
-        AttributeUtils.valueOrNull(mapping, "Type", CloudformationTree.class),
+        typeTree.get(),
         AttributeUtils.valueOrNull(mapping, "Properties", CloudformationTree.class)
       );
     }
@@ -68,6 +78,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
       return type;
     }
 
+    @CheckForNull
     public CloudformationTree properties() {
       return properties;
     }

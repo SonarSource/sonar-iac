@@ -117,18 +117,21 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     private static Map<CloudformationTree, String> getInsecureValues(Resource policy) {
       HashMap<CloudformationTree, String> result = new HashMap<>();
 
-      Optional<CloudformationTree> statement = XPathUtils.getSingleTree(policy.properties(), "/PolicyDocument/Statement[]");
-      if (statement.isPresent()) {
-        XPathUtils.getSingleTree(statement.get(), "/Effect")
-          .filter(PolicyValidator::isInsecureEffect).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_EFFECT));
-        XPathUtils.getSingleTree(statement.get(), "/Condition/Bool/aws:SecureTransport")
-          .filter(PolicyValidator::isInsecureCondition).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_CONDITION));
-        XPathUtils.getSingleTree(statement.get(), "/Action")
-          .filter(PolicyValidator::isInsecureAction).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_ACTION));
-        XPathUtils.getSingleTree(statement.get(), "/Principal")
-          .filter(PolicyValidator::isInsecurePrincipal).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_PRINCIPAL));
-        XPathUtils.getSingleTree(statement.get(), "/Resource")
-          .filter(PolicyValidator::isInsecureResource).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_RESOURCE));
+      CloudformationTree properties = policy.properties();
+      if (properties != null) {
+        Optional<CloudformationTree> statement = XPathUtils.getSingleTree(properties, "/PolicyDocument/Statement[]");
+        if (statement.isPresent()) {
+          XPathUtils.getSingleTree(statement.get(), "/Effect")
+            .filter(PolicyValidator::isInsecureEffect).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_EFFECT));
+          XPathUtils.getSingleTree(statement.get(), "/Condition/Bool/aws:SecureTransport")
+            .filter(PolicyValidator::isInsecureCondition).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_CONDITION));
+          XPathUtils.getSingleTree(statement.get(), "/Action")
+            .filter(PolicyValidator::isInsecureAction).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_ACTION));
+          XPathUtils.getSingleTree(statement.get(), "/Principal")
+            .filter(PolicyValidator::isInsecurePrincipal).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_PRINCIPAL));
+          XPathUtils.getSingleTree(statement.get(), "/Resource")
+            .filter(PolicyValidator::isInsecureResource).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_RESOURCE));
+        }
       }
 
       return result;
