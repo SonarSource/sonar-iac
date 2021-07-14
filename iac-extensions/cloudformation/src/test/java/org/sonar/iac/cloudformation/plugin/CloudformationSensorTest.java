@@ -22,7 +22,7 @@ class CloudformationSensorTest extends AbstractSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC CloudFormation Sensor");
-    assertThat(descriptor.languages()).containsOnly("cloudformation");
+    assertThat(descriptor.languages()).containsExactly("json", "yaml");
   }
 
   @Test
@@ -127,6 +127,11 @@ class CloudformationSensorTest extends AbstractSensorTest {
 
   @Override
   protected CloudformationLanguage language() {
-    return new CloudformationLanguage(new MapSettings().asConfig());
+    return new CloudformationLanguage();
+  }
+
+  @Override
+  protected String fileLanguageKey() {
+    return "json";
   }
 }

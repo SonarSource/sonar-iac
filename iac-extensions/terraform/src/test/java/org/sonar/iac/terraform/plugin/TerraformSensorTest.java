@@ -165,4 +165,9 @@ class TerraformSensorTest extends AbstractSensorTest {
   protected TerraformLanguage language() {
     return new TerraformLanguage(new MapSettings().asConfig());
   }
+
+  @Override
+  protected String fileLanguageKey() {
+    return language().getKey();
+  }
 }

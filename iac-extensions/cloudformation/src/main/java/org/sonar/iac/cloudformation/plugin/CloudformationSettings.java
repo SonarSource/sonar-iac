@@ -20,9 +20,6 @@ public class CloudformationSettings {
   static final String ACTIVATION_KEY = "sonar.cloudformation.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "false";
 
-  static final String FILE_SUFFIXES_KEY = "sonar.cloudformation.file.suffixes";
-  static final String FILE_SUFFIXES_DEFAULT_VALUE = ".json,.yaml,.yml";
-
   static final String FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
   static final String FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
 
@@ -41,17 +38,6 @@ public class CloudformationSettings {
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
         .category(CLOUDFORMATION_CATEGORY)
-        .subCategory(GENERAL_SUBCATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(FILE_SUFFIXES_KEY)
-        .index(2)
-        .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
-        .name("File Suffixes")
-        .description("List of suffixes of CloudFormation files to analyze.")
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CLOUDFORMATION_CATEGORY)
-        .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
 

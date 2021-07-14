@@ -121,5 +121,10 @@ class AbstractSensorTestTest {
     protected Language language() {
       return LANGUAGE;
     }
+
+    @Override
+    protected String fileLanguageKey() {
+      return LANGUAGE.getKey();
+    }
   }
 }

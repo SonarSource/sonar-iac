@@ -36,7 +36,7 @@ public abstract class IacSensor implements Sensor {
 
   protected FileLinesContextFactory fileLinesContextFactory;
   protected final NoSonarFilter noSonarFilter;
-  private final Language language;
+  protected final Language language;
 
   protected IacSensor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, Language language) {
     this.fileLinesContextFactory = fileLinesContextFactory;
