@@ -24,21 +24,10 @@ public class PropertiesTest extends TestBase {
   }
 
   @Test
-  public void test_terraform_exclusions() {
-    checkCustomExclusionsForLanguage("terraformCustomExclusions", "terraform", "**/excludedDir/**", 2);
-  }
-
-  @Test
-  public void test_cloudformation_exclusions() {
-    checkCustomExclusionsForLanguage("cloudformationCustomExclusions", "cloudformation", "**/excludedDir/**", 2);
-  }
-
-
-  @Test
   public void test_cloudformation_identifier() {
-    checkCustomFileIdentifierForLanguage("cloudformationDefaultIdentifier", "cloudformation", "AWSTemplateFormatVersion", 3);
-    checkCustomFileIdentifierForLanguage("cloudformationCustomIdentifier", "cloudformation", "CustomIdentifier", 1);
-    checkCustomFileIdentifierForLanguage("cloudformationEmptyIdentifier", "cloudformation", "", 4);
+    checkCustomFileIdentifierForLanguage("cloudformationDefaultIdentifier", "cloudformation", "AWSTemplateFormatVersion", 5);
+    checkCustomFileIdentifierForLanguage("cloudformationCustomIdentifier", "cloudformation", "CustomIdentifier", 3);
+    checkCustomFileIdentifierForLanguage("cloudformationEmptyIdentifier", "cloudformation", "", 8);
   }
 
   private void checkCustomFileSuffixesForLanguage(String projectKey, String language, String suffixes, int expectedFiles) {
@@ -47,15 +36,9 @@ public class PropertiesTest extends TestBase {
     assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
   }
 
-  private void checkCustomExclusionsForLanguage(String projectKey, String language, String exclusions, int expectedFiles) {
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "exclusions/", language)
-      .setProperty("sonar." + language + ".exclusions", exclusions));
-    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
-  }
-
-  private void checkCustomFileIdentifierForLanguage(String projectKey, String language, String identifier, int expectedFiles) {
+  private void checkCustomFileIdentifierForLanguage(String projectKey, String language, String identifier, int expectedNcloc) {
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "identifier/", language)
       .setProperty("sonar." + language + ".file.identifier", identifier));
-    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
+    assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(expectedNcloc);
   }
 }

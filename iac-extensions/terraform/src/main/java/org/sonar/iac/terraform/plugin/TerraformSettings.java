@@ -19,9 +19,6 @@ public class TerraformSettings {
   static final String ACTIVATION_KEY = "sonar.terraform.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "false";
 
-  static final String EXCLUSIONS_KEY = "sonar.terraform.exclusions";
-  static final String EXCLUSIONS_DEFAULT_VALUE = "";
-
   static final String FILE_SUFFIXES_KEY = "sonar.terraform.file.suffixes";
   static final String FILE_SUFFIXES_DEFAULT_VALUE = ".tf";
 
@@ -46,17 +43,6 @@ public class TerraformSettings {
         .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
         .name("File Suffixes")
         .description("List of suffixes of Terraform files to analyze.")
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(TERRAFORM_CATEGORY)
-        .multiValues(true)
-        .subCategory(GENERAL_SUBCATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(EXCLUSIONS_KEY)
-        .index(3)
-        .defaultValue(EXCLUSIONS_DEFAULT_VALUE)
-        .name("Terraform Exclusions")
-        .description("List of file path patterns to be excluded from analysis of Terraform files.")
         .onQualifiers(Qualifiers.PROJECT)
         .category(TERRAFORM_CATEGORY)
         .multiValues(true)
