@@ -34,7 +34,7 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
       return;
     }
 
-    Optional<CloudformationTree> accessConfiguration = AttributeUtils.value(resource.properties(), "PublicAccessBlockConfiguration");
+    Optional<CloudformationTree> accessConfiguration = AttributeUtils.value(resource.properties(), "PublicAccessBlockConfiguration", CloudformationTree.class);
     if (accessConfiguration.isPresent()) {
       checkConfiguration(ctx, resource, accessConfiguration.get());
     } else {

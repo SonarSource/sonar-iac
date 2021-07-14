@@ -23,6 +23,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.AttributeUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
@@ -74,7 +75,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   private static Map<Resource, Resource> bucketsToPolicies(List<Resource> buckets, List<Resource> policies) {
     Map<CloudformationTree, Resource> bucketIdToPolicies = new HashMap<>();
     for (Resource policy : policies) {
-      AttributeUtils.<CloudformationTree>value(policy.properties(), "Bucket").ifPresent(b -> bucketIdToPolicies.put(b, policy));
+      AttributeUtils.value(policy.properties(), "Bucket", CloudformationTree.class).ifPresent(b -> bucketIdToPolicies.put(b, policy));
     }
 
     Map<Resource, Resource> result = new HashMap<>();
@@ -107,7 +108,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       return TextUtils.isValue(bucket.name(), policyBucketIdValue).isTrue();
     }
 
-    Optional<CloudformationTree> bucketName = AttributeUtils.value(bucket.properties(), "BucketName");
+    Optional<CloudformationTree> bucketName = AttributeUtils.value(bucket.properties(), "BucketName", CloudformationTree.class);
     return bucketName.isPresent() && TextUtils.isValue(bucketName.get(), policyBucketIdValue).isTrue();
   }
 
@@ -138,9 +139,9 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
 
     private static boolean isInsecurePrincipal(CloudformationTree principal) {
-      CloudformationTree valueToCheck = principal;
+      Tree valueToCheck = principal;
       if (principal instanceof MappingTree) {
-        valueToCheck = AttributeUtils.valueOrNull((MappingTree) principal, "AWS");
+        valueToCheck = AttributeUtils.valueOrNull(principal, "AWS");
       }
       return !TextUtils.isValue(valueToCheck, "*").isTrue();
     }

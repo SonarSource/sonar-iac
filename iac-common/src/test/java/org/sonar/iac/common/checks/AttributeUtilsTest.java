@@ -46,9 +46,11 @@ class AttributeUtilsTest {
 
   @Test
   void valueOrNull() {
-    assertThat(AttributeUtils.<Tree>valueOrNull(tree, "key2")).isEqualTo(value2);
-    assertThat(AttributeUtils.<Tree>valueOrNull(tree, "key3")).isNull();
-    assertThat(AttributeUtils.<Tree>valueOrNull(null, "key3")).isNull();
+    assertThat(AttributeUtils.valueOrNull(tree, "key2")).isEqualTo(value2);
+    assertThat(AttributeUtils.valueOrNull(tree, "key3")).isNull();
+    assertThat(AttributeUtils.valueOrNull(null, "key3")).isNull();
+    assertThat(AttributeUtils.valueOrNull(tree, "key2", TextTree.class)).isEqualTo(value2);
+    assertThat(AttributeUtils.valueOrNull(tree, "key2", OtherTree.class)).isNull();
   }
 
   @Test
@@ -63,6 +65,12 @@ class AttributeUtilsTest {
     assertThat(AttributeUtils.value(tree, "key2")).isPresent().get().isEqualTo(value2);
     assertThat(AttributeUtils.value(tree, "key3")).isNotPresent();
     assertThat(AttributeUtils.value(null, "key3")).isNotPresent();
+    assertThat(AttributeUtils.value(tree, "key2", TextTree.class)).isPresent().get().isEqualTo(value2);
+    assertThat(AttributeUtils.value(tree, "key2", OtherTree.class)).isNotPresent();
+  }
+
+  static class OtherTree extends AbstractTestTree {
+
   }
 
   static class TestAttribute implements AttributeTree {

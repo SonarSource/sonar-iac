@@ -10,6 +10,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.AttributeUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
@@ -34,9 +35,9 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   }
 
   protected void checkVersioning(CheckContext ctx, Resource resource) {
-    Optional<CloudformationTree> versioning = AttributeUtils.value(resource.properties(), "VersioningConfiguration");
+    Optional<Tree> versioning = AttributeUtils.value(resource.properties(), "VersioningConfiguration");
     if (versioning.isPresent()) {
-      Optional<CloudformationTree> status = AttributeUtils.value(versioning.get(), "Status");
+      Optional<Tree> status = AttributeUtils.value(versioning.get(), "Status");
       if (status.isPresent()) {
         TextUtils.getValue(status.get()).filter(SUSPENDED_VALUE::equals).ifPresent(
          s -> ctx.reportIssue(status.get(), String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG)));
@@ -48,7 +49,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     }
   }
 
-  private static CloudformationTree versioningKey(CloudformationTree properties) {
-    return AttributeUtils.<CloudformationTree>key(properties, "VersioningConfiguration").orElse(properties);
+  private static Tree versioningKey(CloudformationTree properties) {
+    return AttributeUtils.key(properties, "VersioningConfiguration").orElse(properties);
   }
 }

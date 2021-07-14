@@ -66,7 +66,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
 
   // Return extracted reference identifiers for a certain LogGroup resource
   private static Set<String> getReferenceIdentifiers(Resource logGroupResource) {
-    return AttributeUtils.<CloudformationTree>value(logGroupResource.properties(), "LogGroupName")
+    return AttributeUtils.value(logGroupResource.properties(), "LogGroupName", CloudformationTree.class)
       .map(LogGroupDeclarationCheck::resolveIdentifiersFromProperty)
       .orElse(Collections.emptySet());
   }
