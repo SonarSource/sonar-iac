@@ -49,6 +49,7 @@ public class AttributeUtils {
       .filter(clazz::isInstance)
       .map(clazz::cast);
   }
+
   @CheckForNull
   public static Tree valueOrNull(@Nullable Tree tree, String key) {
     return valueOrNull(tree, key, Tree.class);
