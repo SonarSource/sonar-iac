@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.sonarsource.iac</groupId>
+    <groupId>com.sonarsource.iac</groupId>
     <artifactId>iac</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
