@@ -13,10 +13,11 @@ import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.AttributeUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
 public abstract class AbstractResourceCheck implements IacCheck {
@@ -27,7 +28,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   public static List<Resource> getFileResources(FileTree file) {
-    CloudformationTree resourcesTree = MappingTreeUtils.getValue(file.root(), "Resources").orElse(null);
+    Tree resourcesTree = AttributeUtils.valueOrNull(file.root(), "Resources");
     if (!(resourcesTree instanceof MappingTree)) {
       return Collections.emptyList();
     }
@@ -52,7 +53,11 @@ public abstract class AbstractResourceCheck implements IacCheck {
     }
 
     private static Resource fromMapping(ScalarTree name, MappingTree mapping) {
-      return new Resource(name, MappingTreeUtils.getValue(mapping, "Type").orElse(null), MappingTreeUtils.getValue(mapping, "Properties").orElse(null));
+      return new Resource(
+        name,
+        AttributeUtils.valueOrNull(mapping, "Type", CloudformationTree.class),
+        AttributeUtils.valueOrNull(mapping, "Properties", CloudformationTree.class)
+      );
     }
 
     public ScalarTree name() {

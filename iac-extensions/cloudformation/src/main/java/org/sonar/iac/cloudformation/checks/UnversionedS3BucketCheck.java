@@ -8,11 +8,10 @@ package org.sonar.iac.cloudformation.checks;
 import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.TupleTree;
-import org.sonar.iac.cloudformation.checks.utils.MappingTreeUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.AttributeUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
 
@@ -36,24 +35,21 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   }
 
   protected void checkVersioning(CheckContext ctx, Resource resource) {
-    Optional<CloudformationTree> versioning = MappingTreeUtils.getValue(resource.properties(), "VersioningConfiguration");
+    Optional<Tree> versioning = AttributeUtils.value(resource.properties(), "VersioningConfiguration");
     if (versioning.isPresent()) {
-      Optional<CloudformationTree> status = MappingTreeUtils.getValue(versioning.get(), "Status");
+      Optional<Tree> status = AttributeUtils.value(versioning.get(), "Status");
       if (status.isPresent()) {
         TextUtils.getValue(status.get()).filter(SUSPENDED_VALUE::equals).ifPresent(
          s -> ctx.reportIssue(status.get(), String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG)));
       } else {
-        ctx.reportIssue(versioningKey((MappingTree) resource.properties()), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG));
+        ctx.reportIssue(versioningKey(resource.properties()), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG));
       }
     } else {
       ctx.reportIssue(resource.type(), String.format(MESSAGE, UNVERSIONED_MSG));
     }
   }
 
-  private static CloudformationTree versioningKey(MappingTree properties) {
-    return properties.elements().stream()
-      .map(TupleTree::key)
-      .filter(key -> TextUtils.isValue(key, "VersioningConfiguration").isTrue())
-      .findFirst().orElse(properties);
+  private static Tree versioningKey(CloudformationTree properties) {
+    return AttributeUtils.key(properties, "VersioningConfiguration").orElse(properties);
   }
 }

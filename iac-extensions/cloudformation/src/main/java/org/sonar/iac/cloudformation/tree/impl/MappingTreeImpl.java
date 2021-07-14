@@ -5,14 +5,13 @@
  */
 package org.sonar.iac.cloudformation.tree.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MappingTreeImpl extends CloudformationTreeImpl implements MappingTree {
   private final List<TupleTree> elements;
@@ -31,6 +30,11 @@ public class MappingTreeImpl extends CloudformationTreeImpl implements MappingTr
 
   @Override
   public List<TupleTree> elements() {
+    return elements;
+  }
+
+  @Override
+  public List<TupleTree> attributes() {
     return elements;
   }
 

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +73,7 @@ class TreeVisitorTest {
     assertThat(ancestors.get(subtree2)).containsExactly(tree1, root);
   }
 
-  static class TestTree implements Tree {
+  static class TestTree extends AbstractTestTree {
 
     private final List<Tree> children;
 
