@@ -255,6 +255,11 @@ class IacSensorTest extends AbstractSensorTest {
     return IacLanguage.IAC;
   }
 
+  @Override
+  protected String fileLanguageKey() {
+    return language().getKey();
+  }
+
   private IacSensor sensor(String... rules) {
     return sensor(checkFactory(rules));
   }

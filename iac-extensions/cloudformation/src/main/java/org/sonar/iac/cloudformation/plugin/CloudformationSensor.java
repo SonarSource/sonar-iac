@@ -13,11 +13,13 @@ import java.util.Scanner;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.log.Logger;
@@ -39,13 +41,21 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 public class CloudformationSensor extends IacSensor {
-
+  private static final String JSON_LANGUAGE_KEY = "json";
+  private static final String YAML_LANGUAGE_KEY = "yaml";
   private final Checks<IacCheck> checks;
 
   public CloudformationSensor(FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory, NoSonarFilter noSonarFilter, CloudformationLanguage language) {
     super(fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(CloudformationExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks((Iterable<?>) CloudformationCheckList.checks());
+  }
+
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .onlyOnLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY)
+      .name("IaC " + language.getName() + " Sensor");
   }
 
   @Override
@@ -71,7 +81,10 @@ public class CloudformationSensor extends IacSensor {
 
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
-    return sensorContext.fileSystem().predicates().and(super.mainFilePredicate(sensorContext),
+    FileSystem fileSystem = sensorContext.fileSystem();
+    return fileSystem.predicates().and(fileSystem.predicates().and(
+      fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY), fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
+      fileSystem.predicates().hasType(InputFile.Type.MAIN)),
       new FileIdentificationPredicate(sensorContext.config().get(CloudformationSettings.FILE_IDENTIFIER_KEY).orElse("")));
   }
 

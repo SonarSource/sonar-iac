@@ -19,11 +19,6 @@ public class PropertiesTest extends TestBase {
   }
 
   @Test
-  public void test_cloudformation_custom_file_suffixes() {
-    checkCustomFileSuffixesForLanguage("cloudformationCustomFileSuffixes", "cloudformation", ".cloud", 1);
-  }
-
-  @Test
   public void test_cloudformation_identifier() {
     checkCustomFileIdentifierForLanguage("cloudformationDefaultIdentifier", "cloudformation", "AWSTemplateFormatVersion", 5);
     checkCustomFileIdentifierForLanguage("cloudformationCustomIdentifier", "cloudformation", "CustomIdentifier", 3);

@@ -14,18 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CloudformationLanguageTest {
 
   @Test
-  void should_return_terraform_file_suffixes() {
-    MapSettings settings = new MapSettings();
-    CloudformationLanguage language = new CloudformationLanguage(settings.asConfig());
-    assertThat(language.getFileSuffixes()).containsExactly(".json",".yaml",".yml");
-
-    settings.setProperty(CloudformationSettings.FILE_SUFFIXES_KEY, "");
-    assertThat(language.getFileSuffixes()).containsExactly(".json",".yaml",".yml");
-
-    settings.setProperty(CloudformationSettings.FILE_SUFFIXES_KEY, ".bar, .foo");
-    assertThat(language.getFileSuffixes()).containsOnly(".bar", ".foo");
-
-    settings.setProperty(CloudformationSettings.FILE_SUFFIXES_KEY, ".foo, , ");
-    assertThat(language.getFileSuffixes()).containsOnly(".foo");
+  void should_return_cloudformation_file_suffixes() {
+    CloudformationLanguage language = new CloudformationLanguage();
+    assertThat(language.getFileSuffixes()).isEmpty();
   }
 }

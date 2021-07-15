@@ -7,6 +7,7 @@ package org.sonarsource.iac;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -22,6 +23,7 @@ public class Tests {
 
   static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE[8.9]";
+  static final String SONAR_CONFIG_VERSION = "DEV";
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR;
@@ -32,6 +34,7 @@ public class Tests {
     ORCHESTRATOR = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
       .addPlugin(IAC_PLUGIN_LOCATION)
+      .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", SONAR_CONFIG_VERSION))
       .restoreProfileAtStartup(FileLocation.of("src/test/resources/nosonar-terraform.xml"))
       .build();
   }

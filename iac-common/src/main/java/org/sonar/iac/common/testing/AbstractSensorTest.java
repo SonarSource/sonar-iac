@@ -66,7 +66,7 @@ public abstract class AbstractSensorTest {
     return new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(baseDir.toPath())
       .setType(InputFile.Type.MAIN)
-      .setLanguage(language().getKey())
+      .setLanguage(fileLanguageKey())
       .setCharset(StandardCharsets.UTF_8)
       .setContents(content)
       .build();
@@ -90,4 +90,6 @@ public abstract class AbstractSensorTest {
   protected abstract String repositoryKey();
 
   protected abstract Language language();
+
+  protected abstract String fileLanguageKey();
 }
