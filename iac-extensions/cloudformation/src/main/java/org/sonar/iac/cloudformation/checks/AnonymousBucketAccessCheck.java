@@ -29,7 +29,7 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     CloudformationTree properties = resource.properties();
-    if (resource.isType("AWS::S3::BucketPolicy") && properties != null&& isAllowingPolicy(properties)) {
+    if (resource.isType("AWS::S3::BucketPolicy") && properties != null && isAllowingPolicy(properties)) {
       List<CloudformationTree> anonymousPrincipals = anonymousPrincipals(properties);
       if (!anonymousPrincipals.isEmpty()) {
         ctx.reportIssue(resource.type(), MESSAGE, secondaryLocations(anonymousPrincipals));
