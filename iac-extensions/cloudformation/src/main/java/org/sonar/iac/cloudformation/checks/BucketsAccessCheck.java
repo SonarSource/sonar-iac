@@ -8,7 +8,7 @@ package org.sonar.iac.cloudformation.checks;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.AttributeUtils;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6265")
@@ -22,7 +22,7 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
       return;
     }
 
-    AttributeUtils.value(resource.properties(), "AccessControl")
+    PropertyUtils.value(resource.properties(), "AccessControl")
       .ifPresent(acl -> {
         String aclValue = TextUtils.getValue(acl).orElse(null);
         if ("PublicReadWrite".equals(aclValue) || "PublicRead".equals(aclValue)) {

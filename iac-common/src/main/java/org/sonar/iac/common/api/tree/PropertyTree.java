@@ -5,8 +5,7 @@
  */
 package org.sonar.iac.common.api.tree;
 
-import java.util.List;
-
-public interface HasAttributes {
-  <T extends AttributeTree> List<T> attributes();
+public interface PropertyTree {
+  Tree key();
+  Tree value();
 }

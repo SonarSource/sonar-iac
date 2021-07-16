@@ -10,38 +10,38 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.AttributeTree;
-import org.sonar.iac.common.api.tree.HasAttributes;
+import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class AttributeUtils {
+public class PropertyUtils {
 
-  private AttributeUtils() {
+  private PropertyUtils() {
     // Utils class
   }
 
   public static Trilean has(@Nullable Tree tree, String key) {
-    if (tree instanceof HasAttributes) {
-      Set<Trilean> elementTrileans = ((HasAttributes) tree).attributes().stream().map(element -> TextUtils.isValue(element.key(), key)).collect(Collectors.toSet());
+    if (tree instanceof HasProperties) {
+      Set<Trilean> elementTrileans = ((HasProperties) tree).attributes().stream().map(element -> TextUtils.isValue(element.key(), key)).collect(Collectors.toSet());
       if (elementTrileans.stream().anyMatch(Trilean::isTrue)) return Trilean.TRUE;
       if (elementTrileans.stream().anyMatch(Trilean::isUnknown)) return Trilean.UNKNOWN;
     }
     return Trilean.FALSE;
   }
 
-  public static Optional<AttributeTree> get(@Nullable Tree tree, String key) {
-    if (!(tree instanceof HasAttributes)) return Optional.empty();
-    return ((HasAttributes) tree).attributes().stream()
+  public static Optional<PropertyTree> get(@Nullable Tree tree, String key) {
+    if (!(tree instanceof HasProperties)) return Optional.empty();
+    return ((HasProperties) tree).attributes().stream()
       .filter(attribute -> TextUtils.isValue(attribute.key(), key).isTrue())
       .findFirst();
   }
 
   public static Optional<Tree> key(@Nullable Tree tree, String key) {
-    return get(tree, key).map(AttributeTree::key);
+    return get(tree, key).map(PropertyTree::key);
   }
 
   public static Optional<Tree> value(@Nullable Tree tree, String key) {
-    return get(tree, key).map(AttributeTree::value);
+    return get(tree, key).map(PropertyTree::value);
   }
 
   public static <T extends Tree> Optional<T> value(@Nullable Tree tree, String key, Class<T> clazz) {

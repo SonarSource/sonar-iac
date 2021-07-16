@@ -14,7 +14,7 @@ import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.AttributeUtils;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6281")
@@ -34,7 +34,7 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
       return;
     }
 
-    Optional<CloudformationTree> accessConfiguration = AttributeUtils.value(resource.properties(), "PublicAccessBlockConfiguration", CloudformationTree.class);
+    Optional<CloudformationTree> accessConfiguration = PropertyUtils.value(resource.properties(), "PublicAccessBlockConfiguration", CloudformationTree.class);
     if (accessConfiguration.isPresent()) {
       checkConfiguration(ctx, resource, accessConfiguration.get());
     } else {
@@ -44,7 +44,7 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
 
   private static void checkConfiguration(CheckContext ctx, Resource resource, CloudformationTree configuration) {
     List<SecondaryLocation> problemsAsSecondaryLocations = configurationProblemsAsSecondaryLocations(configuration);
-    Tree primaryLocationTree = AttributeUtils.key(resource.properties(), "PublicAccessBlockConfiguration").orElse(configuration);
+    Tree primaryLocationTree = PropertyUtils.key(resource.properties(), "PublicAccessBlockConfiguration").orElse(configuration);
 
     if (!problemsAsSecondaryLocations.isEmpty() || hasMissingSetting(configuration)) {
       problemsAsSecondaryLocations.add(new SecondaryLocation(resource.type(), SECONDARY_MSG_BUCKET));
@@ -53,12 +53,12 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
   }
 
   private static boolean hasMissingSetting(CloudformationTree configuration) {
-    return ATTRIBUTES_TO_CHECK.stream().anyMatch(a -> AttributeUtils.has(configuration, a).isFalse());
+    return ATTRIBUTES_TO_CHECK.stream().anyMatch(a -> PropertyUtils.has(configuration, a).isFalse());
   }
 
   private static List<SecondaryLocation> configurationProblemsAsSecondaryLocations(CloudformationTree configuration) {
     List<SecondaryLocation> problems = new ArrayList<>();
-    ATTRIBUTES_TO_CHECK.forEach(attribute -> AttributeUtils.value(configuration, attribute)
+    ATTRIBUTES_TO_CHECK.forEach(attribute -> PropertyUtils.value(configuration, attribute)
       .filter(TextUtils::isValueFalse)
       .ifPresent(c -> problems.add(new SecondaryLocation(c, SECONDARY_MSG_PROPERTY))));
     return problems;
