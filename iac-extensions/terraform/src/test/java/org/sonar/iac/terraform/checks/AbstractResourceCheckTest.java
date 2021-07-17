@@ -27,7 +27,7 @@ class AbstractResourceCheckTest {
   })
   void test_isResource(String type, boolean isS3Bucket) {
     BlockTree blockTree = block()
-      .identifier(type)
+      .key(type)
       .build();
     assertThat(AbstractResourceCheck.isResource(blockTree)).isEqualTo(isS3Bucket);
   }
@@ -53,7 +53,7 @@ class AbstractResourceCheckTest {
   })
   void test_isS3Bucket(String type, String label, boolean isS3Bucket) {
     BlockTree blockTree = block()
-      .identifier(type)
+      .key(type)
       .labels(label(label))
       .build();
     assertThat(AbstractResourceCheck.isS3BucketResource(blockTree)).isEqualTo(isS3Bucket);

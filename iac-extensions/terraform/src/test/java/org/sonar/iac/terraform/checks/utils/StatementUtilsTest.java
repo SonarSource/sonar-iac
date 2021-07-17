@@ -19,10 +19,10 @@ import static org.sonar.iac.terraform.TestTreeBuilders.LiteralExprBuilder.string
 class StatementUtilsTest {
 
   private static final LiteralExprTree str = stringExpr("foo");
-  private static final AttributeTree attr1 = attribute().identifier("statement1").value(str).build();
-  private static final AttributeTree attr2 = attribute().identifier("statement2").build();
-  private static final BlockTree block1 = block().identifier("statement1").build();
-  private static final BlockTree block2 = block().identifier("statement3").build();
+  private static final AttributeTree attr1 = attribute().key("statement1").value(str).build();
+  private static final AttributeTree attr2 = attribute().key("statement2").build();
+  private static final BlockTree block1 = block().key("statement1").build();
+  private static final BlockTree block2 = block().key("statement3").build();
   private static final BlockTree blockTree = block().statements(Arrays.asList(attr1, attr2, block1, block2)).build();
 
   @Test

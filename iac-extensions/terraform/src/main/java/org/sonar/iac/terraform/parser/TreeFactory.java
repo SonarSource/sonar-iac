@@ -14,6 +14,7 @@ import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeSplatAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.ForObjectTree;
@@ -42,6 +43,7 @@ import org.sonar.iac.terraform.tree.impl.AttributeSplatAccessTreeImpl;
 import org.sonar.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.iac.terraform.tree.impl.BinaryExpressionTreeImpl;
 import org.sonar.iac.terraform.tree.impl.BlockTreeImpl;
+import org.sonar.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ConditionTreeImpl;
 import org.sonar.iac.terraform.tree.impl.FileTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ForObjectTreeImpl;
@@ -75,12 +77,14 @@ public class TreeFactory {
     SyntaxToken newline,
     Optional<List<StatementTree>> statements,
     SyntaxToken closeBrace) {
-    return new BlockTreeImpl(type, labels.orNull(), openBrace, newline, statements.or(Collections.emptyList()), closeBrace, Kind.BLOCK);
+    BodyTree body = new BodyTreeImpl(openBrace, newline, statements.or(Collections.emptyList()), closeBrace);
+    return new BlockTreeImpl(type, labels.orNull(), body, Kind.BLOCK);
   }
 
   public BlockTree oneLineBlock(SyntaxToken type, Optional<List<LabelTree>> labels, SyntaxToken openBrace, Optional<AttributeTree> attribute, SyntaxToken closeBrace) {
     List<StatementTree> statements = attribute.isPresent() ? Collections.singletonList(attribute.get()) : Collections.emptyList();
-    return new BlockTreeImpl(type, labels.orNull(), openBrace, null, statements, closeBrace, Kind.ONE_LINE_BLOCK);
+    BodyTree body = new BodyTreeImpl(openBrace, null, statements, closeBrace);
+    return new BlockTreeImpl(type, labels.orNull(), body, Kind.ONE_LINE_BLOCK);
   }
 
   public LabelTree label(SyntaxToken token) {
@@ -111,8 +115,8 @@ public class TreeFactory {
     return new LiteralExprTreeImpl(Kind.HEREDOC_LITERAL, token);
   }
 
-  public AttributeTree attribute(SyntaxToken name, SyntaxToken equalSign, ExpressionTree value) {
-    return new AttributeTreeImpl(name, equalSign, value);
+  public AttributeTree attribute(SyntaxToken key, SyntaxToken equalSign, ExpressionTree value) {
+    return new AttributeTreeImpl(key, equalSign, value);
   }
 
   public ObjectTree object(SyntaxToken openBrace, Optional<SeparatedTrees<ObjectElementTree>> elements, SyntaxToken closeBrace) {

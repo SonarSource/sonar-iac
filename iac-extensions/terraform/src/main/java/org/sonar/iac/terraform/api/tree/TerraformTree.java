@@ -26,6 +26,8 @@ public interface TerraformTree extends Tree {
 
     BLOCK(BlockTree.class),
 
+    BODY(BodyTree.class),
+
     CONDITION(ConditionTree.class),
 
     FILE(FileTree.class),
