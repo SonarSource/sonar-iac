@@ -16,10 +16,8 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
-import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
-import org.sonar.iac.terraform.checks.utils.ObjectUtils;
 
 @Rule(key = "S6252")
 public class UnversionedS3BucketCheck extends AbstractResourceCheck {
@@ -58,7 +56,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
 
   private static void checkAttribute(CheckContext ctx, LabelTree bucketLabel, AttributeTree attribute) {
     if (attribute.value().is(Kind.OBJECT)) {
-      Optional<ObjectElementTree> enabled = ObjectUtils.getElement((ObjectTree) attribute.value(), "enabled");
+      Optional<ObjectElementTree> enabled = PropertyUtils.get(attribute.value(), "enabled", ObjectElementTree.class);
       if (enabled.isPresent()) {
         checkSuspendedVersioning(ctx, bucketLabel, enabled.get(), enabled.get().value());
       } else {

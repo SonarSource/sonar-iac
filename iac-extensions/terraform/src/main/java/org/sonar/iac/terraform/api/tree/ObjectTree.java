@@ -5,6 +5,10 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-public interface ObjectTree extends ExpressionTree {
+import java.util.List;
+import org.sonar.iac.common.api.tree.HasProperties;
+
+public interface ObjectTree extends ExpressionTree, HasProperties {
   SeparatedTrees<ObjectElementTree> elements();
+  List<ObjectElementTree> properties();
 }

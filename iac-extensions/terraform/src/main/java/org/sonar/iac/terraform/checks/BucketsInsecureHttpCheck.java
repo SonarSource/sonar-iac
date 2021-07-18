@@ -31,7 +31,6 @@ import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck.Policy;
-import org.sonar.iac.terraform.checks.utils.ObjectUtils;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
@@ -193,7 +192,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
 
     private static boolean isInsecurePrincipal(ExpressionTree principal) {
-      return ObjectUtils.getElementValue(principal, "AWS")
+      return PropertyUtils.value(principal, "AWS", ExpressionTree.class)
         .filter(awsPrincipal -> awsPrincipal.is(Kind.TUPLE) || TextUtils.isValue(awsPrincipal, "*").isFalse())
         .isPresent();
     }
@@ -207,12 +206,12 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
 
     private static boolean isInsecureCondition(ExpressionTree condition) {
-      Optional<ExpressionTree> bool = ObjectUtils.getElementValue(condition, "Bool");
+      Optional<Tree> bool = PropertyUtils.value(condition, "Bool");
       if (!(bool.isPresent() && bool.get() instanceof ObjectTree)) {
         return false;
       }
 
-      return ObjectUtils.getElementValue((ObjectTree) bool.get(), "aws:SecureTransport")
+      return PropertyUtils.value(bool.get(), "aws:SecureTransport")
         .filter(e -> !TextUtils.isValueFalse(e)).isPresent();
     }
   }

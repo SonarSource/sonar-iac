@@ -45,7 +45,7 @@ public class AwsTagNameConventionCheck extends AbstractResourceCheck {
   private static Stream<LiteralExprTree> getTagKeyStream(BlockTree resource) {
     return PropertyUtils.value(resource, "tags", ObjectTree.class)
       .map(o -> o.elements().trees().stream()).orElse(Stream.empty())
-      .map(ObjectElementTree::name).filter(LiteralExprTree.class::isInstance).map(LiteralExprTree.class::cast);
+      .map(ObjectElementTree::key).filter(LiteralExprTree.class::isInstance).map(LiteralExprTree.class::cast);
   }
 
   private boolean isMismatchingKey(LiteralExprTree tagKey) {

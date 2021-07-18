@@ -18,7 +18,6 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
-import org.sonar.iac.terraform.checks.utils.ObjectUtils;
 
 @Rule(key = "S6270")
 public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
@@ -48,7 +47,7 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
       wildcardRules.add((LiteralExprTree) principal);
     } else {
       // We focus on the element only on the AWS element at the moment, if it is an object mapping.
-      ObjectUtils.getElementValue(principal, "AWS").ifPresent(aws -> {
+      PropertyUtils.value(principal, "AWS", ExpressionTree.class).ifPresent(aws -> {
         if (aws.is(Kind.STRING_LITERAL)) {
           // "AWS": "*"
           wildcardRules.addAll(getWildcardRules(aws));
