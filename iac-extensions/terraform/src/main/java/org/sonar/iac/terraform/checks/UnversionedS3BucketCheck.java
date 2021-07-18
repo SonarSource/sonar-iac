@@ -20,7 +20,6 @@ import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.checks.utils.ObjectUtils;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6252")
 public class UnversionedS3BucketCheck extends AbstractResourceCheck {
@@ -37,7 +36,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     }
     LabelTree bucketLabel = block.labels().get(0);
 
-    Optional<BlockTree> versioningBlock = StatementUtils.getBlock(block, "versioning");
+    Optional<BlockTree> versioningBlock = PropertyUtils.get(block, "versioning", BlockTree.class);
     versioningBlock.ifPresent(b -> checkBlock(ctx, bucketLabel, b));
 
     Optional<AttributeTree> versioningAttribute = PropertyUtils.get(block, "versioning", AttributeTree.class);

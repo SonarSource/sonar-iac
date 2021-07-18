@@ -17,6 +17,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -31,7 +32,6 @@ import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck.Policy;
 import org.sonar.iac.terraform.checks.utils.ObjectUtils;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
@@ -83,23 +83,23 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   private static Map<BlockTree, Policy> bucketsToPolicies(List<BlockTree> buckets, List<BlockTree> policies) {
     Map<Tree, BlockTree> bucketIdToPolicies = new HashMap<>();
     for (BlockTree policy : policies) {
-      StatementUtils.getAttributeValue(policy, "bucket").ifPresent(tree -> bucketIdToPolicies.put(tree, policy));
+      PropertyUtils.value(policy, "bucket").ifPresent(tree -> bucketIdToPolicies.put(tree, policy));
     }
 
     Map<BlockTree, Policy> result = new HashMap<>();
     for (BlockTree bucket : buckets) {
       // the bucket might directly contain the policy as an attribute
-      Optional<ExpressionTree> nestedPolicy = StatementUtils.getAttributeValue(bucket, "policy");
+      Optional<Tree> nestedPolicy = PropertyUtils.value(bucket, "policy");
       if (nestedPolicy.isPresent()) {
         result.put(bucket, Policy.from(nestedPolicy.get()));
         continue;
       }
 
       // if no nested policy was found, check if one of the collected aws_s3_bucket_policy resources are linked to the bucket
-      Optional<ExpressionTree> policyTree = bucketIdToPolicies.entrySet().stream()
+      Optional<Tree> policyTree = bucketIdToPolicies.entrySet().stream()
         .filter(e -> correspondsToBucket(e.getKey(), bucket))
         .map(Map.Entry::getValue)
-        .map(p -> StatementUtils.getAttributeValue(p, "policy"))
+        .map(p -> PropertyUtils.value(p, "policy"))
         .filter(Optional::isPresent)
         .map(Optional::get)
         .findFirst();
@@ -115,10 +115,9 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
   private static boolean correspondsToBucket(Tree key, BlockTree bucket) {
     if (key instanceof LiteralExprTree) {
-      Optional<ExpressionTree> name = StatementUtils.getAttributeValue(bucket, "bucket");
-      if (name.isPresent() && name.get() instanceof LiteralExprTree) {
-        return ((LiteralExprTree) key).token().value().equals(((LiteralExprTree) name.get()).token().value());
-      }
+      return PropertyUtils.value(bucket, "bucket")
+        .map(name -> TextUtils.isValue(name, ((LiteralExprTree) key).value()).isTrue())
+        .orElse(false);
     } else if (key instanceof AttributeAccessTree && ((AttributeAccessTree) key).object() instanceof AttributeAccessTree && bucket.labels().size() >= 2) {
       AttributeAccessTree object = (AttributeAccessTree) ((AttributeAccessTree) key).object();
       return object.attribute().value().equals(bucket.labels().get(1).value());

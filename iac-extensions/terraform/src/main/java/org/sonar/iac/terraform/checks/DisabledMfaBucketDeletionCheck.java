@@ -15,7 +15,6 @@ import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6255")
 public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
@@ -30,7 +29,7 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
 
 
     LabelTree resourceType = tree.labels().get(0);
-    Optional<BlockTree> versioning = StatementUtils.getBlock(tree, "versioning");
+    Optional<BlockTree> versioning = PropertyUtils.get(tree, "versioning", BlockTree.class);
     if (versioning.isPresent()) {
       Optional<AttributeTree> mfaDeleteAttribute = PropertyUtils.get(versioning.get(), "mfa_delete", AttributeTree.class);
       if (mfaDeleteAttribute.isPresent()) {

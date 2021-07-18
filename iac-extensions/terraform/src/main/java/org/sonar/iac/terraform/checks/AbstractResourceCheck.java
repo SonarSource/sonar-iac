@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -84,7 +85,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
      * In case the policy tree does not have the expected structure (e.g., is provided as a heredoc), we create an incomplete policy
      * which we consider as safe as we cannot reason about it.
      */
-    protected static Policy from(ExpressionTree policyExpr) {
+    protected static Policy from(Tree policyExpr) {
 
       // For now we only handle policy expressions if they are wrapped by a function call
       if (!(policyExpr instanceof FunctionCallTree) || ((FunctionCallTree) policyExpr).arguments().trees().isEmpty()) {
