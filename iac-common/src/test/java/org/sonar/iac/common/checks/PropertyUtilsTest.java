@@ -16,14 +16,14 @@ import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.checks.PropertyUtilsTest.TestProperty.attribute;
+import static org.sonar.iac.common.checks.PropertyUtilsTest.TestPropertyTree.attribute;
 import static org.sonar.iac.common.checks.PropertyUtilsTest.TestTree.tree;
 import static org.sonar.iac.common.checks.TextUtilsTest.TestTextTree.text;
 
 class PropertyUtilsTest {
 
-  Tree value1 = text("value1");
-  Tree value2 = text("value2");
+  TextTree value1 = text("value1");
+  TextTree value2 = text("value2");
   TextTree key2 = text("key2");
   PropertyTree attribute2 = attribute(key2, value2);
   TestTree tree = tree(attribute("key1", value1), attribute2);
@@ -43,6 +43,8 @@ class PropertyUtilsTest {
     assertThat(PropertyUtils.get(tree, "key2")).isPresent().get().isEqualTo(attribute2);
     assertThat(PropertyUtils.get(tree, "key3")).isNotPresent();
     assertThat(PropertyUtils.get(null, "key3")).isNotPresent();
+    assertThat(PropertyUtils.get(tree, "key2", TestPropertyTree.class)).isPresent();
+    assertThat(PropertyUtils.get(tree, "key2", OtherTree.class)).isNotPresent();
   }
 
   @Test
@@ -74,18 +76,18 @@ class PropertyUtilsTest {
 
   }
 
-  static class TestProperty implements PropertyTree {
+  static class TestPropertyTree extends AbstractTestTree implements PropertyTree {
 
     private final Tree key;
     private final Tree value;
 
-    public TestProperty(Tree key, Tree value) {
+    public TestPropertyTree(Tree key, Tree value) {
       this.key = key;
       this.value = value;
     }
 
     static PropertyTree attribute(Tree key, Tree value) {
-      return new TestProperty(key, value);
+      return new TestPropertyTree(key, value);
     }
 
     static PropertyTree attribute(String key, Tree value) {
