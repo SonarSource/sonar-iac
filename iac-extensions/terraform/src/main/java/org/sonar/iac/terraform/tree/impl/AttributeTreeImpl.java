@@ -24,11 +24,6 @@ public class AttributeTreeImpl extends TerraformTreeImpl implements AttributeTre
   }
 
   @Override
-  public SyntaxToken identifier() {
-    return key;
-  }
-
-  @Override
   public SyntaxToken key() {
     return key;
   }

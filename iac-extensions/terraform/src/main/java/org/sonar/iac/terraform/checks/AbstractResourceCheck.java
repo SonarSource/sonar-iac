@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FunctionCallTree;
@@ -29,7 +30,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
   protected abstract void checkResource(CheckContext ctx, BlockTree resource);
 
   public static boolean isResource(BlockTree tree) {
-    return "resource".equals(tree.identifier().value());
+    return TextUtils.isValue(tree.key(), "resource").isTrue();
   }
 
   public static boolean isResource(BlockTree tree, String type) {

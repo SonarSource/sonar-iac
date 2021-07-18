@@ -53,6 +53,6 @@ public class StatementUtils {
   }
 
   private static boolean isStatement(StatementTree statement, String identifier) {
-    return identifier.equals(statement.identifier().value());
+    return identifier.equals(statement.key().value());
   }
 }

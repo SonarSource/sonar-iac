@@ -6,9 +6,8 @@
 package org.sonar.iac.terraform.api.tree;
 
 import java.util.List;
-import org.sonar.iac.common.api.tree.PropertyTree;
 
-public interface BlockTree extends HasStatements, StatementTree, PropertyTree {
+public interface BlockTree extends HasStatements, StatementTree {
   List<LabelTree> labels();
   BodyTree body();
 }

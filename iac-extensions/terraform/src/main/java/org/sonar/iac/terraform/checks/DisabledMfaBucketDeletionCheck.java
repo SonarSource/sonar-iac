@@ -39,7 +39,7 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
         }
         return;
       }
-      ctx.reportIssue(versioning.get().identifier(), MESSAGE, new SecondaryLocation(resourceType, MESSAGE_SECONDARY));
+      ctx.reportIssue(versioning.get().key(), MESSAGE, new SecondaryLocation(resourceType, MESSAGE_SECONDARY));
       return;
     }
     ctx.reportIssue(resourceType, MESSAGE);

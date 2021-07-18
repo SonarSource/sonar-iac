@@ -30,11 +30,6 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   }
 
   @Override
-  public SyntaxToken identifier() {
-    return key;
-  }
-
-  @Override
   public List<LabelTree> labels() {
     return labels;
   }

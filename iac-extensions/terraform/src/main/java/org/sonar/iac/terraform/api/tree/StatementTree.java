@@ -5,6 +5,8 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-public interface StatementTree extends TerraformTree {
-  SyntaxToken identifier();
+import org.sonar.iac.common.api.tree.PropertyTree;
+
+public interface StatementTree extends TerraformTree, PropertyTree {
+  SyntaxToken key();
 }

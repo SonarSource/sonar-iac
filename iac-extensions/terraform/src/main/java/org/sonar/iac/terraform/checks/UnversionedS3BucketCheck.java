@@ -52,7 +52,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     if (enabled.isPresent()) {
       checkSuspendedVersioning(ctx, bucket, enabled.get(), enabled.get().value());
     } else {
-      ctx.reportIssue(block.identifier(), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(bucket, SECONDARY_MESSAGE));
+      ctx.reportIssue(block.key(), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(bucket, SECONDARY_MESSAGE));
     }
   }
 
@@ -62,7 +62,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
       if (enabled.isPresent()) {
         checkSuspendedVersioning(ctx, bucketLabel, enabled.get(), enabled.get().value());
       } else {
-        ctx.reportIssue(attribute.identifier(), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(bucketLabel, SECONDARY_MESSAGE));
+        ctx.reportIssue(attribute.key(), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(bucketLabel, SECONDARY_MESSAGE));
       }
     }
   }
