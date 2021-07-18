@@ -45,12 +45,7 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   }
 
   @Override
-  public Tree value() {
-    return body;
-  }
-
-  @Override
-  public BodyTree body() {
+  public BodyTree value() {
     return body;
   }
 

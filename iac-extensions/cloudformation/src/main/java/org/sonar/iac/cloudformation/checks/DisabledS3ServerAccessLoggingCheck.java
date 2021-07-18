@@ -6,6 +6,7 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -28,7 +29,7 @@ public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
     }
   }
 
-  private static boolean isMaybeLoggingBucket(CloudformationTree properties) {
+  private static boolean isMaybeLoggingBucket(@Nullable CloudformationTree properties) {
     Optional<Tree> acl = PropertyUtils.value(properties, "AccessControl");
     if (acl.isPresent()) {
       Optional<String> scalarValue = TextUtils.getValue(acl.get());
