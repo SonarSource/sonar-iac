@@ -8,5 +8,5 @@ package org.sonar.iac.common.api.tree;
 import java.util.List;
 
 public interface HasProperties {
-  <T extends PropertyTree> List<T> attributes();
+  <T extends PropertyTree> List<T> properties();
 }

@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class PropertyUtils {
@@ -22,7 +22,9 @@ public class PropertyUtils {
 
   public static Trilean has(@Nullable Tree tree, String key) {
     if (tree instanceof HasProperties) {
-      Set<Trilean> elementTrileans = ((HasProperties) tree).attributes().stream().map(element -> TextUtils.isValue(element.key(), key)).collect(Collectors.toSet());
+      Set<Trilean> elementTrileans = ((HasProperties) tree).properties().stream()
+        .map(element -> TextUtils.isValue(element.key(), key))
+        .collect(Collectors.toSet());
       if (elementTrileans.stream().anyMatch(Trilean::isTrue)) return Trilean.TRUE;
       if (elementTrileans.stream().anyMatch(Trilean::isUnknown)) return Trilean.UNKNOWN;
     }
@@ -31,9 +33,13 @@ public class PropertyUtils {
 
   public static Optional<PropertyTree> get(@Nullable Tree tree, String key) {
     if (!(tree instanceof HasProperties)) return Optional.empty();
-    return ((HasProperties) tree).attributes().stream()
+    return ((HasProperties) tree).properties().stream()
       .filter(attribute -> TextUtils.isValue(attribute.key(), key).isTrue())
       .findFirst();
+  }
+
+  public static <T extends Tree> Optional<T> get(@Nullable Tree tree, String key, Class<T> clazz) {
+    return get(tree, key).filter(clazz::isInstance).map(clazz::cast);
   }
 
   public static Optional<Tree> key(@Nullable Tree tree, String key) {

@@ -116,7 +116,7 @@ class PropertyUtilsTest {
     }
 
     @Override
-    public List<PropertyTree> attributes() {
+    public List<PropertyTree> properties() {
       return attributes;
     }
 

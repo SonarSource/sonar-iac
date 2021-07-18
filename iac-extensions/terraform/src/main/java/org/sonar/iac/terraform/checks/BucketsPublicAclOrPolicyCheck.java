@@ -21,6 +21,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -80,7 +81,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
   }
 
   private static boolean hasMissingStatement(BlockTree publicAccessBlock) {
-    return PAB_STATEMENTS.stream().anyMatch(e -> !StatementUtils.hasStatement(publicAccessBlock, e));
+    return PAB_STATEMENTS.stream().anyMatch(e -> !PropertyUtils.has(publicAccessBlock, e).isTrue());
   }
 
   private static class S3Bucket {

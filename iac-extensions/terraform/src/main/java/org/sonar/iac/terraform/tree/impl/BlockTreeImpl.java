@@ -35,7 +35,7 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   }
 
   @Override
-  public List<StatementTree> statements() {
+  public List<StatementTree> properties() {
     return body.statements();
   }
 

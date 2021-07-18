@@ -9,12 +9,11 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6265")
 public class BucketsAccessCheck extends AbstractResourceCheck {
@@ -27,8 +26,7 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
       return;
     }
 
-    Optional<LiteralExprTree> acl = StatementUtils.getAttribute(tree, "acl")
-      .map(AttributeTree::value)
+    Optional<LiteralExprTree> acl = PropertyUtils.value(tree, "acl", TerraformTree.class)
       .filter(x -> x.is(TerraformTree.Kind.STRING_LITERAL))
       .map(LiteralExprTree.class::cast);
 

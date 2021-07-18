@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -39,7 +40,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     Optional<BlockTree> versioningBlock = StatementUtils.getBlock(block, "versioning");
     versioningBlock.ifPresent(b -> checkBlock(ctx, bucketLabel, b));
 
-    Optional<AttributeTree> versioningAttribute = StatementUtils.getAttribute(block, "versioning");
+    Optional<AttributeTree> versioningAttribute = PropertyUtils.get(block, "versioning", AttributeTree.class);
     versioningAttribute.ifPresent(a -> checkAttribute(ctx, bucketLabel, a));
 
     if (!versioningBlock.isPresent() && !versioningAttribute.isPresent()) {
@@ -48,7 +49,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   }
 
   private static void checkBlock(CheckContext ctx, LabelTree bucket, BlockTree block) {
-    Optional<AttributeTree> enabled = StatementUtils.getAttribute(block, "enabled");
+    Optional<AttributeTree> enabled = PropertyUtils.get(block, "enabled", AttributeTree.class);
     if (enabled.isPresent()) {
       checkSuspendedVersioning(ctx, bucket, enabled.get(), enabled.get().value());
     } else {

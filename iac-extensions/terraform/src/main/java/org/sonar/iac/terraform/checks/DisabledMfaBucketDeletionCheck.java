@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -31,7 +32,7 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
     LabelTree resourceType = tree.labels().get(0);
     Optional<BlockTree> versioning = StatementUtils.getBlock(tree, "versioning");
     if (versioning.isPresent()) {
-      Optional<AttributeTree> mfaDeleteAttribute = StatementUtils.getAttribute(versioning.get(), "mfa_delete");
+      Optional<AttributeTree> mfaDeleteAttribute = PropertyUtils.get(versioning.get(), "mfa_delete", AttributeTree.class);
       if (mfaDeleteAttribute.isPresent()) {
         ExpressionTree value = mfaDeleteAttribute.get().value();
         if (TextUtils.isValueFalse(value)) {

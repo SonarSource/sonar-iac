@@ -26,33 +26,6 @@ class StatementUtilsTest {
   private static final BlockTree blockTree = block().statements(Arrays.asList(attr1, attr2, block1, block2)).build();
 
   @Test
-  void test_hasStatement() {
-    assertThat(StatementUtils.hasStatement(blockTree, "statement1")).isTrue();
-    assertThat(StatementUtils.hasStatement(blockTree, "statement2")).isTrue();
-    assertThat(StatementUtils.hasStatement(blockTree, "statement4")).isFalse();
-  }
-
-  @Test
-  void test_hasAttribute() {
-    assertThat(StatementUtils.hasAttribute(blockTree, "statement1")).isTrue();
-    assertThat(StatementUtils.hasAttribute(blockTree, "statement2")).isTrue();
-    assertThat(StatementUtils.hasAttribute(blockTree, "statement3")).isFalse();
-  }
-
-  @Test
-  void test_hasBlock() {
-    assertThat(StatementUtils.hasBlock(blockTree, "statement1")).isTrue();
-    assertThat(StatementUtils.hasBlock(blockTree, "statement2")).isFalse();
-    assertThat(StatementUtils.hasBlock(blockTree, "statement3")).isTrue();
-  }
-
-  @Test
-  void test_getAttribute() {
-    assertThat(StatementUtils.getAttribute(blockTree, "statement1")).isPresent().get().isEqualTo(attr1);
-    assertThat(StatementUtils.getAttribute(blockTree, "statement3")).isNotPresent();
-  }
-
-  @Test
   void test_getAttributeValue() {
     assertThat(StatementUtils.getAttributeValue(blockTree, "statement1")).isPresent().get().isEqualTo(str);
     assertThat(StatementUtils.getAttributeValue(blockTree, "statement3")).isNotPresent();
