@@ -3,10 +3,10 @@
  * All rights reserved
  * mailto:info AT sonarsource DOT com
  */
-package org.sonar.iac.terraform.api.tree;
+package org.sonar.iac.common.api.tree;
 
 import java.util.List;
 
-public interface HasStatements {
-  List<StatementTree> statements();
+public interface HasProperties {
+  <T extends PropertyTree> List<T> properties();
 }

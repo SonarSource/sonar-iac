@@ -11,33 +11,22 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.StatementTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
 public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
-  private final SyntaxToken identifier;
+  private final SyntaxToken key;
   private final List<LabelTree> labels;
-  private final SyntaxToken openBrace;
-  private final SyntaxToken newlineToken;
-  private final List<StatementTree> statements;
-  private final SyntaxToken closeBrace;
+  private final BodyTree body;
   private Kind kind;
 
-  public BlockTreeImpl(SyntaxToken identifier, @Nullable List<LabelTree> labels, SyntaxToken openBrace, @Nullable SyntaxToken newlineToken,
-    List<StatementTree> statements, SyntaxToken closeBrace, Kind kind) {
-    this.identifier = identifier;
+  public BlockTreeImpl(SyntaxToken key, @Nullable List<LabelTree> labels, BodyTree body, Kind kind) {
+    this.key = key;
     this.labels = labels != null ? labels : Collections.emptyList();
-    this.openBrace = openBrace;
-    this.newlineToken = newlineToken;
-    this.statements = statements;
-    this.closeBrace = closeBrace;
+    this.body = body;
     this.kind = kind;
-  }
-
-  @Override
-  public SyntaxToken identifier() {
-    return identifier;
   }
 
   @Override
@@ -46,21 +35,26 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   }
 
   @Override
-  public List<StatementTree> statements() {
-    return statements;
+  public List<StatementTree> properties() {
+    return body.statements();
+  }
+
+  @Override
+  public SyntaxToken key() {
+    return key;
+  }
+
+  @Override
+  public BodyTree value() {
+    return body;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(identifier);
+    children.add(key);
     children.addAll(labels);
-    children.add(openBrace);
-    if (newlineToken != null) {
-      children.add(newlineToken);
-    }
-    children.addAll(statements);
-    children.add(closeBrace);
+    children.add(body);
     return children;
   }
 

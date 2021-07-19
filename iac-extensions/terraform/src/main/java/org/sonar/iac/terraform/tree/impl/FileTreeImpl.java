@@ -22,7 +22,7 @@ public class FileTreeImpl extends TerraformTreeImpl implements FileTree {
   }
 
   @Override
-  public List<StatementTree> statements() {
+  public List<StatementTree> properties() {
     return statements;
   }
 

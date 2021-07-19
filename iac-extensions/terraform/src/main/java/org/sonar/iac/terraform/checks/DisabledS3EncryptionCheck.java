@@ -7,8 +7,8 @@ package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6245")
 public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
@@ -17,7 +17,7 @@ public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree block) {
-    if (isS3Bucket(block) && !StatementUtils.hasStatement(block, STATEMENT_KEY)) {
+    if (isS3Bucket(block) && !PropertyUtils.has(block, STATEMENT_KEY).isTrue()) {
       ctx.reportIssue(block.labels().get(0), MESSAGE);
     }
   }

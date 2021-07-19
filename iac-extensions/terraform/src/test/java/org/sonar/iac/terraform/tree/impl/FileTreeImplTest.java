@@ -18,12 +18,12 @@ class FileTreeImplTest extends TerraformTreeModelTest {
   void empty_file() {
     FileTree tree = parse("", HclLexicalGrammar.FILE);
     assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.FILE);
-    assertThat(tree.statements()).isEmpty();
+    assertThat(tree.properties()).isEmpty();
   }
 
   @Test
   void with_body() {
     FileTree tree = parse("a = 1", HclLexicalGrammar.FILE);
-    assertThat(tree).isInstanceOfSatisfying(FileTreeImpl.class, f -> assertThat(f.statements()).hasSize(1));
+    assertThat(tree).isInstanceOfSatisfying(FileTreeImpl.class, f -> assertThat(f.properties()).hasSize(1));
   }
 }

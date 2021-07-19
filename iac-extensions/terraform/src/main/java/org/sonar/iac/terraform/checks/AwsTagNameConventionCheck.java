@@ -11,11 +11,11 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6273")
 public class AwsTagNameConventionCheck extends AbstractResourceCheck {
@@ -43,8 +43,8 @@ public class AwsTagNameConventionCheck extends AbstractResourceCheck {
   }
 
   private static Stream<LiteralExprTree> getTagKeyStream(BlockTree resource) {
-    return StatementUtils.getAttributeValue(resource, "tags").filter(ObjectTree.class::isInstance)
-      .map(o -> ((ObjectTree) o).elements().trees().stream()).orElse(Stream.empty())
+    return PropertyUtils.value(resource, "tags", ObjectTree.class)
+      .map(o -> o.elements().trees().stream()).orElse(Stream.empty())
       .map(ObjectElementTree::name).filter(LiteralExprTree.class::isInstance).map(LiteralExprTree.class::cast);
   }
 

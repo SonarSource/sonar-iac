@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -18,7 +19,6 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.utils.ObjectUtils;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6270")
 public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
@@ -30,7 +30,7 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     if (isResource(resource, "aws_s3_bucket_policy") || isS3Bucket(resource)) {
       // Handle policy statement if present in s3_bucket_policy or s3_bucket
-      StatementUtils.getAttributeValue(resource, "policy").map(Policy::from)
+      PropertyUtils.value(resource, "policy").map(Policy::from)
         // Filter resolvable and allowing policies only. Resolvable means effect and principal exist in the policy.
         .filter(policy -> policy.principal().isPresent() && policy.effect().filter(AnonymousBucketAccessCheck::isAllowingPolicy).isPresent())
         .ifPresent(policy -> {

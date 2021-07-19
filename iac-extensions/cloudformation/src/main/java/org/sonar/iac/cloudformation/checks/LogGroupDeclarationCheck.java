@@ -25,7 +25,7 @@ import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.checks.AttributeUtils;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -66,7 +66,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
 
   // Return extracted reference identifiers for a certain LogGroup resource
   private static Set<String> getReferenceIdentifiers(Resource logGroupResource) {
-    return AttributeUtils.value(logGroupResource.properties(), "LogGroupName", CloudformationTree.class)
+    return PropertyUtils.value(logGroupResource.properties(), "LogGroupName", CloudformationTree.class)
       .map(LogGroupDeclarationCheck::resolveIdentifiersFromProperty)
       .orElse(Collections.emptySet());
   }
@@ -87,7 +87,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
   }
 
   private static Optional<String> functionName(Resource resource) {
-    return AttributeUtils.value(resource.properties(), "FunctionName")
+    return PropertyUtils.value(resource.properties(), "FunctionName")
       .filter(ScalarTree.class::isInstance).map(s -> ((ScalarTree) s).value());
   }
 
@@ -98,7 +98,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
   }
 
   private static boolean hasLogEvent(Resource resource) {
-    return AttributeUtils.value(resource.properties(), "Events")
+    return PropertyUtils.value(resource.properties(), "Events")
       .filter(MappingTree.class::isInstance).map(e -> ((MappingTree) e).elements())
       .orElse(Collections.emptyList()).stream()
       .map(TupleTree::value)

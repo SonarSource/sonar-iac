@@ -9,12 +9,12 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6255")
 public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
@@ -29,9 +29,9 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
 
 
     LabelTree resourceType = tree.labels().get(0);
-    Optional<BlockTree> versioning = StatementUtils.getBlock(tree, "versioning");
+    Optional<BlockTree> versioning = PropertyUtils.get(tree, "versioning", BlockTree.class);
     if (versioning.isPresent()) {
-      Optional<AttributeTree> mfaDeleteAttribute = StatementUtils.getAttribute(versioning.get(), "mfa_delete");
+      Optional<AttributeTree> mfaDeleteAttribute = PropertyUtils.get(versioning.get(), "mfa_delete", AttributeTree.class);
       if (mfaDeleteAttribute.isPresent()) {
         ExpressionTree value = mfaDeleteAttribute.get().value();
         if (TextUtils.isValueFalse(value)) {
@@ -39,7 +39,7 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
         }
         return;
       }
-      ctx.reportIssue(versioning.get().identifier(), MESSAGE, new SecondaryLocation(resourceType, MESSAGE_SECONDARY));
+      ctx.reportIssue(versioning.get().key(), MESSAGE, new SecondaryLocation(resourceType, MESSAGE_SECONDARY));
       return;
     }
     ctx.reportIssue(resourceType, MESSAGE);

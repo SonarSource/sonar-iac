@@ -5,14 +5,8 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-import java.util.List;
-import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
+import org.sonar.iac.common.api.tree.TextTree;
 
-public interface SyntaxToken extends TerraformTree, HasComments {
-
-  String value();
-
-  List<Comment> comments();
-
+public interface SyntaxToken extends TerraformTree, HasComments, TextTree {
 }

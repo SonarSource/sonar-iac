@@ -6,8 +6,8 @@
 package org.sonar.iac.cloudformation.api.tree;
 
 import java.util.List;
-import org.sonar.iac.common.api.tree.HasAttributes;
+import org.sonar.iac.common.api.tree.HasProperties;
 
-public interface MappingTree extends CloudformationTree, HasAttributes {
+public interface MappingTree extends CloudformationTree, HasProperties {
   List<TupleTree> elements();
 }

@@ -21,6 +21,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -30,7 +31,6 @@ import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
@@ -72,7 +72,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
   private static List<SecondaryLocation> checkPublicAccessBlock(BlockTree publicAccessBlock) {
     return PAB_STATEMENTS.stream()
-      .map(e -> StatementUtils.getAttributeValue(publicAccessBlock, e))
+      .map(e -> PropertyUtils.value(publicAccessBlock, e))
       .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
       .filter(TextUtils::isValueFalse)
       .map(value -> new SecondaryLocation(value, SECONDARY_MSG_PROPERTY))
@@ -80,7 +80,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
   }
 
   private static boolean hasMissingStatement(BlockTree publicAccessBlock) {
-    return PAB_STATEMENTS.stream().anyMatch(e -> !StatementUtils.hasStatement(publicAccessBlock, e));
+    return PAB_STATEMENTS.stream().anyMatch(e -> !PropertyUtils.has(publicAccessBlock, e).isTrue());
   }
 
   private static class S3Bucket {
@@ -92,7 +92,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
     private S3Bucket(BlockTree bucket) {
       this.label = bucket.labels().get(0);
       this.resourceName = bucket.labels().size() >= 2 ? bucket.labels().get(1).value() : null;
-      this.bucketName = StatementUtils.getAttributeValue(bucket, "bucket")
+      this.bucketName = PropertyUtils.value(bucket, "bucket")
         .filter(LiteralExprTree.class::isInstance).map(e -> ((LiteralExprTree) e).value()).orElse(null);
     }
 
@@ -133,7 +133,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
     @Override
     protected void after(TreeContext ctx, Tree root) {
       resources.stream().filter(resource -> !resource.labels().isEmpty())
-        .forEach(resource -> StatementUtils.getAttributeValue(resource, "bucket").ifPresent(identifier -> {
+        .forEach(resource -> PropertyUtils.value(resource, "bucket", TerraformTree.class).ifPresent(identifier -> {
           if (identifier.is(TerraformTree.Kind.STRING_LITERAL)) {
             assignByBucketName((LiteralExprTree) identifier, resource);
           } else if (identifier.is(TerraformTree.Kind.ATTRIBUTE_ACCESS)) {

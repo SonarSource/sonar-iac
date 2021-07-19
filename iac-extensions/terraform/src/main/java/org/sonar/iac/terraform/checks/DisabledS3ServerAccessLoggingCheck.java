@@ -8,12 +8,12 @@ package org.sonar.iac.terraform.checks;
 import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
-import org.sonar.iac.terraform.checks.utils.StatementUtils;
 
 @Rule(key = "S6258")
 public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
@@ -22,13 +22,13 @@ public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree block) {
-    if (isS3BucketResource(block) && !isMaybeLoggingBucket(block) && !StatementUtils.hasBlock(block, "logging")) {
+    if (isS3BucketResource(block) && !isMaybeLoggingBucket(block) && !PropertyUtils.has(block, "logging").isTrue()) {
       ctx.reportIssue(block.labels().get(0), MESSAGE);
     }
   }
 
   private static boolean isMaybeLoggingBucket(BlockTree block) {
-    Optional<AttributeTree> acl = StatementUtils.getAttribute(block, "acl");
+    Optional<AttributeTree> acl = PropertyUtils.get(block, "acl", AttributeTree.class);
     if (!acl.isPresent()) {
       return false;
     }

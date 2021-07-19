@@ -5,7 +5,7 @@
  */
 package org.sonar.iac.common.api.tree;
 
-public interface AttributeTree {
+public interface PropertyTree {
   Tree key();
   Tree value();
 }

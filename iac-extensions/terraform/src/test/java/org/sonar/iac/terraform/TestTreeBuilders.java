@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
@@ -23,6 +24,7 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.tree.impl.AttributeTreeImpl;
 import org.sonar.iac.terraform.tree.impl.BlockTreeImpl;
+import org.sonar.iac.terraform.tree.impl.BodyTreeImpl;
 import org.sonar.iac.terraform.tree.impl.LabelTreeImpl;
 import org.sonar.iac.terraform.tree.impl.LiteralExprTreeImpl;
 import org.sonar.iac.terraform.tree.impl.ObjectElementTreeImpl;
@@ -48,7 +50,7 @@ public class TestTreeBuilders {
 
   public static class BlockBuilder {
 
-    private SyntaxToken identifier;
+    private SyntaxToken key;
     private List<LabelTree> labels = new ArrayList<>();
     private List<StatementTree> statements = new ArrayList<>();
 
@@ -59,8 +61,8 @@ public class TestTreeBuilders {
       return new BlockBuilder();
     }
 
-    public BlockBuilder identifier(String identifier) {
-      this.identifier = token(identifier);
+    public BlockBuilder key(String key) {
+      this.key = token(key);
       return this;
     }
 
@@ -79,7 +81,8 @@ public class TestTreeBuilders {
     }
 
     public BlockTree build() {
-      return new BlockTreeImpl(identifier, labels, token("{"), token("\n"), statements, token("}"), TerraformTree.Kind.BLOCK);
+      BodyTree body = new BodyTreeImpl(token("{"), token("\n"), statements, token("}"));
+      return new BlockTreeImpl(key, labels, body, TerraformTree.Kind.BLOCK);
     }
   }
 
@@ -94,7 +97,7 @@ public class TestTreeBuilders {
   }
 
   public static class AttributeBuilder {
-    private SyntaxToken identifier;
+    private SyntaxToken key;
     private ExpressionTree value;
 
     private AttributeBuilder() {
@@ -105,8 +108,8 @@ public class TestTreeBuilders {
       return new AttributeBuilder();
     }
 
-    public AttributeBuilder identifier(String identifier) {
-      this.identifier = token(identifier);
+    public AttributeBuilder key(String key) {
+      this.key = token(key);
       return this;
     }
 
@@ -116,7 +119,7 @@ public class TestTreeBuilders {
     }
 
     public AttributeTree build() {
-      return new AttributeTreeImpl(identifier, token("="), value);
+      return new AttributeTreeImpl(key, token("="), value);
     }
   }
 

@@ -34,7 +34,7 @@ public class MappingTreeImpl extends CloudformationTreeImpl implements MappingTr
   }
 
   @Override
-  public List<TupleTree> attributes() {
+  public List<TupleTree> properties() {
     return elements;
   }
 

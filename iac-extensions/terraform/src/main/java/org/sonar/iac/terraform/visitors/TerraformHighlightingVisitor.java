@@ -19,7 +19,7 @@ public class TerraformHighlightingVisitor extends SyntaxHighlightingVisitor {
 
   @Override
   protected void languageSpecificHighlighting() {
-    register(BlockTree.class,  (ctx, tree) -> highlight(tree.identifier(), KEYWORD));
+    register(BlockTree.class,  (ctx, tree) -> highlight(tree.key(), KEYWORD));
     register(LabelTree.class, (ctx, tree) -> highlight(tree, STRING));
     register(LiteralExprTree.class, (ctx, tree) -> highlight(tree,  tree.is(TerraformTree.Kind.STRING_LITERAL) ? STRING : CONSTANT));
   }
