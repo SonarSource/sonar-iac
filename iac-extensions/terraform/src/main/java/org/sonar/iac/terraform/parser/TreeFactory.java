@@ -123,8 +123,8 @@ public class TreeFactory {
     return new ObjectTreeImpl(openBrace, elements.orNull(), closeBrace);
   }
 
-  public ObjectElementTree objectElement(ExpressionTree name, SyntaxToken equalOrColonSign, ExpressionTree value) {
-    return new ObjectElementTreeImpl(name, equalOrColonSign, value);
+  public ObjectElementTree objectElement(ExpressionTree key, SyntaxToken equalOrColonSign, ExpressionTree value) {
+    return new ObjectElementTreeImpl(key, equalOrColonSign, value);
   }
 
   public SeparatedTrees<ObjectElementTree> objectElements(

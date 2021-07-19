@@ -5,7 +5,9 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-public interface VariableExprTree extends ExpressionTree {
+import org.sonar.iac.common.api.tree.TextTree;
+
+public interface VariableExprTree extends ExpressionTree, TextTree {
   SyntaxToken token();
   String name();
 }

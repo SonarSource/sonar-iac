@@ -13,24 +13,24 @@ import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
 public class ObjectElementTreeImpl extends TerraformTreeImpl implements ObjectElementTree {
-  private final ExpressionTree name;
+  private final ExpressionTree key;
   private final SyntaxToken equalOrColonSign;
   private final ExpressionTree value;
 
-  public ObjectElementTreeImpl(ExpressionTree name, SyntaxToken equalOrColonSign, ExpressionTree value) {
-    this.name = name;
+  public ObjectElementTreeImpl(ExpressionTree key, SyntaxToken equalOrColonSign, ExpressionTree value) {
+    this.key = key;
     this.equalOrColonSign = equalOrColonSign;
     this.value = value;
   }
 
   @Override
   public List<Tree> children() {
-    return Arrays.asList(name, equalOrColonSign, value);
+    return Arrays.asList(key, equalOrColonSign, value);
   }
 
   @Override
-  public ExpressionTree name() {
-    return name;
+  public ExpressionTree key() {
+    return key;
   }
 
   @Override

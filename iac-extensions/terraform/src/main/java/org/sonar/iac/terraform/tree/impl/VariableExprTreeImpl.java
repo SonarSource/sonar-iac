@@ -29,6 +29,11 @@ public class VariableExprTreeImpl extends TerraformTreeImpl implements VariableE
   }
 
   @Override
+  public String value() {
+    return token.value();
+  }
+
+  @Override
   public List<Tree> children() {
     return Arrays.asList(token);
   }

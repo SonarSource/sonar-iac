@@ -10,13 +10,13 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FunctionCallTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
-import org.sonar.iac.terraform.checks.utils.ObjectUtils;
 
 public abstract class AbstractResourceCheck implements IacCheck {
 
@@ -57,11 +57,11 @@ public abstract class AbstractResourceCheck implements IacCheck {
     }
 
     private Policy(ObjectTree statement) {
-      this.effect = ObjectUtils.getElementValue(statement, "Effect").orElse(null);
-      this.principal = ObjectUtils.getElementValue(statement, "Principal").orElse(null);
-      this.action = ObjectUtils.getElementValue(statement, "Action").orElse(null);
-      this.resource = ObjectUtils.getElementValue(statement, "Resource").orElse(null);
-      this.condition = ObjectUtils.getElementValue(statement, "Condition").orElse(null);
+      this.effect = PropertyUtils.valueOrNull(statement, "Effect", ExpressionTree.class);
+      this.principal = PropertyUtils.valueOrNull(statement, "Principal", ExpressionTree.class);
+      this.action = PropertyUtils.valueOrNull(statement, "Action", ExpressionTree.class);
+      this.resource = PropertyUtils.valueOrNull(statement, "Resource", ExpressionTree.class);
+      this.condition = PropertyUtils.valueOrNull(statement, "Condition", ExpressionTree.class);
     }
 
     /**
@@ -93,7 +93,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
       }
 
       ExpressionTree policyArgument = ((FunctionCallTree) policyExpr).arguments().trees().get(0);
-      Optional<ExpressionTree> statementField = ObjectUtils.getElementValue(policyArgument, "Statement");
+      Optional<ExpressionTree> statementField = PropertyUtils.value(policyArgument, "Statement", ExpressionTree.class);
 
       if (!statementField.isPresent() || !(statementField.get() instanceof TupleTree) ||
         ((TupleTree) statementField.get()).elements().trees().isEmpty() ||
