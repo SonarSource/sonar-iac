@@ -25,8 +25,8 @@ public class PropertyUtils {
       Set<Trilean> elementTrileans = ((HasProperties) tree).properties().stream()
         .map(element -> TextUtils.isValue(element.key(), key))
         .collect(Collectors.toSet());
-      if (elementTrileans.stream().anyMatch(Trilean::isTrue)) return Trilean.TRUE;
-      if (elementTrileans.stream().anyMatch(Trilean::isUnknown)) return Trilean.UNKNOWN;
+      if (elementTrileans.contains(Trilean.TRUE)) return Trilean.TRUE;
+      if (elementTrileans.contains(Trilean.UNKNOWN)) return Trilean.UNKNOWN;
     }
     return Trilean.FALSE;
   }
