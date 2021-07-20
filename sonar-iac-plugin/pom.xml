@@ -71,7 +71,8 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>
           <sonarLintSupported>false</sonarLintSupported>
-          <sonarQubeMinVersion>8.9</sonarQubeMinVersion>
+          <!-- SonarCloud currently supports only up to 8.8, instead of 8.9 or higher -->
+          <sonarQubeMinVersion>8.8</sonarQubeMinVersion>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
         </configuration>
       </plugin>
