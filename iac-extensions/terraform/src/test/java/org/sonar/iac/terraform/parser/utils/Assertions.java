@@ -5,18 +5,18 @@
  */
 package org.sonar.iac.terraform.parser.utils;
 
-import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 import org.fest.assertions.GenericAssert;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.parser.grammar.HclGrammar;
-import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 import org.sonar.iac.terraform.parser.HclNodeBuilder;
 import org.sonar.iac.terraform.parser.TreeFactory;
+import org.sonar.iac.terraform.parser.grammar.HclGrammar;
+import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 import org.sonar.iac.terraform.tree.impl.TerraformTreeImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
@@ -61,7 +61,7 @@ public class Assertions {
 
     public ParserAssert matches(String input) {
       isNotNull();
-      Preconditions.checkArgument(!hasTrailingWhitespaces(input), "Trailing whitespaces in input are not supported");
+      checkArgument(!hasTrailingWhitespaces(input), "Trailing whitespaces in input are not supported");
       String expected = "Rule '" + getRuleName() + "' should match:\n" + input;
       try {
         parseTillEof(input);
@@ -70,6 +70,12 @@ public class Assertions {
         throw new ParsingResultComparisonFailure(expected, actual);
       }
       return this;
+    }
+
+    public static void checkArgument(boolean expression, @Nullable Object errorMessage) {
+      if (!expression) {
+        throw new IllegalArgumentException(String.valueOf(errorMessage));
+      }
     }
 
     private static boolean hasTrailingWhitespaces(String input) {

@@ -26,14 +26,6 @@
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sslr</groupId>
-      <artifactId>sslr-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonarsource.sslr</groupId>
-      <artifactId>sslr-toolkit</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.snakeyaml</groupId>
       <artifactId>snakeyaml-engine</artifactId>
       <version>${version.snakeyaml}</version>

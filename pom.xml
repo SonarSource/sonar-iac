@@ -104,11 +104,6 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.sonarsource.sslr</groupId>
-        <artifactId>sslr-toolkit</artifactId>
-        <version>${version.sslr}</version>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-commons</artifactId>
         <version>${version.analyzer.commons}</version>
