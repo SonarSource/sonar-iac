@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  CompliantDBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      StorageEncrypted: true
+
+  SensitiveDBInstance:
+    Type: AWS::RDS::DBInstance # Noncompliant {{Make sure that using unencrypted databases is safe here.}}
+    #     ^^^^^^^^^^^^^^^^^^^^
+    Properties:
+      StorageEncrypted: false
+
+  NoPropertiesDBInstance:
+    Type: AWS::RDS::DBInstance # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^^^^
+
+  NoDBInstanceResource:
+    Type: Some::Other::Type
+    Properties:
+      StorageEncrypted: false

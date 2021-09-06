@@ -33,6 +33,14 @@ class TextUtilsTest {
   }
 
   @Test
+  void isValueTrue() {
+    assertThat(TextUtils.isValueTrue(text("true"))).isTrue();
+    assertThat(TextUtils.isValueTrue(text("false"))).isFalse();
+    assertThat(TextUtils.isValueTrue(tree())).isFalse();
+    assertThat(TextUtils.isValueTrue(null)).isFalse();
+  }
+
+  @Test
   void isValueFalse() {
     assertThat(TextUtils.isValueFalse(text("false"))).isTrue();
     assertThat(TextUtils.isValueFalse(text("true"))).isFalse();
