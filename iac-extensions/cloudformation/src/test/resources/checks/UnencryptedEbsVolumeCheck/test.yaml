@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  Ec2Volume:
+    Type: AWS::EC2::Volume
+    Properties:
+      Encrypted: false # Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
+#                ^^^^^
+
+  Ec2Volume2:
+    Type: AWS::EC2::Volume # Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
+#         ^^^^^^^^^^^^^^^^
+    Properties:
+      Other: 'yolo'
+
+  Ec2Volume3:
+    Type: AWS::EC2::Volume
+    Properties:
+      Encrypted: true
+
+  OtherResource:
+    Type: unknown
