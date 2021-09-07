@@ -27,6 +27,7 @@ public class CloudformationCheckList {
       LogGroupDeclarationCheck.class,
       LogGroupRetentionPolicyCheck.class,
       ParsingErrorCheck.class,
+      UnencryptedEbsVolumeCheck.class,
       UnversionedS3BucketCheck.class
     );
   }

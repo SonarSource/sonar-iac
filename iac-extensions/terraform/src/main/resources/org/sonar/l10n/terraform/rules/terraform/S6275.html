@@ -1,0 +1,86 @@
+<p>Amazon Elastic Block Store (EBS) is a block-storage service for Amazon Elastic Compute Cloud (EC2). EBS volumes can be encrypted, ensuring the
+security of both data-at-rest and data-in-transit between an instance and its attached EBS storage. In the case that adversaries gain physical access
+to the storage medium they are not able to access the data. Encryption can be enabled for specific volumes or for <a
+href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html#encryption-by-default">all new volumes and snapshots</a>.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The disk contains sensitive data that could cause harm when leaked. </li>
+  <li> There are compliance requirements for the service to store data encrypted. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to encrypt EBS volumes that contain sensitive information. Encryption and decryption are handled transparently by EC2, so no
+further modifications to the application are necessary. Instead of enabling encryption for every volume it is also possible to enable encryption
+globally for a specific region.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume">aws_ebs_volume</a>:</p>
+<pre>
+resource "aws_ebs_volume" "ebs_volume" {  # Sensitive if "encrypted by default" is disabled
+}
+</pre>
+<pre>
+resource "aws_ebs_volume" "ebs_volume" {
+  encrypted = false  # Sensitive
+}
+</pre>
+<p>For <a
+href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_encryption_by_default">aws_ebs_encryption_by_default</a>:</p>
+<pre>
+resource "aws_ebs_encryption_by_default" "default_encryption" {
+  enabled = false  # Sensitive
+}
+</pre>
+<p>For <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_configuration">aws_launch_configuration</a>:</p>
+<pre>
+resource "aws_launch_configuration" "launch_configuration" {
+  root_block_device {  # Sensitive if "encrypted by default" is disabled
+  }
+  ebs_block_device {  # Sensitive if "encrypted by default" is disabled
+  }
+}
+</pre>
+<pre>
+resource "aws_launch_configuration" "launch_configuration" {
+  root_block_device {
+    encrypted = false  # Sensitive
+  }
+  ebs_block_device {
+    encrypted = false  # Sensitive
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume">aws_ebs_volume</a>:</p>
+<pre>
+resource "aws_ebs_volume" "ebs_volume" {
+  encrypted = true
+}
+</pre>
+<p>For <a
+href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_encryption_by_default">aws_ebs_encryption_by_default</a>:</p>
+<pre>
+resource "aws_ebs_encryption_by_default" "default_encryption" {
+  enabled = true  # Optional, default is "true"
+}
+</pre>
+<p>For <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_configuration">aws_launch_configuration</a>:</p>
+<pre>
+resource "aws_launch_configuration" "launch_configuration" {
+  root_block_device {
+    encrypted = true
+  }
+  ebs_block_device {
+    encrypted = true
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html">Amazon EBS encryption</a> </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
+  Exposure </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/311.html">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+</ul>
+
