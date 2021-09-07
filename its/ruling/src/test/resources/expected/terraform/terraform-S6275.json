@@ -1,0 +1,8 @@
+{
+'terraform-project:sources/terraform/terragoat/terraform/aws/ec2.tf':[
+34,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/using_public_amis/main.tf':[
+15,
+],
+}

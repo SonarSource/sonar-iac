@@ -1,0 +1,27 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09T00:00:00.000Z",
+  "Resources": {
+    "AwsEc2Volume1": {
+      "Type": "AWS::EC2::Volume",
+      "Properties": {
+        "Encrypted": false,
+        "Other": "yolo"
+      }
+    },
+    "AwsEc2Volume2": {
+      "Type": "AWS::EC2::Volume",
+      "Properties": {
+        "Other": "yolo"
+      }
+    },
+    "AwsEc2Volume3": {
+      "Type": "AWS::EC2::Volume",
+      "Properties": {
+        "Encrypted": true
+      }
+    },
+    "OtherResource": {
+      "Type": "UnknownType"
+    }
+  }
+}
