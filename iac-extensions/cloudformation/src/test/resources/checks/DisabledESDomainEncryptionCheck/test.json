@@ -1,0 +1,43 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "ESDomain1": {
+      "Type": "AWS::Elasticsearch::Domain",
+      "Properties": {
+        "DomainName": "myDomain"
+      }
+    },
+    "ESDomain2": {
+      "Type": "AWS::Elasticsearch::Domain",
+      "Properties": {
+        "DomainName": "myDomain",
+        "EncryptionAtRestOptions": {
+          "KmsKeyId": 123
+        }
+      }
+    },
+    "ESDomain3": {
+      "Type": "AWS::Elasticsearch::Domain",
+      "Properties": {
+        "DomainName": "myDomain",
+        "EncryptionAtRestOptions": {
+          "KmsKeyId": 123,
+          "Enabled": false
+        }
+      }
+    },
+    "ESDomain4": {
+      "Type": "AWS::Elasticsearch::Domain",
+      "Properties": {
+        "DomainName": "myDomain",
+        "EncryptionAtRestOptions": {
+          "KmsKeyId": 123,
+          "Enabled": true
+        }
+      }
+    },
+    "NotESDomain": {
+      "Type": "Some::Other::Type",
+    }
+  }
+}
