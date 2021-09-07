@@ -1,0 +1,33 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09T00:00:00.000Z",
+  "Resources": {
+    "Notebook": {
+      "Type": "AWS::SageMaker::NotebookInstance",
+      "Properties": {
+        "InstanceType": "ml.t2.medium",
+        "Other": false
+      }
+    },
+    "NotebookEncrypted": {
+      "Type": "AWS::SageMaker::NotebookInstance",
+      "Properties": {
+        "Other": "yolo",
+        "KmsKeyId": {
+          "Fn::GetAtt": [
+            "TestKey",
+            "KeyId"
+          ]
+        }
+      }
+    },
+    "OtherResource1": {
+      "Type": "AWS::EC2::Volume",
+      "Properties": {
+        "Encrypted": true
+      }
+    },
+    "OtherResource2": {
+      "Type": "UnknownType"
+    }
+  }
+}
