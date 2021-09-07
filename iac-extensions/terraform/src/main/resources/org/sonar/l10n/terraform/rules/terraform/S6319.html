@@ -1,0 +1,37 @@
+<p>Amazon SageMaker is a managed machine learning service in a hosted production-ready environment. To train machine learning models, SageMaker
+instances can process potentially sensitive data, such as personal information that should not be stored unencrypted. In the event that adversaries
+physically access the storage media, they cannot decrypt encrypted data.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The instance contains sensitive data that could cause harm when leaked. </li>
+  <li> There are compliance requirements for the service to store data encrypted. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to encrypt SageMaker notebook instances that contain sensitive information. Encryption and decryption are handled transparently by
+SageMaker, so no further modifications to the application are necessary.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a
+href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_notebook_instance">aws_sagemaker_notebook_instance</a>:</p>
+<pre>
+resource "aws_sagemaker_notebook_instance" "notebook" {  # Sensitive, encryption disabled by default
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a
+href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_notebook_instance">aws_sagemaker_notebook_instance</a>:</p>
+<pre>
+resource "aws_sagemaker_notebook_instance" "notebook" {
+  kms_key_id = aws_kms_key.enc_key.key_id
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/encryption-at-rest.html">Protect Data at Rest Using Encryption</a> </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
+  Exposure </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/311.html">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+</ul>
+

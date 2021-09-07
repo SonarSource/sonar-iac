@@ -1,0 +1,5 @@
+{
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/sagemaker_not_encrypted/main.tf':[
+23,
+],
+}
