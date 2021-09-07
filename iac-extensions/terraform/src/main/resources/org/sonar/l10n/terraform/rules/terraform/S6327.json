@@ -1,0 +1,27 @@
+{
+  "title": "Using unencrypted SNS topics is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a3",
+    "owasp-a6"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6327",
+  "sqKey": "S6327",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      311
+    ],
+    "OWASP": [
+      "A3",
+      "A6"
+    ]
+  }
+}

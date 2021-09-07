@@ -26,6 +26,7 @@ public class TerraformCheckList {
       DisabledRDSEncryptionCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledS3ServerAccessLoggingCheck.class,
+      DisabledSNSTopicEncryptionCheck.class,
       ParsingErrorCheck.class,
       UnencryptedEbsVolumeCheck.class,
       UnversionedS3BucketCheck.class

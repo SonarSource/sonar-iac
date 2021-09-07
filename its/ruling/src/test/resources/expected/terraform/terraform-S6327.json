@@ -1,0 +1,14 @@
+{
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/alarm-baseline/main.tf':[
+5,
+],
+'terraform-project:sources/terraform/terraform-aws-secure-baseline/modules/config-baseline/main.tf':[
+5,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/tag_all_items/main.tf':[
+5,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/glacier_vault_not_secure_policy/main.tf':[
+5,
+],
+}
