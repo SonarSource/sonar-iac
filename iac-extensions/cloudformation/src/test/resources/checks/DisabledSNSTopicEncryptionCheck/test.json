@@ -1,0 +1,22 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09T00:00:00.000Z",
+  "Resources": {
+    "NotSNSTopic": {
+      "Type": "Some::Other::Type"
+    },
+    "UnencryptedSNSTopic": {
+      "Type": "AWS::SNS::Topic"
+    },
+    "EncryptedSNSTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "KmsMasterKeyId": {
+          "Fn::GetAtt": [
+            "TestKey",
+            "KeyId"
+        ]
+        }
+      }
+    }
+  }
+}

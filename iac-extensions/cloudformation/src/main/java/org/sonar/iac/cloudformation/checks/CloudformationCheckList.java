@@ -24,6 +24,7 @@ public class CloudformationCheckList {
       DisabledRDSEncryptionCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledS3ServerAccessLoggingCheck.class,
+      DisabledSNSTopicEncryptionCheck.class,
       LogGroupDeclarationCheck.class,
       LogGroupRetentionPolicyCheck.class,
       ParsingErrorCheck.class,

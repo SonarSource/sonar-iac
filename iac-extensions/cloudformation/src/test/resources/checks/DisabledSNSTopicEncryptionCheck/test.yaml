@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  EncryptedSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      KmsMasterKeyId:
+        Fn::GetAtt:
+            - TestKey
+            - KeyId
+  UnencryptedSNSTopic:
+    Type: AWS::SNS::Topic # Noncompliant {{Make sure that using unencrypted SNS topics is safe here.}}
+    #     ^^^^^^^^^^^^^^^
+  NotSNSTopic:
+    Type: Some::Other::Type
