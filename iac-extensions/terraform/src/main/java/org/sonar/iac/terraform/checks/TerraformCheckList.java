@@ -28,6 +28,7 @@ public class TerraformCheckList {
       DisabledS3ServerAccessLoggingCheck.class,
       ParsingErrorCheck.class,
       UnencryptedEbsVolumeCheck.class,
+      UnencryptedSageMakerNotebookCheck.class,
       UnversionedS3BucketCheck.class
     );
   }
