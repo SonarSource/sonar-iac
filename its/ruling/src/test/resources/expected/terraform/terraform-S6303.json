@@ -9,7 +9,7 @@
 25,
 ],
 'terraform-project:sources/terraform/terragoat/terraform/aws/db-app.tf':[
-1,
+18,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-authentication/rds_without_authentication/main.tf':[
 1,
