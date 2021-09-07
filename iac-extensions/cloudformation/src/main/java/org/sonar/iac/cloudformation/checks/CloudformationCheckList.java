@@ -21,6 +21,7 @@ public class CloudformationCheckList {
       BucketsAccessCheck.class,
       BucketsInsecureHttpCheck.class,
       BucketsPublicAclOrPolicyCheck.class,
+      DisabledRDSEncryptionCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledS3ServerAccessLoggingCheck.class,
       LogGroupDeclarationCheck.class,

@@ -1,0 +1,28 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "CompliantDBInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "StorageEncrypted": true
+      }
+    },
+    "SensitiveDBInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "StorageEncrypted": false
+      }
+    },
+    "NoPropertiesDBInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+      }
+    },
+    "NoDBInstanceResource": {
+      "Type": "Some::Other::Type",
+      "Properties": {
+        "StorageEncrypted": false
+      }
+    }
+  }
+}

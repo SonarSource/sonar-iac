@@ -1,0 +1,44 @@
+<p>Amazon Relational Database Service (RDS) allows to easily host and manage a relational database in the cloud. RDS databases can be encrypted,
+ensuring the security of data-at-rest. In the case that adversaries gain physical access to the storage medium they are not able to access the
+data.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The database contains sensitive data that could cause harm when leaked. </li>
+  <li> There are compliance requirements for the service to store data encrypted. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to encrypt databases that contain sensitive information. Encryption and decryption are handled transparently by RDS, so no further
+modifications to the application are necessary.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a
+href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-rds-database-instance.html">AWS::RDS::DBInstance</a>:</p>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  DatabaseInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      StorageEncrypted: false  # Sensitive, disabled by default
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a
+href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-rds-database-instance.html">AWS::RDS::DBInstance</a>:</p>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  DatabaseInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      StorageEncrypted: true
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html">Encrypting Amazon RDS resources</a> </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
+  Exposure </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/311.html">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+</ul>
+

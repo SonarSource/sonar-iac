@@ -30,6 +30,10 @@ public class TextUtils {
     return Trilean.UNKNOWN;
   }
 
+  public static boolean isValueTrue(@Nullable Tree tree) {
+    return isValue(tree, "true").isTrue();
+  }
+
   public static boolean isValueFalse(@Nullable Tree tree) {
     return isValue(tree, "false").isTrue();
   }
