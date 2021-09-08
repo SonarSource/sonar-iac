@@ -1,0 +1,8 @@
+{
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/ecs_task_definition_not_encrypted_in_transit/main.tf':[
+5,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/efs_not_secure_policy/main.tf':[
+5,
+],
+}
