@@ -1,6 +1,6 @@
 {
   "title": "Using unencrypted Elasticsearch domains is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

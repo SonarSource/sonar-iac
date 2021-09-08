@@ -1,6 +1,6 @@
 {
   "title": "Using unencrypted SageMaker notebook instances is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
