@@ -138,6 +138,17 @@
           }
         }
       }
+    },
+    "CompliantCodeBuildProjectWithStringMatch": {
+      "Type": "AWS::CodeBuild::Project"
+    },
+    "CompliantCodeBuildProjectWithStringMatchLogGroupSub": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/foo/bar/CompliantCodeBuildProjectWithStringMatch"
+        }
+      }
     }
   }
 }
