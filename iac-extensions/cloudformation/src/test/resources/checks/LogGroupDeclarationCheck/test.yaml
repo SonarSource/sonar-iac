@@ -122,3 +122,11 @@ Resources:
           Type: CloudWatchLogs
           Properties:
             FilterPattern: My filter pattern
+
+  CompliantCodeBuildProjectWithStringMatch:
+    Type: AWS::CodeBuild::Project
+
+  CompliantCodeBuildProjectWithStringMatchLogGroupSub:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/foo/bar/CompliantCodeBuildProjectWithStringMatch'
