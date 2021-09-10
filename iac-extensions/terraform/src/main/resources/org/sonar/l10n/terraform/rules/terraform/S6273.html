@@ -1,6 +1,6 @@
 <p>Shared conventions allow teams to collaborate effectively. This rule allows to check that all tag keys match a provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
-<p>With default provided regular expression ^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$:</p>
+<p>With default provided regular expression ^([A-Z]<strong>:)</strong>([A-Z][A-Za-z]*)$:</p>
 <pre>
 resource "aws_s3_bucket" "mynoncompliantbucket" {
   bucket = "mybucketname"

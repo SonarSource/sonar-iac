@@ -27,7 +27,7 @@ Group</code> resource is managed as code.</p>
       Description: Example of Lambda Function
 </pre>
 <h2>Compliant Solution</h2>
-<p>Example with Join</p>
+<p>Example with Ref</p>
 <pre>
   MyLambdaFunction:
     Type: AWS::Lambda::Function
@@ -35,7 +35,8 @@ Group</code> resource is managed as code.</p>
       Runtime: nodejs12.x
       Description: Example of Lambda Function
 
-  MyFunctionLogGroup:                                                                                                                                                 Type: AWS::Logs::LogGroup
+  MyFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]
       RetentionInDays: 30
