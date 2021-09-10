@@ -107,7 +107,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
 
   // Instinct functions can be nested in the LogGroupName property value and can be extracted by a collecting TreeVisitor
   static class FunctionReferenceCollector extends TreeVisitor<TreeContext> {
-    private static final Pattern SUB_PARAMETERS = Pattern.compile("\\$\\{([a-zA-Z0-9.]*)}");
+    private static final Pattern SUB_PARAMETERS = Pattern.compile("\\$\\{([a-zA-Z0-9.]+)}|([a-zA-Z0-9.]+)");
     private final Set<String> references = new HashSet<>();
 
     public FunctionReferenceCollector() {
@@ -131,7 +131,11 @@ public class LogGroupDeclarationCheck implements IacCheck {
       if (sub instanceof ScalarTree) {
         Matcher m = SUB_PARAMETERS.matcher(((ScalarTree) sub).value());
         while (m.find()) {
-          references.add(m.group(1));
+          if (m.group(1) != null) {
+            references.add(m.group(1));
+          } else {
+            references.add(m.group(2));
+          }
         }
       }
     }

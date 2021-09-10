@@ -1,15 +1,19 @@
 {
-  "title": "Using unencrypted EBS volumes is security-sensitive",
+  "title": "Using unencrypted SQS queues is security-sensitive",
   "type": "VULNERABILITY",
   "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
   "tags": [
     "cwe",
     "owasp-a3",
     "owasp-a6"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-6275",
-  "sqKey": "S6275",
+  "ruleSpecification": "RSPEC-6330",
+  "sqKey": "S6330",
   "scope": "All",
   "securityStandards": {
     "CWE": [

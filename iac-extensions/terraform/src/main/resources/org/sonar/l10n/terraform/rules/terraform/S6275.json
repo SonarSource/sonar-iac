@@ -1,6 +1,6 @@
 {
   "title": "Using unencrypted EBS volumes is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "type": "VULNERABILITY",
   "status": "ready",
   "tags": [
     "cwe",

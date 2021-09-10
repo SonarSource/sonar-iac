@@ -1,0 +1,47 @@
+<p>Amazon Simple Queue Service (SQS) is a managed message queuing service for application-to-application (A2A) communication. Amazon SQS can store
+messages encrypted as soon as they are received. In the case that adversaries gain physical access to the storage medium or otherwise leak a message
+from the file system, for example through a vulnerability in the service, they are not able to access the data.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The queue contains sensitive data that could cause harm when leaked. </li>
+  <li> There are compliance requirements for the service to store data encrypted. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to encrypt SQS queues that contain sensitive information. Encryption and decryption are handled transparently by SQS, so no
+further modifications to the application are necessary.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-sqs-queues.html">AWS::SQS::Queue</a>:</p>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  Queue:  # Sensitive, encryption disabled by default
+    Type: AWS::SQS::Queue
+    Properties:
+      DisplayName: "unencrypted_queue"
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-sqs-queues.html">AWS::SQS::Queue</a>:</p>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      DisplayName: "encrypted_queue"
+      KmsMasterKeyId:
+        Fn::GetAtt:
+          - TestKey
+          - KeyId
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html">Encryption at rest</a>
+  </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
+  Exposure </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/311.html">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+</ul>
+
