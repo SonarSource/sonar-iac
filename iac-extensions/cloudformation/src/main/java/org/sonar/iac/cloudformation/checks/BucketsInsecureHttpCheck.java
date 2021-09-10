@@ -17,6 +17,7 @@ import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -138,7 +139,12 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
 
     private static boolean isInsecureResource(CloudformationTree resource) {
-      return !(resource instanceof ScalarTree && ((ScalarTree) resource).value().endsWith("*"));
+      if (resource instanceof SequenceTree) {
+        SequenceTree sequence = (SequenceTree) resource;
+        return isInsecureResource(sequence.elements().get(sequence.elements().size() - 1));
+      } else {
+        return !(resource instanceof ScalarTree && ((ScalarTree) resource).value().endsWith("*"));
+      }
     }
 
     private static boolean isInsecurePrincipal(CloudformationTree principal) {
