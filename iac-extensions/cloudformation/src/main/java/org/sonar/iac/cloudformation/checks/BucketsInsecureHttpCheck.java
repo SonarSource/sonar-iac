@@ -141,7 +141,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     private static boolean isInsecureResource(CloudformationTree resource) {
       if (resource instanceof SequenceTree) {
         SequenceTree sequence = (SequenceTree) resource;
-        return isInsecureResource(sequence.elements().get(sequence.elements().size() - 1));
+        return sequence.elements().isEmpty() || isInsecureResource(sequence.elements().get(sequence.elements().size() - 1));
       } else {
         return !(resource instanceof ScalarTree && ((ScalarTree) resource).value().endsWith("*"));
       }

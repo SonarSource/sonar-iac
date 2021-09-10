@@ -214,3 +214,25 @@ Resources:
             Condition:
               Bool:
                 "aws:SecureTransport": false
+
+  S3BucketWrongEmptyJoinedResource:
+    Type: AWS::S3::Bucket # Noncompliant
+    #     ^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "S3BucketWrongEmptyJoinedResource"
+  S3BucketWrongEmptyJoinedResourcePolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketWrongEmptyJoinedResource
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: !Join [ ]
+                 #    ^^^^^^^^^< {{All resources should be restricted.}}
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
