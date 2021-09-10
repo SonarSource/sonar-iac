@@ -27,7 +27,6 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
       return;
     }
 
-
     LabelTree resourceType = tree.labels().get(0);
     Optional<BlockTree> versioning = PropertyUtils.get(tree, "versioning", BlockTree.class);
     if (versioning.isPresent()) {
@@ -40,8 +39,6 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
         return;
       }
       ctx.reportIssue(versioning.get().key(), MESSAGE, new SecondaryLocation(resourceType, MESSAGE_SECONDARY));
-      return;
     }
-    ctx.reportIssue(resourceType, MESSAGE);
   }
 }

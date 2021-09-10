@@ -1,5 +1,4 @@
-resource "aws_s3_bucket" "no_versioning" { # Noncompliant {{Make sure allowing object deletion of a S3 versioned bucket without MFA is safe here.}}
-  #      ^^^^^^^^^^^^^^^
+resource "aws_s3_bucket" "no_versioning" { # Compliant: bucket with default versioning config
   bucket = "mycompliantbuckets6255"
 }
 
