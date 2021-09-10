@@ -172,3 +172,67 @@ Resources:
                 "aws:SecureTransport": false
   SomeRandomResource:
     Type: 'NoBucketAndNoPolicy'
+
+  S3BucketCompliantJoinedResource:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "S3BucketCompliantJoinedResource"
+  S3BucketCompliantJoinedResourcePolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketCompliantJoinedResource
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: !Join [ '', [ !GetAtt S3BucketCompliantJoinedResource.Arn, '/*' ] ]
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketWrongJoinedResource:
+    Type: AWS::S3::Bucket # Noncompliant
+    #     ^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "S3BucketWrongJoinedResource"
+  S3BucketWrongJoinedResourcePolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketWrongJoinedResource
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: !Join [ '', [ !GetAtt S3BucketWrongJoinedResource.Arn, 'foo' ] ]
+                 #    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{All resources should be restricted.}}
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  S3BucketWrongEmptyJoinedResource:
+    Type: AWS::S3::Bucket # Noncompliant
+    #     ^^^^^^^^^^^^^^^
+    Properties:
+      BucketName: "S3BucketWrongEmptyJoinedResource"
+  S3BucketWrongEmptyJoinedResourcePolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketWrongEmptyJoinedResource
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: !Join [ ]
+                 #    ^^^^^^^^^< {{All resources should be restricted.}}
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
