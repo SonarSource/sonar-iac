@@ -1,0 +1,109 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09T00:00:00.000Z",
+  "Resources": {
+    "NonCompliantDMSReplicationInstance": {
+      "Type": "AWS::DMS::ReplicationInstance"
+    },
+    "NonCompliantDMSReplicationInstance1": {
+      "Type": "AWS::DMS::ReplicationInstance",
+      "Properties": {
+        "PubliclyAccessible": true
+      }
+    },
+    "CompliantDMSReplicationInstance": {
+      "Type": "AWS::DMS::ReplicationInstance",
+      "Properties": {
+        "PubliclyAccessible": false
+      }
+    },
+    "NonCompliantEC2Instance": {
+      "Type": "AWS::EC2::Instance"
+    },
+    "NonCompliantEC2Instance1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "NetworkInterfaces": [
+          { "DeviceIndex": "0" }
+        ]
+      }
+    },
+    "NonCompliantEC2Instance2": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "NetworkInterfaces": {
+          "AssociatePublicIpAddress": false
+        }
+      }
+    },
+    "NonCompliantEC2Instance3": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "NetworkInterfaces": [
+          { "AssociatePublicIpAddress": true }
+        ]
+      }
+    },
+    "CompliantEC2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "NetworkInterfaces": [
+          { "AssociatePublicIpAddress": false }
+        ]
+      }
+    },
+    "NonCompliantEC2LaunchTemplate": {
+      "Type": "AWS::EC2::LaunchTemplate"
+    },
+    "NonCompliantEC2LaunchTemplate1": {
+      "Type": "AWS::EC2::LaunchTemplate",
+      "Properties": {
+        "LaunchTemplateData": {
+          "InstanceType": "t2.micro"
+        }
+      }
+    },
+    "NonCompliantEC2LaunchTemplate2": {
+      "Type": "AWS::EC2::LaunchTemplate",
+      "Properties": {
+        "LaunchTemplateData": {
+          "NetworkInterfaces": [
+            { "DeviceIndex": "0" }
+          ]
+        }
+      }
+    },
+    "NonCompliantEC2LaunchTemplate3": {
+      "Type": "AWS::EC2::LaunchTemplate",
+      "Properties": {
+        "LaunchTemplateData": {
+          "NetworkInterfaces": {
+            "AssociatePublicIpAddress": false
+          }
+        }
+      }
+    },
+    "NonCompliantEC2LaunchTemplate4": {
+      "Type": "AWS::EC2::LaunchTemplate",
+      "Properties": {
+        "LaunchTemplateData": {
+          "NetworkInterfaces": [
+            { "AssociatePublicIpAddress": true }
+          ]
+        }
+      }
+    },
+    "CompliantEC2LaunchTemplate": {
+      "Type": "AWS::EC2::LaunchTemplate",
+      "Properties": {
+        "LaunchTemplateData": {
+          "NetworkInterfaces": [
+            { "AssociatePublicIpAddress": false }
+          ]
+        }
+      }
+    },
+    "NonSensitiveResource": {
+      "Type": "Some::Other::Type"
+    }
+  }
+}
