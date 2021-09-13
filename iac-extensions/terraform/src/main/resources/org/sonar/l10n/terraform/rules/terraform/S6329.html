@@ -1,0 +1,47 @@
+<p>AWS resources that are launched into a VPC, such as EC2 or DMS instances, can have a private and public IP addresses. A public IP address allows
+the corresponding instance to send and receive Internet traffic through the Internet Gateway and therefore exposing it to potential malicious traffic
+like DDoS attacks.</p>
+<h2>Ask Yourself Whether</h2>
+<p>The instance launched in the VPC:</p>
+<ul>
+  <li> doesn’t need to communicate with the Internet. </li>
+  <li> is not a public service. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to avoid exposing instances on the Internet by assigning to them a public IP address, unless the instance is running a service
+designed to be publicly accessible, such as customer portals or e-commerce websites. To communicate with instances in another VPC, consider using <a
+href="https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html">VPC peering</a>.</p>
+<h2>Noncompliant Code Example</h2>
+<p>DMS and EC2 instances have a public IP address assigned to them:</p>
+<pre>
+resource "aws_instance" "noncompliantec2" {
+  associate_public_ip_address = true # Sensitive, by default it's also set to true
+}
+
+resource "aws_dms_replication_instance" "noncompliantdms" {
+  publicly_accessible          = true # Sensitive, by default it's also set to true
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>DMS and EC2 instances doesn’t have a public IP address:</p>
+<pre>
+resource "aws_instance" "compliantec2" {
+  associate_public_ip_address = false
+}
+
+resource "aws_dms_replication_instance" "compliantdms" {
+  publicly_accessible          = false
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html">AWS Documentation</a> - Amazon EC2 instance IP
+  addressing </li>
+  <li> <a href="https://docs.aws.amazon.com/dms/latest/userguide/CHAP_ReplicationInstance.PublicPrivate.html">AWS Documentation</a> - Public and
+  private replication instances </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+</ul>
+
