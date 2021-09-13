@@ -17,7 +17,7 @@ public class TerraformSettings {
   private static final String GENERAL_SUBCATEGORY = "General";
 
   static final String ACTIVATION_KEY = "sonar.terraform.activate";
-  static final String ACTIVATION_DEFAULT_VALUE = "false";
+  static final String ACTIVATION_DEFAULT_VALUE = "true";
 
   static final String FILE_SUFFIXES_KEY = "sonar.terraform.file.suffixes";
   static final String FILE_SUFFIXES_DEFAULT_VALUE = ".tf";

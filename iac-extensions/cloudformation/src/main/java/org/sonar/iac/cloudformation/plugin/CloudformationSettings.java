@@ -18,7 +18,7 @@ public class CloudformationSettings {
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
 
   static final String ACTIVATION_KEY = "sonar.cloudformation.activate";
-  static final String ACTIVATION_DEFAULT_VALUE = "false";
+  static final String ACTIVATION_DEFAULT_VALUE = "true";
 
   static final String FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
   static final String FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";

@@ -46,9 +46,7 @@ public abstract class TestBase {
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")
-      .setSourceDirs(".")
-      .setProperty("sonar.terraform.activate", "true")
-      .setProperty("sonar.cloudformation.activate", "true");
+      .setSourceDirs(".");
   }
 
   protected Measure getMeasure(String projectKey, String metricKey) {
