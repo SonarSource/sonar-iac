@@ -1,6 +1,6 @@
 {
   "title": "Assigning public IP address to an AWS resource is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
