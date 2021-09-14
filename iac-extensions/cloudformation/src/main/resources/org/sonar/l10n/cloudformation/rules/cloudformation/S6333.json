@@ -1,6 +1,6 @@
 {
   "title": "Creating public APIs is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
