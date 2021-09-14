@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  NonCompliantPolicyWithActionAllowAllDirect:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+  #                 ^^^^^> {{Related effect}}
+            Action: "*" # Noncompliant {{Make sure granting all privileges is safe here.}}
+  #                 ^^^
+  NonCompliantPolicyWithActionAllowAllItem:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+  #                 ^^^^^> {{Related effect}}
+            Action:
+              - "*" # Noncompliant {{Make sure granting all privileges is safe here.}}
+  #             ^^^
+  CompliantPolicyWithActionDenyAll:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Deny
+            Action: "*"
+  CompliantPolicyWithActionAllowSpecifc:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action: "foo"
+  CompliantPolicyWitMissingActionAllow:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+  CompliantPolicyWitMissingActionAndEffect:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Resource: "foo"
+  NonCompliantPolicyWithNotActionDenyAll:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Deny
+  #                 ^^^^> {{Related effect}}
+            NotAction: "*" # Noncompliant {{Make sure granting all privileges is safe here.}}
+  #                    ^^^
+  CompliantPolicyWithNotActionDenySpecific:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Deny
+            NotAction: "foo"
+  CompliantPolicyWithNotActionAllowAll:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            NotAction: "*"
+  NonCompliantPolicies:
+     Type: AWS::IAM::Role
+     Properties: 
+       Policies:
+         - PolicyDocument:
+             Statement:
+               - Effect: Allow
+  #                      ^^^^^> {{Related effect}}
+                 Action:
+                   - "*" # Noncompliant {{Make sure granting all privileges is safe here.}}
+  #                  ^^^
+  CompliantPolicies:
+     Type: AWS::IAM::Role
+     Properties: 
+       Policies:
+         - PolicyDocument:
+             Statement:
+               - Effect: Allow
+                 Action:
+                   - "foo"
+  Compliant:
+    Type: Some::Empty::Resource

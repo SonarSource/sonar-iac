@@ -1,0 +1,65 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09T00:00:00.000Z",
+  "Resources": {
+    "NonCompliantFoo": {
+      "Type": "AWS::IAM::Policy",
+      "Properties":  {
+        "PolicyDocument": {
+          "Statement": [
+            { 
+              "Effect": "Allow",
+              "Action": "*"
+            }
+          ]
+        }
+      }
+    },
+    "CompliantFoo": {
+      "Type": "AWS::IAM::Policy",
+      "Properties":  {
+        "PolicyDocument":  {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "foo"
+            }
+          ]
+        }
+      }
+    },
+    "NonCompliantBar": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action":  [ "*" ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "CompliantBar": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action":  [ "bar" ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
