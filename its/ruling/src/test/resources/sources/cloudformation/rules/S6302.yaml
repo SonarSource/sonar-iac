@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  NonCompliantFoo:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action: "*" # Noncompliant
+  CompliantFoo:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action: "foo"
+  NonCompliantBar:
+    Type: AWS::IAM::Role
+    Properties: 
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "*" # Noncompliant
+  CompliantBar:
+    Type: AWS::IAM::Role
+    Properties: 
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "bar"
