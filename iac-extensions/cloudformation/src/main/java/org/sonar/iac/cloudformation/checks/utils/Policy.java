@@ -18,39 +18,34 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 
-public class PolicyUtils {
+public class Policy {
 
-  private PolicyUtils() {
+  private final CloudformationTree version;
+  private final CloudformationTree id;
+  private final List<Statement> statement;
+
+  private Policy(CloudformationTree policyDocument) {
+    this.version = PropertyUtils.valueOrNull(policyDocument, "Version", CloudformationTree.class);
+    this.id = PropertyUtils.valueOrNull(policyDocument, "Id", CloudformationTree.class);
+    this.statement = XPathUtils.getTrees(policyDocument, "/Statement[]").stream().map(Statement::new).collect(Collectors.toList());
+  }
+
+  public Optional<CloudformationTree> version() {
+    return Optional.ofNullable(version);
+  }
+
+  public Optional<CloudformationTree> id() {
+    return Optional.ofNullable(id);
+  }
+
+  public List<Statement> statement() {
+    return statement;
   }
 
   public static List<Policy> getPolicies(CloudformationTree root) {
     PolicyCollector collector = new PolicyCollector();
     collector.scan(new TreeContext(), root);
     return collector.policies;
-  }
-
-  public static class Policy {
-    private final CloudformationTree version;
-    private final CloudformationTree id;
-    private final List<Statement> statement;
-
-    public Policy(CloudformationTree policyDocument) {
-      this.version = PropertyUtils.valueOrNull(policyDocument, "Version", CloudformationTree.class);
-      this.id = PropertyUtils.valueOrNull(policyDocument, "Id", CloudformationTree.class);
-      this.statement = XPathUtils.getTrees(policyDocument, "/Statement[]").stream().map(Statement::new).collect(Collectors.toList());
-    }
-
-    public Optional<CloudformationTree> version() {
-      return Optional.ofNullable(version);
-    }
-
-    public Optional<CloudformationTree> id() {
-      return Optional.ofNullable(id);
-    }
-
-    public List<Statement> statement() {
-      return statement;
-    }
   }
 
   public static class Statement {
@@ -64,7 +59,7 @@ public class PolicyUtils {
     private final CloudformationTree notResource;
     private final CloudformationTree condition;
 
-    public Statement(CloudformationTree statement) {
+    private Statement(CloudformationTree statement) {
       this.sid = PropertyUtils.valueOrNull(statement, "Sid", CloudformationTree.class);
       this.effect = PropertyUtils.valueOrNull(statement, "Effect", CloudformationTree.class);
       this.principal = PropertyUtils.valueOrNull(statement, "Principal", CloudformationTree.class);
@@ -116,7 +111,7 @@ public class PolicyUtils {
   private static class PolicyCollector extends TreeVisitor<TreeContext> {
     private final List<Policy> policies = new ArrayList<>();
 
-    public PolicyCollector() {
+    private PolicyCollector() {
       register(TupleTree.class, (ctx, tree) -> collectPolicy(tree));
     }
 
