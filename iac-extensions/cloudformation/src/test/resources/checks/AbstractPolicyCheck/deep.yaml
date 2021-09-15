@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyResource:
+    Type: Some::Resource::Type
+    Properties: 
+      A:
+        Very:
+          Deep:
+            Policy:
+              Statement: 
+                - Sid: "sid"
