@@ -18,6 +18,7 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
+import org.sonar.iac.terraform.checks.utils.Policy;
 
 @Rule(key = "S6270")
 public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
@@ -29,15 +30,13 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     if (isResource(resource, "aws_s3_bucket_policy") || isS3Bucket(resource)) {
       // Handle policy statement if present in s3_bucket_policy or s3_bucket
-      PropertyUtils.value(resource, "policy").map(Policy::from)
+      policy(resource)
         // Filter resolvable and allowing policies only. Resolvable means effect and principal exist in the policy.
-        .filter(policy -> policy.principal().isPresent() && policy.effect().filter(AnonymousBucketAccessCheck::isAllowingPolicy).isPresent())
-        .ifPresent(policy -> {
-          List<LiteralExprTree> wildcardRules = getWildcardRules(policy.principal().get());
-          if (!wildcardRules.isEmpty()) {
-            ctx.reportIssue(resource.labels().get(0), MESSAGE, secondaryLocations(wildcardRules));
-          }
-        });
+        .filter(Policy::isAllowingPolicy)
+        .flatMap(Policy::principal)
+        .map(AnonymousBucketAccessCheck::getWildcardRules)
+        .filter(wildcardRules -> !wildcardRules.isEmpty())
+        .ifPresent(wildcardRules -> ctx.reportIssue(resource.labels().get(0), MESSAGE, secondaryLocations(wildcardRules)));
     }
   }
 
@@ -64,9 +63,5 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
 
   private static List<SecondaryLocation> secondaryLocations(List<LiteralExprTree> anonymousPrincipals) {
     return anonymousPrincipals.stream().map(s -> new SecondaryLocation(s, SECONDARY_MSG)).collect(Collectors.toList());
-  }
-
-  private static boolean isAllowingPolicy(ExpressionTree effect) {
-    return TextUtils.isValue(effect, "Allow").isTrue();
   }
 }

@@ -7,6 +7,7 @@ package org.sonar.iac.common.checks;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,9 +33,13 @@ public class PropertyUtils {
   }
 
   public static Optional<PropertyTree> get(@Nullable Tree tree, String key) {
+    return get(tree, key::equals);
+  }
+
+  private static Optional<PropertyTree> get(@Nullable Tree tree, Predicate<String> keyMatcher) {
     if (!(tree instanceof HasProperties)) return Optional.empty();
     return ((HasProperties) tree).properties().stream()
-      .filter(attribute -> TextUtils.isValue(attribute.key(), key).isTrue())
+      .filter(attribute -> TextUtils.matchesValue(attribute.key(), keyMatcher).isTrue())
       .findFirst();
   }
 
@@ -48,6 +53,10 @@ public class PropertyUtils {
 
   public static Optional<Tree> value(@Nullable Tree tree, String key) {
     return get(tree, key).map(PropertyTree::value);
+  }
+
+  public static Optional<Tree> value(@Nullable Tree tree, Predicate<String> keyMatcher) {
+    return get(tree, keyMatcher).map(PropertyTree::value);
   }
 
   public static <T extends Tree> Optional<T> value(@Nullable Tree tree, String key, Class<T> clazz) {

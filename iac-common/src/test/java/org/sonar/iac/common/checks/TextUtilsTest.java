@@ -33,6 +33,14 @@ class TextUtilsTest {
   }
 
   @Test
+  void matchesValue() {
+    assertThat(TextUtils.matchesValue(text("foo"), "foo"::equals)).isEqualTo(Trilean.TRUE);
+    assertThat(TextUtils.matchesValue(text("foo"), "bar"::equals)).isEqualTo(Trilean.FALSE);
+    assertThat(TextUtils.matchesValue(tree(), k -> k.startsWith("foo"))).isEqualTo(Trilean.UNKNOWN);
+    assertThat(TextUtils.matchesValue(null, k -> k.startsWith("foo"))).isEqualTo(Trilean.UNKNOWN);
+  }
+
+  @Test
   void isValueTrue() {
     assertThat(TextUtils.isValueTrue(text("true"))).isTrue();
     assertThat(TextUtils.isValueTrue(text("false"))).isFalse();

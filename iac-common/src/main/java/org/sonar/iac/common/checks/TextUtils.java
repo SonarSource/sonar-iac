@@ -6,6 +6,7 @@
 package org.sonar.iac.common.checks;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -24,8 +25,12 @@ public class TextUtils {
   }
 
   public static Trilean isValue(@Nullable Tree tree, String expectedValue) {
+    return matchesValue(tree, expectedValue::equals);
+  }
+
+  public static Trilean matchesValue(@Nullable Tree tree, Predicate<String> matcher) {
     if (tree instanceof TextTree) {
-      return expectedValue.equals(((TextTree) tree).value()) ? Trilean.TRUE : Trilean.FALSE;
+      return matcher.test(((TextTree) tree).value()) ? Trilean.TRUE : Trilean.FALSE;
     }
     return Trilean.UNKNOWN;
   }
