@@ -30,6 +30,7 @@ public class TerraformCheckList {
       DisabledS3ServerAccessLoggingCheck.class,
       DisabledSNSTopicEncryptionCheck.class,
       ParsingErrorCheck.class,
+      PrivilegePolicyCheck.class,
       PublicApiCheck.class,
       ResourceAccessPolicyCheck.class,
       UnencryptedEbsVolumeCheck.class,
