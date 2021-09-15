@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyResource:
+    Type: Some::Resource::Type
+    Properties: 
+      SomePolicyDocument:
+        Id: "id"
+        Version: "v"
+        Statement: 
+          - Sid: "sid"
+          - Sid: "sid"
+      SomeOtherPolicyDocument:
+        Id: "id"
+        Version: "v"
+        Statement: 
+          - Sid: "sid"

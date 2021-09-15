@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  SomeMalformedPolicy:
+    Type: Some::Resource::Type
+    Properties:
+      SomePolizeiDocument:
+        Statement: 
+          - Sid: "sid"  
+      SomePolicyDocument:
+        Ztatement:
+          - Sid: "sid"
+      SomePolicyDocument:
+        NotStatementChild:
+          Statement:
+            - Sid: "sid"

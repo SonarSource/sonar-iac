@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyResource:
+    Type: Some::Resource::Type
+    Properties:
+      SomePolicyDocument:
+        Statement: 
+          - Sid: "sid"
+            Effect: "eff"
+            Principal: "pri"
+            NotPrincipal: "npr"
+            Action: "act"
+            NotAction: "nac"
+            Resource: "rsc"
+            NotResource: "nrs"
+            Condition: "cnd"
