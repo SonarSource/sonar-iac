@@ -25,6 +25,14 @@ class TextUtilsTest {
   }
 
   @Test
+  void getIntValue() {
+    assertThat(TextUtils.getIntValue(text("1"))).isPresent().get().isEqualTo(1);
+    assertThat(TextUtils.getIntValue(tree())).isNotPresent();
+    assertThat(TextUtils.getIntValue(text("foo"))).isNotPresent();
+    assertThat(TextUtils.getIntValue(null)).isNotPresent();
+  }
+
+  @Test
   void isValue() {
     assertThat(TextUtils.isValue(text("foo"), "foo")).isEqualTo(Trilean.TRUE);
     assertThat(TextUtils.isValue(text("foo"), "bar")).isEqualTo(Trilean.FALSE);
