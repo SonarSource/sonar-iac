@@ -1,0 +1,49 @@
+<p>An AWS security group is a virtual firewall for EC2 instances to control inbound and outbound traffic. An ingress rule allowing traffic from all IP
+addresses to standard network ports on which administration services traditionally listen, such as 22 for SSH, can expose these services to exploits
+and unauthorized access.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to restrict access to remote administration services to only trusted IP addresses. In practice, trusted IP addresses are those
+held by system administrators or those of <a href="https://aws.amazon.com/quickstart/architecture/linux-bastion/?nc1=h_ls">bastion-like</a>
+servers.</p>
+<h2>Noncompliant Code Example</h2>
+<p>An ingress rule allowing all inbound SSH traffic:</p>
+<pre>
+resource "aws_security_group" "noncompliant" {
+  name        = "allow_ssh_noncompliant"
+  description = "allow_ssh_noncompliant"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description      = "SSH rule"
+    from_port        = 22
+    to_port          = 22 # SSH traffic
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"] # from all IP addresses is authorized
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>An ingress rule allowing inbound SSH traffic from specific IP addresses:</p>
+<pre>
+resource "aws_security_group" "compliant" {
+  name        = "allow_ssh_compliant"
+  description = "allow_ssh_compliant"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description      = "SSH rule"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["1.2.3.0/24"] # Compliant
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html">AWS Documentation</a> - Security groups for your VPC </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+</ul>
+
