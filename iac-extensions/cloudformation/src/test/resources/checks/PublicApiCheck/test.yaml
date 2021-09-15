@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyApiGatewayMethodNone:
+    Type: AWS::ApiGateway::Method
+    #     ^^^^^^^^^^^^^^^^^^^^^^^> {{Related method}}
+    Properties:
+      AuthorizationType: NONE # Noncompliant {{Make sure creating a public API is safe here.}}
+      #                  ^^^^
+
+  MyApiGatewayMethodSafe:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: AWS_IAM # Compliant
+
+  OpenApiDefault:
+    Type: AWS::Serverless::Api # Noncompliant
+    Properties:
+      StageName: Prod
+
+  OpenApi:
+    Type: AWS::Serverless::Api
+    #     ^^^^^^^^^^^^^^^^^^^^> {{Related API}}
+    Properties:
+      StageName: Prod
+      Auth:
+        ApiKeyRequired: false # Noncompliant {{Make sure creating a public API is safe here.}}
+        #               ^^^^^
+
+  ApiSafe:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        ApiKeyRequired: false
+        ResourcePolicy: foo
+
+  ApiSafe2:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth: foo
+
+  ApiSafe3:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        ApiKeyRequired: true
+
+  MyDefaultHttpApi:
+    Type: AWS::Serverless::HttpApi # Noncompliant
+    Properties:
+      StageName: Prod
+
+  SafeHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: Prod
+      Auth: foo
+
+  NoneOfThisChecksBusiness:
+    Type: AWS::NoneOfThisChecksBusiness
