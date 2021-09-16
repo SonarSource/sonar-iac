@@ -30,6 +30,7 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
+import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
@@ -87,9 +88,9 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     Map<BlockTree, Policy> result = new HashMap<>();
     for (BlockTree bucket : buckets) {
       // the bucket might directly contain the policy as an attribute
-      Optional<Policy> nestedPolicy = AbstractResourceCheck.policy(bucket);
-      if (nestedPolicy.isPresent()) {
-        result.put(bucket, nestedPolicy.get());
+      List<Policy> nestedPolicies = PolicyUtils.getPolicies(bucket);
+      if (!nestedPolicies.isEmpty()) {
+        result.put(bucket, nestedPolicies.get(0));
         continue;
       }
 
@@ -98,7 +99,14 @@ public class BucketsInsecureHttpCheck implements IacCheck {
         .stream()
         .filter(e -> correspondsToBucket(e.getKey(), bucket))
         .map(Map.Entry::getValue)
-        .map(AbstractResourceCheck::policy)
+        .map(tree -> {
+          List<Policy> p = PolicyUtils.getPolicies(tree);
+          if (p.isEmpty()) {
+            return Optional.<Policy>ofNullable(null);
+          } else {
+            return Optional.of(p.get(0));
+          }
+        })
         .filter(Optional::isPresent)
         .map(Optional::get)
         .findFirst()
