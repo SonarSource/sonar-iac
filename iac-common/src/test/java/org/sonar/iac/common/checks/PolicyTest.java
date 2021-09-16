@@ -80,7 +80,6 @@ class PolicyTest {
     assertThat(statement.resource()).isNotPresent();
     assertThat(statement.notResource()).isNotPresent();
     assertThat(statement.condition()).isNotPresent();
-    assertThat(statement.isAllowingPolicy()).isFalse();
   }
 
   @Test
@@ -115,7 +114,6 @@ class PolicyTest {
     assertThat(statement.resource()).isPresent();
     assertThat(statement.notResource()).isPresent();
     assertThat(statement.condition()).isPresent();
-    assertThat(statement.isAllowingPolicy()).isTrue();
   }
 
   static class TestPropertyTree extends AbstractTestTree implements PropertyTree {

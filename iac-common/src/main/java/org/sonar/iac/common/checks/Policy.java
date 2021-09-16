@@ -93,9 +93,5 @@ public class Policy {
     public Optional<Tree> condition() {
       return Optional.ofNullable(condition);
     }
-
-    public boolean isAllowingPolicy() {
-      return TextUtils.isValue(effect, "Allow").isTrue();
-    }
   }
 }

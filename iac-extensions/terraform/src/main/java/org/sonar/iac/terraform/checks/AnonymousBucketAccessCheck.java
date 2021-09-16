@@ -16,6 +16,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.Policy;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.Policy.Statement;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
@@ -37,7 +38,7 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
         if (!PolicyUtils.UNKNOWN_POLCY.equals(policy)) {
           // Filter resolvable and allowing policies only. Resolvable means effect and principal exist in the policy.
           policy.statement().stream()
-            .filter(Policy.Statement::isAllowingPolicy)
+            .filter(AnonymousBucketAccessCheck::isAllowEffect)
             .map(Policy.Statement::principal)
             .filter(Optional::isPresent)
             .map(Optional::get)
@@ -47,6 +48,10 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
         }
       });
     }
+  }
+
+  private static boolean isAllowEffect(Statement statement) {
+    return TextUtils.isValue(statement.effect().orElse(null), "Allow").isTrue();
   }
 
   private static List<LiteralExprTree> getWildcardRules(Tree principal) {

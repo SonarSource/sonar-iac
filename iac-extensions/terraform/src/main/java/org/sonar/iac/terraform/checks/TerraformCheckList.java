@@ -31,6 +31,7 @@ public class TerraformCheckList {
       DisabledSNSTopicEncryptionCheck.class,
       ParsingErrorCheck.class,
       PublicApiCheck.class,
+      ResourceAccessPolicyCheck.class,
       UnencryptedEbsVolumeCheck.class,
       UnencryptedSageMakerNotebookCheck.class,
       UnencryptedSqsQueueCheck.class,
