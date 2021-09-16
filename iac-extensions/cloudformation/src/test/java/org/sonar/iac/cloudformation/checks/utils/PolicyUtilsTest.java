@@ -10,14 +10,15 @@ import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.CloudformationVerifier;
-import org.sonar.iac.cloudformation.checks.utils.Policy.Statement;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.Policy;
+import org.sonar.iac.common.checks.Policy.Statement;
 
-import static org.sonar.iac.cloudformation.checks.utils.Policy.getPolicies;
+import static org.sonar.iac.cloudformation.checks.utils.PolicyUtils.getPolicies;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PolicyTest {
+class PolicyUtilsTest {
 
   @Test
   void test_policy() {

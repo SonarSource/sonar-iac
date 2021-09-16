@@ -9,10 +9,11 @@ import java.util.Optional;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.Policy;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.utils.Policy;
+import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 
 public abstract class AbstractResourceCheck implements IacCheck {
 
@@ -46,6 +47,6 @@ public abstract class AbstractResourceCheck implements IacCheck {
   public static Optional<Policy> policy(BlockTree resource) {
     return PropertyUtils
       .value(resource, key -> key.contains("policy"))
-      .map(Policy::from);
+      .map(PolicyUtils::getPolicy);
   }
 }

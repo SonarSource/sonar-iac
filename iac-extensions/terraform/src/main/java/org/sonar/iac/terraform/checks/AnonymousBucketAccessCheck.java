@@ -7,10 +7,13 @@ package org.sonar.iac.terraform.checks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.Policy;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -18,7 +21,7 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
-import org.sonar.iac.terraform.checks.utils.Policy;
+import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 
 @Rule(key = "S6270")
 public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
@@ -30,17 +33,24 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     if (isResource(resource, "aws_s3_bucket_policy") || isS3Bucket(resource)) {
       // Handle policy statement if present in s3_bucket_policy or s3_bucket
-      policy(resource)
+      policy(resource).ifPresent(policy -> {
+        if (PolicyUtils.UNKNOWN_POLCY.equals(policy)) {
+          return;
+        }
         // Filter resolvable and allowing policies only. Resolvable means effect and principal exist in the policy.
-        .filter(Policy::isAllowingPolicy)
-        .flatMap(Policy::principal)
-        .map(AnonymousBucketAccessCheck::getWildcardRules)
-        .filter(wildcardRules -> !wildcardRules.isEmpty())
-        .ifPresent(wildcardRules -> ctx.reportIssue(resource.labels().get(0), MESSAGE, secondaryLocations(wildcardRules)));
+        policy.statement().stream()
+          .filter(Policy.Statement::isAllowingPolicy)
+          .map(Policy.Statement::principal)
+          .filter(Optional::isPresent)
+          .map(Optional::get)
+          .map(AnonymousBucketAccessCheck::getWildcardRules)
+          .filter(wildcardRules -> !wildcardRules.isEmpty())
+          .forEach(wildcardRules -> ctx.reportIssue(resource.labels().get(0), MESSAGE, secondaryLocations(wildcardRules)));
+      });
     }
   }
 
-  private static List<LiteralExprTree> getWildcardRules(ExpressionTree principal) {
+  private static List<LiteralExprTree> getWildcardRules(Tree principal) {
     List<LiteralExprTree> wildcardRules = new ArrayList<>();
     if (TextUtils.isValue(principal, "*").isTrue()) {
       wildcardRules.add((LiteralExprTree) principal);
