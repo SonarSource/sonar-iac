@@ -33,19 +33,18 @@ public class AnonymousBucketAccessCheck extends AbstractResourceCheck {
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     if (isResource(resource, "aws_s3_bucket_policy") || isS3Bucket(resource)) {
       // Handle policy statement if present in s3_bucket_policy or s3_bucket
-      policy(resource).ifPresent(policy -> {
-        if (PolicyUtils.UNKNOWN_POLCY.equals(policy)) {
-          return;
+      PolicyUtils.getPolicies(resource).stream().forEach(policy -> {
+        if (!PolicyUtils.UNKNOWN_POLCY.equals(policy)) {
+          // Filter resolvable and allowing policies only. Resolvable means effect and principal exist in the policy.
+          policy.statement().stream()
+            .filter(Policy.Statement::isAllowingPolicy)
+            .map(Policy.Statement::principal)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(AnonymousBucketAccessCheck::getWildcardRules)
+            .filter(wildcardRules -> !wildcardRules.isEmpty())
+            .forEach(wildcardRules -> ctx.reportIssue(resource.labels().get(0), MESSAGE, secondaryLocations(wildcardRules)));
         }
-        // Filter resolvable and allowing policies only. Resolvable means effect and principal exist in the policy.
-        policy.statement().stream()
-          .filter(Policy.Statement::isAllowingPolicy)
-          .map(Policy.Statement::principal)
-          .filter(Optional::isPresent)
-          .map(Optional::get)
-          .map(AnonymousBucketAccessCheck::getWildcardRules)
-          .filter(wildcardRules -> !wildcardRules.isEmpty())
-          .forEach(wildcardRules -> ctx.reportIssue(resource.labels().get(0), MESSAGE, secondaryLocations(wildcardRules)));
       });
     }
   }
