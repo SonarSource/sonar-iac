@@ -32,6 +32,7 @@ public class CloudformationCheckList {
       LogGroupRetentionPolicyCheck.class,
       ParsingErrorCheck.class,
       PublicApiCheck.class,
+      ResourceAccessPolicyCheck.class,
       UnencryptedEbsVolumeCheck.class,
       UnencryptedSageMakerNotebookCheck.class,
       UnencryptedSqsQueueCheck.class,

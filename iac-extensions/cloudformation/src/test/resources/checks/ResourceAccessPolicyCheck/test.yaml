@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  NonCompliantPolicyWithResourceAllowAllDirect:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+  #                 ^^^^^> {{Related effect}}
+            Resource: "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
+  #                   ^^^
+  NonCompliantPolicyWithResourceAllowAllItem:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+  #                 ^^^^^> {{Related effect}}
+            Resource:
+              - "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
+  #             ^^^
+  CompliantPolicyWithResourceDenyAll:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Deny
+            Resource: "*"
+  CompliantPolicyWithResourceAllowSpecifc:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Resource: "foo"
+  CompliantPolicyWitMissingResourceAllow:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+  CompliantPolicyWitMissingResourceAndEffect:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Resource: "foo"
+  NonCompliantPolicyWithNotResourceDenyAll:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Deny
+  #                 ^^^^> {{Related effect}}
+            NotResource: "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
+  #                      ^^^
+  CompliantPolicyWithNotResourceDenySpecific:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Deny
+            NotResource: "foo"
+  CompliantPolicyWithNotResourceAllowAll:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            NotResource: "*"
+  NonCompliantPolicies:
+     Type: AWS::IAM::Role
+     Properties: 
+       Policies:
+         - PolicyDocument:
+             Statement:
+               - Effect: Allow
+  #                      ^^^^^> {{Related effect}}
+                 Resource:
+                   - "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
+  #                  ^^^
+  CompliantPolicies:
+     Type: AWS::IAM::Role
+     Properties: 
+       Policies:
+         - PolicyDocument:
+             Statement:
+               - Effect: Allow
+                 Resource:
+                   - "foo"
+  Compliant:
+    Type: Some::Empty::Resource
