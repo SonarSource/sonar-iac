@@ -99,14 +99,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
         .stream()
         .filter(e -> correspondsToBucket(e.getKey(), bucket))
         .map(Map.Entry::getValue)
-        .map(tree -> {
-          List<Policy> p = PolicyUtils.getPolicies(tree);
-          if (p.isEmpty()) {
-            return Optional.<Policy>ofNullable(null);
-          } else {
-            return Optional.of(p.get(0));
-          }
-        })
+        .map(tree -> PolicyUtils.getPolicies(tree).stream().findFirst())
         .filter(Optional::isPresent)
         .map(Optional::get)
         .findFirst()
