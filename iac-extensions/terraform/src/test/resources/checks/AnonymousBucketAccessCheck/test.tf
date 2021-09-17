@@ -129,3 +129,8 @@ resource "aws_s3_bucket_policy" "compliant_policy_with_no_valid_principal" {
     ]
   })
 }
+
+resource "aws_s3_bucket_policy" "invlid_policy" {
+  bucket = aws_s3_bucket
+  policy = jsonencode()
+}

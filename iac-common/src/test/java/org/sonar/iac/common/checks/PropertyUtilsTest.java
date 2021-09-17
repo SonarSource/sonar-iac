@@ -72,6 +72,18 @@ class PropertyUtilsTest {
     assertThat(PropertyUtils.value(tree, "key2", OtherTree.class)).isNotPresent();
   }
 
+  @Test
+  void value_with_predicate() {
+    assertThat(PropertyUtils.value(tree, k -> k.equals("key1"))).isPresent().get().isEqualTo(value1);
+    assertThat(PropertyUtils.value(tree, k -> k.equals("key2"))).isPresent().get().isEqualTo(value2);
+
+    // return the first match only
+    assertThat(PropertyUtils.value(tree, k -> k.contains("key"))).isPresent().get().isEqualTo(value1);
+
+    assertThat(PropertyUtils.value(null, k -> k.contains("key"))).isNotPresent();
+    assertThat(PropertyUtils.value(tree, k -> k.equals("key3"))).isNotPresent();
+  }
+
   static class OtherTree extends AbstractTestTree {
 
   }
