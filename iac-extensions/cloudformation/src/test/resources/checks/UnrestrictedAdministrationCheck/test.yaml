@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+
+  MySecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          #           ^^^> {{Related protocol setting}}
+          FromPort: 22
+          #         ^^> {{Port range start}}
+          ToPort: 22
+          #       ^^> {{Port range end}}
+          CidrIp: "0.0.0.0/0" # Noncompliant {{Restrict IP addresses authorized to access administration services}}
+          #       ^^^^^^^^^^^
+
+  MySecurityGroupIpv6:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIpv6: "::/0" # Noncompliant {{Restrict IP addresses authorized to access administration services}}
+
+  MySecurityGroupRdpPortRange:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 4000
+          CidrIpv6: "::/0" # Noncompliant {{Restrict IP addresses authorized to access administration services}}
+
+  MySecurityGroupAllProtocols:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          #           ^^> {{Related protocol setting}}
+          CidrIpv6: "::/0" # Noncompliant {{Restrict IP addresses authorized to access administration services}}
+          #         ^^^^^^
+
+  MySecurityGroupUdpProtocols:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: udp
+          CidrIpv6: "::/0"
+
+  MySecurityGroupNoDefaultRouteCidrV4:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          CidrIp: "192.168.0.0/23"
+
+  MySecurityGroupNoDefaultRouteCidrV6:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          CidrIpv6: "2002::1234:abcd:ffff:c0a8:101/64"
+
+  MySecurityGroupNoImportantPortRange:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 70000
+          ToPort: 60000
+          CidrIpv6: "::/0"
+
+  MySecurityGroupNoCidr:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: -1
+
+  # Mostly for coverage:
+
+  NotASecurityGroup:
+    Type: "AWS::EC2::NotASecurityGroup"
+    Properties:
+      GroupDescription: "NotASecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          CidrIpv6: "::/0"
+
+  MySecurityGroupNoProtocol:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - CidrIpv6: "::/0"
+
+  MySecurityGroupInvalidPort:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: invalid
+          ToPort: invalid
+          CidrIpv6: "::/0"
+
+  MySecurityGroupInvalidFromPort:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: invalid
+          ToPort: 123
+          CidrIpv6: "::/0"
+
+  MySecurityGroupInvalidToPort:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 123
+          ToPort: invalid
+          CidrIpv6: "::/0"
+
+  MySecurityGroupNoFromPort:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          ToPort: 22
+          CidrIpv6: "::/0"
+
+  MySecurityGroupNoToPort:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "MySecurityGroup"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          CidrIpv6: "::/0"

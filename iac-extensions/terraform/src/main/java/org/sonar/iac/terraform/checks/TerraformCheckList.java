@@ -34,6 +34,7 @@ public class TerraformCheckList {
       UnencryptedEbsVolumeCheck.class,
       UnencryptedSageMakerNotebookCheck.class,
       UnencryptedSqsQueueCheck.class,
+      UnrestrictedAdministrationCheck.class,
       UnversionedS3BucketCheck.class
     );
   }

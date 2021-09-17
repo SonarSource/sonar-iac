@@ -24,6 +24,18 @@ public class TextUtils {
     return Optional.empty();
   }
 
+  public static Optional<Integer> getIntValue(@Nullable Tree tree) {
+    Optional<String> stringValue = getValue(tree);
+    if (stringValue.isPresent()) {
+      try {
+        return Optional.of(Integer.valueOf(stringValue.get()));
+      } catch (NumberFormatException e) {
+        // Do nothing, we'll return an empty optional
+      }
+    }
+    return Optional.empty();
+  }
+
   public static Trilean isValue(@Nullable Tree tree, String expectedValue) {
     return matchesValue(tree, expectedValue::equals);
   }
