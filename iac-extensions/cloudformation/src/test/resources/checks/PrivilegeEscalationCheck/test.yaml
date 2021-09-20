@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  NonCompliant1:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action:
+              - iam:CreatePolicyVersion
+            Resource: "*" # Noncompliant {{Narrow these permissions to a smaller set of resources to avoid privilege escalation.}}
+  NonCompliant2:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action:
+              - iam:CreatePolicyVersion
+            Resource: "arn:foo:bar:baz:bax:user/*" # Noncompliant
+  NonCompliant3:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action:
+              - lambda:*
+            Resource: "arn:foo:bar:baz:bax:user/*" # Noncompliant
+  Compliant1:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Deny
+            Action:
+              - iam:CreatePolicyVersion
+            Resource: "arn:foo:bar:baz:bax:user/*"
+  Compliant2:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action:
+              - foo
+            Resource: "arn:foo:bar:baz:bax:user/*"
+  Compliant:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action:
+              - iam:CreatePolicyVersion
+            Resource: "foo"
+  Compliant3:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action:
+              - iam:CreatePolicyVersion
+            Resource: "*"
+            Condition: "test"
+  Compliant4:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action:
+              - iam:CreatePolicyVersion
+            Resource: "*"
+            Principal: "test"
+  Compliant4:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Statement:
+          - Effect: Allow
+            Action: foo
+            Resource: "*"
