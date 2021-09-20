@@ -16,7 +16,7 @@ public class TerraformCheckList {
 
   public static List<Class<?>> checks() {
     return Arrays.asList(
-      AnonymousBucketAccessCheck.class,
+      AnonymousAccessPolicyCheck.class,
       AssignedPublicIPAddressCheck.class,
       AwsTagNameConventionCheck.class,
       BucketsAccessCheck.class,
