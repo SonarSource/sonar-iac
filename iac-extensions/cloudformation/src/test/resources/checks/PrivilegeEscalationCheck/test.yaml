@@ -45,7 +45,7 @@ Resources:
             Action:
               - foo
             Resource: "arn:foo:bar:baz:bax:user/*"
-  Compliant:
+  Compliant3:
     Type: AWS::IAM::ManagedPolicy
     Properties: 
       PolicyDocument: 
@@ -54,7 +54,7 @@ Resources:
             Action:
               - iam:CreatePolicyVersion
             Resource: "foo"
-  Compliant3:
+  Compliant4:
     Type: AWS::IAM::ManagedPolicy
     Properties: 
       PolicyDocument: 
@@ -64,7 +64,7 @@ Resources:
               - iam:CreatePolicyVersion
             Resource: "*"
             Condition: "test"
-  Compliant4:
+  Compliant5:
     Type: AWS::IAM::ManagedPolicy
     Properties: 
       PolicyDocument: 
@@ -74,7 +74,7 @@ Resources:
               - iam:CreatePolicyVersion
             Resource: "*"
             Principal: "test"
-  Compliant4:
+  Compliant6:
     Type: AWS::IAM::ManagedPolicy
     Properties: 
       PolicyDocument: 
