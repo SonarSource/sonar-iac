@@ -38,7 +38,7 @@ import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketRes
 @Rule(key = "S6281")
 public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
-  private static final String MESSAGE = "Make sure allowing public policy/acl access is safe here.";
+  private static final String MESSAGE = "Make sure not preventing permissive ACL/policies to be set is safe here.";
   private static final String SECONDARY_MSG_PROPERTY = "Set this property to true";
   private static final String SECONDARY_MSG_BUCKET = "Related bucket";
   private static final String PAB = "aws_s3_bucket_public_access_block";

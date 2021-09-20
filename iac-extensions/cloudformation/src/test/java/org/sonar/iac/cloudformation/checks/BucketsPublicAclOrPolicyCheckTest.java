@@ -21,7 +21,7 @@ class BucketsPublicAclOrPolicyCheckTest {
 
   @Test
   void test_json() {
-    String message = "Make sure allowing public policy/acl access is safe here.";
+    String message = "Make sure not preventing permissive ACL/policies to be set is safe here.";
 
     CloudformationVerifier.verify("BucketsPublicAclOrPolicyCheck/test.json", new BucketsPublicAclOrPolicyCheck(),
       new Verifier.Issue(range(5, 14, 5, 31)),

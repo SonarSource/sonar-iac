@@ -19,7 +19,7 @@ import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6281")
 public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
-  private static final String MESSAGE = "Make sure allowing public policy/acl access is safe here.";
+  private static final String MESSAGE = "Make sure not preventing permissive ACL/policies to be set is safe here.";
   private static final String SECONDARY_MSG_PROPERTY = "Set this property to true";
   private static final String SECONDARY_MSG_BUCKET = "Related bucket";
   private static final List<String> ATTRIBUTES_TO_CHECK = Arrays.asList(
