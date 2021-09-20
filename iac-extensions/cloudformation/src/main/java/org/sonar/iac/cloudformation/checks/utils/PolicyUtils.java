@@ -8,6 +8,9 @@ package org.sonar.iac.cloudformation.checks.utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import javax.annotation.Nullable;
+
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -22,7 +25,7 @@ public class PolicyUtils {
     // utility class
   }
 
-  public static List<Policy> getPolicies(Tree root) {
+  public static List<Policy> getPolicies(@Nullable Tree root) {
     PolicyCollector collector = new PolicyCollector();
     collector.scan(new TreeContext(), root);
     return collector.policies;
