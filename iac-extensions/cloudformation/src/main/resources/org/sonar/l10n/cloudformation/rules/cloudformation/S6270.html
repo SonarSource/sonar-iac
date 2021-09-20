@@ -1,16 +1,15 @@
-<p>S3 bucket policies granting access to all users (anonymous / public) can lead to information leakage.</p>
+<p>Resource-based policies granting access to all users can lead to information leakage.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The S3 bucket stores sensitive data. </li>
-  <li> The S3 bucket is not used to store static resources of websites (images, css …​). </li>
+  <li> The AWS resource stores or processes sensitive data. </li>
+  <li> The AWS resource is not designed to be public. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to implement the least privilege policy, ie to grant necessary permissions only to users for their required tasks. In the context
-of S3 policies, list the principals that need the access and grant to them only the required privileges (ie, <code>PutObject</code> S3 action for
-instance).</p>
+<p>It’s recommended to implement the least privilege principle, i.e. to grant necessary permissions only to users for their required tasks. In the
+context of resource-based policies, list the principals that need the access and grant to them only the required privileges.</p>
 <h2>Sensitive Code Example</h2>
-<p>This policy allows anonymous access:</p>
+<p>This policy allows all users, including anonymous ones, to access an s3 bucket:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
@@ -48,8 +47,8 @@ Resources:
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/walkthrough1.html">AWS Documentation</a> - Controlling access to a bucket with
-  user policies </li>
+  <li> <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege">AWS Documentation</a> - Grant least
+  privilege </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/732.html">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
