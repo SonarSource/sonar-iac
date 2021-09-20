@@ -1,0 +1,104 @@
+<p>AWS Identity and Access Management (IAM) is the service that defines access to AWS resources. One of the core components of IAM is the policy
+which, when attached to an identity or a resource, defines its permissions. Policies granting permission to an Identity (a User, a Group or Role) are
+called identity-based policies. They add the ability to an identity to perform a predefined set of actions on a list of resources.</p>
+<p>Here is an example of a policy document defining a limited set of permission that grants a user the ability to manage his own access keys.</p>
+<pre>
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "iam:CreateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:ListAccessKeys",
+                "iam:UpdateAccessKey"
+            ],
+            "Resource": "arn:aws:iam::245500951992:user/${aws:username}",
+            "Effect": "Allow",
+            "Sid": "AllowManageOwnAccessKeys"
+        }
+    ]
+}
+</pre>
+<p>Privilege escalation generally happens when an identity policy gives to an identity the ability to grant more privileges than the ones it already
+has. Here is another example of a policy document that hides a privilege escalation. It allows an identity to generate a new access key for any user
+from the account, including users with high privileges.</p>
+<pre>
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "iam:CreateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:ListAccessKeys",
+                "iam:UpdateAccessKey"
+            ],
+            "Resource": "*",
+            "Effect": "Allow",
+            "Sid": "AllowManageOwnAccessKeys"
+        }
+    ]
+}
+</pre>
+<p>Although it looks like it grants a limited set of permissions, this policy would, in practice, give the highest privileges to the identity it’s
+attached to.</p>
+<p>Privilege escalation is a serious issue as it allows a malicious user to easily escalate to a high privilege identity from a low privilege identity
+it took control of.</p>
+<p>The example above is just one of many permission combinations that the rule can detect. There are other variants based on
+<code>iam:PassRole</code>, <code>lambda:UpdateFunctionCode</code>, and other IAM permissions that allow to update, create, and attach IAM
+policies.</p>
+<p>The general recommendation to protect against privilege escalation is to restrict the resources that are granted sensitive permissions to. The
+first example above is a good demonstration of sensitive permissions being used with a narrow scope of resources and where no privilege escalation is
+possible.</p>
+<h2>Noncompliant Code Example</h2>
+<p>This policy allows to update the code of any lambda function. Updating the code of a lambda executing with high privileges will lead to privilege
+escalation.</p>
+<pre>
+resource "aws_iam_policy" "lambdaUpdatePolicy" {
+  name = "lambdaUpdatePolicy"
+  policy =&lt;&lt;EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "lambda:UpdateFunctionCode"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>Narrow the policy to only allow to update the code of certain lambda functions.</p>
+<pre>
+resource "aws_iam_policy" "lambdaUpdatePolicy" {
+  name = "lambdaUpdatePolicy"
+  policy =&lt;&lt;EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "lambda:UpdateFunctionCode"
+            ],
+            "Resource": "arn:aws:lambda:us-east-2:123456789012:function:my-function:1"
+        }
+    ]
+}
+EOF
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/">Rhino Security Labs</a> - AWS IAM Privilege Escalation
+  – Methods and Mitigation </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A5-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-269</a> - Improper Privilege Management </li>
+</ul>
+
