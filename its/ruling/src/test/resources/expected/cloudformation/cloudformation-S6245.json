@@ -13,6 +13,12 @@
 22,
 28,
 ],
+'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.json':[
+5,
+],
+'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.yaml':[
+4,
+],
 'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6273.json':[
 5,
 ],
