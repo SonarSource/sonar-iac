@@ -62,6 +62,32 @@ Resources:
             Action: "s3:PutObject" # can put object
             Resource: arn:aws:s3:::mynoncompliantbuckets6270/*
 
+  SensitiveS3BucketPolicyWithSequenceWithDeny:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Deny
+            #       ^^^^> {{Related effect.}}
+            NotPrincipal:
+              AWS:
+                - "*" # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+                # ^^^
+            Action: "s3:PutObject" # can put object
+            Resource: arn:aws:s3:::mynoncompliantbuckets6270/*
+
+  SensitiveS3BucketPolicyWithSequenceWithDeny2:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Deny
+            #       ^^^^> {{Related effect.}}
+            NotPrincipal: "*" # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+                        # ^^^
+            Action: "s3:PutObject" # can put object
+            Resource: arn:aws:s3:::mynoncompliantbuckets6270/*
+
   SensitiveMultiplePrincipalS3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy' # Compliant
     Properties:
