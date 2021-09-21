@@ -52,11 +52,16 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
     static List<InsecureStatement> findInsecureStatements(Policy policy) {
       List<InsecureStatement> result = new ArrayList<>();
       for (Statement statement : policy.statement()) {
-        Optional<Tree> insecurePrincipal = statement.principal().flatMap(PolicyValidator::findInsecurePrincipal);
-        Optional<Tree> allowEffect = statement.effect().filter(PolicyValidator::isAllowEffect);
-        if (insecurePrincipal.isPresent() && allowEffect.isPresent()) {
-          result.add(new InsecureStatement(insecurePrincipal.get(), allowEffect.get()));
-        }
+        statement.effect()
+          .filter(PolicyValidator::isAllowEffect)
+          .ifPresent(effect -> statement.principal()
+            .flatMap(PolicyValidator::findInsecurePrincipal)
+            .ifPresent(principal -> result.add(new InsecureStatement(principal, effect))));
+        statement.effect()
+          .filter(PolicyValidator::isDenyEffect)
+          .ifPresent(effect -> statement.notPrincipal()
+            .flatMap(PolicyValidator::findInsecurePrincipal)
+            .ifPresent(notPrincipal -> result.add(new InsecureStatement(notPrincipal, effect))));
       }
       return result;
     }
@@ -103,6 +108,10 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
 
     private static boolean isAllowEffect(Tree effect) {
       return hasTextValue(effect, "Allow");
+    }
+
+    private static boolean isDenyEffect(Tree effect) {
+      return hasTextValue(effect, "Deny");
     }
 
     private static boolean hasTextValue(Tree tree, String value) {
