@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   S3Bucketdefault:
-    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
     Properties:
       BucketName: "mynoncompliantdefaultbuckets6281"
 
@@ -10,7 +10,7 @@ Resources:
     #     ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       BucketName: "mynoncompliantfirstbuckets6281"
-      PublicAccessBlockConfiguration: # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
+      PublicAccessBlockConfiguration: # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         BlockPublicAcls: false
         #                ^^^^^< {{Set this property to true}}
@@ -23,7 +23,7 @@ Resources:
     #     ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       BucketName: "mynoncompliantsecondbuckets6281"
-      PublicAccessBlockConfiguration: # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
+      PublicAccessBlockConfiguration: # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         BlockPublicAcls: true
         BlockPublicPolicy: false
@@ -36,7 +36,7 @@ Resources:
     #     ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       BucketName: "mynoncompliantthirdbuckets6281"
-      PublicAccessBlockConfiguration: # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
+      PublicAccessBlockConfiguration: # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -49,7 +49,7 @@ Resources:
     #     ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       BucketName: "mynoncompliantfourthbuckets6281"
-      PublicAccessBlockConfiguration: # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
+      PublicAccessBlockConfiguration: # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -62,7 +62,7 @@ Resources:
     #     ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       BucketName: "mynoncompliantfourthbuckets6281"
-      PublicAccessBlockConfiguration: # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
+      PublicAccessBlockConfiguration: # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -73,7 +73,7 @@ Resources:
     #     ^^^^^^^^^^^^^^^^^> {{Related bucket}}
     Properties:
       BucketName: "mynoncompliantfourthbuckets6281"
-      PublicAccessBlockConfiguration: # Noncompliant {{Make sure allowing public policy/acl access is safe here.}}
+      PublicAccessBlockConfiguration: # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         BlockPublicAcls: true
         BlockPublicPolicy: true
