@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -52,25 +54,35 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(FileTree.class, (ctx, tree) -> BucketAndResourceCollector.getResolvedS3Buckets(tree)
-      .forEach(bucket -> checkS3Bucket(ctx, bucket)));
+    init.register(FileTree.class, (ctx, tree) -> {
+      BucketAndResourceCollector collector = BucketAndResourceCollector.collect(tree);
+      collector.getAssignedBuckets().forEach(bucket -> checkS3Bucket(ctx, bucket, collector.getPublicAccessBlocks()));
+      collector.getPublicAccessBlocks().forEach(resource -> checkPublicAccessBlocks(ctx, resource, null));
+    });
   }
 
-  private static void checkS3Bucket(CheckContext ctx, S3Bucket bucket) {
+  private static void checkS3Bucket(CheckContext ctx, S3Bucket bucket, Set<BlockTree> publicAccessBlocks) {
     Optional<BlockTree> publicAccessBlock = bucket.resource(PAB);
     if (publicAccessBlock.isPresent())  {
-      LabelTree publicAccessBlockType = publicAccessBlock.get().labels().get(0);
-      List<SecondaryLocation> secLoc = checkPublicAccessBlock(publicAccessBlock.get());
-      if (!secLoc.isEmpty() || hasMissingStatement(publicAccessBlock.get())) {
-        secLoc.add(new SecondaryLocation(bucket.label(), SECONDARY_MSG_BUCKET));
-        ctx.reportIssue(publicAccessBlockType, MESSAGE, secLoc);
-      }
+      BlockTree pab = publicAccessBlock.get();
+      publicAccessBlocks.remove(pab);
+      checkPublicAccessBlocks(ctx, pab, bucket);
     } else {
       ctx.reportIssue(bucket.label(), MESSAGE);
     }
   }
 
-  private static List<SecondaryLocation> checkPublicAccessBlock(BlockTree publicAccessBlock) {
+  private static void checkPublicAccessBlocks(CheckContext ctx, BlockTree pab, @Nullable S3Bucket s3Bucket) {
+    List<SecondaryLocation> secLoc = checkWrongConfiguration(pab);
+    if (!secLoc.isEmpty() || hasMissingStatement(pab)) {
+      if (s3Bucket != null) {
+        secLoc.add(new SecondaryLocation(s3Bucket.label(), SECONDARY_MSG_BUCKET));
+      }
+      ctx.reportIssue(pab.labels().get(0), MESSAGE, secLoc);
+    }
+  }
+
+  private static List<SecondaryLocation> checkWrongConfiguration(BlockTree publicAccessBlock) {
     return PAB_STATEMENTS.stream()
       .map(e -> PropertyUtils.value(publicAccessBlock, e))
       .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
@@ -111,6 +123,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
   private static class BucketAndResourceCollector extends TreeVisitor<TreeContext> {
     private final List<S3Bucket> buckets = new ArrayList<>();
+    private final Set<BlockTree> publicAccessBlocks = new LinkedHashSet<>();
     private final List<BlockTree> resources = new ArrayList<>();
 
     public BucketAndResourceCollector() {
@@ -119,15 +132,18 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
           S3Bucket bucket = new S3Bucket(tree);
           buckets.add(bucket);
         } else if (isResource(tree)) {
+          if (isResource(tree, PAB)) {
+            publicAccessBlocks.add(tree);
+          }
           resources.add(tree);
         }
       });
     }
 
-    public static List<S3Bucket> getResolvedS3Buckets(FileTree tree) {
+    public static BucketAndResourceCollector collect(FileTree tree) {
       BucketAndResourceCollector collector = new BucketAndResourceCollector();
       collector.scan(new TreeContext(), tree);
-      return collector.getAssignedBuckets();
+      return collector;
     }
 
     @Override
@@ -155,6 +171,10 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
     private List<S3Bucket> getAssignedBuckets() {
       return buckets;
+    }
+
+    private Set<BlockTree> getPublicAccessBlocks() {
+      return publicAccessBlocks;
     }
   }
 
