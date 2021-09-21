@@ -101,16 +101,21 @@ data "aws_ebs_volume" "not_a_resource" {
 
 }
 
-resource "aws_s3_bucket_public_access_block" "invalid_bucket_identifier" {
+resource "aws_s3_bucket_public_access_block" "invalid_bucket_identifier" { # Noncompliant
+#        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   bucket = ["mynoncompliantmultimissingbuckets61234name"]
 
   block_public_acls       = true
   block_public_policy     = true
+  ignore_public_acls      = false
+  #                         ^^^^^< {{Set this property to true}}
+  restrict_public_buckets = false
+  #                         ^^^^^< {{Set this property to true}}
 }
 
 resource {}
 
-resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_invalid_attr_access" {
+resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_invalid_attr_access" { # Noncompliant
   bucket = aws_s3_bucket.mynoncompliantthirdbuckets6281
 }
 
