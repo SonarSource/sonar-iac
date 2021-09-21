@@ -75,13 +75,16 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
     public static Collection<InsecureStatement> findInsecureStatements(Policy policy) {
       List<InsecureStatement> result = new ArrayList<>();
       for (Statement statement : policy.statement()) {
-        Optional<Tree> allowEffect = statement.effect().filter(PolicyValidator::isAllowEffect);
-        if (!allowEffect.isPresent()) {
-          continue;
-        }
-        statement.principal()
-          .flatMap(PolicyValidator::findInsecurePrincipal)
-          .ifPresent(principal -> result.add(new InsecureStatement(principal, allowEffect.get())));
+        statement.effect()
+          .filter(PolicyValidator::isAllowEffect)
+          .ifPresent(effect -> statement.principal()
+            .flatMap(PolicyValidator::findInsecurePrincipal)
+            .ifPresent(principal -> result.add(new InsecureStatement(principal, effect))));
+        statement.effect()
+          .filter(PolicyValidator::isDenyEffect)
+          .ifPresent(effect -> statement.notPrincipal()
+            .flatMap(PolicyValidator::findInsecurePrincipal)
+            .ifPresent(notPrincipal -> result.add(new InsecureStatement(notPrincipal, effect))));
       }
       return result;
     }
@@ -90,15 +93,20 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
       List<InsecureStatement> results = new ArrayList<>();
       for (StatementTree statement : nonResource.properties()) {
         if ("statement".equalsIgnoreCase(statement.key().value())) {
-          Optional<Tree> allowEffect = PropertyUtils.value(statement, "effect").filter(PolicyValidator::isAllowEffect);
-          if (!allowEffect.isPresent()) {
-            continue;
-          }
-          PropertyUtils.value(statement, "principals", BodyTree.class)
-            .map(BodyTree::statements)
-            .filter(PolicyValidator::hasAwsType)
-            .flatMap(PolicyValidator::findInsecurePrincipal)
-            .ifPresent(principal -> results.add(new InsecureStatement(principal, allowEffect.get())));
+          PropertyUtils.value(statement, "effect")
+            .filter(PolicyValidator::isAllowEffect)
+            .ifPresent(effect -> PropertyUtils.value(statement, "principals", BodyTree.class)
+              .map(BodyTree::statements)
+              .filter(PolicyValidator::hasAwsType)
+              .flatMap(PolicyValidator::findInsecurePrincipal)
+              .ifPresent(principal -> results.add(new InsecureStatement(principal, effect))));
+          PropertyUtils.value(statement, "effect")
+            .filter(PolicyValidator::isDenyEffect)
+            .ifPresent(effect -> PropertyUtils.value(statement, "not_principals", BodyTree.class)
+              .map(BodyTree::statements)
+              .filter(PolicyValidator::hasAwsType)
+              .flatMap(PolicyValidator::findInsecurePrincipal)
+              .ifPresent(notPrincipals -> results.add(new InsecureStatement(notPrincipals, effect))));
         }
       }
       return results;
@@ -153,6 +161,10 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
 
     private static boolean isAllowEffect(Tree effect) {
       return hasTextValue(effect, "Allow");
+    }
+
+    private static boolean isDenyEffect(Tree effect) {
+      return hasTextValue(effect, "Deny");
     }
 
     private static boolean hasTextValue(Tree tree, String value) {
