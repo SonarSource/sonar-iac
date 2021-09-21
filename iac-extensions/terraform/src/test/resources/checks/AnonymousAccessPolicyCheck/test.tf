@@ -28,6 +28,22 @@ resource "aws_s3_bucket_policy" "sensitive_policy_with_anonymous_access_object_m
   })
 }
 
+resource "aws_s3_bucket_policy" "sensitive_policy_with_anonymous_access_object_mapping_with_deny" {
+  bucket = aws_s3_bucket
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect: "Deny",
+        #       ^^^^^^> {{Related effect.}}
+        NotPrincipal: {
+          "AWS": "*" # Noncompliant
+          #      ^^^
+        }
+      }
+    ]
+  })
+}
+
 resource "aws_s3_bucket_policy" "compliant_policy_with_denying_effect" {
   bucket = aws_s3_bucket
   policy = jsonencode({
@@ -186,6 +202,24 @@ data "aws_iam_policy_document" "example_with_statements" {
     #        ^^^^^^^>
 
    principals {
+     type = "AWS"
+     identifiers = [
+       "*"  # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+     # ^^^
+     ]
+    }
+
+    resources = [
+      "arn:aws:s3:::*",
+    ]
+  }
+
+  statement {
+    sid = "3"
+    effect = "Deny"
+    #        ^^^^^^>
+
+   not_principals {
      type = "AWS"
      identifiers = [
        "*"  # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
