@@ -16,7 +16,7 @@ public class CloudformationCheckList {
 
   public static List<Class<?>> checks() {
     return Arrays.asList(
-      AnonymousBucketAccessCheck.class,
+      AnonymousAccessPolicyCheck.class,
       AssignedPublicIPAddressCheck.class,
       AwsTagNameConventionCheck.class,
       BucketsAccessCheck.class,
@@ -31,6 +31,7 @@ public class CloudformationCheckList {
       LogGroupDeclarationCheck.class,
       LogGroupRetentionPolicyCheck.class,
       ParsingErrorCheck.class,
+      PrivilegeEscalationCheck.class,
       PrivilegePolicyCheck.class,
       PublicApiCheck.class,
       ResourceAccessPolicyCheck.class,

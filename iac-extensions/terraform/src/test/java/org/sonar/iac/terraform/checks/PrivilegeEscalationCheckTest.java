@@ -7,10 +7,10 @@ package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
 
-class AnonymousBucketAccessCheckTest {
+class PrivilegeEscalationCheckTest {
 
   @Test
   void test() {
-    TerraformVerifier.verify("AnonymousBucketAccessCheck/test.tf", new AnonymousBucketAccessCheck());
+    TerraformVerifier.verify("PrivilegeEscalationCheck/test.tf", new PrivilegeEscalationCheck());
   }
 }

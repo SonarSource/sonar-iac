@@ -98,7 +98,7 @@
         }
       }
     },
-    "SafeNoMappingPrincipalS3BucketPolicy": {
+    "NotSafeNoMappingPrincipalS3BucketPolicy": {
       "Type": "AWS::S3::BucketPolicy",
       "Properties": {
         "PolicyDocument": {

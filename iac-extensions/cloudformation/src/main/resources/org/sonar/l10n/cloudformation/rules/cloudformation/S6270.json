@@ -1,6 +1,6 @@
 {
-  "title": "Having policies granting anonymous access to S3 buckets is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Having AWS policies that authorize public access to resources is security-sensitive",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
