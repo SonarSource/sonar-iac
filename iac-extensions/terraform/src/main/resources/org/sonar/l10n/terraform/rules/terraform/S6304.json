@@ -1,6 +1,6 @@
 {
   "title": "Having AWS policies that grant access to all resources of an account is security-sensitive",
-  "type": "VULNERABILITY",
+  "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
