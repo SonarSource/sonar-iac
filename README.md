@@ -53,18 +53,7 @@ To run them, in `ìts/plugin` run:
   ```shell
   mvn clean verify -Pit-plugin
   ```
-
-## Obfuscation & Debugging
-
-When built, the source code gets obfuscated with [yGuard](https://github.com/yWorks/yGuard). This can be of importance in the following two cases.
-#### Reading an obfuscated stacktrace:
-To deobfuscate a given stacktrace, the yGuard artifact created during build has to be retrieved. [These steps](https://xtranet-sonarsource.atlassian.net/wiki/spaces/DEV/pages/1620312105/Workaround+disabled+UI+access+to+Repox#Download-a-Yguard-file)
-can be followed to retrieve this artifact. With this artifact and the yGuard jar, obfuscation can be done with:
-
-```shell
-java -jar yguard.jar artifact.xml
-```
-#### Remote debugging
+## Remote debugging
 Remote debugging cannot be done on an obfuscated build. If remote debugging is needed during development on a local machine, obfuscation can be disabled by building with:
 ```shell
  mvn clean install -DskipObfuscation
