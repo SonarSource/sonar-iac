@@ -10,8 +10,16 @@ It allows to produce stable and easily supported code by helping you find and co
 # Features
 * 30+ rules
 * Supports CloudFormation JSON/YAML
-* Supports Terraform for AWS (Azure and GCP coming soon)
-* Metrics (complexity, number of lines etc.)
+* Supports Terraform for AWS
+  * HCL native syntax for files named with a .tf suffix (JSON format not supported)
+  * Terraform for Azure and GCP: coming soon
+* Domains Covered: 
+  * ASW S3 Buckets
+  * Permissions
+  * Encryption at Rest
+  * Encryption at Transit (coming soon)
+  * Traceability (coming soon)
+* Metrics (number of lines, comments, etc.)
 * Import of [cfn-lint](https://community.sonarsource.com/t/sonarcloud-can-scan-terraform-and-cloudformation-files-cfn-lint-support/48550) results
 
 ## Useful links
