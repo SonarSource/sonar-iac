@@ -3,7 +3,7 @@ Code Quality and Security for Infrastructure-as-Code
 [![Build Status](https://api.cirrus-ci.com/github/SonarSource/sonar-iac.svg?branch=master)](https://cirrus-ci.com/github/SonarSource/sonar-iac)
 
 This SonarSource project is a [static code analyser](https://en.wikipedia.org/wiki/Static_program_analysis) for Infrastructure-as-Code (IaC) languages such as CloudFormation and Terraform. 
-It is a component of the [SonarQube](http://www.sonarqube.org/) platform and it runs the IaC features on [SonarCloud](http://sonarcloud.io/).
+It is a component of the [SonarQube](https://www.sonarqube.org/) platform and it runs the IaC features on [SonarCloud](https://sonarcloud.io/).
 
 It allows to produce stable and easily supported code by helping you find and correct vulnerabilities and smells in your code.
 
