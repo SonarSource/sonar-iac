@@ -74,10 +74,4 @@ To run them, in `ìts/plugin` run:
   ```shell
   mvn clean verify -Pit-plugin
   ```
-## Remote debugging
-Remote debugging cannot be done on an obfuscated build. If remote debugging is needed during development on a local machine, obfuscation can be disabled by building with:
-```shell
- mvn clean install -DskipObfuscation
-```
-(It might be necessary to temporarily increase the plugin size enforcing in `sonar-iac-plugin/pom.xml` when building this way)
 
