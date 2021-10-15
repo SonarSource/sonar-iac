@@ -24,6 +24,7 @@ It allows to produce stable and easily supported code by helping you find and co
 
 ## Useful links
 
+* [SonarSource Community Forum](https://community.sonarsource.com/)
 * [Issue tracking](https://jira.sonarsource.com/projects/SONARIAC)
 
 ## Structure
