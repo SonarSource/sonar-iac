@@ -1,9 +1,30 @@
-Code Quality and Security for Infrastructure as Code
+Code Quality and Security for Infrastructure-as-Code
 ==========
 [![Build Status](https://api.cirrus-ci.com/github/SonarSource/sonar-iac.svg?branch=master)](https://cirrus-ci.com/github/SonarSource/sonar-iac)
 
+This SonarSource project is a [static code analyser](https://en.wikipedia.org/wiki/Static_program_analysis) for Infrastructure-as-Code (IaC) languages such as CloudFormation and Terraform. 
+It is a component of the [SonarQube](https://www.sonarqube.org/) platform and it runs the IaC features on [SonarCloud](https://sonarcloud.io/).
+
+It allows to produce stable and easily supported code by helping you find and correct vulnerabilities and smells in your code.
+
+# Features
+* 30+ rules
+* Supports CloudFormation JSON/YAML
+* Supports Terraform for AWS
+  * HCL native syntax for files named with a .tf suffix (JSON format not supported)
+  * Terraform for Azure and GCP: coming soon
+* Domains Covered: 
+  * ASW S3 Buckets
+  * Permissions
+  * Encryption at Rest
+  * Encryption at Transit (coming soon)
+  * Traceability (coming soon)
+* Metrics (number of lines, comments, etc.)
+* Import of [cfn-lint](https://community.sonarsource.com/t/sonarcloud-can-scan-terraform-and-cloudformation-files-cfn-lint-support/48550) results
+
 ## Useful links
 
+* [SonarSource Community Forum](https://community.sonarsource.com/)
 * [Issue tracking](https://jira.sonarsource.com/projects/SONARIAC)
 
 ## Structure
@@ -53,21 +74,4 @@ To run them, in `ìts/plugin` run:
   ```shell
   mvn clean verify -Pit-plugin
   ```
-
-## Obfuscation & Debugging
-
-When built, the source code gets obfuscated with [yGuard](https://github.com/yWorks/yGuard). This can be of importance in the following two cases.
-#### Reading an obfuscated stacktrace:
-To deobfuscate a given stacktrace, the yGuard artifact created during build has to be retrieved. [These steps](https://xtranet-sonarsource.atlassian.net/wiki/spaces/DEV/pages/1620312105/Workaround+disabled+UI+access+to+Repox#Download-a-Yguard-file)
-can be followed to retrieve this artifact. With this artifact and the yGuard jar, obfuscation can be done with:
-
-```shell
-java -jar yguard.jar artifact.xml
-```
-#### Remote debugging
-Remote debugging cannot be done on an obfuscated build. If remote debugging is needed during development on a local machine, obfuscation can be disabled by building with:
-```shell
- mvn clean install -DskipObfuscation
-```
-(It might be necessary to temporarily increase the plugin size enforcing in `sonar-iac-plugin/pom.xml` when building this way)
 

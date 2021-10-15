@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.sonarsource.iac</groupId>
+    <groupId>org.sonarsource.iac</groupId>
     <artifactId>iac</artifactId>
     <version>1.3-SNAPSHOT</version>
   </parent>

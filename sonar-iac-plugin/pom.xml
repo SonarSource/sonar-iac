@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.sonarsource.iac</groupId>
+    <groupId>org.sonarsource.iac</groupId>
     <artifactId>iac</artifactId>
     <version>1.3-SNAPSHOT</version>
   </parent>
@@ -88,8 +88,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>700000</maxsize>
-                  <minsize>600000</minsize>
+                  <maxsize>900000</maxsize>
+                  <minsize>800000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
@@ -136,83 +136,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>obfuscation</id>
-      <activation>
-        <property>
-          <name>!skipObfuscation</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <dependencies>
-              <dependency>
-                <groupId>com.yworks</groupId>
-                <artifactId>yguard</artifactId>
-                <version>2.6</version>
-              </dependency>
-            </dependencies>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <configuration>
-                  <target>
-                    <property refid="maven.compile.classpath" name="mvn.classpath" />
-                    <taskdef name="yguard" classname="com.yworks.yguard.YGuardTask" />
-                    <yguard>
-                      <inoutpair in="${project.build.directory}/${project.build.finalName}.jar" out="${project.build.directory}/${project.build.finalName}.jar" />
-                      <rename logfile="${project.build.directory}/yguard.log.xml" replaceClassNameStrings="true">
-                        <keep>
-                          <class classes="private" methods="private" fields="private">
-                            <patternset>
-                              <include name="com.sonar.sslr.**.*" />
-                              <include name="org.sonar.sslr.**.*" />
-                              <include name="org.sonar.iac.terraform.parser.grammar" />
-                            </patternset>
-                          </class>
-                        </keep>
-                        <adjust replaceContent="false" replacePath="false" replaceName="false">
-                          <include name="org/sonar/l10n/**/*.*" />
-                        </adjust>
-                      </rename>
-                    </yguard>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-artifacts</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>attach-artifact</goal>
-                </goals>
-                <configuration>
-                  <artifacts>
-                    <artifact>
-                      <file>target/yguard.log.xml</file>
-                      <type>xml</type>
-                      <classifier>yguard</classifier>
-                    </artifact>
-                  </artifacts>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>
