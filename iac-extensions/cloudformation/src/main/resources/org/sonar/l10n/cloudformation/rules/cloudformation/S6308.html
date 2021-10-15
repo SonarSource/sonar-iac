@@ -1,7 +1,7 @@
-<p>Amazon Elasticsearch Service (ES) is a managed service to host Elasticsearch instances. ES domains can be encrypted if the Elasticsearch version is
-5.1 or above, ensuring the security of data-at-rest. If the encryption is enabled indices, logs, swap files, data in the application directory, and
-automated snapshots are stored encrypted. In the case that adversaries gain physical access to the storage medium they are not able to access the
-data.</p>
+<p>Amazon Elasticsearch Service (ES) is a managed service to host Elasticsearch instances. To harden domain (cluster) data in case of unauthorized
+access, ES provides data-at-rest encryption if the Elasticsearch version is 5.1 or above. Enabling encryption at rest will help protect: * Indices *
+Logs * Swap files * Data in the application directory * Automated snapshots</p>
+<p>Thus, if adversaries gain physical access to the storage medium, they cannot access the data.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The database contains sensitive data that could cause harm when leaked. </li>
