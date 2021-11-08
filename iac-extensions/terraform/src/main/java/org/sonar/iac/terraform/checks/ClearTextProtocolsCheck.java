@@ -48,19 +48,13 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
   private static void checkClientBroker(CheckContext ctx, BlockTree encryptionBlock) {
     PropertyUtils.value(encryptionBlock, "client_broker", LiteralExprTree.class)
-      .ifPresent(clientBroker -> {
-        if (!"TLS".equals(clientBroker.value())) {
-          ctx.reportIssue(clientBroker, String.format(MESSAGE_BROKER_FORMAT, clientBroker.value()));
-        }
-      });
+      .filter(clientBroker -> !"TLS".equals(clientBroker.value()))
+      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_BROKER_FORMAT, clientBroker.value())));
   }
 
   private static void checkInCluster(CheckContext ctx, BlockTree encryptionBlock) {
     PropertyUtils.value(encryptionBlock, "in_cluster", LiteralExprTree.class)
-      .ifPresent(inCluster -> {
-        if (TextUtils.isValueFalse(inCluster)) {
-          ctx.reportIssue(inCluster, MESSAGE_CLUSTER);
-        }
-      });
+      .filter(TextUtils::isValueFalse)
+      .ifPresent(inCluster -> ctx.reportIssue(inCluster, MESSAGE_CLUSTER));
   }
 }
