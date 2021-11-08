@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  WeakSecurityPolicyV1:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this code to use a stronger protocol.}}
+      #               ^^^^^^^^^
+
+  NoSecurityPolicyV1:
+    Type: AWS::ApiGateway::DomainName # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Properties:
+      Foo: Bar
+
+  StrongSecurityPolicyV1:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      SecurityPolicy: "TLS_1_2"
+
+  WeakSecurityPolicyV2:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainNameConfigurations:
+        SecurityPolicy: "TLS_1_0"  # Noncompliant
+        #               ^^^^^^^^^
+
+  NoSecurityPolicyV2:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainNameConfigurations: # Noncompliant
+    # ^^^^^^^^^^^^^^^^^^^^^^^^
+        Foo: Bar
+
+  DomainNameConfiguration:
+    Type: AWS::ApiGatewayV2::DomainName # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Properties:
+      Foo: Bar
+
+  StrongSecurityPolicyV2:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainNameConfigurations:
+        SecurityPolicy: "TLS_1_2"
+
+  NoApiGateWay:
+    Type: 'Something else'
+    Properties:
+      SecurityPolicy: "TLS_1_0"
