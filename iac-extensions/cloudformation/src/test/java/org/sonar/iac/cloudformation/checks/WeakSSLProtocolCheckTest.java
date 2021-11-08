@@ -17,32 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.checks;
+package org.sonar.iac.cloudformation.checks;
 
-import java.util.Optional;
-import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import static org.mockito.Mockito.mock;
-
-class OptionalConsumerTest {
-
-  Consumer consumer = mock(Consumer.class);
-  Runnable runnable = mock(Runnable.class);
+class WeakSSLProtocolCheckTest {
 
   @Test
-  void isPresentOrElse_with_present_optional() {
-    OptionalConsumer.of(Optional.of("value")).ifPresentOrElse(consumer, runnable);
-    Mockito.verify(consumer).accept("value");
-    Mockito.verifyNoInteractions(runnable);
-  }
-
-  @Test
-  void isPresentOrElse_with_non_present_optional() {
-    OptionalConsumer.of(Optional.empty()).ifPresentOrElse(consumer, runnable);
-    Mockito.verifyNoInteractions(consumer);
-    Mockito.verify(runnable).run();
-
+  void test_yaml() {
+    CloudformationVerifier.verify("WeakSSLProtocolCheck/test.yaml", new WeakSSLProtocolCheck());
   }
 }
