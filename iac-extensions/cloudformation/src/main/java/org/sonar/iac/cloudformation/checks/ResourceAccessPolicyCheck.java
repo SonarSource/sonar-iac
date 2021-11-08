@@ -41,8 +41,12 @@ public class ResourceAccessPolicyCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
-    PolicyUtils.getPolicies(resource.properties()).stream()
-      .forEach(policy -> checkInsecurePolicy(ctx, policy));
+    // Related to SONARIAC-260 and https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
+    // The use of 'Resource = "*"' is always safe, so we can ignore the resource for this rule.
+    if (resource.isType("AWS::KMS::Key")) {
+      return;
+    }
+    PolicyUtils.getPolicies(resource.properties()).forEach(policy -> checkInsecurePolicy(ctx, policy));
   }
 
   private static void checkInsecurePolicy(CheckContext ctx, Policy policy) {
