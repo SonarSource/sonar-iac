@@ -4,9 +4,9 @@ Resources:
     Type: AWS::OpenSearchService::Domain
     Properties:
       DomainEndpointOptions:
-        EnforceHTTPS: false # Noncompliant {{Make sure allowing clear-text traffic is safe here}}
+        EnforceHTTPS: false # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
       NodeToNodeEncryptionOptions:
-        Enabled: false # Noncompliant {{Make sure allowing clear-text traffic is safe here}}
+        Enabled: false # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
 
   Test2:
     Type: AWS::Elasticsearch::Domain

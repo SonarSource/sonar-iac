@@ -31,8 +31,8 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use TLS instead";
-  private static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here";
+  private static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use TLS instead.";
+  private static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
