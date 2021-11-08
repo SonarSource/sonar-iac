@@ -39,3 +39,6 @@ resource "aws_apigatewayv2_domain_name" "strong_ssl_protocol" {
     security_policy = "TLS_1_2"
   }
 }
+
+resource "random_resource" "example" {
+}
