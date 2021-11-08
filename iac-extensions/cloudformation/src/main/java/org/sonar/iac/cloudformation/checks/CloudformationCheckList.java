@@ -54,7 +54,8 @@ public class CloudformationCheckList {
       UnencryptedSageMakerNotebookCheck.class,
       UnencryptedSqsQueueCheck.class,
       UnrestrictedAdministrationCheck.class,
-      UnversionedS3BucketCheck.class
+      UnversionedS3BucketCheck.class,
+      WeakSSLProtocolCheck.class
     );
   }
 }
