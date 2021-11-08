@@ -21,6 +21,7 @@ package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -32,29 +33,43 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   private static final String MESSAGE_BROKER_FORMAT = "Using %s protocol is insecure. Use TLS instead";
   private static final String MESSAGE_CLUSTER = "Communication among nodes of a cluster should be encrypted";
 
+
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (!isResource(resource, "aws_msk_cluster")) {
-      return;
+    if (isResource(resource, "aws_msk_cluster")) {
+      checkMskCluster(ctx, resource);
+    } else if (isResource(resource, "aws_elasticsearch_domain")) {
+      checkESDomain(ctx, resource);
     }
+  }
 
+  private static void checkMskCluster(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "encryption_info", BlockTree.class)
       .flatMap(e -> PropertyUtils.get(e, "encryption_in_transit", BlockTree.class))
       .ifPresent(e -> {
-        checkClientBroker(ctx, e);
-        checkInCluster(ctx, e);
+        checkMskClientBroker(ctx, e);
+        reportOnFalseProperty(ctx, e, "in_cluster", MESSAGE_CLUSTER);
       });
   }
 
-  private static void checkClientBroker(CheckContext ctx, BlockTree encryptionBlock) {
+  private static void checkMskClientBroker(CheckContext ctx, BlockTree encryptionBlock) {
     PropertyUtils.value(encryptionBlock, "client_broker", LiteralExprTree.class)
       .filter(clientBroker -> !"TLS".equals(clientBroker.value()))
       .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_BROKER_FORMAT, clientBroker.value())));
   }
 
-  private static void checkInCluster(CheckContext ctx, BlockTree encryptionBlock) {
-    PropertyUtils.value(encryptionBlock, "in_cluster", LiteralExprTree.class)
+  private static void checkESDomain(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
+      .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", "Using HTTP protocol is insecure. Use HTTPS instead"));
+
+    PropertyUtils.get(resource, "node_to_node_encryption", BlockTree.class)
+      .ifPresentOrElse(x -> reportOnFalseProperty(ctx, x, "enabled", MESSAGE_CLUSTER),
+        () -> ctx.reportIssue(resource.labels().get(0), MESSAGE_CLUSTER));
+  }
+
+  private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message) {
+    PropertyUtils.value(tree, propertyName, LiteralExprTree.class)
       .filter(TextUtils::isValueFalse)
-      .ifPresent(inCluster -> ctx.reportIssue(inCluster, MESSAGE_CLUSTER));
+      .ifPresent(inCluster -> ctx.reportIssue(inCluster, message));
   }
 }

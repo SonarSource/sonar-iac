@@ -24,7 +24,12 @@ import org.junit.jupiter.api.Test;
 class ClearTextProtocolsCheckTest {
 
   @Test
-  void test() {
-    TerraformVerifier.verify("ClearTextProtocolsCheck/test.tf", new ClearTextProtocolsCheck());
+  void test_msk() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/test_msk.tf", new ClearTextProtocolsCheck());
+  }
+
+  @Test
+  void test_elasticsearch_domain() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/test_elasticsearch_domain.tf", new ClearTextProtocolsCheck());
   }
 }
