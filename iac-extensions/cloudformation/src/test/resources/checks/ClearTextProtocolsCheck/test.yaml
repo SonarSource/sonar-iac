@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MSKCluster:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: MSKCluster
+      EncryptionInfo:
+        EncryptionInTransit:
+          ClientBroker: PLAINTEXT # Noncompliant {{Using PLAINTEXT protocol is insecure. Use TLS instead}}
+
+  MSKCluster2:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: MSKCluster
+      EncryptionInfo:
+        EncryptionInTransit:
+          ClientBroker: TLS_PLAINTEXT # Noncompliant
+
+  MSKCluster3:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: MSKCluster
+      EncryptionInfo:
+        EncryptionInTransit:
+          InCluster: false # Noncompliant {{Communication among nodes of a cluster should be encrypted}}
+
+  MSKCluster4:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: MSKCluster
+      EncryptionInfo: # Without The EncryptionInTransit Bloc
+        FOO: 'BAR'
+
+  MSKCluste5:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: MSKCluster
+      EncryptionInfo:
+        EncryptionInTransit:
+          InCluster: true
+
+  MSKCluster6:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: MSKCluster
+      EncryptionInfo:
+        EncryptionInTransit:
+          ClientBroker: TLS
+
+  MSKCluste7:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: MSKCluster
+      EncryptionInfo:
+        EncryptionInTransit:
+          ClientBroker: TLS
+          InCluster: true
+
+  NotMSKCluster:
+    Type: 'NOT MSK CLUSTER'
+    Properties:
+      ClusterName: MSKCluster
+      EncryptionInfo:
+        EncryptionInTransit:
+          ClientBroker: TLS
+          InCluster: true
