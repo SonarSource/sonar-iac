@@ -23,6 +23,18 @@ less secure version.</p>
   Practices - Use secure protocols</a> </li>
 </ul>
 <h2>Noncompliant Code Example</h2>
+<p>For <a href="https://docs.aws.amazon.com/opensearch-service/index.html">Amazon OpenSearch domains</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Example:
+    Type: AWS::OpenSearchService::Domain
+    Properties:
+      DomainName: example
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+        TLSSecurityPolicy: "Policy-Min-TLS-1-0-2019-07"  # Noncompliant
+</pre>
 <p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a>:</p>
 <pre>
 AWSTemplateFormatVersion: '2010-09-09'
@@ -39,6 +51,18 @@ Resources:
     Type: AWS::ApiGatewayV2::DomainName
 </pre>
 <h2>Compliant Solution</h2>
+<p>For <a href="https://docs.aws.amazon.com/opensearch-service/index.html">Amazon OpenSearch domains</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Example:
+    Type: AWS::OpenSearchService::Domain
+    Properties:
+      DomainName: example
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+        TLSSecurityPolicy: "Policy-Min-TLS-1-2-2019-07"
+</pre>
 <p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a>:</p>
 <pre>
 AWSTemplateFormatVersion: '2010-09-09'

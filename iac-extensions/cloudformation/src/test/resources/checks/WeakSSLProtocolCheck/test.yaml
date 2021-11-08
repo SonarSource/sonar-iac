@@ -43,6 +43,48 @@ Resources:
       DomainNameConfigurations:
         SecurityPolicy: "TLS_1_2"
 
+  ElasticNoOptions:
+    Type: 'AWS::Elasticsearch::Domain' # Noncompliant
+
+  ElasticWeakPolicy:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      DomainEndpointOptions:
+        TLSSecurityPolicy: "Policy-Min-TLS-1-0-2019-07"  # Noncompliant
+
+  ElasticNoPolicy:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      DomainEndpointOptions: # Noncompliant
+        Foo: Bar
+
+  ElasticStrongPolicy:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      DomainEndpointOptions:
+        TLSSecurityPolicy: "Policy-Min-TLS-1-2-2019-07"
+
+  OpenSearchNoOptions:
+    Type: 'AWS::OpenSearchService::Domain' # Noncompliant
+
+  OpenSearchWeakPolicy:
+    Type: 'AWS::OpenSearchService::Domain'
+    Properties:
+      DomainEndpointOptions:
+        TLSSecurityPolicy: "Policy-Min-TLS-1-0-2019-07"  # Noncompliant
+
+  OpenSearchNoPolicy:
+    Type: 'AWS::OpenSearchService::Domain'
+    Properties:
+      DomainEndpointOptions: # Noncompliant
+        Foo: Bar
+
+  OpenSearchStrongPolicy:
+    Type: 'AWS::OpenSearchService::Domain'
+    Properties:
+      DomainEndpointOptions:
+        TLSSecurityPolicy: "Policy-Min-TLS-1-2-2019-07"
+
   NoApiGateWay:
     Type: 'Something else'
     Properties:
