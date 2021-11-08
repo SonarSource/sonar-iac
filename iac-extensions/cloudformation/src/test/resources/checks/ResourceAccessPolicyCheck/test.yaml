@@ -90,3 +90,16 @@ Resources:
                    - "foo"
   Compliant:
     Type: Some::Empty::Resource
+
+  SafeAWSKeyResource:
+    Type: AWS::KMS::Key # The resource type for KMS keys
+    Properties:
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: core-key-policy
+        Statement: # The key policy statement
+          Effect: Allow
+          Principal:
+            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+          Action: kms:*
+          Resource: '*' # Compliant

@@ -31,25 +31,45 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Change this code to use a stronger protocol.";
   private static final String STRONG_SSL_PROTOCOL = "TLS_1_2";
+  private static final String ELASTIC_STRONG_POLICY = "Policy-Min-TLS-1-2-2019-07";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (resource.isType("AWS::ApiGateway::DomainName")) {
       PropertyUtils.value(resource.properties(), "SecurityPolicy")
-        .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy), () -> reportResource(ctx, resource, MESSAGE));
+        .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
+          () -> reportResource(ctx, resource, MESSAGE));
     } else if (resource.isType("AWS::ApiGatewayV2::DomainName")) {
       PropertyUtils.get(resource.properties(), "DomainNameConfigurations", TupleTree.class)
-        .ifPresentOrElse(policy -> checkDomainNameConfiguration(ctx, policy), () -> reportResource(ctx, resource, MESSAGE));
+        .ifPresentOrElse(policy -> checkDomainNameConfiguration(ctx, policy),
+          () -> reportResource(ctx, resource, MESSAGE));
+    } else if (resource.isType("AWS::Elasticsearch::Domain") || resource.isType("AWS::OpenSearchService::Domain")) {
+      PropertyUtils.get(resource.properties(), "DomainEndpointOptions", TupleTree.class)
+        .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
+          () -> reportResource(ctx, resource, MESSAGE));
     }
   }
 
   private static void checkDomainNameConfiguration(CheckContext ctx, TupleTree config) {
     PropertyUtils.value(config.value(), "SecurityPolicy")
-      .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy), () -> ctx.reportIssue(config.key(), MESSAGE));
+      .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
+        () -> ctx.reportIssue(config.key(), MESSAGE));
   }
 
   private static void checkSecurityPolicy(CheckContext ctx, Tree policy) {
     if (TextUtils.isValue(policy, STRONG_SSL_PROTOCOL).isFalse()) {
+      ctx.reportIssue(policy, MESSAGE);
+    }
+  }
+
+  private static void checkDomainEndpointOptions(CheckContext ctx, TupleTree options) {
+    PropertyUtils.value(options.value(), "TLSSecurityPolicy")
+      .ifPresentOrElse(policy -> checkElasticPolicy(ctx, policy),
+        () -> ctx.reportIssue(options.key(), MESSAGE));
+  }
+
+  private static void checkElasticPolicy(CheckContext ctx, Tree policy) {
+    if (TextUtils.isValue(policy, ELASTIC_STRONG_POLICY).isFalse()) {
       ctx.reportIssue(policy, MESSAGE);
     }
   }

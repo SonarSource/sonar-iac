@@ -155,3 +155,24 @@ resource "aws_iam_role" "compliant_policy4" {
     })
   }
 }
+
+resource "aws_kms_key" "a_key" { # The resource type for KMS keys
+  description             = "KMS key "
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [ # The key policy statement
+      {
+        Action = [
+          "kms:*"
+        ]
+        Principal = {
+          "AWS": [
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          ]
+        }
+        Effect   = "Allow"
+        Resource = "*" # Compliant
+      }
+    ]
+  })
+}
