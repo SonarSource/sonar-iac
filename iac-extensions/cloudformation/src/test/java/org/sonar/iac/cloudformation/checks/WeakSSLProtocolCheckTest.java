@@ -17,28 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.checks;
+package org.sonar.iac.cloudformation.checks;
 
-import java.util.Optional;
-import java.util.function.Consumer;
+import org.junit.jupiter.api.Test;
 
-public class OptionalConsumer<T> {
-  private Optional<T> optional;
+class WeakSSLProtocolCheckTest {
 
-  private OptionalConsumer(Optional<T> optional) {
-    this.optional = optional;
-  }
-
-  public static <T> OptionalConsumer<T> of(Optional<T> optional) {
-    return new OptionalConsumer<>(optional);
-  }
-
-  // This helper methods should be replaced by Optional::ifPresentOrElse when Java 9+ is used
-  public void ifPresentOrElse(Consumer<T> consumer, Runnable runnable) {
-    if (optional.isPresent()) {
-      consumer.accept(optional.get());
-    } else {
-      runnable.run();
-    }
+  @Test
+  void test_yaml() {
+    CloudformationVerifier.verify("WeakSSLProtocolCheck/test.yaml", new WeakSSLProtocolCheck());
   }
 }

@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks;
+package org.sonar.iac.cloudformation.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S4423")
 public class WeakSSLProtocolCheck extends AbstractResourceCheck {
@@ -33,18 +33,18 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   private static final String STRONG_SSL_PROTOCOL = "TLS_1_2";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_api_gateway_domain_name")) {
-      PropertyUtils.value(resource, "security_policy")
+  protected void checkResource(CheckContext ctx, Resource resource) {
+    if (resource.isType("AWS::ApiGateway::DomainName")) {
+      PropertyUtils.value(resource.properties(), "SecurityPolicy")
         .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy), () -> reportResource(ctx, resource, MESSAGE));
-    } else if (isResource(resource, "aws_apigatewayv2_domain_name")) {
-      PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class)
-        .ifPresentOrElse(config -> checkDomainNameConfiguration(ctx, config), () -> reportResource(ctx, resource, MESSAGE));
+    } else if (resource.isType("AWS::ApiGatewayV2::DomainName")) {
+      PropertyUtils.get(resource.properties(), "DomainNameConfigurations", TupleTree.class)
+        .ifPresentOrElse(policy -> checkDomainNameConfiguration(ctx, policy), () -> reportResource(ctx, resource, MESSAGE));
     }
   }
 
-  private static void checkDomainNameConfiguration(CheckContext ctx, BlockTree config) {
-    PropertyUtils.value(config, "security_policy")
+  private static void checkDomainNameConfiguration(CheckContext ctx, TupleTree config) {
+    PropertyUtils.value(config.value(), "SecurityPolicy")
       .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy), () -> ctx.reportIssue(config.key(), MESSAGE));
   }
 

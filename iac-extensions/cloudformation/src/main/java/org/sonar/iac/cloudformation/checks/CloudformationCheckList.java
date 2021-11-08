@@ -36,6 +36,7 @@ public class CloudformationCheckList {
       BucketsAccessCheck.class,
       BucketsInsecureHttpCheck.class,
       BucketsPublicAclOrPolicyCheck.class,
+      ClearTextProtocolsCheck.class,
       DisabledEFSEncryptionCheck.class,
       DisabledESDomainEncryptionCheck.class,
       DisabledRDSEncryptionCheck.class,
@@ -53,7 +54,8 @@ public class CloudformationCheckList {
       UnencryptedSageMakerNotebookCheck.class,
       UnencryptedSqsQueueCheck.class,
       UnrestrictedAdministrationCheck.class,
-      UnversionedS3BucketCheck.class
+      UnversionedS3BucketCheck.class,
+      WeakSSLProtocolCheck.class
     );
   }
 }

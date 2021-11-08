@@ -100,4 +100,8 @@ public abstract class AbstractResourceCheck implements IacCheck {
   static boolean isS3Bucket(Resource resource) {
     return resource.isType("AWS::S3::Bucket");
   }
+
+  protected static void reportResource(CheckContext ctx, Resource resource, String message) {
+    ctx.reportIssue(resource.type, message);
+  }
 }

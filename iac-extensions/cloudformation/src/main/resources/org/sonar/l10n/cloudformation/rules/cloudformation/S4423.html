@@ -1,0 +1,81 @@
+<p>This rule raises an issue when an insecure TLS protocol version (i.e. a protocol different from "TLSv1.2", "TLSv1.3", "DTLSv1.2", or "DTLSv1.3") is
+used or allowed.</p>
+<p>It is recommended to enforce TLS 1.2 as the minimum protocol version and to disallow older versions like TLS 1.0. Failure to do so could open the
+door to downgrade attacks: a malicious actor who is able to intercept the connection could modify the requested protocol version and downgrade it to a
+less secure version.</p>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">OWASP Top 10 2021 Category A7</a> - Identification and
+  Authentication Failures </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
+  </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements">Mobile AppSec Verification
+  Standard</a> - Network Communication Requirements </li>
+  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m3-insecure-communication">OWASP Mobile Top 10 2016 Category M3</a> - Insecure
+  Communication </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/326.html">MITRE, CWE-327</a> - Inadequate Encryption Strength </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/327.html">MITRE, CWE-326</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
+  <li> <a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#22-use-secure-protocols">SSL and TLS Deployment Best
+  Practices - Use secure protocols</a> </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a>:</p>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  CustomApi:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      SecurityPolicy: "TLS_1_0"  # Noncompliant
+</pre>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  CustomApi: # Noncompliant
+    Type: AWS::ApiGatewayV2::DomainName
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a>:</p>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  CustomApi:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      SecurityPolicy: "TLS_1_2"
+</pre>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  CustomApi:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainNameConfigurations:
+        SecurityPolicy: "TLS_1_2"
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">OWASP Top 10 2021 Category A7</a> - Identification and
+  Authentication Failures </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
+  </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements">Mobile AppSec Verification
+  Standard</a> - Network Communication Requirements </li>
+  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m3-insecure-communication">OWASP Mobile Top 10 2016 Category M3</a> - Insecure
+  Communication </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/326.html">MITRE, CWE-327</a> - Inadequate Encryption Strength </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/327.html">MITRE, CWE-326</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
+  <li> <a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#22-use-secure-protocols">SSL and TLS Deployment Best
+  Practices - Use secure protocols</a> </li>
+  <li> <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-custom-domain-tls-version.html">Amazon API Gateway</a> -
+  Choosing a minimum TLS version </li>
+</ul>
+
