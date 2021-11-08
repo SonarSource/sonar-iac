@@ -33,6 +33,7 @@ public class OptionalConsumer<T> {
     return new OptionalConsumer<>(optional);
   }
 
+  // This helper methods should be replaced by Optional::ifPresentOrElse when Java 9+ is used
   public void ifPresentOrElse(Consumer<T> consumer, Runnable runnable) {
     if (optional.isPresent()) {
       consumer.accept(optional.get());
