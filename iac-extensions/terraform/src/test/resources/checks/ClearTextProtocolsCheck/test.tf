@@ -48,3 +48,6 @@ resource "aws_msk_cluster" "compliant_data_cluster_3" {
     }
   }
 }
+
+resource "not_an_aws_msk_cluster" "for_coverage" {
+}
