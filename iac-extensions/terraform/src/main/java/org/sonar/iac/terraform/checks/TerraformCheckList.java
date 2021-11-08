@@ -36,6 +36,7 @@ public class TerraformCheckList {
       BucketsAccessCheck.class,
       BucketsInsecureHttpCheck.class,
       BucketsPublicAclOrPolicyCheck.class,
+      ClearTextProtocolsCheck.class,
       DisabledEFSEncryptionCheck.class,
       DisabledESDomainEncryptionCheck.class,
       DisabledMfaBucketDeletionCheck.class,
