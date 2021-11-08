@@ -19,12 +19,14 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
+@Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE_BROKER_FORMAT = "Using %s protocol is insecure. Use TLS instead";
