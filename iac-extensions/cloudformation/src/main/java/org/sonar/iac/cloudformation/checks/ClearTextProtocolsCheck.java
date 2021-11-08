@@ -52,7 +52,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_BROKER_FORMAT, clientBroker.value())));
   }
 
-  private void checkInCluster(CheckContext ctx, MappingTree e) {
+  private static void checkInCluster(CheckContext ctx, MappingTree e) {
     PropertyUtils.value(e, "InCluster", ScalarTree.class)
       .filter(TextUtils::isValueFalse)
       .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, MESSAGE_CLUSTER));
