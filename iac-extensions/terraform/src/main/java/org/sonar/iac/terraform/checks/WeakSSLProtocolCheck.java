@@ -22,7 +22,6 @@ package org.sonar.iac.terraform.checks;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.OptionalConsumer;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -36,16 +35,16 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     if (isResource(resource, "aws_api_gateway_domain_name")) {
-      OptionalConsumer.of(PropertyUtils.value(resource, "security_policy"))
-        .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy), () -> reportIssueOnResource(ctx, resource, MESSAGE));
+      PropertyUtils.value(resource, "security_policy")
+        .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy), () -> reportResource(ctx, resource, MESSAGE));
     } else if (isResource(resource, "aws_apigatewayv2_domain_name")) {
-      OptionalConsumer.of(PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class))
-        .ifPresentOrElse(config -> checkDomainNameConfiguration(ctx, config), () -> reportIssueOnResource(ctx, resource, MESSAGE));
+      PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class)
+        .ifPresentOrElse(config -> checkDomainNameConfiguration(ctx, config), () -> reportResource(ctx, resource, MESSAGE));
     }
   }
 
   private static void checkDomainNameConfiguration(CheckContext ctx, BlockTree config) {
-    OptionalConsumer.of(PropertyUtils.value(config, "security_policy"))
+    PropertyUtils.value(config, "security_policy")
       .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy), () -> ctx.reportIssue(config.key(), MESSAGE));
   }
 
