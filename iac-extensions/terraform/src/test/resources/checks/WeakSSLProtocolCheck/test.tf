@@ -40,5 +40,35 @@ resource "aws_apigatewayv2_domain_name" "strong_ssl_protocol" {
   }
 }
 
+resource "aws_elasticsearch_domain" "elastic-no_domain_endpoint_options" {  # Noncompliant
+  #      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  domain_name = "api.example.com"
+}
+
+resource "aws_elasticsearch_domain" "elastic_no_policy" {
+  domain_name = "api.example.com"
+
+  domain_endpoint_options { # Noncompliant
+# ^^^^^^^^^^^^^^^^^^^^^^^
+  }
+}
+
+resource "aws_elasticsearch_domain" "elastic_weak_policy" {
+  domain_name = "api.example.com"
+
+  domain_endpoint_options {
+    tls_security_policy = "Policy-Min-TLS-1-0-2019-07"  # Noncompliant
+    #                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  }
+}
+
+resource "aws_elasticsearch_domain" "elastic_strong_policy" {
+  domain_name = "api.example.com"
+
+  domain_endpoint_options {
+    tls_security_policy = "Policy-Min-TLS-1-2-2019-07"
+  }
+}
+
 resource "random_resource" "example" {
 }
