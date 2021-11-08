@@ -34,7 +34,7 @@ class OptionalConsumerTest {
   @Test
   void isPresentOrElse_with_present_optional() {
     OptionalConsumer.of(Optional.of("value")).ifPresentOrElse(consumer, runnable);
-    Mockito.verify(consumer).accept(Mockito.any());
+    Mockito.verify(consumer).accept("value");
     Mockito.verifyNoInteractions(runnable);
   }
 
