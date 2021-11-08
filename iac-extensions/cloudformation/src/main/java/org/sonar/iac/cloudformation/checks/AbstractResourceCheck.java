@@ -22,7 +22,6 @@ package org.sonar.iac.cloudformation.checks;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -72,16 +71,12 @@ public abstract class AbstractResourceCheck implements IacCheck {
 
     @CheckForNull
     private static Resource fromMapping(ScalarTree name, MappingTree mapping) {
-      Optional<CloudformationTree> typeTree = PropertyUtils.value(mapping, "Type", CloudformationTree.class);
-      if (!typeTree.isPresent()) {
-        return null;
-      }
-
-      return new Resource(
+      return PropertyUtils.value(mapping, "Type", CloudformationTree.class).map(typeTree -> new Resource(
         name,
-        typeTree.get(),
+        typeTree,
         PropertyUtils.valueOrNull(mapping, "Properties", CloudformationTree.class)
-      );
+      )).orElse(null);
+
     }
 
     public ScalarTree name() {
