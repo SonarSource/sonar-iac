@@ -53,4 +53,8 @@ public abstract class AbstractResourceCheck implements IacCheck {
   public static boolean isS3BucketResource(BlockTree tree) {
     return isResource(tree, "aws_s3_bucket");
   }
+
+  public static void reportIssueOnResource(CheckContext ctx, BlockTree resource, String message) {
+    ctx.reportIssue(resource.labels().get(0), message);
+  }
 }
