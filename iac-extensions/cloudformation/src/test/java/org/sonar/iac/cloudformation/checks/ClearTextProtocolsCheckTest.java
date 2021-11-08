@@ -24,8 +24,12 @@ import org.junit.jupiter.api.Test;
 class ClearTextProtocolsCheckTest {
 
   @Test
-  void test_yaml() {
-    CloudformationVerifier.verify("ClearTextProtocolsCheck/test.yaml", new ClearTextProtocolsCheck());
+  void test_msk_yaml() {
+    CloudformationVerifier.verify("ClearTextProtocolsCheck/test_msk.yaml", new ClearTextProtocolsCheck());
   }
 
+  @Test
+  void test_search_domain_yaml() {
+    CloudformationVerifier.verify("ClearTextProtocolsCheck/test_search_domain.yaml", new ClearTextProtocolsCheck());
+  }
 }
