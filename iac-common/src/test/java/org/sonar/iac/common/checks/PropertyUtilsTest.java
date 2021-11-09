@@ -98,6 +98,17 @@ class PropertyUtilsTest {
     assertThat(PropertyUtils.value(tree, k -> k.equals("key3"))).isNotPresent();
   }
 
+  @Test
+  void getAll() {
+    PropertyTree property1 = attribute("key", value1);
+    PropertyTree property2 = attribute("key", value2);
+    TestTree testTree = tree(property1, property2);
+    assertThat(PropertyUtils.getAll(testTree, "key")).containsExactly(property1, property2);
+
+    assertThat(PropertyUtils.getAll(testTree, "key", TestPropertyTree.class)).isNotEmpty();
+    assertThat(PropertyUtils.getAll(testTree, "key", OtherTree.class)).isEmpty();
+  }
+
   static class OtherTree extends AbstractTestTree {
 
   }

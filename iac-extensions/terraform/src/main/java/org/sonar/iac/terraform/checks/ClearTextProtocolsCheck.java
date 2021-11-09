@@ -83,17 +83,21 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void checkLbDefaultAction(CheckContext ctx, BlockTree resource, Tree rootProtocol) {
-    PropertyUtils.get(resource, "default_action", BlockTree.class)
-      .filter(ClearTextProtocolsCheck::insecureRedirectOrStaticResponse)
-      .ifPresent(d -> ctx.reportIssue(rootProtocol, String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS")));
+    if (PropertyUtils.getAll(resource, "default_action", BlockTree.class).stream()
+      .anyMatch(defaultAction -> isInsecureRedirect(defaultAction) || isSensitiveAction(defaultAction))) {
+      ctx.reportIssue(rootProtocol, String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS"));
+    }
   }
 
-  private static boolean insecureRedirectOrStaticResponse(BlockTree defaultAction) {
+  private static boolean isInsecureRedirect(BlockTree defaultAction) {
     return PropertyUtils.get(defaultAction, "redirect", BlockTree.class)
       .flatMap(redirect -> PropertyUtils.value(redirect, "protocol"))
       .filter(protocol -> TextUtils.isValue(protocol, "HTTP").isTrue())
-      .isPresent()
-      || PropertyUtils.value(defaultAction, "type")
+      .isPresent();
+  }
+
+  private static boolean isSensitiveAction(BlockTree defaultAction) {
+    return PropertyUtils.value(defaultAction, "type")
       .filter(type -> TextUtils.matchesValue(type, SENSITIVE_LB_DEFAULT_ACTION_TYPES::contains).isTrue())
       .isPresent();
   }
