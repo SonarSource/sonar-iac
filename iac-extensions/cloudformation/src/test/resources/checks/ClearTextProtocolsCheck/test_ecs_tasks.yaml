@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  EcsTaskNoncompliant:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Volumes:
+        - EFSVolumeConfiguration:  # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
+      #   ^^^^^^^^^^^^^^^^^^^^^^
+            FilesystemId: !Ref TestFilesystem
+        - EFSVolumeConfiguration:
+            TransitEncryption: "DISABLED"  # Noncompliant
+            #                  ^^^^^^^^^^
+        - EFSVolumeConfiguration:
+            TransitEncryption: "ENABLED"  # Compliant
+        - NotEFSVolumneConfiguration:
+            TransitEncryption: "DISABLED"  # Compliant
