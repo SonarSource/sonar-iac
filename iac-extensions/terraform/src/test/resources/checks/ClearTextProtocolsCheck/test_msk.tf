@@ -9,7 +9,7 @@ resource "aws_msk_cluster" "sensitive_data_cluster_1" {
 resource "aws_msk_cluster" "sensitive_data_cluster_2" {
   encryption_info {
     encryption_in_transit {
-      client_broker = "TLS_PLAINTEXT" # Noncompliant {{Using TLS_PLAINTEXT protocol is insecure. Use TLS instead}}
+      client_broker = "TLS_PLAINTEXT" # Noncompliant {{Using TLS_PLAINTEXT protocol is insecure. Use TLS instead.}}
       #               ^^^^^^^^^^^^^^^
     }
   }
@@ -18,7 +18,7 @@ resource "aws_msk_cluster" "sensitive_data_cluster_2" {
 resource "aws_msk_cluster" "sensitive_data_cluster_3" {
   encryption_info {
     encryption_in_transit {
-      in_cluster = false # Noncompliant {{Communication among nodes of a cluster should be encrypted}}
+      in_cluster = false # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
       #            ^^^^^
     }
   }
