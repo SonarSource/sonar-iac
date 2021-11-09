@@ -17,6 +17,9 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticsearch_not_encrypted/main.tf':[
 1,
 ],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/ecs_task_definition_not_encrypted_in_transit/main.tf':[
+44,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/elasticache_replication_group_not_encrypted_in_transit/main.tf':[
 5,
 ],
