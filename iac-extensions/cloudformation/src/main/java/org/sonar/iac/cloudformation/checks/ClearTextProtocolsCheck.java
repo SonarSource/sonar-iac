@@ -46,9 +46,10 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       checkSearchDomain(ctx, resource);
     } else if (resource.isType("AWS::ElasticLoadBalancingV2::Listener")) {
       checkLoadBalancingListener(ctx, resource);
+    } else if (resource.isType("AWS::ECS::TaskDefinition")) {
+      checkEcsTaskDefinition(ctx, resource);
     }
   }
-
 
   private static void checkMskCluster(CheckContext ctx, Resource resource) {
     PropertyUtils.value(resource.properties(), "EncryptionInfo", MappingTree.class)
@@ -106,6 +107,25 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   private static boolean isRedirectToHttpAction(CloudformationTree action) {
     return TextUtils.isValue(PropertyUtils.valueOrNull(action, "Type"), "redirect").isTrue() &&
       TextUtils.isValue(XPathUtils.getSingleTree(action, "/RedirectConfig/Protocol").orElse(null), "HTTP").isTrue();
+  }
+
+  private static void checkEcsTaskDefinition(CheckContext ctx, Resource resource) {
+    PropertyUtils.value(resource.properties(), "Volumes", SequenceTree.class)
+      .ifPresent(volumes -> volumes.elements().forEach(v -> checkEcsTaskDefinitionVolume(ctx, v)));
+  }
+
+  private static void checkEcsTaskDefinitionVolume(CheckContext ctx, CloudformationTree volume) {
+    Optional<PropertyTree> configuration = PropertyUtils.get(volume, "EFSVolumeConfiguration");
+    if (configuration.isEmpty()) {
+      return;
+    }
+
+    Optional<Tree> transitEncryption = PropertyUtils.value(configuration.get().value(), "TransitEncryption");
+    if (transitEncryption.isPresent() && TextUtils.isValue(transitEncryption.get(), "DISABLED").isTrue()) {
+      ctx.reportIssue(transitEncryption.get(), MESSAGE_CLEAR_TEXT);
+    } else if (transitEncryption.isEmpty()) {
+      ctx.reportIssue(configuration.get().key(), MESSAGE_CLEAR_TEXT);
+    }
   }
 
   private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message) {

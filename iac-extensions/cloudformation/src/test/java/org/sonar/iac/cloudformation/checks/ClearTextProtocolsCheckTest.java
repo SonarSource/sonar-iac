@@ -37,4 +37,9 @@ class ClearTextProtocolsCheckTest {
   void test_load_balancer_listeners() {
     CloudformationVerifier.verify("ClearTextProtocolsCheck/test_load_balancers.yaml", new ClearTextProtocolsCheck());
   }
+
+  @Test
+  void test_ecs_tasks() {
+    CloudformationVerifier.verify("ClearTextProtocolsCheck/test_ecs_tasks.yaml", new ClearTextProtocolsCheck());
+  }
 }
