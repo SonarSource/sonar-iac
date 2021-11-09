@@ -32,4 +32,9 @@ class ClearTextProtocolsCheckTest {
   void test_search_domain_yaml() {
     CloudformationVerifier.verify("ClearTextProtocolsCheck/test_search_domain.yaml", new ClearTextProtocolsCheck());
   }
+
+  @Test
+  void test_load_balancer_listeners() {
+    CloudformationVerifier.verify("ClearTextProtocolsCheck/test_load_balancers.yaml", new ClearTextProtocolsCheck());
+  }
 }
