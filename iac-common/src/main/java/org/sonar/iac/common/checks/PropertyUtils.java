@@ -19,10 +19,12 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.HasProperties;
@@ -50,11 +52,22 @@ public class PropertyUtils {
     return get(tree, key::equals);
   }
 
+  public static List<PropertyTree> getAll(@Nullable Tree tree, String key) {
+    return getAll(tree, key::equals).collect(Collectors.toList());
+  }
+
+  public static <T extends Tree> List<T> getAll(@Nullable Tree tree, String key, Class<T> clazz) {
+    return getAll(tree, key::equals).filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+  }
+
   private static Optional<PropertyTree> get(@Nullable Tree tree, Predicate<String> keyMatcher) {
-    if (!(tree instanceof HasProperties)) return Optional.empty();
+    return getAll(tree, keyMatcher).findFirst();
+  }
+
+  private static Stream<PropertyTree> getAll(@Nullable Tree tree, Predicate<String> keyMatcher) {
+    if (!(tree instanceof HasProperties)) return Stream.empty();
     return ((HasProperties) tree).properties().stream()
-      .filter(attribute -> TextUtils.matchesValue(attribute.key(), keyMatcher).isTrue())
-      .findFirst();
+      .filter(attribute -> TextUtils.matchesValue(attribute.key(), keyMatcher).isTrue());
   }
 
   public static <T extends Tree> Optional<T> get(@Nullable Tree tree, String key, Class<T> clazz) {
