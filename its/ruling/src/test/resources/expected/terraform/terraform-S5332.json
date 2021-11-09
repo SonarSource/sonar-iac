@@ -1,4 +1,13 @@
 {
+'terraform-project:sources/terraform/ibm-tf-training/day_03/file-layout-example/stage/services/webservices-cluster/main.tf':[
+75,
+],
+'terraform-project:sources/terraform/ibm-tf-training/day_03/module-example/modules/services/webserver-cluster/main.tf':[
+70,
+],
+'terraform-project:sources/terraform/ibm-tf-training/s2/web-cluster/main.tf':[
+79,
+],
 'terraform-project:sources/terraform/terragoat/terraform/aws/es.tf':[
 1,
 ],
@@ -7,6 +16,9 @@
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/elasticsearch_encrypt_node_to_node_disabled/main.tf':[
 5,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/load_balancer_listener_http/main.tf':[
+68,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/elasticsearch_domain_not_secure_policy/main.tf':[
 5,
