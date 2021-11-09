@@ -53,6 +53,19 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
 <p>It is recommended to secure all transport channels (even local network) as it can take a single non secure connection to compromise an entire
 application or system.</p>
 <h2>Sensitive Code Example</h2>
+<p>For <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html">AWS Load Balancer Listeners</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  HTTPlistener:
+   Type: "AWS::ElasticLoadBalancingV2::Listener"
+   Properties:
+     DefaultActions:
+       - Type: "redirect"
+         RedirectConfig:
+           Protocol: "HTTP"
+     Protocol: "HTTP" # Sensitive
+</pre>
 <p>For <a href="https://docs.aws.amazon.com/opensearch-service/index.html">Amazon OpenSearch domains</a>:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
@@ -80,6 +93,19 @@ Resources:
           InCluster: false # Sensitive
 </pre>
 <h2>Compliant Solution</h2>
+<p>For <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html">AWS Load Balancer Listeners</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  HTTPlistener:
+   Type: "AWS::ElasticLoadBalancingV2::Listener"
+   Properties:
+     DefaultActions:
+       - Type: "redirect"
+         RedirectConfig:
+           Protocol: "HTTPS"
+     Protocol: "HTTP"
+</pre>
 <p>For <a href="https://docs.aws.amazon.com/opensearch-service/index.html">Amazon OpenSearch domains</a>:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09

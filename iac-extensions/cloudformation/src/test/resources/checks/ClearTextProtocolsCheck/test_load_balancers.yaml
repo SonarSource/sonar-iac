@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  HTTPlistener1:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: "redirect"
+          RedirectConfig:
+            Protocol: "HTTP"
+      Protocol: "HTTP" # Noncompliant {{Using HTTP protocol is insecure. Use HTTPS instead.}}
+
+  HTTPlistener2:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: "fixed-response"
+      Protocol: "HTTP" # Noncompliant
+
+  HTTPlistener3:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: "forward"
+      Protocol: "HTTP" # Noncompliant
+
+  HTTPlistener4:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: "redirect"
+          RedirectConfig:
+            Protocol: "HTTPS"
+      Protocol: "HTTP" # Compliant
+
+  HTTPlistener5:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      # No default actions
+      Protocol: "HTTP" # Compliant
+
+  HTTPlistener6:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: "forward"
+      Protocol: "HTTPS" # Compliant
+
+  HTTPlistener7:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: "forward"
+      # No root protocol
+
+  HTTPlistener8:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: "unknown"
+      Protocol: "HTTP" # Compliant
