@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ElasticacheReplicationMissing:  # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      ReplicationGroupId: ""
+
+  ElasticacheReplicationDisabled:
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      TransitEncryptionEnabled: false  # Noncompliant
+
+  ElasticacheReplicationEnabled:
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      TransitEncryptionEnabled: true  # Compliant

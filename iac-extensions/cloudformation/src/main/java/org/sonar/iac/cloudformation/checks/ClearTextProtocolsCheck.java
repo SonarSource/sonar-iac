@@ -20,6 +20,7 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
@@ -48,6 +49,8 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       checkLoadBalancingListener(ctx, resource);
     } else if (resource.isType("AWS::ECS::TaskDefinition")) {
       checkEcsTaskDefinition(ctx, resource);
+    } else if (resource.isType("AWS::ElastiCache::ReplicationGroup")) {
+      checkESReplicationGroup(ctx, resource);
     }
   }
 
@@ -128,7 +131,15 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     }
   }
 
-  private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message) {
+  private static void checkESReplicationGroup(CheckContext ctx, Resource resource) {
+    if (PropertyUtils.has(resource.properties(), "TransitEncryptionEnabled").isFalse()) {
+      ctx.reportIssue(resource.name(), MESSAGE_CLEAR_TEXT);
+    } else {
+      reportOnFalseProperty(ctx, resource.properties(),"TransitEncryptionEnabled", MESSAGE_CLEAR_TEXT);
+    }
+  }
+
+  private static void reportOnFalseProperty(CheckContext ctx, @Nullable Tree tree, String propertyName, String message) {
     PropertyUtils.value(tree, propertyName, ScalarTree.class)
       .filter(TextUtils::isValueFalse)
       .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, message));

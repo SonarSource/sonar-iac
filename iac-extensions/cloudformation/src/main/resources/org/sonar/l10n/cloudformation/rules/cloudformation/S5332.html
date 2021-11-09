@@ -53,6 +53,16 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
 <p>It is recommended to secure all transport channels (even local network) as it can take a single non secure connection to compromise an entire
 application or system.</p>
 <h2>Sensitive Code Example</h2>
+<p>For <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Example:
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      ReplicationGroupId: "example"
+      TransitEncryptionEnabled: false  # Sensitive
+</pre>
 <p>For <a href="https://aws.amazon.com/ecs/">Amazon ECS</a>:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
@@ -108,6 +118,16 @@ Resources:
           InCluster: false # Sensitive
 </pre>
 <h2>Compliant Solution</h2>
+<p>For <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Example:
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      ReplicationGroupId: "example"
+      TransitEncryptionEnabled: true
+</pre>
 <p>For <a href="https://aws.amazon.com/ecs/">Amazon ECS</a>:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
