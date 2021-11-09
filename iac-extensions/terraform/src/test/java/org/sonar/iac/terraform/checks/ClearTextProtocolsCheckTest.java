@@ -42,4 +42,9 @@ class ClearTextProtocolsCheckTest {
   void test_elasticsearch_replication_group() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/test_elasticsearch_replication_group.tf", new ClearTextProtocolsCheck());
   }
+
+  @Test
+  void test_kinesis_stream() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/test_kinesis_stream.tf", new ClearTextProtocolsCheck());
+  }
 }

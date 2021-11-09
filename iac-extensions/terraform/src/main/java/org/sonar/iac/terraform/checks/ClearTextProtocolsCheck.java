@@ -46,8 +46,11 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       checkLbListener(ctx, resource);
     } else if (isResource(resource, "aws_elasticache_replication_group")) {
       checkESReplicationGroup(ctx, resource);
+    } else if (isResource(resource, "aws_kinesis_stream")) {
+      checkKinesisStream(ctx, resource);
     }
   }
+
   private static void checkMskCluster(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "encryption_info", BlockTree.class)
       .flatMap(e -> PropertyUtils.get(e, "encryption_in_transit", BlockTree.class))
@@ -108,6 +111,16 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
     } else {
       reportOnFalseProperty(ctx, resource, "transit_encryption_enabled", MESSAGE_CLEAR_TEXT);
+    }
+  }
+
+  private static void checkKinesisStream(CheckContext ctx, BlockTree resource) {
+    if (PropertyUtils.has(resource, "encryption_type").isFalse()) {
+      reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
+    } else {
+      PropertyUtils.value(resource, "encryption_type")
+        .filter(type -> TextUtils.isValue(type, "NONE").isTrue())
+        .ifPresent(t -> ctx.reportIssue(t, MESSAGE_CLEAR_TEXT));
     }
   }
 
