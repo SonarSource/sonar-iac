@@ -51,6 +51,8 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       checkEcsTaskDefinition(ctx, resource);
     } else if (resource.isType("AWS::ElastiCache::ReplicationGroup")) {
       checkESReplicationGroup(ctx, resource);
+    } else if (resource.isType("AWS::Kinesis::Stream")) {
+      checkKinesisStream(ctx, resource);
     }
   }
 
@@ -139,8 +141,13 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     }
   }
 
-  private static void reportOnFalseProperty(CheckContext ctx, @Nullable Tree tree, String propertyName, String message) {
-    PropertyUtils.value(tree, propertyName, ScalarTree.class)
+  private static void checkKinesisStream(CheckContext ctx, Resource resource) {
+    if (PropertyUtils.has(resource.properties(), "StreamEncryption").isFalse()) {
+      reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
+    }
+  }
+
+  private static void reportOnFalseProperty(CheckContext ctx, @Nullable Tree tree, String propertyName, String message) {    PropertyUtils.value(tree, propertyName, ScalarTree.class)
       .filter(TextUtils::isValueFalse)
       .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, message));
   }

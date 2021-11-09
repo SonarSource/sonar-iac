@@ -47,4 +47,9 @@ class ClearTextProtocolsCheckTest {
   void test_es_replication_group() {
     CloudformationVerifier.verify("ClearTextProtocolsCheck/test_es_replication_group.yaml", new ClearTextProtocolsCheck());
   }
+
+  @Test
+  void test_kinesis_stream() {
+    CloudformationVerifier.verify("ClearTextProtocolsCheck/test_kinesis_stream.yaml", new ClearTextProtocolsCheck());
+  }
 }

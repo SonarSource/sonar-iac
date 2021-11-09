@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  KinesisStreamNoncompliant:
+    Type: AWS::Kinesis::Stream # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
+    Properties:
+      foo: 'bar'
+
+  KinesisStreamCompliant:
+    Type: AWS::Kinesis::Stream
+    Properties:
+        StreamEncryption:
+          EncryptionType: KMS
