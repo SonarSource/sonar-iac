@@ -93,7 +93,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       return;
     }
 
-    if (defaultActions.get().elements().stream().anyMatch(a -> isFixedResponseOrForwardAction(a) || isRedirectToHttp(a))) {
+    if (defaultActions.get().elements().stream().anyMatch(a -> isFixedResponseOrForwardAction(a) || isRedirectToHttpAction(a))) {
       ctx.reportIssue(rootProtocol.get(), String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS"));
     }
   }
@@ -103,7 +103,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     return TextUtils.isValue(type, "fixed-response").isTrue() || TextUtils.isValue(type, "forward").isTrue();
   }
 
-  private static boolean isRedirectToHttp(CloudformationTree action) {
+  private static boolean isRedirectToHttpAction(CloudformationTree action) {
     return TextUtils.isValue(PropertyUtils.valueOrNull(action, "Type"), "redirect").isTrue() &&
       TextUtils.isValue(XPathUtils.getSingleTree(action, "/RedirectConfig/Protocol").orElse(null), "HTTP").isTrue();
   }
