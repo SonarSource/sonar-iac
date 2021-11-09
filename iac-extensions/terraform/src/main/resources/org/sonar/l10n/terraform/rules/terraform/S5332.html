@@ -52,7 +52,7 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
 </ul>
 <p>It is recommended to secure all transport channels (even local network) as it can take a single non secure connection to compromise an entire
 application or system.</p>
-<h2>Noncompliant Code Example</h2>
+<h2>Sensitive Code Example</h2>
 <p>For <a href="https://docs.aws.amazon.com/opensearch-service/index.html">Amazon OpenSearch domains</a>:</p>
 <pre>
 resource "aws_elasticsearch_domain" "example" {
@@ -74,6 +74,19 @@ resource "aws_msk_cluster" "sensitive_data_cluster" {
         }
     }
 }
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html">AWS Load Balancer Listeners</a>:</p>
+<pre>
+resource "aws_lb_listener" "front_load_balancer" {
+  protocol = "HTTP" # Sensitive
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      protocol = "HTTP"
+    }
+  }
 </pre>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://docs.aws.amazon.com/opensearch-service/index.html">Amazon OpenSearch domains</a>:</p>
@@ -98,6 +111,20 @@ resource "aws_msk_cluster" "sensitive_data_cluster" {
             in_cluster = true
         }
     }
+}
+</pre>
+<p>For <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html">AWS Load Balancer Listeners</a>:</p>
+<pre>
+resource "aws_lb_listener" "front_load_balancer" {
+  protocol = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      protocol = "HTTPS"
+    }
+  }
 }
 </pre>
 <h2>See</h2>

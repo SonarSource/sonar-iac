@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
@@ -30,9 +31,10 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE_BROKER_FORMAT = "Using %s protocol is insecure. Use TLS instead";
-  private static final String MESSAGE_CLUSTER = "Communication among nodes of a cluster should be encrypted";
+  private static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use %s instead.";
+  private static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
 
+  private static final Set<String> SENSITIVE_LB_DEFAULT_ACTION_TYPES = Set.of("fixed-response", "forward");
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
@@ -40,6 +42,8 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       checkMskCluster(ctx, resource);
     } else if (isResource(resource, "aws_elasticsearch_domain")) {
       checkESDomain(ctx, resource);
+    } else if (isResource(resource, "aws_lb_listener")) {
+      checkLbListener(ctx, resource);
     }
   }
 
@@ -48,28 +52,49 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       .flatMap(e -> PropertyUtils.get(e, "encryption_in_transit", BlockTree.class))
       .ifPresent(e -> {
         checkMskClientBroker(ctx, e);
-        reportOnFalseProperty(ctx, e, "in_cluster", MESSAGE_CLUSTER);
+        reportOnFalseProperty(ctx, e, "in_cluster", MESSAGE_CLEAR_TEXT);
       });
   }
 
   private static void checkMskClientBroker(CheckContext ctx, BlockTree encryptionBlock) {
     PropertyUtils.value(encryptionBlock, "client_broker", LiteralExprTree.class)
       .filter(clientBroker -> !"TLS".equals(clientBroker.value()))
-      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_BROKER_FORMAT, clientBroker.value())));
+      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_PROTOCOL_FORMAT, clientBroker.value(), "TLS")));
   }
 
   private static void checkESDomain(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
-      .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", "Using HTTP protocol is insecure. Use HTTPS instead"));
+      .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS")));
 
     PropertyUtils.get(resource, "node_to_node_encryption", BlockTree.class)
-      .ifPresentOrElse(x -> reportOnFalseProperty(ctx, x, "enabled", MESSAGE_CLUSTER),
-        () -> ctx.reportIssue(resource.labels().get(0), MESSAGE_CLUSTER));
+      .ifPresentOrElse(x -> reportOnFalseProperty(ctx, x, "enabled", MESSAGE_CLEAR_TEXT),
+        () -> ctx.reportIssue(resource.labels().get(0), MESSAGE_CLEAR_TEXT));
   }
 
   private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message) {
     PropertyUtils.value(tree, propertyName, LiteralExprTree.class)
       .filter(TextUtils::isValueFalse)
       .ifPresent(inCluster -> ctx.reportIssue(inCluster, message));
+  }
+
+  private static void checkLbListener(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.value(resource, "protocol").filter(p -> TextUtils.isValue(p,"HTTP").isTrue())
+      .ifPresent(rootProtocol -> checkLbDefaultAction(ctx, resource, rootProtocol));
+  }
+
+  private static void checkLbDefaultAction(CheckContext ctx, BlockTree resource, Tree rootProtocol) {
+    PropertyUtils.get(resource, "default_action", BlockTree.class)
+      .filter(ClearTextProtocolsCheck::insecureRedirectOrStaticResponse)
+      .ifPresent(d -> ctx.reportIssue(rootProtocol, String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS")));
+  }
+
+  private static boolean insecureRedirectOrStaticResponse(BlockTree defaultAction) {
+    return PropertyUtils.get(defaultAction, "redirect", BlockTree.class)
+      .flatMap(redirect -> PropertyUtils.value(redirect, "protocol"))
+      .filter(protocol -> TextUtils.isValue(protocol, "HTTP").isTrue())
+      .isPresent()
+      || PropertyUtils.value(defaultAction, "type")
+      .filter(type -> TextUtils.matchesValue(type, SENSITIVE_LB_DEFAULT_ACTION_TYPES::contains).isTrue())
+      .isPresent();
   }
 }
