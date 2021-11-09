@@ -53,6 +53,29 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
 <p>It is recommended to secure all transport channels (even local network) as it can take a single non secure connection to compromise an entire
 application or system.</p>
 <h2>Sensitive Code Example</h2>
+<p>For <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a>:</p>
+<pre>
+resource "aws_elasticache_replication_group" "example" {
+    replication_group_id = "example"
+    replication_group_description = "example"
+    transit_encryption_enabled = false  # Sensitive
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/ecs/">Amazon ECS</a>:</p>
+<pre>
+resource "aws_ecs_task_definition" "ecs_task" {
+  family = "service"
+  container_definitions = file("task-definition.json")
+
+  volume {
+    name = "storage"
+    efs_volume_configuration {
+      file_system_id = aws_efs_file_system.fs.id
+      transit_encryption = "DISABLED"  # Sensitive
+    }
+  }
+}
+</pre>
 <p>For <a href="https://docs.aws.amazon.com/opensearch-service/index.html">Amazon OpenSearch domains</a>:</p>
 <pre>
 resource "aws_elasticsearch_domain" "example" {
@@ -63,6 +86,7 @@ resource "aws_elasticsearch_domain" "example" {
   node_to_node_encryption {
     enabled = false # Sensitive
   }
+}
 </pre>
 <p>For <a href="https://aws.amazon.com/msk/">Amazon MSK</a> communications between clients and brokers:</p>
 <pre>
@@ -87,8 +111,32 @@ resource "aws_lb_listener" "front_load_balancer" {
       protocol = "HTTP"
     }
   }
+}
 </pre>
 <h2>Compliant Solution</h2>
+<p>For <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a>:</p>
+<pre>
+resource "aws_elasticache_replication_group" "example" {
+    replication_group_id = "example"
+    replication_group_description = "example"
+    transit_encryption_enabled = true
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/ecs/">Amazon ECS</a>:</p>
+<pre>
+resource "aws_ecs_task_definition" "ecs_task" {
+  family = "service"
+  container_definitions = file("task-definition.json")
+
+  volume {
+    name = "storage"
+    efs_volume_configuration {
+      file_system_id = aws_efs_file_system.fs.id
+      transit_encryption = "ENABLED"
+    }
+  }
+}
+</pre>
 <p>For <a href="https://docs.aws.amazon.com/opensearch-service/index.html">Amazon OpenSearch domains</a>:</p>
 <pre>
 resource "aws_elasticsearch_domain" "example" {
@@ -99,6 +147,7 @@ resource "aws_elasticsearch_domain" "example" {
   node_to_node_encryption {
     enabled = true
   }
+}
 </pre>
 <p>For <a href="https://aws.amazon.com/msk/">Amazon MSK</a> communications between clients and brokers, data in transit is encrypted by default,
 allowing you to omit writing the <code>encryption_in_transit</code> configuration. However, if you need to configure it explicitly, this configuration
@@ -127,6 +176,11 @@ resource "aws_lb_listener" "front_load_balancer" {
   }
 }
 </pre>
+<h2>Exceptions</h2>
+<p>No issue is reported for the following cases because they are not considered sensitive:</p>
+<ul>
+  <li> Insecure protocol scheme followed by loopback addresses like 127.0.0.1 or <code>localhost</code> </li>
+</ul>
 <h2>See</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>

@@ -37,4 +37,9 @@ class ClearTextProtocolsCheckTest {
   void test_lb_listener() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/test_lb_listener.tf", new ClearTextProtocolsCheck());
   }
+
+  @Test
+  void test_elasticsearch_replication_group() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/test_elasticsearch_replication_group.tf", new ClearTextProtocolsCheck());
+  }
 }
