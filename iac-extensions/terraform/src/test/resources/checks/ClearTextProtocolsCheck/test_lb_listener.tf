@@ -45,14 +45,14 @@ resource "not_an_aws_msk_cluster" "for_coverage" {
   }
 }
 
-resource "aws_lb_listener" "false_negative" {
-  protocol          = "HTTP"
+resource "aws_lb_listener" "multiple_blocks" {
+  protocol = "HTTP" # Noncompliant
 
   default_action {
     type = "authenticate-cognito"
   }
 
   default_action {
-    type = "fixed-response" # FN, multiple blocks with same name are allowed
+    type = "fixed-response" # multiple blocks with same name are allowed
   }
 }
