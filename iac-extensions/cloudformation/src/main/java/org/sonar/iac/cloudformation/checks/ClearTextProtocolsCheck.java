@@ -104,10 +104,8 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static boolean isRedirectToHttp(CloudformationTree action) {
-    if (TextUtils.isValue(PropertyUtils.valueOrNull(action, "Type"), "redirect").isTrue()) {
-      return TextUtils.isValue(XPathUtils.getSingleTree(action, "/RedirectConfig/Protocol").orElse(null), "HTTP").isTrue();
-    }
-    return false;
+    return TextUtils.isValue(PropertyUtils.valueOrNull(action, "Type"), "redirect").isTrue() &&
+      TextUtils.isValue(XPathUtils.getSingleTree(action, "/RedirectConfig/Protocol").orElse(null), "HTTP").isTrue();
   }
 
   private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message) {
