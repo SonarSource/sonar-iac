@@ -19,9 +19,13 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.Optional;
 import org.sonar.check.Rule;
+import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.cloudformation.api.tree.SequenceTree;
+import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -31,7 +35,7 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use TLS instead.";
+  private static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use %s instead.";
   private static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
 
   @Override
@@ -40,8 +44,11 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       checkMskCluster(ctx, resource);
     } else if (resource.isType("AWS::OpenSearchService::Domain") || resource.isType("AWS::Elasticsearch::Domain")) {
       checkSearchDomain(ctx, resource);
+    } else if (resource.isType("AWS::ElasticLoadBalancingV2::Listener")) {
+      checkLoadBalancingListener(ctx, resource);
     }
   }
+
 
   private static void checkMskCluster(CheckContext ctx, Resource resource) {
     PropertyUtils.value(resource.properties(), "EncryptionInfo", MappingTree.class)
@@ -55,7 +62,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   private static void checkClientBroker(CheckContext ctx, MappingTree e) {
     PropertyUtils.value(e, "ClientBroker", ScalarTree.class)
       .filter(clientBroker -> !"TLS".equals(clientBroker.value()))
-      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_PROTOCOL_FORMAT, clientBroker.value())));
+      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_PROTOCOL_FORMAT, clientBroker.value(), "TLS")));
   }
 
   private static void checkSearchDomain(CheckContext ctx, Resource resource) {
@@ -73,6 +80,34 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     }
 
     reportOnFalseProperty(ctx, domainEndpointOptions.value(), "EnforceHTTPS", MESSAGE_CLEAR_TEXT);
+  }
+
+  private static void checkLoadBalancingListener(CheckContext ctx, Resource resource) {
+    Optional<Tree> rootProtocol = PropertyUtils.value(resource.properties(), "Protocol");
+    if (rootProtocol.isEmpty() || !TextUtils.isValue(rootProtocol.get(), "HTTP").isTrue()) {
+      return;
+    }
+
+    Optional<SequenceTree> defaultActions = PropertyUtils.value(resource.properties(), "DefaultActions", SequenceTree.class);
+    if (defaultActions.isEmpty()) {
+      return;
+    }
+
+    if (defaultActions.get().elements().stream().anyMatch(a -> isFixedResponseOrForwardAction(a) || isRedirectToHttp(a))) {
+      ctx.reportIssue(rootProtocol.get(), String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS"));
+    }
+  }
+
+  private static boolean isFixedResponseOrForwardAction(CloudformationTree action) {
+    Tree type = PropertyUtils.valueOrNull(action, "Type");
+    return TextUtils.isValue(type, "fixed-response").isTrue() || TextUtils.isValue(type, "forward").isTrue();
+  }
+
+  private static boolean isRedirectToHttp(CloudformationTree action) {
+    if (TextUtils.isValue(PropertyUtils.valueOrNull(action, "Type"), "redirect").isTrue()) {
+      return TextUtils.isValue(XPathUtils.getSingleTree(action, "/RedirectConfig/Protocol").orElse(null), "HTTP").isTrue();
+    }
+    return false;
   }
 
   private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message) {
