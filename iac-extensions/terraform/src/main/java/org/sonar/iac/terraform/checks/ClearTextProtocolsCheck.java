@@ -48,6 +48,8 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       checkESReplicationGroup(ctx, resource);
     } else if (isResource(resource, "aws_ecs_task_definition")) {
       checkEcsTaskDefinition(ctx, resource);
+    } else if (isResource(resource, "aws_kinesis_stream")) {
+      checkKinesisStream(ctx, resource);
     }
   }
 
@@ -127,6 +129,16 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       PropertyUtils.value(config, "transit_encryption")
         .filter(encryption -> TextUtils.isValue(encryption, "DISABLED").isTrue())
         .ifPresent(e -> ctx.reportIssue(e, MESSAGE_CLEAR_TEXT));
+    }
+  }
+  
+  private static void checkKinesisStream(CheckContext ctx, BlockTree resource) {
+    if (PropertyUtils.has(resource, "encryption_type").isFalse()) {
+      reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
+    } else {
+      PropertyUtils.value(resource, "encryption_type")
+        .filter(type -> TextUtils.isValue(type, "NONE").isTrue())
+        .ifPresent(t -> ctx.reportIssue(t, MESSAGE_CLEAR_TEXT));
     }
   }
 
