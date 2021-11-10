@@ -42,7 +42,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     }
   }
 
-  private void checkS3Bucket(CheckContext ctx, Resource resource) {
+  private static void checkS3Bucket(CheckContext ctx, Resource resource) {
     CloudformationTree properties = resource.properties();
     if (PropertyUtils.value(properties, "LoggingConfiguration").isEmpty() && !isMaybeLoggingBucket(properties)) {
       ctx.reportIssue(resource.type(), MESSAGE);
