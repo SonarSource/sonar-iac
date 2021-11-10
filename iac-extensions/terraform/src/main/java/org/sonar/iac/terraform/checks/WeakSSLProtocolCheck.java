@@ -36,41 +36,35 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     if (isResource(resource, "aws_api_gateway_domain_name")) {
-      PropertyUtils.value(resource, "security_policy")
-        .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
-          () -> reportResource(ctx, resource, MESSAGE));
+      checkApiGatewayDomainPolicy(ctx, resource, resource.labels().get(0));
     } else if (isResource(resource, "aws_apigatewayv2_domain_name")) {
-      PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class)
-        .ifPresentOrElse(config -> checkDomainNameConfiguration(ctx, config),
-          () -> reportResource(ctx, resource, MESSAGE));
+      checkApiGatewayV2Domain(ctx, resource);
     } else if (isResource(resource, "aws_elasticsearch_domain")) {
-      PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
-        .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
-          () -> reportResource(ctx, resource, MESSAGE));
+      checkESDomain(ctx, resource);
     }
   }
 
-  private static void checkDomainNameConfiguration(CheckContext ctx, BlockTree config) {
-    PropertyUtils.value(config, "security_policy")
-      .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
-        () -> ctx.reportIssue(config.key(), MESSAGE));
+  private static void checkApiGatewayV2Domain(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class)
+      .ifPresentOrElse(config -> checkApiGatewayDomainPolicy(ctx, config, config.key()),
+        () -> reportResource(ctx, resource, MESSAGE));
   }
 
-  private static void checkSecurityPolicy(CheckContext ctx, Tree policy) {
-    if (TextUtils.isValue(policy, STRONG_SSL_PROTOCOL).isFalse()) {
-      ctx.reportIssue(policy, MESSAGE);
-    }
+  private static void checkESDomain(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
+      .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
+        () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkApiGatewayDomainPolicy(CheckContext ctx, BlockTree apiGateway, Tree reportTreeOnAbsence) {
+    PropertyUtils.valueOrRun(apiGateway, "security_policy", () -> ctx.reportIssue(reportTreeOnAbsence, MESSAGE))
+      .filter(policy -> TextUtils.isValue(policy, STRONG_SSL_PROTOCOL).isFalse())
+      .ifPresent(policy -> ctx.reportIssue(policy, MESSAGE));
   }
 
   private static void checkDomainEndpointOptions(CheckContext ctx, BlockTree options) {
-    PropertyUtils.value(options, "tls_security_policy")
-      .ifPresentOrElse(policy -> checkElasticPolicy(ctx, policy),
-        () -> ctx.reportIssue(options.key(), MESSAGE));
-  }
-
-  private static void checkElasticPolicy(CheckContext ctx, Tree policy) {
-    if (TextUtils.isValue(policy, ELASTIC_STRONG_POLICY).isFalse()) {
-      ctx.reportIssue(policy, MESSAGE);
-    }
+    PropertyUtils.valueOrRun(options, "tls_security_policy", () -> ctx.reportIssue(options.key(), MESSAGE))
+      .filter(policy -> TextUtils.isValue(policy, ELASTIC_STRONG_POLICY).isFalse())
+      .ifPresent(policy -> ctx.reportIssue(policy, MESSAGE));
   }
 }
