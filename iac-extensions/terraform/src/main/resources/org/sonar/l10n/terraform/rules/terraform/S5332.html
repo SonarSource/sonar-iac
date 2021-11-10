@@ -53,6 +53,12 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
 <p>It is recommended to secure all transport channels (even local network) as it can take a single non secure connection to compromise an entire
 application or system.</p>
 <h2>Sensitive Code Example</h2>
+<p>For <a href="https://aws.amazon.com/kinesis/">AWS Kinesis</a> Data Streams server-side encryption:</p>
+<pre>
+resource "aws_kinesis_stream" "sensitive_stream" {
+    encryption_type = "NONE" # Sensitive
+}
+</pre>
 <p>For <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a>:</p>
 <pre>
 resource "aws_elasticache_replication_group" "example" {
@@ -114,6 +120,12 @@ resource "aws_lb_listener" "front_load_balancer" {
 }
 </pre>
 <h2>Compliant Solution</h2>
+<p>For <a href="https://aws.amazon.com/kinesis/">AWS Kinesis</a> Data Streams server-side encryption:</p>
+<pre>
+resource "aws_kinesis_stream" "compliant_stream" {
+    encryption_type = "KMS"
+}
+</pre>
 <p>For <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a>:</p>
 <pre>
 resource "aws_elasticache_replication_group" "example" {

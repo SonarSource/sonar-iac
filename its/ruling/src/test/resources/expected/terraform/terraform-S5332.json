@@ -17,6 +17,9 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticsearch_not_encrypted/main.tf':[
 1,
 ],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/kinesis_stream_not_encrypted/main.tf':[
+1,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/ecs_task_definition_not_encrypted_in_transit/main.tf':[
 44,
 ],
@@ -28,6 +31,9 @@
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/load_balancer_listener_http/main.tf':[
 68,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/cloudwatch_log_destination_insecure_policy/main.tf':[
+49,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/elasticsearch_domain_not_secure_policy/main.tf':[
 5,
