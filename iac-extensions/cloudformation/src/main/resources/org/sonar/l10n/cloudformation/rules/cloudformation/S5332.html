@@ -53,6 +53,16 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
 <p>It is recommended to secure all transport channels (even local network) as it can take a single non secure connection to compromise an entire
 application or system.</p>
 <h2>Sensitive Code Example</h2>
+<p>For <a href="https://aws.amazon.com/kinesis/">AWS Kinesis</a> Data Streams, server-side encryption is disabled by default:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  KinesisStream: # Sensitive
+    Type: AWS::Kinesis::Stream
+    Properties:
+#      StreamEncryption:
+#         EncryptionType: KMS
+</pre>
 <p>For <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a>:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
@@ -118,6 +128,16 @@ Resources:
           InCluster: false # Sensitive
 </pre>
 <h2>Compliant Solution</h2>
+<p>For <a href="https://aws.amazon.com/kinesis/">AWS Kinesis</a> Data Streams server-side encryption:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  KinesisStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      StreamEncryption:
+         EncryptionType: KMS
+</pre>
 <p>For <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a>:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
