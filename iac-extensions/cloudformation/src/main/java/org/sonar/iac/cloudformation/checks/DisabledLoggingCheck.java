@@ -39,6 +39,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkS3Bucket(ctx, resource);
     } else if (resource.isType("AWS::ApiGateway::Stage")) {
       checkApiGatewayStage(ctx, resource);
+    } else if (resource.isType("AWS::ApiGatewayV2::Stage")) {
+      checkApiGatewayV2Stage(ctx, resource);
     }
   }
 
@@ -59,8 +61,27 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkApiGatewayStage(CheckContext ctx, Resource resource) {
-    PropertyUtils.valueOrRun(resource.properties(), "TracingEnabled", () -> reportResource(ctx, resource, MESSAGE))
-      .filter(TextUtils::isValueFalse)
-      .ifPresent(tracing -> ctx.reportIssue(tracing, MESSAGE));
+    CloudformationTree properties = resource.properties();
+    PropertyUtils.value(properties, "TracingEnabled").ifPresentOrElse(f -> {
+        reportOnFalse(ctx, f);
+        reportOnMissingProperty(ctx, properties, "AccessLogSetting", resource.type());
+      },
+      () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkApiGatewayV2Stage(CheckContext ctx, Resource resource) {
+    reportOnMissingProperty(ctx, resource.properties(), "AccessLogSettings", resource.type());
+  }
+
+  private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {
+    if (PropertyUtils.has(properties, property).isFalse()) {
+      ctx.reportIssue(raiseOn, MESSAGE);
+    }
+  }
+
+  private static void reportOnFalse(CheckContext ctx, Tree tree) {
+    if (TextUtils.isValueFalse(tree)) {
+      ctx.reportIssue(tree, MESSAGE);
+    }
   }
 }

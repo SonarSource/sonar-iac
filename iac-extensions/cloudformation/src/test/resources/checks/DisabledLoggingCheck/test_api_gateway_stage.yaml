@@ -6,6 +6,10 @@ Resources:
     Properties:
       StageName: Prod
       Description: Prod Stage
+      AccessLogSetting:
+        DestinationArn: "arn:aws:logs:eu-west-1:123456789:test"
+        Format: "..."
+
   DisabledLogging:
     Type: AWS::ApiGateway::Stage
     Properties:
@@ -13,9 +17,33 @@ Resources:
       Description: Prod Stage
       TracingEnabled: 'false' # Noncompliant {{Make sure that disabling logging is safe here.}}
       #               ^^^^^^^
-  EnabledLogging:
+      AccessLogSetting:
+        DestinationArn: "arn:aws:logs:eu-west-1:123456789:test"
+        Format: "..."
+
+  NoAccessLogSetting:
+    Type: AWS::ApiGateway::Stage # Noncompliant
+    Properties:
+      TracingEnabled: 'true'
+
+  NoAccessLogSettingsV2:
+    Type: AWS::ApiGatewayV2::Stage # Noncompliant
+    Properties:
+      foo: 'bar'
+
+  EnabledLoggingAndAccessLogSetting:
     Type: AWS::ApiGateway::Stage
     Properties:
       StageName: Prod
       Description: Prod Stage
       TracingEnabled: 'true' # Compliant
+      AccessLogSetting:
+        DestinationArn: "arn:aws:logs:eu-west-1:123456789:test"
+        Format: "..."
+
+  AccessLogSettingsV2:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      AccessLogSettings:
+        DestinationArn: "arn:aws:logs:eu-west-1:123456789:test"
+        Format: "..."
