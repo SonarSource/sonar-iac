@@ -46,6 +46,8 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       checkLbListener(ctx, resource);
     } else if (isResource(resource, "aws_elasticache_replication_group")) {
       checkESReplicationGroup(ctx, resource);
+    } else if (isResource(resource, "aws_ecs_task_definition")) {
+      checkEcsTaskDefinition(ctx, resource);
     } else if (isResource(resource, "aws_kinesis_stream")) {
       checkKinesisStream(ctx, resource);
     }
@@ -114,6 +116,22 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     }
   }
 
+  private static void checkEcsTaskDefinition(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.getAll(resource, "volume", BlockTree.class).forEach(volume ->
+        PropertyUtils.get(volume, "efs_volume_configuration", BlockTree.class).ifPresent(config ->
+          checkEscVolumeConfig(ctx, config)));
+  }
+
+  private static void checkEscVolumeConfig(CheckContext ctx, BlockTree config) {
+    if (PropertyUtils.has(config, "transit_encryption").isFalse()) {
+      ctx.reportIssue(config.key(), MESSAGE_CLEAR_TEXT);
+    } else {
+      PropertyUtils.value(config, "transit_encryption")
+        .filter(encryption -> TextUtils.isValue(encryption, "DISABLED").isTrue())
+        .ifPresent(e -> ctx.reportIssue(e, MESSAGE_CLEAR_TEXT));
+    }
+  }
+  
   private static void checkKinesisStream(CheckContext ctx, BlockTree resource) {
     if (PropertyUtils.has(resource, "encryption_type").isFalse()) {
       reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
