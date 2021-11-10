@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -30,20 +31,28 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 
 @Rule(key = "S6258")
-public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
+public class DisabledLoggingCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Make sure disabling S3 server access logs is safe here.";
+  private static final String MESSAGE = "Make sure that disabling logging is safe here.";
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree block) {
-    if (isS3BucketResource(block) && !isMaybeLoggingBucket(block) && !PropertyUtils.has(block, "logging").isTrue()) {
-      ctx.reportIssue(block.labels().get(0), MESSAGE);
+    if (isS3BucketResource(block)) {
+      checkS3Bucket(ctx, block);
+    } else if (isResource(block, "aws_api_gateway_stage")) {
+      checkApiGatewayStage(ctx, block);
+    }
+  }
+
+  private static void checkS3Bucket(CheckContext ctx, BlockTree block) {
+    if (!isMaybeLoggingBucket(block) && !PropertyUtils.has(block, "logging").isTrue()) {
+      reportResource(ctx, block, MESSAGE);
     }
   }
 
   private static boolean isMaybeLoggingBucket(BlockTree block) {
     Optional<AttributeTree> acl = PropertyUtils.get(block, "acl", AttributeTree.class);
-    if (!acl.isPresent()) {
+    if (acl.isEmpty()) {
       return false;
     }
     ExpressionTree aclValue = acl.get().value();
@@ -51,5 +60,11 @@ public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
       return ((LiteralExprTree) aclValue).value().equals("log-delivery-write");
     }
     return true;
+  }
+
+  private static void checkApiGatewayStage(CheckContext ctx, BlockTree block) {
+    PropertyUtils.valueOrRun(block, "xray_tracing_enabled", () -> reportResource(ctx, block, MESSAGE))
+      .filter(TextUtils::isValueFalse)
+      .ifPresent(tracing -> ctx.reportIssue(tracing, MESSAGE));
   }
 }

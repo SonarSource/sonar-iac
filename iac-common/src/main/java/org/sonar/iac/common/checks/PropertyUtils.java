@@ -82,6 +82,13 @@ public class PropertyUtils {
     return get(tree, key).map(PropertyTree::value);
   }
 
+  public static Optional<Tree> valueOrRun(@Nullable Tree tree, String key, Runnable r) {
+    if (has(tree, key).isFalse()) {
+      r.run();
+    }
+    return value(tree, key);
+  }
+
   public static Optional<Tree> value(@Nullable Tree tree, Predicate<String> keyMatcher) {
     return get(tree, keyMatcher).map(PropertyTree::value);
   }

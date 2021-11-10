@@ -24,12 +24,15 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.AbstractTestTree;
-import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.iac.common.checks.PropertyUtilsTest.TestPropertyTree.attribute;
 import static org.sonar.iac.common.checks.PropertyUtilsTest.TestTree.tree;
 import static org.sonar.iac.common.checks.TextUtilsTest.TestTextTree.text;
@@ -107,6 +110,16 @@ class PropertyUtilsTest {
 
     assertThat(PropertyUtils.getAll(testTree, "key", TestPropertyTree.class)).isNotEmpty();
     assertThat(PropertyUtils.getAll(testTree, "key", OtherTree.class)).isEmpty();
+  }
+
+  @Test
+  void valueOrRun() {
+    Runnable runner = mock(Runnable.class);
+    assertThat(PropertyUtils.valueOrRun(tree, "key1", runner)).isPresent().get().isEqualTo(value1);
+    verifyNoInteractions(runner);
+
+    assertThat(PropertyUtils.valueOrRun(tree, "unknownProperty", runner)).isNotPresent();
+    verify(runner).run();
   }
 
   static class OtherTree extends AbstractTestTree {

@@ -21,11 +21,16 @@ package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
 
-class DisabledS3ServerAccessLoggingCheckTest {
+class DisabledLoggingCheckTest {
 
   @Test
-  void test() {
-    TerraformVerifier.verify("DisabledS3ServerAccessLoggingCheck/test.tf", new DisabledS3ServerAccessLoggingCheck());
+  void test_S3_bucket() {
+    TerraformVerifier.verify("DisabledLoggingCheck/test_S3_bucket.tf", new DisabledLoggingCheck());
+  }
+
+  @Test
+  void test_api_gateway_stage() {
+    TerraformVerifier.verify("DisabledLoggingCheck/test_api_gateway_stage.tf", new DisabledLoggingCheck());
   }
 
 }
