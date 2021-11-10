@@ -29,17 +29,23 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6258")
-public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
+public class DisabledLoggingCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Make sure disabling S3 server access logs is safe here.";
+  private static final String MESSAGE = "Make sure that disabling logging is safe here.";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (isS3Bucket(resource)) {
-      CloudformationTree properties = resource.properties();
-      if (!PropertyUtils.value(properties, "LoggingConfiguration").isPresent() && !isMaybeLoggingBucket(properties)) {
-        ctx.reportIssue(resource.type(), MESSAGE);
-      }
+      checkS3Bucket(ctx, resource);
+    } else if (resource.isType("AWS::ApiGateway::Stage")) {
+      checkApiGatewayStage(ctx, resource);
+    }
+  }
+
+  private static void checkS3Bucket(CheckContext ctx, Resource resource) {
+    CloudformationTree properties = resource.properties();
+    if (PropertyUtils.value(properties, "LoggingConfiguration").isEmpty() && !isMaybeLoggingBucket(properties)) {
+      ctx.reportIssue(resource.type(), MESSAGE);
     }
   }
 
@@ -52,4 +58,12 @@ public class DisabledS3ServerAccessLoggingCheck extends AbstractResourceCheck {
     return false;
   }
 
+  private static void checkApiGatewayStage(CheckContext ctx, Resource resource) {
+    Tree tracingEnabled = PropertyUtils.valueOrNull(resource.properties(), "TracingEnabled");
+    if (tracingEnabled == null) {
+      reportResource(ctx, resource, MESSAGE);
+    } else if (TextUtils.isValueFalse(tracingEnabled)) {
+      ctx.reportIssue(tracingEnabled, MESSAGE);
+    }
+  }
 }

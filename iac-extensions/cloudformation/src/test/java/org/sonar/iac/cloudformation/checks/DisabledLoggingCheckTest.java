@@ -24,17 +24,21 @@ import org.sonar.iac.common.testing.Verifier;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
-class DisabledS3ServerAccessLoggingCheckTest {
+class DisabledLoggingCheckTest {
 
   @Test
-  void test_yaml() {
-    CloudformationVerifier.verify("DisabledS3ServerAccessLoggingCheck/test.yaml", new DisabledS3ServerAccessLoggingCheck());
+  void test_s3_yaml() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_s3.yaml", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_json() {
-    CloudformationVerifier.verify("DisabledS3ServerAccessLoggingCheck/test.json", new DisabledS3ServerAccessLoggingCheck(),
-      new Verifier.Issue(range(5, 14, 5, 31), "Make sure disabling S3 server access logs is safe here."));
+  void test_s3_json() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_s3.json", new DisabledLoggingCheck(),
+      new Verifier.Issue(range(5, 14, 5, 31), "Make sure that disabling logging is safe here."));
   }
 
+  @Test
+  void test_api_gateway_stage() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_api_gateway_stage.yaml", new DisabledLoggingCheck());
+  }
 }
