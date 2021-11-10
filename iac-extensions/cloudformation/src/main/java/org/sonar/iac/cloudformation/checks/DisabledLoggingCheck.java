@@ -62,11 +62,9 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static void checkApiGatewayStage(CheckContext ctx, Resource resource) {
     CloudformationTree properties = resource.properties();
-    PropertyUtils.value(properties, "TracingEnabled").ifPresentOrElse(f -> {
-        reportOnFalse(ctx, f);
-        reportOnMissingProperty(ctx, properties, "AccessLogSetting", resource.type());
-      },
+    PropertyUtils.value(properties, "TracingEnabled").ifPresentOrElse(f -> reportOnFalse(ctx, f),
       () -> reportResource(ctx, resource, MESSAGE));
+    reportOnMissingProperty(ctx, properties, "AccessLogSetting", resource.type());
   }
 
   private static void checkApiGatewayV2Stage(CheckContext ctx, Resource resource) {
