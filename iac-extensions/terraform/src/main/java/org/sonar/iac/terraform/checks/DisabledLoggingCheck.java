@@ -19,10 +19,14 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -34,14 +38,18 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
 
+  private static final List<String> MSK_LOGGER = Arrays.asList("cloudwatch_logs", "firehose", "s3");
+
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isS3BucketResource(resource)) {
+    if (isS3Bucket(resource)) {
       checkS3Bucket(ctx, resource);
     } else if (isResource(resource, "aws_api_gateway_stage")) {
       checkApiGatewayStage(ctx, resource);
     } else if (isResource(resource, "aws_api_gatewayv2_stage")) {
       checkApiGateway2Stage(ctx, resource);
+    } else if (isResource(resource, "aws_msk_cluster")) {
+      checkMskCluster(ctx, resource);
     }
   }
 
@@ -76,5 +84,28 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     if (PropertyUtils.missing(resource, "access_log_settings")) {
       reportResource(ctx, resource, MESSAGE);
     }
+  }
+
+  private static void checkMskCluster(CheckContext ctx, BlockTree resource) {
+    // look for logging_info::broker_logs, raise issue on certain parent if property is not set
+    PropertyUtils.get(resource, "logging_info", BlockTree.class)
+      .ifPresentOrElse(info -> PropertyUtils.get(info, "broker_logs", BlockTree.class)
+        .ifPresentOrElse(logs -> checkMskLogs(ctx, logs), () -> ctx.reportIssue(info, MESSAGE)),
+        () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkMskLogs(CheckContext ctx, Tree logs) {
+    // raise issue if none of the logger is enabled
+    if (MSK_LOGGER.stream()
+      .noneMatch(name -> PropertyUtils.get(logs, name, BlockTree.class)
+        .filter(DisabledLoggingCheck::isLogEnabled).isPresent())) {
+      ctx.reportIssue(logs, MESSAGE);
+    }
+  }
+
+  private static boolean isLogEnabled(BlockTree logger) {
+    return PropertyUtils.value(logger, "enabled")
+      .filter(TextUtils::isValueFalse)
+      .isEmpty();
   }
 }
