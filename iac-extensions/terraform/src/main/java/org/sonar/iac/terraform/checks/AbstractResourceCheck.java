@@ -22,6 +22,7 @@ package org.sonar.iac.terraform.checks;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
@@ -52,6 +53,12 @@ public abstract class AbstractResourceCheck implements IacCheck {
 
   public static boolean isS3BucketResource(BlockTree tree) {
     return isResource(tree, "aws_s3_bucket");
+  }
+
+  public static void reportOnFalse(CheckContext ctx, Tree tree, String message) {
+    if (TextUtils.isValueFalse(tree)) {
+      ctx.reportIssue(tree, message);
+    }
   }
 
   public static void reportResource(CheckContext ctx, BlockTree resource, String message) {

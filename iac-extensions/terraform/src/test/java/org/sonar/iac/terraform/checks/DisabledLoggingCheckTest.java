@@ -33,4 +33,9 @@ class DisabledLoggingCheckTest {
     TerraformVerifier.verify("DisabledLoggingCheck/test_api_gateway_stage.tf", new DisabledLoggingCheck());
   }
 
+  @Test
+  void test_api_gatewayv2_stage() {
+    TerraformVerifier.verify("DisabledLoggingCheck/test_api_gatewayv2_stage.tf", new DisabledLoggingCheck());
+  }
+
 }

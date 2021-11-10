@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -36,22 +35,24 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree block) {
-    if (isS3BucketResource(block)) {
-      checkS3Bucket(ctx, block);
-    } else if (isResource(block, "aws_api_gateway_stage")) {
-      checkApiGatewayStage(ctx, block);
+  protected void checkResource(CheckContext ctx, BlockTree resource) {
+    if (isS3BucketResource(resource)) {
+      checkS3Bucket(ctx, resource);
+    } else if (isResource(resource, "aws_api_gateway_stage")) {
+      checkApiGatewayStage(ctx, resource);
+    } else if (isResource(resource, "aws_api_gatewayv2_stage")) {
+      checkApiGateway2Stage(ctx, resource);
     }
   }
 
-  private static void checkS3Bucket(CheckContext ctx, BlockTree block) {
-    if (!isMaybeLoggingBucket(block) && !PropertyUtils.has(block, "logging").isTrue()) {
-      reportResource(ctx, block, MESSAGE);
+  private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
+    if (!isMaybeLoggingBucket(resource) && !PropertyUtils.has(resource, "logging").isTrue()) {
+      reportResource(ctx, resource, MESSAGE);
     }
   }
 
-  private static boolean isMaybeLoggingBucket(BlockTree block) {
-    Optional<AttributeTree> acl = PropertyUtils.get(block, "acl", AttributeTree.class);
+  private static boolean isMaybeLoggingBucket(BlockTree resource) {
+    Optional<AttributeTree> acl = PropertyUtils.get(resource, "acl", AttributeTree.class);
     if (acl.isEmpty()) {
       return false;
     }
@@ -62,9 +63,18 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     return true;
   }
 
-  private static void checkApiGatewayStage(CheckContext ctx, BlockTree block) {
-    PropertyUtils.valueOrRun(block, "xray_tracing_enabled", () -> reportResource(ctx, block, MESSAGE))
-      .filter(TextUtils::isValueFalse)
-      .ifPresent(tracing -> ctx.reportIssue(tracing, MESSAGE));
+  private static void checkApiGatewayStage(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.value(resource, "xray_tracing_enabled")
+      .ifPresentOrElse(tracing -> reportOnFalse(ctx, tracing, MESSAGE),
+        () -> reportResource(ctx, resource, MESSAGE));
+
+    // check also presence of access_log_settings
+    checkApiGateway2Stage(ctx, resource);
+  }
+
+  private static void checkApiGateway2Stage(CheckContext ctx, BlockTree resource) {
+    if (PropertyUtils.missing(resource, "access_log_settings")) {
+      reportResource(ctx, resource, MESSAGE);
+    }
   }
 }
