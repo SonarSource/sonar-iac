@@ -48,6 +48,10 @@ public class PropertyUtils {
     return Trilean.FALSE;
   }
 
+  public static boolean missing(@Nullable Tree tree, String key) {
+    return has(tree, key).isFalse();
+  }
+
   public static Optional<PropertyTree> get(@Nullable Tree tree, String key) {
     return get(tree, key::equals);
   }
@@ -80,13 +84,6 @@ public class PropertyUtils {
 
   public static Optional<Tree> value(@Nullable Tree tree, String key) {
     return get(tree, key).map(PropertyTree::value);
-  }
-
-  public static Optional<Tree> valueOrRun(@Nullable Tree tree, String key, Runnable r) {
-    if (has(tree, key).isFalse()) {
-      r.run();
-    }
-    return value(tree, key);
   }
 
   public static Optional<Tree> value(@Nullable Tree tree, Predicate<String> keyMatcher) {

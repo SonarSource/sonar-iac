@@ -30,9 +30,6 @@ import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.iac.common.checks.PropertyUtilsTest.TestPropertyTree.attribute;
 import static org.sonar.iac.common.checks.PropertyUtilsTest.TestTree.tree;
 import static org.sonar.iac.common.checks.TextUtilsTest.TestTextTree.text;
@@ -113,13 +110,9 @@ class PropertyUtilsTest {
   }
 
   @Test
-  void valueOrRun() {
-    Runnable runner = mock(Runnable.class);
-    assertThat(PropertyUtils.valueOrRun(tree, "key1", runner)).isPresent().get().isEqualTo(value1);
-    verifyNoInteractions(runner);
-
-    assertThat(PropertyUtils.valueOrRun(tree, "unknownProperty", runner)).isNotPresent();
-    verify(runner).run();
+  void missing() {
+    assertThat(PropertyUtils.missing(tree, "key1")).isFalse();
+    assertThat(PropertyUtils.missing(tree, "unknownKey")).isTrue();
   }
 
   static class OtherTree extends AbstractTestTree {
