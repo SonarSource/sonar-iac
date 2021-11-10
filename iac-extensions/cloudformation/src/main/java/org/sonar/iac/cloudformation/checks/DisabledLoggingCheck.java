@@ -59,11 +59,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkApiGatewayStage(CheckContext ctx, Resource resource) {
-    Tree tracingEnabled = PropertyUtils.valueOrNull(resource.properties(), "TracingEnabled");
-    if (tracingEnabled == null) {
-      reportResource(ctx, resource, MESSAGE);
-    } else if (TextUtils.isValueFalse(tracingEnabled)) {
-      ctx.reportIssue(tracingEnabled, MESSAGE);
-    }
+    PropertyUtils.valueOrRun(resource.properties(), "TracingEnabled", () -> reportResource(ctx, resource, MESSAGE))
+      .filter(TextUtils::isValueFalse)
+      .ifPresent(tracing -> ctx.reportIssue(tracing, MESSAGE));
   }
 }
