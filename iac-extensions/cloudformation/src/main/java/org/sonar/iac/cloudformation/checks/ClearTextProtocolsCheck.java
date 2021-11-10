@@ -137,7 +137,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     if (PropertyUtils.has(resource.properties(), "TransitEncryptionEnabled").isFalse()) {
       ctx.reportIssue(resource.name(), MESSAGE_CLEAR_TEXT);
     } else {
-      reportOnFalseProperty(ctx, resource.properties(),"TransitEncryptionEnabled", MESSAGE_CLEAR_TEXT);
+      reportOnFalseProperty(ctx, resource.properties(), "TransitEncryptionEnabled", MESSAGE_CLEAR_TEXT);
     }
   }
 
@@ -147,7 +147,8 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     }
   }
 
-  private static void reportOnFalseProperty(CheckContext ctx, @Nullable Tree tree, String propertyName, String message) {    PropertyUtils.value(tree, propertyName, ScalarTree.class)
+  private static void reportOnFalseProperty(CheckContext ctx, @Nullable Tree tree, String propertyName, String message) {
+    PropertyUtils.value(tree, propertyName, ScalarTree.class)
       .filter(TextUtils::isValueFalse)
       .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, message));
   }
