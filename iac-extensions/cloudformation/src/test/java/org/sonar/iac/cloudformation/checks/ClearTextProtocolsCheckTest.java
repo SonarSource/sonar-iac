@@ -42,4 +42,9 @@ class ClearTextProtocolsCheckTest {
   void test_ecs_tasks() {
     CloudformationVerifier.verify("ClearTextProtocolsCheck/test_ecs_tasks.yaml", new ClearTextProtocolsCheck());
   }
+
+  @Test
+  void test_es_replication_group() {
+    CloudformationVerifier.verify("ClearTextProtocolsCheck/test_es_replication_group.yaml", new ClearTextProtocolsCheck());
+  }
 }
