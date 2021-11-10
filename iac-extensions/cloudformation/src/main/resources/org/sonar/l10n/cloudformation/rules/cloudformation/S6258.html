@@ -1,25 +1,142 @@
-<p>Server access logging records the requests that are made to S3 buckets and this allow to track who is doing what on S3 buckets.</p>
-<p>When server access logging is deactivated, infrastructure administrators are blind and can’t answer to any regulatory requests.</p>
+<p>Disabling logging of this component can lead to missing traceability in case of a security incident.</p>
+<p>Logging allows operational and security teams to get detailed and real-time feedback on an information system’s events. The logging coverage
+enables them to quickly react to events, ranging from the most benign bugs to the most impactful security incidents, such as intrusions.</p>
+<p>Apart from security detection, logging capabilities also directly influence future digital forensic analyses. For example, detailed logging will
+allow investigators to establish a timeline of the actions perpetrated by an attacker.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The infrastructure requires security monitoring, to comply to some regulations or not. </li>
-  <li> There is a need to understand what objects are requested by S3 customers. </li>
+  <li> This component is essential for the information system infrastructure. </li>
+  <li> This component is essential for mission-critical functions. </li>
+  <li> Compliance policies require this component to be monitored. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to enable S3 server access logs.</p>
+<p>Enable the logging capabilities of this component.</p>
 <h2>Sensitive Code Example</h2>
-<p>S3 server access logging is disabled:</p>
+<p>For <a href="https://aws.amazon.com/s3/">Amazon S3 access requests</a>:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   S3Bucket:
-    Type: 'AWS::S3::Bucket' # Noncompliant
+    Type: 'AWS::S3::Bucket' # Sensitive
     Properties:
       BucketName: "mynoncompliantbucket"
 </pre>
+<p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a> stages:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Prod: # Sensitive
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: Prod
+      Description: Prod Stage
+      TracingEnabled: false # Sensitive
+</pre>
+<p>For <a href="https://aws.amazon.com/neptune/">Amazon Neptune</a> clusters:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Cluster:
+    Type: AWS::Neptune::DBCluster
+    Properties:
+      EnableCloudwatchLogsExports: []  # Sensitive
+</pre>
+<p>For <a href="https://aws.amazon.com/msk/">Amazon MSK</a> broker logs:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  SensitiveCluster:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: Sensitive Cluster
+      LoggingInfo:
+        BrokerLogs: # Sensitive
+          CloudWatchLogs:
+            Enabled: false
+            LogGroup: CWLG
+          Firehose:
+            DeliveryStream: DS
+            Enabled: false
+</pre>
+<p>For <a href="https://aws.amazon.com/documentdb/">Amazon DocDB</a>:</p>
+<pre>
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  DocDBOmittingLogs: # Sensitive
+    Type: "AWS::DocDB::DBCluster"
+    Properties:
+      DBClusterIdentifier : "DB Without Logs"
+</pre>
+<p>For <a href="https://aws.amazon.com/amazon-mq/">Amazon MQ</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Broker:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      Logs:  # Sensitive
+        Audit: false
+        General: false
+</pre>
+<p>For <a href="https://aws.amazon.com/redshift/">Amazon Redshift</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ClusterOmittingLogging: # Sensitive
+    Type: "AWS::Redshift::Cluster"
+    Properties:
+      DBName: "Redshift Warehouse Cluster"
+</pre>
+<p>For <a href="https://aws.amazon.com/opensearch-service/">Amazon OpenSearch</a> service or Amazon Elasticsearch service:</p>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  OpenSearchServiceDomain:
+    Type: 'AWS::OpenSearchService::Domain'
+    Properties:
+      LogPublishingOptions: # Sensitive
+        ES_APPLICATION_LOGS:
+          CloudWatchLogsLogGroupArn: 'arn:aws:logs:us-east-1:1234:log-group:es-application-logs'
+          Enabled: true
+        INDEX_SLOW_LOGS:
+          CloudWatchLogsLogGroupArn: 'arn:aws:logs:us-east-1:1234:log-group:es-index-slow-logs'
+          Enabled: true
+</pre>
+<p>For <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a> distributions:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+   cloudfrontdistribution: # Sensitive
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultRootObject: "index.html"
+</pre>
+<p>For <a href="https://aws.amazon.com/elasticloadbalancing/">Amazon Elastic Load Balancing</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  LoadBalancer:
+      Type: AWS::ElasticLoadBalancing::LoadBalancer
+      Properties:
+        AccessLoggingPolicy:
+          Enabled: false # Sensitive
+</pre>
+<p>For <a href="https://aws.amazon.com/elasticloadbalancing/">Amazon Load Balancing (v2)</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ApplicationLoadBalancer:
+   Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+   Properties:
+     Name: CompliantLoadBalancer
+     LoadBalancerAttributes:
+       - Key: "access_logs.s3.enabled"
+         Value: false # Sensitive
+</pre>
 <h2>Compliant Solution</h2>
-<p>S3 server access logging is enabled:</p>
+<p>For <a href="https://aws.amazon.com/s3/">Amazon S3 access requests</a>:</p>
 <pre>
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
@@ -30,15 +147,145 @@ Resources:
       AccessControl: LogDeliveryWrite
 
   S3Bucket:
-    Type: 'AWS::S3::Bucket' # Compliant
+    Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: "mycompliantbucket"
       LoggingConfiguration:
         DestinationBucketName: !Ref S3BucketLogs
         LogFilePrefix: testing-logs
 </pre>
+<p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a> stages:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Prod:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: Prod
+      Description: Prod Stage
+      TracingEnabled: true
+      AccessLogSetting:
+        DestinationArn: "arn:aws:logs:eu-west-1:123456789:test"
+        Format: "..."
+</pre>
+<p>For <a href="https://aws.amazon.com/neptune/">Amazon Neptune</a> clusters:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Cluster:
+    Type: AWS::Neptune::DBCluster
+    Properties:
+      EnableCloudwatchLogsExports: ["audit"]
+</pre>
+<p>For <a href="https://aws.amazon.com/msk/">Amazon MSK</a> broker logs:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  SensitiveCluster:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: Sensitive Cluster
+      LoggingInfo:
+        BrokerLogs:
+          Firehose:
+            DeliveryStream: DS
+            Enabled: true
+          S3:
+            Bucket: Broker Logs
+            Enabled: true
+            Prefix: "logs/msk-brokers-"
+</pre>
+<p>For <a href="https://aws.amazon.com/documentdb/">Amazon DocDB</a>:</p>
+<pre>
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  DocDBWithLogs:
+    Type: "AWS::DocDB::DBCluster"
+    Properties:
+      DBClusterIdentifier : "DB With Logs"
+      EnableCloudwatchLogsExports:
+         - audit
+</pre>
+<p>For <a href="https://aws.amazon.com/amazon-mq/">Amazon MQ</a> enable <code>Audit</code> or <code>General</code>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Broker:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      Logs:
+        Audit: true
+        General: true
+</pre>
+<p>For <a href="https://aws.amazon.com/redshift/">Amazon Redshift</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  CompliantCluster:
+    Type: "AWS::Redshift::Cluster"
+    Properties:
+      DBName: "Redshift Warehouse Cluster"
+      LoggingProperties:
+        BucketName: "Infra Logs"
+        S3KeyPrefix: "log/redshift-"
+</pre>
+<p>For <a href="https://aws.amazon.com/opensearch-service/">Amazon OpenSearch</a> service, or Amazon Elasticsearch service:</p>
+<pre>
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  OpenSearchServiceDomain:
+    Type: 'AWS::OpenSearchService::Domain'
+    Properties:
+      LogPublishingOptions:
+        AUDIT_LOGS:
+          CloudWatchLogsLogGroupArn: 'arn:aws:logs:us-east-1:1234:log-group:es-audit-logs'
+          Enabled: true
+</pre>
+<p>For <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a> distributions:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  cloudfrontdistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultRootObject: "index.html"
+        Logging:
+          Bucket: "mycompliantbucket"
+          Prefix: "log/cloudfront-"
+</pre>
+<p>For <a href="https://aws.amazon.com/elasticloadbalancing/">Amazon Elastic Load Balancing</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  LoadBalancer:
+      Type: AWS::ElasticLoadBalancing::LoadBalancer
+      Properties:
+        AccessLoggingPolicy:
+          Enabled: true
+          S3BucketName: mycompliantbucket
+          S3BucketPrefix: "log/loadbalancer-"
+</pre>
+<p>For <a href="https://aws.amazon.com/elasticloadbalancing/">Amazon Load Balancing (v2)</a>:</p>
+<pre>
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ApplicationLoadBalancer:
+   Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+   Properties:
+     Name: CompliantLoadBalancer
+     LoadBalancerAttributes:
+       - Key: "access_logs.s3.enabled"
+         Value: true
+       - Key: "access_logs.s3.bucket"
+         Value: "mycompliantbucket"
+       - Key: "access_logs.s3.prefix"
+         Value: "log/elbv2-"
+</pre>
 <h2>See</h2>
 <ul>
+  <li> <a href="https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/">OWASP Top 10 2021 Category A9</a> - Security Logging and
+  Monitoring Failures </li>
   <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html">AWS Documentation</a> - Logging requests using server access
   logging </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/778.html">MITRE, CWE-778</a> - Insufficient Logging </li>

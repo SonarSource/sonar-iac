@@ -1,5 +1,5 @@
 {
-  "title": " Disabling S3 server access logging is security sensitive ",
+  "title": "Disabling logging is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
@@ -23,6 +23,9 @@
     ],
     "CIS": [
       "3.6"
+    ],
+    "OWASP Top 10 2021": [
+      "A9"
     ]
   }
 }

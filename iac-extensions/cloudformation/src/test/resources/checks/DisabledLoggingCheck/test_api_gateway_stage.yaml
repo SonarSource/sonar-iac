@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  NoLogging:
+    Type: AWS::ApiGateway::Stage # Noncompliant {{Make sure that disabling logging is safe here.}}
+    #     ^^^^^^^^^^^^^^^^^^^^^^
+    Properties:
+      StageName: Prod
+      Description: Prod Stage
+  DisabledLogging:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: Prod
+      Description: Prod Stage
+      TracingEnabled: 'false' # Noncompliant {{Make sure that disabling logging is safe here.}}
+      #               ^^^^^^^
+  EnabledLogging:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: Prod
+      Description: Prod Stage
+      TracingEnabled: 'true' # Compliant
