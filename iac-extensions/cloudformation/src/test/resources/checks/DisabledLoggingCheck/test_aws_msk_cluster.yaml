@@ -50,18 +50,18 @@ Resources:
             Enabled: false
             LogGroup: CloudWatchLogGroup
 
-    Compliant:
-      Type: 'AWS::MSK::Cluster'
-      Properties:
-        ClusterName: SensitiveCluster
-        LoggingInfo:
-          BrokerLogs:
-            CloudWatchLogs:
-              Enabled: false
-              LogGroup: CloudWatchLogGroup
-            Firehose:
-              Enabled: true
-              LogGroup: CloudWatchLogGroup
-            S3:
-              Enabled: false
-              LogGroup: CloudWatchLogGroup
+  Compliant:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: SensitiveCluster
+      LoggingInfo:
+        BrokerLogs:
+          CloudWatchLogs:
+            Enabled: false
+            LogGroup: CloudWatchLogGroup
+          Firehose:
+            Enabled: true
+            LogGroup: CloudWatchLogGroup
+          S3:
+            Enabled: false
+            LogGroup: CloudWatchLogGroup
