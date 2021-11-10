@@ -43,10 +43,12 @@ class ClearTextProtocolsCheckTest {
     TerraformVerifier.verify("ClearTextProtocolsCheck/test_elasticsearch_replication_group.tf", new ClearTextProtocolsCheck());
   }
 
+  @Test
   void test_ecs_task_definition() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/test_ecs_task_definition.tf", new ClearTextProtocolsCheck());
   }
-  
+
+  @Test
   void test_kinesis_stream() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/test_kinesis_stream.tf", new ClearTextProtocolsCheck());
   }
