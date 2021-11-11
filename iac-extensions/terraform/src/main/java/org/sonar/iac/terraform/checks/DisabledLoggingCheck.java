@@ -54,6 +54,8 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     register(DisabledLoggingCheck::checkGlobalAccelerator, "aws_globalaccelerator_accelerator");
     register(DisabledLoggingCheck::checkElasticSearchDomain, "aws_elasticsearch_domain");
     register(DisabledLoggingCheck::checkCloudfrontDistribution, "aws_cloudfront_distribution");
+    register((ctx, resource) -> checkElasticLoadBalancing(ctx, resource, false), "aws_lb");
+    register((ctx, resource) -> checkElasticLoadBalancing(ctx, resource, true), "aws_elb");
   }
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
@@ -180,6 +182,21 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     if (PropertyUtils.isMissing(resource, "logging_config")) {
       reportResource(ctx, resource, MESSAGE);
     }
+  }
+
+  private static void checkElasticLoadBalancing(CheckContext ctx, BlockTree resource, boolean enabledByDefault) {
+    PropertyUtils.get(resource, "access_logs", BlockTree.class).ifPresentOrElse(logs ->
+        checkAccessLog(ctx, logs, enabledByDefault),
+      () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkAccessLog(CheckContext ctx, BlockTree logs, boolean enabledByDefault) {
+    PropertyUtils.value(logs, "enabled").ifPresentOrElse(enabled ->
+        reportOnFalse(ctx, enabled, MESSAGE),
+      () -> {if (!enabledByDefault) {
+        ctx.reportIssue(logs.key(), MESSAGE);
+      }
+    });
   }
 
 }

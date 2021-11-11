@@ -78,4 +78,9 @@ class DisabledLoggingCheckTest {
     TerraformVerifier.verify("DisabledLoggingCheck/test_cloudfront_distribution.tf", new DisabledLoggingCheck());
   }
 
+  @Test
+  void test_elastic_load_balancing() {
+    TerraformVerifier.verify("DisabledLoggingCheck/test_elastic_load_balancing.tf", new DisabledLoggingCheck());
+  }
+
 }
