@@ -18,6 +18,11 @@ resource "aws_docdb_cluster" "compliant_exports_value" {
   enabled_cloudwatch_logs_exports = ["profiler", "audit"]
 }
 
+resource "aws_docdb_cluster" "compliant_exports_value_by_ref" {
+  cluster_identifier = "DB Cluster With Logs"
+  enabled_cloudwatch_logs_exports = XXXX.arn
+}
+
 resource "non_aws_docdb_cluster" "for_coverage" {
 }
 
