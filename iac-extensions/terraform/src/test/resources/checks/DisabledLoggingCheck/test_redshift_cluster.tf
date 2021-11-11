@@ -1,13 +1,14 @@
 resource "aws_redshift_cluster" "redshift_cluster_disabling_logs" {
   cluster_identifier = "redshift-cluster"
   logging {
-    enable = false # Noncompliant
+    enable = false # Noncompliant {{Make sure that disabling logging is safe here.}}
   }
 }
 
 resource "aws_redshift_cluster" "redshift_cluster_empty" {
   cluster_identifier = "redshift-cluster"
   logging { # Noncompliant
+# ^^^^^^^
   }
 }
 

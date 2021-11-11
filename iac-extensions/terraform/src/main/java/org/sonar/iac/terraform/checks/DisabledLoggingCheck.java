@@ -150,7 +150,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
   private static void checkRedshiftCluster(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "logging", BlockTree.class).ifPresentOrElse(logging ->
       PropertyUtils.value(logging, "enable").ifPresentOrElse(enabled ->
-        reportOnFalse(ctx, enabled, MESSAGE), () -> ctx.reportIssue(logging, MESSAGE)),
+        reportOnFalse(ctx, enabled, MESSAGE), () -> ctx.reportIssue(logging.key(), MESSAGE)),
       () -> reportResource(ctx, resource, MESSAGE));
   }
 }
