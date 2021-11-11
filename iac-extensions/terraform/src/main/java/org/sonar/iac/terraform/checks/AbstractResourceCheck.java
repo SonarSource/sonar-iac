@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -27,6 +28,8 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 public abstract class AbstractResourceCheck implements IacCheck {
+
+  protected static final String S3_BUCKET = "aws_s3_bucket";
 
   @Override
   public void initialize(InitContext init) {
@@ -44,15 +47,20 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   public static boolean isResource(BlockTree tree, String type) {
-    return isResource(tree) && !tree.labels().isEmpty() && type.equals(tree.labels().get(0).value());
+    return isResource(tree) && type.equals(getResourceType(tree));
   }
 
   public static boolean isS3Bucket(BlockTree tree) {
-    return !tree.labels().isEmpty() && "aws_s3_bucket".equals(tree.labels().get(0).value());
+    return S3_BUCKET.equals(getResourceType(tree));
   }
 
   public static boolean isS3BucketResource(BlockTree tree) {
-    return isResource(tree, "aws_s3_bucket");
+    return isResource(tree, S3_BUCKET);
+  }
+
+  @CheckForNull
+  public static String getResourceType(BlockTree tree) {
+    return tree.labels().isEmpty() ? null : tree.labels().get(0).value();
   }
 
   public static void reportOnFalse(CheckContext ctx, Tree tree, String message) {
