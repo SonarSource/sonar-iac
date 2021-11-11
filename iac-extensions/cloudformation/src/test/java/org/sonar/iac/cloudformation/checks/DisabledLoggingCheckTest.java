@@ -51,4 +51,9 @@ class DisabledLoggingCheckTest {
   void test_neptune_db_cluster() {
     CloudformationVerifier.verify("DisabledLoggingCheck/test_neptune_db_cluster.yaml", new DisabledLoggingCheck());
   }
+
+  @Test
+  void test_doc_db_cluster() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_doc_db_cluster.yaml", new DisabledLoggingCheck());
+  }
 }
