@@ -34,4 +34,4 @@ Resources:
     Properties:
       LogPublishingOptions:
         AUDIT_LOGS:
-          Enabled: tue
+          Enabled: true
