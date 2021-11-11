@@ -50,6 +50,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkMskCluster(ctx, resource);
     } else if (resource.isType("AWS::Neptune::DBCluster")) {
       checkNeptuneDbCluster(ctx, resource);
+    } else if (resource.isType("AWS::DocDB::DBCluster")) {
+      checkDocDbCluster(ctx, resource);
     }
   }
 
@@ -104,11 +106,24 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkNeptuneDbCluster(CheckContext ctx, Resource resource) {
-    PropertyUtils.value(resource.properties(), "EnableCloudwatchLogsExports").ifPresentOrElse(property -> {
-      if (property instanceof SequenceTree && ((SequenceTree) property).elements().isEmpty()) {
-        ctx.reportIssue(property, MESSAGE);
+    PropertyUtils.value(resource.properties(), "EnableCloudwatchLogsExports").ifPresentOrElse(exportsValue -> {
+      if (exportsValue instanceof SequenceTree && ((SequenceTree) exportsValue).elements().isEmpty()) {
+        ctx.reportIssue(exportsValue, MESSAGE);
       }
     }, () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkDocDbCluster(CheckContext ctx, Resource resource) {
+    PropertyUtils.get(resource.properties(), "EnableCloudwatchLogsExports").ifPresentOrElse(exportsProperty -> {
+      if (exportsProperty.value() instanceof SequenceTree && containsOnlyStringsWithoutAudit((SequenceTree) exportsProperty.value())) {
+        ctx.reportIssue(exportsProperty.key(), MESSAGE);
+      }
+    }, () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static boolean containsOnlyStringsWithoutAudit(SequenceTree exports) {
+    return exports.elements().stream().allMatch(
+      export -> export.tag().endsWith("str") && TextUtils.isValue(export, "audit").isFalse());
   }
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {

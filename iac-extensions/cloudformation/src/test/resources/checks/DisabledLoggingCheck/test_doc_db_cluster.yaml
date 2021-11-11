@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  UniqueDocDBThatOmitsLogging:
+    Type: "AWS::DocDB::DBCluster" # Noncompliant {{Make sure that disabling logging is safe here.}}
+    #     ^^^^^^^^^^^^^^^^^^^^^^^
+    Properties:
+      BackupRetentionPeriod : 8
+      DBClusterIdentifier : "unique-db"
+
+  UniqueDocDBThatOmitsAuditing:
+    Type: "AWS::DocDB::DBCluster"
+    Properties:
+      BackupRetentionPeriod: 8
+      DBClusterIdentifier: "unique-db"
+      EnableCloudwatchLogsExports: # Noncompliant
+  #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        - profiler
+
+  UniqueDocDBThatCouldContainAudit:
+    Type: "AWS::DocDB::DBCluster"
+    Properties:
+      BackupRetentionPeriod: 8
+      DBClusterIdentifier: "unique-db"
+      EnableCloudwatchLogsExports: !Ref foo
+
+  UniqueDocDBThatCouldContainAudit2:
+    Type: "AWS::DocDB::DBCluster"
+    Properties:
+      BackupRetentionPeriod: 8
+      DBClusterIdentifier: "unique-db"
+      EnableCloudwatchLogsExports:
+        - !Ref foo
+        - profiler
+
+  UniqueDocDBThatAudits:
+    Type: "AWS::DocDB::DBCluster"
+    Properties:
+      BackupRetentionPeriod: 8
+      DBClusterIdentifier: "unique-db"
+      EnableCloudwatchLogsExports:
+        - audit
+        - profiler
