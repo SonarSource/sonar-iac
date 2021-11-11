@@ -31,7 +31,7 @@ public class DisabledSNSTopicEncryptionCheck extends AbstractResourceCheck {
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     if (isResource(resource, "aws_sns_topic") && PropertyUtils.isMissing(resource, "kms_master_key_id")) {
-     reportResource(ctx, resource, MESSAGE);
+      reportResource(ctx, resource, MESSAGE);
     }
   }
 }
