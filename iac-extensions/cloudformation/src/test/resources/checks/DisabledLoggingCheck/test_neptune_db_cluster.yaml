@@ -13,6 +13,12 @@ Resources:
       EnableCloudwatchLogsExports: [ ] # Noncompliant {{Make sure that disabling logging is safe here.}}
       #                            ^^^
 
+  NeptuneWithLogNotSequence:
+    Type: AWS::Neptune::DBCluster
+    Properties:
+      EngineVersion: neptune
+      EnableCloudwatchLogsExports: !Ref Value # Compliant
+
   NeptuneWithLog:
     Type: AWS::Neptune::DBCluster
     Properties:

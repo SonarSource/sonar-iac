@@ -103,7 +103,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       .isEmpty();
   }
 
-  private void checkNeptuneDbCluster(CheckContext ctx, Resource resource) {
+  private static void checkNeptuneDbCluster(CheckContext ctx, Resource resource) {
     PropertyUtils.value(resource.properties(), "EnableCloudwatchLogsExports").ifPresentOrElse(property -> {
       if (property instanceof SequenceTree && ((SequenceTree) property).elements().isEmpty()) {
         ctx.reportIssue(property, MESSAGE);
