@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  NeptuneMissingLog1:
+    Type: AWS::Neptune::DBCluster # Noncompliant {{Make sure that disabling logging is safe here.}}
+    #     ^^^^^^^^^^^^^^^^^^^^^^^
+    Properties:
+      EngineVersion: Neptune
+
+  NeptuneMissingLog2:
+    Type: AWS::Neptune::DBCluster
+    Properties:
+      EngineVersion: neptune
+      EnableCloudwatchLogsExports: [ ] # Noncompliant {{Make sure that disabling logging is safe here.}}
+      #                            ^^^
+
+  NeptuneWithLog:
+    Type: AWS::Neptune::DBCluster
+    Properties:
+      EngineVersion: neptune
+      EnableCloudwatchLogsExports: ["audit"] # Compliant

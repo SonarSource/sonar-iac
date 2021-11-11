@@ -46,4 +46,9 @@ class DisabledLoggingCheckTest {
   void test_aws_msk_cluster() {
     CloudformationVerifier.verify("DisabledLoggingCheck/test_aws_msk_cluster.yaml", new DisabledLoggingCheck());
   }
+
+  @Test
+  void test_neptune_db_cluster() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_neptune_db_cluster.yaml", new DisabledLoggingCheck());
+  }
 }
