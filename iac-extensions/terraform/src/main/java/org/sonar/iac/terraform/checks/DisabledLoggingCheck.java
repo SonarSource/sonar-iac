@@ -52,6 +52,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     register("aws_mq_broker", DisabledLoggingCheck::checkMqBroker);
     register("aws_redshift_cluster", DisabledLoggingCheck::checkRedshiftCluster);
     register("aws_globalaccelerator_accelerator", DisabledLoggingCheck::checkGlobalAccelerator);
+    register("aws_elasticsearch_domain", DisabledLoggingCheck::checkElasticSearchDomain);
   }
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
@@ -160,5 +161,20 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
         PropertyUtils.value(attributes, "flow_logs_enabled").ifPresentOrElse(enabled ->
           reportOnFalse(ctx, enabled, MESSAGE), () -> ctx.reportIssue(attributes.key(), MESSAGE)),
       () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkElasticSearchDomain(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.getAll(resource, "log_publishing_options", BlockTree.class).stream()
+      .filter(DisabledLoggingCheck::isAuditLog)
+      .findFirst()
+      .ifPresentOrElse(auditLog ->
+          PropertyUtils.value(auditLog, "enabled").ifPresent(enabled -> reportOnFalse(ctx, enabled, MESSAGE)),
+        () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static boolean isAuditLog(BlockTree logOption) {
+    return PropertyUtils.value(logOption, "log_type")
+      .filter(type -> !TextUtils.isValue(type, "AUDIT_LOGS").isFalse())
+      .isPresent();
   }
 }
