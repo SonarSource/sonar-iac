@@ -166,7 +166,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
   private static void checkElasticSearchDomain(CheckContext ctx, BlockTree resource) {
     PropertyUtils.getAll(resource, "log_publishing_options", BlockTree.class).stream()
       .filter(DisabledLoggingCheck::isAuditLog)
-      .findAny()
+      .findFirst()
       .ifPresentOrElse(auditLog ->
           PropertyUtils.value(auditLog, "enabled").ifPresent(enabled -> reportOnFalse(ctx, enabled, MESSAGE)),
         () -> reportResource(ctx, resource, MESSAGE));
