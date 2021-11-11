@@ -85,7 +85,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkApiGateway2Stage(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.missing(resource, "access_log_settings")) {
+    if (PropertyUtils.isMissing(resource, "access_log_settings")) {
       reportResource(ctx, resource, MESSAGE);
     }
   }

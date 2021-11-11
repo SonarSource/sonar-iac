@@ -111,8 +111,8 @@ class PropertyUtilsTest {
 
   @Test
   void missing() {
-    assertThat(PropertyUtils.missing(tree, "key1")).isFalse();
-    assertThat(PropertyUtils.missing(tree, "unknownKey")).isTrue();
+    assertThat(PropertyUtils.isMissing(tree, "key1")).isFalse();
+    assertThat(PropertyUtils.isMissing(tree, "unknownKey")).isTrue();
   }
 
   static class OtherTree extends AbstractTestTree {

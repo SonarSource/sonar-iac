@@ -48,7 +48,7 @@ public class PropertyUtils {
     return Trilean.FALSE;
   }
 
-  public static boolean missing(@Nullable Tree tree, String key) {
+  public static boolean isMissing(@Nullable Tree tree, String key) {
     return has(tree, key).isFalse();
   }
 
