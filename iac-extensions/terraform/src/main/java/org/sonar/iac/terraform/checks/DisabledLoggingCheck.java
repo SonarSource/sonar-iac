@@ -50,6 +50,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     register("aws_neptune_cluster", DisabledLoggingCheck::checkNeptuneCluster);
     register("aws_docdb_cluster", DisabledLoggingCheck::checkDocDbCluster);
     register("aws_mq_broker", DisabledLoggingCheck::checkMqBroker);
+    register("aws_redshift_cluster", DisabledLoggingCheck::checkRedshiftCluster);
   }
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
@@ -144,5 +145,12 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     return PropertyUtils.getAll(logs, AttributeTree.class).stream()
       .map(AttributeTree::value)
       .allMatch(TextUtils::isValueFalse);
+  }
+
+  private static void checkRedshiftCluster(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "logging", BlockTree.class).ifPresentOrElse(logging ->
+      PropertyUtils.value(logging, "enable").ifPresentOrElse(enabled ->
+        reportOnFalse(ctx, enabled, MESSAGE), () -> ctx.reportIssue(logging, MESSAGE)),
+      () -> reportResource(ctx, resource, MESSAGE));
   }
 }
