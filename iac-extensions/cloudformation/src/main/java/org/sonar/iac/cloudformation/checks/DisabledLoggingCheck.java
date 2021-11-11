@@ -64,7 +64,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     } else if (resource.isType("AWS::CloudFront::Distribution")) {
       checkCloudFrontDistribution(ctx, resource);
     } else if (resource.isType("AWS::ElasticLoadBalancing::LoadBalancer")) {
-       checkElasticLoadBalancer(ctx, resource);
+      checkElasticLoadBalancer(ctx, resource);
     }
   }
 
