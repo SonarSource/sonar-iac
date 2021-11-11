@@ -158,12 +158,9 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkEnabledAuditLogAvailability(CheckContext ctx, PropertyTree logs) {
-    Tree auditLogsEnable = PropertyUtils.value(logs.value(), "AUDIT_LOGS").flatMap(v -> PropertyUtils.value(v, "Enabled")).orElse(null);
-    if (auditLogsEnable != null && TextUtils.isValueFalse(auditLogsEnable)) {
-      ctx.reportIssue(auditLogsEnable, MESSAGE);
-    } else if (auditLogsEnable == null) {
-      ctx.reportIssue(logs.key(), MESSAGE);
-    }
+PropertyUtils.value(logs.value(), "AUDIT_LOGS").flatMap(v -> PropertyUtils.value(v, "Enabled"))
+      .ifPresentOrElse(auditLogsEnable -> reportOnFalse(ctx, auditLogsEnable),
+        () -> ctx.reportIssue(logs.key(), MESSAGE));
   }
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {
