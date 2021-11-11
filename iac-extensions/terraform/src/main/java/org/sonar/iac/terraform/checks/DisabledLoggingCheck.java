@@ -32,6 +32,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
+import org.sonar.iac.terraform.api.tree.TupleTree;
 
 @Rule(key = "S6258")
 public class DisabledLoggingCheck extends AbstractResourceCheck {
@@ -42,14 +43,17 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isS3Bucket(resource)) {
+    String type = getResourceType(resource);
+    if (S3_BUCKET.equals(type)) {
       checkS3Bucket(ctx, resource);
-    } else if (isResource(resource, "aws_api_gateway_stage")) {
+    } else if ("aws_api_gateway_stage".equals(type)) {
       checkApiGatewayStage(ctx, resource);
-    } else if (isResource(resource, "aws_api_gatewayv2_stage")) {
+    } else if ("aws_api_gatewayv2_stage".equals(type)) {
       checkApiGateway2Stage(ctx, resource);
-    } else if (isResource(resource, "aws_msk_cluster")) {
+    } else if ("aws_msk_cluster".equals(type)) {
       checkMskCluster(ctx, resource);
+    } else if ("aws_neptune_cluster".equals(type)) {
+      checkNeptuneCluster(ctx, resource);
     }
   }
 
@@ -107,5 +111,16 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     return PropertyUtils.value(logger, "enabled")
       .filter(TextUtils::isValueFalse)
       .isEmpty();
+  }
+
+  private static void checkNeptuneCluster(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.value(resource, "enable_cloudwatch_logs_exports").ifPresentOrElse(
+      exports -> {
+        if (exports instanceof TupleTree && ((TupleTree) exports).elements().trees().isEmpty()) {
+          ctx.reportIssue(exports, MESSAGE);
+        }
+      },
+      () -> reportResource(ctx, resource, MESSAGE)
+    );
   }
 }
