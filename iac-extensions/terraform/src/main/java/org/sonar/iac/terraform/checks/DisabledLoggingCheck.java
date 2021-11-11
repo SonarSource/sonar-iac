@@ -35,26 +35,20 @@ import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 
 @Rule(key = "S6258")
-public class DisabledLoggingCheck extends AbstractResourceCheck {
+public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
 
   private static final List<String> MSK_LOGGER = Arrays.asList("cloudwatch_logs", "firehose", "s3");
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    String type = getResourceType(resource);
-    if (S3_BUCKET.equals(type)) {
-      checkS3Bucket(ctx, resource);
-    } else if ("aws_api_gateway_stage".equals(type)) {
-      checkApiGatewayStage(ctx, resource);
-    } else if ("aws_api_gatewayv2_stage".equals(type)) {
-      checkApiGateway2Stage(ctx, resource);
-    } else if ("aws_msk_cluster".equals(type)) {
-      checkMskCluster(ctx, resource);
-    } else if ("aws_neptune_cluster".equals(type)) {
-      checkNeptuneCluster(ctx, resource);
-    }
+  void registerChecks() {
+    register(S3_BUCKET, DisabledLoggingCheck::checkS3Bucket);
+    register("aws_api_gateway_stage", DisabledLoggingCheck::checkApiGatewayStage);
+    register("aws_api_gatewayv2_stage", DisabledLoggingCheck::checkApiGateway2Stage);
+    register("aws_msk_cluster", DisabledLoggingCheck::checkMskCluster);
+    register("aws_neptune_cluster", DisabledLoggingCheck::checkNeptuneCluster);
+    register("aws_docdb_cluster", DisabledLoggingCheck::checkDocDbCluster);
   }
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
@@ -122,5 +116,18 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       },
       () -> reportResource(ctx, resource, MESSAGE)
     );
+  }
+
+  private static void checkDocDbCluster(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.value(resource, "enabled_cloudwatch_logs_exports").ifPresentOrElse(exportsProperty -> {
+      if (exportsProperty instanceof TupleTree && containsOnlyStringsWithoutAudit((TupleTree) exportsProperty)) {
+        ctx.reportIssue(exportsProperty, MESSAGE);
+      }
+    }, () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static boolean containsOnlyStringsWithoutAudit(TupleTree exports) {
+    return exports.elements().trees().stream().allMatch(
+      export -> TextUtils.isValue(export, "audit").isFalse());
   }
 }

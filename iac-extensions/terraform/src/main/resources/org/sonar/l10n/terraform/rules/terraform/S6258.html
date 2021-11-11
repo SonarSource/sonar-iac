@@ -1,29 +1,126 @@
-<p>Server access logging records the requests that are made to S3 buckets and this allow to track who is doing what on S3 buckets.</p>
-<p>When server access logging is deactivated, infrastructure administrators are blind and can’t answer to any regulatory requests.</p>
+<p>Disabling logging of this component can lead to missing traceability in case of a security incident.</p>
+<p>Logging allows operational and security teams to get detailed and real-time feedback on an information system’s events. The logging coverage
+enables them to quickly react to events, ranging from the most benign bugs to the most impactful security incidents, such as intrusions.</p>
+<p>Apart from security detection, logging capabilities also directly influence future digital forensic analyses. For example, detailed logging will
+allow investigators to establish a timeline of the actions perpetrated by an attacker.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The infrastructure requires security monitoring, to comply to some regulations or not. </li>
-  <li> There is a need to understand what objects are requested by S3 customers. </li>
+  <li> This component is essential for the information system infrastructure. </li>
+  <li> This component is essential for mission-critical functions. </li>
+  <li> Compliance policies require this component to be monitored. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to enable S3 server access logs.</p>
+<p>Enable the logging capabilities of this component.</p>
 <h2>Sensitive Code Example</h2>
-<p>S3 server access logging is disabled:</p>
+<p>For <a href="https://aws.amazon.com/s3/">Amazon S3 access requests</a>:</p>
 <pre>
 resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
   bucket = "mynoncompliantbucketname"
 }
 </pre>
+<p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a> stages:</p>
+<pre>
+resource "aws_api_gateway_stage" "api-v1" { # Sensitive
+  deployment_id = aws_api_gateway_deployment.example.id
+  rest_api_id   = aws_api_gateway_rest_api.example.id
+  stage_name    = "v1-prod-api"
+  xray_tracing_enabled = false # Sensitive
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/neptune/">Amazon Neptune</a> clusters:</p>
+<pre>
+resource "aws_neptune_cluster" "cluster" {
+  enable_cloudwatch_logs_exports = []  # Sensitive
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/msk/">Amazon MSK</a> broker logs:</p>
+<pre>
+resource "aws_msk_cluster" "sensitive_msk" {
+  cluster_name = "sensitive_msk"
+  logging_info {
+    broker_logs { # Sensitive
+      firehose {
+        enabled = false
+      }
+      s3 {
+        enabled = false
+      }
+    }
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/amazon-mq/">Amazon MQ</a>:</p>
+<pre>
+resource "aws_mq_broker" "broker" {
+  logs {  # Sensitive
+    audit = false
+    general = false
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/documentdb/">Amazon DocumentDB</a>:</p>
+<pre>
+resource "aws_docdb_cluster" "docdb_omitting_logs" { # Sensitive
+  cluster_identifier = "DB Cluster Without Logs"
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/redshift/">Amazon Redshift</a>:</p>
+<pre>
+resource "aws_redshift_cluster" "cluster" {
+  cluster_identifier = "redshift-cluster"
+
+  logging {
+    enable = false # Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/global-accelerator/">Amazon Global Accelerator</a>:</p>
+<pre>
+resource "aws_globalaccelerator_accelerator" "accelerator" {
+  attributes {
+    flow_logs_enabled   = false  # Sensitive
+    flow_logs_s3_bucket = "example-bucket"
+    flow_logs_s3_prefix = "flow-logs/"
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/opensearch-service/">Amazon OpenSearch</a> service, or Amazon Elasticsearch service:</p>
+<pre>
+resource "aws_elasticsearch_domain" "domain" {
+  log_publishing_options {
+    cloudwatch_log_group_arn = "arn:aws:logs:us-east-1:1234:log-group:es-audit-logs"
+    log_type = "AUDIT_LOGS"
+    enabled = false # Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a> distributions:</p>
+<pre>
+resource "aws_cloudfront_distribution" "cloudfront_distribution" { # Sensitive
+  default_root_object = "index.html"
+}
+</pre>
+<p>For both Amazon <a href="https://aws.amazon.com/elasticloadbalancing/classic-load-balancer/">Classic Load Balancing</a> and <a
+href="https://aws.amazon.com/elasticloadbalancing/application-load-balancer/">Application Load Balancing</a>:</p>
+<pre>
+resource "aws_lb" "load_balancer" {
+  access_logs {
+    enabled = false # Sensitive
+    bucket = "mycompliantbucket"
+    bucket_prefix = "log/lb-"
+  }
+}
+</pre>
 <h2>Compliant Solution</h2>
-<p>S3 server access logging is enabled:</p>
+<p>For <a href="https://aws.amazon.com/s3/">Amazon S3 access requests</a>:</p>
 <pre>
 resource "aws_s3_bucket" "myloggingbucket" {
   bucket = "myloggingbucketname"
   acl    = "log-delivery-write"
 }
 
-resource "aws_s3_bucket" "mycompliantbucket" { # Compliant
+resource "aws_s3_bucket" "mycompliantbucket" {
   bucket = "mycompliantbucketname"
 
   logging {
@@ -32,8 +129,115 @@ resource "aws_s3_bucket" "mycompliantbucket" { # Compliant
   }
 }
 </pre>
+<p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a> stages:</p>
+<pre>
+resource "aws_api_gateway_stage" "api-v1" {
+  deployment_id = aws_api_gateway_deployment.example.id
+  rest_api_id   = aws_api_gateway_rest_api.example.id
+  stage_name    = "v1-prod-api"
+  xray_tracing_enabled = true
+  access_log_settings {
+    destination_arn = "arn:aws:logs:eu-west-1:123456789:test"
+    format = "..."
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/neptune/">Amazon Neptune</a> clusters:</p>
+<pre>
+resource "aws_neptune_cluster" "cluster" {
+  enable_cloudwatch_logs_exports = ["audit"]
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/msk/">Amazon MSK</a> broker logs:</p>
+<pre>
+resource "aws_msk_cluster" "sensitive_msk" {
+  cluster_name = "sensitive_msk"
+  logging_info {
+    broker_logs {
+      firehose {
+        enabled = false
+      }
+      s3 {
+        enabled = true
+        bucket  = "myloggingbucketname"
+        prefix  = "log/msk-"
+      }
+    }
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/amazon-mq/">Amazon MQ</a> enable <code>audit</code> or <code>general</code>:</p>
+<pre>
+resource "aws_mq_broker" "broker" {
+  logs {
+    audit = true
+    general = true
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/documentdb/">Amazon DocumentDB</a>:</p>
+<pre>
+resource "aws_docdb_cluster" "docdb_omitting_logs" {
+  cluster_identifier = "DB Cluster With Logs"
+  enabled_cloudwatch_logs_exports = ["audit"]
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/redshift/">Amazon Redshift</a>:</p>
+<pre>
+resource "aws_redshift_cluster" "cluster" {
+  cluster_identifier = "compliant-redshift-cluster"
+  logging {
+    enable           = true
+    bucket_name      = "infra_logs"
+    s3_key_prefix    = "log/redshift-"
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/global-accelerator/">Amazon Global Accelerator</a>:</p>
+<pre>
+resource "aws_globalaccelerator_accelerator" "accelerator" {
+  attributes {
+    flow_logs_enabled   = true
+    flow_logs_s3_bucket = "example-bucket"
+    flow_logs_s3_prefix = "flow-logs/"
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/opensearch-service/">Amazon OpenSearch</a> service, or Amazon Elasticsearch service:</p>
+<pre>
+resource "aws_elasticsearch_domain" "domain" {
+  log_publishing_options {
+    cloudwatch_log_group_arn = "arn:aws:logs:us-east-1:1234:log-group:es-audit-logs"
+    log_type = "AUDIT_LOGS"
+    enabled = true
+  }
+}
+</pre>
+<p>For <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a> distributions:</p>
+<pre>
+resource "aws_cloudfront_distribution" "cloudfront_distribution" {
+  default_root_object = "index.html"
+  logging_config {
+    bucket          = "mycompliantbucketname"
+    prefix          = "log/cloudfront-"
+  }
+}
+</pre>
+<p>For both Amazon <a href="https://aws.amazon.com/elasticloadbalancing/classic-load-balancer/">Classic Load Balancing</a> and <a
+href="https://aws.amazon.com/elasticloadbalancing/application-load-balancer/">Application Load Balancing</a>:</p>
+<pre>
+resource "aws_lb" "load_balancer" {
+  access_logs {
+    enabled = true
+    bucket = "mycompliantbucket"
+    bucket_prefix = "log/lb-"
+  }
+}
+</pre>
 <h2>See</h2>
 <ul>
+  <li> <a href="https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/">OWASP Top 10 2021 Category A9</a> - Security Logging and
+  Monitoring Failures </li>
   <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html">AWS Documentation</a> - Logging requests using server access
   logging </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/778.html">MITRE, CWE-778</a> - Insufficient Logging </li>

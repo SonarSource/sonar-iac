@@ -48,4 +48,9 @@ class DisabledLoggingCheckTest {
     TerraformVerifier.verify("DisabledLoggingCheck/test_neptune_cluster.tf", new DisabledLoggingCheck());
   }
 
+  @Test
+  void test_docdb_cluster() {
+    TerraformVerifier.verify("DisabledLoggingCheck/test_docdb_cluster.tf", new DisabledLoggingCheck());
+  }
+
 }
