@@ -53,6 +53,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     register("aws_redshift_cluster", DisabledLoggingCheck::checkRedshiftCluster);
     register("aws_globalaccelerator_accelerator", DisabledLoggingCheck::checkGlobalAccelerator);
     register("aws_elasticsearch_domain", DisabledLoggingCheck::checkElasticSearchDomain);
+    register("aws_cloudfront_distribution", DisabledLoggingCheck::checkCloudfrontDistribution);
   }
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
@@ -177,4 +178,11 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
       .filter(type -> !TextUtils.isValue(type, "AUDIT_LOGS").isFalse())
       .isPresent();
   }
+
+  private static void checkCloudfrontDistribution(CheckContext ctx, BlockTree resource) {
+    if (PropertyUtils.isMissing(resource, "logging_config")) {
+      reportResource(ctx, resource, MESSAGE);
+    }
+  }
+
 }
