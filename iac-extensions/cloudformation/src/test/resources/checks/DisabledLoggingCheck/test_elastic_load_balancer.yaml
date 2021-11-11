@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  LoadBalancer1:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      AccessLoggingPolicy:
+        Enabled: false # Noncompliant {{Make sure that disabling logging is safe here.}}
+        #        ^^^^^
+
+  LoadBalancer2:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer # Noncompliant
+    Properties:
+      foo: 'bar'
+
+  LoadBalancer3:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      AccessLoggingPolicy:
+        Enabled: true
+
+  LoadBalancer4:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      AccessLoggingPolicy:
+        Enabled: !Ref foo

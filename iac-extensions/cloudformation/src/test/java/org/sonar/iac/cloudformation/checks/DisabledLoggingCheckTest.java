@@ -76,4 +76,9 @@ class DisabledLoggingCheckTest {
   void test_cloudfront_distribution() {
     CloudformationVerifier.verify("DisabledLoggingCheck/test_cloudfront_distribution.yaml", new DisabledLoggingCheck());
   }
+
+  @Test
+  void test_elastic_load_balancer() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_elastic_load_balancer.yaml", new DisabledLoggingCheck());
+  }
 }
