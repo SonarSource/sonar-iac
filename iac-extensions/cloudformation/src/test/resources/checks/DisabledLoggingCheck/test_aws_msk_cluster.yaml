@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: MSK Cluster with required properties.
+Resources:
+  NoLoggingInfo:
+    Type: 'AWS::MSK::Cluster' # Noncompliant {{Make sure that disabling logging is safe here.}}
+    #     ^^^^^^^^^^^^^^^^^^^
+    Properties:
+      ClusterName: SensitiveCluster
+
+  NoBrokerLogs:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: SensitiveCluster
+      LoggingInfo: # Noncompliant
+    # ^^^^^^^^^^^
+        foo: 'bar'
+
+  NoLogsConfigured:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: SensitiveCluster
+      LoggingInfo:
+        BrokerLogs: # Noncompliant
+      # ^^^^^^^^^^
+          foo: 'bar'
+
+  OnDisabled:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: SensitiveCluster
+      LoggingInfo:
+        BrokerLogs: # Noncompliant
+          CloudWatchLogs:
+            Enabled: false
+            LogGroup: CloudWatchLogGroup
+
+  AllDisabled:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: SensitiveCluster
+      LoggingInfo:
+        BrokerLogs: # Noncompliant
+          CloudWatchLogs:
+            Enabled: false
+            LogGroup: CloudWatchLogGroup
+          Firehose:
+            Enabled: false
+            LogGroup: CloudWatchLogGroup
+          S3:
+            Enabled: false
+            LogGroup: CloudWatchLogGroup
+
+  Compliant:
+    Type: 'AWS::MSK::Cluster'
+    Properties:
+      ClusterName: SensitiveCluster
+      LoggingInfo:
+        BrokerLogs:
+          CloudWatchLogs:
+            Enabled: false
+            LogGroup: CloudWatchLogGroup
+          Firehose:
+            Enabled: true
+            LogGroup: CloudWatchLogGroup
+          S3:
+            Enabled: false
+            LogGroup: CloudWatchLogGroup

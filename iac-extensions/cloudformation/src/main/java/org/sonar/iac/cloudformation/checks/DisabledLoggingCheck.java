@@ -19,11 +19,15 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
+import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -32,6 +36,7 @@ import org.sonar.iac.common.checks.TextUtils;
 public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
+  private static final List<String> MSK_LOGGER = Arrays.asList("CloudWatchLogs", "Firehose", "S3");
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -41,6 +46,10 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkApiGatewayStage(ctx, resource);
     } else if (resource.isType("AWS::ApiGatewayV2::Stage")) {
       checkApiGatewayV2Stage(ctx, resource);
+    } else if (resource.isType("AWS::MSK::Cluster")) {
+      checkMskCluster(ctx, resource);
+    } else if (resource.isType("AWS::Neptune::DBCluster")) {
+      checkNeptuneDbCluster(ctx, resource);
     }
   }
 
@@ -69,6 +78,37 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static void checkApiGatewayV2Stage(CheckContext ctx, Resource resource) {
     reportOnMissingProperty(ctx, resource.properties(), "AccessLogSettings", resource.type());
+  }
+
+  private static void checkMskCluster(CheckContext ctx, Resource resource) {
+    // look for LoggingInfo::BrokerLogs, raise issue on certain parent if property is not set
+    PropertyUtils.get(resource.properties(), "LoggingInfo")
+      .ifPresentOrElse(info -> PropertyUtils.get(info.value(), "BrokerLogs")
+          .ifPresentOrElse(logs -> checkMskLogs(ctx, logs), () -> ctx.reportIssue(info.key(), MESSAGE)),
+        () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkMskLogs(CheckContext ctx, PropertyTree logs) {
+    // raise issue if none of the logger is enabled
+    if (MSK_LOGGER.stream()
+      .noneMatch(name -> PropertyUtils.value(logs.value(), name)
+        .filter(DisabledLoggingCheck::isLogEnabled).isPresent())) {
+      ctx.reportIssue(logs.key(), MESSAGE);
+    }
+  }
+
+  private static boolean isLogEnabled(Tree logger) {
+    return PropertyUtils.value(logger, "Enabled")
+      .filter(TextUtils::isValueFalse)
+      .isEmpty();
+  }
+
+  private static void checkNeptuneDbCluster(CheckContext ctx, Resource resource) {
+    PropertyUtils.value(resource.properties(), "EnableCloudwatchLogsExports").ifPresentOrElse(property -> {
+      if (property instanceof SequenceTree && ((SequenceTree) property).elements().isEmpty()) {
+        ctx.reportIssue(property, MESSAGE);
+      }
+    }, () -> reportResource(ctx, resource, MESSAGE));
   }
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {
