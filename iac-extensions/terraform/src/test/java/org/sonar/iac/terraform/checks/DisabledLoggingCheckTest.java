@@ -38,4 +38,9 @@ class DisabledLoggingCheckTest {
     TerraformVerifier.verify("DisabledLoggingCheck/test_api_gatewayv2_stage.tf", new DisabledLoggingCheck());
   }
 
+  @Test
+  void test_aws_msk_cluster() {
+    TerraformVerifier.verify("DisabledLoggingCheck/test_aws_msk_cluster.tf", new DisabledLoggingCheck());
+  }
+
 }
