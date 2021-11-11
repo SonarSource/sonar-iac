@@ -71,4 +71,9 @@ class DisabledLoggingCheckTest {
   void test_search_domain() {
     CloudformationVerifier.verify("DisabledLoggingCheck/test_search_domain.yaml", new DisabledLoggingCheck());
   }
+
+  @Test
+  void test_cloudfront_distribution() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_cloudfront_distribution.yaml", new DisabledLoggingCheck());
+  }
 }
