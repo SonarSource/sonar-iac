@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MqMissingLog:
+    Type: AWS::AmazonMQ::Broker # Noncompliant {{Make sure that disabling logging is safe here.}}
+
+  MqDisabledLog:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      Logs: # Noncompliant {{Make sure that disabling logging is safe here.}}
+        Audit: false
+        General: false
+
+  MqEnabledLog:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      Logs:
+        Audit: true
+        General: false
+
+  MqLogsNotMappingTree:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      Logs: !Ref foo
