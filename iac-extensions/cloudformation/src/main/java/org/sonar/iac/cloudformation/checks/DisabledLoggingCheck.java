@@ -58,6 +58,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkAmazonMQBroker(ctx, resource);
     } else if (resource.isType("AWS::Redshift::Cluster")) {
       checkRedshiftCluster(ctx, resource);
+    } else if (resource.isType("AWS::Elasticsearch::Domain") || resource.isType("AWS::OpenSearchService::Domain")) {
+      checkSearchDomain(ctx, resource);
     }
   }
 
@@ -147,6 +149,20 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   private static void checkRedshiftCluster(CheckContext ctx, Resource resource) {
     if (PropertyUtils.isMissing(resource.properties(), "LoggingProperties")) {
       reportResource(ctx, resource, MESSAGE);
+    }
+  }
+
+  private static void checkSearchDomain(CheckContext ctx, Resource resource) {
+    PropertyUtils.get(resource.properties(), "LogPublishingOptions").ifPresentOrElse(logs -> checkEnabledAuditLogAvailability(ctx, logs),
+      () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkEnabledAuditLogAvailability(CheckContext ctx, PropertyTree logs) {
+    Tree auditLogsEnable = PropertyUtils.value(logs.value(), "AUDIT_LOGS").flatMap(v -> PropertyUtils.value(v, "Enabled")).orElse(null);
+    if (auditLogsEnable != null && TextUtils.isValueFalse(auditLogsEnable)) {
+      ctx.reportIssue(auditLogsEnable, MESSAGE);
+    } else if (auditLogsEnable == null) {
+      ctx.reportIssue(logs.key(), MESSAGE);
     }
   }
 

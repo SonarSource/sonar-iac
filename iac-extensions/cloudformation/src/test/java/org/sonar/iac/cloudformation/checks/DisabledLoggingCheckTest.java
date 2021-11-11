@@ -66,4 +66,9 @@ class DisabledLoggingCheckTest {
   void test_redshift_cluster() {
     CloudformationVerifier.verify("DisabledLoggingCheck/test_redshift_cluster.yaml", new DisabledLoggingCheck());
   }
+
+  @Test
+  void test_search_domain() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_search_domain.yaml", new DisabledLoggingCheck());
+  }
 }
