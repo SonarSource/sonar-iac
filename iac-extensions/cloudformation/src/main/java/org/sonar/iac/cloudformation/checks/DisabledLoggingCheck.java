@@ -25,6 +25,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
+import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -47,6 +48,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkApiGatewayV2Stage(ctx, resource);
     } else if (resource.isType("AWS::MSK::Cluster")) {
       checkMskCluster(ctx, resource);
+    } else if (resource.isType("AWS::Neptune::DBCluster")) {
+      checkNeptuneDbCluster(ctx, resource);
     }
   }
 
@@ -98,6 +101,14 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     return PropertyUtils.value(logger, "Enabled")
       .filter(TextUtils::isValueFalse)
       .isEmpty();
+  }
+
+  private static void checkNeptuneDbCluster(CheckContext ctx, Resource resource) {
+    PropertyUtils.value(resource.properties(), "EnableCloudwatchLogsExports").ifPresentOrElse(property -> {
+      if (property instanceof SequenceTree && ((SequenceTree) property).elements().isEmpty()) {
+        ctx.reportIssue(property, MESSAGE);
+      }
+    }, () -> reportResource(ctx, resource, MESSAGE));
   }
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {
