@@ -20,6 +20,9 @@
 'terraform-project:sources/terraform/terragoat/terraform/aws/ec2.tf':[
 271,
 ],
+'terraform-project:sources/terraform/terragoat/terraform/aws/es.tf':[
+1,
+],
 'terraform-project:sources/terraform/terragoat/terraform/aws/neptune.tf':[
 1,
 ],
@@ -52,6 +55,9 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/docdb_clusters_non_encrypted/main.tf':[
 5,
 ],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticsearch_not_encrypted/main.tf':[
+1,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/neptune_cluster_no_encryption/main.tf':[
 1,
 ],
@@ -74,8 +80,14 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/cloudfront_distribution_not_encrypted/main.tf':[
 10,
 ],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/elasticsearch_encrypt_node_to_node_disabled/main.tf':[
+5,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-authentication/rest_api_without_authorization/main.tf':[
 44,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/elasticsearch_domain_not_secure_policy/main.tf':[
+5,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/glue_data_catalog_not_secure_policy/main.tf':[
 33,
@@ -107,6 +119,9 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/docdb_audit_logs_missing/main.tf':[
 1,
 ],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/elasticsearch_domain_logging_disabled/main.tf':[
+1,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/globalaccelerator_accelerator_no_flow_logs/main.tf':[
 6,
 ],
@@ -121,6 +136,9 @@
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/s3_access_logging_disabled/main.tf':[
 1,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/public_ec2_points_to_private_domain/main.tf':[
+107,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/public_ec2_points_to_private_redshift/main.tf':[
 103,
