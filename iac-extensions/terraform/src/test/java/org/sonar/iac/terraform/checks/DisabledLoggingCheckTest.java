@@ -53,4 +53,9 @@ class DisabledLoggingCheckTest {
     TerraformVerifier.verify("DisabledLoggingCheck/test_docdb_cluster.tf", new DisabledLoggingCheck());
   }
 
+  @Test
+  void test_mq_broker() {
+    TerraformVerifier.verify("DisabledLoggingCheck/test_mq_broker.tf", new DisabledLoggingCheck());
+  }
+
 }

@@ -49,6 +49,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     register("aws_msk_cluster", DisabledLoggingCheck::checkMskCluster);
     register("aws_neptune_cluster", DisabledLoggingCheck::checkNeptuneCluster);
     register("aws_docdb_cluster", DisabledLoggingCheck::checkDocDbCluster);
+    register("aws_mq_broker", DisabledLoggingCheck::checkMqBroker);
   }
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
@@ -129,5 +130,19 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
   private static boolean containsOnlyStringsWithoutAudit(TupleTree exports) {
     return exports.elements().trees().stream().allMatch(
       export -> TextUtils.isValue(export, "audit").isFalse());
+  }
+
+  private static void checkMqBroker(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "logs", BlockTree.class).ifPresentOrElse(logs -> {
+      if (containsOnlyFalse(logs)) {
+        ctx.reportIssue(logs.key(), MESSAGE);
+      }
+    }, () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static boolean containsOnlyFalse(BlockTree logs) {
+    return PropertyUtils.getAll(logs, AttributeTree.class).stream()
+      .map(AttributeTree::value)
+      .allMatch(TextUtils::isValueFalse);
   }
 }

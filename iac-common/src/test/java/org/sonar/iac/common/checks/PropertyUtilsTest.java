@@ -105,8 +105,11 @@ class PropertyUtilsTest {
     TestTree testTree = tree(property1, property2);
     assertThat(PropertyUtils.getAll(testTree, "key")).containsExactly(property1, property2);
 
-    assertThat(PropertyUtils.getAll(testTree, "key", TestPropertyTree.class)).isNotEmpty();
+    assertThat(PropertyUtils.getAll(testTree, "key", TestPropertyTree.class)).hasSize(2);
     assertThat(PropertyUtils.getAll(testTree, "key", OtherTree.class)).isEmpty();
+
+    assertThat(PropertyUtils.getAll(testTree, TestPropertyTree.class)).hasSize(2);
+    assertThat(PropertyUtils.getAll(testTree, OtherTree.class)).isEmpty();
   }
 
   @Test
