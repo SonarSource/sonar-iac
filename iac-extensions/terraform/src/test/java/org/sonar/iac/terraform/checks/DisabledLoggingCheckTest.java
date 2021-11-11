@@ -67,4 +67,9 @@ class DisabledLoggingCheckTest {
   void test_global_accelerator() {
     TerraformVerifier.verify("DisabledLoggingCheck/test_global_accelerator.tf", new DisabledLoggingCheck());
   }
+
+  @Test
+  void test_elastic_search_domain() {
+    TerraformVerifier.verify("DisabledLoggingCheck/test_elastic_search_domain.tf", new DisabledLoggingCheck());
+  }
 }
