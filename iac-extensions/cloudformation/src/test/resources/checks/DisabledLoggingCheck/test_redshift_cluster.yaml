@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ClusterOmittingLogging:
+    Type: "AWS::Redshift::Cluster" # Noncompliant {{Make sure that disabling logging is safe here.}}
+    Properties:
+      DBName: "Redshift Warehouse Cluster"
+
+  CompliantCluster:
+    Type: "AWS::Redshift::Cluster"
+    Properties:
+      DBName: "Redshift Warehouse Cluster"
+      LoggingProperties:
+        BucketName: "Infra Logs"
+        S3KeyPrefix: "log/redshift-"

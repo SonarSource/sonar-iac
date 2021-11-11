@@ -56,6 +56,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkDocDbCluster(ctx, resource);
     } else if (resource.isType("AWS::AmazonMQ::Broker")) {
       checkAmazonMQBroker(ctx, resource);
+    } else if (resource.isType("AWS::Redshift::Cluster")) {
+      checkRedshiftCluster(ctx, resource);
     }
   }
 
@@ -140,6 +142,12 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static boolean containsOnlyFalse(MappingTree logs) {
     return logs.elements().stream().map(TupleTree::value).allMatch(TextUtils::isValueFalse);
+  }
+
+  private static void checkRedshiftCluster(CheckContext ctx, Resource resource) {
+    if (PropertyUtils.isMissing(resource.properties(), "LoggingProperties")) {
+      reportResource(ctx, resource, MESSAGE);
+    }
   }
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {
