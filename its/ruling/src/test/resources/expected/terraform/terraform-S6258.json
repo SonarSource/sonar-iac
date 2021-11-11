@@ -107,6 +107,9 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/docdb_audit_logs_missing/main.tf':[
 1,
 ],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/globalaccelerator_accelerator_no_flow_logs/main.tf':[
+6,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/neptune_cluster_no_logging/main.tf':[
 1,
 ],
