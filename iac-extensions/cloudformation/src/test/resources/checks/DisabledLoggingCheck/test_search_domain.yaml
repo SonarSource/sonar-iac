@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  ElasticsearchDomain:
+    Type: 'AWS::Elasticsearch::Domain' # Noncompliant {{Make sure that disabling logging is safe here.}}
+
+  OpenSearchDomain:
+    Type: 'AWS::OpenSearchService::Domain' # Noncompliant
+
+  ElasticsearchDomainNoAuditLogs:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      LogPublishingOptions: # Noncompliant
+        ES_APPLICATION_LOGS:
+          Enabled: true
+
+  ElasticsearchDomainDisabledAuditLogs:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      LogPublishingOptions:
+        ES_APPLICATION_LOGS:
+          Enabled: true
+        AUDIT_LOGS:
+          Enabled: false # Noncompliant
+
+  ElasticsearchDomainAuditLogsNotSure:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      LogPublishingOptions:
+        AUDIT_LOGS:
+          Enabled: !Ref foo
+
+  ElasticsearchDomainEnabledAuditLogs:
+    Type: 'AWS::Elasticsearch::Domain'
+    Properties:
+      LogPublishingOptions:
+        AUDIT_LOGS:
+          Enabled: true
