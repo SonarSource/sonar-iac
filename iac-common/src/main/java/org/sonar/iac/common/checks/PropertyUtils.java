@@ -48,6 +48,7 @@ public class PropertyUtils {
     return Trilean.FALSE;
   }
 
+  // Check whether a particular property can be unambiguously considered absent.
   public static boolean isMissing(@Nullable Tree tree, String key) {
     return has(tree, key).isFalse();
   }

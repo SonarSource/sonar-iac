@@ -109,7 +109,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void checkESReplicationGroup(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.has(resource, "transit_encryption_enabled").isFalse()) {
+    if (PropertyUtils.isMissing(resource, "transit_encryption_enabled")) {
       reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
     } else {
       reportOnFalseProperty(ctx, resource, "transit_encryption_enabled", MESSAGE_CLEAR_TEXT);
@@ -123,7 +123,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void checkEscVolumeConfig(CheckContext ctx, BlockTree config) {
-    if (PropertyUtils.has(config, "transit_encryption").isFalse()) {
+    if (PropertyUtils.isMissing(config, "transit_encryption")) {
       ctx.reportIssue(config.key(), MESSAGE_CLEAR_TEXT);
     } else {
       PropertyUtils.value(config, "transit_encryption")
@@ -133,7 +133,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
   
   private static void checkKinesisStream(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.has(resource, "encryption_type").isFalse()) {
+    if (PropertyUtils.isMissing(resource, "encryption_type")) {
       reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
     } else {
       PropertyUtils.value(resource, "encryption_type")

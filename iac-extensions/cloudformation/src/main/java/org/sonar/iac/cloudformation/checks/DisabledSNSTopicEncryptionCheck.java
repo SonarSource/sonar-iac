@@ -30,7 +30,7 @@ public class DisabledSNSTopicEncryptionCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
-    if (resource.isType("AWS::SNS::Topic") && PropertyUtils.has(resource.properties(), "KmsMasterKeyId").isFalse()) {
+    if (resource.isType("AWS::SNS::Topic") && PropertyUtils.isMissing(resource.properties(), "KmsMasterKeyId")) {
       ctx.reportIssue(resource.type(), MESSAGE);
     }
   }

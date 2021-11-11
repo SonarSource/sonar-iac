@@ -58,7 +58,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
-    if (!isMaybeLoggingBucket(resource) && !PropertyUtils.has(resource, "logging").isTrue()) {
+    if (!isMaybeLoggingBucket(resource) && PropertyUtils.isMissing(resource, "logging")) {
       reportResource(ctx, resource, MESSAGE);
     }
   }

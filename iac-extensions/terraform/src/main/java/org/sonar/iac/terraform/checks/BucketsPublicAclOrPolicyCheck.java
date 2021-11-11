@@ -106,7 +106,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
   }
 
   private static boolean hasMissingStatement(BlockTree publicAccessBlock) {
-    return PAB_STATEMENTS.stream().anyMatch(e -> !PropertyUtils.has(publicAccessBlock, e).isTrue());
+    return PAB_STATEMENTS.stream().anyMatch(e -> PropertyUtils.isMissing(publicAccessBlock, e));
   }
 
   private static class S3Bucket {
