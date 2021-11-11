@@ -61,4 +61,9 @@ class DisabledLoggingCheckTest {
   void test_amazon_mq_broker() {
     CloudformationVerifier.verify("DisabledLoggingCheck/test_amazon_mq_broker.yaml", new DisabledLoggingCheck());
   }
+
+  @Test
+  void test_redshift_cluster() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_redshift_cluster.yaml", new DisabledLoggingCheck());
+  }
 }
