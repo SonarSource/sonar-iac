@@ -19,7 +19,10 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -28,12 +31,13 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 
 public abstract class AbstractMultipleResourcesCheck extends AbstractResourceCheck {
 
-  private final Map<String, BiConsumer<CheckContext, BlockTree>> resourceChecks = new HashMap<>();
+  private final Map<String, List<BiConsumer<CheckContext, BlockTree>>> resourceChecks = new HashMap<>();
 
   abstract void registerChecks();
 
-  protected void register(String resourceName, BiConsumer<CheckContext, BlockTree> resourceCheck) {
-    resourceChecks.put(resourceName, resourceCheck);
+  protected void register(BiConsumer<CheckContext, BlockTree> resourceCheck, String... resourceNames) {
+    Arrays.asList(resourceNames).forEach(resourceName ->
+      resourceChecks.computeIfAbsent(resourceName, i -> new ArrayList<>()).add(resourceCheck));
   }
 
   @Override
@@ -46,7 +50,7 @@ public abstract class AbstractMultipleResourcesCheck extends AbstractResourceChe
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     String resourceType = getResourceType(resource);
     if (resourceChecks.containsKey(resourceType)) {
-      resourceChecks.get(resourceType).accept(ctx, resource);
+      resourceChecks.get(resourceType).forEach(consumer -> consumer.accept(ctx, resource));
     }
   }
 }
