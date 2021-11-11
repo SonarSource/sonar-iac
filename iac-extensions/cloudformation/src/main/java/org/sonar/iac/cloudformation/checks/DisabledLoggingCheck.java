@@ -169,8 +169,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkCloudFrontDistribution(CheckContext ctx, Resource resource) {
-    PropertyUtils.get(resource.properties(), "DistributionConfig").ifPresentOrElse(
-      config -> reportOnMissingProperty(ctx, config.value(), "Logging", config.key()),
+    PropertyUtils.get(resource.properties(), "DistributionConfig").ifPresentOrElse(config ->
+        reportOnMissingProperty(ctx, config.value(), "Logging", config.key()),
       () -> reportResource(ctx, resource, MESSAGE));
   }
 
