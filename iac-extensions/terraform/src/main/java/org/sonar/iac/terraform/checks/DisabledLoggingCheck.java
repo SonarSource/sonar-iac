@@ -51,6 +51,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     register("aws_docdb_cluster", DisabledLoggingCheck::checkDocDbCluster);
     register("aws_mq_broker", DisabledLoggingCheck::checkMqBroker);
     register("aws_redshift_cluster", DisabledLoggingCheck::checkRedshiftCluster);
+    register("aws_globalaccelerator_accelerator", DisabledLoggingCheck::checkGlobalAccelerator);
   }
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
@@ -151,6 +152,13 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     PropertyUtils.get(resource, "logging", BlockTree.class).ifPresentOrElse(logging ->
       PropertyUtils.value(logging, "enable").ifPresentOrElse(enabled ->
         reportOnFalse(ctx, enabled, MESSAGE), () -> ctx.reportIssue(logging.key(), MESSAGE)),
+      () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkGlobalAccelerator(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "attributes", BlockTree.class).ifPresentOrElse(attributes ->
+        PropertyUtils.value(attributes, "flow_logs_enabled").ifPresentOrElse(enabled ->
+          reportOnFalse(ctx, enabled, MESSAGE), () -> ctx.reportIssue(attributes.key(), MESSAGE)),
       () -> reportResource(ctx, resource, MESSAGE));
   }
 }
