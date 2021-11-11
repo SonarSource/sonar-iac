@@ -35,7 +35,7 @@ import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 
 @Rule(key = "S6258")
-public class DisabledLoggingCheck extends AbstractMultipleResourceCheck {
+public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
 

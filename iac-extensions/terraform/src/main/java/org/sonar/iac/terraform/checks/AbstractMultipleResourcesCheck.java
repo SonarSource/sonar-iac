@@ -26,7 +26,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
-public abstract class AbstractMultipleResourceCheck extends AbstractResourceCheck {
+public abstract class AbstractMultipleResourcesCheck extends AbstractResourceCheck {
 
   private final Map<String, BiConsumer<CheckContext, BlockTree>> resourceChecks = new HashMap<>();
 
