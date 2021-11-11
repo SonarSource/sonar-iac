@@ -34,6 +34,9 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/cloudtrail_enabled_on_multi_region/main.tf':[
 10,
 ],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/deploy_redshift_in_ec2_classic_mode/main.tf':[
+5,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/athena_not_encrypted/main.tf':[
 1,
 ],
@@ -51,6 +54,9 @@
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/neptune_cluster_no_encryption/main.tf':[
 1,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/redshift_not_encrypted/main.tf':[
+5,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/rest_api_cache_non_encrypted/main.tf':[
 44,
@@ -104,11 +110,17 @@
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/neptune_cluster_no_logging/main.tf':[
 1,
 ],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/redshift_without_logging/main.tf':[
+1,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/rest_api_no_access_logging/main.tf':[
 44,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/s3_access_logging_disabled/main.tf':[
 1,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/public_ec2_points_to_private_redshift/main.tf':[
+103,
 ],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/publicly_accessible_neptune_db/main.tf':[
 66,
