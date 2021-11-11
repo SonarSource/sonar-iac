@@ -127,7 +127,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {
-    if (PropertyUtils.has(properties, property).isFalse()) {
+    if (PropertyUtils.isMissing(properties, property)) {
       ctx.reportIssue(raiseOn, MESSAGE);
     }
   }

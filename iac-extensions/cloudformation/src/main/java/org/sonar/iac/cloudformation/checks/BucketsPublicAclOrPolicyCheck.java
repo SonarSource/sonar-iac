@@ -67,7 +67,7 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
   }
 
   private static boolean hasMissingSetting(CloudformationTree configuration) {
-    return ATTRIBUTES_TO_CHECK.stream().anyMatch(a -> PropertyUtils.has(configuration, a).isFalse());
+    return ATTRIBUTES_TO_CHECK.stream().anyMatch(a -> PropertyUtils.isMissing(configuration, a));
   }
 
   private static List<SecondaryLocation> configurationProblemsAsSecondaryLocations(CloudformationTree configuration) {

@@ -27,12 +27,11 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 @Rule(key = "S6245")
 public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure not using server-side encryption is safe here.";
-  private static final String STATEMENT_KEY = "server_side_encryption_configuration";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree block) {
-    if (isS3Bucket(block) && !PropertyUtils.has(block, STATEMENT_KEY).isTrue()) {
-      ctx.reportIssue(block.labels().get(0), MESSAGE);
+  protected void checkResource(CheckContext ctx, BlockTree resource) {
+    if (isS3Bucket(resource) && PropertyUtils.isMissing(resource, "server_side_encryption_configuration")) {
+      reportResource(ctx, resource, MESSAGE);
     }
   }
 }

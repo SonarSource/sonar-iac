@@ -31,8 +31,8 @@ public class UnencryptedSageMakerNotebookCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_sagemaker_notebook_instance") && PropertyUtils.has(resource, "kms_key_id").isFalse()) {
-      ctx.reportIssue(resource.labels().get(0), MESSAGE);
+    if (isResource(resource, "aws_sagemaker_notebook_instance") && PropertyUtils.isMissing(resource, "kms_key_id")) {
+      reportResource(ctx, resource, MESSAGE);
     }
   }
 

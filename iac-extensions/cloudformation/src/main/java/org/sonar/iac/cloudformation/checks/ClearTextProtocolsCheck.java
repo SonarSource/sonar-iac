@@ -81,7 +81,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void checkDomainEnforceHttp(CheckContext ctx, PropertyTree domainEndpointOptions) {
-    if (PropertyUtils.has(domainEndpointOptions.value(), "EnforceHTTPS").isFalse()) {
+    if (PropertyUtils.isMissing(domainEndpointOptions.value(), "EnforceHTTPS")) {
       ctx.reportIssue(domainEndpointOptions.key(), MESSAGE_CLEAR_TEXT);
     }
 
@@ -134,7 +134,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void checkESReplicationGroup(CheckContext ctx, Resource resource) {
-    if (PropertyUtils.has(resource.properties(), "TransitEncryptionEnabled").isFalse()) {
+    if (PropertyUtils.isMissing(resource.properties(), "TransitEncryptionEnabled")) {
       ctx.reportIssue(resource.name(), MESSAGE_CLEAR_TEXT);
     } else {
       reportOnFalseProperty(ctx, resource.properties(), "TransitEncryptionEnabled", MESSAGE_CLEAR_TEXT);
@@ -142,7 +142,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void checkKinesisStream(CheckContext ctx, Resource resource) {
-    if (PropertyUtils.has(resource.properties(), "StreamEncryption").isFalse()) {
+    if (PropertyUtils.isMissing(resource.properties(), "StreamEncryption")) {
       reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
     }
   }
