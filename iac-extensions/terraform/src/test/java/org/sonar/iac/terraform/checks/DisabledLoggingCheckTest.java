@@ -58,4 +58,9 @@ class DisabledLoggingCheckTest {
     TerraformVerifier.verify("DisabledLoggingCheck/test_mq_broker.tf", new DisabledLoggingCheck());
   }
 
+  @Test
+  void test_redshift_cluster() {
+    TerraformVerifier.verify("DisabledLoggingCheck/test_redshift_cluster.tf", new DisabledLoggingCheck());
+  }
+
 }
