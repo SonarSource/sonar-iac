@@ -31,7 +31,7 @@ public class UnencryptedSqsQueueCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_sqs_queue") && PropertyUtils.has(resource, "kms_master_key_id").isFalse()) {
+    if (isResource(resource, "aws_sqs_queue") && PropertyUtils.isMissing(resource, "kms_master_key_id")) {
       ctx.reportIssue(resource.labels().get(0), MESSAGE);
     }
   }

@@ -33,7 +33,7 @@ public class UnencryptedSageMakerNotebookCheck extends AbstractResourceCheck {
     if (!resource.isType("AWS::SageMaker::NotebookInstance")) {
       return;
     }
-    if (PropertyUtils.has(resource.properties(), "KmsKeyId").isFalse()) {
+    if (PropertyUtils.isMissing(resource.properties(), "KmsKeyId")) {
       ctx.reportIssue(resource.type(), MESSAGE);
     }
   }

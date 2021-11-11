@@ -30,8 +30,8 @@ public class DisabledSNSTopicEncryptionCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted SNS topics is safe here.";
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_sns_topic") && PropertyUtils.has(resource, "kms_master_key_id").isFalse()) {
-      ctx.reportIssue(resource.labels().get(0), MESSAGE);
+    if (isResource(resource, "aws_sns_topic") && PropertyUtils.isMissing(resource, "kms_master_key_id")) {
+      reportResource(ctx, resource, MESSAGE);
     }
   }
 }
