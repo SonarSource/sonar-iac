@@ -60,6 +60,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkRedshiftCluster(ctx, resource);
     } else if (resource.isType("AWS::Elasticsearch::Domain") || resource.isType("AWS::OpenSearchService::Domain")) {
       checkSearchDomain(ctx, resource);
+    } else if (resource.isType("AWS::CloudFront::Distribution")) {
+      checkCloudFrontDistribution(ctx, resource);
     }
   }
 
@@ -161,6 +163,12 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     PropertyUtils.value(logs.value(), "AUDIT_LOGS").flatMap(v -> PropertyUtils.value(v, "Enabled"))
       .ifPresentOrElse(auditLogsEnable -> reportOnFalse(ctx, auditLogsEnable),
         () -> ctx.reportIssue(logs.key(), MESSAGE));
+  }
+
+  private static void checkCloudFrontDistribution(CheckContext ctx, Resource resource) {
+    PropertyUtils.get(resource.properties(), "DistributionConfig").ifPresentOrElse(
+      config -> reportOnMissingProperty(ctx, config.value(), "Logging", config.key()),
+      () -> reportResource(ctx, resource, MESSAGE));
   }
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {

@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  cloudfrontdistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig: # Noncompliant {{Make sure that disabling logging is safe here.}}
+        DefaultRootObject: "index.html"
+
+  cloudfrontdistribution2:
+    Type: AWS::CloudFront::Distribution # Noncompliant
+    Properties:
+      foo: 'bar'
+
+  cloudfrontdistributionCompliant:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultRootObject: "index.html"
+        Logging: 'foo'
