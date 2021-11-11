@@ -25,7 +25,9 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
+import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.SequenceTree;
+import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -52,6 +54,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkNeptuneDbCluster(ctx, resource);
     } else if (resource.isType("AWS::DocDB::DBCluster")) {
       checkDocDbCluster(ctx, resource);
+    } else if (resource.isType("AWS::AmazonMQ::Broker")) {
+      checkAmazonMQBroker(ctx, resource);
     }
   }
 
@@ -124,6 +128,18 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   private static boolean containsOnlyStringsWithoutAudit(SequenceTree exports) {
     return exports.elements().stream().allMatch(
       export -> export.tag().endsWith("str") && TextUtils.isValue(export, "audit").isFalse());
+  }
+
+  private static void checkAmazonMQBroker(CheckContext ctx, Resource resource) {
+    PropertyUtils.get(resource.properties(), "Logs").ifPresentOrElse(logs -> {
+      if (logs.value() instanceof MappingTree && containsOnlyFalse((MappingTree) logs.value())) {
+        ctx.reportIssue(logs.key(), MESSAGE);
+      }
+    }, () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static boolean containsOnlyFalse(MappingTree logs) {
+    return logs.elements().stream().map(TupleTree::value).allMatch(TextUtils::isValueFalse);
   }
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {

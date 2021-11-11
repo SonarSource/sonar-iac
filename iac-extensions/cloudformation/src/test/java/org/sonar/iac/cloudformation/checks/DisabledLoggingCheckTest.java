@@ -56,4 +56,9 @@ class DisabledLoggingCheckTest {
   void test_doc_db_cluster() {
     CloudformationVerifier.verify("DisabledLoggingCheck/test_doc_db_cluster.yaml", new DisabledLoggingCheck());
   }
+
+  @Test
+  void test_amazon_mq_broker() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_amazon_mq_broker.yaml", new DisabledLoggingCheck());
+  }
 }
