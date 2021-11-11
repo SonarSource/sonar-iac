@@ -43,17 +43,17 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
 
   @Override
   void registerChecks() {
-    register(S3_BUCKET, DisabledLoggingCheck::checkS3Bucket);
-    register("aws_api_gateway_stage", DisabledLoggingCheck::checkApiGatewayStage);
-    register("aws_api_gatewayv2_stage", DisabledLoggingCheck::checkApiGateway2Stage);
-    register("aws_msk_cluster", DisabledLoggingCheck::checkMskCluster);
-    register("aws_neptune_cluster", DisabledLoggingCheck::checkNeptuneCluster);
-    register("aws_docdb_cluster", DisabledLoggingCheck::checkDocDbCluster);
-    register("aws_mq_broker", DisabledLoggingCheck::checkMqBroker);
-    register("aws_redshift_cluster", DisabledLoggingCheck::checkRedshiftCluster);
-    register("aws_globalaccelerator_accelerator", DisabledLoggingCheck::checkGlobalAccelerator);
-    register("aws_elasticsearch_domain", DisabledLoggingCheck::checkElasticSearchDomain);
-    register("aws_cloudfront_distribution", DisabledLoggingCheck::checkCloudfrontDistribution);
+    register(DisabledLoggingCheck::checkS3Bucket, S3_BUCKET);
+    register(DisabledLoggingCheck::checkApiGatewayStage, "aws_api_gateway_stage");
+    register(DisabledLoggingCheck::checkApiGateway2Stage, "aws_api_gatewayv2_stage", "aws_api_gateway_stage");
+    register(DisabledLoggingCheck::checkMskCluster, "aws_msk_cluster");
+    register(DisabledLoggingCheck::checkNeptuneCluster, "aws_neptune_cluster");
+    register(DisabledLoggingCheck::checkDocDbCluster, "aws_docdb_cluster");
+    register(DisabledLoggingCheck::checkMqBroker, "aws_mq_broker");
+    register(DisabledLoggingCheck::checkRedshiftCluster, "aws_redshift_cluster");
+    register(DisabledLoggingCheck::checkGlobalAccelerator, "aws_globalaccelerator_accelerator");
+    register(DisabledLoggingCheck::checkElasticSearchDomain, "aws_elasticsearch_domain");
+    register(DisabledLoggingCheck::checkCloudfrontDistribution, "aws_cloudfront_distribution");
   }
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
@@ -78,9 +78,6 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     PropertyUtils.value(resource, "xray_tracing_enabled")
       .ifPresentOrElse(tracing -> reportOnFalse(ctx, tracing, MESSAGE),
         () -> reportResource(ctx, resource, MESSAGE));
-
-    // check also presence of access_log_settings
-    checkApiGateway2Stage(ctx, resource);
   }
 
   private static void checkApiGateway2Stage(CheckContext ctx, BlockTree resource) {
