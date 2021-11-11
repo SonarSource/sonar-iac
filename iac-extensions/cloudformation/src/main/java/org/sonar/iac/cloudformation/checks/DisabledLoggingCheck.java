@@ -158,7 +158,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkEnabledAuditLogAvailability(CheckContext ctx, PropertyTree logs) {
-PropertyUtils.value(logs.value(), "AUDIT_LOGS").flatMap(v -> PropertyUtils.value(v, "Enabled"))
+    PropertyUtils.value(logs.value(), "AUDIT_LOGS").flatMap(v -> PropertyUtils.value(v, "Enabled"))
       .ifPresentOrElse(auditLogsEnable -> reportOnFalse(ctx, auditLogsEnable),
         () -> ctx.reportIssue(logs.key(), MESSAGE));
   }
