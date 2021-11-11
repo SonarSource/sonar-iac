@@ -41,4 +41,9 @@ class DisabledLoggingCheckTest {
   void test_api_gateway_stage() {
     CloudformationVerifier.verify("DisabledLoggingCheck/test_api_gateway_stage.yaml", new DisabledLoggingCheck());
   }
+
+  @Test
+  void test_aws_msk_cluster() {
+    CloudformationVerifier.verify("DisabledLoggingCheck/test_aws_msk_cluster.yaml", new DisabledLoggingCheck());
+  }
 }
