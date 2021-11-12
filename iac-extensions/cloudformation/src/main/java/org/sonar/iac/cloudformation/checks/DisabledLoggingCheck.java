@@ -39,6 +39,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
   private static final List<String> MSK_LOGGER = Arrays.asList("CloudWatchLogs", "Firehose", "S3");
+  private static final String ENABLED = "Enabled";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -62,6 +63,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkSearchDomain(ctx, resource);
     } else if (resource.isType("AWS::CloudFront::Distribution")) {
       checkCloudFrontDistribution(ctx, resource);
+    } else if (resource.isType("AWS::ElasticLoadBalancing::LoadBalancer")) {
+      checkElasticLoadBalancer(ctx, resource);
     }
   }
 
@@ -110,7 +113,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static boolean isLogEnabled(Tree logger) {
-    return PropertyUtils.value(logger, "Enabled")
+    return PropertyUtils.value(logger, ENABLED)
       .filter(TextUtils::isValueFalse)
       .isEmpty();
   }
@@ -160,14 +163,20 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkEnabledAuditLogAvailability(CheckContext ctx, PropertyTree logs) {
-    PropertyUtils.value(logs.value(), "AUDIT_LOGS").flatMap(v -> PropertyUtils.value(v, "Enabled"))
+    PropertyUtils.value(logs.value(), "AUDIT_LOGS").flatMap(v -> PropertyUtils.value(v, ENABLED))
       .ifPresentOrElse(auditLogsEnable -> reportOnFalse(ctx, auditLogsEnable),
         () -> ctx.reportIssue(logs.key(), MESSAGE));
   }
 
   private static void checkCloudFrontDistribution(CheckContext ctx, Resource resource) {
-    PropertyUtils.get(resource.properties(), "DistributionConfig").ifPresentOrElse(
-      config -> reportOnMissingProperty(ctx, config.value(), "Logging", config.key()),
+    PropertyUtils.get(resource.properties(), "DistributionConfig").ifPresentOrElse(config ->
+        reportOnMissingProperty(ctx, config.value(), "Logging", config.key()),
+      () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkElasticLoadBalancer(CheckContext ctx, Resource resource) {
+    PropertyUtils.value(resource.properties(), "AccessLoggingPolicy").ifPresentOrElse(policy ->
+        PropertyUtils.value(policy, ENABLED).ifPresent(e -> reportOnFalse(ctx, e)),
       () -> reportResource(ctx, resource, MESSAGE));
   }
 
