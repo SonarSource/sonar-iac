@@ -77,9 +77,9 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
   }
 
   private static void checkApiGatewayStage(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.value(resource, "xray_tracing_enabled")
-      .ifPresentOrElse(tracing -> reportOnFalse(ctx, tracing, MESSAGE),
-        () -> reportResource(ctx, resource, MESSAGE));
+    PropertyUtils.value(resource, "xray_tracing_enabled").ifPresentOrElse(tracing ->
+        reportOnFalse(ctx, tracing, MESSAGE),
+      () -> reportResource(ctx, resource, MESSAGE));
   }
 
   private static void checkApiGateway2Stage(CheckContext ctx, BlockTree resource) {
@@ -151,15 +151,13 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
 
   private static void checkRedshiftCluster(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "logging", BlockTree.class).ifPresentOrElse(logging ->
-      PropertyUtils.value(logging, "enable").ifPresentOrElse(enabled ->
-        reportOnFalse(ctx, enabled, MESSAGE), () -> ctx.reportIssue(logging.key(), MESSAGE)),
+        reportOnDisabled(ctx, logging, false, MESSAGE, "enable"),
       () -> reportResource(ctx, resource, MESSAGE));
   }
 
   private static void checkGlobalAccelerator(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "attributes", BlockTree.class).ifPresentOrElse(attributes ->
-        PropertyUtils.value(attributes, "flow_logs_enabled").ifPresentOrElse(enabled ->
-          reportOnFalse(ctx, enabled, MESSAGE), () -> ctx.reportIssue(attributes.key(), MESSAGE)),
+        reportOnDisabled(ctx, attributes, false, MESSAGE, "flow_logs_enabled"),
       () -> reportResource(ctx, resource, MESSAGE));
   }
 
@@ -167,8 +165,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     PropertyUtils.getAll(resource, "log_publishing_options", BlockTree.class).stream()
       .filter(DisabledLoggingCheck::isAuditLog)
       .findFirst()
-      .ifPresentOrElse(auditLog ->
-          PropertyUtils.value(auditLog, "enabled").ifPresent(enabled -> reportOnFalse(ctx, enabled, MESSAGE)),
+      .ifPresentOrElse(auditLog -> reportOnDisabled(ctx, auditLog, true, MESSAGE),
         () -> reportResource(ctx, resource, MESSAGE));
   }
 
@@ -186,17 +183,8 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
 
   private static void checkElasticLoadBalancing(CheckContext ctx, BlockTree resource, boolean enabledByDefault) {
     PropertyUtils.get(resource, "access_logs", BlockTree.class).ifPresentOrElse(logs ->
-        checkAccessLog(ctx, logs, enabledByDefault),
+        reportOnDisabled(ctx, logs, enabledByDefault, MESSAGE),
       () -> reportResource(ctx, resource, MESSAGE));
-  }
-
-  private static void checkAccessLog(CheckContext ctx, BlockTree logs, boolean enabledByDefault) {
-    PropertyUtils.value(logs, "enabled").ifPresentOrElse(enabled ->
-        reportOnFalse(ctx, enabled, MESSAGE),
-      () -> {if (!enabledByDefault) {
-        ctx.reportIssue(logs.key(), MESSAGE);
-      }
-    });
   }
 
 }
