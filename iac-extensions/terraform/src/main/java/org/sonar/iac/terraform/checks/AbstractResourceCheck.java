@@ -24,6 +24,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
@@ -71,5 +72,18 @@ public abstract class AbstractResourceCheck implements IacCheck {
 
   public static void reportResource(CheckContext ctx, BlockTree resource, String message) {
     ctx.reportIssue(resource.labels().get(0), message);
+  }
+
+  public static void reportOnDisabled(CheckContext ctx, BlockTree block, boolean enabledByDefault, String message) {
+    reportOnDisabled(ctx, block, enabledByDefault, message, "enabled");
+  }
+
+  public static void reportOnDisabled(CheckContext ctx, BlockTree block, boolean enabledByDefault, String message, String enablingKey) {
+    PropertyUtils.value(block, enablingKey).ifPresentOrElse(enabled ->
+        reportOnFalse(ctx, enabled, message),
+      () -> {if (!enabledByDefault) {
+        ctx.reportIssue(block.key(), message);
+      }
+    });
   }
 }
