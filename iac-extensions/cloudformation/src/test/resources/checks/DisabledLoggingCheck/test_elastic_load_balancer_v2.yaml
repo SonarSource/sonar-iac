@@ -39,3 +39,10 @@ Resources:
       LoadBalancerAttributes:
         - Key: "access_logs.s3.enabled"
           Value: !Ref foo
+
+  LoadBalancerWithFalseAccessLogsx:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: "NonCompliantLoadBalancer"
+      # This is just for coverage. A sequence with elements that are maps cannot be set as a variable.
+      LoadBalancerAttributes: !Ref notValid # Noncompliant
