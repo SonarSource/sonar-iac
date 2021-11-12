@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  DBInstanceTooLowPeriod:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: 2 # Noncompliant
+
+  DBInstanceMissingPeriod:
+    Type: AWS::RDS::DBInstance # Noncompliant
+    Properties:
+      DBName: NonCompliantDatabase
+
+  DBInstanceCompliantPeriod:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: 7
+
+  DBInstanceCompliantByRef:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: !Ref Period
+
+  DBInstanceSourceDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: NonCompliantDatabase
+      SourceDBInstanceIdentifier: !Ref Source
+
+  DBClusterTooLowPeriod:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: 2 # Noncompliant
+
+  DBClusterMissingPeriod:
+    Type: AWS::RDS::DBCluster # Noncompliant
+    Properties:
+      DBName: NonCompliantDatabase
+
+  DBClusterCompliantPeriod:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: 7
+
+  DBClusterCompliantByRef:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: !Ref Period
+
+  Compliant:
+    Type: Some::Empty::Resource

@@ -50,6 +50,7 @@ public class CloudformationCheckList {
       PrivilegePolicyCheck.class,
       PublicApiCheck.class,
       ResourceAccessPolicyCheck.class,
+      ShortBackupRetentionCheck.class,
       UnencryptedEbsVolumeCheck.class,
       UnencryptedSageMakerNotebookCheck.class,
       UnencryptedSqsQueueCheck.class,
