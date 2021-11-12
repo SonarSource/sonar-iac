@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  LoadBalancerWithoutAttributes:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer" # Noncompliant {{Make sure that disabling logging is safe here.}}
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Properties:
+      Name: "NonCompliantLoadBalancer"
+
+  LoadBalancerWithNoAccessLogs2:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: "NonCompliantLoadBalancer"
+      LoadBalancerAttributes:  # Noncompliant
+    # ^^^^^^^^^^^^^^^^^^^^^^
+        - Key: "fooo"
+          Value: false
+
+  LoadBalancerWithFalseAccessLogs:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: "NonCompliantLoadBalancer"
+      LoadBalancerAttributes:
+        - Key: "access_logs.s3.enabled"
+          Value: false # Noncompliant
+          #      ^^^^^
+
+  LoadBalancerWithTrueAccessLogs:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: "CompliantLoadBalancer"
+      LoadBalancerAttributes:
+        - Key: "access_logs.s3.enabled"
+          Value: true
+
+  LoadBalancerWithUnknownAccessLogs:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: "CompliantLoadBalancer"
+      LoadBalancerAttributes:
+        - Key: "access_logs.s3.enabled"
+          Value: !Ref foo
+
+  LoadBalancerWithFalseAccessLogsx:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: "NonCompliantLoadBalancer"
+      # This is just for coverage. A sequence with elements that are maps cannot be set as a variable.
+      LoadBalancerAttributes: !Ref notValid # Noncompliant
