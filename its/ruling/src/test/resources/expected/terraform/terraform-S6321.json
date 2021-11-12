@@ -5,6 +5,9 @@
 'terraform-project:sources/terraform/ibm-tf-training/s2/s3/main.tf':[
 185,
 ],
+'terraform-project:sources/terraform/terragoat/terraform/aws/ec2.tf':[
+94,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/public_ec2_points_to_private_domain/main.tf':[
 127,
 ],
