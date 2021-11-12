@@ -65,6 +65,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
       checkCloudFrontDistribution(ctx, resource);
     } else if (resource.isType("AWS::ElasticLoadBalancing::LoadBalancer")) {
       checkElasticLoadBalancer(ctx, resource);
+    } else if (resource.isType("AWS::ElasticLoadBalancingV2::LoadBalancer")) {
+      checkElasticLoadBalancerV2(ctx, resource);
     }
   }
 
@@ -178,6 +180,22 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     PropertyUtils.value(resource.properties(), "AccessLoggingPolicy").ifPresentOrElse(policy ->
         PropertyUtils.value(policy, ENABLED).ifPresent(e -> reportOnFalse(ctx, e)),
       () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkElasticLoadBalancerV2(CheckContext ctx, Resource resource) {
+    PropertyUtils.get(resource.properties(), "LoadBalancerAttributes").ifPresentOrElse(attributes ->
+        getAccessLogsAttribute(attributes.value()).ifPresentOrElse(value ->
+          reportOnFalse(ctx, value), () -> ctx.reportIssue(attributes.key(), MESSAGE)),
+      () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static Optional<Tree> getAccessLogsAttribute(Tree attributes) {
+    if (attributes instanceof SequenceTree) {
+      return ((SequenceTree) attributes).elements().stream()
+        .filter(attribute -> TextUtils.isValue(PropertyUtils.valueOrNull(attribute, "Key"), "access_logs.s3.enabled").isTrue())
+        .map(attribute -> PropertyUtils.value(attribute, "Value")).findFirst().orElse(Optional.empty());
+    }
+    return Optional.empty();
   }
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {
