@@ -1,0 +1,15 @@
+{
+  "title": "Defining a short backup retention duration is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6364",
+  "sqKey": "S6364",
+  "scope": "Main",
+  "securityStandards": {}
+}
