@@ -1,0 +1,29 @@
+<p>Reducing the backup retention duration can reduce an organization’s ability to re-establish service in case of a security incident.</p>
+<p>Data backups allow to overcome corruption or unavailability of data by recovering as efficiently as possible from a security incident.</p>
+<p>Backup retention duration, coverage, and backup locations are essential criteria regarding functional continuity.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This component is essential for the information system infrastructure. </li>
+  <li> This component is essential for mission-critical functions. </li>
+  <li> Compliance policies require this component to be backed up for a specific amount of time. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Increase the backup retention period to an amount of time sufficient enough to be able to restore service in case of an incident.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://aws.amazon.com/rds/">Amazon Relational Database Service</a> clusters and instances:</p>
+<pre>
+resource "aws_db_instance" "relational_database" {
+  name                 = "non_compliant_db"
+  backup_retention_period = 2 # Sensitive
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://aws.amazon.com/rds/">Amazon Relational Database Service</a> clusters and instances:</p>
+<pre>
+resource "aws_db_instance" "relational_database" {
+  name                 = "compliant_db"
+  backup_retention_period = 5
+}
+</pre>
+
