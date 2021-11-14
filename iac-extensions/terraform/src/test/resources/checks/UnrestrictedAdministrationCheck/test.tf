@@ -54,6 +54,25 @@ resource "aws_security_group" "ports_zero_to_ssh" {
   }
 }
 
+# Multiple ingress blocks:
+resource "aws_security_group" "ports_zero_to_ssh" {
+  ingress {
+    description      = "SSH from VPC all IPV6"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    ipv6_cidr_blocks = ["::/0"] # Noncompliant
+  }
+
+  ingress {
+    description      = "SSH from VPC IPV6 all ports"
+    from_port        = 0
+    to_port          = 65535
+    protocol         = "tcp"
+    ipv6_cidr_blocks = ["::/0"] # Noncompliant
+  }
+}
+
 resource "aws_security_group" "not_tcp_port" {
   ingress {
     from_port        = 22

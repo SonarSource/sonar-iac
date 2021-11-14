@@ -42,13 +42,13 @@ public class UnrestrictedAdministrationCheck extends AbstractResourceCheck {
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     if (isResource(resource, "aws_security_group")) {
-      PropertyUtils.get(resource, "ingress", BlockTree.class).ifPresent(i -> checkIngress(ctx, i));
+      PropertyUtils.getAll(resource, "ingress", BlockTree.class).forEach(i -> checkIngress(ctx, i));
     }
   }
 
   private static void checkIngress(CheckContext ctx, BlockTree ingress) {
     Optional<TupleTree> defaultRouteCidrTree = getDefaultRouteCidr(ingress);
-    if (!defaultRouteCidrTree.isPresent()) {
+    if (defaultRouteCidrTree.isEmpty()) {
       return;
     }
 
