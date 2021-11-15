@@ -24,7 +24,17 @@ import org.junit.jupiter.api.Test;
 class WeakSSLProtocolCheckTest {
 
   @Test
-  void test() {
-    TerraformVerifier.verify("WeakSSLProtocolCheck/test.tf", new WeakSSLProtocolCheck());
+  void test_api_gateway_name() {
+    TerraformVerifier.verify("WeakSSLProtocolCheck/test_api_gateway_name.tf", new WeakSSLProtocolCheck());
+  }
+
+  @Test
+  void test_api_gatewayv2_name() {
+    TerraformVerifier.verify("WeakSSLProtocolCheck/test_api_gatewayv2_name.tf", new WeakSSLProtocolCheck());
+  }
+
+  @Test
+  void test_aws_elasticsearch_domain() {
+    TerraformVerifier.verify("WeakSSLProtocolCheck/test_aws_elasticsearch_domain.tf", new WeakSSLProtocolCheck());
   }
 }

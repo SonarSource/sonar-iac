@@ -83,6 +83,18 @@ public abstract class AbstractResourceCheck implements IacCheck {
     }
   }
 
+  public static void reportUnexpectedValue(CheckContext ctx, AttributeTree attribute, String expectedValue, String message) {
+    if (TextUtils.isValue(attribute.value(), expectedValue).isFalse()) {
+      ctx.reportIssue(attribute.value(), message);
+    }
+  }
+
+  public static void reportUnexpectedValue(CheckContext ctx, Tree actualValue, String expectedValue, String message) {
+    if (TextUtils.isValue(actualValue, expectedValue).isFalse()) {
+      ctx.reportIssue(actualValue, message);
+    }
+  }
+
 
   public static void reportResource(CheckContext ctx, BlockTree resource, String message) {
     ctx.reportIssue(resource.labels().get(0), message);
