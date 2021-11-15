@@ -4,7 +4,8 @@ resource "aws_docdb_cluster" "sensitive_exports_value" {
                                   # ^^^^^^^^^^^^
 }
 
-resource "aws_docdb_cluster" "missing_exports_value" { # Noncompliant
+# Noncompliant@+1 {{Omitting enabled_cloudwatch_logs_exports makes logs incomplete. Make sure it is safe here.}}
+resource "aws_docdb_cluster" "missing_exports_value" {
   cluster_identifier = "DB Cluster Without Logs"
 }
 

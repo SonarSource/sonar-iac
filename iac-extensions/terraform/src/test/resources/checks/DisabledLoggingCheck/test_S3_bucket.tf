@@ -3,7 +3,8 @@ resource "aws_s3_bucket" "mycompliantloggingbuckets6258" {
   acl    = "log-delivery-write"
 }
 
-resource "aws_s3_bucket" "bucket_with_unrelated_acl" { # Noncompliant {{Make sure that disabling logging is safe here.}}
+# Noncompliant@+1 {{Omitting logging or acl="log-delivery-write" makes logs incomplete. Make sure it is safe here.}}
+resource "aws_s3_bucket" "bucket_with_unrelated_acl" {
   bucket = "bucket_with_unrelated_acl_name"
   acl    = "xxx"
 }
@@ -21,7 +22,9 @@ resource "aws_s3_bucket" "mycompliantbuckets6258" {
       target_prefix = "log/"
   }
 }
-resource "aws_s3_bucket" "mynoncompliantbuckets6258" { # Noncompliant
+
+# Noncompliant@+1 {{Omitting logging or acl="log-delivery-write" makes logs incomplete. Make sure it is safe here.}}
+resource "aws_s3_bucket" "mynoncompliantbuckets6258" {
 #        ^^^^^^^^^^^^^^^
   bucket = "mynoncompliantbuckets6258name"
 }

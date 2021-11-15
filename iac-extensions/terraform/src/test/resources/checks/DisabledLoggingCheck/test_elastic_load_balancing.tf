@@ -1,7 +1,9 @@
-resource "aws_lb" "noncompliant_missing" { # Noncompliant
+# Noncompliant@+1 {{Omitting access_logs makes logs incomplete. Make sure it is safe here.}}
+resource "aws_lb" "noncompliant_missing" {
 }
 
-resource "aws_elb" "noncompliant_missing" { # Noncompliant
+# Noncompliant@+1 {{Omitting access_logs makes logs incomplete. Make sure it is safe here.}}
+resource "aws_elb" "noncompliant_missing" {
 }
 
 resource "aws_lb" "noncompliant_disabled" {
@@ -21,7 +23,7 @@ resource "aws_elb" "noncompliant_disabled" {
 }
 
 resource "aws_lb" "noncompliant_disabled_by_default" {
-  access_logs { # Noncompliant
+  access_logs { # Noncompliant {{Make sure that disabling logging is safe here.}}
 # ^^^^^^^^^^^
     bucket = "mycompliantbucket"
     bucket_prefix = "log/lb-"

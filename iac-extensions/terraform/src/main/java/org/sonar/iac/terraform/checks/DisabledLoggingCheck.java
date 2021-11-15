@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -38,6 +39,7 @@ import org.sonar.iac.terraform.api.tree.TupleTree;
 public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
+  private static final String MESSAGE_OMITTING = "Omitting %s makes logs incomplete. Make sure it is safe here.";
 
   private static final List<String> MSK_LOGGER = Arrays.asList("cloudwatch_logs", "firehose", "s3");
 
@@ -60,7 +62,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
 
   private static void checkS3Bucket(CheckContext ctx, BlockTree resource) {
     if (!isMaybeLoggingBucket(resource) && PropertyUtils.isMissing(resource, "logging")) {
-      reportResource(ctx, resource, MESSAGE);
+      reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "logging or acl=\"log-delivery-write\""));
     }
   }
 
@@ -79,12 +81,12 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
   private static void checkApiGatewayStage(CheckContext ctx, BlockTree resource) {
     PropertyUtils.value(resource, "xray_tracing_enabled").ifPresentOrElse(tracing ->
         reportOnFalse(ctx, tracing, MESSAGE),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "xray_tracing_enabled")));
   }
 
   private static void checkApiGateway2Stage(CheckContext ctx, BlockTree resource) {
     if (PropertyUtils.isMissing(resource, "access_log_settings")) {
-      reportResource(ctx, resource, MESSAGE);
+      reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "access_log_settings"));
     }
   }
 
@@ -92,8 +94,8 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     // look for logging_info::broker_logs, raise issue on certain parent if property is not set
     PropertyUtils.get(resource, "logging_info", BlockTree.class)
       .ifPresentOrElse(info -> PropertyUtils.get(info, "broker_logs", BlockTree.class)
-        .ifPresentOrElse(logs -> checkMskLogs(ctx, logs), () -> ctx.reportIssue(info, MESSAGE)),
-        () -> reportResource(ctx, resource, MESSAGE));
+        .ifPresentOrElse(logs -> checkMskLogs(ctx, logs), () -> ctx.reportIssue(info.key(), String.format(MESSAGE_OMITTING, "broker_logs"))),
+        () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "logging_info.broker_logs")));
   }
 
   private static void checkMskLogs(CheckContext ctx, Tree logs) {
@@ -101,7 +103,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
     if (MSK_LOGGER.stream()
       .noneMatch(name -> PropertyUtils.get(logs, name, BlockTree.class)
         .filter(DisabledLoggingCheck::isLogEnabled).isPresent())) {
-      ctx.reportIssue(logs, MESSAGE);
+      ctx.reportIssue(((PropertyTree)logs).key(), String.format(MESSAGE_OMITTING, "cloudwatch_logs, firehose or s3"));
     }
   }
 
@@ -118,7 +120,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
           ctx.reportIssue(exports, MESSAGE);
         }
       },
-      () -> reportResource(ctx, resource, MESSAGE)
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "enable_cloudwatch_logs_exports"))
     );
   }
 
@@ -127,7 +129,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
       if (exportsProperty instanceof TupleTree && containsOnlyStringsWithoutAudit((TupleTree) exportsProperty)) {
         ctx.reportIssue(exportsProperty, MESSAGE);
       }
-    }, () -> reportResource(ctx, resource, MESSAGE));
+    }, () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "enabled_cloudwatch_logs_exports")));
   }
 
   private static boolean containsOnlyStringsWithoutAudit(TupleTree exports) {
@@ -140,7 +142,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
       if (containsOnlyFalse(logs)) {
         ctx.reportIssue(logs.key(), MESSAGE);
       }
-    }, () -> reportResource(ctx, resource, MESSAGE));
+    }, () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "logs.audit or logs.general")));
   }
 
   private static boolean containsOnlyFalse(BlockTree logs) {
@@ -152,13 +154,13 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
   private static void checkRedshiftCluster(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "logging", BlockTree.class).ifPresentOrElse(logging ->
         reportOnDisabled(ctx, logging, false, MESSAGE, "enable"),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "logging.enable")));
   }
 
   private static void checkGlobalAccelerator(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "attributes", BlockTree.class).ifPresentOrElse(attributes ->
         reportOnDisabled(ctx, attributes, false, MESSAGE, "flow_logs_enabled"),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "attributes.flow_logs_enabled")));
   }
 
   private static void checkElasticSearchDomain(CheckContext ctx, BlockTree resource) {
@@ -166,7 +168,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
       .filter(DisabledLoggingCheck::isAuditLog)
       .findFirst()
       .ifPresentOrElse(auditLog -> reportOnDisabled(ctx, auditLog, true, MESSAGE),
-        () -> reportResource(ctx, resource, MESSAGE));
+        () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "log_publishing_options of type \"AUDIT_LOGS\"")));
   }
 
   private static boolean isAuditLog(BlockTree logOption) {
@@ -177,14 +179,14 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
 
   private static void checkCloudfrontDistribution(CheckContext ctx, BlockTree resource) {
     if (PropertyUtils.isMissing(resource, "logging_config")) {
-      reportResource(ctx, resource, MESSAGE);
+      reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "logging_config"));
     }
   }
 
   private static void checkElasticLoadBalancing(CheckContext ctx, BlockTree resource, boolean enabledByDefault) {
     PropertyUtils.get(resource, "access_logs", BlockTree.class).ifPresentOrElse(logs ->
         reportOnDisabled(ctx, logs, enabledByDefault, MESSAGE),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "access_logs")));
   }
 
 }
