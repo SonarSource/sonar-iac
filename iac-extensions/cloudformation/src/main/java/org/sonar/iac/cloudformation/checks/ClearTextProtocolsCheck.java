@@ -132,7 +132,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     if (transitEncryption.isPresent() && TextUtils.isValue(transitEncryption.get(), "DISABLED").isTrue()) {
       ctx.reportIssue(transitEncryption.get(), MESSAGE_CLEAR_TEXT);
     } else if (transitEncryption.isEmpty()) {
-      ctx.reportIssue(configuration.get().key(), MESSAGE_CLEAR_TEXT);
+      ctx.reportIssue(configuration.get().key(), omittingMessage("TransitEncryption"));
     }
   }
 
