@@ -3,11 +3,11 @@ Resources:
   WeakSecurityPolicyV1:
     Type: AWS::ApiGateway::DomainName
     Properties:
-      SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this code to use a stronger protocol.}}
+      SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
       #               ^^^^^^^^^
 
   NoSecurityPolicyV1:
-    Type: AWS::ApiGateway::DomainName # Noncompliant
+    Type: AWS::ApiGateway::DomainName # Noncompliant {{Omitting SecurityPolicy disables traffic encryption.}}
     #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       Foo: Bar
@@ -21,18 +21,18 @@ Resources:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
       DomainNameConfigurations:
-        SecurityPolicy: "TLS_1_0"  # Noncompliant
+        SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
         #               ^^^^^^^^^
 
   NoSecurityPolicyV2:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
-      DomainNameConfigurations: # Noncompliant
+      DomainNameConfigurations: # Noncompliant {{Omitting SecurityPolicy disables traffic encryption.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^
         Foo: Bar
 
   DomainNameConfiguration:
-    Type: AWS::ApiGatewayV2::DomainName # Noncompliant
+    Type: AWS::ApiGatewayV2::DomainName # Noncompliant {{Omitting DomainNameConfigurations.SecurityPolicy disables traffic encryption.}}
     #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       Foo: Bar
@@ -44,7 +44,7 @@ Resources:
         SecurityPolicy: "TLS_1_2"
 
   ElasticNoOptions:
-    Type: 'AWS::Elasticsearch::Domain' # Noncompliant
+    Type: 'AWS::Elasticsearch::Domain' # Noncompliant {{Omitting DomainEndpointOptions.TLSSecurityPolicy disables traffic encryption.}}
 
   ElasticWeakPolicy:
     Type: 'AWS::Elasticsearch::Domain'
@@ -55,7 +55,7 @@ Resources:
   ElasticNoPolicy:
     Type: 'AWS::Elasticsearch::Domain'
     Properties:
-      DomainEndpointOptions: # Noncompliant
+      DomainEndpointOptions: # Noncompliant {{Omitting TLSSecurityPolicy disables traffic encryption.}}
         Foo: Bar
 
   ElasticStrongPolicy:
@@ -65,7 +65,7 @@ Resources:
         TLSSecurityPolicy: "Policy-Min-TLS-1-2-2019-07"
 
   OpenSearchNoOptions:
-    Type: 'AWS::OpenSearchService::Domain' # Noncompliant
+    Type: 'AWS::OpenSearchService::Domain' # Noncompliant {{Omitting DomainEndpointOptions.TLSSecurityPolicy disables traffic encryption.}}
 
   OpenSearchWeakPolicy:
     Type: 'AWS::OpenSearchService::Domain'
@@ -76,7 +76,7 @@ Resources:
   OpenSearchNoPolicy:
     Type: 'AWS::OpenSearchService::Domain'
     Properties:
-      DomainEndpointOptions: # Noncompliant
+      DomainEndpointOptions: # Noncompliant {{Omitting TLSSecurityPolicy disables traffic encryption.}}
         Foo: Bar
 
   OpenSearchStrongPolicy:

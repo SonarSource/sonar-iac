@@ -29,31 +29,45 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S4423")
 public class WeakSSLProtocolCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Change this code to use a stronger protocol.";
+  private static final String MESSAGE = "Change this configuration to use a stronger protocol.";
   private static final String STRONG_SSL_PROTOCOL = "TLS_1_2";
   private static final String ELASTIC_STRONG_POLICY = "Policy-Min-TLS-1-2-2019-07";
+  private static final String MESSAGE_OMITTING_FORMAT = "Omitting %s disables traffic encryption.";
+  private static final String SECURITY_POLICY_KEY = "SecurityPolicy";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (resource.isType("AWS::ApiGateway::DomainName")) {
-      PropertyUtils.value(resource.properties(), "SecurityPolicy")
-        .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
-          () -> reportResource(ctx, resource, MESSAGE));
+      checkApiGatewayDomain(ctx, resource);
     } else if (resource.isType("AWS::ApiGatewayV2::DomainName")) {
-      PropertyUtils.get(resource.properties(), "DomainNameConfigurations", TupleTree.class)
-        .ifPresentOrElse(policy -> checkDomainNameConfiguration(ctx, policy),
-          () -> reportResource(ctx, resource, MESSAGE));
+      checkApiGatewayDomainV2(ctx, resource);
     } else if (resource.isType("AWS::Elasticsearch::Domain") || resource.isType("AWS::OpenSearchService::Domain")) {
-      PropertyUtils.get(resource.properties(), "DomainEndpointOptions", TupleTree.class)
-        .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
-          () -> reportResource(ctx, resource, MESSAGE));
+      checkSearchDomain(ctx, resource);
     }
   }
 
-  private static void checkDomainNameConfiguration(CheckContext ctx, TupleTree config) {
-    PropertyUtils.value(config.value(), "SecurityPolicy")
+  private static void checkApiGatewayDomainV2(CheckContext ctx, Resource resource) {
+    PropertyUtils.get(resource.properties(), "DomainNameConfigurations", TupleTree.class)
+      .ifPresentOrElse(policy -> checkDomainNameConfiguration(ctx, policy),
+        () -> reportResource(ctx, resource, omittingMessage("DomainNameConfigurations.SecurityPolicy")));
+  }
+
+  private static void checkApiGatewayDomain(CheckContext ctx, Resource resource) {
+    PropertyUtils.value(resource.properties(), SECURITY_POLICY_KEY)
       .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
-        () -> ctx.reportIssue(config.key(), MESSAGE));
+        () -> reportResource(ctx, resource, omittingMessage(SECURITY_POLICY_KEY)));
+  }
+
+  private static void checkSearchDomain(CheckContext ctx, Resource resource) {
+    PropertyUtils.get(resource.properties(), "DomainEndpointOptions", TupleTree.class)
+      .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
+        () -> reportResource(ctx, resource, omittingMessage("DomainEndpointOptions.TLSSecurityPolicy")));
+  }
+
+  private static void checkDomainNameConfiguration(CheckContext ctx, TupleTree config) {
+    PropertyUtils.value(config.value(), SECURITY_POLICY_KEY)
+      .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
+        () -> ctx.reportIssue(config.key(), omittingMessage(SECURITY_POLICY_KEY)));
   }
 
   private static void checkSecurityPolicy(CheckContext ctx, Tree policy) {
@@ -65,12 +79,16 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   private static void checkDomainEndpointOptions(CheckContext ctx, TupleTree options) {
     PropertyUtils.value(options.value(), "TLSSecurityPolicy")
       .ifPresentOrElse(policy -> checkElasticPolicy(ctx, policy),
-        () -> ctx.reportIssue(options.key(), MESSAGE));
+        () -> ctx.reportIssue(options.key(), omittingMessage("TLSSecurityPolicy")));
   }
 
   private static void checkElasticPolicy(CheckContext ctx, Tree policy) {
     if (TextUtils.isValue(policy, ELASTIC_STRONG_POLICY).isFalse()) {
       ctx.reportIssue(policy, MESSAGE);
     }
+  }
+
+  private static String omittingMessage(String missingProperty) {
+    return String.format(MESSAGE_OMITTING_FORMAT, missingProperty);
   }
 }

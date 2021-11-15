@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
   UniqueDocDBThatOmitsLogging:
-    Type: "AWS::DocDB::DBCluster" # Noncompliant {{Make sure that disabling logging is safe here.}}
+    Type: "AWS::DocDB::DBCluster" # Noncompliant {{Omitting EnableCloudwatchLogsExports makes logs incomplete. Make sure it is safe here.}}
     #     ^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       BackupRetentionPeriod : 8
@@ -12,7 +12,7 @@ Resources:
     Properties:
       BackupRetentionPeriod: 8
       DBClusterIdentifier: "unique-db"
-      EnableCloudwatchLogsExports: # Noncompliant
+      EnableCloudwatchLogsExports: # Noncompliant {{Make sure that disabling logging is safe here.}}
   #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         - profiler
 

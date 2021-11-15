@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   ElasticsearchDomain:
-    Type: 'AWS::Elasticsearch::Domain' # Noncompliant {{Make sure that disabling logging is safe here.}}
+    Type: 'AWS::Elasticsearch::Domain' # Noncompliant {{Omitting LogPublishingOptions makes logs incomplete. Make sure it is safe here.}}
 
   OpenSearchDomain:
     Type: 'AWS::OpenSearchService::Domain' # Noncompliant
@@ -9,7 +9,7 @@ Resources:
   ElasticsearchDomainNoAuditLogs:
     Type: 'AWS::Elasticsearch::Domain'
     Properties:
-      LogPublishingOptions: # Noncompliant
+      LogPublishingOptions: # Noncompliant {{Omitting AUDIT_LOGS makes logs incomplete. Make sure it is safe here.}}
         ES_APPLICATION_LOGS:
           Enabled: true
 

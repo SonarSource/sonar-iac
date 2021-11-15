@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   LoadBalancerWithoutAttributes:
-    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer" # Noncompliant {{Make sure that disabling logging is safe here.}}
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer" # Noncompliant {{Omitting LoadBalancerAttributes makes logs incomplete. Make sure it is safe here.}}
     #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       Name: "NonCompliantLoadBalancer"
@@ -10,7 +10,7 @@ Resources:
     Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
     Properties:
       Name: "NonCompliantLoadBalancer"
-      LoadBalancerAttributes:  # Noncompliant
+      LoadBalancerAttributes:  # Noncompliant {{Make sure that disabling logging is safe here.}}
     # ^^^^^^^^^^^^^^^^^^^^^^
         - Key: "fooo"
           Value: false
@@ -21,7 +21,7 @@ Resources:
       Name: "NonCompliantLoadBalancer"
       LoadBalancerAttributes:
         - Key: "access_logs.s3.enabled"
-          Value: false # Noncompliant
+          Value: false # Noncompliant {{Make sure that disabling logging is safe here.}}
           #      ^^^^^
 
   LoadBalancerWithTrueAccessLogs:
