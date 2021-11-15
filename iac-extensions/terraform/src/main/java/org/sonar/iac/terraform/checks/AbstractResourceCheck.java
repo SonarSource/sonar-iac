@@ -26,6 +26,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 public abstract class AbstractResourceCheck implements IacCheck {
@@ -64,11 +65,24 @@ public abstract class AbstractResourceCheck implements IacCheck {
     return tree.labels().isEmpty() ? null : tree.labels().get(0).value();
   }
 
+  public static void reportOnFalse(CheckContext ctx, AttributeTree attribute, String message) {
+    reportOnFalse(ctx, attribute.value(), message);
+  }
+
   public static void reportOnFalse(CheckContext ctx, Tree tree, String message) {
-    if (TextUtils.isValueFalse(tree)) {
-      ctx.reportIssue(tree, message);
+    reportSensitiveValue(ctx, tree, "false", message);
+  }
+
+  public static void reportSensitiveValue(CheckContext ctx, AttributeTree attribute, String sensitiveValue, String message) {
+    reportSensitiveValue(ctx, attribute.value(), sensitiveValue, message);
+  }
+
+  public static void reportSensitiveValue(CheckContext ctx, Tree actualValue, String sensitiveValue, String message) {
+    if (TextUtils.isValue(actualValue, sensitiveValue).isTrue()) {
+      ctx.reportIssue(actualValue, message);
     }
   }
+
 
   public static void reportResource(CheckContext ctx, BlockTree resource, String message) {
     ctx.reportIssue(resource.labels().get(0), message);

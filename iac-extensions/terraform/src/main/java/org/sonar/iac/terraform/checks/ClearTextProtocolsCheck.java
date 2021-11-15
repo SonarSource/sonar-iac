@@ -25,32 +25,27 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 
 @Rule(key = "S5332")
-public class ClearTextProtocolsCheck extends AbstractResourceCheck {
+public class ClearTextProtocolsCheck extends AbstractMultipleResourcesCheck {
 
   private static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use %s instead.";
   private static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
+  private static final String MESSAGE_OMITTING = "Omitting %s enables clear-text traffic. Make sure it is safe here.";
 
   private static final Set<String> SENSITIVE_LB_DEFAULT_ACTION_TYPES = Set.of("fixed-response", "forward");
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_msk_cluster")) {
-      checkMskCluster(ctx, resource);
-    } else if (isResource(resource, "aws_elasticsearch_domain")) {
-      checkESDomain(ctx, resource);
-    } else if (isResource(resource, "aws_lb_listener")) {
-      checkLbListener(ctx, resource);
-    } else if (isResource(resource, "aws_elasticache_replication_group")) {
-      checkESReplicationGroup(ctx, resource);
-    } else if (isResource(resource, "aws_ecs_task_definition")) {
-      checkEcsTaskDefinition(ctx, resource);
-    } else if (isResource(resource, "aws_kinesis_stream")) {
-      checkKinesisStream(ctx, resource);
-    }
+  void registerChecks() {
+    register(ClearTextProtocolsCheck::checkMskCluster, "aws_msk_cluster");
+    register(ClearTextProtocolsCheck::checkESDomain, "aws_elasticsearch_domain");
+    register(ClearTextProtocolsCheck::checkLbListener, "aws_lb_listener");
+    register(ClearTextProtocolsCheck::checkESReplicationGroup, "aws_elasticache_replication_group");
+    register(ClearTextProtocolsCheck::checkEcsTaskDefinition, "aws_ecs_task_definition");
+    register(ClearTextProtocolsCheck::checkKinesisStream, "aws_kinesis_stream");
   }
 
   private static void checkMskCluster(CheckContext ctx, BlockTree resource) {
@@ -72,9 +67,9 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
       .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS")));
 
-    PropertyUtils.get(resource, "node_to_node_encryption", BlockTree.class)
-      .ifPresentOrElse(x -> reportOnFalseProperty(ctx, x, "enabled", MESSAGE_CLEAR_TEXT),
-        () -> ctx.reportIssue(resource.labels().get(0), MESSAGE_CLEAR_TEXT));
+    PropertyUtils.get(resource, "node_to_node_encryption", BlockTree.class).ifPresentOrElse(encryption ->
+        reportOnFalseProperty(ctx, encryption, "enabled", MESSAGE_CLEAR_TEXT),
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "node_to_node_encryption")));
   }
 
   private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message) {
@@ -109,11 +104,9 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void checkESReplicationGroup(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.isMissing(resource, "transit_encryption_enabled")) {
-      reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
-    } else {
-      reportOnFalseProperty(ctx, resource, "transit_encryption_enabled", MESSAGE_CLEAR_TEXT);
-    }
+    PropertyUtils.get(resource, "transit_encryption_enabled", AttributeTree.class).ifPresentOrElse(encryption ->
+        reportOnFalse(ctx, encryption, MESSAGE_CLEAR_TEXT),
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "transit_encryption_enabled")));
   }
 
   private static void checkEcsTaskDefinition(CheckContext ctx, BlockTree resource) {
@@ -123,23 +116,14 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void checkEscVolumeConfig(CheckContext ctx, BlockTree config) {
-    if (PropertyUtils.isMissing(config, "transit_encryption")) {
-      ctx.reportIssue(config.key(), MESSAGE_CLEAR_TEXT);
-    } else {
-      PropertyUtils.value(config, "transit_encryption")
-        .filter(encryption -> TextUtils.isValue(encryption, "DISABLED").isTrue())
-        .ifPresent(e -> ctx.reportIssue(e, MESSAGE_CLEAR_TEXT));
-    }
+    PropertyUtils.get(config, "transit_encryption", AttributeTree.class).ifPresentOrElse(encryption ->
+        reportSensitiveValue(ctx, encryption, "DISABLED", MESSAGE_CLEAR_TEXT),
+      () -> ctx.reportIssue(config.key(), String.format(MESSAGE_OMITTING, "transit_encryption")));
   }
   
   private static void checkKinesisStream(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.isMissing(resource, "encryption_type")) {
-      reportResource(ctx, resource, MESSAGE_CLEAR_TEXT);
-    } else {
-      PropertyUtils.value(resource, "encryption_type")
-        .filter(type -> TextUtils.isValue(type, "NONE").isTrue())
-        .ifPresent(t -> ctx.reportIssue(t, MESSAGE_CLEAR_TEXT));
-    }
+    PropertyUtils.get(resource, "encryption_type", AttributeTree.class).ifPresentOrElse(encryption ->
+        reportSensitiveValue(ctx, encryption, "NONE", MESSAGE_CLEAR_TEXT),
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "encryption_type")));
   }
-
 }
