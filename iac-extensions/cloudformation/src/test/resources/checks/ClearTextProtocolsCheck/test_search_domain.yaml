@@ -25,8 +25,8 @@ Resources:
       NodeToNodeEncryptionOptions:
         Enabled: true
 
-  Test4:
-    Type: AWS::Elasticsearch::Domain # Noncompliant
+  TestBothMissing:
+    Type: AWS::Elasticsearch::Domain # Noncompliant 2
     #     ^^^^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       Foo: bar
