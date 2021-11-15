@@ -36,18 +36,30 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (resource.isType("AWS::ApiGateway::DomainName")) {
-      PropertyUtils.value(resource.properties(), "SecurityPolicy")
-        .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
-          () -> reportResource(ctx, resource, MESSAGE));
+      checkApiGatewayDomain(ctx, resource);
     } else if (resource.isType("AWS::ApiGatewayV2::DomainName")) {
-      PropertyUtils.get(resource.properties(), "DomainNameConfigurations", TupleTree.class)
-        .ifPresentOrElse(policy -> checkDomainNameConfiguration(ctx, policy),
-          () -> reportResource(ctx, resource, MESSAGE));
+      checkApiGatewayDomainV2(ctx, resource);
     } else if (resource.isType("AWS::Elasticsearch::Domain") || resource.isType("AWS::OpenSearchService::Domain")) {
-      PropertyUtils.get(resource.properties(), "DomainEndpointOptions", TupleTree.class)
-        .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
-          () -> reportResource(ctx, resource, MESSAGE));
+      checkSearchDomain(ctx, resource);
     }
+  }
+
+  private static void checkApiGatewayDomainV2(CheckContext ctx, Resource resource) {
+    PropertyUtils.get(resource.properties(), "DomainNameConfigurations", TupleTree.class)
+      .ifPresentOrElse(policy -> checkDomainNameConfiguration(ctx, policy),
+        () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkApiGatewayDomain(CheckContext ctx, Resource resource) {
+    PropertyUtils.value(resource.properties(), "SecurityPolicy")
+      .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
+        () -> reportResource(ctx, resource, MESSAGE));
+  }
+
+  private static void checkSearchDomain(CheckContext ctx, Resource resource) {
+    PropertyUtils.get(resource.properties(), "DomainEndpointOptions", TupleTree.class)
+      .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
+        () -> reportResource(ctx, resource, MESSAGE));
   }
 
   private static void checkDomainNameConfiguration(CheckContext ctx, TupleTree config) {
