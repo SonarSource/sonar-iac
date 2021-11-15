@@ -8,7 +8,7 @@ Resources:
         #        ^^^^^
 
   LoadBalancer2:
-    Type: AWS::ElasticLoadBalancing::LoadBalancer # Noncompliant
+    Type: AWS::ElasticLoadBalancing::LoadBalancer # Noncompliant {{Omitting AccessLoggingPolicy makes logs incomplete. Make sure it is safe here.}}
     Properties:
       foo: 'bar'
 

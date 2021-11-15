@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: MSK Cluster with required properties.
 Resources:
   NoLoggingInfo:
-    Type: 'AWS::MSK::Cluster' # Noncompliant {{Make sure that disabling logging is safe here.}}
+    Type: 'AWS::MSK::Cluster' # Noncompliant {{Omitting LoggingInfo makes logs incomplete. Make sure it is safe here.}}
     #     ^^^^^^^^^^^^^^^^^^^
     Properties:
       ClusterName: SensitiveCluster
@@ -11,7 +11,7 @@ Resources:
     Type: 'AWS::MSK::Cluster'
     Properties:
       ClusterName: SensitiveCluster
-      LoggingInfo: # Noncompliant
+      LoggingInfo: # Noncompliant {{Omitting BrokerLogs makes logs incomplete. Make sure it is safe here.}}
     # ^^^^^^^^^^^
         foo: 'bar'
 
@@ -20,7 +20,7 @@ Resources:
     Properties:
       ClusterName: SensitiveCluster
       LoggingInfo:
-        BrokerLogs: # Noncompliant
+        BrokerLogs: # Noncompliant {{Make sure that disabling logging is safe here.}}
       # ^^^^^^^^^^
           foo: 'bar'
 

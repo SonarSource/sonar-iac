@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   NeptuneMissingLog1:
-    Type: AWS::Neptune::DBCluster # Noncompliant {{Make sure that disabling logging is safe here.}}
+    Type: AWS::Neptune::DBCluster # Noncompliant {{Omitting EnableCloudwatchLogsExports makes logs incomplete. Make sure it is safe here.}}
     #     ^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       EngineVersion: Neptune

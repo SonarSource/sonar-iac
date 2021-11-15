@@ -39,7 +39,9 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
   private static final List<String> MSK_LOGGER = Arrays.asList("CloudWatchLogs", "Firehose", "S3");
+  private static final String MESSAGE_OMITTING_FORMAT = "Omitting %s makes logs incomplete. Make sure it is safe here.";
   private static final String ENABLED = "Enabled";
+  private static final String ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY = "EnableCloudwatchLogsExports";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -73,7 +75,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   private static void checkS3Bucket(CheckContext ctx, Resource resource) {
     CloudformationTree properties = resource.properties();
     if (PropertyUtils.value(properties, "LoggingConfiguration").isEmpty() && !isMaybeLoggingBucket(properties)) {
-      ctx.reportIssue(resource.type(), MESSAGE);
+      ctx.reportIssue(resource.type(), omittingMessage("LoggingConfiguration"));
     }
   }
 
@@ -89,7 +91,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   private static void checkApiGatewayStage(CheckContext ctx, Resource resource) {
     CloudformationTree properties = resource.properties();
     PropertyUtils.value(properties, "TracingEnabled").ifPresentOrElse(f -> reportOnFalse(ctx, f),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> reportResource(ctx, resource, omittingMessage("TracingEnabled")));
     reportOnMissingProperty(ctx, properties, "AccessLogSetting", resource.type());
   }
 
@@ -101,8 +103,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     // look for LoggingInfo::BrokerLogs, raise issue on certain parent if property is not set
     PropertyUtils.get(resource.properties(), "LoggingInfo")
       .ifPresentOrElse(info -> PropertyUtils.get(info.value(), "BrokerLogs")
-          .ifPresentOrElse(logs -> checkMskLogs(ctx, logs), () -> ctx.reportIssue(info.key(), MESSAGE)),
-        () -> reportResource(ctx, resource, MESSAGE));
+          .ifPresentOrElse(logs -> checkMskLogs(ctx, logs), () -> ctx.reportIssue(info.key(), omittingMessage("BrokerLogs"))),
+        () -> reportResource(ctx, resource, omittingMessage("LoggingInfo")));
   }
 
   private static void checkMskLogs(CheckContext ctx, PropertyTree logs) {
@@ -121,19 +123,19 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkNeptuneDbCluster(CheckContext ctx, Resource resource) {
-    PropertyUtils.value(resource.properties(), "EnableCloudwatchLogsExports").ifPresentOrElse(exportsValue -> {
+    PropertyUtils.value(resource.properties(), ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY).ifPresentOrElse(exportsValue -> {
       if (exportsValue instanceof SequenceTree && ((SequenceTree) exportsValue).elements().isEmpty()) {
         ctx.reportIssue(exportsValue, MESSAGE);
       }
-    }, () -> reportResource(ctx, resource, MESSAGE));
+    }, () -> reportResource(ctx, resource, omittingMessage(ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY)));
   }
 
   private static void checkDocDbCluster(CheckContext ctx, Resource resource) {
-    PropertyUtils.get(resource.properties(), "EnableCloudwatchLogsExports").ifPresentOrElse(exportsProperty -> {
+    PropertyUtils.get(resource.properties(), ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY).ifPresentOrElse(exportsProperty -> {
       if (exportsProperty.value() instanceof SequenceTree && containsOnlyStringsWithoutAudit((SequenceTree) exportsProperty.value())) {
         ctx.reportIssue(exportsProperty.key(), MESSAGE);
       }
-    }, () -> reportResource(ctx, resource, MESSAGE));
+    }, () -> reportResource(ctx, resource, omittingMessage(ENABLE_CLOUDWATCH_LOGS_EXPORTS_KEY)));
   }
 
   private static boolean containsOnlyStringsWithoutAudit(SequenceTree exports) {
@@ -155,38 +157,38 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static void checkRedshiftCluster(CheckContext ctx, Resource resource) {
     if (PropertyUtils.isMissing(resource.properties(), "LoggingProperties")) {
-      reportResource(ctx, resource, MESSAGE);
+      reportResource(ctx, resource, omittingMessage("LoggingProperties"));
     }
   }
 
   private static void checkSearchDomain(CheckContext ctx, Resource resource) {
     PropertyUtils.get(resource.properties(), "LogPublishingOptions").ifPresentOrElse(logs -> checkEnabledAuditLogAvailability(ctx, logs),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> reportResource(ctx, resource, omittingMessage("LogPublishingOptions")));
   }
 
   private static void checkEnabledAuditLogAvailability(CheckContext ctx, PropertyTree logs) {
     PropertyUtils.value(logs.value(), "AUDIT_LOGS").flatMap(v -> PropertyUtils.value(v, ENABLED))
       .ifPresentOrElse(auditLogsEnable -> reportOnFalse(ctx, auditLogsEnable),
-        () -> ctx.reportIssue(logs.key(), MESSAGE));
+        () -> ctx.reportIssue(logs.key(), omittingMessage("AUDIT_LOGS")));
   }
 
   private static void checkCloudFrontDistribution(CheckContext ctx, Resource resource) {
     PropertyUtils.get(resource.properties(), "DistributionConfig").ifPresentOrElse(config ->
         reportOnMissingProperty(ctx, config.value(), "Logging", config.key()),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> reportResource(ctx, resource, omittingMessage("DistributionConfig")));
   }
 
   private static void checkElasticLoadBalancer(CheckContext ctx, Resource resource) {
     PropertyUtils.value(resource.properties(), "AccessLoggingPolicy").ifPresentOrElse(policy ->
         PropertyUtils.value(policy, ENABLED).ifPresent(e -> reportOnFalse(ctx, e)),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> reportResource(ctx, resource, omittingMessage("AccessLoggingPolicy")));
   }
 
   private static void checkElasticLoadBalancerV2(CheckContext ctx, Resource resource) {
     PropertyUtils.get(resource.properties(), "LoadBalancerAttributes").ifPresentOrElse(attributes ->
         getAccessLogsAttribute(attributes.value()).ifPresentOrElse(value ->
           reportOnFalse(ctx, value), () -> ctx.reportIssue(attributes.key(), MESSAGE)),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> reportResource(ctx, resource, omittingMessage("LoadBalancerAttributes")));
   }
 
   private static Optional<Tree> getAccessLogsAttribute(Tree attributes) {
@@ -200,7 +202,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static void reportOnMissingProperty(CheckContext ctx, @Nullable Tree properties, String property, Tree raiseOn) {
     if (PropertyUtils.isMissing(properties, property)) {
-      ctx.reportIssue(raiseOn, MESSAGE);
+      ctx.reportIssue(raiseOn, omittingMessage(property));
     }
   }
 
@@ -208,5 +210,9 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     if (TextUtils.isValueFalse(tree)) {
       ctx.reportIssue(tree, MESSAGE);
     }
+  }
+
+  private static String omittingMessage(String missingProperty) {
+    return String.format(MESSAGE_OMITTING_FORMAT, missingProperty);
   }
 }

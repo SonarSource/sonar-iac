@@ -3,11 +3,11 @@ Resources:
   cloudfrontdistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
-      DistributionConfig: # Noncompliant {{Make sure that disabling logging is safe here.}}
+      DistributionConfig: # Noncompliant {{Omitting Logging makes logs incomplete. Make sure it is safe here.}}
         DefaultRootObject: "index.html"
 
   cloudfrontdistribution2:
-    Type: AWS::CloudFront::Distribution # Noncompliant
+    Type: AWS::CloudFront::Distribution # Noncompliant {{Omitting DistributionConfig makes logs incomplete. Make sure it is safe here.}}
     Properties:
       foo: 'bar'
 

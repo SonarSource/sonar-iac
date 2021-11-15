@@ -34,7 +34,8 @@ class DisabledLoggingCheckTest {
   @Test
   void test_s3_json() {
     CloudformationVerifier.verify("DisabledLoggingCheck/test_s3.json", new DisabledLoggingCheck(),
-      new Verifier.Issue(range(5, 14, 5, 31), "Make sure that disabling logging is safe here."));
+      new Verifier.Issue(range(5, 14, 5, 31),
+        "Omitting LoggingConfiguration makes logs incomplete. Make sure it is safe here."));
   }
 
   @Test
