@@ -1,4 +1,5 @@
-resource "aws_mq_broker" "noncompliant_missing" {  # Noncompliant {{Make sure that disabling logging is safe here.}}
+# Noncompliant@+1 {{Omitting logs.audit or logs.general makes logs incomplete. Make sure it is safe here.}}
+resource "aws_mq_broker" "noncompliant_missing" {
   #      ^^^^^^^^^^^^^^^
 }
 
