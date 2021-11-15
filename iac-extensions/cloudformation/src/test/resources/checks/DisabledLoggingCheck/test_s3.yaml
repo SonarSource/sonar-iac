@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   NonCompliantS3Bucket:
-    Type: 'AWS::S3::Bucket' # Noncompliant {{Make sure that disabling logging is safe here.}}
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Omitting LoggingConfiguration makes logs incomplete. Make sure it is safe here.}}
     #     ^^^^^^^^^^^^^^^^^
     Properties:
       BucketName: "NonCompliantS3Bucket"

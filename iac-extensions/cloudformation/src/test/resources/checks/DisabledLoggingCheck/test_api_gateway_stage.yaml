@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   NoLogging:
-    Type: AWS::ApiGateway::Stage # Noncompliant {{Make sure that disabling logging is safe here.}}
+    Type: AWS::ApiGateway::Stage # Noncompliant {{Omitting TracingEnabled makes logs incomplete. Make sure it is safe here.}}
     #     ^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       StageName: Prod
@@ -22,12 +22,12 @@ Resources:
         Format: "..."
 
   NoAccessLogSetting:
-    Type: AWS::ApiGateway::Stage # Noncompliant
+    Type: AWS::ApiGateway::Stage # Noncompliant {{Omitting AccessLogSetting makes logs incomplete. Make sure it is safe here.}}
     Properties:
       TracingEnabled: 'true'
 
   NoAccessLogSettingsV2:
-    Type: AWS::ApiGatewayV2::Stage # Noncompliant
+    Type: AWS::ApiGatewayV2::Stage # Noncompliant {{Omitting AccessLogSettings makes logs incomplete. Make sure it is safe here.}}
     Properties:
       foo: 'bar'
 
