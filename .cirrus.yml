@@ -69,6 +69,26 @@ build_task:
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
+ws_scan_task:
+  depends_on:
+    - build
+  <<: *LINUX_1_CPU_1G
+  # run only on master and long-term branches
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
+  env:
+    WS_APIKEY: ENCRYPTED[!3929c6148b9dfc751a2d17c590b15d755f82cd9c108f2de5f24a5b32f2a0c26144e921fab7e2c959fc2824d6d6d1550d!]
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  whitesource_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - mvn clean install -DskipTests
+    - source ws_scan.sh
+  allow_failures: "true"
+  always:
+    ws_artifacts:
+      path: "whitesource/**/*"
+
 qa_plugin_task:
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G
@@ -106,6 +126,7 @@ promote_task:
     - build
     - qa_plugin
     - qa_ruling
+    - ws_scan
   <<: *ONLY_IF_SONARSOURCE_QA
   <<: *LINUX_1_CPU_1G
   env:
