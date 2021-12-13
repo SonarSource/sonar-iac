@@ -21,6 +21,7 @@ package org.sonar.iac.terraform.checks;
 
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.terraform.checks.azure.ManagedIdentityCheck;
 
 public class TerraformCheckList {
 
@@ -30,6 +31,7 @@ public class TerraformCheckList {
 
   public static List<Class<?>> checks() {
     return Arrays.asList(
+      // AWS
       AnonymousAccessPolicyCheck.class,
       AssignedPublicIPAddressCheck.class,
       AwsTagNameConventionCheck.class,
@@ -55,7 +57,10 @@ public class TerraformCheckList {
       UnencryptedSqsQueueCheck.class,
       UnrestrictedAdministrationCheck.class,
       UnversionedS3BucketCheck.class,
-      WeakSSLProtocolCheck.class
+      WeakSSLProtocolCheck.class,
+
+      // Azure
+      ManagedIdentityCheck.class
     );
   }
 }
