@@ -20,11 +20,17 @@
 package org.sonar.iac.terraform.checks;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.junit.jupiter.api.Test;
 
+import static org.apache.commons.io.filefilter.FileFilterUtils.and;
+import static org.apache.commons.io.filefilter.FileFilterUtils.notFileFilter;
+import static org.apache.commons.io.filefilter.FileFilterUtils.prefixFileFilter;
+import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
+import static org.apache.commons.io.filefilter.FileFilterUtils.trueFileFilter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TerraformCheckListTest {
@@ -34,17 +40,10 @@ class TerraformCheckListTest {
    */
   @Test
   void count() {
-    int count = 0;
-    List<File> files = new ArrayList<>();
-    for (String folder : new String[] { "src/main/java/org/sonar/iac/terraform/checks/"}) {
-      files.addAll(Arrays.asList(new File(folder).listFiles((f, name) -> name.endsWith("java"))));
-    }
-    for (File file : files) {
-      if (file.getName().endsWith("Check.java") && !file.getName().startsWith("Abstract")) {
-        count++;
-      }
-    }
-    assertThat(TerraformCheckList.checks()).hasSize(count);
+    File directory = new File("src/main/java/org/sonar/iac/terraform/checks/");
+    IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
+    Collection<File> files = FileUtils.listFiles(directory, filter, trueFileFilter());
+    assertThat(TerraformCheckList.checks()).hasSize(files.size());
   }
 
   /**
