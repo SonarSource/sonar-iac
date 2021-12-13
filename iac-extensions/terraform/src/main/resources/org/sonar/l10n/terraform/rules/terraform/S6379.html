@@ -1,0 +1,75 @@
+<p>Enabling Azure resource-specific admin accounts can reduce an organization’s ability to protect itself against account or service account
+thefts.</p>
+<p>Full Administrator permissions fail to correctly separate duties and create potentially critical attack vectors on the impacted resources.</p>
+<p>In case of abuse of elevated permissions, both the data on which impacted resources operate and their access traceability are at risk.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This Azure resource is essential for the information system infrastructure. </li>
+  <li> This Azure resource is essential for mission-critical functions. </li>
+  <li> Compliance policies require this resource to disable its administrative accounts or permissions. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Disable the administrative accounts or permissions in this Azure resource.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://docs.microsoft.com/en-us/azure/batch/nodes-and-pools#pools">Azure Batch Pools</a>:</p>
+<pre>
+resource "azurerm_batch_pool" "example" {
+  name = "sensitive"
+
+  start_task {
+    command_line = "echo 'Hello World'"
+    max_task_retry_count = 1
+    wait_for_success = true
+
+    user_identity {
+      auto_user {
+        elevation_level = "Admin" # Sensitive
+        scope = "Task"
+      }
+    }
+  }
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/container-registry/">Azure Container Registries</a>:</p>
+<pre>
+resource "azurerm_container_registry" "example" {
+  name = "example"
+  admin_enabled = true # Sensitive
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://docs.microsoft.com/en-us/azure/batch/nodes-and-pools#pools">Azure Batch Pools</a>:</p>
+<pre>
+resource "azurerm_batch_pool" "example" {
+  name = "example"
+
+  start_task {
+    command_line = "echo 'Hello World'"
+    max_task_retry_count = 1
+    wait_for_success = true
+
+    user_identity {
+      auto_user {
+        elevation_level = "NonAdmin"
+        scope = "Task"
+      }
+    }
+  }
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/container-registry/">Azure Container Registries</a>:</p>
+<pre>
+resource "azurerm_container_registry" "exemple" {
+  name = "example"
+  admin_enabled = false
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
+</ul>
+
