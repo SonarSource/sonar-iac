@@ -33,7 +33,7 @@ public abstract class AbstractMultipleResourcesCheck extends AbstractResourceChe
 
   private final Map<String, List<BiConsumer<CheckContext, BlockTree>>> resourceChecks = new HashMap<>();
 
-  abstract void registerChecks();
+  protected abstract void registerChecks();
 
   protected void register(BiConsumer<CheckContext, BlockTree> resourceCheck, String... resourceNames) {
     Arrays.asList(resourceNames).forEach(resourceName ->
