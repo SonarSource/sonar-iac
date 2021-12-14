@@ -1,0 +1,61 @@
+<p>Azure Active Directory offers built-in roles that can be assigned to users, groups, or service principals. Some of these roles should be carefully
+assigned as they grant sensitive permissions like the ability to reset passwords for all users.</p>
+<p>An Azure account that fails to limit the use of such roles has a higher risk of being breached by a compromised owner.</p>
+<p>This rule raises an issue when one of the following roles is assigned:</p>
+<ul>
+  <li> Application Administrator </li>
+  <li> Authentication Administrator </li>
+  <li> Cloud Application Administrator </li>
+  <li> Global Administrator </li>
+  <li> Groups Administrator </li>
+  <li> Helpdesk Administrator </li>
+  <li> Password Administrator </li>
+  <li> Privileged Authentication Administrator </li>
+  <li> Privileged Role Administrator </li>
+  <li> User Administrator </li>
+</ul>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The user, group, or service principal doesn’t use the entirety of this extensive set of permissions to operate on a day-to-day basis. </li>
+  <li> It is possible to follow the Separation of Duties principle and split permissions between multiple users, but it’s not enforced. </li>
+</ul>
+<p>There is a risk if you answered yes to any of these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Limit the assignment of Global Administrator roles to less than five people or service principals. </li>
+  <li> Apply the least privilege principle by choosing a role with a limited set of permissions. </li>
+  <li> If no built-in role meets your needs, create a custom role with as few permissions as possible. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<pre>
+resource "azuread_directory_role" "example" {
+  display_name = "Privileged Role Administrator" # Sensitive
+}
+resource "azuread_directory_role_member" "example" {
+  role_object_id   = azuread_directory_role.example.object_id
+  member_object_id = data.azuread_user.example.object_id
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+resource "azuread_directory_role" "example" {
+  display_name = "Usage Summary Reports Reader"
+}
+resource "azuread_directory_role_member" "example" {
+  role_object_id   = azuread_directory_role.example.object_id
+  member_object_id = data.azuread_user.example.object_id
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
+  <li> <a href="https://owasp.org/Top10/A03_2021-Injection/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control.html">OWASP Top 10 2017 Category A5</a> - Broken Access
+  Control </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/79.html">MITRE, CWE-266</a> - Incorrect Privilege Assignment </li>
+  <li> <a href="https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference">Azure AD Documentation</a> - Azure AD built-in
+  roles </li>
+  <li> <a href="https://docs.microsoft.com/en-us/azure/active-directory/roles/best-practices">Azure AD Documentation</a> - Best practices for Azure AD
+  roles </li>
+</ul>
+
