@@ -167,7 +167,7 @@ class TerraformSensorTest extends AbstractSensorTest {
 
   @Override
   protected TerraformSensor sensor(CheckFactory checkFactory) {
-    return new TerraformSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language());
+    return new TerraformSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, language());
   }
 
   @Override
