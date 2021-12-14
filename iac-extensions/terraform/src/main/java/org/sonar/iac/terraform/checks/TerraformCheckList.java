@@ -22,6 +22,7 @@ package org.sonar.iac.terraform.checks;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.iac.terraform.checks.azure.ManagedIdentityCheck;
+import org.sonar.iac.terraform.checks.azure.ResourceSpecificAdminAccountCheck;
 
 public class TerraformCheckList {
 
@@ -60,7 +61,8 @@ public class TerraformCheckList {
       WeakSSLProtocolCheck.class,
 
       // Azure
-      ManagedIdentityCheck.class
+      ManagedIdentityCheck.class,
+      ResourceSpecificAdminAccountCheck.class
     );
   }
 }
