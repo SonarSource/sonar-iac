@@ -20,12 +20,14 @@
 package org.sonar.iac.common.extension;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -36,6 +38,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.api.tree.Tree;
@@ -48,11 +51,13 @@ public abstract class IacSensor implements Sensor {
   private static final Logger LOG = Loggers.get(IacSensor.class);
   private static final Pattern EMPTY_FILE_CONTENT_PATTERN = Pattern.compile("\\s*+");
 
-  protected FileLinesContextFactory fileLinesContextFactory;
+  private final SonarRuntime sonarRuntime;
+  protected final FileLinesContextFactory fileLinesContextFactory;
   protected final NoSonarFilter noSonarFilter;
   protected final Language language;
 
-  protected IacSensor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, Language language) {
+  protected IacSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, Language language) {
+    this.sonarRuntime = sonarRuntime;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.noSonarFilter = noSonarFilter;
     this.language = language;
@@ -63,6 +68,7 @@ public abstract class IacSensor implements Sensor {
     descriptor
       .onlyOnLanguage(language.getKey())
       .name("IaC " + language.getName() + " Sensor");
+    processesFilesIndependently(descriptor);
   }
 
   protected abstract TreeParser<Tree> treeParser();
@@ -122,6 +128,18 @@ public abstract class IacSensor implements Sensor {
 
   private boolean isActive(SensorContext sensorContext) {
     return sensorContext.config().getBoolean(getActivationSettingKey()).orElse(false);
+  }
+
+  private void processesFilesIndependently(SensorDescriptor descriptor) {
+    if (!sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
+      return;
+    }
+    try {
+      Method method = descriptor.getClass().getMethod("processesFilesIndependently");
+      method.invoke(descriptor);
+    } catch (ReflectiveOperationException e) {
+      LOG.warn("Could not call SensorDescriptor.processesFilesIndependently() method", e);
+    }
   }
 
   private class Analyzer {

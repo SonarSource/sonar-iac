@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Scanner;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -59,8 +60,9 @@ public class CloudformationSensor extends IacSensor {
   private static final String YAML_LANGUAGE_KEY = "yaml";
   private final Checks<IacCheck> checks;
 
-  public CloudformationSensor(FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory, NoSonarFilter noSonarFilter, CloudformationLanguage language) {
-    super(fileLinesContextFactory, noSonarFilter, language);
+  public CloudformationSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+                              NoSonarFilter noSonarFilter, CloudformationLanguage language) {
+    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(CloudformationExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks((Iterable<?>) CloudformationCheckList.checks());
   }

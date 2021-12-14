@@ -22,6 +22,7 @@ package org.sonar.iac.terraform.plugin;
 import com.sonar.sslr.api.RecognitionException;
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -45,8 +46,9 @@ public class TerraformSensor extends IacSensor {
 
   private final Checks<IacCheck> checks;
 
-  public TerraformSensor(FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory, NoSonarFilter noSonarFilter, TerraformLanguage language) {
-    super(fileLinesContextFactory, noSonarFilter, language);
+  public TerraformSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+                         NoSonarFilter noSonarFilter, TerraformLanguage language) {
+    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks((Iterable<?>) TerraformCheckList.checks());
   }
