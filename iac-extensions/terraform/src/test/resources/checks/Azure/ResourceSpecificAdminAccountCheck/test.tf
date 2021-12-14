@@ -12,7 +12,6 @@ resource "azurerm_container_registry" "missing" {
 }
 
 resource "azurerm_batch_pool" "sensitive_pool" {
-  name = "sensitive"
   start_task {
     user_identity {
       auto_user {
@@ -23,7 +22,6 @@ resource "azurerm_batch_pool" "sensitive_pool" {
 }
 
 resource "azurerm_batch_pool" "compliant_pool" {
-  name = "sensitive"
   start_task {
     user_identity {
       auto_user {
@@ -33,22 +31,29 @@ resource "azurerm_batch_pool" "compliant_pool" {
   }
 }
 
-resource "azurerm_batch_pool" "compliant_pool" {
-  name = "sensitive"
+resource "azurerm_batch_pool" "complinat_with_missing_prop" {
+  start_task {
+    user_identity {
+      auto_user {
+      }
+    }
+  }
+}
+
+
+resource "azurerm_batch_pool" "complinat_with_missing_block" {
   start_task {
     user_identity {
     }
   }
 }
 
-resource "azurerm_batch_pool" "compliant_pool" {
-  name = "sensitive"
+resource "azurerm_batch_pool" "complinat_with_missing_block" {
   start_task {
   }
 }
 
-resource "azurerm_batch_pool" "compliant_pool" {
-  name = "sensitive"
+resource "azurerm_batch_pool" "complinat_with_missing_block" {
 }
 
 resource "some_other_typer" "coverage" {}
