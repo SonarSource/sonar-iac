@@ -1,4 +1,32 @@
+resource "azurerm_role_definition" "subscription-owner-role" {
+  name        = "subscription-owner-role"
+  scope       = data.azurerm_subscription.primary.id
 
+  permissions {
+    actions     = ["*"]
+    not_actions = []
+  }
+
+  assignable_scopes = [
+    # Noncompliant@+1 {{Make sure assigning this role with a Subscription scope is safe here.}}
+    data.azurerm_subscription.primary.id
+  ]
+}
+
+resource "azurerm_role_definition" "subscription-owner-role-multipl-scopes" {
+  name        = "subscription-owner-role"
+  scope       = data.azurerm_subscription.primary.id
+
+  permissions {
+    actions     = ["*"]
+    not_actions = []
+  }
+
+  assignable_scopes = [
+    data.azurerm_subscription.foo.id,
+    data.azurerm_subscription.primary.id # Noncompliant
+  ]
+}
 
 
 # Alternative ways to define a custom role with a subscription assignable scope
