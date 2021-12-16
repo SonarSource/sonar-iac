@@ -131,7 +131,7 @@ class CloudformationSensorTest extends AbstractSensorTest {
 
   @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    return new CloudformationSensor(fileLinesContextFactory, checkFactory, noSonarFilter, language());
+    return new CloudformationSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, language());
   }
 
   @Override
