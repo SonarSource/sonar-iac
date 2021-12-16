@@ -24,6 +24,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
@@ -31,13 +34,16 @@ import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -62,13 +68,36 @@ class IacSensorTest extends AbstractSensorTest {
   };
 
   @Test
-  void test_descriptor() {
+  void test_descriptor_sonarqube_8_9() {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     IacSensor sensor = sensor();
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.languages()).hasSize(1);
     assertThat(sensorDescriptor.languages()).containsExactly("iac");
     assertThat(sensorDescriptor.name()).isEqualTo("IaC Common Sensor");
+  }
+
+
+  @Test
+  void test_descriptor_sonarqube_9_3() {
+    final boolean[] called = {false};
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor() {
+      public SensorDescriptor processesFilesIndependently() {
+        called[0] = true;
+        return this;
+      }
+    };
+    sensor(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER), null)
+      .describe(descriptor);
+    assertThat(called[0]).isTrue();
+  }
+
+  @Test
+  void test_descriptor_sonarqube_9_3_reflection_failure() {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
+    sensor(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER), null)
+      .describe(descriptor);
+    assertThat(logTester.logs()).contains("Could not call SensorDescriptor.processesFilesIndependently() method");
   }
 
   @Test
@@ -285,8 +314,12 @@ class IacSensorTest extends AbstractSensorTest {
 
   @Override
   protected IacSensor sensor(CheckFactory checkFactory) {
+    return sensor(SONAR_RUNTIME_8_9, checkFactory);
+  }
 
-    return new IacSensor(fileLinesContextFactory, noSonarFilter, IacLanguage.IAC) {
+  protected IacSensor sensor(SonarRuntime sonarRuntime, CheckFactory checkFactory) {
+
+    return new IacSensor(sonarRuntime, fileLinesContextFactory, noSonarFilter, IacLanguage.IAC) {
 
       @Override
       protected TreeParser<Tree> treeParser() {
