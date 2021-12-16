@@ -42,8 +42,10 @@ public class CertificateBasedAuthenticationCheck extends AbstractMultipleResourc
   @Override
   protected void registerChecks() {
     register(CertificateBasedAuthenticationCheck::checkAppService, "azurerm_app_service");
-    register(CertificateBasedAuthenticationCheck::checkFunctionAppEtAl, "azurerm_function_app", "azurerm_logic_app_standard");
-    register(CertificateBasedAuthenticationCheck::checkLinuxWebAppEtAl, "azurerm_linux_web_app", "azurerm_windows_web_app");
+    register(CertificateBasedAuthenticationCheck::checkApps, "azurerm_function_app", "azurerm_logic_app_standard");
+    register(CertificateBasedAuthenticationCheck::checkWebApps, "azurerm_linux_web_app", "azurerm_windows_web_app");
+    register(CertificateBasedAuthenticationCheck::checkApiManagement, "azurerm_api_management");
+    register(CertificateBasedAuthenticationCheck::checkLinkedServices, "data_factory_linked_service_sftp", "data_factory_linked_service_web");
   }
 
   private static void checkAppService(CheckContext ctx, BlockTree resource) {
@@ -53,14 +55,14 @@ public class CertificateBasedAuthenticationCheck extends AbstractMultipleResourc
         () -> reportResource(ctx, resource, messageWhenMissing("client_cert_enabled")));
   }
 
-  private static void checkFunctionAppEtAl(CheckContext ctx, BlockTree resource) {
+  private static void checkApps(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "client_cert_mode", AttributeTree.class)
       .ifPresentOrElse(
         m -> reportSensitiveValue(ctx, m, "Optional", MESSAGE_WHEN_DISABLED),
         () -> reportResource(ctx, resource, messageWhenMissing("client_cert_mode")));
   }
 
-  private static void checkLinuxWebAppEtAl(CheckContext ctx, BlockTree resource) {
+  private static void checkWebApps(CheckContext ctx, BlockTree resource) {
     var optCertEnabled = PropertyUtils.get(resource, "client_cert_enabled", AttributeTree.class);
     if (optCertEnabled.isEmpty()) {
       reportResource(ctx, resource, messageWhenMissing("client_cert_enabled"));
@@ -73,6 +75,19 @@ public class CertificateBasedAuthenticationCheck extends AbstractMultipleResourc
           () -> reportResource(ctx, resource, messageWhenMissing("client_cert_mode")));
     }
   }
-//--------------------------------------------------------------------------------
 
+  private static void checkApiManagement(CheckContext ctx, BlockTree resource) {
+    var optSkuName = PropertyUtils.get(resource, "sku_name", AttributeTree.class);
+    if (optSkuName.isPresent() && TextUtils.matchesValue(optSkuName.get(), str -> str.matches("Consumption_[0-9]+")).isTrue()) {
+      PropertyUtils.get(resource, "client_certificate_enabled", AttributeTree.class)
+        .ifPresentOrElse(
+          m -> reportOnFalse(ctx, m, MESSAGE_WHEN_DISABLED),
+          () -> reportResource(ctx, resource, messageWhenMissing("client_certificate_enabled")));
+    }
+  }
+
+  private static void checkLinkedServices(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, "authentication_type", AttributeTree.class)
+      .ifPresent(m -> reportSensitiveValue(ctx, m, "Basic", MESSAGE_WHEN_DISABLED));
+  }
 }
