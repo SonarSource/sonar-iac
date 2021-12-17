@@ -45,7 +45,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractMultipleResourc
     register(CertificateBasedAuthenticationCheck::checkApps, "azurerm_function_app", "azurerm_logic_app_standard");
     register(CertificateBasedAuthenticationCheck::checkWebApps, "azurerm_linux_web_app", "azurerm_windows_web_app");
     register(CertificateBasedAuthenticationCheck::checkApiManagement, "azurerm_api_management");
-    register(CertificateBasedAuthenticationCheck::checkLinkedServices, "data_factory_linked_service_sftp", "data_factory_linked_service_web");
+    register(CertificateBasedAuthenticationCheck::checkLinkedServices, "azurerm_data_factory_linked_service_sftp", "azurerm_data_factory_linked_service_web");
   }
 
   private static void checkAppService(CheckContext ctx, BlockTree resource) {
@@ -77,7 +77,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractMultipleResourc
   }
 
   private static void checkApiManagement(CheckContext ctx, BlockTree resource) {
-    var optSkuName = PropertyUtils.get(resource, "sku_name", AttributeTree.class);
+    var optSkuName = PropertyUtils.value(resource, "sku_name");
     if (optSkuName.isPresent() && TextUtils.matchesValue(optSkuName.get(), str -> str.matches("Consumption_[0-9]+")).isTrue()) {
       PropertyUtils.get(resource, "client_certificate_enabled", AttributeTree.class)
         .ifPresentOrElse(

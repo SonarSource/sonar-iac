@@ -40,4 +40,14 @@ class CertificateBasedAuthenticationCheckTest {
     TerraformVerifier.verify("Azure/CertificateBasedAuthenticationCheck/linux_web_app.tf", new CertificateBasedAuthenticationCheck());
   }
 
+  @Test
+  void test_api_management() {
+    TerraformVerifier.verify("Azure/CertificateBasedAuthenticationCheck/api_management.tf", new CertificateBasedAuthenticationCheck());
+  }
+
+  @Test
+  void test_linked_services() {
+    TerraformVerifier.verify("Azure/CertificateBasedAuthenticationCheck/linked_services.tf", new CertificateBasedAuthenticationCheck());
+  }
+
 }

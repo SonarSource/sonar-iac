@@ -46,9 +46,13 @@ resource "azurerm_linux_web_app" "sensitive8" {
 }
 
 
-
-
 resource "other_resource_type" "compliant2" {
   client_cert_enabled = false # Compliant
   client_cert_mode = "Optional" # Compliant
+}
+
+
+# also check for windows_web_app
+resource "azurerm_windows_web_app" "sensitive2" {
+  client_cert_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
 }
