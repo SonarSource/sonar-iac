@@ -1,0 +1,49 @@
+<p>Azure Resource Manager offers built-in roles that can be assigned to users, groups, or service principals. Some of these roles should be carefully
+assigned as they grant sensitive permissions like the ability to reset passwords for all users.</p>
+<p>An Azure account that fails to limit the use of such roles has a higher risk of being breached by a compromised owner.</p>
+<p>This rule raises an issue when one of the following roles is assigned:</p>
+<ul>
+  <li> Contributor </li>
+  <li> Owner </li>
+  <li> User Access Administrator </li>
+</ul>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The user, group, or service principal doesn’t use the entirety of this extensive set of permissions to operate on a day-to-day basis. </li>
+  <li> It is possible to follow the Separation of Duties principle and split permissions between multiple users, but it’s not enforced. There is a
+  risk if you answered yes to any of these questions. </li>
+</ul>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Limit the assignment of Owner roles to less than 3 people or service principals. </li>
+  <li> Apply the least privilege principle by choosing a role with a limited set of permissions. </li>
+  <li> If no built-in role meets your needs, create a custom role with as few permissions as possible. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<pre>
+resource "azurerm_role_assignment" "example" {
+  scope                = azurerm_resource_group.example.id
+  role_definition_name = "Owner" # Sensitive
+  principal_id         = data.azuread_user.example.id
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+resource "azurerm_role_assignment" "example" {
+  scope                = azurerm_resource_group.example.id
+  role_definition_name = "Azure Maps Data Reader"
+  principal_id         = data.azuread_user.example.id
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
+  <li> <a href="https://owasp.org/Top10/A03_2021-Injection/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control.html">OWASP Top 10 2017 Category A5</a> - Broken Access
+  Control </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/79.html">MITRE, CWE-266</a> - Incorrect Privilege Assignment </li>
+  <li> <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles">Azure Documentation</a> - Azure built-in roles </li>
+  <li> <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/best-practices">Azure Documentation</a> - Best practices for Azure
+  RBAC </li>
+</ul>
+
