@@ -27,6 +27,7 @@ import org.sonar.iac.terraform.checks.azure.HighPrivilegedRoleCheck;
 import org.sonar.iac.terraform.checks.azure.ManagedIdentityCheck;
 import org.sonar.iac.terraform.checks.azure.ResourceSpecificAdminAccountCheck;
 import org.sonar.iac.terraform.checks.azure.SubscriptionOwnerCapabilitiesCheck;
+import org.sonar.iac.terraform.checks.azure.SubscriptionRoleAssignmentCheck;
 
 public class TerraformCheckList {
 
@@ -70,7 +71,8 @@ public class TerraformCheckList {
       HighPrivilegedRoleCheck.class,
       ManagedIdentityCheck.class,
       ResourceSpecificAdminAccountCheck.class,
-      SubscriptionOwnerCapabilitiesCheck.class
+      SubscriptionOwnerCapabilitiesCheck.class,
+      SubscriptionRoleAssignmentCheck.class
     );
   }
 }
