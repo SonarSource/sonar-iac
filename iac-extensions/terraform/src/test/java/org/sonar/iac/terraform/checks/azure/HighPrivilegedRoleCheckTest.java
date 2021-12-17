@@ -22,7 +22,7 @@ package org.sonar.iac.terraform.checks.azure;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.checks.TerraformVerifier;
 
-public class HighPrivilegedRoleCheckTest {
+class HighPrivilegedRoleCheckTest {
 
   @Test
   void test() {
