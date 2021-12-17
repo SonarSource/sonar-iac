@@ -1,4 +1,3 @@
-
 /*
  * SonarQube IaC Plugin
  * Copyright (C) 2021-2021 SonarSource SA
@@ -35,6 +34,9 @@ public class CertificateBasedAuthenticationCheck extends AbstractMultipleResourc
   private static final String MESSAGE_WHEN_DISABLED = "Make sure that disabling certificate-based authentication is safe here.";
   private static final String TEMPLATE_WHEN_MISSING = "Omitting %s disables certificate-based authentication. Make sure it is safe here.";
 
+  private static final String CLIENT_CERT_MODE = "client_cert_mode";
+  private static final String CLIENT_CERT_ENABLED = "client_cert_enabled";
+
   private static String messageWhenMissing(String propName) {
     return String.format(TEMPLATE_WHEN_MISSING, propName);
   }
@@ -49,30 +51,30 @@ public class CertificateBasedAuthenticationCheck extends AbstractMultipleResourc
   }
 
   private static void checkAppService(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "client_cert_enabled", AttributeTree.class)
+    PropertyUtils.get(resource, CLIENT_CERT_ENABLED, AttributeTree.class)
       .ifPresentOrElse(
         m -> reportOnFalse(ctx, m, MESSAGE_WHEN_DISABLED),
-        () -> reportResource(ctx, resource, messageWhenMissing("client_cert_enabled")));
+        () -> reportResource(ctx, resource, messageWhenMissing(CLIENT_CERT_ENABLED)));
   }
 
   private static void checkApps(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "client_cert_mode", AttributeTree.class)
+    PropertyUtils.get(resource, CLIENT_CERT_MODE, AttributeTree.class)
       .ifPresentOrElse(
         m -> reportSensitiveValue(ctx, m, "Optional", MESSAGE_WHEN_DISABLED),
-        () -> reportResource(ctx, resource, messageWhenMissing("client_cert_mode")));
+        () -> reportResource(ctx, resource, messageWhenMissing(CLIENT_CERT_MODE)));
   }
 
   private static void checkWebApps(CheckContext ctx, BlockTree resource) {
-    var optCertEnabled = PropertyUtils.get(resource, "client_cert_enabled", AttributeTree.class);
+    var optCertEnabled = PropertyUtils.get(resource, CLIENT_CERT_ENABLED, AttributeTree.class);
     if (optCertEnabled.isEmpty()) {
-      reportResource(ctx, resource, messageWhenMissing("client_cert_enabled"));
+      reportResource(ctx, resource, messageWhenMissing(CLIENT_CERT_ENABLED));
     } else if (TextUtils.isValueFalse(optCertEnabled.get().value())) {
       ctx.reportIssue(optCertEnabled.get(), MESSAGE_WHEN_DISABLED);
     } else {
-      PropertyUtils.get(resource, "client_cert_mode", AttributeTree.class)
+      PropertyUtils.get(resource, CLIENT_CERT_MODE, AttributeTree.class)
         .ifPresentOrElse(
           m -> reportSensitiveValue(ctx, m, "Optional", MESSAGE_WHEN_DISABLED),
-          () -> reportResource(ctx, resource, messageWhenMissing("client_cert_mode")));
+          () -> reportResource(ctx, resource, messageWhenMissing(CLIENT_CERT_MODE)));
     }
   }
 

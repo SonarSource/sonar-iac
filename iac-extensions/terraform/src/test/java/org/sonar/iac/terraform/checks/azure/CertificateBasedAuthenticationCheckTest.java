@@ -1,4 +1,3 @@
-
 /*
  * SonarQube IaC Plugin
  * Copyright (C) 2021-2021 SonarSource SA
