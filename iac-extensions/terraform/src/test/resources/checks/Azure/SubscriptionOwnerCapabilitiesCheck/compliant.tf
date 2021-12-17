@@ -33,6 +33,6 @@ resource "azurerm_role_definition" "role-with-limited-assignable-scopes-alternat
   }
 
   assignable_scopes = [
-    "/subscriptions/${var.subscription_id}/resourceGroups/${var.environment_name}" # Limited to a resource group
+    "/subscriptions/${data.azurerm_subscription.primary.id}/resourceGroups/${var.environment_name}" # Limited to a resource group
   ]
 }

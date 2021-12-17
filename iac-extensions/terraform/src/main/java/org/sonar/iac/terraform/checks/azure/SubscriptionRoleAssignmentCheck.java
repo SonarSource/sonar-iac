@@ -56,21 +56,11 @@ public class SubscriptionRoleAssignmentCheck extends AbstractMultipleResourcesCh
   private static void checkRoleAssignment(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "scope", AttributeTree.class)
       .ifPresent(scope -> {
-        if (!isLimitedToResourceGroup(scope.value()) &&
-          RoleScopeHelper.isSensitiveScope(scope.value(), REFERENCE_SUBSCRIPTION_SCOPE_PREDICATE, PLAIN_SUBSCRIPTION_SCOPE_PREDICATE)) {
+        if (RoleScopeHelper.isSensitiveScope(scope.value(), REFERENCE_SUBSCRIPTION_SCOPE_PREDICATE, PLAIN_SUBSCRIPTION_SCOPE_PREDICATE)) {
           ctx.reportIssue(scope, SUBSCRIPTION_MESSAGE);
         } else if (RoleScopeHelper.isSensitiveScope(scope.value(), REFERENCE_MANAGEMENT_GROUP_SCOPE_PREDICATE, PLAIN_MANAGEMENT_GROUP_SCOPE_PREDICATE)) {
           ctx.reportIssue(scope, MANAGEMENT_GROUP_MESSAGE);
         }
       });
-  }
-
-  private static boolean isLimitedToResourceGroup(ExpressionTree scope) {
-    if (scope instanceof TemplateExpressionTree) {
-      return ((TemplateExpressionTree) scope).parts().stream()
-        .filter(LiteralExprTree.class::isInstance)
-        .anyMatch(part -> TextUtils.matchesValue(part, s -> s.contains("resourceGroups")).isTrue());
-    }
-    return false;
   }
 }

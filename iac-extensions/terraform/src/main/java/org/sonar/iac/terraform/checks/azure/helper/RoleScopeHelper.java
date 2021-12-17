@@ -21,7 +21,6 @@ package org.sonar.iac.terraform.checks.azure.helper;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -34,7 +33,7 @@ public class RoleScopeHelper {
 
   // Predicates for sensitive subscription scopes
   public static final String REFERENCE_SUBSCRIPTION_SCOPE_PATTERN = "data\\.azurerm_subscription\\.[^.]*(primary|current)[^.]*\\.id";
-  public static final String PLAIN_SUBSCRIPTION_SCOPE_PATTERN = "^/subscriptions/[^/]+/?";
+  public static final String PLAIN_SUBSCRIPTION_SCOPE_PATTERN = "^/subscriptions/[^/]+/?$";
 
   // Predicates for sensitive management group scopes
   public static final String REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN = "data\\.azurerm_management_group\\.[^.]*(parent|root)[^.]*\\.id";
@@ -52,7 +51,8 @@ public class RoleScopeHelper {
     if (scope instanceof AttributeAccessTree) {
       return containsSensitiveScope(((AttributeAccessTree) scope), referenceScopePredicate);
     } else if (scope instanceof TemplateExpressionTree) {
-      return containsSensitiveInterpolations((TemplateExpressionTree) scope, referenceScopePredicate);
+      return !isLimitedToResourceGroup((TemplateExpressionTree) scope)
+       && containsSensitiveInterpolations((TemplateExpressionTree) scope, referenceScopePredicate);
     }
     return TextUtils.matchesValue(scope, plainScopePredicate).isTrue();
   }
@@ -81,5 +81,11 @@ public class RoleScopeHelper {
     }
     sb.append(reference.attribute().value());
     return sb.toString();
+  }
+
+  private static boolean isLimitedToResourceGroup(TemplateExpressionTree scope) {
+    return (scope).parts().stream()
+      .filter(LiteralExprTree.class::isInstance)
+      .anyMatch(part -> TextUtils.matchesValue(part, s -> s.contains("resourceGroups")).isTrue());
   }
 }
