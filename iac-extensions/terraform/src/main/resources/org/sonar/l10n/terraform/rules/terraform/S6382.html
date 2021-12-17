@@ -1,0 +1,95 @@
+<p>Disabling certificate-based authentication can reduce an organization’s ability to react against attacks on its critical functions and data if
+any.</p>
+<p>Azure offers various authentication options to access resources: Anonymous connections, Basic authentication, password-based authentication, and
+certificate-based authentication.</p>
+<p>Choosing certificate-based authentication helps bring client/host trust by allowing the host to verify the client and vice versa. In case of a
+security incident, certificates help bring investigators traceability and allow security operations teams to react faster (by massively revoking
+certificates, for example).</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This Azure resource is essential for the information system infrastructure. </li>
+  <li> This Azure resource is essential for mission-critical functions. </li>
+  <li> Compliance policies require access to this resource to be authenticated with certificates. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Enable certificate-based authentication.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
+<pre>
+resource "azurerm_app_service" "example" {
+  client_cert_enabled = false # Sensitive
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
+href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
+<pre>
+resource "azurerm_function_app" "example" {
+  client_cert_mode = "Optional" # Sensitive
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory Linked Services</a>:</p>
+<pre>
+resource "azurerm_data_factory_linked_service_web" "example" {
+  authentication_type = "Basic" # Sensitive
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
+<pre>
+resource "azurerm_api_management" "example" {
+  sku_name = "Consumption_1"
+  client_certificate_mode = "Optional" # Sensitive
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/app-service/containers/">Linux and Windows Web Apps</a>:</p>
+<pre>
+resource "azurerm_linux_web_app" "example" {
+  client_cert_enabled = false # Sensitive
+}
+resource "azurerm_linux_web_app" "exemple2" {
+  client_cert_enabled = true
+  client_cert_mode = "Optional" # Sensitive
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
+<pre>
+resource "azurerm_app_service" "example" {
+  client_cert_enabled = true
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
+href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
+<pre>
+resource "azurerm_function_app" "example" {
+  client_cert_mode = "Required"
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory Linked Services</a>:</p>
+<pre>
+resource "azurerm_data_factory_linked_service_web" "example" {
+  authentication_type = "ClientCertificate"
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
+<pre>
+resource "azurerm_api_management" "example" {
+  sku_name = "Consumption_1"
+  client_certificate_mode = "Required"
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/app-service/containers/">Linux and Windows Web Apps</a>:</p>
+<pre>
+resource "azurerm_linux_web_app" "exemple" {
+  client_cert_enabled = true
+  client_cert_mode = "Required"
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Boken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+</ul>
+
