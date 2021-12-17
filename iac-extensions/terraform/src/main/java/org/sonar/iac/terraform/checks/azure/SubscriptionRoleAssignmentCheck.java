@@ -23,12 +23,8 @@ import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
 import org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper;
 
