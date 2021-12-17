@@ -21,6 +21,7 @@ package org.sonar.iac.terraform.checks;
 
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.terraform.checks.azure.CertificateBasedAuthenticationCheck;
 import org.sonar.iac.terraform.checks.azure.HigherPrivilegedRoleAssignmentCheck;
 import org.sonar.iac.terraform.checks.azure.ManagedIdentityCheck;
 import org.sonar.iac.terraform.checks.azure.ResourceSpecificAdminAccountCheck;
@@ -63,6 +64,7 @@ public class TerraformCheckList {
       WeakSSLProtocolCheck.class,
 
       // Azure
+      CertificateBasedAuthenticationCheck.class,
       HigherPrivilegedRoleAssignmentCheck.class,
       ManagedIdentityCheck.class,
       ResourceSpecificAdminAccountCheck.class,
