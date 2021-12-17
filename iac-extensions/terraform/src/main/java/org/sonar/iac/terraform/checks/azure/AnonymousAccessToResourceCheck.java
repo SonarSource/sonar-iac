@@ -132,28 +132,28 @@ public class AnonymousAccessToResourceCheck extends AbstractMultipleResourcesChe
       .ifPresent(attr -> reportUnexpectedValue(ctx, attr, "private", AUTHORIZING_POTENTIAL_ANONYMOUS_MESSAGE));
   }
 
-  // TODO refactor the AbstractResourcesCheck::reportOnTrue() method to highlight the complete attribute
+  // TODO refactor the AbstractResourcesCheck::reportOnTrue() method to highlight the complete attribute SONARIAC-286
   public static void reportOnTrue(CheckContext ctx, AttributeTree attribute, String message) {
     if (TextUtils.isValueTrue(attribute.value())) {
       ctx.reportIssue(attribute, message);
     }
   }
 
-  // TODO refactor the AbstractResourcesCheck::reportOnFalse() method to highlight the complete attribute
+  // TODO refactor the AbstractResourcesCheck::reportOnFalse() method to highlight the complete attribute SONARIAC-286
   public static void reportOnFalse(CheckContext ctx, AttributeTree attribute, String message) {
     if (TextUtils.isValueFalse(attribute.value())) {
       ctx.reportIssue(attribute, message);
     }
   }
 
-  // TODO refactor the AbstractResourcesCheck::reportUnexpectedValue() method to highlight the complete attribute
+  // TODO refactor the AbstractResourcesCheck::reportUnexpectedValue() method to highlight the complete attribute SONARIAC-286
   public static void reportUnexpectedValue(CheckContext ctx, AttributeTree attribute, String expectedValue, String message) {
     if (TextUtils.isValue(attribute.value(), expectedValue).isFalse()) {
       ctx.reportIssue(attribute, message);
     }
   }
 
-  // TODO refactor the AbstractResourcesCheck::reportSensitiveValue() method to highlight the complete attribute
+  // TODO refactor the AbstractResourcesCheck::reportSensitiveValue() method to highlight the complete attribute SONARIAC-286
   public static void reportSensitiveValue(CheckContext ctx, AttributeTree attribute, String sensitiveValue, String message) {
     if (TextUtils.isValue(attribute.value(), sensitiveValue).isTrue()) {
       ctx.reportIssue(attribute, message);
