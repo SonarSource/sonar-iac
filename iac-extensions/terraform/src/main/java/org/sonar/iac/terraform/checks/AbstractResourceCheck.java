@@ -19,6 +19,12 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -31,7 +37,8 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 
 public abstract class AbstractResourceCheck implements IacCheck {
 
-  protected static final String S3_BUCKET = "aws_s3_bucket";
+  private final Map<String, List<BiConsumer<CheckContext, BlockTree>>> resourceChecks = new HashMap<>();
+  private final List<BiConsumer<CheckContext, BlockTree>> allResourcesChecks = new ArrayList<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -40,9 +47,27 @@ public abstract class AbstractResourceCheck implements IacCheck {
         checkResource(ctx, tree);
       }
     });
+    registerChecks();
   }
 
-  protected abstract void checkResource(CheckContext ctx, BlockTree resource);
+  protected abstract void registerChecks();
+
+  protected void register(BiConsumer<CheckContext, BlockTree> resourceCheck) {
+    allResourcesChecks.add(resourceCheck);
+  }
+
+  protected void register(BiConsumer<CheckContext, BlockTree> resourceCheck, String... resourceNames) {
+    Arrays.asList(resourceNames).forEach(resourceName ->
+      resourceChecks.computeIfAbsent(resourceName, i -> new ArrayList<>()).add(resourceCheck));
+  }
+
+  protected void checkResource(CheckContext ctx, BlockTree resource) {
+    String resourceType = getResourceType(resource);
+    if (resourceChecks.containsKey(resourceType)) {
+      resourceChecks.get(resourceType).forEach(consumer -> consumer.accept(ctx, resource));
+    }
+    allResourcesChecks.forEach(consumer -> consumer.accept(ctx, resource));
+  }
 
   public static boolean isResource(BlockTree tree) {
     return TextUtils.isValue(tree.key(), "resource").isTrue();
@@ -53,11 +78,11 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   public static boolean isS3Bucket(BlockTree tree) {
-    return S3_BUCKET.equals(getResourceType(tree));
+    return "aws_s3_bucket".equals(getResourceType(tree));
   }
 
   public static boolean isS3BucketResource(BlockTree tree) {
-    return isResource(tree, S3_BUCKET);
+    return isResource(tree, "aws_s3_bucket");
   }
 
   @CheckForNull

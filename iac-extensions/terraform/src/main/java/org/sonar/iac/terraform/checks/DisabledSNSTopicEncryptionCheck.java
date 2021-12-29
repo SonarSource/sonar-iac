@@ -28,9 +28,14 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 public class DisabledSNSTopicEncryptionCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that using unencrypted SNS topics is safe here.";
+
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_sns_topic") && PropertyUtils.isMissing(resource, "kms_master_key_id")) {
+  protected void registerChecks() {
+    register(DisabledSNSTopicEncryptionCheck::checkSnsTopic, "aws_sns_topic");
+  }
+
+  private static void checkSnsTopic(CheckContext ctx, BlockTree resource) {
+    if (PropertyUtils.isMissing(resource, "kms_master_key_id")) {
       reportResource(ctx, resource, MESSAGE);
     }
   }

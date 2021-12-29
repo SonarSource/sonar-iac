@@ -41,6 +41,11 @@ public class ResourceAccessPolicyCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related effect";
 
   @Override
+  protected void registerChecks() {
+    // do not register any check for a specific resource type
+  }
+
+  @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     // Related to SONARIAC-260 and https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
     // The use of 'Resource = "*"' is always safe, so we can ignore the resource for this rule.

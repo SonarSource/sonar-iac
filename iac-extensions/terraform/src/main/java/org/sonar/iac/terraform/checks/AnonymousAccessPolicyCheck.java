@@ -47,6 +47,11 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related effect.";
 
   @Override
+  protected void registerChecks() {
+    // do not register any check for a specific resource type
+  }
+
+  @Override
   public void initialize(InitContext init) {
     super.initialize(init);
 

@@ -32,11 +32,13 @@ public class PublicApiCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure creating a public API is safe here.";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_api_gateway_method")) {
-      PropertyUtils.value(resource, "authorization")
-        .filter(auth -> TextUtils.isValue(auth, "NONE").isTrue())
-        .ifPresent(auth -> ctx.reportIssue(auth, MESSAGE, new SecondaryLocation(resource.labels().get(0), "Related method")));
-    }
+  protected void registerChecks() {
+    register(PublicApiCheck::checkApiGatewayMethod, "aws_api_gateway_method");
+  }
+
+  private static void checkApiGatewayMethod(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.value(resource, "authorization")
+      .filter(auth -> TextUtils.isValue(auth, "NONE").isTrue())
+      .ifPresent(auth -> ctx.reportIssue(auth, MESSAGE, new SecondaryLocation(resource.labels().get(0), "Related method")));
   }
 }

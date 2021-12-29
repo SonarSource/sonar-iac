@@ -36,11 +36,11 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
   private static final String MESSAGE_SECONDARY = "Related bucket";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree tree) {
-    if (!isS3Bucket(tree)) {
-      return;
-    }
+  protected void registerChecks() {
+    register(DisabledMfaBucketDeletionCheck::checkBucket, "aws_s3_bucket");
+  }
 
+  private static void checkBucket(CheckContext ctx, BlockTree tree) {
     LabelTree resourceType = tree.labels().get(0);
     Optional<BlockTree> versioning = PropertyUtils.get(tree, "versioning", BlockTree.class);
     if (versioning.isPresent()) {

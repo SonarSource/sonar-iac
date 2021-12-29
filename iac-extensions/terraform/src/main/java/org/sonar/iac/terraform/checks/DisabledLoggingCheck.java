@@ -36,7 +36,7 @@ import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 
 @Rule(key = "S6258")
-public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
+public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that disabling logging is safe here.";
   private static final String MESSAGE_OMITTING = "Omitting %s makes logs incomplete. Make sure it is safe here.";
@@ -45,7 +45,7 @@ public class DisabledLoggingCheck extends AbstractMultipleResourcesCheck {
 
   @Override
   protected void registerChecks() {
-    register(DisabledLoggingCheck::checkS3Bucket, S3_BUCKET);
+    register(DisabledLoggingCheck::checkS3Bucket, "aws_s3_bucket");
     register(DisabledLoggingCheck::checkApiGatewayStage, "aws_api_gateway_stage");
     register(DisabledLoggingCheck::checkApiGateway2Stage, "aws_api_gatewayv2_stage", "aws_api_gateway_stage");
     register(DisabledLoggingCheck::checkMskCluster, "aws_msk_cluster");

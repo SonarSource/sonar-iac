@@ -26,7 +26,7 @@ import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S4423")
-public class WeakSSLProtocolCheck extends AbstractMultipleResourcesCheck {
+public class WeakSSLProtocolCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Change this configuration to use a stronger protocol.";
   private static final String MESSAGE_OMITTING = "Omitting %s disables traffic encryption. Make sure it is safe here.";

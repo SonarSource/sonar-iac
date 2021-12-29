@@ -30,7 +30,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 
 @Rule(key = "S5332")
-public class ClearTextProtocolsCheck extends AbstractMultipleResourcesCheck {
+public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use %s instead.";
   private static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";

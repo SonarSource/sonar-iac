@@ -33,10 +33,10 @@ import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
-import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
 @Rule(key = "S6385")
-public class SubscriptionOwnerCapabilitiesCheck extends AbstractMultipleResourcesCheck {
+public class SubscriptionOwnerCapabilitiesCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Narrow the actions or assignable scope of this custom role.";
 

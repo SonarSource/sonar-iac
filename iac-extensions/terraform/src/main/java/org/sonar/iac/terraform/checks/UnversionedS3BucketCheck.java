@@ -42,20 +42,22 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related bucket";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree block) {
-    if (!isS3Bucket(block)) {
-      return;
-    }
-    LabelTree bucketLabel = block.labels().get(0);
+  protected void registerChecks() {
+    register(UnversionedS3BucketCheck::checkBucket, "aws_s3_bucket");
+  }
 
-    Optional<BlockTree> versioningBlock = PropertyUtils.get(block, "versioning", BlockTree.class);
+  private static void checkBucket(CheckContext ctx, BlockTree resource) {
+
+    LabelTree bucketLabel = resource.labels().get(0);
+
+    Optional<BlockTree> versioningBlock = PropertyUtils.get(resource, "versioning", BlockTree.class);
     versioningBlock.ifPresent(b -> checkBlock(ctx, bucketLabel, b));
 
-    Optional<AttributeTree> versioningAttribute = PropertyUtils.get(block, "versioning", AttributeTree.class);
+    Optional<AttributeTree> versioningAttribute = PropertyUtils.get(resource, "versioning", AttributeTree.class);
     versioningAttribute.ifPresent(a -> checkAttribute(ctx, bucketLabel, a));
 
-    if (!versioningBlock.isPresent() && !versioningAttribute.isPresent()) {
-      ctx.reportIssue(bucketLabel, String.format(MESSAGE, UNVERSIONED_MSG));
+    if (versioningBlock.isEmpty() && versioningAttribute.isEmpty()) {
+      reportResource(ctx, resource, String.format(MESSAGE, UNVERSIONED_MSG));
     }
   }
 
