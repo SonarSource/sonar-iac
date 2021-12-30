@@ -26,12 +26,12 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
 
 import java.util.Set;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
 @Rule(key = "S6381")
-public class HighPrivilegedRoleCheck extends AbstractMultipleResourcesCheck {
+public class HighPrivilegedRoleCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that assigning the %s role is safe here.";
 
