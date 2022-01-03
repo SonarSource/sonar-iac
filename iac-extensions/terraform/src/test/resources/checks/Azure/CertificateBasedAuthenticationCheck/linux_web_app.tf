@@ -5,6 +5,7 @@ resource "azurerm_linux_web_app" "sensitive1" {
 
 resource "azurerm_linux_web_app" "sensitive2" {
   client_cert_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 # Noncompliant@+1 {{Omitting client_cert_enabled disables certificate-based authentication. Make sure it is safe here.}}

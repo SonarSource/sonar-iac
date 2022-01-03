@@ -12,7 +12,7 @@ resource "aws_globalaccelerator_accelerator" "noncompliant_missing2" {
 resource "aws_globalaccelerator_accelerator" "noncompliant_disabled" {
   attributes {
     flow_logs_enabled = false  # Noncompliant
-                    #   ^^^^^
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^
   }
 }
 

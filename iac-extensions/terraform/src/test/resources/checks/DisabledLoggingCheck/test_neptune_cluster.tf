@@ -1,6 +1,6 @@
 resource "aws_neptune_cluster" "neptune_noncompliant_wrong" {
   enable_cloudwatch_logs_exports = []  # Noncompliant {{Make sure that disabling logging is safe here.}}
-  #                                ^^
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 # Noncompliant@+1 {{Omitting enable_cloudwatch_logs_exports makes logs incomplete. Make sure it is safe here.}}

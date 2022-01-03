@@ -1,6 +1,7 @@
 resource "azurerm_api_management" "example" {
   sku_name = "Consumption_1"
   client_certificate_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 resource "azurerm_api_management" "example" {

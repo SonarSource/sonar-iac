@@ -10,6 +10,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
   volume {
     efs_volume_configuration {
       transit_encryption = "DISABLED"  # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     }
   }
 

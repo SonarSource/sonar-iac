@@ -1,6 +1,6 @@
 resource "aws_kinesis_stream" "sensitive_stream" {
   encryption_type = "NONE" # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
-  #                 ^^^^^^
+# ^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 # Noncompliant@+1 {{Omitting encryption_type enables clear-text traffic. Make sure it is safe here.}}

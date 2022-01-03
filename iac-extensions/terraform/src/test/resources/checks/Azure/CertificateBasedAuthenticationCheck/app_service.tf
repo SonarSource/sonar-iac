@@ -1,5 +1,6 @@
 resource "azurerm_app_service" "sensitive_app_service" {
   client_cert_enabled = false # Noncompliant {{Make sure that disabling certificate-based authentication is safe here.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 # Noncompliant@+1 {{Omitting client_cert_enabled disables certificate-based authentication. Make sure it is safe here.}}

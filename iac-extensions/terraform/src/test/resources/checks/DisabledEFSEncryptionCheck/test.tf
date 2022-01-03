@@ -5,7 +5,7 @@ resource "aws_efs_file_system" "fs" { # Noncompliant {{Make sure that using unen
 resource "aws_efs_file_system" "fs" {
 #        ^^^^^^^^^^^^^^^^^^^^^> {{Related file system}}
   encrypted = false  # Noncompliant {{Make sure that using unencrypted EFS file systems is safe here.}}
-# ^^^^^^^^^
+# ^^^^^^^^^^^^^^^^^
 }
 
 resource "aws_efs_file_system" "fs" { # Compliant

@@ -1,7 +1,7 @@
 resource "aws_db_instance" "too_low_period" {
   name                 = "non_compliant_db"
   backup_retention_period = 2 # Noncompliant {{Make sure that defining a short backup retention duration is safe here.}}
-                          # ^
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 resource "aws_db_instance" "missing_period" { # Noncompliant {{Make sure that defining a short backup retention duration is safe here.}}
@@ -27,7 +27,7 @@ resource "aws_db_instance" "compliant_var_period" {
 resource "aws_rds_cluster" "too_low_period" {
   name                 = "non_compliant_db"
   backup_retention_period = 2 # Noncompliant
-  #                         ^
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 resource "aws_rds_cluster" "missing_period" { # Noncompliant

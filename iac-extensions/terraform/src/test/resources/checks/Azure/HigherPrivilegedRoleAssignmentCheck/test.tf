@@ -2,6 +2,7 @@
 resource "azuread_directory_role" "privileged-role-administrator" {
   # Noncompliant@+1 {{Make sure that assigning the Privileged Role Administrator role is safe here.}}
   display_name = "Privileged Role Administrator"
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 # Assign the "Privileged Role Administrator" role
@@ -14,6 +15,7 @@ resource "azuread_directory_role_member" "privileged-role-administrator-membersh
 resource "azuread_directory_role" "groups-administrator" {
   # Noncompliant@+1 {{Make sure that assigning the Application Administrator role is safe here.}}
   template_id = "9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3"
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 # Assign the "Groups Administrator" role
