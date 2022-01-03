@@ -19,15 +19,13 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.LabelTree;
-import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 @Rule(key = "S6265")
 public class BucketsAccessCheck extends AbstractResourceCheck {
@@ -40,18 +38,13 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
   }
 
   private static void checkBucket(CheckContext ctx, BlockTree tree) {
-    Optional<LiteralExprTree> acl = PropertyUtils.value(tree, "acl", TerraformTree.class)
-      .filter(x -> x.is(TerraformTree.Kind.STRING_LITERAL))
-      .map(LiteralExprTree.class::cast);
-
-    if (acl.isPresent()) {
-      LabelTree resourceType = tree.labels().get(0);
-      String aclValue = acl.get().value();
-      if ("public-read-write".equals(aclValue) || "public-read".equals(aclValue)) {
-        ctx.reportIssue(acl.get(), String.format(MESSAGE, "AllUsers"), new SecondaryLocation(resourceType, SECONDARY_MSG));
-      } else if ("authenticated-read".equals(aclValue)) {
-        ctx.reportIssue(acl.get(), String.format(MESSAGE, "AuthenticatedUsers"), new SecondaryLocation(resourceType, SECONDARY_MSG));
-      }
-    }
+    PropertyUtils.get(tree, "acl", AttributeTree.class)
+      .ifPresent(acl -> {
+        if (TextUtils.matchesValue(acl.value(), s -> "public-read-write".equals(s) || "public-read".equals(s)).isTrue()) {
+          ctx.reportIssue(acl, String.format(MESSAGE, "AllUsers"), new SecondaryLocation(tree.labels().get(0), SECONDARY_MSG));
+        } else if (TextUtils.isValue(acl.value(), "authenticated-read").isTrue()) {
+          ctx.reportIssue(acl, String.format(MESSAGE, "AuthenticatedUsers"), new SecondaryLocation(tree.labels().get(0), SECONDARY_MSG));
+        }
+      });
   }
 }

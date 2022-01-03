@@ -19,14 +19,11 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.Optional;
-
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 
@@ -42,14 +39,8 @@ public class DisabledRDSEncryptionCheck extends AbstractResourceCheck {
   }
 
   private static void checkDbInstance(CheckContext ctx, BlockTree resource) {
-    Optional<PropertyTree> maybeEncryption = PropertyUtils.get(resource, "storage_encrypted");
-    if (maybeEncryption.isPresent()) {
-      PropertyTree encryption = maybeEncryption.get();
-      if (TextUtils.isValueFalse(encryption.value())) {
-        ctx.reportIssue(encryption.key(), MESSAGE, new SecondaryLocation(resource.labels().get(0), SECONDARY_MESSAGE));
-      }
-    } else {
-      ctx.reportIssue(resource.labels().get(0), MESSAGE);
-    }
+    PropertyUtils.get(resource, "storage_encrypted", AttributeTree.class)
+      .ifPresentOrElse(encrypted -> reportOnFalse(ctx, encrypted, MESSAGE, new SecondaryLocation(resource.labels().get(0), SECONDARY_MESSAGE)),
+        () -> reportResource(ctx, resource, MESSAGE));
   }
 }

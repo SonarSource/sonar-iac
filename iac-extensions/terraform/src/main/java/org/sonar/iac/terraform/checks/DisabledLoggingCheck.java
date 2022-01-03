@@ -79,9 +79,9 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkApiGatewayStage(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.value(resource, "xray_tracing_enabled").ifPresentOrElse(tracing ->
-        reportOnFalse(ctx, tracing, MESSAGE),
-      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "xray_tracing_enabled")));
+    PropertyUtils.get(resource, "xray_tracing_enabled", AttributeTree.class)
+      .ifPresentOrElse(tracing -> reportOnFalse(ctx, tracing, MESSAGE),
+        () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "xray_tracing_enabled")));
   }
 
   private static void checkApiGateway2Stage(CheckContext ctx, BlockTree resource) {
@@ -114,9 +114,9 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkNeptuneCluster(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.value(resource, "enable_cloudwatch_logs_exports").ifPresentOrElse(
+    PropertyUtils.get(resource, "enable_cloudwatch_logs_exports", AttributeTree.class).ifPresentOrElse(
       exports -> {
-        if (exports instanceof TupleTree && ((TupleTree) exports).elements().trees().isEmpty()) {
+        if (exports.value() instanceof TupleTree && ((TupleTree) exports.value()).elements().trees().isEmpty()) {
           ctx.reportIssue(exports, MESSAGE);
         }
       },
@@ -125,8 +125,8 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkDocDbCluster(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.value(resource, "enabled_cloudwatch_logs_exports").ifPresentOrElse(exportsProperty -> {
-      if (exportsProperty instanceof TupleTree && containsOnlyStringsWithoutAudit((TupleTree) exportsProperty)) {
+    PropertyUtils.get(resource, "enabled_cloudwatch_logs_exports", AttributeTree.class).ifPresentOrElse(exportsProperty -> {
+      if (exportsProperty.value() instanceof TupleTree && containsOnlyStringsWithoutAudit((TupleTree) exportsProperty.value())) {
         ctx.reportIssue(exportsProperty, MESSAGE);
       }
     }, () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "enabled_cloudwatch_logs_exports")));
@@ -187,6 +187,20 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     PropertyUtils.get(resource, "access_logs", BlockTree.class).ifPresentOrElse(logs ->
         reportOnDisabled(ctx, logs, enabledByDefault, MESSAGE),
       () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "access_logs")));
+  }
+
+  private static void reportOnDisabled(CheckContext ctx, BlockTree block, boolean enabledByDefault, String message) {
+    reportOnDisabled(ctx, block, enabledByDefault, message, "enabled");
+  }
+
+  private static void reportOnDisabled(CheckContext ctx, BlockTree block, boolean enabledByDefault, String message, String enablingKey) {
+    PropertyUtils.get(block, enablingKey, AttributeTree.class)
+      .ifPresentOrElse(enabled -> reportOnFalse(ctx, enabled, message),
+      () -> {
+        if (!enabledByDefault) {
+          ctx.reportIssue(block.key(), message);
+        }
+      });
   }
 
 }

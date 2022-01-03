@@ -29,8 +29,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -93,51 +92,31 @@ public abstract class AbstractResourceCheck implements IacCheck {
     return tree.labels().isEmpty() ? null : tree.labels().get(0).value();
   }
 
-  public static void reportOnFalse(CheckContext ctx, AttributeTree attribute, String message) {
-    reportOnFalse(ctx, attribute.value(), message);
-  }
-
-  public static void reportOnFalse(CheckContext ctx, Tree tree, String message) {
-    reportSensitiveValue(ctx, tree, "false", message);
-  }
-
-  public static void reportSensitiveValue(CheckContext ctx, AttributeTree attribute, String sensitiveValue, String message) {
-    reportSensitiveValue(ctx, attribute.value(), sensitiveValue, message);
-  }
-
-  public static void reportSensitiveValue(CheckContext ctx, Tree actualValue, String sensitiveValue, String message) {
-    if (TextUtils.isValue(actualValue, sensitiveValue).isTrue()) {
-      ctx.reportIssue(actualValue, message);
-    }
-  }
-
-  public static void reportUnexpectedValue(CheckContext ctx, AttributeTree attribute, String expectedValue, String message) {
-    if (TextUtils.isValue(attribute.value(), expectedValue).isFalse()) {
-      ctx.reportIssue(attribute.value(), message);
-    }
-  }
-
-  public static void reportUnexpectedValue(CheckContext ctx, Tree actualValue, String expectedValue, String message) {
-    if (TextUtils.isValue(actualValue, expectedValue).isFalse()) {
-      ctx.reportIssue(actualValue, message);
-    }
-  }
-
-
   public static void reportResource(CheckContext ctx, BlockTree resource, String message) {
     ctx.reportIssue(resource.labels().get(0), message);
   }
 
-  public static void reportOnDisabled(CheckContext ctx, BlockTree block, boolean enabledByDefault, String message) {
-    reportOnDisabled(ctx, block, enabledByDefault, message, "enabled");
+  protected static void reportOnTrue(CheckContext ctx, AttributeTree attribute, String message, SecondaryLocation... secondaries) {
+    if (TextUtils.isValueTrue(attribute.value())) {
+      ctx.reportIssue(attribute, message, Arrays.asList(secondaries));
+    }
   }
 
-  public static void reportOnDisabled(CheckContext ctx, BlockTree block, boolean enabledByDefault, String message, String enablingKey) {
-    PropertyUtils.value(block, enablingKey).ifPresentOrElse(enabled ->
-        reportOnFalse(ctx, enabled, message),
-      () -> {if (!enabledByDefault) {
-        ctx.reportIssue(block.key(), message);
-      }
-    });
+  protected static void reportOnFalse(CheckContext ctx, AttributeTree attribute, String message, SecondaryLocation... secondaries) {
+    if (TextUtils.isValueFalse(attribute.value())) {
+      ctx.reportIssue(attribute, message, Arrays.asList(secondaries));
+    }
+  }
+
+  protected static void reportUnexpectedValue(CheckContext ctx, AttributeTree attribute, String expectedValue, String message, SecondaryLocation... secondaries) {
+    if (TextUtils.isValue(attribute.value(), expectedValue).isFalse()) {
+      ctx.reportIssue(attribute, message, Arrays.asList(secondaries));
+    }
+  }
+
+  protected static void reportSensitiveValue(CheckContext ctx, AttributeTree attribute, String sensitiveValue, String message, SecondaryLocation... secondaries) {
+    if (TextUtils.isValue(attribute.value(), sensitiveValue).isTrue()) {
+      ctx.reportIssue(attribute, message, Arrays.asList(secondaries));
+    }
   }
 }
