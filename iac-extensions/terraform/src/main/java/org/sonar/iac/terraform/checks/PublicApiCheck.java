@@ -21,6 +21,7 @@ package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;

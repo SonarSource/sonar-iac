@@ -42,14 +42,16 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
 
   private static void checkDMSReplicationInstance(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "publicly_accessible", AttributeTree.class)
-      .ifPresentOrElse(publiclyAccessible -> reportOnTrue(ctx, publiclyAccessible, MESSAGE, resourceAsSecondary(resource, SECONDARY_INSTANCE_MESSAGE)),
+      .ifPresentOrElse(publiclyAccessible -> reportOnTrue(ctx, publiclyAccessible, MESSAGE,
+          new SecondaryLocation(resource.labels().get(0),SECONDARY_INSTANCE_MESSAGE)),
         () -> reportResource(ctx, resource, MESSAGE));
   }
 
   private static void checkEC2Instance(CheckContext ctx, BlockTree resource) {
 
     PropertyUtils.get(resource, "associate_public_ip_address", AttributeTree.class)
-      .ifPresentOrElse(publiclyAccessible -> reportOnTrue(ctx, publiclyAccessible, MESSAGE, resourceAsSecondary(resource, SECONDARY_INSTANCE_MESSAGE)),
+      .ifPresentOrElse(publiclyAccessible -> reportOnTrue(ctx, publiclyAccessible, MESSAGE,
+          new SecondaryLocation(resource.labels().get(0), SECONDARY_INSTANCE_MESSAGE)),
         () -> reportResource(ctx, resource, MESSAGE));
   }
 
@@ -60,7 +62,7 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
   }
 
   private static void checkNetworkInterfaces(CheckContext ctx, BlockTree networkInterfaces, BlockTree resource) {
-    SecondaryLocation resourceAsSecondary = resourceAsSecondary(resource, SECONDARY_TEMPLATE_MESSAGE);
+    SecondaryLocation resourceAsSecondary = new SecondaryLocation(resource.labels().get(0), SECONDARY_TEMPLATE_MESSAGE);
     PropertyUtils.get(networkInterfaces, "associate_public_ip_address", AttributeTree.class)
       .ifPresentOrElse(associatePublicIpAddress -> reportOnTrue(ctx, associatePublicIpAddress, MESSAGE, resourceAsSecondary),
         () -> ctx.reportIssue(networkInterfaces.key(), MESSAGE, resourceAsSecondary));
