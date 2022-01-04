@@ -26,10 +26,10 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
 @Rule(key = "S6380")
-public class AnonymousAccessToResourceCheck extends AbstractMultipleResourcesCheck {
+public class AnonymousAccessToResourceCheck extends AbstractResourceCheck {
 
   private static final String APP_AUTH_MISSING_MESSAGE = "Omitting 'auth_settings' disables authentication. Make sure it is safe here.";
   private static final String DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
@@ -41,7 +41,7 @@ public class AnonymousAccessToResourceCheck extends AbstractMultipleResourcesChe
   private static final String AUTHORIZING_POTENTIAL_ANONYMOUS_MESSAGE = "Make sure that authorizing potential anonymous access is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(AnonymousAccessToResourceCheck::checkResourceAuthSettings, "azurerm_app_service",
       "azurerm_app_service_slot",
       "azurerm_function_app",
@@ -50,8 +50,8 @@ public class AnonymousAccessToResourceCheck extends AbstractMultipleResourcesChe
       "azurerm_linux_web_app");
     register(AnonymousAccessToResourceCheck::checkApiManagementApi, "azurerm_api_management_api");
     register(AnonymousAccessToResourceCheck::checkApiManagement, "azurerm_api_management");
-    register(AnonymousAccessToResourceCheck::checkDataFactorLinkSerciceOdata, "azurerm_data_factory_linked_service_odata");
-    register(AnonymousAccessToResourceCheck::checkDataFactorLinkSerciceWebAndSftp, "azurerm_data_factory_linked_service_sftp",
+    register(AnonymousAccessToResourceCheck::checkDataFactorLinkServiceOdata, "azurerm_data_factory_linked_service_odata");
+    register(AnonymousAccessToResourceCheck::checkDataFactorLinkServiceWebAndSftp, "azurerm_data_factory_linked_service_sftp",
       "azurerm_data_factory_linked_service_web");
     register(AnonymousAccessToResourceCheck::checkRedisCache, "azurerm_redis_cache");
     register(AnonymousAccessToResourceCheck::checkStorageAccount, "azurerm_storage_account");
@@ -98,17 +98,17 @@ public class AnonymousAccessToResourceCheck extends AbstractMultipleResourcesChe
   private static void checkApiManagement(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "sign_in", BlockTree.class)
       .ifPresentOrElse(signIn -> PropertyUtils.get(signIn, "enabled", AttributeTree.class)
-        .ifPresent(enabled -> reportOnFalse(ctx, enabled, API_MANAGEMENT_DISABLED_MESSAGE)),
+          .ifPresent(enabled -> reportOnFalse(ctx, enabled, API_MANAGEMENT_DISABLED_MESSAGE)),
         () -> reportResource(ctx, resource, API_MANAGEMENT_MISSING_MESSAGE));
   }
 
-  private static void checkDataFactorLinkSerciceOdata(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.isMissing(resource, "basic_auth")) {
+  private static void checkDataFactorLinkServiceOdata(CheckContext ctx, BlockTree resource) {
+    if (PropertyUtils.isMissing(resource, "basic_authentication")) {
       reportResource(ctx, resource, DATA_FACTORY_LINKED_SERVICE_ODATA_MESSAGE);
     }
   }
 
-  private static void checkDataFactorLinkSerciceWebAndSftp(CheckContext ctx, BlockTree resource) {
+  private static void checkDataFactorLinkServiceWebAndSftp(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "authentication_type", AttributeTree.class)
       .ifPresent(authentication -> reportSensitiveValue(ctx, authentication, "Anonymous", AUTHORIZING_ANONYMOUS_MESSAGE));
   }

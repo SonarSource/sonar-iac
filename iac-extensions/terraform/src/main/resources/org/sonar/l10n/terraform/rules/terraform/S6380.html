@@ -105,8 +105,8 @@ resource "azurerm_data_factory_linked_service_sftp" "example" {
   password            = local.creds.password
 }
 
-resource "data_factory_linked_service_odata" "example" {
-  basic_auth {
+resource "azurerm_data_factory_linked_service_odata" "example" {
+  basic_authentication {
     username = local.creds.username
     password = local.creds.password
   }

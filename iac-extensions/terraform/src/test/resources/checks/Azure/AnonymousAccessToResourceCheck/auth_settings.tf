@@ -34,3 +34,9 @@ resource "azurerm_windows_web_app" "sensitive_web_app" { # Noncompliant
 }
 resource "azurerm_linux_web_app" "sensitive_web_app" { # Noncompliant
 }
+resource "other_resource" "coverage" {
+  auth_settings {
+    enabled = false
+    unauthenticated_client_action = "AllowAnonymous"
+  }
+}

@@ -22,7 +22,6 @@ package org.sonar.iac.terraform.checks.azure;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.checks.TerraformVerifier;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 class AnonymousAccessToResourceCheckTest {
 
