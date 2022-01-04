@@ -27,7 +27,6 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
-import org.sonar.iac.terraform.api.tree.VariableExprTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 import org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper;
 

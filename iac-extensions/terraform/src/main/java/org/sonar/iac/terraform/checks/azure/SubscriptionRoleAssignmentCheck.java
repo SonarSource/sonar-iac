@@ -25,7 +25,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 import org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper;
 
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_MANAGEMENT_GROUP_SCOPE_PATTERN;
@@ -34,7 +34,7 @@ import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERE
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_SUBSCRIPTION_SCOPE_PATTERN;
 
 @Rule(key = "S6387")
-public class SubscriptionRoleAssignmentCheck extends AbstractMultipleResourcesCheck {
+public class SubscriptionRoleAssignmentCheck extends AbstractResourceCheck {
 
   private static final String SUBSCRIPTION_MESSAGE = "Make sure assigning this role with a Subscription scope is safe here.";
   private static final String MANAGEMENT_GROUP_MESSAGE = "Make sure assigning this role with a Management Group scope is safe here.";
@@ -45,7 +45,7 @@ public class SubscriptionRoleAssignmentCheck extends AbstractMultipleResourcesCh
   private static final Predicate<String> PLAIN_MANAGEMENT_GROUP_SCOPE_PREDICATE = RoleScopeHelper.matchPredicate(PLAIN_MANAGEMENT_GROUP_SCOPE_PATTERN);
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(SubscriptionRoleAssignmentCheck::checkRoleAssignment, "azurerm_role_assignment");
   }
 
