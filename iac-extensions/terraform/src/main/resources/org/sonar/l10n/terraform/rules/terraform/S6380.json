@@ -1,0 +1,29 @@
+{
+  "title": "Authorizing anonymous access to Azure resources is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "45min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a5",
+    "azure"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6380",
+  "sqKey": "S6380",
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A5"
+    ],
+    "CWE": [
+      668
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
+    ]
+  }
+}

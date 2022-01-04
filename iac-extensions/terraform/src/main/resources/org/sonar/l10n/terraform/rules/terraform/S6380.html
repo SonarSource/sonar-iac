@@ -1,0 +1,142 @@
+<p>Authorizing anonymous access can reduce an organization’s ability to protect itself against attacks on its Azure resources.</p>
+<p>Security incidents may include disrupting critical functions, data theft, and additional Azure subscription costs due to resource overload.</p>
+<p>Using authentication coupled with fine-grained authorizations helps bring Defense-In-Depth and bring traceability to investigators of security
+incidents.</p>
+<p>Depending on the affected Azure resource, multiple authentication choices are possible: Active Directory Authentication, OpenID implementations
+(Google, Microsoft, etc.) or native Azure mechanisms.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This Azure resource is essential for the information system infrastructure. </li>
+  <li> This Azure resource is essential for mission-critical functions. </li>
+  <li> This Azure resource stores or processes sensitive data. </li>
+  <li> Compliance policies require access to this resource to be authenticated. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Enable authentication in this Azure resource, and disable anonymous access.</p>
+<p>If only Basic Authentication is available, enable it.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
+<pre>
+resource "azurerm_function_app" "example" {
+  name = "example"
+
+  auth_settings {
+    enabled = false # Sensitive
+  }
+
+  auth_settings {
+    enabled = true
+    unauthenticated_client_action = "AllowAnonymous" # Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
+<pre>
+resource "azurerm_api_management_api" "example" { # Sensitive, the openid_authentication block is missing
+  name = "example-api"
+}
+
+resource "azurerm_api_management" "example" {
+  sign_in {
+    enabled = false # Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
+<pre>
+resource "azurerm_data_factory_linked_service_sftp" "example" {
+  authentication_type = "Anonymous"
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts</a>:</p>
+<pre>
+resource "azurerm_storage_account" "example" {
+  allow_blob_public_access = true # Sensitive
+}
+
+resource "azurerm_storage_container" "example" {
+  container_access_type = "blob" # Sensitive
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
+<pre>
+resource "azurerm_redis_cache" "example" {
+  name = "example-cache"
+
+  redis_configuration {
+    enable_authentication = false # Sensitive
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
+<pre>
+resource "azurerm_function_app" "example" {
+  name = "example"
+
+  auth_settings {
+    enabled = true
+    unauthenticated_client_action = "RedirectToLoginPage"
+  }
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
+<pre>
+resource "azurerm_api_management_api" "example" {
+  name = "example-api"
+
+  openid_authentication {
+    openid_provider_name = azurerm_api_management_openid_connect_provider.example.name
+  }
+}
+
+resource "azurerm_api_management" "example" {
+  sign_in {
+    enabled = true
+  }
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
+<pre>
+resource "azurerm_data_factory_linked_service_sftp" "example" {
+  authentication_type = "Basic"
+  username            = local.creds.username
+  password            = local.creds.password
+}
+
+resource "azurerm_data_factory_linked_service_odata" "example" {
+  basic_authentication {
+    username = local.creds.username
+    password = local.creds.password
+  }
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts</a>:</p>
+<pre>
+resource "azurerm_storage_account" "example" {
+  allow_blob_public_access = true
+}
+
+resource "azurerm_storage_container" "example" {
+  container_access_type = "private"
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
+<pre>
+resource "azurerm_redis_cache" "example" {
+  name = "example-cache"
+
+  redis_configuration {
+    enable_authentication = true
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+</ul>
+
