@@ -37,7 +37,7 @@ public class DisabledESDomainEncryptionCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related domain";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(DisabledESDomainEncryptionCheck::checkElasticSearchDomain, "aws_elasticsearch_domain");
   }
 

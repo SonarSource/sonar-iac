@@ -36,7 +36,7 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
   private static final String MESSAGE_SECONDARY = "Related bucket";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(DisabledMfaBucketDeletionCheck::checkBucket, S3_BUCKET);
   }
 

@@ -37,7 +37,7 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
   private static final String SECONDARY_TEMPLATE_MESSAGE = "Related template";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(AssignedPublicIPAddressCheck::checkDMSReplicationInstance, "aws_dms_replication_instance");
     register(AssignedPublicIPAddressCheck::checkEC2Instance, "aws_instance");
     register(AssignedPublicIPAddressCheck::checkEC2LaunchTemplate, "aws_launch_template");

@@ -30,7 +30,7 @@ public class UnencryptedSqsQueueCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted SQS queues is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(UnencryptedSqsQueueCheck::checkQueue, "aws_sqs_queue");
   }
 

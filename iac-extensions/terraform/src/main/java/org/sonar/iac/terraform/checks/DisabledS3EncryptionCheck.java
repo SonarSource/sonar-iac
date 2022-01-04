@@ -29,7 +29,7 @@ public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure not using server-side encryption is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(DisabledS3EncryptionCheck::checkBucket, S3_BUCKET);
   }
 

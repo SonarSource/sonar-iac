@@ -39,7 +39,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   private static final Set<String> SENSITIVE_LB_DEFAULT_ACTION_TYPES = Set.of("fixed-response", "forward");
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(ClearTextProtocolsCheck::checkMskCluster, "aws_msk_cluster");
     register(ClearTextProtocolsCheck::checkESDomain, "aws_elasticsearch_domain");
     register(ClearTextProtocolsCheck::checkLbListener, "aws_lb_listener");

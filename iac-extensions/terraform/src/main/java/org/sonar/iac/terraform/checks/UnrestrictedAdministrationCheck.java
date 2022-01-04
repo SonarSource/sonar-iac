@@ -40,7 +40,7 @@ public class UnrestrictedAdministrationCheck extends AbstractResourceCheck {
   public static final int RDP_PORT = 3389;
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(UnrestrictedAdministrationCheck::checkSecurityGroup, "aws_security_group");
   }
 

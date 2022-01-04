@@ -37,7 +37,7 @@ public class UnencryptedEbsVolumeCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted volumes is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register((ctx, resource) -> checkEncrypted(ctx, resource, "enabled", true), "aws_ebs_encryption_by_default");
     register((ctx, resource) -> checkEncrypted(ctx, resource, "encrypted", false), "aws_ebs_volume");
     register(UnencryptedEbsVolumeCheck::checkEncryptionProperties, "aws_launch_configuration");

@@ -37,7 +37,7 @@ public class DisabledRDSEncryptionCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related RDS DBInstance";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(DisabledRDSEncryptionCheck::checkDbInstance, "aws_db_instance");
   }
 

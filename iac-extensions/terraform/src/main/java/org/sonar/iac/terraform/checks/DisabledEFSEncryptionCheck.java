@@ -37,7 +37,7 @@ public class DisabledEFSEncryptionCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related file system";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(DisabledEFSEncryptionCheck::checkFileSystem, "aws_efs_file_system");
   }
 

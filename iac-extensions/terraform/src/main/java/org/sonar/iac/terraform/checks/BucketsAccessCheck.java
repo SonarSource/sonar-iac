@@ -35,7 +35,7 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MSG = "Related bucket";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(BucketsAccessCheck::checkBucket, S3_BUCKET);
   }
 

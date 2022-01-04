@@ -33,7 +33,7 @@ public class ResourceSpecificAdminAccountCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that enabling an administrative account or administrative permissions is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(ResourceSpecificAdminAccountCheck::checkContainerRegistry, "azurerm_container_registry");
     register(ResourceSpecificAdminAccountCheck::checkBatchPool, "azurerm_batch_pool");
   }

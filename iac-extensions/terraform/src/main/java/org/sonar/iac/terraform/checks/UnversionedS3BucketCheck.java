@@ -42,7 +42,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related bucket";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(UnversionedS3BucketCheck::checkBucket, S3_BUCKET);
   }
 

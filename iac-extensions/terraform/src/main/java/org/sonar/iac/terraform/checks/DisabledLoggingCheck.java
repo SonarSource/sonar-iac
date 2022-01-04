@@ -44,7 +44,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   private static final List<String> MSK_LOGGER = Arrays.asList("cloudwatch_logs", "firehose", "s3");
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(DisabledLoggingCheck::checkS3Bucket, S3_BUCKET);
     register(DisabledLoggingCheck::checkApiGatewayStage, "aws_api_gateway_stage");
     register(DisabledLoggingCheck::checkApiGateway2Stage, "aws_api_gatewayv2_stage", "aws_api_gateway_stage");

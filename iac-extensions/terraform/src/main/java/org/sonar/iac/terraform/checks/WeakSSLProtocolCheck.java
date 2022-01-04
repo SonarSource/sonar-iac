@@ -35,7 +35,7 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   public static final String SECURITY_POLICY = "security_policy";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(WeakSSLProtocolCheck::checkApiGatewayDomainName, "aws_api_gateway_domain_name");
     register(WeakSSLProtocolCheck::checkApiGatewayV2DomainName, "aws_apigatewayv2_domain_name");
     register(WeakSSLProtocolCheck::checkElasticsearchDomain, "aws_elasticsearch_domain");

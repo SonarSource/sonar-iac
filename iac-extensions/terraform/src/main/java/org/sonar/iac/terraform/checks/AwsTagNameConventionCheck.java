@@ -49,7 +49,7 @@ public class AwsTagNameConventionCheck extends AbstractResourceCheck {
   }
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register((ctx, resource) ->
       getTagKeyStream(resource)
         .filter(this::isMismatchingKey)

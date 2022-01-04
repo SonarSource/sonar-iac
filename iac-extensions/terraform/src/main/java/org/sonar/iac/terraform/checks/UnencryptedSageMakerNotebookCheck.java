@@ -30,7 +30,7 @@ public class UnencryptedSageMakerNotebookCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted SageMaker notebook instances is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(UnencryptedSageMakerNotebookCheck::checkInstance, "aws_sagemaker_notebook_instance");
   }
 

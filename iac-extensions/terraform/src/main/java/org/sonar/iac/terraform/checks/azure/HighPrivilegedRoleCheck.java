@@ -38,7 +38,7 @@ public class HighPrivilegedRoleCheck extends AbstractResourceCheck {
   private static final Set<String> HIGH_PRIVILEGED_ROLES = Set.of("Owner", "Contributor", "User Access Administrator");
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(HighPrivilegedRoleCheck::checkRoleDefinitionName, "azurerm_role_assignment");
   }
 

@@ -40,7 +40,7 @@ public class PrivilegePolicyCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related effect";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register((ctx, resource) -> PolicyUtils.getPolicies(resource).forEach(policy -> checkInsecurePolicy(ctx, policy)));
   }
 

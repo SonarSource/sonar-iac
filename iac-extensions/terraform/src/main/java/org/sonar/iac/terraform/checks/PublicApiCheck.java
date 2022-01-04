@@ -32,7 +32,7 @@ public class PublicApiCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure creating a public API is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(PublicApiCheck::checkApiGatewayMethod, "aws_api_gateway_method");
   }
 

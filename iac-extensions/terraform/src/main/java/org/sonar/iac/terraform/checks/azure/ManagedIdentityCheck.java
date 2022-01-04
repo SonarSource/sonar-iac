@@ -33,7 +33,7 @@ public class ManagedIdentityCheck extends AbstractResourceCheck {
   private static final String DATA_FACTORY_MESSAGE = "Make sure that disabling Azure Managed Identities is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(ManagedIdentityCheck::checkDataFactory, "azurerm_data_factory_linked_service_kusto");
     register(ManagedIdentityCheck::checkManagedIdentity, "azurerm_api_management",
       "azurerm_application_gateway",

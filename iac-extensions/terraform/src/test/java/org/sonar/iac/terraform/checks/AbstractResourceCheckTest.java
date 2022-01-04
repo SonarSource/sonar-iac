@@ -85,7 +85,7 @@ class AbstractResourceCheckTest {
     public final Set<BlockTree> visitedBlocks = new HashSet<>();
 
     @Override
-    protected void registerChecks() {
+    protected void registerResourceChecks() {
       register((ctx, resource) -> visitedBlocks.add(resource));
     }
   }

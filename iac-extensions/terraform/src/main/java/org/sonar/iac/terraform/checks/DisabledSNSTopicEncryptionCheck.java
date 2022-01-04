@@ -30,7 +30,7 @@ public class DisabledSNSTopicEncryptionCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted SNS topics is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(DisabledSNSTopicEncryptionCheck::checkSnsTopic, "aws_sns_topic");
   }
 

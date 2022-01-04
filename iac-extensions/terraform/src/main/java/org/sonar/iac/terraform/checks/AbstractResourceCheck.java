@@ -48,10 +48,10 @@ public abstract class AbstractResourceCheck implements IacCheck {
         checkResource(ctx, tree);
       }
     });
-    registerChecks();
+    registerResourceChecks();
   }
 
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     // do not register any check for a specific resource type by default
   }
 

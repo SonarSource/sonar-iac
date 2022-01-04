@@ -56,7 +56,7 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractResourceCheck {
   }
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(SubscriptionOwnerCapabilitiesCheck::checkRoleDefinition, "azurerm_role_definition");
   }
 
