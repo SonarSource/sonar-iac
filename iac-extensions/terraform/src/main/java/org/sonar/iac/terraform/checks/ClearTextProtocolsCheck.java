@@ -30,7 +30,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 
 @Rule(key = "S5332")
-public class ClearTextProtocolsCheck extends AbstractMultipleResourcesCheck {
+public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use %s instead.";
   private static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
@@ -39,7 +39,7 @@ public class ClearTextProtocolsCheck extends AbstractMultipleResourcesCheck {
   private static final Set<String> SENSITIVE_LB_DEFAULT_ACTION_TYPES = Set.of("fixed-response", "forward");
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(ClearTextProtocolsCheck::checkMskCluster, "aws_msk_cluster");
     register(ClearTextProtocolsCheck::checkESDomain, "aws_elasticsearch_domain");
     register(ClearTextProtocolsCheck::checkLbListener, "aws_lb_listener");

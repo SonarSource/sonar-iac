@@ -26,7 +26,7 @@ import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S4423")
-public class WeakSSLProtocolCheck extends AbstractMultipleResourcesCheck {
+public class WeakSSLProtocolCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Change this configuration to use a stronger protocol.";
   private static final String MESSAGE_OMITTING = "Omitting %s disables traffic encryption. Make sure it is safe here.";
@@ -35,7 +35,7 @@ public class WeakSSLProtocolCheck extends AbstractMultipleResourcesCheck {
   public static final String SECURITY_POLICY = "security_policy";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(WeakSSLProtocolCheck::checkApiGatewayDomainName, "aws_api_gateway_domain_name");
     register(WeakSSLProtocolCheck::checkApiGatewayV2DomainName, "aws_apigatewayv2_domain_name");
     register(WeakSSLProtocolCheck::checkElasticsearchDomain, "aws_elasticsearch_domain");

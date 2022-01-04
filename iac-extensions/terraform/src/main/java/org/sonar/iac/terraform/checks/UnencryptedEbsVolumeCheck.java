@@ -37,25 +37,10 @@ public class UnencryptedEbsVolumeCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted volumes is safe here.";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    List<LabelTree> labels = resource.labels();
-    if (labels.isEmpty()) {
-      return;
-    }
-    String resourceName = labels.get(0).value();
-    switch (resourceName) {
-      case "aws_ebs_encryption_by_default":
-        checkEncrypted(ctx, resource, "enabled", true);
-        break;
-      case "aws_ebs_volume":
-        checkEncrypted(ctx, resource, "encrypted", false);
-        break;
-      case "aws_launch_configuration":
-        checkEncryptionProperties(ctx, resource);
-        break;
-      default:
-        // do nothing
-    }
+  protected void registerResourceChecks() {
+    register((ctx, resource) -> checkEncrypted(ctx, resource, "enabled", true), "aws_ebs_encryption_by_default");
+    register((ctx, resource) -> checkEncrypted(ctx, resource, "encrypted", false), "aws_ebs_volume");
+    register(UnencryptedEbsVolumeCheck::checkEncryptionProperties, "aws_launch_configuration");
   }
 
   private static void checkEncryptionProperties(CheckContext ctx, BlockTree resource) {
@@ -70,7 +55,7 @@ public class UnencryptedEbsVolumeCheck extends AbstractResourceCheck {
       .filter(x -> x.is(TerraformTree.Kind.BOOLEAN_LITERAL))
       .map(LiteralExprTree.class::cast);
 
-    if (!booleanProperty.isPresent()) {
+    if (booleanProperty.isEmpty()) {
       if (secureByDefault) {
         return;
       }

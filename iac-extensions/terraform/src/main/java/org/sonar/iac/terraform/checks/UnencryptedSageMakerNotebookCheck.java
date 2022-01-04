@@ -30,8 +30,12 @@ public class UnencryptedSageMakerNotebookCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted SageMaker notebook instances is safe here.";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_sagemaker_notebook_instance") && PropertyUtils.isMissing(resource, "kms_key_id")) {
+  protected void registerResourceChecks() {
+    register(UnencryptedSageMakerNotebookCheck::checkInstance, "aws_sagemaker_notebook_instance");
+  }
+
+  private static void checkInstance(CheckContext ctx, BlockTree resource) {
+    if (PropertyUtils.isMissing(resource, "kms_key_id")) {
       reportResource(ctx, resource, MESSAGE);
     }
   }

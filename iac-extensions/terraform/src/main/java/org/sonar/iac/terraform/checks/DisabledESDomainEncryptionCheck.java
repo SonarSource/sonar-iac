@@ -37,10 +37,11 @@ public class DisabledESDomainEncryptionCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related domain";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (!isResource(resource, "aws_elasticsearch_domain")) {
-      return;
-    }
+  protected void registerResourceChecks() {
+    register(DisabledESDomainEncryptionCheck::checkElasticSearchDomain, "aws_elasticsearch_domain");
+  }
+
+  protected static void checkElasticSearchDomain(CheckContext ctx, BlockTree resource) {
     LabelTree resourceType = resource.labels().get(0);
     Optional<BlockTree> maybeEncryption = PropertyUtils.get(resource, "encrypt_at_rest", BlockTree.class);
     if (maybeEncryption.isPresent()) {

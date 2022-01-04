@@ -40,10 +40,12 @@ public class UnrestrictedAdministrationCheck extends AbstractResourceCheck {
   public static final int RDP_PORT = 3389;
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_security_group")) {
-      PropertyUtils.getAll(resource, "ingress", BlockTree.class).forEach(i -> checkIngress(ctx, i));
-    }
+  protected void registerResourceChecks() {
+    register(UnrestrictedAdministrationCheck::checkSecurityGroup, "aws_security_group");
+  }
+
+  private static void checkSecurityGroup(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.getAll(resource, "ingress", BlockTree.class).forEach(i -> checkIngress(ctx, i));
   }
 
   private static void checkIngress(CheckContext ctx, BlockTree ingress) {

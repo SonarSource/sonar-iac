@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -50,10 +49,11 @@ public class AwsTagNameConventionCheck extends AbstractResourceCheck {
   }
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    getTagKeyStream(resource)
-      .filter(this::isMismatchingKey)
-      .forEach(tagKey -> ctx.reportIssue(tagKey, String.format(MESSAGE, tagKey.value(), format)));
+  protected void registerResourceChecks() {
+    register((ctx, resource) ->
+      getTagKeyStream(resource)
+        .filter(this::isMismatchingKey)
+        .forEach(tagKey -> ctx.reportIssue(tagKey, String.format(MESSAGE, tagKey.value(), format))));
   }
 
   private static Stream<LiteralExprTree> getTagKeyStream(BlockTree resource) {

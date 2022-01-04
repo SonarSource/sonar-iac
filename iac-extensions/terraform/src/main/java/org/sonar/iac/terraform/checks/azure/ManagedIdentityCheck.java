@@ -24,16 +24,16 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
 @Rule(key = "S6378")
-public class ManagedIdentityCheck extends AbstractMultipleResourcesCheck {
+public class ManagedIdentityCheck extends AbstractResourceCheck {
 
   private static final String MANAGED_IDENTITY_MESSAGE = "Make sure that disabling Azure Managed Identities by not specifying identity is safe here.";
   private static final String DATA_FACTORY_MESSAGE = "Make sure that disabling Azure Managed Identities is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(ManagedIdentityCheck::checkDataFactory, "azurerm_data_factory_linked_service_kusto");
     register(ManagedIdentityCheck::checkManagedIdentity, "azurerm_api_management",
       "azurerm_application_gateway",

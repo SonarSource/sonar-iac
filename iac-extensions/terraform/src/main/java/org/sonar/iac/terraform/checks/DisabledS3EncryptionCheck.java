@@ -29,8 +29,12 @@ public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure not using server-side encryption is safe here.";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isS3Bucket(resource) && PropertyUtils.isMissing(resource, "server_side_encryption_configuration")) {
+  protected void registerResourceChecks() {
+    register(DisabledS3EncryptionCheck::checkBucket, S3_BUCKET);
+  }
+
+  private static void checkBucket(CheckContext ctx, BlockTree resource) {
+    if (PropertyUtils.isMissing(resource, "server_side_encryption_configuration")) {
       reportResource(ctx, resource, MESSAGE);
     }
   }

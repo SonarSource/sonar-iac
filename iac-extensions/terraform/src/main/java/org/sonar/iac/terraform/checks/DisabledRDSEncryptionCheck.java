@@ -37,10 +37,11 @@ public class DisabledRDSEncryptionCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related RDS DBInstance";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (!isResource(resource, "aws_db_instance")) {
-      return;
-    }
+  protected void registerResourceChecks() {
+    register(DisabledRDSEncryptionCheck::checkDbInstance, "aws_db_instance");
+  }
+
+  private static void checkDbInstance(CheckContext ctx, BlockTree resource) {
     Optional<PropertyTree> maybeEncryption = PropertyUtils.get(resource, "storage_encrypted");
     if (maybeEncryption.isPresent()) {
       PropertyTree encryption = maybeEncryption.get();

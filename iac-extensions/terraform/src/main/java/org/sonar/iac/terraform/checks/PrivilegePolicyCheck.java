@@ -30,7 +30,6 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.Policy;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.Policy.Statement;
-import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 
@@ -41,13 +40,12 @@ public class PrivilegePolicyCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related effect";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    PolicyUtils.getPolicies(resource).stream()
-      .forEach(policy -> checkInsecurePolicy(ctx, policy));
+  protected void registerResourceChecks() {
+    register((ctx, resource) -> PolicyUtils.getPolicies(resource).forEach(policy -> checkInsecurePolicy(ctx, policy)));
   }
 
   private static void checkInsecurePolicy(CheckContext ctx, Policy policy) {
-    PolicyValidator.findInsecureStatements(policy).stream()
+    PolicyValidator.findInsecureStatements(policy)
       .forEach(statement -> ctx.reportIssue(statement.action, MESSAGE, new SecondaryLocation(statement.effect, SECONDARY_MESSAGE)));
   }
 

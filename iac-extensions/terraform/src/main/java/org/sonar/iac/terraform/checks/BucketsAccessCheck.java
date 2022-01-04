@@ -35,11 +35,11 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MSG = "Related bucket";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree tree) {
-    if (!isS3Bucket(tree)) {
-      return;
-    }
+  protected void registerResourceChecks() {
+    register(BucketsAccessCheck::checkBucket, S3_BUCKET);
+  }
 
+  private static void checkBucket(CheckContext ctx, BlockTree tree) {
     Optional<LiteralExprTree> acl = PropertyUtils.value(tree, "acl", TerraformTree.class)
       .filter(x -> x.is(TerraformTree.Kind.STRING_LITERAL))
       .map(LiteralExprTree.class::cast);

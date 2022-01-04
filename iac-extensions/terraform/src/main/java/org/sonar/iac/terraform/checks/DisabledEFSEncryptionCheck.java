@@ -37,10 +37,11 @@ public class DisabledEFSEncryptionCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related file system";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (!isResource(resource, "aws_efs_file_system")) {
-      return;
-    }
+  protected void registerResourceChecks() {
+    register(DisabledEFSEncryptionCheck::checkFileSystem, "aws_efs_file_system");
+  }
+
+  private static void checkFileSystem(CheckContext ctx, BlockTree resource) {
     Tree resourceType = resource.labels().get(0);
     Optional<PropertyTree> maybeEncryption = PropertyUtils.get(resource, "encrypted");
     if (maybeEncryption.isPresent()) {

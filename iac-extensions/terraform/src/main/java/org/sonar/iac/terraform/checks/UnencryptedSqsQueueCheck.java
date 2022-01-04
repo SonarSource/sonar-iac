@@ -30,9 +30,13 @@ public class UnencryptedSqsQueueCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted SQS queues is safe here.";
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_sqs_queue") && PropertyUtils.isMissing(resource, "kms_master_key_id")) {
-      ctx.reportIssue(resource.labels().get(0), MESSAGE);
+  protected void registerResourceChecks() {
+    register(UnencryptedSqsQueueCheck::checkQueue, "aws_sqs_queue");
+  }
+
+  private static void checkQueue(CheckContext ctx, BlockTree resource) {
+    if (PropertyUtils.isMissing(resource, "kms_master_key_id")) {
+      reportResource(ctx, resource, MESSAGE);
     }
   }
 

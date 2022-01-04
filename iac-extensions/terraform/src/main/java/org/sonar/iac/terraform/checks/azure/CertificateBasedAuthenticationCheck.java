@@ -25,11 +25,11 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
 
 @Rule(key = "S6382")
-public class CertificateBasedAuthenticationCheck extends AbstractMultipleResourcesCheck {
+public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE_WHEN_DISABLED = "Make sure that disabling certificate-based authentication is safe here.";
   private static final String TEMPLATE_WHEN_MISSING = "Omitting %s disables certificate-based authentication. Make sure it is safe here.";
@@ -42,7 +42,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractMultipleResourc
   }
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(CertificateBasedAuthenticationCheck::checkAppService, "azurerm_app_service");
     register(CertificateBasedAuthenticationCheck::checkApps, "azurerm_function_app", "azurerm_logic_app_standard");
     register(CertificateBasedAuthenticationCheck::checkWebApps, "azurerm_linux_web_app", "azurerm_windows_web_app");

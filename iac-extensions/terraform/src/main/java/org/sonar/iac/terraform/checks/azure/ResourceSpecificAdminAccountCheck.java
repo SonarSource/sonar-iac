@@ -25,15 +25,15 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
 @Rule(key = "S6379")
-public class ResourceSpecificAdminAccountCheck extends AbstractMultipleResourcesCheck {
+public class ResourceSpecificAdminAccountCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that enabling an administrative account or administrative permissions is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(ResourceSpecificAdminAccountCheck::checkContainerRegistry, "azurerm_container_registry");
     register(ResourceSpecificAdminAccountCheck::checkBatchPool, "azurerm_batch_pool");
   }

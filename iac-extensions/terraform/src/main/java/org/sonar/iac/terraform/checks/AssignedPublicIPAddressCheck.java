@@ -35,17 +35,15 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using public IP address is safe here.";
   private static final String SECONDARY_INSTANCE_MESSAGE = "Related instance";
   private static final String SECONDARY_TEMPLATE_MESSAGE = "Related template";
-  
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    checkDMSReplicationInstance(ctx, resource);
-    checkEC2Instance(ctx, resource);
-    checkEC2LaunchTemplate(ctx, resource);
+
+  @Override
+  protected void registerResourceChecks() {
+    register(AssignedPublicIPAddressCheck::checkDMSReplicationInstance, "aws_dms_replication_instance");
+    register(AssignedPublicIPAddressCheck::checkEC2Instance, "aws_instance");
+    register(AssignedPublicIPAddressCheck::checkEC2LaunchTemplate, "aws_launch_template");
   }
 
   private static void checkDMSReplicationInstance(CheckContext ctx, BlockTree resource) {
-    if (!isResource(resource, "aws_dms_replication_instance")) {
-      return;
-    }
     Tree resourceType = resource.labels().get(0);
     Optional<AttributeTree> maybePubliclyAccessible = PropertyUtils.get(resource, "publicly_accessible", AttributeTree.class);
     if (maybePubliclyAccessible.isPresent()) {
@@ -59,9 +57,6 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
   }
 
   private static void checkEC2Instance(CheckContext ctx, BlockTree resource) {
-    if (!isResource(resource, "aws_instance")) {
-      return;
-    }
     Tree resourceType = resource.labels().get(0);
     Optional<AttributeTree> maybeAssociatePublicIpAddress = PropertyUtils.get(resource, "associate_public_ip_address", AttributeTree.class);
     if (maybeAssociatePublicIpAddress.isPresent()) {
@@ -75,9 +70,6 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
   }
 
   private static void checkEC2LaunchTemplate(CheckContext ctx, BlockTree resource) {
-    if (!isResource(resource, "aws_launch_template")) {
-      return;
-    }
     Tree resourceType = resource.labels().get(0);
     Optional<BlockTree> maybeNetworkInterfaces = PropertyUtils.get(resource, "network_interfaces", BlockTree.class);
     if (maybeNetworkInterfaces.isPresent()) {
