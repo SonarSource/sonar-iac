@@ -27,6 +27,7 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
 public class RoleScopeHelper {
@@ -48,9 +49,9 @@ public class RoleScopeHelper {
   }
 
   public static boolean isSensitiveScope(ExpressionTree scope, Predicate<String> referenceScopePredicate, Predicate<String> plainScopePredicate) {
-    if (scope instanceof AttributeAccessTree) {
+    if (scope.is(TerraformTree.Kind.ATTRIBUTE_ACCESS)) {
       return containsSensitiveScope(((AttributeAccessTree) scope), referenceScopePredicate);
-    } else if (scope instanceof TemplateExpressionTree) {
+    } else if (scope.is(TerraformTree.Kind.TEMPLATE_EXPRESSION)) {
       return !isLimitedToResourceGroup((TemplateExpressionTree) scope)
        && containsSensitiveInterpolations((TemplateExpressionTree) scope, referenceScopePredicate);
     }
@@ -84,7 +85,7 @@ public class RoleScopeHelper {
   }
 
   private static boolean isLimitedToResourceGroup(TemplateExpressionTree scope) {
-    return (scope).parts().stream()
+    return scope.parts().stream()
       .filter(LiteralExprTree.class::isInstance)
       .anyMatch(part -> TextUtils.matchesValue(part, s -> s.contains("resourceGroups")).isTrue());
   }
