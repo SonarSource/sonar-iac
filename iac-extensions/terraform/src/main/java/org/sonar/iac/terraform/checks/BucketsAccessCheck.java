@@ -36,7 +36,7 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
 
   @Override
   protected void registerChecks() {
-    register(BucketsAccessCheck::checkBucket, "aws_s3_bucket");
+    register(BucketsAccessCheck::checkBucket, S3_BUCKET);
   }
 
   private static void checkBucket(CheckContext ctx, BlockTree tree) {

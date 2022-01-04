@@ -45,7 +45,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   @Override
   protected void registerChecks() {
-    register(DisabledLoggingCheck::checkS3Bucket, "aws_s3_bucket");
+    register(DisabledLoggingCheck::checkS3Bucket, S3_BUCKET);
     register(DisabledLoggingCheck::checkApiGatewayStage, "aws_api_gateway_stage");
     register(DisabledLoggingCheck::checkApiGateway2Stage, "aws_api_gatewayv2_stage", "aws_api_gateway_stage");
     register(DisabledLoggingCheck::checkMskCluster, "aws_msk_cluster");

@@ -43,7 +43,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
 
   @Override
   protected void registerChecks() {
-    register(UnversionedS3BucketCheck::checkBucket, "aws_s3_bucket");
+    register(UnversionedS3BucketCheck::checkBucket, S3_BUCKET);
   }
 
   private static void checkBucket(CheckContext ctx, BlockTree resource) {

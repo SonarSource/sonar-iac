@@ -37,6 +37,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 
 public abstract class AbstractResourceCheck implements IacCheck {
 
+  protected static final String S3_BUCKET = "aws_s3_bucket";
   private final Map<String, List<BiConsumer<CheckContext, BlockTree>>> resourceChecks = new HashMap<>();
   private final List<BiConsumer<CheckContext, BlockTree>> allResourcesChecks = new ArrayList<>();
 
@@ -78,11 +79,11 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   public static boolean isS3Bucket(BlockTree tree) {
-    return "aws_s3_bucket".equals(getResourceType(tree));
+    return S3_BUCKET.equals(getResourceType(tree));
   }
 
   public static boolean isS3BucketResource(BlockTree tree) {
-    return isResource(tree, "aws_s3_bucket");
+    return isResource(tree, S3_BUCKET);
   }
 
   @CheckForNull

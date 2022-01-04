@@ -37,7 +37,7 @@ public class DisabledMfaBucketDeletionCheck extends AbstractResourceCheck {
 
   @Override
   protected void registerChecks() {
-    register(DisabledMfaBucketDeletionCheck::checkBucket, "aws_s3_bucket");
+    register(DisabledMfaBucketDeletionCheck::checkBucket, S3_BUCKET);
   }
 
   private static void checkBucket(CheckContext ctx, BlockTree tree) {

@@ -30,7 +30,7 @@ public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
 
   @Override
   protected void registerChecks() {
-    register(DisabledS3EncryptionCheck::checkBucket, "aws_s3_bucket");
+    register(DisabledS3EncryptionCheck::checkBucket, S3_BUCKET);
   }
 
   private static void checkBucket(CheckContext ctx, BlockTree resource) {
