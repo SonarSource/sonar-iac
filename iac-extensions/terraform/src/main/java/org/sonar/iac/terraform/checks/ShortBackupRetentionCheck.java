@@ -38,11 +38,6 @@ public class ShortBackupRetentionCheck extends AbstractResourceCheck {
   int backupRetentionDuration = DEFAULT;
 
   @Override
-  protected void registerChecks() {
-    // do not register any check for a specific resource type
-  }
-
-  @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     String type = getResourceType(resource);
     if (("aws_db_instance".equals(type) && PropertyUtils.isMissing(resource, "source_db_instance_identifier"))

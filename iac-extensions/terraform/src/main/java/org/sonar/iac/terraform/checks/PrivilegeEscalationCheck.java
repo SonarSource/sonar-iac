@@ -78,11 +78,6 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
   ));
 
   @Override
-  protected void registerChecks() {
-    // do not register any check for a specific resource type
-  }
-
-  @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     PolicyUtils.getPolicies(resource)
       .forEach(policy -> checkPrivilegeEscalation(ctx, policy));

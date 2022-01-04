@@ -51,7 +51,9 @@ public abstract class AbstractResourceCheck implements IacCheck {
     registerChecks();
   }
 
-  protected abstract void registerChecks();
+  protected void registerChecks() {
+    // do not register any check for a specific resource type by default
+  }
 
   protected void register(BiConsumer<CheckContext, BlockTree> resourceCheck) {
     allResourcesChecks.add(resourceCheck);
