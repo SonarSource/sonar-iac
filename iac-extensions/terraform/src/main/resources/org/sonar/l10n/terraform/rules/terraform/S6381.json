@@ -1,6 +1,6 @@
 {
   "title": "Assigning high privileges Azure Resource Manager built-in roles is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

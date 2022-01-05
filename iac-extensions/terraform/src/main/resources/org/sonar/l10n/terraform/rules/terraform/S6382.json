@@ -1,6 +1,6 @@
 {
   "title": "Disabling certificate-based authentication is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
