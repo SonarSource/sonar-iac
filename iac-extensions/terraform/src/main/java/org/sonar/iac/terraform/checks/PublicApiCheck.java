@@ -37,9 +37,7 @@ public class PublicApiCheck extends AbstractResourceCheck {
   }
 
   private static void checkApiGatewayMethod(CheckContext ctx, BlockTree resource) {
-    if (isResource(resource, "aws_api_gateway_method")) {
-      PropertyUtils.get(resource, "authorization", AttributeTree.class)
-        .ifPresent(authorization -> reportSensitiveValue(ctx, authorization, "NONE", MESSAGE, new SecondaryLocation(resource.labels().get(0), "Related method")));
-    }
+    PropertyUtils.get(resource, "authorization", AttributeTree.class)
+      .ifPresent(authorization -> reportSensitiveValue(ctx, authorization, "NONE", MESSAGE, new SecondaryLocation(resource.labels().get(0), "Related method")));
   }
 }
