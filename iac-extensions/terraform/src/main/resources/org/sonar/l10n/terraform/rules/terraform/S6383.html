@@ -1,0 +1,81 @@
+<p>Disabling Role-Based Access Control (RBAC) on Azure resources can reduce an organization’s ability to protect itself against access controls being
+compromised.</p>
+<p>To be considered safe, access controls must follow the principle of least privilege and correctly segregate duties amongst users. RBAC helps
+enforce these practices by adapting the organization’s access control needs into explicit role-based policies: It helps keeping access controls
+maintainable and sustainable.</p>
+<p>Furthermore, RBAC allows operations teams to work faster during a security incident. It helps to mitigate account theft or intrusions by quickly
+shutting down accesses.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This Azure resource is essential for the information system infrastructure. </li>
+  <li> This Azure resource is essential for mission-critical functions. </li>
+  <li> Compliance policies require access to this resource to be enforced through the use of Role-Based Access Control. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Enable Azure RBAC when the Azure resource supports it. </li>
+  <li> For Kubernetes clusters, enable Azure RBAC if Azure AD integration is supported. Otherwise, use the built-in Kubernetes RBAC. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/kubernetes-service/">Azure Kubernetes Services</a>:</p>
+<pre>
+resource "azurerm_kubernetes_cluster" "example" {
+  role_based_access_control {
+    enabled = false # Sensitive
+  }
+}
+
+resource "azurerm_kubernetes_cluster" "example2" {
+  role_based_access_control {
+    enabled = true
+
+    azure_active_directory {
+      managed = true
+      azure_rbac_enabled = false # Sensitive
+    }
+  }
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a>:</p>
+<pre>
+resource "azurerm_key_vault" "example" {
+  enable_rbac_authorization = false # Sensitive
+
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/kubernetes-service/">Azure Kubernetes Services</a>:</p>
+<pre>
+resource "azurerm_kubernetes_cluster" "example" {
+  role_based_access_control {
+    enabled = true
+  }
+}
+
+resource "azurerm_kubernetes_cluster" "example" {
+  role_based_access_control {
+    enabled = true
+
+    azure_active_directory {
+      managed = true
+      azure_rbac_enabled = true
+    }
+  }
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a>:</p>
+<pre>
+resource "azurerm_key_vault" "example" {
+  enable_rbac_authorization   = true
+
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Boken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+</ul>
+
