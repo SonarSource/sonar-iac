@@ -19,15 +19,11 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.Optional;
-
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.PropertyTree;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S6332")
@@ -42,15 +38,8 @@ public class DisabledEFSEncryptionCheck extends AbstractResourceCheck {
   }
 
   private static void checkFileSystem(CheckContext ctx, BlockTree resource) {
-    Tree resourceType = resource.labels().get(0);
-    Optional<PropertyTree> maybeEncryption = PropertyUtils.get(resource, "encrypted");
-    if (maybeEncryption.isPresent()) {
-      PropertyTree encryption = maybeEncryption.get();
-      if (TextUtils.isValueFalse(encryption.value())) {
-        ctx.reportIssue(encryption.key(), MESSAGE, new SecondaryLocation(resourceType, SECONDARY_MESSAGE));
-      }
-    } else {
-      ctx.reportIssue(resourceType, MESSAGE);
-    }
+    PropertyUtils.get(resource, "encrypted", AttributeTree.class)
+      .ifPresentOrElse(encrypted -> reportOnFalse(ctx, encrypted, MESSAGE, new SecondaryLocation(resource.labels().get(0), SECONDARY_MESSAGE)),
+        () -> reportResource(ctx, resource, MESSAGE));
   }
 }

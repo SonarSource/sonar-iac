@@ -42,9 +42,9 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   }
 
   private static void checkApiGatewayDomainName(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, SECURITY_POLICY, AttributeTree.class).ifPresentOrElse(policy ->
-        reportUnexpectedValue(ctx, policy, STRONG_SSL_PROTOCOL, MESSAGE),
-      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, SECURITY_POLICY)));
+    PropertyUtils.get(resource, SECURITY_POLICY, AttributeTree.class)
+      .ifPresentOrElse(policy -> reportUnexpectedValue(ctx, policy, STRONG_SSL_PROTOCOL, MESSAGE),
+        () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, SECURITY_POLICY)));
   }
 
   private static void checkApiGatewayV2DomainName(CheckContext ctx, BlockTree resource) {
@@ -54,20 +54,20 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   }
 
   private static void checkElasticsearchDomain(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class).ifPresentOrElse(options ->
-        checkDomainEndpointOptions(ctx, options),
-      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "domain_endpoint_options.tls_security_policy")));
+    PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
+      .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
+        () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "domain_endpoint_options.tls_security_policy")));
   }
 
   private static void checkDomainNameConfiguration(CheckContext ctx, BlockTree config) {
-    PropertyUtils.value(config, SECURITY_POLICY).ifPresentOrElse(policy ->
-        reportUnexpectedValue(ctx, policy, STRONG_SSL_PROTOCOL, MESSAGE),
-      () -> ctx.reportIssue(config.key(), String.format(MESSAGE_OMITTING, SECURITY_POLICY)));
+    PropertyUtils.get(config, SECURITY_POLICY, AttributeTree.class)
+      .ifPresentOrElse(policy -> reportUnexpectedValue(ctx, policy, STRONG_SSL_PROTOCOL, MESSAGE),
+        () -> ctx.reportIssue(config.key(), String.format(MESSAGE_OMITTING, SECURITY_POLICY)));
   }
 
   private static void checkDomainEndpointOptions(CheckContext ctx, BlockTree options) {
-    PropertyUtils.get(options, "tls_security_policy", AttributeTree.class).ifPresentOrElse(policy ->
-        reportUnexpectedValue(ctx, policy, ELASTIC_STRONG_POLICY, MESSAGE),
-      () -> ctx.reportIssue(options.key(), String.format(MESSAGE_OMITTING, "tls_security_policy")));
+    PropertyUtils.get(options, "tls_security_policy", AttributeTree.class)
+      .ifPresentOrElse(policy -> reportUnexpectedValue(ctx, policy, ELASTIC_STRONG_POLICY, MESSAGE),
+        () -> ctx.reportIssue(options.key(), String.format(MESSAGE_OMITTING, "tls_security_policy")));
   }
 }

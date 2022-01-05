@@ -8,7 +8,7 @@ resource "aws_elasticsearch_domain" "noncompliant_enabled_false" {
     cloudwatch_log_group_arn = aws_cloudwatch_log_group.example.arn
     log_type                 = "AUDIT_LOGS"
     enabled                  = false # Noncompliant
-                            #  ^^^^^
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   }
 }
 

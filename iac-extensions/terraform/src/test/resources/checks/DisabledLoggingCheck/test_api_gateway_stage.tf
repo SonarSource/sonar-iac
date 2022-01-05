@@ -8,6 +8,7 @@ resource "aws_api_gateway_stage" "missing_tracing" {
 
 resource "aws_api_gateway_stage" "sensitive_tracing" {
   xray_tracing_enabled = false # Noncompliant
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   access_log_settings {
     destination_arn = ""
     format = ""

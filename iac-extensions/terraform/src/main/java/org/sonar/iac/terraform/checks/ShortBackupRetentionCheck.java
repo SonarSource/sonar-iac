@@ -24,6 +24,7 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S6364")
@@ -47,8 +48,8 @@ public class ShortBackupRetentionCheck extends AbstractResourceCheck {
   }
 
   private static void checkBackupRetentionPeriod(CheckContext ctx, BlockTree resource, int minPeriod) {
-    PropertyUtils.value(resource, "backup_retention_period").ifPresentOrElse(period ->
-        TextUtils.getIntValue(period).filter(currentPeriod -> currentPeriod < minPeriod)
+    PropertyUtils.get(resource, "backup_retention_period", AttributeTree.class).ifPresentOrElse(period ->
+        TextUtils.getIntValue(period.value()).filter(currentPeriod -> currentPeriod < minPeriod)
           .ifPresent(currentPeriod -> ctx.reportIssue(period, MESSAGE)),
       () -> reportResource(ctx, resource, MESSAGE));
   }

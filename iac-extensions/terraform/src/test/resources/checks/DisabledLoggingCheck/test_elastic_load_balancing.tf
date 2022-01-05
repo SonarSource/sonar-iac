@@ -9,6 +9,7 @@ resource "aws_elb" "noncompliant_missing" {
 resource "aws_lb" "noncompliant_disabled" {
   access_logs {
     enabled = false # Noncompliant
+  # ^^^^^^^^^^^^^^^
     bucket = "mycompliantbucket"
     bucket_prefix = "log/lb-"
   }

@@ -33,6 +33,7 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 
@@ -68,7 +69,7 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
     collector.roleMember.stream()
       .filter(collector.higherPrivilegedRoles::containsKey)
       .map(collector.higherPrivilegedRoles::get)
-      .forEach(role -> ctx.reportIssue(role, message(role.value())));
+      .forEach(role -> ctx.reportIssue(role, message(((TextTree)role.value()).value())));
   }
 
   private static String message(String role) {
@@ -77,7 +78,7 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
 
   private static class HigherPrivilegedRoleCollector extends TreeVisitor<TreeContext> {
 
-    private final Map<String, TextTree> higherPrivilegedRoles = new HashMap<>();
+    private final Map<String, AttributeTree> higherPrivilegedRoles = new HashMap<>();
     private final Set<String> roleMember = new HashSet<>();
 
     public HigherPrivilegedRoleCollector() {
@@ -91,13 +92,13 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
     }
 
     private void collectHigherPrivilegedRole(BlockTree resource) {
-      PropertyUtils.value(resource, "display_name")
-        .filter(name -> TextUtils.matchesValue(name, HIGHER_PRIVILEGED_ROLE::containsValue).isTrue())
-        .ifPresent(name -> higherPrivilegedRoles.putIfAbsent(getReferenceLabel(resource), (TextTree) name));
+      PropertyUtils.get(resource, "display_name", AttributeTree.class)
+        .filter(attribute -> TextUtils.matchesValue(attribute.value(), HIGHER_PRIVILEGED_ROLE::containsValue).isTrue())
+        .ifPresent(name -> higherPrivilegedRoles.putIfAbsent(getReferenceLabel(resource), name));
 
-      PropertyUtils.value(resource, "template_id")
-        .filter(name -> TextUtils.matchesValue(name, HIGHER_PRIVILEGED_ROLE::containsKey).isTrue())
-        .ifPresent(id -> higherPrivilegedRoles.putIfAbsent(getReferenceLabel(resource), (TextTree) id));
+      PropertyUtils.get(resource, "template_id", AttributeTree.class)
+        .filter(attribute -> TextUtils.matchesValue(attribute.value(), HIGHER_PRIVILEGED_ROLE::containsKey).isTrue())
+        .ifPresent(id -> higherPrivilegedRoles.putIfAbsent(getReferenceLabel(resource), id));
     }
 
 

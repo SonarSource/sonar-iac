@@ -1,5 +1,6 @@
 resource "aws_lb_listener" "sensitive_redirect" {
   protocol = "HTTP" # Noncompliant
+# ^^^^^^^^^^^^^^^^^
   default_action {
     type = "redirect"
     redirect {

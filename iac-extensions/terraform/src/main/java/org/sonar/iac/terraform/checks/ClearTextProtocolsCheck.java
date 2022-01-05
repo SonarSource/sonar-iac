@@ -22,12 +22,12 @@ package org.sonar.iac.terraform.checks;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractResourceCheck {
@@ -58,9 +58,9 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void checkMskClientBroker(CheckContext ctx, BlockTree encryptionBlock) {
-    PropertyUtils.value(encryptionBlock, "client_broker", LiteralExprTree.class)
-      .filter(clientBroker -> !"TLS".equals(clientBroker.value()))
-      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_PROTOCOL_FORMAT, clientBroker.value(), "TLS")));
+    PropertyUtils.get(encryptionBlock, "client_broker", AttributeTree.class)
+      .filter(clientBroker -> TextUtils.isValue(clientBroker.value(), "TLS").isFalse())
+      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_PROTOCOL_FORMAT, ((TextTree) clientBroker.value()).value(), "TLS")));
   }
 
   private static void checkESDomain(CheckContext ctx, BlockTree resource) {
@@ -73,13 +73,13 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   }
 
   private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message) {
-    PropertyUtils.value(tree, propertyName, LiteralExprTree.class)
-      .filter(TextUtils::isValueFalse)
-      .ifPresent(inCluster -> ctx.reportIssue(inCluster, message));
+    PropertyUtils.get(tree, propertyName, AttributeTree.class)
+      .ifPresent(inCluster -> reportOnFalse(ctx, inCluster, message));
   }
 
   private static void checkLbListener(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.value(resource, "protocol").filter(p -> TextUtils.isValue(p,"HTTP").isTrue())
+    PropertyUtils.get(resource, "protocol", AttributeTree.class)
+      .filter(p -> TextUtils.isValue(p.value(),"HTTP").isTrue())
       .ifPresent(rootProtocol -> checkLbDefaultAction(ctx, resource, rootProtocol));
   }
 

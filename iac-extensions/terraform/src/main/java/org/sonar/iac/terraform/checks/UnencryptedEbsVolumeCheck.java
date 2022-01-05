@@ -20,15 +20,12 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.List;
-import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.LabelTree;
-import org.sonar.iac.terraform.api.tree.LiteralExprTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 @Rule(key = "S6275")
 public class UnencryptedEbsVolumeCheck extends AbstractResourceCheck {
@@ -51,21 +48,15 @@ public class UnencryptedEbsVolumeCheck extends AbstractResourceCheck {
   }
 
   private static void checkEncrypted(CheckContext ctx, BlockTree tree, String key, boolean secureByDefault) {
-    Optional<LiteralExprTree> booleanProperty = PropertyUtils.value(tree, key, TerraformTree.class)
-      .filter(x -> x.is(TerraformTree.Kind.BOOLEAN_LITERAL))
-      .map(LiteralExprTree.class::cast);
+    PropertyUtils.get(tree, key, AttributeTree.class)
+      .ifPresentOrElse(p -> reportOnFalse(ctx, p, MESSAGE),
+        () -> reportIfNotSecureByDefault(ctx, tree, secureByDefault));
+  }
 
-    if (booleanProperty.isEmpty()) {
-      if (secureByDefault) {
-        return;
-      }
+  private static void reportIfNotSecureByDefault(CheckContext ctx, BlockTree tree, boolean secureByDefault) {
+    if (!secureByDefault) {
       List<LabelTree> labels = tree.labels();
       ctx.reportIssue(labels.isEmpty() ? tree.key() : labels.get(0), MESSAGE);
-      return;
     }
-
-    booleanProperty
-      .filter(TextUtils::isValueFalse)
-      .ifPresent(value -> ctx.reportIssue(value, MESSAGE));
   }
 }
