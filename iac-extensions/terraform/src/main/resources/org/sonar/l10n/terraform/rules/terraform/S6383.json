@@ -1,6 +1,6 @@
 {
   "title": "Disabling Role-Based Access Control on Azure resources is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
