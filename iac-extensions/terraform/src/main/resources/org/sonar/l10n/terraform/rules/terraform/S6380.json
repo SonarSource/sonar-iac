@@ -1,6 +1,6 @@
 {
   "title": "Authorizing anonymous access to Azure resources is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
