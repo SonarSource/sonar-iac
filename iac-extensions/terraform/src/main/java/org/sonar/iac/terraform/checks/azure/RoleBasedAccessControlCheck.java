@@ -25,16 +25,16 @@ import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
 @Rule(key = "S6383")
-public class RoleBasedAccessControlCheck extends AbstractMultipleResourcesCheck {
+public class RoleBasedAccessControlCheck extends AbstractResourceCheck {
 
   private static final String MISSING_MESSAGE = "Omitting '%s' disables role-based access control for this resource. Make sure it is safe here.";
   private static final String DISABLED_MESSAGE = "Make sure that disabling role-based access control is safe here.";
 
   @Override
-  protected void registerChecks() {
+  protected void registerResourceChecks() {
     register(RoleBasedAccessControlCheck::checkKubernetesCluster, "azurerm_kubernetes_cluster");
     register(RoleBasedAccessControlCheck::checkKeyVault, "azurerm_key_vault");
   }
