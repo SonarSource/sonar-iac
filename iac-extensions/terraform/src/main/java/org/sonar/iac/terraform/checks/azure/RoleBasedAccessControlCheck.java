@@ -31,7 +31,7 @@ import org.sonar.iac.terraform.checks.AbstractMultipleResourcesCheck;
 public class RoleBasedAccessControlCheck extends AbstractMultipleResourcesCheck {
 
   private static final String MISSING_MESSAGE = "Omitting '%s' disables role-based access control for this resource. Make sure it is safe here.";
-  private static final String DISABLED_MASSGE = "Make sure that disabling role-based access control is safe here.";
+  private static final String DISABLED_MESSAGE = "Make sure that disabling role-based access control is safe here.";
 
   @Override
   protected void registerChecks() {
@@ -55,7 +55,7 @@ public class RoleBasedAccessControlCheck extends AbstractMultipleResourcesCheck 
   private static void checkRoleBasedAccessControl(CheckContext ctx, BlockTree rbac) {
     PropertyUtils.get(rbac, "enabled", AttributeTree.class)
       .filter(attr -> TextUtils.isValueFalse(attr.value()))
-      .ifPresentOrElse(attr -> ctx.reportIssue(attr, DISABLED_MASSGE),
+      .ifPresentOrElse(attr -> ctx.reportIssue(attr, DISABLED_MESSAGE),
         () -> checkAzureActiveDirectory(ctx, rbac));
   }
 
@@ -76,13 +76,13 @@ public class RoleBasedAccessControlCheck extends AbstractMultipleResourcesCheck 
    */
   private static void checkRbacEnabled(CheckContext ctx, BlockTree activeDirectory, AttributeTree managed) {
     PropertyUtils.get(activeDirectory, "azure_rbac_enabled", AttributeTree.class)
-      .ifPresentOrElse(rbacEnabled -> reportOnFalse(ctx, rbacEnabled, DISABLED_MASSGE),
+      .ifPresentOrElse(rbacEnabled -> reportOnFalse(ctx, rbacEnabled, DISABLED_MESSAGE),
         () -> ctx.reportIssue(managed, String.format(MISSING_MESSAGE,"azure_rbac_enabled")));
   }
 
   private static void checkKeyVault(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "enable_rbac_authorization", AttributeTree.class)
-      .ifPresentOrElse(rbacAuthorization -> reportOnFalse(ctx, rbacAuthorization, DISABLED_MASSGE),
+      .ifPresentOrElse(rbacAuthorization -> reportOnFalse(ctx, rbacAuthorization, DISABLED_MESSAGE),
         () -> reportResource(ctx, resource, String.format(MISSING_MESSAGE, "enable_rbac_authorization")));
   }
 }
