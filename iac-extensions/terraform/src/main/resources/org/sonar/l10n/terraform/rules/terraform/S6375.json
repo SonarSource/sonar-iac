@@ -1,6 +1,6 @@
 {
   "title": "Assigning high privileges Azure Active Directory built-in roles is security-sensitive",
-  "type": "CODE_SMELL",
+  "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
