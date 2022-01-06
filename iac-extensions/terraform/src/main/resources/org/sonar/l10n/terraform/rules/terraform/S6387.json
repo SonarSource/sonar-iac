@@ -1,6 +1,6 @@
 {
   "title": "Azure role assignments that grant access to all resources of a subscription are security-sensitive",
-  "type": "CODE_SMELL",
+  "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
