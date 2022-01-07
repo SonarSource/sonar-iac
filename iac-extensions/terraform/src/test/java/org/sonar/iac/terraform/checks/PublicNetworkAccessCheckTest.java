@@ -21,10 +21,10 @@ package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
 
-class AssignedPublicIPAddressCheckTest {
+class PublicNetworkAccessCheckTest {
 
   @Test
   void test() {
-    TerraformVerifier.verify("AssignedPublicIPAddressCheck/test.tf", new AssignedPublicIPAddressCheck());
+    TerraformVerifier.verify("PublicNetworkAccessCheck/test.tf", new PublicNetworkAccessCheck());
   }
 }
