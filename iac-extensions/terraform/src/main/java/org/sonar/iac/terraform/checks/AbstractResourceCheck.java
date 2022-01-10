@@ -96,7 +96,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
     ctx.reportIssue(resource.labels().get(0), message);
   }
 
-  public static void reportOnTrue(CheckContext ctx, AttributeTree attribute, String message, SecondaryLocation... secondaries) {
+  protected static void reportOnTrue(CheckContext ctx, AttributeTree attribute, String message, SecondaryLocation... secondaries) {
     if (TextUtils.isValueTrue(attribute.value())) {
       ctx.reportIssue(attribute, message, Arrays.asList(secondaries));
     }

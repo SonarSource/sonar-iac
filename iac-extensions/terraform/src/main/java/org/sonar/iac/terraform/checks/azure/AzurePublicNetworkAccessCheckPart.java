@@ -23,17 +23,38 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
-import static org.sonar.iac.terraform.checks.AbstractResourceCheck.reportOnTrue;
-import static org.sonar.iac.terraform.checks.AbstractResourceCheck.reportResource;
-
-public class AzurePublicNetworkAccessCheckPart {
+public class AzurePublicNetworkAccessCheckPart extends AbstractResourceCheck {
 
   private static final String OMITTED_MESSAGE = "Omitting %s allows network access from the Internet. Make sure it is safe here.";
   private static final String NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
   private static final String PUBLIC_NETWORK_ACCESS_ENABLED = "public_network_access_enabled";
 
-  public static void checkPublicNetworkAccess(CheckContext ctx, BlockTree resource) {
+  @Override
+  protected void registerResourceChecks() {
+    register(AzurePublicNetworkAccessCheckPart::checkPublicNetworkAccess,
+      "azurerm_batch_account",
+      "azurerm_cognitive_account",
+      "azurerm_container_registry",
+      "azurerm_cosmosdb_account",
+      "azurerm_databricks_workspace",
+      "azurerm_eventgrid_domain",
+      "azurerm_eventgrid_topic",
+      "azurerm_healthcare_service",
+      "azurerm_iothub",
+      "azurerm_machine_learning_workspace",
+      "azurerm_managed_disk",
+      "azurerm_mariadb_server",
+      "azurerm_mssql_server",
+      "azurerm_mysql_server",
+      "azurerm_postgresql_server",
+      "azurerm_redis_cache",
+      "azurerm_search_service",
+      "azurerm_synapse_workspace");
+  }
+
+  private static void checkPublicNetworkAccess(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, PUBLIC_NETWORK_ACCESS_ENABLED, AttributeTree.class)
       .ifPresentOrElse(
         enabled -> reportOnTrue(ctx, enabled, NETWORK_ACCESS_MESSAGE),
