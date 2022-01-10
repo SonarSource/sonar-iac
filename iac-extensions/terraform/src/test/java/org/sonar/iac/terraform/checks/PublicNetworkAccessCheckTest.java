@@ -24,7 +24,13 @@ import org.junit.jupiter.api.Test;
 class PublicNetworkAccessCheckTest {
 
   @Test
-  void test() {
-    TerraformVerifier.verify("PublicNetworkAccessCheck/test.tf", new PublicNetworkAccessCheck());
+  void aws() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/aws.tf", new PublicNetworkAccessCheck());
   }
+
+  @Test
+  void azure() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/azure.tf", new PublicNetworkAccessCheck());
+  }
+
 }

@@ -25,6 +25,7 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.checks.azure.AzurePublicNetworkAccessCheckPart;
 
 @Rule(key = "S6329")
 public class PublicNetworkAccessCheck extends AbstractResourceCheck {
@@ -38,6 +39,25 @@ public class PublicNetworkAccessCheck extends AbstractResourceCheck {
     register(PublicNetworkAccessCheck::checkDMSReplicationInstance, "aws_dms_replication_instance");
     register(PublicNetworkAccessCheck::checkEC2Instance, "aws_instance");
     register(PublicNetworkAccessCheck::checkEC2LaunchTemplate, "aws_launch_template");
+    register(AzurePublicNetworkAccessCheckPart::checkPublicNetworkAccess,
+      "azurerm_batch_account",
+      "azurerm_cognitive_account",
+      "azurerm_container_registry",
+      "azurerm_cosmosdb_account",
+      "azurerm_databricks_workspace",
+      "azurerm_eventgrid_domain",
+      "azurerm_eventgrid_topic",
+      "azurerm_healthcare_service",
+      "azurerm_iothub",
+      "azurerm_machine_learning_workspace",
+      "azurerm_managed_disk",
+      "azurerm_mariadb_server",
+      "azurerm_mssql_server",
+      "azurerm_mysql_server",
+      "azurerm_postgresql_server",
+      "azurerm_redis_cache",
+      "azurerm_search_service",
+      "azurerm_synapse_workspace");
   }
 
   private static void checkDMSReplicationInstance(CheckContext ctx, BlockTree resource) {
