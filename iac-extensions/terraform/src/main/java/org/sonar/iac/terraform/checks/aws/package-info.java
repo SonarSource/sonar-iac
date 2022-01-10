@@ -17,14 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks;
-
-import org.junit.jupiter.api.Test;
-
-class AssignedPublicIPAddressCheckTest {
-
-  @Test
-  void test() {
-    TerraformVerifier.verify("AssignedPublicIPAddressCheck/test.tf", new AssignedPublicIPAddressCheck());
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.terraform.checks.aws;

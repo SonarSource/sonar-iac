@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks;
+package org.sonar.iac.terraform.checks.aws;
 
-import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
-@Rule(key = "S6329")
-public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
+public class AwsPublicNetworkAccessCheckPart extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that using public IP address is safe here.";
   private static final String SECONDARY_INSTANCE_MESSAGE = "Related instance";
@@ -35,9 +34,9 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
 
   @Override
   protected void registerResourceChecks() {
-    register(AssignedPublicIPAddressCheck::checkDMSReplicationInstance, "aws_dms_replication_instance");
-    register(AssignedPublicIPAddressCheck::checkEC2Instance, "aws_instance");
-    register(AssignedPublicIPAddressCheck::checkEC2LaunchTemplate, "aws_launch_template");
+    register(AwsPublicNetworkAccessCheckPart::checkDMSReplicationInstance, "aws_dms_replication_instance");
+    register(AwsPublicNetworkAccessCheckPart::checkEC2Instance, "aws_instance");
+    register(AwsPublicNetworkAccessCheckPart::checkEC2LaunchTemplate, "aws_launch_template");
   }
 
   private static void checkDMSReplicationInstance(CheckContext ctx, BlockTree resource) {
@@ -67,4 +66,5 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
       .ifPresentOrElse(associatePublicIpAddress -> reportOnTrue(ctx, associatePublicIpAddress, MESSAGE, resourceAsSecondary),
         () -> ctx.reportIssue(networkInterfaces.key(), MESSAGE, resourceAsSecondary));
   }
+
 }
