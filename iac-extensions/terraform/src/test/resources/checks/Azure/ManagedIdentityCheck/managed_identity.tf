@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Make sure that disabling Azure Managed Identities by not specifying identity is safe here.}}
+# Noncompliant@+1 {{Omitting the `identity` block disables Azure Managed Identities. Make sure that it is safe here.}}
 resource "azurerm_kubernetes_cluster" "sensitive" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name = "example-k8s"
