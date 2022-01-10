@@ -53,6 +53,15 @@ resource "azurerm_network_security_group" "s6321compliant0" {
     destination_port_range     = "*"
     source_address_prefixes      = ["192.168.0.1/24", "192.134.0.1/24"]
   }
+
+  # Non readable port range
+  security_rule {
+    direction              = "Inbound"
+    access                 = "Allow"
+    protocol               = "Tcp"
+    destination_port_range = "22-23+28"
+    source_address_prefix  = "*"
+  }
 }
 
 resource "non_azurerm_network_security_group_resource" "coverage" {
