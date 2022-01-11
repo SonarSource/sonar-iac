@@ -63,7 +63,7 @@ public class TerraformCheckList {
       UnencryptedEbsVolumeCheck.class,
       UnencryptedSageMakerNotebookCheck.class,
       UnencryptedSqsQueueCheck.class,
-      UnrestrictedAdministrationCheck.class,
+      IpRestrictedAdminAccessCheck.class,
       UnversionedS3BucketCheck.class,
       WeakSSLProtocolCheck.class,
 
