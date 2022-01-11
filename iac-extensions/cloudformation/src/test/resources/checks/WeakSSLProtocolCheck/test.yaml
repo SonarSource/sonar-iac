@@ -21,8 +21,10 @@ Resources:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
       DomainNameConfigurations:
-        SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
-        #               ^^^^^^^^^
+        - "foo"
+        - Bar: "bar"
+        - SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
+          #               ^^^^^^^^^
 
   NoSecurityPolicyV2:
     Type: AWS::ApiGatewayV2::DomainName
@@ -41,7 +43,7 @@ Resources:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
       DomainNameConfigurations:
-        SecurityPolicy: "TLS_1_2"
+        - SecurityPolicy: "TLS_1_2"
 
   ElasticNoOptions:
     Type: 'AWS::Elasticsearch::Domain' # Noncompliant {{Omitting DomainEndpointOptions.TLSSecurityPolicy disables traffic encryption.}}

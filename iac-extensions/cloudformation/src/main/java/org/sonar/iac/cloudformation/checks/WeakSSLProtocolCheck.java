@@ -19,7 +19,9 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.Optional;
 import org.sonar.check.Rule;
+import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
@@ -65,9 +67,27 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   }
 
   private static void checkDomainNameConfiguration(CheckContext ctx, TupleTree config) {
-    PropertyUtils.value(config.value(), SECURITY_POLICY_KEY)
-      .ifPresentOrElse(policy -> checkSecurityPolicy(ctx, policy),
-        () -> ctx.reportIssue(config.key(), omittingMessage(SECURITY_POLICY_KEY)));
+    if (config.value() instanceof SequenceTree && configSequenceContainsSecurityPolicy((SequenceTree) config.value())) {
+      getSecurityPolicyFromConfigSequence((SequenceTree) config.value())
+        .ifPresent(policy -> checkSecurityPolicy(ctx, policy));
+    } else {
+      ctx.reportIssue(config.key(), omittingMessage(SECURITY_POLICY_KEY));
+    }
+  }
+
+  /**
+   * Check if in the sequence is a MappingTree which contains the SecurityPolicy key,
+   * or an unknown element which could represent the SecurityPolicy
+   */
+  private static boolean configSequenceContainsSecurityPolicy(SequenceTree sequenceTree) {
+    return !sequenceTree.elements().stream().allMatch(map -> PropertyUtils.has(map, "SecurityPolicy").isFalse());
+  }
+
+  private static Optional<Tree> getSecurityPolicyFromConfigSequence(SequenceTree sequenceTree) {
+    return sequenceTree.elements().stream()
+      .map(map -> PropertyUtils.value(map, "SecurityPolicy"))
+      .flatMap(Optional::stream)
+      .findFirst();
   }
 
   private static void checkSecurityPolicy(CheckContext ctx, Tree policy) {
