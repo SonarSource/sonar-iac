@@ -21,10 +21,20 @@ package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
 
-class UnrestrictedAdministrationCheckTest {
+class IpRestrictedAdminAccessCheckTest {
 
   @Test
-  void test() {
-    TerraformVerifier.verify("UnrestrictedAdministrationCheck/test.tf", new UnrestrictedAdministrationCheck());
+  void aws_test() {
+    TerraformVerifier.verify("IpRestrictedAdminAccessCheck/aws/test.tf", new IpRestrictedAdminAccessCheck());
+  }
+
+  @Test
+  void azure_noncompliant_network_security_group() {
+    TerraformVerifier.verify("IpRestrictedAdminAccessCheck/azure/noncompliant_network_security_group.tf", new IpRestrictedAdminAccessCheck());
+  }
+
+  @Test
+  void azure_compliant_network_security_group() {
+    TerraformVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/azure/compliant_network_security_group.tf", new IpRestrictedAdminAccessCheck());
   }
 }
