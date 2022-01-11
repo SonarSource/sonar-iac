@@ -37,4 +37,14 @@ class IpRestrictedAdminAccessCheckTest {
   void azure_compliant_network_security_group() {
     TerraformVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/azure/compliant_network_security_group.tf", new IpRestrictedAdminAccessCheck());
   }
+
+  @Test
+  void azure_noncompliant_network_security_rule() {
+    TerraformVerifier.verify("IpRestrictedAdminAccessCheck/azure/noncompliant_network_security_rule.tf", new IpRestrictedAdminAccessCheck());
+  }
+
+  @Test
+  void azure_compliant_network_security_rule() {
+    TerraformVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/azure/compliant_network_security_rule.tf", new IpRestrictedAdminAccessCheck());
+  }
 }

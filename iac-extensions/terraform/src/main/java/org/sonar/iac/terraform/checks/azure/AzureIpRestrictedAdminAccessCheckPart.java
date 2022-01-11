@@ -51,14 +51,19 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
   @Override
   protected void registerResourceChecks() {
     register(AzureIpRestrictedAdminAccessCheckPart::checkNetworkSecurityGroup, "azurerm_network_security_group");
+    register(AzureIpRestrictedAdminAccessCheckPart::checkNetworkSecurityRule, "azurerm_network_security_rule");
   }
 
   public static void checkNetworkSecurityGroup(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.getAll(resource, "security_rule", BlockTree.class).stream()
-      .filter(rule -> hasAttributeWithMatchingValue(rule,"direction", "Inbound"::equals))
-      .filter(rule -> hasAttributeWithMatchingValue(rule, "access", "Allow"::equals))
-      .filter(rule -> hasAttributeWithMatchingValue(rule, "protocol", p -> "Tcp".equals(p) || "*".equals(p)))
-      .forEach(rule -> checkSecurityRule(ctx, rule));
+    PropertyUtils.getAll(resource, "security_rule", BlockTree.class).forEach(rule -> checkNetworkSecurityRule(ctx, rule));
+  }
+
+  private static void checkNetworkSecurityRule(CheckContext ctx, BlockTree rule) {
+    if (hasAttributeWithMatchingValue(rule,"direction", "Inbound"::equals)
+      && hasAttributeWithMatchingValue(rule, "access", "Allow"::equals)
+      && hasAttributeWithMatchingValue(rule, "protocol", p -> "Tcp".equals(p) || "*".equals(p))) {
+      checkSecurityRule(ctx, rule);
+    }
   }
 
   private static void checkSecurityRule(CheckContext ctx, BlockTree rule) {
