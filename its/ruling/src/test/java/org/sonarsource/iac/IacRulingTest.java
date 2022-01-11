@@ -44,7 +44,7 @@ class IacRulingTest {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE[8.9]";
-  private static final String LITS_VERSION = "0.9.0.1682";
+  private static final String LITS_VERSION = "0.10.0.2181";
   private static final String SONAR_CONFIG_VERSION = "DEV";
 
   private static Orchestrator orchestrator;
@@ -112,9 +112,9 @@ class IacRulingTest {
       .setSourceDirs("./")
       .setSourceEncoding("utf-8")
       .setProperties(properties)
-      .setProperty("dump.old", FileLocation.of("src/test/resources/expected/" + project).getFile().getAbsolutePath())
-      .setProperty("dump.new", actualDirectory.getAbsolutePath())
-      .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
+      .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/resources/expected/" + project).getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.new", actualDirectory.getAbsolutePath())
+      .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath())
       .setProperty("sonar.scm.disabled", "true")
       .setProperty("sonar.project", project)
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
