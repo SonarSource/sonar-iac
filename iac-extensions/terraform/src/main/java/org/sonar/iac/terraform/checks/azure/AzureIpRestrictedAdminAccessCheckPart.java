@@ -34,6 +34,8 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
+import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV4;
+import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV6;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.MESSAGE;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.RDP_PORT;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
@@ -42,9 +44,9 @@ import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.rangeC
 
 public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck {
 
-  private static final Pattern PORT_RANGE_PATTERN = Pattern.compile("^(?<from>\\d+)-(?<to>\\d+)$");
+  private static final Pattern PORT_RANGE_PATTERN = Pattern.compile("^(?<from>\\d{1,5})-(?<to>\\d{1,5})$");
   private static final Set<String> SENSITIVE_PORTS = Set.of("*", String.valueOf(SSH_PORT), String.valueOf(RDP_PORT));
-  private static final Set<String> SENSITIVE_PREFIXES = Set.of("*", "0.0.0.0/0", "::/0");
+  private static final Set<String> SENSITIVE_PREFIXES = Set.of("*", ALL_IPV4, ALL_IPV6);
 
   @Override
   protected void registerResourceChecks() {
@@ -53,17 +55,10 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
 
   public static void checkNetworkSecurityGroup(CheckContext ctx, BlockTree resource) {
     PropertyUtils.getAll(resource, "security_rule", BlockTree.class).stream()
-      .filter(AzureIpRestrictedAdminAccessCheckPart::conditionsApply)
+      .filter(rule -> hasAttributeWithMatchingValue(rule,"direction", "Inbound"::equals))
+      .filter(rule -> hasAttributeWithMatchingValue(rule, "access", "Allow"::equals))
+      .filter(rule -> hasAttributeWithMatchingValue(rule, "protocol", p -> "Tcp".equals(p) || "*".equals(p)))
       .forEach(rule -> checkSecurityRule(ctx, rule));
-  }
-
-  /**
-   * Check if all attributes beside the port range and ip attribute match the condition to make the rule sensitive
-   */
-  private static boolean conditionsApply(BlockTree rule) {
-    return hasAttributeWithMatchingValue(rule,"direction", "Inbound"::equals)
-      && hasAttributeWithMatchingValue(rule, "access", "Allow"::equals)
-      && hasAttributeWithMatchingValue(rule, "protocol", p -> "Tcp".equals(p) || "*".equals(p));
   }
 
   private static void checkSecurityRule(CheckContext ctx, BlockTree rule) {
@@ -79,7 +74,7 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
     return PropertyUtils.get(rule, "destination_port_range", AttributeTree.class)
       .map(AttributeTree::value)
       .filter(rangeContainsSensitivePort)
-      .or(() -> sensitiveExpressionInAttributeTuple(rule, "destination_port_ranges", rangeContainsSensitivePort));
+      .or(() -> expressionInAttributeTuple(rule, "destination_port_ranges", rangeContainsSensitivePort));
   }
 
   private static Optional<ExpressionTree> sensitiveSourcePrefix(BlockTree rule) {
@@ -88,14 +83,14 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
     return PropertyUtils.get(rule, "source_address_prefix", AttributeTree.class)
       .map(AttributeTree::value)
       .filter(isSensitivePrefix)
-      .or(() -> sensitiveExpressionInAttributeTuple(rule, "source_address_prefixes", isSensitivePrefix));
+      .or(() -> expressionInAttributeTuple(rule, "source_address_prefixes", isSensitivePrefix));
   }
 
   /**
    * If the attribute in the block exists and the attribute's value is a tuple,
-   * return the first expression in the tuple elements which matches the sensitive condition
+   * return the first expression in the tuple elements which matches the condition
    */
-  private static Optional<ExpressionTree> sensitiveExpressionInAttributeTuple(BlockTree block, String attribute, Predicate<ExpressionTree> predicate) {
+  private static Optional<ExpressionTree> expressionInAttributeTuple(BlockTree block, String attribute, Predicate<ExpressionTree> predicate) {
     return PropertyUtils.get(block, attribute, AttributeTree.class)
       .map(AttributeTree::value)
       .filter(TupleTree.class::isInstance)

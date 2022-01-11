@@ -45,7 +45,7 @@ public class AwsIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck {
     register(AwsIpRestrictedAdminAccessCheckPart::checkSecurityGroup, "aws_security_group");
   }
 
-  public static void checkSecurityGroup(CheckContext ctx, BlockTree resource) {
+  private static void checkSecurityGroup(CheckContext ctx, BlockTree resource) {
     PropertyUtils.getAll(resource, "ingress", BlockTree.class).forEach(i -> checkIngress(ctx, i));
   }
 
