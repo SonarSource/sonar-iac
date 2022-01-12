@@ -69,6 +69,4 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractResourceCheck {
         enabled -> reportOnTrue(ctx, enabled, NETWORK_ACCESS_MESSAGE),
         () -> reportResource(ctx, resource, String.format(OMITTED_MESSAGE, PUBLIC_NETWORK_ENABLED)));
   }
-
-
 }
