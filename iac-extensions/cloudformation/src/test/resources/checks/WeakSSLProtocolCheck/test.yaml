@@ -21,15 +21,31 @@ Resources:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
       DomainNameConfigurations:
-        SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
-        #               ^^^^^^^^^
+        - SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
+          #               ^^^^^^^^^
+
+  WeakSecurityPolicyV2MultipleConfigs:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainNameConfigurations:
+        - "foo"
+        - Bar: "bar"
+        - SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
+          #               ^^^^^^^^^
+
 
   NoSecurityPolicyV2:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
       DomainNameConfigurations: # Noncompliant {{Omitting SecurityPolicy disables traffic encryption.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^
-        Foo: Bar
+        - Foo: Bar
+
+  WrongSyntaxForSecurityPolicy:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainNameConfigurations: # Noncompliant {{Omitting SecurityPolicy disables traffic encryption.}}
+        SecurityPolicy: "TLS_1_2"
 
   DomainNameConfiguration:
     Type: AWS::ApiGatewayV2::DomainName # Noncompliant {{Omitting DomainNameConfigurations.SecurityPolicy disables traffic encryption.}}
@@ -41,7 +57,7 @@ Resources:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
       DomainNameConfigurations:
-        SecurityPolicy: "TLS_1_2"
+        - SecurityPolicy: "TLS_1_2"
 
   ElasticNoOptions:
     Type: 'AWS::Elasticsearch::Domain' # Noncompliant {{Omitting DomainEndpointOptions.TLSSecurityPolicy disables traffic encryption.}}
@@ -89,3 +105,10 @@ Resources:
     Type: 'Something else'
     Properties:
       SecurityPolicy: "TLS_1_0"
+
+  UnresolvedFunctionReference:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainNameConfigurations:
+        # FP Missing function recognition in attribute value check leads to false positives TODO SONARIAC-313
+        - SecurityPolicy: !GetAtt security.policy # Noncompliant
