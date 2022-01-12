@@ -29,8 +29,13 @@ class PublicNetworkAccessCheckTest {
   }
 
   @Test
-  void azure() {
-    TerraformVerifier.verify("PublicNetworkAccessCheck/azure.tf", new PublicNetworkAccessCheck());
+  void azurePublicNetworkAccess() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/azurePublicNetworkAccess.tf", new PublicNetworkAccessCheck());
+  }
+
+  @Test
+  void azurePublicNetworkVariant() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/azurePublicNetworkVariant.tf", new PublicNetworkAccessCheck());
   }
 
 }
