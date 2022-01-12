@@ -1,8 +1,8 @@
 resource "aws_security_group" "all_protocols" {
   ingress {
     protocol         = -1
-    #                  ^^> {{Related protocol setting}}
-    cidr_blocks      = ["0.0.0.0/0"] # Noncompliant
+    #                  ^^> {{Related protocol setting.}}
+    cidr_blocks      = ["0.0.0.0/0"] # Noncompliant {{Restrict IP addresses authorized to access administration services.}}
     #                  ^^^^^^^^^^^^^
   }
 }
@@ -17,11 +17,11 @@ resource "aws_security_group" "cidr_ipv6" {
 resource "aws_security_group" "noncompliant_allow_inbound_ssh" {
   ingress {
     from_port        = 22
-    #                  ^^> {{Port range start}}
+    #                  ^^> {{Port range start.}}
     to_port          = 22
-    #                  ^^> {{Port range end}}
+    #                  ^^> {{Port range end.}}
     protocol         = tcp
-    #                  ^^^> {{Related protocol setting}}
+    #                  ^^^> {{Related protocol setting.}}
     cidr_blocks      = ["0.0.0.0/0"] # Noncompliant
     #                  ^^^^^^^^^^^^^
   }
