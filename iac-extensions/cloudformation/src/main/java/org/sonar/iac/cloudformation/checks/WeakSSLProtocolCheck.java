@@ -80,7 +80,7 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
    * or an unknown element which could represent the SecurityPolicy
    */
   private static boolean configSequenceContainsSecurityPolicy(SequenceTree sequenceTree) {
-    return !sequenceTree.elements().stream().allMatch(map -> PropertyUtils.has(map, SECURITY_POLICY_KEY).isFalse());
+    return sequenceTree.elements().stream().anyMatch(map -> PropertyUtils.has(map, SECURITY_POLICY_KEY).isTrue());
   }
 
   private static Optional<Tree> getSecurityPolicyFromConfigSequence(SequenceTree sequenceTree) {
