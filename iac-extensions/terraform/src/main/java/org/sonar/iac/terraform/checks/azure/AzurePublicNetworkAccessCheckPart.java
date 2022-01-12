@@ -30,6 +30,7 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractResourceCheck {
   private static final String OMITTED_MESSAGE = "Omitting %s allows network access from the Internet. Make sure it is safe here.";
   private static final String NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
   private static final String PUBLIC_NETWORK_ACCESS_ENABLED = "public_network_access_enabled";
+  private static final String PUBLIC_NETWORK_ENABLED = "public_network_enabled";
 
   @Override
   protected void registerResourceChecks() {
@@ -52,6 +53,7 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractResourceCheck {
       "azurerm_redis_cache",
       "azurerm_search_service",
       "azurerm_synapse_workspace");
+    register(AzurePublicNetworkAccessCheckPart::checkPublicNetworkVariant, "azurerm_data_factory", "azurerm_purview_account");
   }
 
   private static void checkPublicNetworkAccess(CheckContext ctx, BlockTree resource) {
@@ -61,4 +63,10 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractResourceCheck {
         () -> reportResource(ctx, resource, String.format(OMITTED_MESSAGE, PUBLIC_NETWORK_ACCESS_ENABLED)));
   }
 
+  private static void checkPublicNetworkVariant(CheckContext ctx, BlockTree resource) {
+    PropertyUtils.get(resource, PUBLIC_NETWORK_ENABLED, AttributeTree.class)
+      .ifPresentOrElse(
+        enabled -> reportOnTrue(ctx, enabled, NETWORK_ACCESS_MESSAGE),
+        () -> reportResource(ctx, resource, String.format(OMITTED_MESSAGE, PUBLIC_NETWORK_ENABLED)));
+  }
 }
