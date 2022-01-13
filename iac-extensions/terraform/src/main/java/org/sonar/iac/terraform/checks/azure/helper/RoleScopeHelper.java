@@ -28,7 +28,7 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.api.tree.VariableExprTree;
+import org.sonar.iac.terraform.checks.utils.TerraformUtils;
 
 public class RoleScopeHelper {
 
@@ -59,7 +59,7 @@ public class RoleScopeHelper {
   }
 
   private static boolean containsSensitiveScope(AttributeAccessTree accessTree, Predicate<String> referenceScopePredicate) {
-    return referenceScopePredicate.test(RoleScopeHelper.referenceToString(accessTree));
+    return referenceScopePredicate.test(TerraformUtils.referenceToString(accessTree));
   }
 
   private static boolean containsSensitiveInterpolations(TemplateExpressionTree scope, Predicate<String> referenceScopePredicate) {
@@ -69,19 +69,6 @@ public class RoleScopeHelper {
       .filter(AttributeAccessTree.class::isInstance)
       .map(AttributeAccessTree.class::cast)
       .anyMatch(interpolation -> containsSensitiveScope(interpolation, referenceScopePredicate));
-  }
-
-  public static String referenceToString(AttributeAccessTree reference) throws IllegalArgumentException {
-    StringBuilder sb = new StringBuilder();
-    if (reference.object() instanceof AttributeAccessTree) {
-      sb.append(referenceToString((AttributeAccessTree) reference.object()));
-      sb.append('.');
-    } else if (reference.object() instanceof VariableExprTree) {
-      sb.append(((VariableExprTree) reference.object()).value());
-      sb.append('.');
-    }
-    sb.append(reference.attribute().value());
-    return sb.toString();
   }
 
   private static boolean isLimitedToResourceGroup(TemplateExpressionTree scope) {
