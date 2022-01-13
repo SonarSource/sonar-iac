@@ -27,7 +27,7 @@ resource "my_resource" "test" { // Noncompliant {{my_block is missing}}
 
 }
 
-resource "non_my_resource" "block_is_present" {
+resource "not_my_resource" "block_is_present" {
   my_block {}
 
   multi_block {

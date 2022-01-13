@@ -42,7 +42,7 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.getResourceType;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 
-public class ResourceProvider implements IacCheck {
+public abstract class ResourceProvider implements IacCheck {
 
   private static final Map<String, List<Consumer<Resource>>> resourceConsumers = new HashMap<>();
 
@@ -52,9 +52,7 @@ public class ResourceProvider implements IacCheck {
     registerResourceConsumer();
   }
 
-  protected void registerResourceConsumer() {
-    // do not register any consumer for a specific resource type by default
-  }
+  protected abstract void registerResourceConsumer();
 
   protected void provideResource(CheckContext ctx, BlockTree blockTree) {
     if (isResource(blockTree)) {
@@ -133,29 +131,36 @@ public class ResourceProvider implements IacCheck {
     }
 
     public Attribute reportOnTrue(String message, SecondaryLocation... secondaries) {
+      // designed to be extended but noop in standard case
       return this;
     }
 
     public Attribute reportOnFalse(String message, SecondaryLocation... secondaries) {
+      // designed to be extended but noop in standard case
       return this;
     }
     public Attribute reportUnexpectedValue(String expectedValue, String message, SecondaryLocation... secondaries) {
+      // designed to be extended but noop in standard case
       return this;
     }
 
     public Attribute reportSensitiveValue(String sensitiveValue, String message, SecondaryLocation... secondaries) {
+      // designed to be extended but noop in standard case
       return this;
     }
 
     public Attribute reportUnexpectedValue(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+      // designed to be extended but noop in standard case
       return this;
     }
 
     public Attribute reportSensitiveValue(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+      // designed to be extended but noop in standard case
       return this;
     }
 
     public Attribute reportAbsence(String message) {
+      // designed to be extended but noop in standard case
       return this;
     }
 
