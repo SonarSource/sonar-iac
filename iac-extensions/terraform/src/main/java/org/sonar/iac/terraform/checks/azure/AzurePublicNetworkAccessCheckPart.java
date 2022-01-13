@@ -66,6 +66,11 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceProvider {
           .reportUnexpectedValue("Deny", NETWORK_ACCESS_MESSAGE)
           .reportAbsence(OMITTED_MESSAGE)));
 
+    addConsumer("azurerm_batch_pool",
+      resource -> resource.block("network_configuration").ifPresent(
+        configuration -> configuration.attribute("public_address_provisioning_type")
+          .reportUnexpectedValue("NoPublicIPAddresses", NETWORK_ACCESS_MESSAGE)));
+
     addConsumer("azurerm_kubernetes_cluster_node_pool",
       resource -> resource.block("default_node_pool").ifPresent(
         pool -> pool.attribute("enable_node_public_ip").reportOnTrue(NETWORK_ACCESS_MESSAGE)));

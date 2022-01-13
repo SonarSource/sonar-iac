@@ -28,6 +28,36 @@ resource "azurerm_application_gateway" "compliant" {
 resource "azurerm_application_gateway" "compliant" {
 }
 
+###### batch_pool ######
+
+resource "azurerm_batch_pool" "noncompliant" {
+  network_configuration {
+  # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
+    public_address_provisioning_type = "BatchManaged"
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  }
+}
+
+resource "azurerm_batch_pool" "compliant" {
+  network_configuration {
+    public_address_provisioning_type = "NoPublicIPAddresses"
+  }
+}
+
+resource "azurerm_batch_pool" "compliant" {
+  network_configuration {
+    public_address_provisioning_type = foo.bar
+  }
+}
+
+resource "azurerm_batch_pool" "compliant" {
+  network_configuration {
+
+  }
+}
+
+
+
 ###### dev_test_linux_virtual_machine ######
 
 resource "azurerm_dev_test_linux_virtual_machine" "noncompliant" {
