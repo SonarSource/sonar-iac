@@ -63,12 +63,12 @@ public abstract class ResourceProvider implements IacCheck {
     }
   }
 
-  protected void addConsumer(String resourceName, Consumer<Resource> consumer) {
+  protected void resourceConsumer(String resourceName, Consumer<Resource> consumer) {
     resourceConsumers.computeIfAbsent(resourceName, i -> new ArrayList<>()).add(consumer);
   }
 
-  protected void addConsumer(List<String> resourceNames, Consumer<Resource> consumer) {
-    resourceNames.forEach(resourceName -> addConsumer(resourceName, consumer));
+  protected void resourceConsumer(List<String> resourceNames, Consumer<Resource> consumer) {
+    resourceNames.forEach(resourceName -> resourceConsumer(resourceName, consumer));
   }
 
   protected static class Block {

@@ -32,7 +32,7 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceProvider {
 
   @Override
   protected void registerResourceConsumer() {
-    addConsumer(List.of("azurerm_batch_account",
+    resourceConsumer(List.of("azurerm_batch_account",
       "azurerm_cognitive_account",
       "azurerm_container_registry",
       "azurerm_cosmosdb_account",
@@ -50,28 +50,28 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceProvider {
       "azurerm_redis_cache",
       "azurerm_search_service",
       "azurerm_synapse_workspace"), reportEnabledPublicIp("public_network_access_enabled"));
-    addConsumer(List.of("azurerm_data_factory", "azurerm_purview_account"), reportEnabledPublicIp("public_network_enabled"));
+    resourceConsumer(List.of("azurerm_data_factory", "azurerm_purview_account"), reportEnabledPublicIp("public_network_enabled"));
 
-    addConsumer("azurerm_application_gateway", reportPublicIpConfiguration("frontend_ip_configuration"));
-    addConsumer("azurerm_network_interface", reportPublicIpConfiguration("ip_configuration"));
+    resourceConsumer("azurerm_application_gateway", reportPublicIpConfiguration("frontend_ip_configuration"));
+    resourceConsumer("azurerm_network_interface", reportPublicIpConfiguration("ip_configuration"));
 
-    addConsumer(List.of("azurerm_dev_test_linux_virtual_machine", "azurerm_dev_test_windows_virtual_machine"),
+    resourceConsumer(List.of("azurerm_dev_test_linux_virtual_machine", "azurerm_dev_test_windows_virtual_machine"),
       resource -> resource.attribute("disallow_public_ip_address")
         .reportOnFalse(NETWORK_ACCESS_MESSAGE)
         .reportAbsence(OMITTED_MESSAGE));
 
-    addConsumer("azurerm_dev_test_virtual_network",
+    resourceConsumer("azurerm_dev_test_virtual_network",
       resource -> resource.block("subnet").ifPresent(
         subnet -> subnet.attribute("use_public_ip_address")
           .reportUnexpectedValue("Deny", NETWORK_ACCESS_MESSAGE)
           .reportAbsence(OMITTED_MESSAGE)));
 
-    addConsumer("azurerm_batch_pool",
+    resourceConsumer("azurerm_batch_pool",
       resource -> resource.block("network_configuration").ifPresent(
         configuration -> configuration.attribute("public_address_provisioning_type")
           .reportUnexpectedValue("NoPublicIPAddresses", NETWORK_ACCESS_MESSAGE)));
 
-    addConsumer("azurerm_kubernetes_cluster_node_pool",
+    resourceConsumer("azurerm_kubernetes_cluster_node_pool",
       resource -> resource.block("default_node_pool").ifPresent(
         pool -> pool.attribute("enable_node_public_ip").reportOnTrue(NETWORK_ACCESS_MESSAGE)));
   }

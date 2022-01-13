@@ -34,7 +34,7 @@ class ResourceProviderTest {
   static class TestResourceProvider extends ResourceProvider {
     @Override
     protected void registerResourceConsumer() {
-      addConsumer(List.of("my_resource"), this::resourceConsumer);
+      resourceConsumer(List.of("my_resource"), this::resourceConsumer);
     }
 
     private void resourceConsumer(Resource resource) {
