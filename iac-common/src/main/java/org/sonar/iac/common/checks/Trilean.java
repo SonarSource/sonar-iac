@@ -38,8 +38,4 @@ public enum Trilean {
   public boolean isUnknown() {
     return this == UNKNOWN;
   }
-
-  public static Trilean fromBoolean(boolean bool) {
-    return bool ? Trilean.TRUE : Trilean.FALSE;
-  }
 }

@@ -33,7 +33,7 @@ public class TerraformUtils {
 
   public static Trilean attributeAccessMatches(ExpressionTree expression, Predicate<String> predicate) {
     if (expression.is(ATTRIBUTE_ACCESS)) {
-      return Trilean.fromBoolean(predicate.test(expression.toString()));
+      return predicate.test(expression.toString()) ? Trilean.TRUE : Trilean.FALSE;
     }
     return Trilean.UNKNOWN;
   }
