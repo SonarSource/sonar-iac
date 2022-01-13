@@ -21,12 +21,9 @@ package org.sonar.iac.terraform.checks.azure;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.ResourceProvider;
-import org.sonar.iac.terraform.checks.utils.TerraformUtils;
 
-import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.ATTRIBUTE_ACCESS;
+import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessMatches;
 
 public class AzurePublicNetworkAccessCheckPart extends ResourceProvider {
 
@@ -52,44 +49,39 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceProvider {
       "azurerm_postgresql_server",
       "azurerm_redis_cache",
       "azurerm_search_service",
-      "azurerm_synapse_workspace"),
-      reportEnabledPublicNetwork("public_network_access_enabled"));
+      "azurerm_synapse_workspace"), reportEnabledPublicIp("public_network_access_enabled"));
+    addConsumer(List.of("azurerm_data_factory", "azurerm_purview_account"), reportEnabledPublicIp("public_network_enabled"));
 
-    addConsumer(List.of("azurerm_data_factory", "azurerm_purview_account"),
-      reportEnabledPublicNetwork("public_network_enabled"));
+    addConsumer("azurerm_application_gateway", reportPublicIpConfiguration("frontend_ip_configuration"));
+    addConsumer("azurerm_network_interface", reportPublicIpConfiguration("ip_configuration"));
 
-    addConsumer("azurerm_application_gateway", this::checkApplicationGateway);
-    addConsumer("azurerm_dev_test_linux_virtual_machine", this::checkLinuxVirtualMachine);
-    addConsumer("azurerm_dev_test_virtual_network", this::checkVirtualNetwork);
+    addConsumer(List.of("azurerm_dev_test_linux_virtual_machine", "azurerm_dev_test_windows_virtual_machine"),
+      resource -> resource.attribute("disallow_public_ip_address")
+        .reportOnFalse(NETWORK_ACCESS_MESSAGE)
+        .reportAbsence(OMITTED_MESSAGE));
+
+    addConsumer("azurerm_dev_test_virtual_network",
+      resource -> resource.block("subnet").ifPresent(
+        subnet -> subnet.attribute("use_public_ip_address")
+          .reportUnexpectedValue("Deny", NETWORK_ACCESS_MESSAGE)
+          .reportAbsence(OMITTED_MESSAGE)));
+
+    addConsumer("azurerm_kubernetes_cluster_node_pool",
+      resource -> resource.block("default_node_pool").ifPresent(
+        pool -> pool.attribute("enable_node_public_ip").reportOnTrue(NETWORK_ACCESS_MESSAGE)));
   }
 
-  private Consumer<Resource> reportEnabledPublicNetwork(String propertyName) {
+
+  private Consumer<Resource> reportEnabledPublicIp(String propertyName) {
     return resource -> resource.attribute(propertyName)
       .reportOnTrue(NETWORK_ACCESS_MESSAGE)
       .reportAbsence(OMITTED_MESSAGE);
   }
 
-  private void checkLinuxVirtualMachine(Resource resource) {
-    resource.attribute("disallow_public_ip_address")
-      .reportOnFalse(NETWORK_ACCESS_MESSAGE)
-      .reportAbsence(OMITTED_MESSAGE);
-  }
-
-  private void checkApplicationGateway(Resource resource) {
-    resource.blocks("frontend_ip_configuration").forEach(
+  private Consumer<Resource> reportPublicIpConfiguration(String propertyName) {
+    return resource -> resource.blocks(propertyName).forEach(
       gateway -> gateway.attribute("public_ip_address_id")
-        .reportSensitiveValue(this::isPublicIpReference, NETWORK_ACCESS_MESSAGE));
-  }
-
-  private boolean isPublicIpReference(ExpressionTree publicIpAddress) {
-    return publicIpAddress.is(ATTRIBUTE_ACCESS)
-      && TerraformUtils.referenceToString((AttributeAccessTree) publicIpAddress).startsWith("azurerm_public_ip");
-  }
-
-  private void checkVirtualNetwork(Resource resource) {
-    resource.block("subnet").ifPresent(
-      subnet -> subnet.attribute("use_public_ip_address")
-        .reportUnexpectedValue("Deny", NETWORK_ACCESS_MESSAGE)
-        .reportAbsence(OMITTED_MESSAGE));
+        .reportSensitiveValue(e -> attributeAccessMatches(e, s -> s.startsWith("azurerm_public_ip")).isTrue(),
+          NETWORK_ACCESS_MESSAGE));
   }
 }

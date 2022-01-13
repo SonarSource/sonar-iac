@@ -28,7 +28,8 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.checks.utils.TerraformUtils;
+
+import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessMatches;
 
 public class RoleScopeHelper {
 
@@ -50,7 +51,7 @@ public class RoleScopeHelper {
 
   public static boolean isSensitiveScope(ExpressionTree scope, Predicate<String> referenceScopePredicate, Predicate<String> plainScopePredicate) {
     if (scope.is(TerraformTree.Kind.ATTRIBUTE_ACCESS)) {
-      return containsSensitiveScope(((AttributeAccessTree) scope), referenceScopePredicate);
+      return attributeAccessMatches(scope, referenceScopePredicate).isTrue();
     } else if (scope.is(TerraformTree.Kind.TEMPLATE_EXPRESSION)) {
       return !isLimitedToResourceGroup((TemplateExpressionTree) scope)
        && containsSensitiveInterpolations((TemplateExpressionTree) scope, referenceScopePredicate);
@@ -58,9 +59,6 @@ public class RoleScopeHelper {
     return TextUtils.matchesValue(scope, plainScopePredicate).isTrue();
   }
 
-  private static boolean containsSensitiveScope(AttributeAccessTree accessTree, Predicate<String> referenceScopePredicate) {
-    return referenceScopePredicate.test(TerraformUtils.referenceToString(accessTree));
-  }
 
   private static boolean containsSensitiveInterpolations(TemplateExpressionTree scope, Predicate<String> referenceScopePredicate) {
     return scope.parts().stream()
@@ -68,7 +66,7 @@ public class RoleScopeHelper {
       .map(interpolation -> ((TemplateInterpolationTree) interpolation).expression())
       .filter(AttributeAccessTree.class::isInstance)
       .map(AttributeAccessTree.class::cast)
-      .anyMatch(interpolation -> containsSensitiveScope(interpolation, referenceScopePredicate));
+      .anyMatch(interpolation -> attributeAccessMatches(interpolation, referenceScopePredicate).isTrue());
   }
 
   private static boolean isLimitedToResourceGroup(TemplateExpressionTree scope) {

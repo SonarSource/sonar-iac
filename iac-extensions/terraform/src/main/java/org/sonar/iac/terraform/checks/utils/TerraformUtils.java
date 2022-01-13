@@ -19,8 +19,11 @@
  */
 package org.sonar.iac.terraform.checks.utils;
 
-import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
-import org.sonar.iac.terraform.api.tree.VariableExprTree;
+import java.util.function.Predicate;
+import org.sonar.iac.common.checks.Trilean;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
+
+import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.ATTRIBUTE_ACCESS;
 
 public class TerraformUtils {
 
@@ -28,16 +31,10 @@ public class TerraformUtils {
     // utils class
   }
 
-  public static String referenceToString(AttributeAccessTree reference) throws IllegalArgumentException {
-    StringBuilder sb = new StringBuilder();
-    if (reference.object() instanceof AttributeAccessTree) {
-      sb.append(referenceToString((AttributeAccessTree) reference.object()));
-      sb.append('.');
-    } else if (reference.object() instanceof VariableExprTree) {
-      sb.append(((VariableExprTree) reference.object()).value());
-      sb.append('.');
+  public static Trilean attributeAccessMatches(ExpressionTree expression, Predicate<String> predicate) {
+    if (expression.is(ATTRIBUTE_ACCESS)) {
+      return Trilean.fromBoolean(predicate.test(expression.toString()));
     }
-    sb.append(reference.attribute().value());
-    return sb.toString();
+    return Trilean.UNKNOWN;
   }
 }

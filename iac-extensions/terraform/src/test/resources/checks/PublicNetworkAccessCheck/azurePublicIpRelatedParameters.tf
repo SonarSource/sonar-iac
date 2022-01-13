@@ -45,6 +45,14 @@ resource "azurerm_dev_test_linux_virtual_machine" "compliant" {
   disallow_public_ip_address = true
 }
 
+###### dev_test_windows_virtual_machine ######
+
+resource "azurerm_dev_test_windows_virtual_machine" "noncompliant" {
+  # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
+  disallow_public_ip_address = false
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+
 ###### dev_test_virtual_network ######
 
 resource "azurerm_dev_test_virtual_network" "noncompliant" {
@@ -69,5 +77,36 @@ resource "azurerm_dev_test_virtual_network" "compliant" {
 resource "azurerm_dev_test_virtual_network" "compliant_with_reference" {
   subnet {
     use_public_ip_address = var.subnet.behavior
+  }
+}
+
+###### kubernetes_cluster_node_pool ######
+
+resource "azurerm_kubernetes_cluster_node_pool" "noncompliant" {
+  default_node_pool {
+    # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
+    enable_node_public_ip = true
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "compliant" {
+  default_node_pool {
+    enable_node_public_ip = false
+  }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "compliant" {
+  default_node_pool {
+  }
+}
+
+###### network_interface ######
+
+resource "azurerm_network_interface" "production" {
+  ip_configuration {
+  # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
+    public_ip_address_id = azurerm_public_ip.production.id
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   }
 }
