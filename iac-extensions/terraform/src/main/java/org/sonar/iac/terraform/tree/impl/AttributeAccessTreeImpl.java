@@ -25,7 +25,6 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
 public class AttributeAccessTreeImpl extends TerraformTreeImpl implements AttributeAccessTree {
   private final ExpressionTree object;
@@ -61,19 +60,5 @@ public class AttributeAccessTreeImpl extends TerraformTreeImpl implements Attrib
   @Override
   public Kind getKind() {
     return Kind.ATTRIBUTE_ACCESS;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    if (object instanceof AttributeAccessTree) {
-      sb.append(object);
-      sb.append('.');
-    } else if (object instanceof VariableExprTree) {
-      sb.append(((VariableExprTree) object).value());
-      sb.append('.');
-    }
-    sb.append(attribute.value());
-    return sb.toString();
   }
 }

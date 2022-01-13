@@ -24,17 +24,17 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 
-class ResourceProviderTest {
+class ResourceVisitorTest {
 
   @Test
   void test() {
-    TerraformVerifier.verify("ResourceProvider/test.tf", new TestResourceProvider());
+    TerraformVerifier.verify("ResourceVisitor/test.tf", new TestResourceCheck());
   }
 
-  static class TestResourceProvider extends ResourceProvider {
+  static class TestResourceCheck extends ResourceVisitor {
     @Override
     protected void registerResourceConsumer() {
-      resourceConsumer(List.of("my_resource"), this::resourceConsumer);
+      checkResource(List.of("my_resource"), this::resourceConsumer);
     }
 
     private void resourceConsumer(Resource resource) {
@@ -46,11 +46,11 @@ class ResourceProviderTest {
       resource.blocks("multi_block").forEach(
         block -> {
           block.attribute("my_attribute_1")
-            .reportSensitiveValue("sensitive_value", "my_attribute_1 is sensitive_value")
-            .reportSensitiveValue(e -> e instanceof AttributeAccessTree, "my_attribute_1 is a AttributeAccessTree");
+            .reportIfValueMatches("sensitive_value", "my_attribute_1 is sensitive_value")
+            .reportIfValueMatches(e -> e instanceof AttributeAccessTree, "my_attribute_1 is a AttributeAccessTree");
           block.attribute("my_attribute_2")
-            .reportUnexpectedValue("expected_value", "my_attribute_2 is not expected_value")
-            .reportUnexpectedValue(e -> e instanceof TextTree, "my_attribute_2 is not a TextTree");
+            .reportIfValueDoesNotMatches("expected_value", "my_attribute_2 is not expected_value")
+            .reportIfValueDoesNotMatches(e -> e instanceof TextTree, "my_attribute_2 is not a TextTree");
           block.attribute("my_attribute_3")
             .reportOnTrue("my_attribute_3 is true")
             .reportOnFalse("my_attribute_3 is false")

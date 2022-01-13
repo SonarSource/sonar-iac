@@ -92,10 +92,13 @@ resource "azurerm_dev_test_virtual_network" "noncompliant" {
   }
 }
 
+# Noncompliant@+1 {{Omitting subnet allows network access from the Internet. Make sure it is safe here.}}
 resource "azurerm_dev_test_virtual_network" "noncompliant" {
-  # Noncompliant@+1 {{Omitting use_public_ip_address allows network access from the Internet. Make sure it is safe here.}}
+
+}
+
+resource "azurerm_dev_test_virtual_network" "compliant" {
   subnet { }
-# ^^^^^^
 }
 
 resource "azurerm_dev_test_virtual_network" "compliant" {

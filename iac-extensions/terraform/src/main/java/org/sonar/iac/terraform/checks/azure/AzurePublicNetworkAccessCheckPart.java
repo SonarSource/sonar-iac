@@ -21,18 +21,18 @@ package org.sonar.iac.terraform.checks.azure;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.sonar.iac.terraform.checks.ResourceProvider;
+import org.sonar.iac.terraform.checks.ResourceVisitor;
 
 import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessMatches;
 
-public class AzurePublicNetworkAccessCheckPart extends ResourceProvider {
+public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
 
   private static final String OMITTED_MESSAGE = "Omitting %s allows network access from the Internet. Make sure it is safe here.";
   private static final String NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
-    resourceConsumer(List.of("azurerm_batch_account",
+    checkResource(List.of("azurerm_batch_account",
       "azurerm_cognitive_account",
       "azurerm_container_registry",
       "azurerm_cosmosdb_account",
@@ -49,44 +49,44 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceProvider {
       "azurerm_postgresql_server",
       "azurerm_redis_cache",
       "azurerm_search_service",
-      "azurerm_synapse_workspace"), reportEnabledPublicIp("public_network_access_enabled"));
-    resourceConsumer(List.of("azurerm_data_factory", "azurerm_purview_account"), reportEnabledPublicIp("public_network_enabled"));
+      "azurerm_synapse_workspace"), checkEnabledPublicIp("public_network_access_enabled"));
+    checkResource(List.of("azurerm_data_factory", "azurerm_purview_account"), checkEnabledPublicIp("public_network_enabled"));
 
-    resourceConsumer("azurerm_application_gateway", reportPublicIpConfiguration("frontend_ip_configuration"));
-    resourceConsumer("azurerm_network_interface", reportPublicIpConfiguration("ip_configuration"));
+    checkResource("azurerm_application_gateway", checkPublicIpConfiguration("frontend_ip_configuration"));
+    checkResource("azurerm_network_interface", checkPublicIpConfiguration("ip_configuration"));
 
-    resourceConsumer(List.of("azurerm_dev_test_linux_virtual_machine", "azurerm_dev_test_windows_virtual_machine"),
+    checkResource(List.of("azurerm_dev_test_linux_virtual_machine", "azurerm_dev_test_windows_virtual_machine"),
       resource -> resource.attribute("disallow_public_ip_address")
         .reportOnFalse(NETWORK_ACCESS_MESSAGE)
         .reportAbsence(OMITTED_MESSAGE));
 
-    resourceConsumer("azurerm_dev_test_virtual_network",
-      resource -> resource.block("subnet").ifPresent(
+    checkResource("azurerm_dev_test_virtual_network",
+      resource -> resource.block("subnet").ifPresentOrElse(
         subnet -> subnet.attribute("use_public_ip_address")
-          .reportUnexpectedValue("Deny", NETWORK_ACCESS_MESSAGE)
-          .reportAbsence(OMITTED_MESSAGE)));
+          .reportIfValueDoesNotMatches("Deny", NETWORK_ACCESS_MESSAGE),
+        () -> resource.report(String.format(OMITTED_MESSAGE, "subnet"))));
 
-    resourceConsumer("azurerm_batch_pool",
+    checkResource("azurerm_batch_pool",
       resource -> resource.block("network_configuration").ifPresent(
         configuration -> configuration.attribute("public_address_provisioning_type")
-          .reportUnexpectedValue("NoPublicIPAddresses", NETWORK_ACCESS_MESSAGE)));
+          .reportIfValueDoesNotMatches("NoPublicIPAddresses", NETWORK_ACCESS_MESSAGE)));
 
-    resourceConsumer("azurerm_kubernetes_cluster_node_pool",
+    checkResource("azurerm_kubernetes_cluster_node_pool",
       resource -> resource.block("default_node_pool").ifPresent(
         pool -> pool.attribute("enable_node_public_ip").reportOnTrue(NETWORK_ACCESS_MESSAGE)));
   }
 
 
-  private Consumer<Resource> reportEnabledPublicIp(String propertyName) {
+  private Consumer<Resource> checkEnabledPublicIp(String propertyName) {
     return resource -> resource.attribute(propertyName)
       .reportOnTrue(NETWORK_ACCESS_MESSAGE)
       .reportAbsence(OMITTED_MESSAGE);
   }
 
-  private Consumer<Resource> reportPublicIpConfiguration(String propertyName) {
+  private Consumer<Resource> checkPublicIpConfiguration(String propertyName) {
     return resource -> resource.blocks(propertyName).forEach(
-      gateway -> gateway.attribute("public_ip_address_id")
-        .reportSensitiveValue(e -> attributeAccessMatches(e, s -> s.startsWith("azurerm_public_ip")).isTrue(),
+      block -> block.attribute("public_ip_address_id")
+        .reportIfValueMatches(e -> attributeAccessMatches(e, s -> s.startsWith("azurerm_public_ip")).isTrue(),
           NETWORK_ACCESS_MESSAGE));
   }
 }

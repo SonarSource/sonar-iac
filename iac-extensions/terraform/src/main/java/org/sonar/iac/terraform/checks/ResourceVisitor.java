@@ -42,7 +42,7 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.getResourceType;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 
-public abstract class ResourceProvider implements IacCheck {
+public abstract class ResourceVisitor implements IacCheck {
 
   private static final Map<String, List<Consumer<Resource>>> resourceConsumers = new HashMap<>();
 
@@ -63,23 +63,22 @@ public abstract class ResourceProvider implements IacCheck {
     }
   }
 
-  protected void resourceConsumer(String resourceName, Consumer<Resource> consumer) {
+  protected void checkResource(String resourceName, Consumer<Resource> consumer) {
     resourceConsumers.computeIfAbsent(resourceName, i -> new ArrayList<>()).add(consumer);
   }
 
-  protected void resourceConsumer(List<String> resourceNames, Consumer<Resource> consumer) {
-    resourceNames.forEach(resourceName -> resourceConsumer(resourceName, consumer));
+  protected void checkResource(List<String> resourceNames, Consumer<Resource> consumer) {
+    resourceNames.forEach(resourceName -> checkResource(resourceName, consumer));
   }
 
   protected static class Block {
 
     protected final CheckContext ctx;
     protected final BlockTree blockTree;
-    protected final String key;
+
     private Block(CheckContext ctx, BlockTree blockTree) {
       this.ctx = ctx;
       this.blockTree = blockTree;
-      this.key = blockTree.key().value();
     }
 
     public Attribute attribute(String propertyName) {
@@ -139,22 +138,22 @@ public abstract class ResourceProvider implements IacCheck {
       // designed to be extended but noop in standard case
       return this;
     }
-    public Attribute reportUnexpectedValue(String expectedValue, String message, SecondaryLocation... secondaries) {
+    public Attribute reportIfValueDoesNotMatches(String expectedValue, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
 
-    public Attribute reportSensitiveValue(String sensitiveValue, String message, SecondaryLocation... secondaries) {
+    public Attribute reportIfValueMatches(String expectedValue, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
 
-    public Attribute reportUnexpectedValue(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+    public Attribute reportIfValueDoesNotMatches(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
 
-    public Attribute reportSensitiveValue(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+    public Attribute reportIfValueMatches(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
@@ -185,31 +184,31 @@ public abstract class ResourceProvider implements IacCheck {
 
       @Override
       public Attribute reportOnTrue(String message, SecondaryLocation... secondaries) {
-        return reportSensitiveValue(TextUtils::isValueTrue, message, secondaries);
+        return reportIfValueMatches(TextUtils::isValueTrue, message, secondaries);
       }
 
       @Override
       public Attribute reportOnFalse(String message, SecondaryLocation... secondaries) {
-        return reportSensitiveValue(TextUtils::isValueFalse, message, secondaries);
+        return reportIfValueMatches(TextUtils::isValueFalse, message, secondaries);
       }
 
       @Override
-      public Attribute reportUnexpectedValue(String expectedValue, String message, SecondaryLocation... secondaries) {
-        return reportSensitiveValue(value -> TextUtils.isValue(value, expectedValue).isFalse(), message, secondaries);
+      public Attribute reportIfValueDoesNotMatches(String expectedValue, String message, SecondaryLocation... secondaries) {
+        return reportIfValueMatches(value -> TextUtils.isValue(value, expectedValue).isFalse(), message, secondaries);
       }
 
       @Override
-      public Attribute reportUnexpectedValue(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
-        return reportSensitiveValue(expectedPredicate.negate(), message, secondaries);
+      public Attribute reportIfValueDoesNotMatches(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+        return reportIfValueMatches(expectedPredicate.negate(), message, secondaries);
       }
 
       @Override
-      public Attribute reportSensitiveValue(String sensitiveValue, String message, SecondaryLocation... secondaries) {
-        return reportSensitiveValue(value -> TextUtils.isValue(value, sensitiveValue).isTrue(), message, secondaries);
+      public Attribute reportIfValueMatches(String expectedValue, String message, SecondaryLocation... secondaries) {
+        return reportIfValueMatches(value -> TextUtils.isValue(value, expectedValue).isTrue(), message, secondaries);
       }
 
       @Override
-      public Attribute reportSensitiveValue(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+      public Attribute reportIfValueMatches(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
         if (expectedPredicate.test(attributeTree.value())) {
           report(message, secondaries);
         }
