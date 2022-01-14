@@ -52,9 +52,9 @@ class ResourceVisitorTest {
             .reportIfValueDoesNotMatch("expected_value", "my_attribute_2 is not expected_value")
             .reportIfValueDoesNotMatch(e -> e instanceof TextTree, "my_attribute_2 is not a TextTree");
           block.attribute("my_attribute_3")
-            .reportOnTrue("my_attribute_3 is true")
-            .reportOnFalse("my_attribute_3 is false")
-            .reportAbsence("%s is missing");
+            .reportIfTrue("my_attribute_3 is true")
+            .reportIfFalse("my_attribute_3 is false")
+            .reportIfAbsence("%s is missing");
         }
 
       );

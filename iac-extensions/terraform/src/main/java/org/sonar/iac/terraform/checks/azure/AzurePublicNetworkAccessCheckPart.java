@@ -57,8 +57,8 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
 
     register(List.of("azurerm_dev_test_linux_virtual_machine", "azurerm_dev_test_windows_virtual_machine"),
       resource -> resource.attribute("disallow_public_ip_address")
-        .reportOnFalse(NETWORK_ACCESS_MESSAGE)
-        .reportAbsence(OMITTED_MESSAGE));
+        .reportIfFalse(NETWORK_ACCESS_MESSAGE)
+        .reportIfAbsence(OMITTED_MESSAGE));
 
     register("azurerm_dev_test_virtual_network",
       resource -> resource.block("subnet").ifPresent(
@@ -67,14 +67,14 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
 
     register("azurerm_kubernetes_cluster_node_pool",
       resource -> resource.attribute("enable_node_public_ip")
-        .reportOnTrue(NETWORK_ACCESS_MESSAGE));
+        .reportIfTrue(NETWORK_ACCESS_MESSAGE));
   }
 
 
   private Consumer<Resource> checkEnabledPublicIp(String propertyName) {
     return resource -> resource.attribute(propertyName)
-      .reportOnTrue(NETWORK_ACCESS_MESSAGE)
-      .reportAbsence(OMITTED_MESSAGE);
+      .reportIfTrue(NETWORK_ACCESS_MESSAGE)
+      .reportIfAbsence(OMITTED_MESSAGE);
   }
 
   private Consumer<Resource> checkPublicIpConfiguration(String propertyName) {

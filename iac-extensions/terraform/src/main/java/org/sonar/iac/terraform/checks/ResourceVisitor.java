@@ -129,12 +129,12 @@ public abstract class ResourceVisitor implements IacCheck {
       this.attributeTree = attributeTree;
     }
 
-    public Attribute reportOnTrue(String message, SecondaryLocation... secondaries) {
+    public Attribute reportIfTrue(String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
 
-    public Attribute reportOnFalse(String message, SecondaryLocation... secondaries) {
+    public Attribute reportIfFalse(String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
@@ -158,7 +158,7 @@ public abstract class ResourceVisitor implements IacCheck {
       return this;
     }
 
-    public Attribute reportAbsence(String message) {
+    public Attribute reportIfAbsence(String message) {
       // designed to be extended but noop in standard case
       return this;
     }
@@ -170,7 +170,7 @@ public abstract class ResourceVisitor implements IacCheck {
       }
 
       @Override
-      public Attribute reportAbsence(String absenceMessage) {
+      public Attribute reportIfAbsence(String absenceMessage) {
         block.report(String.format(absenceMessage, name));
         return this;
       }
@@ -183,12 +183,12 @@ public abstract class ResourceVisitor implements IacCheck {
       }
 
       @Override
-      public Attribute reportOnTrue(String message, SecondaryLocation... secondaries) {
+      public Attribute reportIfTrue(String message, SecondaryLocation... secondaries) {
         return reportIfValueMatches(TextUtils::isValueTrue, message, secondaries);
       }
 
       @Override
-      public Attribute reportOnFalse(String message, SecondaryLocation... secondaries) {
+      public Attribute reportIfFalse(String message, SecondaryLocation... secondaries) {
         return reportIfValueMatches(TextUtils::isValueFalse, message, secondaries);
       }
 
