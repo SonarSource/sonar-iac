@@ -63,12 +63,12 @@ public abstract class ResourceVisitor implements IacCheck {
     }
   }
 
-  protected void checkResource(String resourceName, Consumer<Resource> consumer) {
+  protected void register(String resourceName, Consumer<Resource> consumer) {
     resourceConsumers.computeIfAbsent(resourceName, i -> new ArrayList<>()).add(consumer);
   }
 
-  protected void checkResource(List<String> resourceNames, Consumer<Resource> consumer) {
-    resourceNames.forEach(resourceName -> checkResource(resourceName, consumer));
+  protected void register(List<String> resourceNames, Consumer<Resource> consumer) {
+    resourceNames.forEach(resourceName -> register(resourceName, consumer));
   }
 
   protected static class Block {
@@ -138,7 +138,7 @@ public abstract class ResourceVisitor implements IacCheck {
       // designed to be extended but noop in standard case
       return this;
     }
-    public Attribute reportIfValueDoesNotMatches(String expectedValue, String message, SecondaryLocation... secondaries) {
+    public Attribute reportIfValueDoesNotMatch(String expectedValue, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
@@ -148,7 +148,7 @@ public abstract class ResourceVisitor implements IacCheck {
       return this;
     }
 
-    public Attribute reportIfValueDoesNotMatches(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+    public Attribute reportIfValueDoesNotMatch(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
@@ -193,12 +193,12 @@ public abstract class ResourceVisitor implements IacCheck {
       }
 
       @Override
-      public Attribute reportIfValueDoesNotMatches(String expectedValue, String message, SecondaryLocation... secondaries) {
+      public Attribute reportIfValueDoesNotMatch(String expectedValue, String message, SecondaryLocation... secondaries) {
         return reportIfValueMatches(value -> TextUtils.isValue(value, expectedValue).isFalse(), message, secondaries);
       }
 
       @Override
-      public Attribute reportIfValueDoesNotMatches(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+      public Attribute reportIfValueDoesNotMatch(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
         return reportIfValueMatches(expectedPredicate.negate(), message, secondaries);
       }
 

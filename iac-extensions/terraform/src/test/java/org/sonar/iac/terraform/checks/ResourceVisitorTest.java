@@ -34,7 +34,7 @@ class ResourceVisitorTest {
   static class TestResourceCheck extends ResourceVisitor {
     @Override
     protected void registerResourceConsumer() {
-      checkResource(List.of("my_resource"), this::resourceConsumer);
+      register(List.of("my_resource"), this::resourceConsumer);
     }
 
     private void resourceConsumer(Resource resource) {
@@ -49,8 +49,8 @@ class ResourceVisitorTest {
             .reportIfValueMatches("sensitive_value", "my_attribute_1 is sensitive_value")
             .reportIfValueMatches(e -> e instanceof AttributeAccessTree, "my_attribute_1 is a AttributeAccessTree");
           block.attribute("my_attribute_2")
-            .reportIfValueDoesNotMatches("expected_value", "my_attribute_2 is not expected_value")
-            .reportIfValueDoesNotMatches(e -> e instanceof TextTree, "my_attribute_2 is not a TextTree");
+            .reportIfValueDoesNotMatch("expected_value", "my_attribute_2 is not expected_value")
+            .reportIfValueDoesNotMatch(e -> e instanceof TextTree, "my_attribute_2 is not a TextTree");
           block.attribute("my_attribute_3")
             .reportOnTrue("my_attribute_3 is true")
             .reportOnFalse("my_attribute_3 is false")

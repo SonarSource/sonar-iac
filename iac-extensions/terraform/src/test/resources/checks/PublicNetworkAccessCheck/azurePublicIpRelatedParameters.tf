@@ -28,35 +28,6 @@ resource "azurerm_application_gateway" "compliant" {
 resource "azurerm_application_gateway" "compliant" {
 }
 
-###### batch_pool ######
-
-resource "azurerm_batch_pool" "noncompliant" {
-  network_configuration {
-  # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
-    public_address_provisioning_type = "BatchManaged"
-  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  }
-}
-
-resource "azurerm_batch_pool" "compliant" {
-  network_configuration {
-    public_address_provisioning_type = "NoPublicIPAddresses"
-  }
-}
-
-resource "azurerm_batch_pool" "compliant" {
-  network_configuration {
-    public_address_provisioning_type = foo.bar
-  }
-}
-
-resource "azurerm_batch_pool" "compliant" {
-  network_configuration {
-
-  }
-}
-
-
 
 ###### dev_test_linux_virtual_machine ######
 
@@ -92,11 +63,6 @@ resource "azurerm_dev_test_virtual_network" "noncompliant" {
   }
 }
 
-# Noncompliant@+1 {{Omitting subnet allows network access from the Internet. Make sure it is safe here.}}
-resource "azurerm_dev_test_virtual_network" "noncompliant" {
-
-}
-
 resource "azurerm_dev_test_virtual_network" "compliant" {
   subnet { }
 }
@@ -116,22 +82,16 @@ resource "azurerm_dev_test_virtual_network" "compliant_with_reference" {
 ###### kubernetes_cluster_node_pool ######
 
 resource "azurerm_kubernetes_cluster_node_pool" "noncompliant" {
-  default_node_pool {
-    # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
-    enable_node_public_ip = true
-  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  }
+  # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
+  enable_node_public_ip = true
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "compliant" {
-  default_node_pool {
-    enable_node_public_ip = false
-  }
+  enable_node_public_ip = false
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "compliant" {
-  default_node_pool {
-  }
 }
 
 ###### network_interface ######

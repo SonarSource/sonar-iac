@@ -32,7 +32,7 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
 
   @Override
   protected void registerResourceConsumer() {
-    checkResource(List.of("azurerm_batch_account",
+    register(List.of("azurerm_batch_account",
       "azurerm_cognitive_account",
       "azurerm_container_registry",
       "azurerm_cosmosdb_account",
@@ -50,30 +50,24 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
       "azurerm_redis_cache",
       "azurerm_search_service",
       "azurerm_synapse_workspace"), checkEnabledPublicIp("public_network_access_enabled"));
-    checkResource(List.of("azurerm_data_factory", "azurerm_purview_account"), checkEnabledPublicIp("public_network_enabled"));
+    register(List.of("azurerm_data_factory", "azurerm_purview_account"), checkEnabledPublicIp("public_network_enabled"));
 
-    checkResource("azurerm_application_gateway", checkPublicIpConfiguration("frontend_ip_configuration"));
-    checkResource("azurerm_network_interface", checkPublicIpConfiguration("ip_configuration"));
+    register("azurerm_application_gateway", checkPublicIpConfiguration("frontend_ip_configuration"));
+    register("azurerm_network_interface", checkPublicIpConfiguration("ip_configuration"));
 
-    checkResource(List.of("azurerm_dev_test_linux_virtual_machine", "azurerm_dev_test_windows_virtual_machine"),
+    register(List.of("azurerm_dev_test_linux_virtual_machine", "azurerm_dev_test_windows_virtual_machine"),
       resource -> resource.attribute("disallow_public_ip_address")
         .reportOnFalse(NETWORK_ACCESS_MESSAGE)
         .reportAbsence(OMITTED_MESSAGE));
 
-    checkResource("azurerm_dev_test_virtual_network",
-      resource -> resource.block("subnet").ifPresentOrElse(
+    register("azurerm_dev_test_virtual_network",
+      resource -> resource.block("subnet").ifPresent(
         subnet -> subnet.attribute("use_public_ip_address")
-          .reportIfValueDoesNotMatches("Deny", NETWORK_ACCESS_MESSAGE),
-        () -> resource.report(String.format(OMITTED_MESSAGE, "subnet"))));
+          .reportIfValueDoesNotMatch("Deny", NETWORK_ACCESS_MESSAGE)));
 
-    checkResource("azurerm_batch_pool",
-      resource -> resource.block("network_configuration").ifPresent(
-        configuration -> configuration.attribute("public_address_provisioning_type")
-          .reportIfValueDoesNotMatches("NoPublicIPAddresses", NETWORK_ACCESS_MESSAGE)));
-
-    checkResource("azurerm_kubernetes_cluster_node_pool",
-      resource -> resource.block("default_node_pool").ifPresent(
-        pool -> pool.attribute("enable_node_public_ip").reportOnTrue(NETWORK_ACCESS_MESSAGE)));
+    register("azurerm_kubernetes_cluster_node_pool",
+      resource -> resource.attribute("enable_node_public_ip")
+        .reportOnTrue(NETWORK_ACCESS_MESSAGE));
   }
 
 
