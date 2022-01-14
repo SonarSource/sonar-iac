@@ -22,6 +22,7 @@ package org.sonar.iac.terraform.checks;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 
 class ResourceVisitorTest {
@@ -55,10 +56,10 @@ class ResourceVisitorTest {
             .reportIfTrue("my_attribute_3 is true")
             .reportIfFalse("my_attribute_3 is false")
             .reportIfAbsence("%s is missing");
+          block.list("my_list_1")
+            .reportItemsWhichMatch(item -> TextUtils.isValue(item, "unsafe1").isTrue(), "my_list_1 contains unsafe value");
         }
-
       );
-
     }
   }
 
