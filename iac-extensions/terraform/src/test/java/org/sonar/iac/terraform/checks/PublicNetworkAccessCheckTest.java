@@ -42,4 +42,9 @@ class PublicNetworkAccessCheckTest {
   void azurePublicIpRelatedParameters() {
     TerraformVerifier.verify("PublicNetworkAccessCheck/azurePublicIpRelatedParameters.tf", new PublicNetworkAccessCheck());
   }
+
+  @Test
+  void azureDatabaseEndpoint() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/azureDatabaseEndpoint.tf", new PublicNetworkAccessCheck());
+  }
 }

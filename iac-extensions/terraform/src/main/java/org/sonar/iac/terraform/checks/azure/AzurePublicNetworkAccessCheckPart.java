@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.checks.azure;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 
@@ -67,6 +68,16 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
 
     register("azurerm_kubernetes_cluster_node_pool",
       resource -> resource.attribute("enable_node_public_ip")
+        .reportIfTrue(NETWORK_ACCESS_MESSAGE));
+
+    register("azurerm_application_insights",
+      resource -> Set.of("internet_ingestion_enabled", "internet_query_enabled").forEach(
+        attribute -> resource.attribute(attribute)
+          .reportIfTrue(NETWORK_ACCESS_MESSAGE)
+          .reportIfAbsence(OMITTED_MESSAGE)));
+
+    register("azurerm_sql_managed_instance",
+      resource -> resource.attribute("public_data_endpoint_enabled")
         .reportIfTrue(NETWORK_ACCESS_MESSAGE));
   }
 
