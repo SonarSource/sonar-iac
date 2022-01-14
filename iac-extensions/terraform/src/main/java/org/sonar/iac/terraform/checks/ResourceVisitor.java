@@ -133,11 +133,6 @@ public abstract class ResourceVisitor implements IacCheck {
       this.block = block;
       this.name = name;
     }
-
-    public Property reportIfAbsence(String message) {
-      // designed to be extended but noop in standard case
-      return this;
-    }
   }
 
   public static class Attribute extends Property {

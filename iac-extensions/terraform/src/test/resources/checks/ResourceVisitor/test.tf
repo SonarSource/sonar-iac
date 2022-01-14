@@ -8,12 +8,18 @@ resource "my_resource" "test" { // Noncompliant {{my_block is missing}}
     my_attribute_1 = "non_sensitive_value"
     my_attribute_2 = "expected_value"
     my_attribute_3 = "no false nor true"
+    my_list_1 = ["safe1", "safe2"]
   }
 
   multi_block {
     my_attribute_1 = "sensitive_value" // Noncompliant {{my_attribute_1 is sensitive_value}}
     my_attribute_2 = "foo" // Noncompliant {{my_attribute_2 is not expected_value}}
     my_attribute_3 = true // Noncompliant {{my_attribute_3 is true}}
+    my_list_1 = [
+      "safe1",
+      "unsafe1", // Noncompliant {{my_list_1 contains unsafe value}}
+      "safe2"
+    ]
   }
 
   multi_block {
