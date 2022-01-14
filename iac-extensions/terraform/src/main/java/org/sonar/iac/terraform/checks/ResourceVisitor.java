@@ -38,6 +38,8 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.terraform.api.tree.TupleTree;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.getResourceType;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
@@ -87,6 +89,13 @@ public abstract class ResourceVisitor implements IacCheck {
         .orElse(new Attribute.AbsentAttribute(ctx, this, propertyName));
     }
 
+    public ListProperty list(String propertyName) {
+      return PropertyUtils.get(blockTree, propertyName, AttributeTree.class)
+        .filter(attr -> attr.value() instanceof TupleTree)
+        .map(attr -> (ListProperty) new ListProperty.PresentListProperty(ctx, this, propertyName, attr))
+        .orElse(new ListProperty.AbsentListProperty(ctx, this, propertyName));
+    }
+
     public Optional<Block> block(String propertyName) {
       return PropertyUtils.get(blockTree, propertyName, BlockTree.class).map(b -> new Block(ctx, b));
     }
@@ -114,18 +123,30 @@ public abstract class ResourceVisitor implements IacCheck {
     }
   }
 
-  public static class Attribute {
-
+  public static class Property {
     protected final CheckContext ctx;
     protected final Block block;
     protected final String name;
+
+    public Property(CheckContext ctx, Block block, String name) {
+      this.ctx = ctx;
+      this.block = block;
+      this.name = name;
+    }
+
+    public Property reportIfAbsence(String message) {
+      // designed to be extended but noop in standard case
+      return this;
+    }
+  }
+
+  public static class Attribute extends Property {
+
     @Nullable
     protected final AttributeTree attributeTree;
 
     public Attribute(CheckContext ctx, Block block, String name, @Nullable AttributeTree attributeTree) {
-      this.ctx = ctx;
-      this.block = block;
-      this.name = name;
+      super(ctx, block, name);
       this.attributeTree = attributeTree;
     }
 
@@ -217,6 +238,42 @@ public abstract class ResourceVisitor implements IacCheck {
 
       private void report(String message, SecondaryLocation... secondaries) {
         ctx.reportIssue(attributeTree, message, Arrays.asList(secondaries));
+      }
+    }
+  }
+
+  public abstract static class ListProperty extends Property {
+
+    private ListProperty(CheckContext ctx, Block block, String name) {
+      super(ctx, block, name);
+    }
+
+    public void reportItemsWhichMatch(Predicate<ExpressionTree> predicate, String message, SecondaryLocation... secondaries) {
+      // designed to be extended but noop in standard case
+    }
+
+    static class PresentListProperty extends ListProperty {
+
+      private List<ExpressionTree> items;
+
+      public PresentListProperty(CheckContext ctx, Block block, String name, AttributeTree attributeTree) {
+        super(ctx, block, name);
+        if (!attributeTree.value().is(TerraformTree.Kind.TUPLE)) {
+          throw new IllegalArgumentException("ListProperty is created on an AttributeTree which does not contain a TupleTree");
+        }
+        this.items = ((TupleTree) attributeTree.value()).elements().trees();
+      }
+      
+      @Override
+      public void reportItemsWhichMatch(Predicate<ExpressionTree> predicate, String message, SecondaryLocation... secondaries) {
+        items.stream().filter(predicate).forEach(item -> ctx.reportIssue(item, message, Arrays.asList(secondaries)));
+      }
+    }
+
+    static class AbsentListProperty extends ListProperty {
+
+      public AbsentListProperty(CheckContext ctx, Block block, String name) {
+        super(ctx, block, name);
       }
     }
   }

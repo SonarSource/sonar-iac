@@ -22,6 +22,8 @@ package org.sonar.iac.terraform.checks.azure;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 
 import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessMatches;
@@ -79,6 +81,16 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
     register("azurerm_sql_managed_instance",
       resource -> resource.attribute("public_data_endpoint_enabled")
         .reportIfTrue(NETWORK_ACCESS_MESSAGE));
+
+    register("azurerm_kubernetes_cluster",
+      resource -> {
+        resource.block("default_node_pool").ifPresent(
+          defaultNodePool -> defaultNodePool.attribute("enable_node_public_ip")
+            .reportIfTrue(NETWORK_ACCESS_MESSAGE)
+        );
+        resource.list("api_server_authorized_ip_ranges")
+          .reportItemsWhichMatch(ipAddress -> isPublicIpAddress(ipAddress), NETWORK_ACCESS_MESSAGE);
+      });
   }
 
 
@@ -93,5 +105,10 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
       block -> block.attribute("public_ip_address_id")
         .reportIfValueMatches(e -> attributeAccessMatches(e, s -> s.startsWith("azurerm_public_ip")).isTrue(),
           NETWORK_ACCESS_MESSAGE));
+  }
+
+  private static boolean isPublicIpAddress(ExpressionTree ipAddress) {
+    return TextUtils.matchesValue(ipAddress, s ->
+      !(s.startsWith("10.") || s.startsWith("172.16.") || s.startsWith("192.168.") || s.equals("0.0.0.0/32"))).isTrue();
   }
 }

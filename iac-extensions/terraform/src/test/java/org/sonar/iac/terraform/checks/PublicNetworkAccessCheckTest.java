@@ -47,4 +47,9 @@ class PublicNetworkAccessCheckTest {
   void azureDatabaseEndpoint() {
     TerraformVerifier.verify("PublicNetworkAccessCheck/azureDatabaseEndpoint.tf", new PublicNetworkAccessCheck());
   }
+
+  @Test
+  void azureKubernetesCluster() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/azureKubernetesCluster.tf", new PublicNetworkAccessCheck());
+  }
 }
