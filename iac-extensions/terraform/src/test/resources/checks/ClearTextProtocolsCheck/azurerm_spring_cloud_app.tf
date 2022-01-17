@@ -8,7 +8,7 @@ resource "azurerm_spring_cloud_app" "noncompliant_https_disabled" {
 }
 
 resource "azurerm_spring_cloud_app" "safe_https_value" {
-  https_only = ABRACADABRA
+  https_only = true
 }
 
 resource "not_an_azurerm_spring_cloud_app" "for_coverage" {
