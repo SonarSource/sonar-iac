@@ -20,12 +20,13 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.checks.aws.AwsClearTextProtocolsCheckPart;
 import org.sonar.iac.terraform.checks.azure.AzureClearTextProtocolsCheckPart;
 
 @Rule(key = "S5332")
-public class ClearTextProtocolsCheck extends AbstractResourceCheck {
+public class ClearTextProtocolsCheck implements IacCheck {
 
   public static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use %s instead.";
   public static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";

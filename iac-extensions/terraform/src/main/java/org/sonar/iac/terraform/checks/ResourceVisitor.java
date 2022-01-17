@@ -46,7 +46,7 @@ import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 
 public abstract class ResourceVisitor implements IacCheck {
 
-  private static final Map<String, List<Consumer<Resource>>> resourceConsumers = new HashMap<>();
+  private final Map<String, List<Consumer<Resource>>> resourceConsumers = new HashMap<>();
 
   @Override
   public void initialize(InitContext init) {
