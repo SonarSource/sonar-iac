@@ -21,16 +21,16 @@ package org.sonar.iac.terraform.checks.azure;
 
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 
-public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
+import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_CLEAR_TEXT;
+import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMITTING;
 
-  private static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
-  private static final String MESSAGE_OMITTING_FORMAT = "Omitting %s enables clear-text traffic. Make sure it is safe here.";
+public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
 
   @Override
   protected void registerResourceConsumer() {
     register("azurerm_spring_cloud_app",
       resource -> resource.attribute("https_only")
-        .reportIfAbsence(MESSAGE_OMITTING_FORMAT)
+        .reportIfAbsence(MESSAGE_OMITTING)
         .reportIfFalse(MESSAGE_CLEAR_TEXT));
   }
 }
