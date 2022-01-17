@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.checks.azure.AzureClearTextProtocolsCheckPart;
 
 class ClearTextProtocolsCheckTest {
 
@@ -51,5 +52,10 @@ class ClearTextProtocolsCheckTest {
   @Test
   void aws_kinesis_stream() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/aws_kinesis_stream.tf", new ClearTextProtocolsCheck());
+  }
+
+  @Test
+  void azurerm_spring_cloud_app() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_spring_cloud_app.tf", new AzureClearTextProtocolsCheckPart());
   }
 }
