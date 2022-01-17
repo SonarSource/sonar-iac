@@ -17,23 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks;
+package org.sonar.iac.terraform.checks.azure;
 
-import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.terraform.checks.aws.AwsClearTextProtocolsCheckPart;
-import org.sonar.iac.terraform.checks.azure.AzureClearTextProtocolsCheckPart;
+import org.sonar.iac.terraform.checks.ResourceVisitor;
 
-@Rule(key = "S5332")
-public class ClearTextProtocolsCheck extends AbstractResourceCheck {
-
-  public static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use %s instead.";
-  public static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
-  public static final String MESSAGE_OMITTING = "Omitting %s enables clear-text traffic. Make sure it is safe here.";
+public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
 
   @Override
-  public void initialize(InitContext init) {
-    new AwsClearTextProtocolsCheckPart().initialize(init);
-    new AzureClearTextProtocolsCheckPart().initialize(init);
+  protected void registerResourceConsumer() {
+
   }
 }
