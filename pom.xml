@@ -42,7 +42,6 @@
     <module>iac-common</module>
     <module>iac-extensions</module>
     <module>sonar-iac-plugin</module>
-    <module>its</module>
   </modules>
 
   <scm>
