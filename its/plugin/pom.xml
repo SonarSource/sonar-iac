@@ -49,14 +49,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>it-plugin</id>
-      <properties>
-        <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
-        <skipTests>false</skipTests>
-      </properties>
-    </profile>
-  </profiles>
 </project>

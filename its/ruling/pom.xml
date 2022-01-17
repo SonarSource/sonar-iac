@@ -35,15 +35,5 @@
       <artifactId>junit-jupiter</artifactId>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>it-ruling</id>
-      <properties>
-        <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
-        <skipTests>false</skipTests>
-      </properties>
-    </profile>
-  </profiles>
   
 </project>
