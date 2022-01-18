@@ -51,5 +51,9 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
     register("azurerm_redis_enterprise_database",
       resource -> resource.attribute("client_protocol")
         .reportIfValueMatches("PLAINTEXT", MESSAGE_CLEAR_TEXT));
+
+    register(List.of("azurerm_mysql_server", "azurerm_postgresql_server"),
+      resource -> resource.attribute("ssl_enforcement_enabled")
+        .reportIfFalse(MESSAGE_CLEAR_TEXT));
   }
 }
