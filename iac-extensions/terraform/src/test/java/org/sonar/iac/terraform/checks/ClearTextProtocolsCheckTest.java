@@ -63,4 +63,24 @@ class ClearTextProtocolsCheckTest {
   void azurerm_function_app() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_function_app.tf", new AzureClearTextProtocolsCheckPart());
   }
+
+  @Test
+  void azurerm_app_service() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_app_service.tf", new AzureClearTextProtocolsCheckPart());
+  }
+
+  @Test
+  void azurerm_cdn_endpoint() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_cdn_endpoint.tf", new AzureClearTextProtocolsCheckPart());
+  }
+
+  @Test
+  void azurerm_redis_enterprise_database() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_redis_enterprise_database.tf", new AzureClearTextProtocolsCheckPart());
+  }
+
+  @Test
+  void azurerm_xyzsql_server() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_xyzsql_server.tf", new AzureClearTextProtocolsCheckPart());
+  }
 }
