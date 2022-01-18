@@ -22,7 +22,6 @@ package org.sonar.iac.terraform.checks.azure;
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_CLEAR_TEXT;
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMITTING;
@@ -31,16 +30,26 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
 
   @Override
   protected void registerResourceConsumer() {
-    register("azurerm_spring_cloud_app",
-      reportIfAttributeIsAbsentOrFalse("https_only"));
+    register(List.of("azurerm_spring_cloud_app",
+                     "azurerm_function_app",
+                     "azurerm_function_app_slot",
+                     "azurerm_app_service"),
+      resource -> resource.attribute("https_only")
+        .reportIfAbsence(MESSAGE_OMITTING)
+        .reportIfFalse(MESSAGE_CLEAR_TEXT));
 
-    register(List.of("azurerm_function_app", "azurerm_function_app_slot"),
-      reportIfAttributeIsAbsentOrFalse("https_only"));
-  }
+    register("azurerm_app_service",
+      resource -> resource.block("site_config")
+        .ifPresent(block -> block.attribute("ftps_state")
+          .reportIfValueMatches("AllAllowed", MESSAGE_CLEAR_TEXT)));
 
-  private static Consumer<Resource> reportIfAttributeIsAbsentOrFalse(String attributeName) {
-    return resource -> resource.attribute(attributeName)
-      .reportIfAbsence(MESSAGE_OMITTING)
-      .reportIfFalse(MESSAGE_CLEAR_TEXT);
+    register("azurerm_cdn_endpoint",
+      resource -> resource.attribute("is_http_allowed")
+        .reportIfAbsence(MESSAGE_OMITTING)
+        .reportIfTrue(MESSAGE_CLEAR_TEXT));
+
+    register("azurerm_redis_enterprise_database",
+      resource -> resource.attribute("client_protocol")
+        .reportIfValueMatches("PLAINTEXT", MESSAGE_CLEAR_TEXT));
   }
 }
