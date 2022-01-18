@@ -14,6 +14,10 @@
 'terraform-project:sources/terraform/terragoat/terraform/azure/app_service.tf':[
 27,
 ],
+'terraform-project:sources/terraform/terragoat/terraform/azure/sql.tf':[
+60,
+85,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticache_replication_group_not_encrypted_at_rest/main.tf':[
 1,
 ],
