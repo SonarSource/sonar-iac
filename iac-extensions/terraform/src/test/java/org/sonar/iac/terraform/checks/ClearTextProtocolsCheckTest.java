@@ -58,4 +58,9 @@ class ClearTextProtocolsCheckTest {
   void azurerm_spring_cloud_app() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_spring_cloud_app.tf", new AzureClearTextProtocolsCheckPart());
   }
+
+  @Test
+  void azurerm_function_app() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_function_app.tf", new AzureClearTextProtocolsCheckPart());
+  }
 }

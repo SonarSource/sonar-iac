@@ -21,6 +21,9 @@ package org.sonar.iac.terraform.checks.azure;
 
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_CLEAR_TEXT;
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMITTING;
 
@@ -29,8 +32,15 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
   @Override
   protected void registerResourceConsumer() {
     register("azurerm_spring_cloud_app",
-      resource -> resource.attribute("https_only")
-        .reportIfAbsence(MESSAGE_OMITTING)
-        .reportIfFalse(MESSAGE_CLEAR_TEXT));
+      reportIfAttributeIsAbsentOrFalse("https_only"));
+
+    register(List.of("azurerm_function_app", "azurerm_function_app_slot"),
+      reportIfAttributeIsAbsentOrFalse("https_only"));
+  }
+
+  private static Consumer<Resource> reportIfAttributeIsAbsentOrFalse(String attributeName) {
+    return resource -> resource.attribute(attributeName)
+      .reportIfAbsence(MESSAGE_OMITTING)
+      .reportIfFalse(MESSAGE_CLEAR_TEXT);
   }
 }
