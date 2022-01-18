@@ -19,7 +19,6 @@
   </modules>
 
   <properties>
-    <skipTests>true</skipTests>
     <maven.deploy.skip>true</maven.deploy.skip>
     <surefire.argLine>-server</surefire.argLine>
   </properties>
@@ -65,14 +64,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-
-    <profile>
-      <id>its</id>
-      <properties>
-        <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
-        <skipTests>false</skipTests>
-      </properties>
     </profile>
   </profiles>
 
