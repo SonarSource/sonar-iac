@@ -3,7 +3,7 @@ resource "azurerm_redis_enterprise_database" "non_plaintext" {
 }
 
 resource "azurerm_redis_enterprise_database" "plaintext" {
-  client_protocol = "Plaintext" # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
+  client_protocol = "PlainText" # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
