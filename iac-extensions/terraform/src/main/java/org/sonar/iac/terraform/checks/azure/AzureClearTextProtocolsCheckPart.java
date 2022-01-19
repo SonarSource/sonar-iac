@@ -32,6 +32,7 @@ import org.sonar.iac.terraform.checks.utils.TerraformUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.hasReferenceLabel;
@@ -77,29 +78,29 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
       resource -> resource.attribute("ssl_enforcement_enabled")
         .reportIfFalse(MESSAGE_CLEAR_TEXT));
 
-    register("azurerm_api_management_api",
-      resource -> {
-        resource.list("protocols")
-          .reportItemsWhichMatch(itemTree -> TextUtils.isValue(itemTree, "http").isTrue(), MESSAGE_CLEAR_TEXT);
+    register("azurerm_api_management_api", this::checkApiManagementApi);
+  }
 
-        // Reference is of the form "azurerm_api_management_api.RESOURCE_NAME.id"
-        final var resourceNamePrefix = "azurerm_api_management_api.";
-        final var resourceNameSuffix = ".id";
-        resource.attribute("source_api_id").value(
-          expressionTree -> {
-            if (TerraformUtils.attributeAccessMatches(expressionTree, s -> s.startsWith(resourceNamePrefix)
-                                                                        && s.endsWith(resourceNameSuffix)).isTrue()) {
-              String reference = TerraformUtils.attributeAccessToString((AttributeAccessTree) expressionTree);
-              String resourceName = reference.substring(resourceNamePrefix.length(), reference.length() - resourceNameSuffix.length());
-              BlockTree blockTree = managementApiResourceByName.get(resourceName);
-              if (blockTree != null) {
-                var sourceManagementApi = new Resource(resource.context(), blockTree);
-                sourceManagementApi.list("protocols")
-                  .reportItemsWhichMatch(itemTree -> TextUtils.isValue(itemTree, "http").isTrue(), MESSAGE_CLEAR_TEXT);
-              }
-            }
+  private void checkApiManagementApi(Resource resource) {
+    resource.list("protocols")
+      .reportItemsWhichMatch(itemTree -> TextUtils.isValue(itemTree, "http").isTrue(), MESSAGE_CLEAR_TEXT);
+
+    // Reference is of the form "azurerm_api_management_api.RESOURCE_NAME.id"
+    final var resourceNamePrefix = "azurerm_api_management_api.";
+    final var resourceNameSuffix = ".id";
+    resource.attribute("source_api_id").value(
+      expressionTree -> {
+        if (TerraformUtils.attributeAccessMatches(expressionTree, s -> s.startsWith(resourceNamePrefix)
+                                                                    && s.endsWith(resourceNameSuffix)).isTrue()) {
+          String reference = TerraformUtils.attributeAccessToString((AttributeAccessTree) expressionTree);
+          String resourceName = reference.substring(resourceNamePrefix.length(), reference.length() - resourceNameSuffix.length());
+          BlockTree blockTree = this.managementApiResourceByName.get(resourceName);
+          if (blockTree != null) {
+            var sourceManagementApi = new Resource(resource.context(), blockTree);
+            sourceManagementApi.list("protocols")
+              .reportItemsWhichMatch(itemTree -> TextUtils.isValue(itemTree, "http").isTrue(), MESSAGE_CLEAR_TEXT);
           }
-        );
+        }
       }
     );
   }

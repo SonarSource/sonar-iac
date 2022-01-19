@@ -15,14 +15,14 @@ resource "azurerm_api_management_api" "compliant_api_2" {  # source api is secur
   source_api_id = azurerm_api_management_api.compliant_api_1.id
 }
 
-### some weird cases:
+### some corner cases:
 
-resource "azurerm_api_management_api" "compliant_api_3" { # our protocols are ok, but source is a self-reference !?
+resource "azurerm_api_management_api" "compliant_api_3" { # protocols are compliant, source is a self-reference !?
   protocols = ["https", "sftp"]
   source_api_id = azurerm_api_management_api.compliant_api_3.id
 }
 
-resource "azurerm_api_management_api" "compliant_api_4" { # our protocols are ok, source's are noncompliant
+resource "azurerm_api_management_api" "compliant_api_4" { # protocols are compliant, source is noncompliant
   protocols = ["https", "sftp"]
   source_api_id = azurerm_api_management_api.noncompliant_api_1.id
 }
