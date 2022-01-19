@@ -150,6 +150,7 @@ public abstract class ResourceVisitor implements IacCheck {
     }
 
     public void value(Consumer<ExpressionTree> consumer) {
+      // designed to be extended but noop in standard case
     }
 
     public Attribute reportIfTrue(String message, SecondaryLocation... secondaries) {
