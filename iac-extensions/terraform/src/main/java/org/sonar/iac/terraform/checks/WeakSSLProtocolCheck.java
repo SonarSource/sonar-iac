@@ -20,54 +20,20 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.terraform.checks.aws.AwsWeakSSLProtocolCheckPart;
+import org.sonar.iac.terraform.checks.azure.AzureWeakSSLProtocolCheckPart;
 
 @Rule(key = "S4423")
-public class WeakSSLProtocolCheck extends AbstractResourceCheck {
+public class WeakSSLProtocolCheck implements IacCheck {
 
-  private static final String MESSAGE = "Change this configuration to use a stronger protocol.";
-  private static final String MESSAGE_OMITTING = "Omitting %s disables traffic encryption. Make sure it is safe here.";
-  private static final String STRONG_SSL_PROTOCOL = "TLS_1_2";
-  private static final String ELASTIC_STRONG_POLICY = "Policy-Min-TLS-1-2-2019-07";
-  public static final String SECURITY_POLICY = "security_policy";
+  public static final String WEAK_SSL_MESSAGE = "Change this configuration to use a stronger protocol.";
+  public static final String OMITTING_WEAK_SSL_MESSAGE = "Omitting %s disables traffic encryption. Make sure it is safe here.";
 
   @Override
-  protected void registerResourceChecks() {
-    register(WeakSSLProtocolCheck::checkApiGatewayDomainName, "aws_api_gateway_domain_name");
-    register(WeakSSLProtocolCheck::checkApiGatewayV2DomainName, "aws_apigatewayv2_domain_name");
-    register(WeakSSLProtocolCheck::checkElasticsearchDomain, "aws_elasticsearch_domain");
-  }
-
-  private static void checkApiGatewayDomainName(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, SECURITY_POLICY, AttributeTree.class)
-      .ifPresentOrElse(policy -> reportUnexpectedValue(ctx, policy, STRONG_SSL_PROTOCOL, MESSAGE),
-        () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, SECURITY_POLICY)));
-  }
-
-  private static void checkApiGatewayV2DomainName(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class).ifPresentOrElse(config ->
-        checkDomainNameConfiguration(ctx, config),
-      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "domain_name_configuration.security_policy")));
-  }
-
-  private static void checkElasticsearchDomain(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
-      .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
-        () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "domain_endpoint_options.tls_security_policy")));
-  }
-
-  private static void checkDomainNameConfiguration(CheckContext ctx, BlockTree config) {
-    PropertyUtils.get(config, SECURITY_POLICY, AttributeTree.class)
-      .ifPresentOrElse(policy -> reportUnexpectedValue(ctx, policy, STRONG_SSL_PROTOCOL, MESSAGE),
-        () -> ctx.reportIssue(config.key(), String.format(MESSAGE_OMITTING, SECURITY_POLICY)));
-  }
-
-  private static void checkDomainEndpointOptions(CheckContext ctx, BlockTree options) {
-    PropertyUtils.get(options, "tls_security_policy", AttributeTree.class)
-      .ifPresentOrElse(policy -> reportUnexpectedValue(ctx, policy, ELASTIC_STRONG_POLICY, MESSAGE),
-        () -> ctx.reportIssue(options.key(), String.format(MESSAGE_OMITTING, "tls_security_policy")));
+  public void initialize(InitContext init) {
+    new AwsWeakSSLProtocolCheckPart().initialize(init);
+    new AzureWeakSSLProtocolCheckPart().initialize(init);
   }
 }

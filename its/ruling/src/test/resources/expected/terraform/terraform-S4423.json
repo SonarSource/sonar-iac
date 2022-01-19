@@ -2,6 +2,13 @@
 'terraform-project:sources/terraform/terragoat/terraform/aws/es.tf':[
 1,
 ],
+'terraform-project:sources/terraform/terragoat/terraform/azure/sql.tf':[
+44,
+73,
+],
+'terraform-project:sources/terraform/terragoat/terraform/azure/storage.tf':[
+23,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticsearch_not_encrypted/main.tf':[
 1,
 ],
