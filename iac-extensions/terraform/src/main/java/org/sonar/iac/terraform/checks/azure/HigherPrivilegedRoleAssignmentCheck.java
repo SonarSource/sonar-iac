@@ -38,6 +38,8 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.hasReferenceLabel;
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.getReferenceLabel;
 
 @Rule(key = "S6375")
 public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
@@ -122,14 +124,6 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
       HigherPrivilegedRoleCollector collector = new HigherPrivilegedRoleCollector();
       collector.scan(new TreeContext(), tree);
       return collector;
-    }
-
-    private static String getReferenceLabel(BlockTree resource) {
-      return resource.labels().get(1).value();
-    }
-
-    private static boolean hasReferenceLabel(BlockTree resource) {
-      return resource.labels().size() >= 2;
     }
   }
 }

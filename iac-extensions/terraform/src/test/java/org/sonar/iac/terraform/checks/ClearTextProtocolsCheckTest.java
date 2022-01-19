@@ -83,4 +83,9 @@ class ClearTextProtocolsCheckTest {
   void azurerm_xyzsql_server() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_xyzsql_server.tf", new AzureClearTextProtocolsCheckPart());
   }
+
+  @Test
+  void azurerm_api_management_api() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_api_management_api.tf", new AzureClearTextProtocolsCheckPart());
+  }
 }
