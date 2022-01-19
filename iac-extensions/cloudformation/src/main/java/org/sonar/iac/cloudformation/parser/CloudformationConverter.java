@@ -19,6 +19,15 @@
  */
 package org.sonar.iac.cloudformation.parser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.snakeyaml.engine.v2.comments.CommentLine;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.exceptions.Mark;
@@ -28,12 +37,15 @@ import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.snakeyaml.engine.v2.nodes.SequenceNode;
+import org.snakeyaml.engine.v2.nodes.Tag;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
+import org.sonar.iac.cloudformation.api.tree.FunctionCallTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.cloudformation.tree.impl.FileTreeImpl;
+import org.sonar.iac.cloudformation.tree.impl.FunctionCallTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.MappingTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.ScalarTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.SequenceTreeImpl;
@@ -42,16 +54,6 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 class CloudformationConverter {
   private static final Map<Class<?>, Function<Node, CloudformationTree>> converters = new HashMap<>();
@@ -88,6 +90,11 @@ class CloudformationConverter {
     MappingNode mappingNode = (MappingNode) node;
     List<TupleTree> elements = new ArrayList<>();
 
+    if (mappingNode.getValue().size() == 1 && isFullFunctionCall(mappingNode.getValue().get(0))) {
+      NodeTuple functionCall = mappingNode.getValue().get(0);
+      return convertTupleToFunctionCall((ScalarNode) functionCall.getKeyNode(), functionCall.getValueNode());
+    }
+
     for (NodeTuple elementNode : mappingNode.getValue()) {
       elements.add(CloudformationConverter.convertTuple(elementNode));
     }
@@ -95,20 +102,72 @@ class CloudformationConverter {
     return new MappingTreeImpl(elements, tag(node), range(node), comments(node));
   }
 
+  private static CloudformationTree convertTupleToFunctionCall(ScalarNode functionNameNode, Node argumentList) {
+
+    // Remove leading Fn:: from function name
+    String functionName = functionNameNode.getValue().substring(4);
+    TextRange functionRange = TextRanges.merge(List.of(range(functionNameNode), range(argumentList)));
+    List<Comment> functionComments = comments(functionNameNode);
+    functionComments.addAll(comments(argumentList));
+
+    List<CloudformationTree> arguments = new ArrayList<>();
+    if (argumentList instanceof SequenceNode) {
+      for (Node elementNode : ((SequenceNode) argumentList).getValue()) {
+        arguments.add(CloudformationConverter.convert(elementNode));
+      }
+    } else {
+      arguments.add(CloudformationConverter.convert(argumentList));
+    }
+
+    return new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.FULL, arguments, functionRange, functionComments);
+  }
+
+  private static boolean isFullFunctionCall(NodeTuple nodeTuple) {
+    return nodeTuple.getKeyNode() instanceof ScalarNode && ((ScalarNode) nodeTuple.getKeyNode()).getValue().startsWith("Fn::");
+  }
+
+  private static boolean isShortFunctionCall(Node node) {
+    return tag(node).startsWith("!");
+  }
+
   private static CloudformationTree convertScalar(Node node) {
     ScalarNode scalarNode = (ScalarNode) node;
+    if (isShortFunctionCall(scalarNode)) {
+      return convertScalarToFunctionCall(scalarNode);
+    }
     return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()), tag(scalarNode), range(scalarNode), comments(node));
   }
 
   private static CloudformationTree convertSequence(Node node) {
     SequenceNode sequenceNode = (SequenceNode) node;
+
     List<CloudformationTree> elements = new ArrayList<>();
 
     for (Node elementNode : sequenceNode.getValue()) {
       elements.add(CloudformationConverter.convert(elementNode));
     }
 
+    if (isShortFunctionCall(sequenceNode))  {
+      return convertSequenceToFunctionCall(sequenceNode, elements);
+    }
     return new SequenceTreeImpl(elements, tag(node), range(node), comments(node));
+  }
+
+  private static FunctionCallTree convertSequenceToFunctionCall(SequenceNode functionNode, List<CloudformationTree> arguments) {
+    return new FunctionCallTreeImpl(shortStyleFunctionName(functionNode), FunctionCallTree.Style.SHORT, arguments, range(functionNode), comments(functionNode));
+  }
+
+  private static FunctionCallTree convertScalarToFunctionCall(ScalarNode scalarNode) {
+    TextRange functionRange = range(scalarNode);
+    ScalarTree argument = new ScalarTreeImpl(scalarNode.getValue(), ScalarTree.Style.OTHER, Tag.STR.getValue(), functionRange, Collections.emptyList());
+    return new FunctionCallTreeImpl(shortStyleFunctionName(scalarNode), FunctionCallTree.Style.SHORT, List.of(argument), functionRange, comments(scalarNode));
+  }
+
+  /**
+   * Remove leading exclamation mark from function name
+   */
+  private static String shortStyleFunctionName(Node functionNode) {
+    return tag(functionNode).substring(1);
   }
 
   private static TextRange range(Node node) {
