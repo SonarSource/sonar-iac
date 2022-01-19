@@ -42,3 +42,6 @@ resource "azurerm_api_management_api" "compliant_api_6" {
 resource "azurerm_api_management_api" "compliant_api_7" {
   source_api_id = azurerm_api_management_api.WRONG_RESOURCE_NAME.id # wrong source_api_id reference (for coverage)
 }
+
+resource "azurerm_api_management_api" { # resource w/o a name (for coverage)
+}
