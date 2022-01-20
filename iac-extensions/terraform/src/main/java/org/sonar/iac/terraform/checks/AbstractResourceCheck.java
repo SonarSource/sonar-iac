@@ -72,7 +72,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   public static boolean isResource(BlockTree tree) {
-    return TextUtils.isValue(tree.key(), "resource").isTrue();
+    return TextUtils.matchesValue(tree.key(), "resource"::equals).isTrue();
   }
 
   public static boolean isResource(BlockTree tree, String type) {

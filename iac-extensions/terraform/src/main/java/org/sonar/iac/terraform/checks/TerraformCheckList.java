@@ -60,6 +60,7 @@ public class TerraformCheckList {
       PublicApiCheck.class,
       ResourceAccessPolicyCheck.class,
       ShortBackupRetentionCheck.class,
+      UnencryptedCloudServicesCheck.class,
       UnencryptedEbsVolumeCheck.class,
       UnencryptedSageMakerNotebookCheck.class,
       UnencryptedSqsQueueCheck.class,
