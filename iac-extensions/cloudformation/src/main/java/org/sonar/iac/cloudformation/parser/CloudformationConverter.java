@@ -103,9 +103,12 @@ class CloudformationConverter {
   }
 
   private static CloudformationTree convertTupleToFunctionCall(ScalarNode functionNameNode, Node argumentList) {
-
+    String functionName = functionNameNode.getValue();
     // Remove leading Fn:: from function name
-    String functionName = functionNameNode.getValue().substring(4);
+    if (!"Ref".equals(functionName)) {
+      functionName = functionName.substring(4);
+    }
+
     TextRange functionRange = TextRanges.merge(List.of(range(functionNameNode), range(argumentList)));
     List<Comment> functionComments = comments(functionNameNode);
     functionComments.addAll(comments(argumentList));
@@ -123,7 +126,9 @@ class CloudformationConverter {
   }
 
   private static boolean isFullFunctionCall(NodeTuple nodeTuple) {
-    return nodeTuple.getKeyNode() instanceof ScalarNode && ((ScalarNode) nodeTuple.getKeyNode()).getValue().startsWith("Fn::");
+    Node key = nodeTuple.getKeyNode();
+    return key instanceof ScalarNode
+      && (((ScalarNode) key).getValue().startsWith("Fn::") || ((ScalarNode) key).getValue().equals("Ref"));
   }
 
   private static boolean isShortFunctionCall(Node node) {

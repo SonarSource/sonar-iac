@@ -110,5 +110,4 @@ Resources:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
       DomainNameConfigurations:
-        # FP Missing function recognition in attribute value check leads to false positives TODO SONARIAC-313
-        - SecurityPolicy: !GetAtt security.policy # Noncompliant
+        - SecurityPolicy: !GetAtt security.policy

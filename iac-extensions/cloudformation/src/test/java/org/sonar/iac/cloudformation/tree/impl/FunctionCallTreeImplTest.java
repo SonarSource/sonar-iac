@@ -21,6 +21,7 @@ package org.sonar.iac.cloudformation.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.cloudformation.api.tree.FunctionCallTree;
+import org.sonar.iac.cloudformation.api.tree.FunctionCallTree.Style;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.SequenceTree;
@@ -35,7 +36,7 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
     FunctionCallTree tree = (FunctionCallTree) parse("!GetAtt logicalNameOfResource.attributeName").root();
     assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
     assertThat(tree.name()).isEqualTo("GetAtt");
-    assertThat(tree.style()).isEqualTo(FunctionCallTree.Style.SHORT);
+    assertThat(tree.style()).isEqualTo(Style.SHORT);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 43);
 
     assertThat(tree.arguments()).hasSize(1);
@@ -52,7 +53,7 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
     FunctionCallTree tree = (FunctionCallTree) parse("!FindInMap [ MapName, TopLevelKey, SecondLevelKey ]").root();
     assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
     assertThat(tree.name()).isEqualTo("FindInMap");
-    assertThat(tree.style()).isEqualTo(FunctionCallTree.Style.SHORT);
+    assertThat(tree.style()).isEqualTo(Style.SHORT);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 51);
 
     assertThat(tree.arguments()).hasSize(3);
@@ -69,7 +70,7 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
     FunctionCallTree tree = (FunctionCallTree) parse("Fn::GetAtt: [ logicalNameOfResource, attributeName ]").root();
     assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
     assertThat(tree.name()).isEqualTo("GetAtt");
-    assertThat(tree.style()).isEqualTo(FunctionCallTree.Style.FULL);
+    assertThat(tree.style()).isEqualTo(Style.FULL);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 52);
 
     assertThat(tree.arguments()).hasSize(2);
@@ -86,7 +87,7 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
     FunctionCallTree tree = (FunctionCallTree) parse("{ \"Fn::GetAZs\" : \"region\" }").root();
     assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
     assertThat(tree.name()).isEqualTo("GetAZs");
-    assertThat(tree.style()).isEqualTo(FunctionCallTree.Style.FULL);
+    assertThat(tree.style()).isEqualTo(Style.FULL);
     assertTextRange(tree.textRange()).hasRange(1, 2, 1, 25);
 
     assertThat(tree.arguments()).hasSize(1);
@@ -103,7 +104,7 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
     FunctionCallTree tree = (FunctionCallTree) parse("{'Fn::Sub': ['foo', {'foo':'bar'}]}").root();
     assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
     assertThat(tree.name()).isEqualTo("Sub");
-    assertThat(tree.style()).isEqualTo(FunctionCallTree.Style.FULL);
+    assertThat(tree.style()).isEqualTo(Style.FULL);
     assertTextRange(tree.textRange()).hasRange(1, 1, 1, 34);
 
     assertThat(tree.arguments()).hasSize(2);
@@ -132,6 +133,13 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
         assertThat(nestedFunction.arguments()).hasSize(1);
       });
     });
+  }
+
+  @Test
+  void full_style_ref_function_call() {
+    FunctionCallTree tree = (FunctionCallTree) parse("Ref: OneMoreCompliantCodeBuildProject").root();
+    assertThat(tree.name()).isEqualTo("Ref");
+    assertThat(tree.style()).isEqualTo(Style.FULL);
   }
 
 

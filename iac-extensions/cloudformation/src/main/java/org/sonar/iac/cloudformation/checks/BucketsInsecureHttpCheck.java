@@ -24,11 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
+import org.sonar.iac.cloudformation.api.tree.FunctionCallTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.SequenceTree;
@@ -90,7 +92,8 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   private static Map<Resource, Resource> bucketsToPolicies(List<Resource> buckets, List<Resource> policies) {
     Map<CloudformationTree, Resource> bucketIdToPolicies = new HashMap<>();
     for (Resource policy : policies) {
-      PropertyUtils.value(policy.properties(), "Bucket", CloudformationTree.class).ifPresent(b -> bucketIdToPolicies.put(b, policy));
+      PropertyUtils.value(policy.properties(), "Bucket", CloudformationTree.class)
+        .ifPresent(b -> bucketIdToPolicies.put(b, policy));
     }
 
     Map<Resource, Resource> result = new HashMap<>();
@@ -106,25 +109,22 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   }
 
   private static boolean correspondsToBucket(@Nullable CloudformationTree policyBucketId, Resource bucket) {
-    if (policyBucketId instanceof MappingTree) {
-      // In JSON format to reference a bucket, an object having a Ref field has to be provided
-      return PropertyUtils.value(policyBucketId, "Ref")
-        .filter(ScalarTree.class::isInstance)
-        .filter(ref -> TextUtils.isValue(bucket.name(), ((ScalarTree) ref).value()).isTrue())
+    if (policyBucketId instanceof FunctionCallTree && isReferringFunction((FunctionCallTree) policyBucketId)) {
+      return ((FunctionCallTree) policyBucketId).arguments().stream()
+        .map(TextUtils::getValue)
+        .flatMap(Optional::stream)
+        .anyMatch(argument -> TextUtils.isValue(bucket.name(), argument).isTrue());
+    } else if (policyBucketId instanceof ScalarTree) {
+      return PropertyUtils.value(bucket.properties(), "BucketName", CloudformationTree.class)
+        .filter(bucketName -> TextUtils.isValue(bucketName, ((ScalarTree) policyBucketId).value()).isTrue())
         .isPresent();
     }
+    return false;
+  }
 
-    if (!(policyBucketId instanceof ScalarTree)) {
-      return false;
-    }
-
-    String policyBucketIdValue = ((ScalarTree) policyBucketId).value();
-    if ("!Ref".equals(policyBucketId.tag())) {
-      return TextUtils.isValue(bucket.name(), policyBucketIdValue).isTrue();
-    }
-
-    Optional<CloudformationTree> bucketName = PropertyUtils.value(bucket.properties(), "BucketName", CloudformationTree.class);
-    return bucketName.isPresent() && TextUtils.isValue(bucketName.get(), policyBucketIdValue).isTrue();
+  private static boolean isReferringFunction(FunctionCallTree functionCall) {
+    final var referringFunctions = Set.of("Ref", "Sub");
+    return referringFunctions.contains(functionCall.name());
   }
 
   private static class PolicyValidator {
@@ -153,12 +153,16 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     }
 
     private static boolean isInsecureResource(CloudformationTree resource) {
-      if (resource instanceof SequenceTree) {
-        SequenceTree sequence = (SequenceTree) resource;
-        return sequence.elements().isEmpty() || isInsecureResource(sequence.elements().get(sequence.elements().size() - 1));
-      } else {
-        return !(resource instanceof ScalarTree && ((ScalarTree) resource).value().endsWith("*"));
+      if (resource instanceof FunctionCallTree && "Join".equals(((FunctionCallTree) resource).name()) && (((FunctionCallTree) resource).arguments().size() == 2)) {
+        FunctionCallTree joinCall = (FunctionCallTree) resource;
+        CloudformationTree listOfValues = joinCall.arguments().get(1);
+        if (listOfValues instanceof SequenceTree) {
+          SequenceTree sequence = (SequenceTree) listOfValues;
+          // Extract last element of Join value list to be checked if it's insecure
+          return sequence.elements().isEmpty() || isInsecureResource(sequence.elements().get(sequence.elements().size() - 1));
+        }
       }
+      return !(resource instanceof ScalarTree && ((ScalarTree) resource).value().endsWith("*"));
     }
 
     private static boolean isInsecurePrincipal(CloudformationTree principal) {
