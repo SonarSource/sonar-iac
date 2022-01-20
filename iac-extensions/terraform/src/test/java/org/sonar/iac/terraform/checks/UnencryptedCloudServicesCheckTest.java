@@ -20,22 +20,21 @@
 package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.checks.azure.AzureUnencryptedCloudServicesCheckPart;
 
-public class UnencryptedCloudServicesCheckTest {
+class UnencryptedCloudServicesCheckTest {
 
   @Test
   void azurerm_data_lake_store() {
-    TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_data_lake_store.tf", new AzureUnencryptedCloudServicesCheckPart());
+    TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_data_lake_store.tf", new UnencryptedCloudServicesCheck());
   }
 
   @Test
   void azurerm_managed_disk() {
-    TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_managed_disk.tf", new AzureUnencryptedCloudServicesCheckPart());
+    TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_managed_disk.tf", new UnencryptedCloudServicesCheck());
   }
 
   @Test
   void azurerm_mysql_server() {
-    TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_mysql_server.tf", new AzureUnencryptedCloudServicesCheckPart());
+    TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_mysql_server.tf", new UnencryptedCloudServicesCheck());
   }
 }
