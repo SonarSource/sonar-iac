@@ -32,7 +32,6 @@ import org.sonar.iac.terraform.checks.utils.TerraformUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.hasReferenceLabel;
