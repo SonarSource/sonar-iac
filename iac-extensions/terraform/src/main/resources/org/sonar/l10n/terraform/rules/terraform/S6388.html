@@ -1,0 +1,40 @@
+<p>Using unencrypted cloud storages can lead to data exposure. In the case that adversaries gain physical access to the storage medium they are able
+to access unencrypted information.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The service contains sensitive information that could cause harm when leaked. </li>
+  <li> There are compliance requirements for the service to store data encrypted. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to encrypt cloud storages that contain sensitive information.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_lake_store">azurerm_data_lake_store</a>:</p>
+<pre>
+resource "azurerm_data_lake_store" "store" {
+  name             = "store"
+  encryption_state = "Disabled"  # Sensitive
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_lake_store">azurerm_data_lake_store</a>:</p>
+<pre>
+resource "azurerm_data_lake_store" "store" {
+  name             = "store"
+  encryption_state = "Enabled"
+  encryption_type  = "ServiceManaged"
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/Top10/A03_2021-Injection/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
+  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
+  <li> <a href="https://docs.aws.amazon.com/efs/latest/ug/encryption.html">Data encryption in Amazon EFS</a> </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
+  Exposure </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/311.html">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+</ul>
+
