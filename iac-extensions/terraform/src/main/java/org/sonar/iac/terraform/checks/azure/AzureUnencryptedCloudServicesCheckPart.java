@@ -34,5 +34,10 @@ public class AzureUnencryptedCloudServicesCheckPart extends ResourceVisitor {
     register("azurerm_managed_disk",
       resource -> resource.attribute("disk_encryption_set_id")
         .reportIfAbsence(FORMAT_OMITTING));
+
+    register("azurerm_mysql_server",
+      resource -> resource.attribute("infrastructure_encryption_enabled")
+        .reportIfAbsence(FORMAT_OMITTING)
+        .reportIfFalse(MESSAGE_MAKE_SURE));
   }
 }

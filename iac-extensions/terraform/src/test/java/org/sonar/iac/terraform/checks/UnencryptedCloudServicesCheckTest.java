@@ -33,4 +33,9 @@ public class UnencryptedCloudServicesCheckTest {
   void azurerm_managed_disk() {
     TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_managed_disk.tf", new AzureUnencryptedCloudServicesCheckPart());
   }
+
+  @Test
+  void azurerm_mysql_server() {
+    TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_mysql_server.tf", new AzureUnencryptedCloudServicesCheckPart());
+  }
 }
