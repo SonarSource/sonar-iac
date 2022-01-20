@@ -236,3 +236,25 @@ Resources:
             Condition:
               Bool:
                 "aws:SecureTransport": false
+
+  # TODO SONARIAC-323 Unsimulated intrinsic functions lead to false positives and negatives
+  NoncompliantBucketDueToUnresolvedRelation:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    Properties:
+      BucketName: "mynoncompliantbucket6249"
+  NoncomplianPolicyDueToUnresolvedRelation:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      # Bucket relation is not resolved. However, a function call, which is not ref or sub, would not make sense here.
+      Bucket: !Join ['', ['mynoncompliantbucket6249']]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: arn:aws:s3:::mycompliantbuckets6249/* # for any resources
+            Condition:
+              Bool:
+                "aws:SecureTransport": false

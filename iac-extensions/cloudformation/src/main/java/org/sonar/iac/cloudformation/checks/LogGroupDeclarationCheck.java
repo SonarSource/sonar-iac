@@ -128,10 +128,10 @@ public class LogGroupDeclarationCheck implements IacCheck {
     public FunctionReferenceCollector() {
       register(FunctionCallTree.class, (ctx, tree) ->
         tree.arguments().stream().limit(1).filter(ScalarTree.class::isInstance)
-          .forEach(argument -> collectReference(tree.name(), argument)));
+          .forEach(argument -> collectReference(tree.name(), (ScalarTree) argument)));
     }
 
-    private void collectReference(String functionName, CloudformationTree argument) {
+    private void collectReference(String functionName, ScalarTree argument) {
       if ("Sub".equals(functionName)) {
         collectSubParameters(argument);
       } else if ("Ref".equals(functionName)) {
@@ -139,23 +139,19 @@ public class LogGroupDeclarationCheck implements IacCheck {
       }
     }
 
-    private void collectSubParameters(CloudformationTree subArgument) {
-      if (subArgument instanceof ScalarTree) {
-          Matcher m = SUB_PARAMETERS.matcher(((ScalarTree) subArgument).value());
-          while (m.find()) {
-            if (m.group(1) != null) {
-              references.add(m.group(1));
-            } else {
-              references.add(m.group(2));
-            }
-          }
+    private void collectSubParameters(ScalarTree subArgument) {
+      Matcher m = SUB_PARAMETERS.matcher(subArgument.value());
+      while (m.find()) {
+        if (m.group(1) != null) {
+          references.add(m.group(1));
+        } else {
+          references.add(m.group(2));
+        }
       }
     }
 
-    private void collectRefParameter(CloudformationTree ref) {
-      if (ref instanceof ScalarTree) {
-        references.add(((ScalarTree) ref).value());
-      }
+    private void collectRefParameter(ScalarTree ref) {
+      references.add(ref.value());
     }
 
     public static Set<String> get(CloudformationTree logGroupNameProperty) {
