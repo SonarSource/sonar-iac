@@ -258,3 +258,64 @@ Resources:
             Condition:
               Bool:
                 "aws:SecureTransport": false
+
+  # SONARIAC-324 S6249 raises false positives on policies on unknown statement
+  CompliantBucketDueToInsecureResourcePolicy:
+    Type: AWS::S3::Bucket # Noncompliant
+    Properties:
+      BucketName: "S3BucketWrongEmptyJoinedResource"
+  CompliantPolicyDueToInsecureResourcePolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref CompliantBucketDueToInsecureResourcePolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*"
+            Action: "*"
+            Resource: !GetAtt secure.resouce.policy
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  NonCompliantBucketDueToInvalidFunctionCall:
+    Type: AWS::S3::Bucket # Noncompliant
+    Properties:
+      BucketName: "S3BucketWrongEmptyJoinedResource"
+  NonCompliantPolicyDueToInvalidFunctionCall:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref NonCompliantBucketDueToInvalidFunctionCall
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*"
+            Action: "*"
+            Resource: !Join ['foo', 'bar']
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+  NonCompliantBucketDueToMissingJoinStatements:
+    Type: AWS::S3::Bucket # Noncompliant
+    Properties:
+      BucketName: "S3BucketWrongEmptyJoinedResource"
+  NonCompliantPolicyDueToMissingJoinStatements:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref NonCompliantBucketDueToMissingJoinStatements
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*"
+            Action: "*"
+            Resource: !Join [ 'foo', []]
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
