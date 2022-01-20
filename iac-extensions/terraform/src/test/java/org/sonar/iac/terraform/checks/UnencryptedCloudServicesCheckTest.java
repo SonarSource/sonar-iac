@@ -28,4 +28,9 @@ public class UnencryptedCloudServicesCheckTest {
   void azurerm_data_lake_store() {
     TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_data_lake_store.tf", new AzureUnencryptedCloudServicesCheckPart());
   }
+
+  @Test
+  void azurerm_managed_disk() {
+    TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_managed_disk.tf", new AzureUnencryptedCloudServicesCheckPart());
+  }
 }

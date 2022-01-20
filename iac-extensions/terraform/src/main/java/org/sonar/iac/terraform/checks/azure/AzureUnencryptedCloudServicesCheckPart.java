@@ -21,6 +21,7 @@ package org.sonar.iac.terraform.checks.azure;
 
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 
+import static org.sonar.iac.terraform.checks.UnencryptedCloudServicesCheck.FORMAT_OMITTING;
 import static org.sonar.iac.terraform.checks.UnencryptedCloudServicesCheck.MESSAGE_MAKE_SURE;
 
 public class AzureUnencryptedCloudServicesCheckPart extends ResourceVisitor {
@@ -29,5 +30,9 @@ public class AzureUnencryptedCloudServicesCheckPart extends ResourceVisitor {
     register("azurerm_data_lake_store",
       resource -> resource.attribute("encryption_state")
         .reportIfValueMatches("DISABLED", MESSAGE_MAKE_SURE));
+
+    register("azurerm_managed_disk",
+      resource -> resource.attribute("disk_encryption_set_id")
+        .reportIfAbsence(FORMAT_OMITTING));
   }
 }
