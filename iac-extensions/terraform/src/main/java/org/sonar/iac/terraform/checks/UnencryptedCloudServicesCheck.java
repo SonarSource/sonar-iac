@@ -23,8 +23,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 @Rule(key = "S6388")
-public class UnencryptedCloudServicesCheck extends ResourceVisitor implements IacCheck
-{
+public class UnencryptedCloudServicesCheck extends ResourceVisitor {
   public static final String UNENCRYPTED_MESSAGE = "Make sure using unencrypted cloud storage is safe here.";
   public static final String FORMAT_OMITTING = "Omitting %s enables clear-text storage. Make sure it is safe here.";
 
