@@ -41,8 +41,7 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 
-import static org.sonar.iac.terraform.checks.AbstractResourceCheck.getResourceType;
-import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.*;
 
 public abstract class ResourceVisitor implements IacCheck {
 
@@ -115,10 +114,21 @@ public abstract class ResourceVisitor implements IacCheck {
 
   protected static class Resource extends Block  {
     private final String type;
+    private final String name;
 
     public Resource(CheckContext ctx, BlockTree resourceTree) {
       super(ctx, resourceTree);
       this.type = getResourceType(resourceTree);
+      // according to Nils, name should always be non-null:
+      this.name = hasReferenceLabel(resourceTree) ? getReferenceLabel(resourceTree) : null;
+    }
+
+    public String type() {
+      return type;
+    }
+
+    public String name() {
+      return name;
     }
 
     @Override
@@ -137,7 +147,31 @@ public abstract class ResourceVisitor implements IacCheck {
       this.block = block;
       this.name = name;
     }
+
+    public final boolean isPresent() {
+      return this instanceof PresentProperty;
+    }
+
+    public Property ifPresent(Consumer<Property> consumer) {
+      if (this instanceof PresentProperty) {
+        consumer.accept(this);
+      }
+      return this;
+    }
+
+    public Property ifAbsent(Consumer<Property> consumer) {
+      if (this instanceof AbsentProperty) {
+        consumer.accept(this);
+      }
+      return this;
+    }
   }
+
+  /** Tagging interface */
+  interface PresentProperty {}
+
+  /** Tagging interface */
+  interface AbsentProperty {}
 
   public static class Attribute extends Property {
 
@@ -187,7 +221,7 @@ public abstract class ResourceVisitor implements IacCheck {
       return this;
     }
 
-    static class AbsentAttribute extends Attribute {
+    static class AbsentAttribute extends Attribute implements AbsentProperty {
 
       public AbsentAttribute(CheckContext ctx, Block block, String name) {
         super(ctx, block, name, null);
@@ -200,7 +234,7 @@ public abstract class ResourceVisitor implements IacCheck {
       }
     }
 
-    static class PresentAttribute extends Attribute {
+    static class PresentAttribute extends Attribute implements PresentProperty {
 
       public PresentAttribute(CheckContext ctx, Block block, String name, AttributeTree attributeTree) {
         super(ctx, block, name, attributeTree);
@@ -260,7 +294,7 @@ public abstract class ResourceVisitor implements IacCheck {
       // designed to be extended but noop in standard case
     }
 
-    static class PresentListProperty extends ListProperty {
+    static class PresentListProperty extends ListProperty implements PresentProperty {
 
       private List<ExpressionTree> items;
 
@@ -278,7 +312,7 @@ public abstract class ResourceVisitor implements IacCheck {
       }
     }
 
-    static class AbsentListProperty extends ListProperty {
+    static class AbsentListProperty extends ListProperty implements AbsentProperty {
 
       public AbsentListProperty(CheckContext ctx, Block block, String name) {
         super(ctx, block, name);

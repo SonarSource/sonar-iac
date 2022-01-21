@@ -25,6 +25,7 @@ import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 import org.sonar.iac.terraform.checks.utils.TerraformUtils;
@@ -41,12 +42,12 @@ import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMI
 
 public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
 
-  private Map<String, BlockTree> managementApiResourceByName;
+  private Map<String, ManagementApiInfo> managementApiInfoByName;
 
   @Override
   public void initialize(InitContext init) {
     super.initialize(init);
-    init.register(FileTree.class, (ctx, tree) -> this.managementApiResourceByName = ManagementApiResourceCollector.collect(tree));
+    init.register(FileTree.class, (ctx, tree) -> this.managementApiInfoByName = ManagementApiResourceCollector.collect(tree));
   }
 
   @Override
@@ -77,46 +78,108 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
       resource -> resource.attribute("ssl_enforcement_enabled")
         .reportIfFalse(MESSAGE_CLEAR_TEXT));
 
-    register("azurerm_api_management_api", this::checkApiManagementApi);
+    register("azurerm_api_management_api",
+      resource -> checkApiManagementApi(resource));
   }
 
-  private void checkApiManagementApi(Resource resource) {
-    resource.list("protocols")
-      .reportItemsWhichMatch(itemTree -> TextUtils.isValue(itemTree, "http").isTrue(), MESSAGE_CLEAR_TEXT);
+  static class Mutable<Т> {
+    Т value;
 
-    // Reference is of the form "azurerm_api_management_api.RESOURCE_NAME.id"
-    final var resourceNamePrefix = "azurerm_api_management_api.";
-    final var resourceNameSuffix = ".id";
-    resource.attribute("source_api_id").value(
-      expressionTree -> {
-        if (TerraformUtils.attributeAccessMatches(expressionTree, s -> s.startsWith(resourceNamePrefix)
-                                                                    && s.endsWith(resourceNameSuffix)).isTrue()) {
-          String reference = TerraformUtils.attributeAccessToString((AttributeAccessTree) expressionTree);
-          String resourceName = reference.substring(resourceNamePrefix.length(), reference.length() - resourceNameSuffix.length());
-          BlockTree blockTree = this.managementApiResourceByName.get(resourceName);
-          if (blockTree != null) {
-            var sourceManagementApi = new Resource(resource.context(), blockTree);
-            sourceManagementApi.list("protocols")
-              .reportItemsWhichMatch(itemTree -> TextUtils.isValue(itemTree, "http").isTrue(), MESSAGE_CLEAR_TEXT);
+    Mutable(Т init) {
+      value = init;
+    }
+  }
+
+  private ManagementApiCheckStatus checkApiManagementApi(Resource resource) {
+    ManagementApiInfo thisInfo = null;
+    // check for recursion bottom:
+    if (resource.name() != null) {
+      thisInfo = managementApiInfoByName.get(resource.name());
+      if (thisInfo != null && thisInfo.status != ManagementApiCheckStatus.UNKNOWN) {
+        return thisInfo.status;
+      }
+    }
+
+    var status = new Mutable<>(ManagementApiCheckStatus.COMPLIANT);
+    ListProperty protocolsList = resource.list("protocols");
+    if (protocolsList.isPresent()) {
+      protocolsList.reportItemsWhichMatch(itemTree -> {
+        if (TextUtils.isValue(itemTree, "http").isTrue()) {
+          status.value = ManagementApiCheckStatus.NON_COMPLIANT;
+          return true;
+        } else {
+          return false;
+        }
+      }, MESSAGE_CLEAR_TEXT);
+
+    } else {
+      // Reference is of the form "azurerm_api_management_api.RESOURCE_NAME.id"
+      final var resourceNamePrefix = "azurerm_api_management_api.";
+      final var resourceNameSuffix = ".id";
+
+      // 'protocols' property is not present, check for 'source_api_id' property
+      resource.attribute("source_api_id").value(
+        expressionTree -> {
+          if (TerraformUtils.attributeAccessMatches(expressionTree, s -> s.startsWith(resourceNamePrefix)
+            && s.endsWith(resourceNameSuffix)).isTrue()) {
+            String reference = TerraformUtils.attributeAccessToString((AttributeAccessTree) expressionTree);
+            String resourceName = reference.substring(resourceNamePrefix.length(), reference.length() - resourceNameSuffix.length());
+            ManagementApiInfo srcInfo = this.managementApiInfoByName.get(resourceName);
+            if (srcInfo == null) {
+              // reference to undefined source; COMPLIANT ...
+              status.value = ManagementApiCheckStatus.COMPLIANT;
+            } else if (srcInfo.status != ManagementApiCheckStatus.UNKNOWN) {
+              status.value = srcInfo.status;
+            } else {
+              // Mark with 'CALCULATING' to prevent infinite recursion on cyclical dependency:
+              srcInfo.status = ManagementApiCheckStatus.CALCULATING;
+              // Recurse here:
+              status.value = srcInfo.status = checkApiManagementApi(new Resource(resource.context(), srcInfo.blockTree));
+            }
+          } else {
+            // reference does not comply to format; COMPLIANT ...
+            status.value = ManagementApiCheckStatus.COMPLIANT;
           }
         }
-      }
-    );
+      );
+    }
+
+    if (thisInfo != null) {
+      thisInfo.status = status.value;
+    }
+    return status.value;
+  }
+
+  private enum ManagementApiCheckStatus {
+    UNKNOWN,
+    CALCULATING,
+    COMPLIANT,
+    NON_COMPLIANT
+  }
+
+  private static class ManagementApiInfo {
+    final BlockTree blockTree;
+    ManagementApiCheckStatus status = ManagementApiCheckStatus.UNKNOWN;
+    ManagementApiInfo sourceInfo;
+
+    ManagementApiInfo(BlockTree blockTree) {
+      this.blockTree = blockTree;
+    }
   }
 
   private static class ManagementApiResourceCollector extends TreeVisitor<TreeContext> {
 
-    private final Map<String, BlockTree> managementApiResourceByName = new HashMap<>();
+    private final Map<String, ManagementApiInfo> managementApiResourceByName = new HashMap<>();
 
     public ManagementApiResourceCollector() {
       register(BlockTree.class, (ctx, block) -> {
         if (isResource(block, "azurerm_api_management_api") && hasReferenceLabel(block)) {
-          managementApiResourceByName.put(getReferenceLabel(block), block);
+          managementApiResourceByName.put(getReferenceLabel(block), new ManagementApiInfo(block));
         }
       });
     }
 
-    public static Map<String, BlockTree> collect(FileTree tree) {
+    public static Map<String, ManagementApiInfo> collect(FileTree tree) {
       var collector = new ManagementApiResourceCollector();
       collector.scan(new TreeContext(), tree);
       return collector.managementApiResourceByName;
