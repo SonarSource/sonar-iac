@@ -83,6 +83,10 @@ public abstract class ResourceVisitor implements IacCheck {
       this.blockTree = blockTree;
     }
 
+    public CheckContext context() {
+      return ctx;
+    }
+
     public Attribute attribute(String propertyName) {
       return PropertyUtils.get(blockTree, propertyName, AttributeTree.class)
         .map(a -> (Attribute) new Attribute.PresentAttribute(ctx, this, propertyName, a))
@@ -145,6 +149,10 @@ public abstract class ResourceVisitor implements IacCheck {
       this.attributeTree = attributeTree;
     }
 
+    public void value(Consumer<ExpressionTree> consumer) {
+      // designed to be extended but noop in standard case
+    }
+
     public Attribute reportIfTrue(String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
@@ -196,6 +204,11 @@ public abstract class ResourceVisitor implements IacCheck {
 
       public PresentAttribute(CheckContext ctx, Block block, String name, AttributeTree attributeTree) {
         super(ctx, block, name, attributeTree);
+      }
+
+      @Override
+      public void value(Consumer<ExpressionTree> consumer) {
+        consumer.accept(attributeTree.value());
       }
 
       @Override
