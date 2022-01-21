@@ -20,7 +20,8 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.IacCheck;
+
+import java.util.List;
 
 @Rule(key = "S6388")
 public class UnencryptedCloudServicesCheck extends ResourceVisitor {
@@ -41,5 +42,16 @@ public class UnencryptedCloudServicesCheck extends ResourceVisitor {
       resource -> resource.attribute("infrastructure_encryption_enabled")
         .reportIfAbsence(FORMAT_OMITTING)
         .reportIfFalse(UNENCRYPTED_MESSAGE));
+
+    register("azurerm_windows_virtual_machine_scale_set",
+      resource -> resource.attribute("encryption_at_host_enabled")
+        .reportIfAbsence(FORMAT_OMITTING)
+        .reportIfFalse(UNENCRYPTED_MESSAGE));
+
+    register("azurerm_windows_virtual_machine_scale_set",
+      resource -> List.of("os_disk", "data_disk")
+        .forEach(blockName -> resource.block(blockName)
+          .ifPresent(block -> block.attribute("disk_encryption_set_id")
+            .reportIfAbsence(FORMAT_OMITTING))));
   }
 }

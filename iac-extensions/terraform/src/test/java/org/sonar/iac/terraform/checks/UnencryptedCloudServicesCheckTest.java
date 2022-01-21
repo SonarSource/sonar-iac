@@ -37,4 +37,9 @@ class UnencryptedCloudServicesCheckTest {
   void azurerm_mysql_server() {
     TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_mysql_server.tf", new UnencryptedCloudServicesCheck());
   }
+
+  @Test
+  void azurerm_windows_virtual_machine_scale_set() {
+    TerraformVerifier.verify("UnencryptedCloudServicesCheck/azurerm_windows_virtual_machine_scale_set.tf", new UnencryptedCloudServicesCheck());
+  }
 }
