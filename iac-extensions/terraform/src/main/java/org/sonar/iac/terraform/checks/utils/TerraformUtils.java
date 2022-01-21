@@ -40,7 +40,7 @@ public class TerraformUtils {
     return Trilean.UNKNOWN;
   }
 
-  private static String attributeAccessToString(AttributeAccessTree attributeAccess) {
+  public static String attributeAccessToString(AttributeAccessTree attributeAccess) {
     StringBuilder sb = new StringBuilder();
     ExpressionTree object = attributeAccess.object();
     if (object instanceof AttributeAccessTree) {
