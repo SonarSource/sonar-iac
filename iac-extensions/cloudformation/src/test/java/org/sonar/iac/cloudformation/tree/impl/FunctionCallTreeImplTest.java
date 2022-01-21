@@ -142,5 +142,12 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
     assertThat(tree.style()).isEqualTo(Style.FULL);
   }
 
+  @Test
+  void short_style_ref_function_call() {
+    FunctionCallTree tree = (FunctionCallTree) parse("!Ref OneMoreCompliantCodeBuildProject").root();
+    assertThat(tree.name()).isEqualTo("Ref");
+    assertThat(tree.style()).isEqualTo(Style.SHORT);
+  }
+
 
 }
