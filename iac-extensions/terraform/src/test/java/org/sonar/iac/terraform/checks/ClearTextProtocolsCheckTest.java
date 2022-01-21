@@ -20,7 +20,6 @@
 package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.terraform.checks.azure.AzureClearTextProtocolsCheckPart;
 
 class ClearTextProtocolsCheckTest {
 
@@ -56,36 +55,42 @@ class ClearTextProtocolsCheckTest {
 
   @Test
   void azurerm_spring_cloud_app() {
-    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_spring_cloud_app.tf", new AzureClearTextProtocolsCheckPart());
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_spring_cloud_app.tf", new ClearTextProtocolsCheck());
   }
 
   @Test
   void azurerm_function_app() {
-    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_function_app.tf", new AzureClearTextProtocolsCheckPart());
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_function_app.tf", new ClearTextProtocolsCheck());
   }
 
   @Test
   void azurerm_app_service() {
-    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_app_service.tf", new AzureClearTextProtocolsCheckPart());
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_app_service.tf", new ClearTextProtocolsCheck());
   }
 
   @Test
   void azurerm_cdn_endpoint() {
-    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_cdn_endpoint.tf", new AzureClearTextProtocolsCheckPart());
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_cdn_endpoint.tf", new ClearTextProtocolsCheck());
   }
 
   @Test
   void azurerm_redis_enterprise_database() {
-    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_redis_enterprise_database.tf", new AzureClearTextProtocolsCheckPart());
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_redis_enterprise_database.tf", new ClearTextProtocolsCheck());
   }
 
   @Test
   void azurerm_xyzsql_server() {
-    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_xyzsql_server.tf", new AzureClearTextProtocolsCheckPart());
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_xyzsql_server.tf", new ClearTextProtocolsCheck());
   }
 
   @Test
   void azurerm_api_management_api() {
-    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_api_management_api.tf", new AzureClearTextProtocolsCheckPart());
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_api_management_api.tf", new ClearTextProtocolsCheck());
   }
+
+  @Test
+  void azurerm_storage_account() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_storage_account.tf", new ClearTextProtocolsCheck());
+  }
+
 }

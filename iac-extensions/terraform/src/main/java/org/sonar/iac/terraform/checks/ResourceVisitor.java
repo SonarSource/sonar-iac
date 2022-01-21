@@ -78,7 +78,7 @@ public abstract class ResourceVisitor implements IacCheck {
     protected final CheckContext ctx;
     protected final BlockTree blockTree;
 
-    private Block(CheckContext ctx, BlockTree blockTree) {
+    public Block(CheckContext ctx, BlockTree blockTree) {
       this.ctx = ctx;
       this.blockTree = blockTree;
     }

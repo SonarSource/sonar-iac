@@ -19,6 +19,11 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
@@ -26,16 +31,13 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
+import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 import org.sonar.iac.terraform.checks.utils.TerraformUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
-import static org.sonar.iac.terraform.checks.AbstractResourceCheck.hasReferenceLabel;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.getReferenceLabel;
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.hasReferenceLabel;
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_CLEAR_TEXT;
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMITTING;
 
@@ -45,8 +47,9 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
 
   @Override
   public void initialize(InitContext init) {
-    super.initialize(init);
     init.register(FileTree.class, (ctx, tree) -> this.managementApiResourceByName = ManagementApiResourceCollector.collect(tree));
+    init.register(BlockTree.class, this::checkStorageAccountDataSource);
+    super.initialize(init);
   }
 
   @Override
@@ -77,7 +80,23 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
       resource -> resource.attribute("ssl_enforcement_enabled")
         .reportIfFalse(MESSAGE_CLEAR_TEXT));
 
+    register("azurerm_storage_account",
+      resource -> resource.attribute("enable_https_traffic_only")
+        .reportIfFalse(MESSAGE_CLEAR_TEXT));
+
     register("azurerm_api_management_api", this::checkApiManagementApi);
+  }
+
+  private void checkStorageAccountDataSource(CheckContext ctx, BlockTree tree) {
+    if ("azurerm_storage_account_blob_container_sas".equals(getDataSourceType(tree))) {
+      new Block(ctx, tree).attribute("https_only")
+        .reportIfFalse(MESSAGE_CLEAR_TEXT);
+    }
+  }
+
+  @Nullable
+  private static String getDataSourceType(BlockTree tree) {
+    return "data".equals(tree.key().value()) ? AbstractResourceCheck.getResourceType(tree) : null;
   }
 
   private void checkApiManagementApi(Resource resource) {
