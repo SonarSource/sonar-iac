@@ -79,14 +79,6 @@ public abstract class AbstractResourceCheck implements IacCheck {
     return isResource(tree) && type.equals(getResourceType(tree));
   }
 
-  public static String getReferenceLabel(BlockTree resource) {
-    return resource.labels().get(1).value();
-  }
-
-  public static boolean hasReferenceLabel(BlockTree resource) {
-    return resource.labels().size() >= 2;
-  }
-
   public static boolean isS3Bucket(BlockTree tree) {
     return S3_BUCKET.equals(getResourceType(tree));
   }
@@ -98,6 +90,15 @@ public abstract class AbstractResourceCheck implements IacCheck {
   @CheckForNull
   public static String getResourceType(BlockTree tree) {
     return tree.labels().isEmpty() ? null : tree.labels().get(0).value();
+  }
+
+  @CheckForNull
+  public static boolean hasReferenceLabel(BlockTree tree) {
+    return tree.labels().isEmpty() ? false : tree.labels().size() >= 2;
+  }
+
+  public static String getReferenceLabel(BlockTree tree) {
+    return tree.labels().get(1).value();
   }
 
   public static void reportResource(CheckContext ctx, BlockTree resource, String message) {

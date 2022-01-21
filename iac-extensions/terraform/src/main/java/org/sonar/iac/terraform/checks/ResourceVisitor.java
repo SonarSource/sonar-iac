@@ -305,7 +305,7 @@ public abstract class ResourceVisitor implements IacCheck {
         }
         this.items = ((TupleTree) attributeTree.value()).elements().trees();
       }
-      
+
       @Override
       public void reportItemsWhichMatch(Predicate<ExpressionTree> predicate, String message, SecondaryLocation... secondaries) {
         items.stream().filter(predicate).forEach(item -> ctx.reportIssue(item, message, Arrays.asList(secondaries)));
