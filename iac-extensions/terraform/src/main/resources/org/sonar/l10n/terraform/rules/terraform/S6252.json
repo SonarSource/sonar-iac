@@ -7,6 +7,7 @@
     "constantCost": "5min"
   },
   "tags": [
+    "aws",
     "owasp-a6"
   ],
   "defaultSeverity": "Minor",
@@ -16,6 +17,9 @@
   "securityStandards": {
     "OWASP": [
       "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
     ]
   }
 }

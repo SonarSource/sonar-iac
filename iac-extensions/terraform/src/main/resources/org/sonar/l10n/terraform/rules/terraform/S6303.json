@@ -7,6 +7,7 @@
     "constantCost": "10min"
   },
   "tags": [
+    "aws",
     "cwe",
     "owasp-a3",
     "owasp-a6"
@@ -22,6 +23,11 @@
     "OWASP": [
       "A3",
       "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A2",
+      "A4",
+      "A5"
     ]
   }
 }

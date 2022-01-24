@@ -1,6 +1,12 @@
 <p>Amazon Elasticsearch Service (ES) is a managed service to host Elasticsearch instances. To harden domain (cluster) data in case of unauthorized
-access, ES provides data-at-rest encryption if the Elasticsearch version is 5.1 or above. Enabling encryption at rest will help protect: * Indices *
-Logs * Swap files * Data in the application directory * Automated snapshots</p>
+access, ES provides data-at-rest encryption if the Elasticsearch version is 5.1 or above. Enabling encryption at rest will help protect:</p>
+<ul>
+  <li> Indices </li>
+  <li> Logs </li>
+  <li> Swap files </li>
+  <li> Data in the application directory </li>
+  <li> Automated snapshots </li>
+</ul>
 <p>Thus, if adversaries gain physical access to the storage medium, they cannot access the data.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -31,6 +37,9 @@ resource "aws_elasticsearch_domain" "elasticsearch" {
 </pre>
 <h2>See</h2>
 <ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/Top10/A03_2021-Injection/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
+  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
   <li> <a href="https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/encryption-at-rest.html">Encryption of data at rest for Amazon
   Elasticsearch Service</a> </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data

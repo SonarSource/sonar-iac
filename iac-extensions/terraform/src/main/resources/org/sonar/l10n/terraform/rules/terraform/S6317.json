@@ -7,7 +7,7 @@
     "constantCost": "60min"
   },
   "tags": [
-    "cwe-269",
+    "cwe",
     "owasp-a5",
     "aws"
   ],
@@ -17,6 +17,9 @@
     ],
     "OWASP": [
       "A5"
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
     ]
   },
   "defaultSeverity": "Critical",

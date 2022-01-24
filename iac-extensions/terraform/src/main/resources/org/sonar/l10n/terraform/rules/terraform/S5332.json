@@ -3,6 +3,7 @@
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "tags": [
+    "aws",
     "cwe",
     "owasp-a3",
     "owasp-m3"
