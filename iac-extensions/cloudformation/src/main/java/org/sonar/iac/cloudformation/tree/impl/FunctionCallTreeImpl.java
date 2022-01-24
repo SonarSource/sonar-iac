@@ -29,9 +29,9 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class FunctionCallTreeImpl extends CloudformationTreeImpl implements FunctionCallTree {
 
-  private String name;
-  private Style style;
-  private List<CloudformationTree> arguments;
+  private final String name;
+  private final Style style;
+  private final List<CloudformationTree> arguments;
 
   public FunctionCallTreeImpl(String name, Style style, List<CloudformationTree> arguments, TextRange textRange, List<Comment> comments) {
     super(textRange, comments);

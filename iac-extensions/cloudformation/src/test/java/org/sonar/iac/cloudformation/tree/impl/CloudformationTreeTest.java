@@ -19,13 +19,22 @@
  */
 package org.sonar.iac.cloudformation.tree.impl;
 
+import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
 import org.sonar.iac.cloudformation.parser.CloudformationParser;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class CloudformationTreeTest {
 
   protected FileTree parse(String source) {
     CloudformationParser parser = new CloudformationParser();
     return parser.parse(source, null);
+  }
+
+  protected <T extends CloudformationTree> T parse(String source, Class<T> clazz) {
+    CloudformationTree rootTree = parse(source).root();
+    assertThat(rootTree).isInstanceOf(clazz);
+    return (T) rootTree;
   }
 }

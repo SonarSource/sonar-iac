@@ -32,81 +32,51 @@ import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 class FunctionCallTreeImplTest extends CloudformationTreeTest {
 
   @Test
-  void short_style_function_call_with_single_argument() {
-    FunctionCallTree tree = (FunctionCallTree) parse("!GetAtt logicalNameOfResource.attributeName").root();
-    assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
-    assertThat(tree.name()).isEqualTo("GetAtt");
-    assertThat(tree.style()).isEqualTo(Style.SHORT);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 43);
+  void parse_function_call() {
+    assertShortFunctionCall("!GetAtt logicalNameOfResource.attributeName");
+    assertShortFunctionCall("!Ref logicalNameOfResource");
+    assertFullFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]");
+    assertFullFunctionCall("Fn::GetAtt:\n   - logicalNameOfResource\n   - attributeName");
+    assertFullFunctionCall("{\"Fn::GetAtt\": [\"logicalNameOfResource\", \"attributeName\"]}");
+    assertFullFunctionCall("Ref: logicalNameOfResource");
 
-    assertThat(tree.arguments()).hasSize(1);
-    assertThat(tree.arguments().get(0)).isInstanceOfSatisfying(ScalarTree.class, argument -> {
-      assertThat(argument.style()).isEqualTo(ScalarTree.Style.OTHER);
-      assertThat(argument.value()).isEqualTo("logicalNameOfResource.attributeName");
-      assertThat(argument.tag()).isEqualTo("tag:yaml.org,2002:str");
-      assertTextRange(argument.textRange()).hasRange(1, 0, 1, 43);
-    });
+    assertNoFunctionCall("GetAtt logicalNameOfResource.attributeName");
+    assertNoFunctionCall("Fn:GetAtt: [logicalNameOfResource, attributeName]");
+    assertNoFunctionCall("{\"Fn:GetAtt\": [\"logicalNameOfResource\", \"attributeName\"]}");
+    assertNoFunctionCall("Ref logicalNameOfResource.attributeName");
   }
 
   @Test
-  void short_style_function_call_with_multiple_arguments() {
-    FunctionCallTree tree = (FunctionCallTree) parse("!FindInMap [ MapName, TopLevelKey, SecondLevelKey ]").root();
-    assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
-    assertThat(tree.name()).isEqualTo("FindInMap");
-    assertThat(tree.style()).isEqualTo(Style.SHORT);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 51);
+  void get_function_call_name() {
+    assertThat(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").name()).isEqualTo("GetAtt");
+    assertThat(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").name()).isEqualTo("GetAtt");
+    assertThat(parseFunctionCall("!Ref logicalNameOfResource").name()).isEqualTo("Ref");
+    assertThat(parseFunctionCall("Ref: logicalNameOfResource").name()).isEqualTo("Ref");
 
-    assertThat(tree.arguments()).hasSize(3);
-    assertThat(tree.arguments().get(0)).isInstanceOfSatisfying(ScalarTree.class, argument -> {
-      assertThat(argument.style()).isEqualTo(ScalarTree.Style.PLAIN);
-      assertThat(argument.value()).isEqualTo("MapName");
-      assertThat(argument.tag()).isEqualTo("tag:yaml.org,2002:str");
-      assertTextRange(argument.textRange()).hasRange(1, 13, 1, 20);
-    });
+    assertThat(parseFunctionCall("!UnknownFunction logicalNameOfResource.attributeName").name()).isEqualTo("UnknownFunction");
+    assertThat(parseFunctionCall("Fn::UnknownFunction: [logicalNameOfResource, attributeName]").name()).isEqualTo("UnknownFunction");
   }
 
   @Test
-  void full_style_function_call_with_multiple_arguments() {
-    FunctionCallTree tree = (FunctionCallTree) parse("Fn::GetAtt: [ logicalNameOfResource, attributeName ]").root();
-    assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
-    assertThat(tree.name()).isEqualTo("GetAtt");
-    assertThat(tree.style()).isEqualTo(Style.FULL);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 52);
-
-    assertThat(tree.arguments()).hasSize(2);
-    assertThat(tree.arguments().get(0)).isInstanceOfSatisfying(ScalarTree.class, argument -> {
-      assertThat(argument.style()).isEqualTo(ScalarTree.Style.PLAIN);
-      assertThat(argument.value()).isEqualTo("logicalNameOfResource");
-      assertThat(argument.tag()).isEqualTo("tag:yaml.org,2002:str");
-      assertTextRange(argument.textRange()).hasRange(1, 14, 1, 35);
-    });
+  void get_function_call_location() {
+    assertTextRange(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").textRange())
+      .hasRange(1, 0, 1, 43);
+    assertTextRange(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").textRange())
+      .hasRange(1, 0, 1, 50);
+    assertTextRange(parseFunctionCall("Fn::GetAtt:\n   - logicalNameOfResource\n   - attributeName").textRange())
+      .hasRange(1, 0, 3, 18);
   }
 
   @Test
-  void json_function_call_with_single_argument() {
-    FunctionCallTree tree = (FunctionCallTree) parse("{ \"Fn::GetAZs\" : \"region\" }").root();
-    assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
-    assertThat(tree.name()).isEqualTo("GetAZs");
-    assertThat(tree.style()).isEqualTo(Style.FULL);
-    assertTextRange(tree.textRange()).hasRange(1, 2, 1, 25);
-
-    assertThat(tree.arguments()).hasSize(1);
-    assertThat(tree.arguments().get(0)).isInstanceOfSatisfying(ScalarTree.class, argument -> {
-      assertThat(argument.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED);
-      assertThat(argument.value()).isEqualTo("region");
-      assertThat(argument.tag()).isEqualTo("tag:yaml.org,2002:str");
-      assertTextRange(argument.textRange()).hasRange(1, 17, 1, 25);
-    });
+  void get_function_call_arguments() {
+    assertThat(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").arguments()).hasSize(1);
+    assertThat(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").arguments()).hasSize(2);
+    assertThat(parseFunctionCall("Fn::GetAtt:\n   - logicalNameOfResource\n   - attributeName").arguments()).hasSize(2);
   }
 
   @Test
-  void json_function_call_with_multiple_arguments() {
+  void function_call_with_multiple_arguments() {
     FunctionCallTree tree = (FunctionCallTree) parse("{'Fn::Sub': ['foo', {'foo':'bar'}]}").root();
-    assertThat(tree.tag()).isEqualTo("FUNCTION_CALL");
-    assertThat(tree.name()).isEqualTo("Sub");
-    assertThat(tree.style()).isEqualTo(Style.FULL);
-    assertTextRange(tree.textRange()).hasRange(1, 1, 1, 34);
-
     assertThat(tree.arguments()).hasSize(2);
     assertThat(tree.arguments().get(0)).isInstanceOf(ScalarTree.class);
     assertThat(tree.arguments().get(1)).isInstanceOf(MappingTree.class);
@@ -125,7 +95,6 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
   void nested_function_call() {
     FunctionCallTree tree = (FunctionCallTree) parse("!Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]").root();
     assertThat(tree.arguments()).hasSize(2);
-
     assertThat(tree.arguments().get(1)).isInstanceOfSatisfying(SequenceTree.class, sequence -> {
       assertThat(sequence.elements()).hasSize(2);
       assertThat(sequence.elements().get(1)).isInstanceOfSatisfying(FunctionCallTree.class, nestedFunction -> {
@@ -135,19 +104,19 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
     });
   }
 
-  @Test
-  void full_style_ref_function_call() {
-    FunctionCallTree tree = (FunctionCallTree) parse("Ref: OneMoreCompliantCodeBuildProject").root();
-    assertThat(tree.name()).isEqualTo("Ref");
-    assertThat(tree.style()).isEqualTo(Style.FULL);
+  private void assertFullFunctionCall(String source) {
+    assertThat(parseFunctionCall(source).style()).isEqualTo(Style.FULL);
   }
 
-  @Test
-  void short_style_ref_function_call() {
-    FunctionCallTree tree = (FunctionCallTree) parse("!Ref OneMoreCompliantCodeBuildProject").root();
-    assertThat(tree.name()).isEqualTo("Ref");
-    assertThat(tree.style()).isEqualTo(Style.SHORT);
+  private void assertShortFunctionCall(String source) {
+    assertThat(parseFunctionCall(source).style()).isEqualTo(Style.SHORT);
   }
 
+  private FunctionCallTree parseFunctionCall(String source) {
+    return parse(source, FunctionCallTree.class);
+  }
 
+  private void assertNoFunctionCall(String source) {
+    assertThat(parse(source).root()).isNotInstanceOf(FunctionCallTree.class);
+  }
 }
