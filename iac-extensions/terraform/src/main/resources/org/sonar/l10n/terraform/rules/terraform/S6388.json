@@ -1,0 +1,33 @@
+{
+  "title": "Using unencrypted cloud storages is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a3",
+    "owasp-a6",
+    "azure"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6388",
+  "sqKey": "S6388",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      311
+    ],
+    "OWASP": [
+      "A3",
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A2",
+      "A4",
+      "A5"
+    ]
+  }
+}
