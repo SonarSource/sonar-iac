@@ -60,8 +60,8 @@ Resources:
   KinesisStream: # Sensitive
     Type: AWS::Kinesis::Stream
     Properties:
-#      StreamEncryption:
-#         EncryptionType: KMS
+      ShardCount: 1
+    # No StreamEncryption
 </pre>
 <p>For <a href="https://aws.amazon.com/elasticache/">Amazon ElastiCache</a>:</p>
 <pre>
@@ -135,6 +135,7 @@ Resources:
   KinesisStream:
     Type: AWS::Kinesis::Stream
     Properties:
+      ShardCount: 1
       StreamEncryption:
          EncryptionType: KMS
 </pre>

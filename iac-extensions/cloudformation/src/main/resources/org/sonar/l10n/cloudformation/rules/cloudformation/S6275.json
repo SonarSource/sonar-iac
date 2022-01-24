@@ -3,6 +3,7 @@
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "tags": [
+    "aws",
     "cwe",
     "owasp-a3",
     "owasp-a6"
@@ -18,6 +19,10 @@
     "OWASP": [
       "A3",
       "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A4",
+      "A5"
     ]
   }
 }
