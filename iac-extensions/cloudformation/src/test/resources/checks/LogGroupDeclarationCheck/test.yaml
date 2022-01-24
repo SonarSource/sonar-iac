@@ -130,3 +130,13 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub '/foo/bar/CompliantCodeBuildProjectWithStringMatch'
+
+  UnresolvedSubFunctionCall:
+    Type: AWS::CodeBuild::Project # Noncompliant
+
+  UnresolvedSubFunctionCallLogGroupSub:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub:
+          - !GetAtt foo.bar.sub

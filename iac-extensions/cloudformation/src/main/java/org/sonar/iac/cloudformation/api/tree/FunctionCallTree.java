@@ -17,24 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.cloudformation.api.tree;
 
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
-import org.sonar.iac.cloudformation.parser.CloudformationParser;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface FunctionCallTree extends CloudformationTree {
 
-public abstract class CloudformationTreeTest {
-
-  protected FileTree parse(String source) {
-    CloudformationParser parser = new CloudformationParser();
-    return parser.parse(source, null);
+  enum Style {
+    SHORT,
+    FULL
   }
 
-  protected <T extends CloudformationTree> T parse(String source, Class<T> clazz) {
-    CloudformationTree rootTree = parse(source).root();
-    assertThat(rootTree).isInstanceOf(clazz);
-    return (T) rootTree;
-  }
+  String name();
+  Style style();
+  List<CloudformationTree> arguments();
 }

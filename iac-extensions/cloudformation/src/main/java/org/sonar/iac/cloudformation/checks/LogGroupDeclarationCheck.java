@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
+import org.sonar.iac.cloudformation.api.tree.FunctionCallTree;
 import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
@@ -125,39 +126,32 @@ public class LogGroupDeclarationCheck implements IacCheck {
     private final Set<String> references = new HashSet<>();
 
     public FunctionReferenceCollector() {
-      register(ScalarTree.class, (ctx, tree) -> {
-        if ("!Sub".equals(tree.tag())) {
-          collectSubParameters(tree);
-        } else if ("!Ref".equals(tree.tag())) {
-          collectRefParameter(tree);
-        }
-      });
-      register(TupleTree.class, (ctx, tree) -> {
-        if (TextUtils.isValue(tree.key(), "Fn::Sub").isTrue()) {
-          collectSubParameters(tree.value());
-        } else if(TextUtils.isValue(tree.key(), "Ref").isTrue()) {
-          collectRefParameter(tree.value());
-        }
-      });
+      register(FunctionCallTree.class, (ctx, tree) ->
+        tree.arguments().stream().limit(1).filter(ScalarTree.class::isInstance)
+          .forEach(argument -> collectReference(tree.name(), (ScalarTree) argument)));
     }
 
-    private void collectSubParameters(CloudformationTree sub) {
-      if (sub instanceof ScalarTree) {
-        Matcher m = SUB_PARAMETERS.matcher(((ScalarTree) sub).value());
-        while (m.find()) {
-          if (m.group(1) != null) {
-            references.add(m.group(1));
-          } else {
-            references.add(m.group(2));
-          }
+    private void collectReference(String functionName, ScalarTree argument) {
+      if ("Sub".equals(functionName)) {
+        collectSubParameters(argument);
+      } else if ("Ref".equals(functionName)) {
+        collectRefParameter(argument);
+      }
+    }
+
+    private void collectSubParameters(ScalarTree subArgument) {
+      Matcher m = SUB_PARAMETERS.matcher(subArgument.value());
+      while (m.find()) {
+        if (m.group(1) != null) {
+          references.add(m.group(1));
+        } else {
+          references.add(m.group(2));
         }
       }
     }
 
-    private void collectRefParameter(CloudformationTree ref) {
-      if (ref instanceof ScalarTree) {
-        references.add(((ScalarTree) ref).value());
-      }
+    private void collectRefParameter(ScalarTree ref) {
+      references.add(ref.value());
     }
 
     public static Set<String> get(CloudformationTree logGroupNameProperty) {
