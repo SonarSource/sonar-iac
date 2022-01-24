@@ -19,6 +19,15 @@
  */
 package org.sonar.iac.cloudformation.parser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.snakeyaml.engine.v2.comments.CommentLine;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.exceptions.Mark;
@@ -28,12 +37,15 @@ import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.snakeyaml.engine.v2.nodes.SequenceNode;
+import org.snakeyaml.engine.v2.nodes.Tag;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
 import org.sonar.iac.cloudformation.api.tree.FileTree;
+import org.sonar.iac.cloudformation.api.tree.FunctionCallTree;
 import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.cloudformation.tree.impl.FileTreeImpl;
+import org.sonar.iac.cloudformation.tree.impl.FunctionCallTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.MappingTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.ScalarTreeImpl;
 import org.sonar.iac.cloudformation.tree.impl.SequenceTreeImpl;
@@ -42,16 +54,6 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 class CloudformationConverter {
   private static final Map<Class<?>, Function<Node, CloudformationTree>> converters = new HashMap<>();
@@ -88,6 +90,14 @@ class CloudformationConverter {
     MappingNode mappingNode = (MappingNode) node;
     List<TupleTree> elements = new ArrayList<>();
 
+    if (mappingNode.getValue().size() == 1 && mappingNode.getValue().get(0).getKeyNode() instanceof ScalarNode) {
+      NodeTuple functionCallNode = mappingNode.getValue().get(0);
+      FunctionCallTree functionCall = convertTupleToFunctionCall((ScalarNode) functionCallNode.getKeyNode(), functionCallNode.getValueNode());
+      if (functionCall != null) {
+        return functionCall;
+      }
+    }
+
     for (NodeTuple elementNode : mappingNode.getValue()) {
       elements.add(CloudformationConverter.convertTuple(elementNode));
     }
@@ -95,20 +105,83 @@ class CloudformationConverter {
     return new MappingTreeImpl(elements, tag(node), range(node), comments(node));
   }
 
+  @Nullable
+  private static FunctionCallTreeImpl convertTupleToFunctionCall(ScalarNode functionNameNode, Node argumentList) {
+    return fullStyleFunctionName(functionNameNode.getValue()).map(functionName -> {
+      List<CloudformationTree> arguments = new ArrayList<>();
+      if (argumentList instanceof SequenceNode) {
+        for (Node elementNode : ((SequenceNode) argumentList).getValue()) {
+          arguments.add(CloudformationConverter.convert(elementNode));
+        }
+      } else {
+        arguments.add(CloudformationConverter.convert(argumentList));
+      }
+
+      List<Comment> functionComments = comments(functionNameNode);
+      functionComments.addAll(comments(argumentList));
+
+      var functionRange = TextRanges.merge(List.of(range(functionNameNode), range(argumentList)));
+      return new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.FULL, arguments, functionRange, functionComments);
+    }).orElse(null);
+  }
+
   private static CloudformationTree convertScalar(Node node) {
     ScalarNode scalarNode = (ScalarNode) node;
+
+    FunctionCallTree functionCallFromScalar = convertScalarToFunctionCall(scalarNode);
+    if (functionCallFromScalar != null) {
+      return functionCallFromScalar;
+    }
     return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()), tag(scalarNode), range(scalarNode), comments(node));
   }
 
   private static CloudformationTree convertSequence(Node node) {
     SequenceNode sequenceNode = (SequenceNode) node;
+
     List<CloudformationTree> elements = new ArrayList<>();
 
     for (Node elementNode : sequenceNode.getValue()) {
       elements.add(CloudformationConverter.convert(elementNode));
     }
 
+    FunctionCallTree functionCallFromScalar = convertSequenceToFunctionCall(sequenceNode, elements);
+    if (functionCallFromScalar != null) {
+      return functionCallFromScalar;
+    }
     return new SequenceTreeImpl(elements, tag(node), range(node), comments(node));
+  }
+
+  @Nullable
+  private static FunctionCallTree convertSequenceToFunctionCall(SequenceNode functionNode, List<CloudformationTree> arguments) {
+    return shortStyleFunctionName(functionNode).map(functionName ->
+      new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.SHORT, arguments, range(functionNode), comments(functionNode))
+    ).orElse(null);
+  }
+
+  @Nullable
+  private static FunctionCallTree convertScalarToFunctionCall(ScalarNode scalarNode) {
+    return shortStyleFunctionName(scalarNode).map(functionName -> {
+      var functionRange = range(scalarNode);
+      var argument = new ScalarTreeImpl(scalarNode.getValue(), ScalarTree.Style.OTHER, Tag.STR.getValue(), functionRange, Collections.emptyList());
+      return new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.SHORT, List.of(argument), functionRange, comments(scalarNode));
+    }).orElse(null);
+  }
+
+  private static Optional<String> shortStyleFunctionName(Node functionNode) {
+    String tag = tag(functionNode);
+    if (tag.startsWith("!")) {
+      return Optional.of(tag.substring(1));
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<String> fullStyleFunctionName(String value) {
+    if (value.startsWith("Fn::")) {
+      return Optional.of(value.substring(4));
+    } else if (value.equals("Ref")) {
+      return Optional.of(value);
+    }
+    return Optional.empty();
   }
 
   private static TextRange range(Node node) {
