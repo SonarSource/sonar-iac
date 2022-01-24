@@ -72,11 +72,19 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   public static boolean isResource(BlockTree tree) {
-    return TextUtils.isValue(tree.key(), "resource").isTrue();
+    return TextUtils.matchesValue(tree.key(), "resource"::equals).isTrue();
   }
 
   public static boolean isResource(BlockTree tree, String type) {
     return isResource(tree) && type.equals(getResourceType(tree));
+  }
+
+  public static String getReferenceLabel(BlockTree resource) {
+    return resource.labels().get(1).value();
+  }
+
+  public static boolean hasReferenceLabel(BlockTree resource) {
+    return resource.labels().size() >= 2;
   }
 
   public static boolean isS3Bucket(BlockTree tree) {

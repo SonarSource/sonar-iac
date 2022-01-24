@@ -35,6 +35,7 @@ import java.util.Scanner;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
@@ -91,6 +92,14 @@ class IacRulingTest {
       "sources/cloudformation/**/*.yml, ruling/src/test/resources/sources/cloudformation/**/*.yml,");
     properties.put("sonar.cloudformation.file.identifier", "");
     run_ruling_test("cloudformation", properties);
+  }
+
+  @Disabled("This test is only a helper to diagnose failures on the local system")
+  @Test
+  void test_local() throws IOException {
+    Map<String, String> properties = new HashMap<>();
+    properties.put("sonar.inclusions", "sources/tmp/**/*.tf, sources/tmp/**.yaml");
+    run_ruling_test("tmp", properties);
   }
 
   private void run_ruling_test(String project, Map<String, String> projectProperties) throws IOException {

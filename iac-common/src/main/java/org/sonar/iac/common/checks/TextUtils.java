@@ -51,7 +51,7 @@ public class TextUtils {
   }
 
   public static Trilean isValue(@Nullable Tree tree, String expectedValue) {
-    return matchesValue(tree, expectedValue::equals);
+    return matchesValue(tree, expectedValue::equalsIgnoreCase);
   }
 
   public static Trilean matchesValue(@Nullable Tree tree, Predicate<String> matcher) {
