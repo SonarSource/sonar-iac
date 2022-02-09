@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class IacRulingTest {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
-  private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE[8.9]";
+  private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
   private static final String LITS_VERSION = "0.10.0.2181";
   private static final String SONAR_CONFIG_VERSION = "DEV";
 
