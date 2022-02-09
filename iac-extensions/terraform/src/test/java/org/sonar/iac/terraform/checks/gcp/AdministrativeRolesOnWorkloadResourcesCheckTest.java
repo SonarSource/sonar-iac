@@ -25,7 +25,7 @@ import org.sonar.iac.terraform.checks.TerraformVerifier;
 class AdministrativeRolesOnWorkloadResourcesCheckTest {
 
   @Test
-  void test() {
+  void role_assignment() {
     TerraformVerifier.verify("GCP/AdministrativeRolesOnWorkloadResourcesCheck/role_assignment.tf", new AdministrativeRolesOnWorkloadResourcesCheck());
   }
 }

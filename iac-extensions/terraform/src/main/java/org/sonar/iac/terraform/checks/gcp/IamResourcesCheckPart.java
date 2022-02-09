@@ -8,12 +8,14 @@ import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
+import java.util.regex.Pattern;
+
 
 public class IamResourcesCheckPart extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that assigning the %s role is safe here.";
 
-  private static final String[] PRIVILEGED_ROLES = {"ADMIN", "MANAGER", "OWNER", "SUPERUSER"};
+  private static final Pattern PRIVILEGED_ROLE = Pattern.compile("ADMIN|MANAGER|OWNER|SUPERUSER", Pattern.CASE_INSENSITIVE);
 
   @Override
   protected void registerResourceChecks() {
@@ -22,22 +24,15 @@ public class IamResourcesCheckPart extends AbstractResourceCheck {
 
   private static void checkIamResources(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "role", AttributeTree.class)
-      .filter(attr -> TextUtils.matchesValue(attr.value(), IamResourcesCheckPart::isaPrivilegedRole).isTrue())
+      .filter(attr -> TextUtils.matchesValue(attr.value(), role -> PRIVILEGED_ROLE.matcher(role).find()).isTrue())
       .ifPresent(attr -> ctx.reportIssue(attr, String.format(MESSAGE, ((TextTree) attr.value()).value())));
   }
 
   private static boolean isaPrivilegedRole(String roleName) {
-    // Bear in mind PRIVILEGED_ROLES are all CAPS:
-    roleName = roleName.toUpperCase();
-    for (String privilegedRole : PRIVILEGED_ROLES) {
-      if (roleName.contains(privilegedRole)) {
-        return true;
-      }
-    }
-    return false;
-  }
+    return PRIVILEGED_ROLE.matcher(roleName).find();
+Ï  }
 
-  String[] IAM_RESOURCE_NAMES = {
+  private static final String[] IAM_RESOURCE_NAMES = {
     // 56 *_iam_binding variants:
     "google_apigee_environment_iam_binding",
     "google_api_gateway_api_config_iam_binding",
