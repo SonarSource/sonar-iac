@@ -66,7 +66,7 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
     register("azurerm_dev_test_virtual_network",
       resource -> resource.block("subnet").ifPresent(
         subnet -> subnet.attribute("use_public_ip_address")
-          .reportIfValueDoesNotMatch("Deny", NETWORK_ACCESS_MESSAGE)));
+          .reportIfNotValueEquals("Deny", NETWORK_ACCESS_MESSAGE)));
 
     register("azurerm_kubernetes_cluster_node_pool",
       resource -> resource.attribute("enable_node_public_ip")
@@ -103,7 +103,7 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
   private Consumer<Resource> checkPublicIpConfiguration(String propertyName) {
     return resource -> resource.blocks(propertyName).forEach(
       block -> block.attribute("public_ip_address_id")
-        .reportIfValueMatches(e -> attributeAccessMatches(e, s -> s.startsWith("azurerm_public_ip")).isTrue(),
+        .reportIf(e -> attributeAccessMatches(e, s -> s.startsWith("azurerm_public_ip")).isTrue(),
           NETWORK_ACCESS_MESSAGE));
   }
 

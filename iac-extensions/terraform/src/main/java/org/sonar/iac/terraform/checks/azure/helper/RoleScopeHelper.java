@@ -21,6 +21,8 @@ package org.sonar.iac.terraform.checks.azure.helper;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -45,8 +47,26 @@ public class RoleScopeHelper {
     // helper class
   }
 
-  public static Predicate<String> matchPredicate(String pattern) {
-    return s -> Pattern.matches(pattern, s);
+  public static Predicate<String> exactMatchStringPredicate(String regex) {
+    return exactMatchStringPredicate(regex, 0);
+  }
+
+  public static Predicate<String> exactMatchStringPredicate(String regex, int flags) {
+    final Pattern compiledPattern = Pattern.compile(regex, flags);
+    return s -> compiledPattern.matcher(s).matches();
+  }
+
+  public static Predicate<String> containsMatchStringPredicate(String regex) {
+    return containsMatchStringPredicate(regex, 0);
+  }
+
+  public static Predicate<String> containsMatchStringPredicate(String regex, int flags) {
+    final Pattern compiledPattern = Pattern.compile(regex, flags);
+    return s -> compiledPattern.matcher(s).find();
+  }
+
+  public static <T extends Tree> Predicate<T> treePredicate(Predicate<String> stringPredicate) {
+    return tree -> TextUtils.matchesValue(tree, stringPredicate).isTrue();
   }
 
   public static boolean isSensitiveScope(ExpressionTree scope, Predicate<String> referenceScopePredicate, Predicate<String> plainScopePredicate) {

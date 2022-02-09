@@ -27,6 +27,11 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
+import java.util.function.Predicate;
+
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.exactMatchStringPredicate;
+
 @Rule(key = "S6265")
 public class BucketsAccessCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure granting access to %s group is safe here.";
@@ -37,10 +42,12 @@ public class BucketsAccessCheck extends AbstractResourceCheck {
     register(BucketsAccessCheck::checkBucket, S3_BUCKET);
   }
 
+  private static final Predicate<String> PUBLIC_READ_OR_WRITE = exactMatchStringPredicate("public-read(-write)?", CASE_INSENSITIVE);
+
   private static void checkBucket(CheckContext ctx, BlockTree tree) {
     PropertyUtils.get(tree, "acl", AttributeTree.class)
       .ifPresent(acl -> {
-        if (TextUtils.matchesValue(acl.value(), s -> "public-read-write".equals(s) || "public-read".equals(s)).isTrue()) {
+        if (TextUtils.matchesValue(acl.value(), PUBLIC_READ_OR_WRITE).isTrue()) {
           ctx.reportIssue(acl, String.format(MESSAGE, "AllUsers"), new SecondaryLocation(tree.labels().get(0), SECONDARY_MSG));
         } else if (TextUtils.isValue(acl.value(), "authenticated-read").isTrue()) {
           ctx.reportIssue(acl, String.format(MESSAGE, "AuthenticatedUsers"), new SecondaryLocation(tree.labels().get(0), SECONDARY_MSG));

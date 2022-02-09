@@ -20,10 +20,15 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.List;
+import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
+
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.containsMatchStringPredicate;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.treePredicate;
 
 class ResourceVisitorTest {
 
@@ -47,11 +52,14 @@ class ResourceVisitorTest {
       resource.blocks("multi_block").forEach(
         block -> {
           block.attribute("my_attribute_1")
-            .reportIfValueMatches("sensitive_value", "my_attribute_1 is sensitive_value")
-            .reportIfValueMatches(e -> e instanceof AttributeAccessTree, "my_attribute_1 is a AttributeAccessTree");
+            .reportIfValueEquals("sensitive_value", "my_attribute_1 is sensitive_value")
+            .reportIf(e -> e instanceof AttributeAccessTree, "my_attribute_1 is a AttributeAccessTree")
+            .reportIf(treePredicate(containsMatchStringPredicate("\\Wsensitive_value")), "my_attribute_1 is sensitive_value");
           block.attribute("my_attribute_2")
-            .reportIfValueDoesNotMatch("expected_value", "my_attribute_2 is not expected_value")
-            .reportIfValueDoesNotMatch(e -> e instanceof TextTree, "my_attribute_2 is not a TextTree");
+            .reportIfNotValueEquals("expected_value", "my_attribute_2 is not expected_value")
+            .reportIfValueMatches(Pattern.compile("Expected_value"), "my_attribute_2 matches Expected_value")
+            .reportIfValueContains(Pattern.compile("^bar$|^bar\\W|\\Wbar$|\\Wbar\\W"), "my_attribute_2 contains the sensitive term 'bar'")
+            .reportIfNot(e -> e instanceof TextTree, "my_attribute_2 is not a TextTree");
           block.attribute("my_attribute_3")
             .reportIfTrue("my_attribute_3 is true")
             .reportIfFalse("my_attribute_3 is false")

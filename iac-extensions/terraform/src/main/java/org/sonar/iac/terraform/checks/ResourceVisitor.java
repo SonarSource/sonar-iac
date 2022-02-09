@@ -163,17 +163,23 @@ public abstract class ResourceVisitor implements IacCheck {
       // designed to be extended but noop in standard case
       return this;
     }
-    public Attribute reportIfValueDoesNotMatch(String expectedValue, String message, SecondaryLocation... secondaries) {
+
+    public Attribute reportIfValueEquals(String expectedValue, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
 
-    public Attribute reportIfValueMatches(String expectedValue, String message, SecondaryLocation... secondaries) {
+    public Attribute reportIfNotValueEquals(String expectedValue, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
 
-    public Attribute reportIfValueDoesNotMatch(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+    public Attribute reportIf(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+      // designed to be extended but noop in standard case
+      return this;
+    }
+
+    public Attribute reportIfNot(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
@@ -184,11 +190,6 @@ public abstract class ResourceVisitor implements IacCheck {
     }
 
     public Attribute reportIfValueContains(Pattern expectedValueSubPattern, String message, SecondaryLocation... secondaries) {
-      // designed to be extended but noop in standard case
-      return this;
-    }
-
-    public Attribute reportIfValueMatches(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
     }
@@ -224,45 +225,45 @@ public abstract class ResourceVisitor implements IacCheck {
 
       @Override
       public Attribute reportIfTrue(String message, SecondaryLocation... secondaries) {
-        return reportIfValueMatches(TextUtils::isValueTrue, message, secondaries);
+        return reportIf(TextUtils::isValueTrue, message, secondaries);
       }
 
       @Override
       public Attribute reportIfFalse(String message, SecondaryLocation... secondaries) {
-        return reportIfValueMatches(TextUtils::isValueFalse, message, secondaries);
+        return reportIf(TextUtils::isValueFalse, message, secondaries);
       }
 
       @Override
-      public Attribute reportIfValueDoesNotMatch(String expectedValue, String message, SecondaryLocation... secondaries) {
-        return reportIfValueMatches(value -> TextUtils.isValue(value, expectedValue).isFalse(), message, secondaries);
+      public Attribute reportIfValueEquals(String expectedValue, String message, SecondaryLocation... secondaries) {
+        return reportIf(value -> TextUtils.isValue(value, expectedValue).isTrue(), message, secondaries);
       }
 
       @Override
-      public Attribute reportIfValueDoesNotMatch(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
-        return reportIfValueMatches(expectedPredicate.negate(), message, secondaries);
+      public Attribute reportIfNotValueEquals(String expectedValue, String message, SecondaryLocation... secondaries) {
+        return reportIf(value -> TextUtils.isValue(value, expectedValue).isFalse(), message, secondaries);
       }
 
       @Override
-      public Attribute reportIfValueMatches(String expectedValue, String message, SecondaryLocation... secondaries) {
-        return reportIfValueMatches(value -> TextUtils.isValue(value, expectedValue).isTrue(), message, secondaries);
-      }
-
-      @Override
-      public Attribute reportIfValueMatches(Pattern expectedValuePattern, String message, SecondaryLocation... secondaries) {
-        return reportIfValueMatches(tree -> TextUtils.matchesValue(tree, value -> expectedValuePattern.matcher(value).matches()).isTrue(), message, secondaries);
-      }
-
-      @Override
-      public Attribute reportIfValueContains(Pattern expectedValueSubPattern, String message, SecondaryLocation... secondaries) {
-        return reportIfValueMatches(tree -> TextUtils.matchesValue(tree, value -> expectedValueSubPattern.matcher(value).find()).isTrue(), message, secondaries);
-      }
-
-      @Override
-      public Attribute reportIfValueMatches(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+      public Attribute reportIf(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
         if (expectedPredicate.test(attributeTree.value())) {
           report(message, secondaries);
         }
         return this;
+      }
+
+      @Override
+      public Attribute reportIfNot(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
+        return reportIf(expectedPredicate.negate(), message, secondaries);
+      }
+
+      @Override
+      public Attribute reportIfValueMatches(Pattern expectedValuePattern, String message, SecondaryLocation... secondaries) {
+        return reportIf(tree -> TextUtils.matchesValue(tree, value -> expectedValuePattern.matcher(value).matches()).isTrue(), message, secondaries);
+      }
+
+      @Override
+      public Attribute reportIfValueContains(Pattern expectedValueSubPattern, String message, SecondaryLocation... secondaries) {
+        return reportIf(tree -> TextUtils.matchesValue(tree, value -> expectedValueSubPattern.matcher(value).find()).isTrue(), message, secondaries);
       }
 
       private void report(String message, SecondaryLocation... secondaries) {

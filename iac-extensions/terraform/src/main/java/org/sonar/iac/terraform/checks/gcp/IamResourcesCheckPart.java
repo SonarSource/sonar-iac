@@ -19,24 +19,28 @@
  */
 package org.sonar.iac.terraform.checks.gcp;
 
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.treePredicate;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.containsMatchStringPredicate;
 
 
 public class IamResourcesCheckPart extends ResourceVisitor {
 
   private static final String MESSAGE = "Make sure that assigning the %s role is safe here.";
 
-  private static final Pattern PRIVILEGED_ROLE = Pattern.compile("ADMIN|MANAGER|OWNER|SUPERUSER", Pattern.CASE_INSENSITIVE);
+  private static final Predicate<ExpressionTree> CONTAINS_PRIVILEGED_ROLE = treePredicate(containsMatchStringPredicate("ADMIN|MANAGER|OWNER|SUPERUSER", Pattern.CASE_INSENSITIVE));
 
   @Override
   protected void registerResourceConsumer() {
     register(List.of(IAM_RESOURCE_NAMES),
       resource -> resource.attribute("role")
-        .reportIfValueContains(PRIVILEGED_ROLE, MESSAGE));
-
+        .reportIf(CONTAINS_PRIVILEGED_ROLE, MESSAGE));
   }
 
   private static final String[] IAM_RESOURCE_NAMES = {

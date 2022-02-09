@@ -13,7 +13,7 @@ resource "my_resource" "test" { // Noncompliant {{my_block is missing}}
 
   multi_block {
     my_attribute_1 = "sensitive_value" // Noncompliant {{my_attribute_1 is sensitive_value}}
-    my_attribute_2 = "foo" // Noncompliant {{my_attribute_2 is not expected_value}}
+    my_attribute_2 = "foo.bar.baz" // Noncompliant {{my_attribute_2 contains the sensitive term 'bar'}}  {{my_attribute_2 is not expected_value}}
     my_attribute_3 = true // Noncompliant {{my_attribute_3 is true}}
     my_list_1 = [
       "safe1",

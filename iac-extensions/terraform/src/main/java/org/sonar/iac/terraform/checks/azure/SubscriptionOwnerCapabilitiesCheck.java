@@ -34,15 +34,16 @@ import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_SUBSCRIPTION_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_SUBSCRIPTION_SCOPE_PATTERN;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.exactMatchStringPredicate;
 
 @Rule(key = "S6385")
 public class SubscriptionOwnerCapabilitiesCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Narrow the actions or assignable scope of this custom role.";
 
-  private static final Predicate<String> REFERENCE_SCOPE_PREDICATE = RoleScopeHelper.matchPredicate(REFERENCE_SUBSCRIPTION_SCOPE_PATTERN +
+  private static final Predicate<String> REFERENCE_SCOPE_PREDICATE = exactMatchStringPredicate(REFERENCE_SUBSCRIPTION_SCOPE_PATTERN +
     "|" + REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN);
-  private static final Predicate<String> PLAIN_SCOPE_PREDICATE = RoleScopeHelper.matchPredicate(PLAIN_SUBSCRIPTION_SCOPE_PATTERN +
+  private static final Predicate<String> PLAIN_SCOPE_PREDICATE = exactMatchStringPredicate(PLAIN_SUBSCRIPTION_SCOPE_PATTERN +
     "|" + PLAIN_MANAGEMENT_GROUP_SCOPE_PATTERN);
 
   @Override

@@ -21,11 +21,18 @@ package org.sonar.iac.terraform.checks.azure;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+
+import java.util.function.Predicate;
+
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.exactMatchStringPredicate;
+import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.treePredicate;
 
 
 @Rule(key = "S6382")
@@ -78,9 +85,11 @@ public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
     }
   }
 
+  private static final Predicate<String> CONSUMPTION_PATTERN = exactMatchStringPredicate("Consumption_[0-9]+", CASE_INSENSITIVE);
+
   private static void checkApiManagement(CheckContext ctx, BlockTree resource) {
     var optSkuName = PropertyUtils.value(resource, "sku_name");
-    if (optSkuName.isPresent() && TextUtils.matchesValue(optSkuName.get(), str -> str.matches("Consumption_[0-9]+")).isTrue()) {
+    if (optSkuName.isPresent() && TextUtils.matchesValue(optSkuName.get(), CONSUMPTION_PATTERN).isTrue()) {
       PropertyUtils.get(resource, "client_certificate_enabled", AttributeTree.class)
         .ifPresentOrElse(
           m -> reportOnFalse(ctx, m, MESSAGE_WHEN_DISABLED),
