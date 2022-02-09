@@ -1,36 +1,43 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2022 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.sonar.iac.terraform.checks.gcp;
 
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.TextTree;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+import org.sonar.iac.terraform.checks.ResourceVisitor;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 
-public class IamResourcesCheckPart extends AbstractResourceCheck {
+public class IamResourcesCheckPart extends ResourceVisitor {
 
   private static final String MESSAGE = "Make sure that assigning the %s role is safe here.";
 
   private static final Pattern PRIVILEGED_ROLE = Pattern.compile("ADMIN|MANAGER|OWNER|SUPERUSER", Pattern.CASE_INSENSITIVE);
 
   @Override
-  protected void registerResourceChecks() {
-    register(IamResourcesCheckPart::checkIamResources, IAM_RESOURCE_NAMES);
-  }
+  protected void registerResourceConsumer() {
+    register(List.of(IAM_RESOURCE_NAMES),
+      resource -> resource.attribute("role")
+        .reportIfValueContains(PRIVILEGED_ROLE, MESSAGE));
 
-  private static void checkIamResources(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "role", AttributeTree.class)
-      .filter(attr -> TextUtils.matchesValue(attr.value(), role -> PRIVILEGED_ROLE.matcher(role).find()).isTrue())
-      .ifPresent(attr -> ctx.reportIssue(attr, String.format(MESSAGE, ((TextTree) attr.value()).value())));
   }
-
-  private static boolean isaPrivilegedRole(String roleName) {
-    return PRIVILEGED_ROLE.matcher(roleName).find();
-Ï  }
 
   private static final String[] IAM_RESOURCE_NAMES = {
     // 56 *_iam_binding variants:
