@@ -30,6 +30,7 @@ import org.sonar.iac.terraform.checks.azure.ResourceSpecificAdminAccountCheck;
 import org.sonar.iac.terraform.checks.azure.RoleBasedAccessControlCheck;
 import org.sonar.iac.terraform.checks.azure.SubscriptionOwnerCapabilitiesCheck;
 import org.sonar.iac.terraform.checks.azure.SubscriptionRoleAssignmentCheck;
+import org.sonar.iac.terraform.checks.gcp.AdministrativeRolesOnWorkloadResourcesCheck;
 
 public class TerraformCheckList {
 
@@ -77,7 +78,10 @@ public class TerraformCheckList {
       ResourceSpecificAdminAccountCheck.class,
       RoleBasedAccessControlCheck.class,
       SubscriptionOwnerCapabilitiesCheck.class,
-      SubscriptionRoleAssignmentCheck.class
+      SubscriptionRoleAssignmentCheck.class,
+
+      // GCP
+      AdministrativeRolesOnWorkloadResourcesCheck.class
     );
   }
 }
