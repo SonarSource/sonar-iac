@@ -42,4 +42,9 @@ class IpRestrictedAdminAccessCheckTest {
   void azure_network_security_rule() {
     TerraformVerifier.verify("IpRestrictedAdminAccessCheck/azure/network_security_rule.tf", new IpRestrictedAdminAccessCheck());
   }
+
+  @Test
+  void gcp_compute_firewall() {
+    TerraformVerifier.verify("IpRestrictedAdminAccessCheck/gcp/compute_firewall.tf", new IpRestrictedAdminAccessCheck());
+  }
 }

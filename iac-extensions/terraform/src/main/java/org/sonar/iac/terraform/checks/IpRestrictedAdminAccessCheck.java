@@ -19,11 +19,15 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.checks.aws.AwsIpRestrictedAdminAccessCheckPart;
 import org.sonar.iac.terraform.checks.azure.AzureIpRestrictedAdminAccessCheckPart;
+import org.sonar.iac.terraform.checks.gcp.GcpIpRestrictedAdminAccessCheckPart;
 
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck implements IacCheck {
@@ -35,10 +39,33 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
   public static final int SSH_PORT = 22;
   public static final int RDP_PORT = 3389;
 
+  private static final Pattern PORT_RANGE_PATTERN = Pattern.compile("^(?<from>\\d{1,5})-(?<to>\\d{1,5})$");
+  private static final Set<String> SENSITIVE_PORTS = Set.of("*", String.valueOf(SSH_PORT), String.valueOf(RDP_PORT));
+
   @Override
   public void initialize(InitContext init) {
     new AwsIpRestrictedAdminAccessCheckPart().initialize(init);
     new AzureIpRestrictedAdminAccessCheckPart().initialize(init);
+    new GcpIpRestrictedAdminAccessCheckPart().initialize(init);
+  }
+
+  public static boolean rangeContainsSshOrRdpPort(String range) {
+    if (range.contains("-")) {
+      Matcher m = PORT_RANGE_PATTERN.matcher(range);
+      if (m.find()) {
+        return rangeContainsSshOrRdpPort(portFromMatch(m, "from"), portFromMatch(m, "to"));
+      }
+      return false;
+    } else {
+      return SENSITIVE_PORTS.contains(range);
+    }
+  }
+
+  /**
+   * Extract port as integer from range pattern matcher
+   */
+  private static int portFromMatch(Matcher m, String group) {
+    return Integer.parseInt(m.group(group));
   }
 
   public static boolean rangeContainsSshOrRdpPort(int from, int to) {
