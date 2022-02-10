@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.treePredicate;
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.containsMatchStringPredicate;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.containsMatchStringPredicate;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 
 
 public class IamResourcesCheckPart extends ResourceVisitor {

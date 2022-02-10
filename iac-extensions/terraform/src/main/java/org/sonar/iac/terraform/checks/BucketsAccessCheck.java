@@ -30,7 +30,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import java.util.function.Predicate;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.exactMatchStringPredicate;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 
 @Rule(key = "S6265")
 public class BucketsAccessCheck extends AbstractResourceCheck {

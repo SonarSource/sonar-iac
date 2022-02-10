@@ -32,7 +32,7 @@ import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_SUBSCRIPTION_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_SUBSCRIPTION_SCOPE_PATTERN;
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.exactMatchStringPredicate;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 
 @Rule(key = "S6387")
 public class SubscriptionRoleAssignmentCheck extends AbstractResourceCheck {

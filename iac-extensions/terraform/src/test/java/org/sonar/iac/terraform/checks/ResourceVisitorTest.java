@@ -26,11 +26,12 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
+import org.sonar.iac.terraform.checks.utils.PredicateUtils;
 
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.containsMatchStringPredicate;
-import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.treePredicate;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.containsMatchStringPredicate;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 
-class ResourceVisitorTest {
+class ResourceVisitorTest implements PredicateUtils {
 
   @Test
   void test() {
