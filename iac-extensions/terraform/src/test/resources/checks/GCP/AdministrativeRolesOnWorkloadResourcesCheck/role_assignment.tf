@@ -11,6 +11,10 @@ resource "google_apigee_environment_iam_member" "member" {
   role = "roles/apigee.admin" # Noncompliant
 }
 
+resource "google_apigee_environment_iam_member" "member" {
+  role = "roles/apigee.AdMiN" # Noncompliant
+}
+
 resource "google_tags_tag_value_iam_binding" "binding2" {
   role  = "roles/ml.SuperUser.v2" # Noncompliant
 }
@@ -35,4 +39,8 @@ resource "google_tags_tag_value_iam_binding_xyz" "binding4" {
 
 resource "google_tags_tag_value_iam_member_xyz" "member4" {
   role = "roles/tags.manager.v3"
+}
+
+resource "google_tags_tag_value_iam_member" "member4" {
+  not_a_role = "roles/tags.ADMIN.v3"
 }

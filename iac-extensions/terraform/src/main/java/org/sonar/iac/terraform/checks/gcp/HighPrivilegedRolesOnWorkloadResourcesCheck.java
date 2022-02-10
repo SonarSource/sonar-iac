@@ -24,9 +24,10 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
 @Rule(key = "S6400")
-public class AdministrativeRolesOnWorkloadResourcesCheck implements IacCheck {
+public class HighPrivilegedRolesOnWorkloadResourcesCheck implements IacCheck {
+
   @Override
   public void initialize(InitContext init) {
-    new IamResourcesCheckPart().initialize(init);
+    new HighPrivilegedRolesOnIamResourcesCheckPart().initialize(init);
   }
 }

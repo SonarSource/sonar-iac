@@ -30,7 +30,7 @@ import static org.sonar.iac.terraform.checks.utils.PredicateUtils.containsMatchS
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 
 
-public class IamResourcesCheckPart extends ResourceVisitor {
+public class HighPrivilegedRolesOnIamResourcesCheckPart extends ResourceVisitor {
 
   private static final String MESSAGE = "Make sure that assigning the %s role is safe here.";
 

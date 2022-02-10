@@ -22,10 +22,10 @@ package org.sonar.iac.terraform.checks.gcp;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.checks.TerraformVerifier;
 
-class AdministrativeRolesOnWorkloadResourcesCheckTest {
+class HighPrivilegedRolesOnWorkloadResourcesCheckTest {
 
   @Test
   void role_assignment() {
-    TerraformVerifier.verify("GCP/AdministrativeRolesOnWorkloadResourcesCheck/role_assignment.tf", new AdministrativeRolesOnWorkloadResourcesCheck());
+    TerraformVerifier.verify("GCP/AdministrativeRolesOnWorkloadResourcesCheck/role_assignment.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
   }
 }
