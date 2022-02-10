@@ -1,0 +1,29 @@
+{
+  "title": "Granting highly privileged GCP resource rights is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "azure",
+    "cwe-284"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6400",
+  "sqKey": "S6400",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284
+    ],
+    "OWASP": [
+      "A5"
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
+    ]
+  },
+  "quickfix": "unknown"
+}
