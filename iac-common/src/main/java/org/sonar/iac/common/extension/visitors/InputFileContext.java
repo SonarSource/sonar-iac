@@ -60,12 +60,14 @@ public class InputFileContext extends TreeContext {
 
       issue.forRule(ruleKey).at(issueLocation);
 
-      secondaryLocations.forEach(secondary -> issue.addLocation(
-        issue.newLocation()
-          .on(inputFile)
-          .at(secondary.textRange)
-          .message(secondary.message)
-      ));
+      secondaryLocations.stream()
+        .filter(Objects::nonNull)
+        .forEach(secondary -> issue.addLocation(
+          issue.newLocation()
+            .on(inputFile)
+            .at(secondary.textRange)
+            .message(secondary.message)
+        ));
 
       issue.save();
     }
