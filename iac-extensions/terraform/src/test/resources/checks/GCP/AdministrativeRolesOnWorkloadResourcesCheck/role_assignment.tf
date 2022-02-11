@@ -2,6 +2,7 @@ resource "google_apigee_environment_iam_binding" "binding" {
   org_id = google_apigee_environment.apigee_environment.org_id
   env_id = google_apigee_environment.apigee_environment.name
   role  = "roles/ml.jobOwner" # Noncompliant {{Make sure it is safe to give those members full access to the resource.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   members = [
     "user:jane@example.com",
   ]
@@ -9,14 +10,17 @@ resource "google_apigee_environment_iam_binding" "binding" {
 
 resource "google_tags_tag_value_iam_binding" "binding2" {
   role  = "roles/ml.SuperUser.v2" # Noncompliant
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 resource "google_apigee_environment_iam_member" "member" {
   role = "roles/apigee.admin" # Noncompliant {{Make sure it is safe to grant that member full access to the resource.}}
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 resource "google_apigee_environment_iam_member" "member2" {
-  role = "roles/apigee.AdMiN" # Noncompliant
+  role = "MaNaGeR.or.something" # Noncompliant
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 resource "google_tags_tag_value_iam_member" "member3" {
