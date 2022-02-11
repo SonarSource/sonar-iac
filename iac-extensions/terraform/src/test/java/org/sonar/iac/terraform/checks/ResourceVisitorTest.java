@@ -60,6 +60,14 @@ class ResourceVisitorTest {
             .reportItemsWhichMatch(item -> TextUtils.isValue(item, "unsafe1").isTrue(), "my_list_1 contains unsafe value");
         }
       );
+
+      resource.list("unkown")
+        .streamItemsWhich(e -> TextUtils.isValue(e, "item1").isTrue())
+        .forEach(e -> resource.ctx.reportIssue(e, "streamed item"));
+
+      resource.list("my_list")
+        .streamItemsWhich(e -> TextUtils.isValue(e, "item1").isTrue())
+        .forEach(e -> resource.ctx.reportIssue(e, "streamed item"));
     }
   }
 

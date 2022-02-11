@@ -7,9 +7,11 @@
     "constantCost": "5min"
   },
   "tags": [
-    "aws",
     "cwe",
-    "owasp-a5"
+    "owasp-a5",
+    "aws",
+    "azure",
+    "gcp"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6321",

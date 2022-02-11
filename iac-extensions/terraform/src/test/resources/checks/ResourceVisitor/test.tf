@@ -1,5 +1,11 @@
 resource "my_resource" "block_is_present" {
   my_block {} // Noncompliant {{my_block is present}}
+
+  my_list = [
+    "item1", // Noncompliant {{streamed item}}
+    "item2",
+    "item3"
+  ]
 }
 
 resource "my_resource" "test" { // Noncompliant {{my_block is missing}}

@@ -149,10 +149,6 @@ public abstract class ResourceVisitor implements IacCheck {
       this.attributeTree = attributeTree;
     }
 
-    public void value(Consumer<ExpressionTree> consumer) {
-      // designed to be extended but noop in standard case
-    }
-
     public Attribute reportIfTrue(String message, SecondaryLocation... secondaries) {
       // designed to be extended but noop in standard case
       return this;
@@ -187,6 +183,17 @@ public abstract class ResourceVisitor implements IacCheck {
       return this;
     }
 
+    /**
+     * Verify iff an attribute value is equal to the expected value. The verification is case-insensitive.
+     */
+    public boolean is(String expectedValue) {
+      return false;
+    }
+
+    public boolean exists() {
+      return false;
+    }
+
     static class AbsentAttribute extends Attribute {
 
       public AbsentAttribute(CheckContext ctx, Block block, String name) {
@@ -202,13 +209,11 @@ public abstract class ResourceVisitor implements IacCheck {
 
     static class PresentAttribute extends Attribute {
 
+      private final ExpressionTree value;
+
       public PresentAttribute(CheckContext ctx, Block block, String name, AttributeTree attributeTree) {
         super(ctx, block, name, attributeTree);
-      }
-
-      @Override
-      public void value(Consumer<ExpressionTree> consumer) {
-        consumer.accept(attributeTree.value());
+        value = attributeTree.value();
       }
 
       @Override
@@ -238,10 +243,20 @@ public abstract class ResourceVisitor implements IacCheck {
 
       @Override
       public Attribute reportIfValueMatches(Predicate<ExpressionTree> expectedPredicate, String message, SecondaryLocation... secondaries) {
-        if (expectedPredicate.test(attributeTree.value())) {
+        if (expectedPredicate.test(value)) {
           report(message, secondaries);
         }
         return this;
+      }
+
+      @Override
+      public boolean is(String expectedValue) {
+        return TextUtils.isValue(value, expectedValue).isTrue();
+      }
+
+      @Override
+      public boolean exists() {
+        return true;
       }
 
       private void report(String message, SecondaryLocation... secondaries) {
@@ -260,6 +275,10 @@ public abstract class ResourceVisitor implements IacCheck {
       // designed to be extended but noop in standard case
     }
 
+    public Stream<ExpressionTree> streamItemsWhich(Predicate<ExpressionTree> predicate) {
+      return Stream.empty();
+    }
+
     static class PresentListProperty extends ListProperty {
 
       private List<ExpressionTree> items;
@@ -274,7 +293,12 @@ public abstract class ResourceVisitor implements IacCheck {
       
       @Override
       public void reportItemsWhichMatch(Predicate<ExpressionTree> predicate, String message, SecondaryLocation... secondaries) {
-        items.stream().filter(predicate).forEach(item -> ctx.reportIssue(item, message, Arrays.asList(secondaries)));
+        streamItemsWhich(predicate).forEach(item -> ctx.reportIssue(item, message, Arrays.asList(secondaries)));
+      }
+
+      @Override
+      public Stream<ExpressionTree> streamItemsWhich(Predicate<ExpressionTree> predicate) {
+        return items.stream().filter(predicate);
       }
     }
 

@@ -22,8 +22,6 @@ package org.sonar.iac.terraform.checks.azure;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -33,19 +31,15 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+import org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck;
 
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV4;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV6;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.MESSAGE;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.RDP_PORT;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SSH_PORT;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.rangeContainsSshOrRdpPort;
 
 public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck {
 
-  private static final Pattern PORT_RANGE_PATTERN = Pattern.compile("^(?<from>\\d{1,5})-(?<to>\\d{1,5})$");
-  private static final Set<String> SENSITIVE_PORTS = Set.of("*", String.valueOf(SSH_PORT), String.valueOf(RDP_PORT));
   private static final Set<String> SENSITIVE_PREFIXES = Set.of("*", ALL_IPV4, ALL_IPV6);
 
   @Override
@@ -74,7 +68,7 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
 
   private static Optional<ExpressionTree> sensitiveDestinationPortRange(BlockTree rule) {
     Predicate<ExpressionTree> rangeContainsSensitivePort = range -> TextUtils.getValue(range)
-      .filter(AzureIpRestrictedAdminAccessCheckPart::rangeContainsSensitivePort).isPresent();
+      .filter(IpRestrictedAdminAccessCheck::rangeContainsSshOrRdpPort).isPresent();
 
     return PropertyUtils.get(rule, "destination_port_range", AttributeTree.class)
       .map(AttributeTree::value)
@@ -110,24 +104,5 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
     return PropertyUtils.get(rule, attribute, AttributeTree.class)
       .filter(attr -> TextUtils.matchesValue(attr.value(), stringPredicate).isTrue())
       .isPresent();
-  }
-
-  private static boolean rangeContainsSensitivePort(String range) {
-    if (range.contains("-")) {
-      Matcher m = PORT_RANGE_PATTERN.matcher(range);
-      if (m.find()) {
-        return rangeContainsSshOrRdpPort(portFromMatch(m, "from"), portFromMatch(m, "to"));
-      }
-      return false;
-    } else {
-      return SENSITIVE_PORTS.contains(range);
-    }
-  }
-
-  /**
-   * Extract port as integer from range pattern matcher
-   */
-  private static int portFromMatch(Matcher m, String group) {
-    return Integer.parseInt(m.group(group));
   }
 }
