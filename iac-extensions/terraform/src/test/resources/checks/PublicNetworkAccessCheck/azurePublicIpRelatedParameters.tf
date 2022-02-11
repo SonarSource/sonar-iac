@@ -10,6 +10,12 @@ resource "azurerm_application_gateway" "noncompliant" {
 
 resource "azurerm_application_gateway" "compliant" {
   frontend_ip_configuration {
+    public_ip_address_id = foo.azurerm_public_ip
+  }
+}
+
+resource "azurerm_application_gateway" "compliant" {
+  frontend_ip_configuration {
     public_ip_address_id = foo.production.id
   }
 }
@@ -101,5 +107,11 @@ resource "azurerm_network_interface" "production" {
   # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
     public_ip_address_id = azurerm_public_ip.production.id
   # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  }
+}
+
+resource "azurerm_network_interface" "production" {
+  ip_configuration {
+    public_ip_address_id = foo.azurerm_public_ip
   }
 }

@@ -32,6 +32,7 @@ import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_SUBSCRIPTION_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_SUBSCRIPTION_SCOPE_PATTERN;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 
 @Rule(key = "S6387")
 public class SubscriptionRoleAssignmentCheck extends AbstractResourceCheck {
@@ -39,10 +40,10 @@ public class SubscriptionRoleAssignmentCheck extends AbstractResourceCheck {
   private static final String SUBSCRIPTION_MESSAGE = "Make sure assigning this role with a Subscription scope is safe here.";
   private static final String MANAGEMENT_GROUP_MESSAGE = "Make sure assigning this role with a Management Group scope is safe here.";
 
-  private static final Predicate<String> REFERENCE_SUBSCRIPTION_SCOPE_PREDICATE = RoleScopeHelper.matchPredicate(REFERENCE_SUBSCRIPTION_SCOPE_PATTERN);
-  private static final Predicate<String> REFERENCE_MANAGEMENT_GROUP_SCOPE_PREDICATE = RoleScopeHelper.matchPredicate(REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN);
-  private static final Predicate<String> PLAIN_SUBSCRIPTION_SCOPE_PREDICATE = RoleScopeHelper.matchPredicate(PLAIN_SUBSCRIPTION_SCOPE_PATTERN);
-  private static final Predicate<String> PLAIN_MANAGEMENT_GROUP_SCOPE_PREDICATE = RoleScopeHelper.matchPredicate(PLAIN_MANAGEMENT_GROUP_SCOPE_PATTERN);
+  private static final Predicate<String> REFERENCE_SUBSCRIPTION_SCOPE_PREDICATE = exactMatchStringPredicate(REFERENCE_SUBSCRIPTION_SCOPE_PATTERN);
+  private static final Predicate<String> REFERENCE_MANAGEMENT_GROUP_SCOPE_PREDICATE = exactMatchStringPredicate(REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN);
+  private static final Predicate<String> PLAIN_SUBSCRIPTION_SCOPE_PREDICATE = exactMatchStringPredicate(PLAIN_SUBSCRIPTION_SCOPE_PATTERN);
+  private static final Predicate<String> PLAIN_MANAGEMENT_GROUP_SCOPE_PREDICATE = exactMatchStringPredicate(PLAIN_MANAGEMENT_GROUP_SCOPE_PATTERN);
 
   @Override
   protected void registerResourceChecks() {

@@ -1,0 +1,105 @@
+<p>Granting highly privileged resource rights to users or groups can reduce an organization’s ability to protect against account or service theft. It
+prevents proper segregation of duties and creates potentially critical attack vectors on affected resources.</p>
+<p>If elevated access rights are abused or compromised, both the data that the affected resources work with and their access tracking are at risk.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This GCP resource is essential to the information system infrastructure. </li>
+  <li> This GCP resource is essential to mission-critical functions. </li>
+  <li> Compliance policies require that administrative privileges for this resource be limited to a small group of individuals. </li>
+</ul>
+<p>There is a risk if you answered yes to any of these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Grant IAM policies or members a less permissive role: In most cases, granting them read-only privileges is sufficient.</p>
+<p>Separate tasks by creating multiple roles that do not use a full access role for day-to-day work.</p>
+<p>If the predefined GCP roles do not include the specific permissions you need, create <a
+href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam_custom_role">custom IAM roles</a>.</p>
+<h2>Sensitive Code Example</h2>
+<p>For an IAM policy setup:</p>
+<pre>
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/run.admin" # Sensitive
+    members = [
+      "user:name@example.com",
+    ]
+  }
+}
+
+resource "google_cloud_run_service_iam_policy" "policy" {
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
+  policy_data = data.google_iam_policy.admin.policy_data
+}
+</pre>
+<p>For an IAM policy binding:</p>
+<pre>
+resource "google_cloud_run_service_iam_binding" "example" {
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
+  role = "roles/run.admin" # Sensitive
+  members = [
+    "user:name@example.com",
+  ]
+}
+</pre>
+<p>For adding a member to a policy:</p>
+<pre>
+resource "google_cloud_run_service_iam_member" "example" {
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
+  role = "roles/run.admin" # Sensitive
+  member = "user:name@example.com"
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For an IAM policy setup:</p>
+<pre>
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/viewer"
+    members = [
+      "user:name@example.com",
+    ]
+  }
+}
+
+resource "google_cloud_run_service_iam_policy" "example" {
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
+  policy_data = data.google_iam_policy.admin.policy_data
+}
+</pre>
+<p>For an IAM policy binding:</p>
+<pre>
+resource "google_cloud_run_service_iam_binding" "example" {
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
+  role = "roles/viewer"
+  members = [
+    "user:name@example.com",
+  ]
+}
+</pre>
+<p>For adding a member to a policy:</p>
+<pre>
+resource "google_cloud_run_service_iam_member" "example" {
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
+  role = "roles/viewer"
+  member = "user:name@example.com"
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
+</ul>
+

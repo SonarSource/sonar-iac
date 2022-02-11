@@ -22,16 +22,23 @@ package org.sonar.iac.terraform.checks.azure;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.sonar.iac.common.checks.TextUtils;
+import java.util.function.Predicate;
+
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.ResourceVisitor;
 
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
+import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessMatches;
 
 public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
 
   private static final String OMITTED_MESSAGE = "Omitting %s allows network access from the Internet. Make sure it is safe here.";
   private static final String NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
+
+  private static final Predicate<String> STARTS_WITH_AZURERM_PUBLIC_IP = exactMatchStringPredicate("azurerm_public_ip.*", CASE_INSENSITIVE);
+  private static final Predicate<ExpressionTree> IS_PUBLIC_IP_ADDRESS = treePredicate(exactMatchStringPredicate("(10|172[.]16|192[.]168)[.].*|0[.]0[.]0[.]0/32").negate());
 
   @Override
   protected void registerResourceConsumer() {
@@ -66,7 +73,7 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
     register("azurerm_dev_test_virtual_network",
       resource -> resource.block("subnet").ifPresent(
         subnet -> subnet.attribute("use_public_ip_address")
-          .reportIfValueDoesNotMatch("Deny", NETWORK_ACCESS_MESSAGE)));
+          .reportIfNotValueEquals("Deny", NETWORK_ACCESS_MESSAGE)));
 
     register("azurerm_kubernetes_cluster_node_pool",
       resource -> resource.attribute("enable_node_public_ip")
@@ -89,7 +96,7 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
             .reportIfTrue(NETWORK_ACCESS_MESSAGE)
         );
         resource.list("api_server_authorized_ip_ranges")
-          .reportItemsWhichMatch(ipAddress -> isPublicIpAddress(ipAddress), NETWORK_ACCESS_MESSAGE);
+          .reportItemsWhichMatch(IS_PUBLIC_IP_ADDRESS, NETWORK_ACCESS_MESSAGE);
       });
   }
 
@@ -103,12 +110,6 @@ public class AzurePublicNetworkAccessCheckPart extends ResourceVisitor {
   private Consumer<Resource> checkPublicIpConfiguration(String propertyName) {
     return resource -> resource.blocks(propertyName).forEach(
       block -> block.attribute("public_ip_address_id")
-        .reportIfValueMatches(e -> attributeAccessMatches(e, s -> s.startsWith("azurerm_public_ip")).isTrue(),
-          NETWORK_ACCESS_MESSAGE));
-  }
-
-  private static boolean isPublicIpAddress(ExpressionTree ipAddress) {
-    return TextUtils.matchesValue(ipAddress, s ->
-      !(s.startsWith("10.") || s.startsWith("172.16.") || s.startsWith("192.168.") || s.equals("0.0.0.0/32"))).isTrue();
+        .reportIf(e -> attributeAccessMatches(e, STARTS_WITH_AZURERM_PUBLIC_IP).isTrue(), NETWORK_ACCESS_MESSAGE));
   }
 }

@@ -41,7 +41,7 @@ public class AzureWeakSSLProtocolCheckPart extends ResourceVisitor {
 
   private static Consumer<Resource> checkSSLProtocol(String protocolAttribute) {
     return resource -> resource.attribute(protocolAttribute)
-      .reportIfValueDoesNotMatch(STRONG_SSL_PROTOCOL, WEAK_SSL_MESSAGE)
+      .reportIfNotValueEquals(STRONG_SSL_PROTOCOL, WEAK_SSL_MESSAGE)
       .reportIfAbsence(OMITTING_WEAK_SSL_MESSAGE);
   }
 }

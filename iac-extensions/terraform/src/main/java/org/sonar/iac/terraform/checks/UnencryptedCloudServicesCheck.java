@@ -32,7 +32,7 @@ public class UnencryptedCloudServicesCheck extends ResourceVisitor {
   protected void registerResourceConsumer() {
     register("azurerm_data_lake_store",
       resource -> resource.attribute("encryption_state")
-        .reportIfValueMatches("Disabled", UNENCRYPTED_MESSAGE));
+        .reportIfValueEquals("Disabled", UNENCRYPTED_MESSAGE));
 
     register("azurerm_managed_disk",
       resource -> resource.attribute("disk_encryption_set_id")
