@@ -275,7 +275,7 @@ public abstract class ResourceVisitor implements IacCheck {
       // designed to be extended but noop in standard case
     }
 
-    public Stream<ExpressionTree> streamItemsWhichMatch(Predicate<ExpressionTree> predicate) {
+    public Stream<ExpressionTree> streamItemsWhich(Predicate<ExpressionTree> predicate) {
       return Stream.empty();
     }
 
@@ -293,11 +293,11 @@ public abstract class ResourceVisitor implements IacCheck {
       
       @Override
       public void reportItemsWhichMatch(Predicate<ExpressionTree> predicate, String message, SecondaryLocation... secondaries) {
-        streamItemsWhichMatch(predicate).forEach(item -> ctx.reportIssue(item, message, Arrays.asList(secondaries)));
+        streamItemsWhich(predicate).forEach(item -> ctx.reportIssue(item, message, Arrays.asList(secondaries)));
       }
 
       @Override
-      public Stream<ExpressionTree> streamItemsWhichMatch(Predicate<ExpressionTree> predicate) {
+      public Stream<ExpressionTree> streamItemsWhich(Predicate<ExpressionTree> predicate) {
         return items.stream().filter(predicate);
       }
     }

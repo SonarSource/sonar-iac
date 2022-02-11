@@ -60,7 +60,7 @@ public class GcpIpRestrictedAdminAccessCheckPart extends ResourceVisitor {
 
     SecondaryLocation[] sensitivePortLocations = firewall.blocks("allow")
       .filter(allow -> allow.attribute("protocol").is("tcp"))
-      .flatMap(allow -> allow.list("ports").streamItemsWhichMatch(RANGE_CONTAINS_SENSITIVE_PORTS))
+      .flatMap(allow -> allow.list("ports").streamItemsWhich(RANGE_CONTAINS_SENSITIVE_PORTS))
       .map(sensitivePorts -> new SecondaryLocation(sensitivePorts, SECONDARY_MSG))
       .toArray(SecondaryLocation[]::new);
 

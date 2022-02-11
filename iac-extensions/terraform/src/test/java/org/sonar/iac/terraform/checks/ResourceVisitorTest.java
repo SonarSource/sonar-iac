@@ -62,11 +62,11 @@ class ResourceVisitorTest {
       );
 
       resource.list("unkown")
-        .streamItemsWhichMatch(e -> TextUtils.isValue(e, "item1").isTrue())
+        .streamItemsWhich(e -> TextUtils.isValue(e, "item1").isTrue())
         .forEach(e -> resource.ctx.reportIssue(e, "streamed item"));
 
       resource.list("my_list")
-        .streamItemsWhichMatch(e -> TextUtils.isValue(e, "item1").isTrue())
+        .streamItemsWhich(e -> TextUtils.isValue(e, "item1").isTrue())
         .forEach(e -> resource.ctx.reportIssue(e, "streamed item"));
     }
   }
