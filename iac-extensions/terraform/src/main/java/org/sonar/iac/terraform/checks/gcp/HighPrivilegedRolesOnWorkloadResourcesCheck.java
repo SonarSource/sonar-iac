@@ -29,5 +29,6 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     new HighPrivilegedRolesOnIamResourcesCheckPart().initialize(init);
+    new HighPrivilegedRolesOnCloudIdentityGroupCheckPart().initialize(init);
   }
 }
