@@ -52,7 +52,7 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
     register("azurerm_app_service",
       resource -> resource.block("site_config")
         .ifPresent(block -> block.attribute("ftps_state")
-          .reportIfValueMatches("AllAllowed", MESSAGE_CLEAR_TEXT)));
+          .reportIfValueEquals("AllAllowed", MESSAGE_CLEAR_TEXT)));
 
     register("azurerm_cdn_endpoint",
       resource -> resource.attribute("is_http_allowed")
@@ -61,7 +61,7 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
 
     register("azurerm_redis_enterprise_database",
       resource -> resource.attribute("client_protocol")
-        .reportIfValueMatches("PLAINTEXT", MESSAGE_CLEAR_TEXT));
+        .reportIfValueEquals("PLAINTEXT", MESSAGE_CLEAR_TEXT));
 
     register(List.of("azurerm_mysql_server", "azurerm_postgresql_server"),
       resource -> resource.attribute("ssl_enforcement_enabled")

@@ -20,7 +20,7 @@
 package org.sonar.iac.terraform.checks.azure.helper;
 
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
+
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -28,10 +28,11 @@ import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
+import org.sonar.iac.terraform.checks.utils.PredicateUtils;
 
 import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessMatches;
 
-public class RoleScopeHelper {
+public class RoleScopeHelper implements PredicateUtils {
 
   // Predicates for sensitive subscription scopes
   public static final String REFERENCE_SUBSCRIPTION_SCOPE_PATTERN = "data\\.azurerm_subscription\\.[^.]*(primary|current)[^.]*\\.id";
@@ -43,10 +44,6 @@ public class RoleScopeHelper {
 
   private RoleScopeHelper() {
     // helper class
-  }
-
-  public static Predicate<String> matchPredicate(String pattern) {
-    return s -> Pattern.matches(pattern, s);
   }
 
   public static boolean isSensitiveScope(ExpressionTree scope, Predicate<String> referenceScopePredicate, Predicate<String> plainScopePredicate) {
