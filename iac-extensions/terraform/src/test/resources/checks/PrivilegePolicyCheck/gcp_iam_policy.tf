@@ -62,3 +62,13 @@ resource "google_project_iam_policy" "s6302-compliant1" {
 resource "google_project_iam_binding" "s6302-compliant2" {
   role    = "roles/actions.Viewer"
 }
+
+data "not_google_iam_policy" "coverage1" {
+  binding {
+    role = "roles/actions.Admin"
+  }
+}
+
+resource "google_project_iam_policy" "coverage1" {
+  policy_data = data.not_google_iam_policy.coverage1.policy_data
+}

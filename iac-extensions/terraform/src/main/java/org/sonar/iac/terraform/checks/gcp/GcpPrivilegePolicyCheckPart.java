@@ -66,7 +66,7 @@ public class GcpPrivilegePolicyCheckPart extends AbstractNewResourceCheck {
     }
   }
 
-  private boolean isData(BlockTree blockTree) {
+  private static boolean isData(BlockTree blockTree) {
     return "data".equals(blockTree.key().value());
   }
 
