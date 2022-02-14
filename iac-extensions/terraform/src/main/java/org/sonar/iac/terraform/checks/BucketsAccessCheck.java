@@ -20,38 +20,21 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
 
-import java.util.function.Predicate;
-
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
-import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
+import static java.lang.String.format;
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
 
 @Rule(key = "S6265")
-public class BucketsAccessCheck extends AbstractResourceCheck {
+public class BucketsAccessCheck extends AbstractNewResourceCheck {
+
   private static final String MESSAGE = "Make sure granting access to %s group is safe here.";
   private static final String SECONDARY_MSG = "Related bucket";
 
   @Override
-  protected void registerResourceChecks() {
-    register(BucketsAccessCheck::checkBucket, S3_BUCKET);
-  }
-
-  private static final Predicate<String> PUBLIC_READ_OR_WRITE = exactMatchStringPredicate("public-read(-write)?", CASE_INSENSITIVE);
-
-  private static void checkBucket(CheckContext ctx, BlockTree tree) {
-    PropertyUtils.get(tree, "acl", AttributeTree.class)
-      .ifPresent(acl -> {
-        if (TextUtils.matchesValue(acl.value(), PUBLIC_READ_OR_WRITE).isTrue()) {
-          ctx.reportIssue(acl, String.format(MESSAGE, "AllUsers"), new SecondaryLocation(tree.labels().get(0), SECONDARY_MSG));
-        } else if (TextUtils.isValue(acl.value(), "authenticated-read").isTrue()) {
-          ctx.reportIssue(acl, String.format(MESSAGE, "AuthenticatedUsers"), new SecondaryLocation(tree.labels().get(0), SECONDARY_MSG));
-        }
-      });
+  protected void registerResourceConsumer() {
+    register(S3_BUCKET, resource -> resource.attribute("acl")
+      .reportIf(equalTo("authenticated-read"), format(MESSAGE,"AuthenticatedUsers"), resource.toSecondary(SECONDARY_MSG))
+      .reportIf(matchesPattern("public-read(-write)?"), format(MESSAGE,"AllUsers"), resource.toSecondary(SECONDARY_MSG))
+    );
   }
 }
