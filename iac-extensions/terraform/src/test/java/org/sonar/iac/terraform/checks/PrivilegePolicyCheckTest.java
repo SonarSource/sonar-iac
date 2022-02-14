@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class PrivilegePolicyCheckTest {
 
   @Test
-  void test() {
-    TerraformVerifier.verify("PrivilegePolicyCheck/test.tf", new PrivilegePolicyCheck());
+  void aws_iam_policy() {
+    TerraformVerifier.verify("PrivilegePolicyCheck/aws_iam_policy.tf", new PrivilegePolicyCheck());
   }
 }
