@@ -14,16 +14,16 @@ may occur and therefore result in loss of information.</p>
 with the very minimum set of permissions and to refine the policy over time. In order to fix overly permissive policies already deployed in
 production, a strategy could be to review the monitored activity in order to reduce the set of permissions to those most used.</p>
 <h2>Noncompliant Code Example</h2>
-<p>A customer managed policy that grants all permissions by using the wildcard (*) in the <code>Action</code> property:</p>
+<p>A customer-managed policy for AWS that grants all permissions by using the wildcard (*) in the <code>Action</code> property:</p>
 <pre>
-resource "aws_iam_policy" "noncompliantpolicy" {
-  name        = "noncompliantpolicy"
+<code data-lang="terraform">resource "aws_iam_policy" "example" {
+  name = "noncompliantpolicy"
 
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [
       {
-        Action = [
+        Action   = [
           "*" # Sensitive
         ]
         Effect   = "Allow"
@@ -33,19 +33,30 @@ resource "aws_iam_policy" "noncompliantpolicy" {
       }
     ]
   })
-}
+}</code>
+</pre>
+<p>A customer-managed policy for GCP that grants all permissions by using the actions admin role <code>role</code> property:</p>
+<pre>
+<code data-lang="terraform">resource "google_project_iam_binding" "example" {
+  project = "example"
+  role    = "roles/owner" # Sensitive
+
+  members = [
+    "user:jane@example.com",
+  ]
+}</code>
 </pre>
 <h2>Compliant Solution</h2>
-<p>A customer managed policy that lists and grants only the required permissions:</p>
+<p>A customer-managed policy for AWS that grants only the required permissions:</p>
 <pre>
-resource "aws_iam_policy" "compliantpolicy" {
-  name        = "compliantpolicy"
+<code data-lang="terraform">resource "aws_iam_policy" "example" {
+  name = "compliantpolicy"
 
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [
       {
-        Action = [
+        Action   = [
           "s3:GetObject"
         ]
         Effect   = "Allow"
@@ -55,13 +66,25 @@ resource "aws_iam_policy" "compliantpolicy" {
       }
     ]
   })
-}
+}</code>
+</pre>
+<p>A customer-managed policy for GCP that grants restricted permissions by using the actions admin role <code>role</code> property:</p>
+<pre>
+<code data-lang="terraform">resource "google_project_iam_binding" "example" {
+  project = "example"
+  role    = "roles/actions.Viewer"
+
+  members = [
+    "user:jane@example.com",
+  ]
+}</code>
 </pre>
 <h2>See</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
   <li> <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege">AWS Documentation</a> - Grant least
   privilege </li>
+  <li> <a href="https://cloud.google.com/iam/docs/understanding-roles">Google Cloud Documentation</a> - Understanding roles </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/732.html">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control

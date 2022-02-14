@@ -30,7 +30,7 @@ public class ResourceSymbol extends BlockSymbol {
   public final String type;
 
   private ResourceSymbol(CheckContext ctx, BlockTree tree) {
-    super(ctx, tree, "resource", null);
+    super(ctx, tree, tree.labels().size() < 2 ? "unknown" : tree.labels().get(1).value(), null);
     type = tree.labels().isEmpty() ? "" : tree.labels().get(0).value();
   }
 

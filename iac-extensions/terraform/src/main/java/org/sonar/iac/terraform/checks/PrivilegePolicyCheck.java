@@ -23,6 +23,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.checks.aws.AwsPrivilegePolicyCheckPart;
+import org.sonar.iac.terraform.checks.gcp.GcpPrivilegePolicyCheckPart;
 
 @Rule(key = "S6302")
 public class PrivilegePolicyCheck implements IacCheck {
@@ -30,5 +31,6 @@ public class PrivilegePolicyCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     new AwsPrivilegePolicyCheckPart().initialize(init);
+    new GcpPrivilegePolicyCheckPart().initialize(init);
   }
 }

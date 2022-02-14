@@ -27,4 +27,9 @@ class PrivilegePolicyCheckTest {
   void aws_iam_policy() {
     TerraformVerifier.verify("PrivilegePolicyCheck/aws_iam_policy.tf", new PrivilegePolicyCheck());
   }
+
+  @Test
+  void gcp_iam_policy() {
+    TerraformVerifier.verify("PrivilegePolicyCheck/gcp_iam_policy.tf", new PrivilegePolicyCheck());
+  }
 }
