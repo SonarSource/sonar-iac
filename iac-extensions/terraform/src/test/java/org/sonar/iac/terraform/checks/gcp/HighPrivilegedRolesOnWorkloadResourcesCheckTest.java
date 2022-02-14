@@ -26,6 +26,11 @@ class HighPrivilegedRolesOnWorkloadResourcesCheckTest {
 
   @Test
   void role_assignment() {
-    TerraformVerifier.verify("GCP/AdministrativeRolesOnWorkloadResourcesCheck/role_assignment.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
+    TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/iam_bindings_and_members.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
+  }
+
+  @Test
+  void cloud_identity_group() {
+    TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/cloud_identity_group.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
   }
 }
