@@ -32,18 +32,23 @@ import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 
 public class HighPrivilegedRolesOnIamResourcesCheckPart extends ResourceVisitor {
 
-  private static final String MESSAGE = "Make sure that assigning the %s role is safe here.";
+  private static final String MESSAGE_FOR_BINDING = "Make sure it is safe to give those members full access to the resource.";
+  private static final String MESSAGE_FOR_MEMBER = "Make sure it is safe to grant that member full access to the resource.";
 
   private static final Predicate<ExpressionTree> CONTAINS_PRIVILEGED_ROLE = treePredicate(containsMatchStringPredicate("ADMIN|MANAGER|OWNER|SUPERUSER", Pattern.CASE_INSENSITIVE));
 
   @Override
   protected void registerResourceConsumer() {
-    register(List.of(IAM_RESOURCE_NAMES),
+    register(List.of(IAM_BINDING_RESOURCE_NAMES),
       resource -> resource.attribute("role")
-        .reportIf(CONTAINS_PRIVILEGED_ROLE, MESSAGE));
+        .reportIf(CONTAINS_PRIVILEGED_ROLE, MESSAGE_FOR_BINDING));
+
+    register(List.of(IAM_MEMBER_RESOURCE_NAMES),
+      resource -> resource.attribute("role")
+        .reportIf(CONTAINS_PRIVILEGED_ROLE, MESSAGE_FOR_MEMBER));
   }
 
-  private static final String[] IAM_RESOURCE_NAMES = {
+  private static final String[] IAM_BINDING_RESOURCE_NAMES = {
     // 56 *_iam_binding variants:
     "google_apigee_environment_iam_binding",
     "google_api_gateway_api_config_iam_binding",
@@ -100,8 +105,10 @@ public class HighPrivilegedRolesOnIamResourcesCheckPart extends ResourceVisitor 
     "google_spanner_instance_iam_binding",
     "google_storage_bucket_iam_binding",
     "google_tags_tag_key_iam_binding",
-    "google_tags_tag_value_iam_binding",
+    "google_tags_tag_value_iam_binding"
+  };
 
+  private static final String[] IAM_MEMBER_RESOURCE_NAMES = {
     // and their corresponding 56 *_iam_member variants:
     "google_apigee_environment_iam_member",
     "google_api_gateway_api_config_iam_member",
