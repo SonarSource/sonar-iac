@@ -108,4 +108,10 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
     return matchesPattern(pattern, Pattern.CASE_INSENSITIVE);
   }
 
+  /**
+   * Tests true iff the target expression is a string literal, and it's value is true.
+   */
+  public Predicate<ExpressionTree> isTrue() {
+    return lookupPredicate("isTrue", "", TextUtils::isValueTrue);
+  }
 }
