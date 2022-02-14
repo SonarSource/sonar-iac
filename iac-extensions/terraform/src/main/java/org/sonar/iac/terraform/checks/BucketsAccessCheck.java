@@ -22,8 +22,6 @@ package org.sonar.iac.terraform.checks;
 import org.sonar.check.Rule;
 
 import static java.lang.String.format;
-import static org.sonar.iac.terraform.checks.AbstractNewResourceCheck.CheckPredicates.equalsTo;
-import static org.sonar.iac.terraform.checks.AbstractNewResourceCheck.CheckPredicates.matchesPattern;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
 
 @Rule(key = "S6265")
@@ -35,7 +33,7 @@ public class BucketsAccessCheck extends AbstractNewResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register(S3_BUCKET, resource -> resource.attribute("acl")
-      .reportIf(equalsTo("authenticated-read"), format(MESSAGE,"AuthenticatedUsers"), resource.toSecondary(SECONDARY_MSG))
+      .reportIf(equalTo("authenticated-read"), format(MESSAGE,"AuthenticatedUsers"), resource.toSecondary(SECONDARY_MSG))
       .reportIf(matchesPattern("public-read(-write)?"), format(MESSAGE,"AllUsers"), resource.toSecondary(SECONDARY_MSG))
     );
   }

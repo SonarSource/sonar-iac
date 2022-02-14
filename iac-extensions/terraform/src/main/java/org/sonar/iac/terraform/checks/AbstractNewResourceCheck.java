@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -39,6 +40,7 @@ import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 public abstract class AbstractNewResourceCheck implements IacCheck {
 
   private final Map<String, List<Consumer<ResourceSymbol>>> resourceConsumers = new HashMap<>();
+  private final Map<String, Predicate<ExpressionTree>> predicateMap = new HashMap<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -65,41 +67,45 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
     resourceNames.forEach(resourceName -> register(resourceName, consumer));
   }
 
-  public static class CheckPredicates {
-
-    private CheckPredicates() {
-
-    }
-
-    /**
-     * Is tested true iff the provided expression is a string literal, and it's value is not equal the expected one.
-     */
-    public static Predicate<ExpressionTree> notEqualsTo(String expected) {
-      return expression -> TextUtils.isValue(expression, expected).isFalse();
-    }
-
-    /**
-     * Is tested true iff the provided expression is a string literal, and it's value is equal the expected one.
-     */
-    public static Predicate<ExpressionTree> equalsTo(String expected) {
-      return expression -> TextUtils.isValue(expression, expected).isTrue();
-    }
-
-    /**
-     * Is tested true iff the provided expression is a string literal, and fully matches the pattern.
-     */
-    public static Predicate<ExpressionTree> matchesPattern(String pattern, int flags) {
-      final var compiledPattern = Pattern.compile(pattern, flags);
-      return expression -> TextUtils.matchesValue(expression, s -> compiledPattern.matcher(s).matches()).isTrue();
-    }
-
-    /**
-     * Is tested true iff the provided expression is a string literal, and fully matches the case-insensitive pattern.
-     */
-    public static Predicate<ExpressionTree> matchesPattern(String pattern) {
-      return matchesPattern(pattern, Pattern.CASE_INSENSITIVE);
-    }
+  private Predicate<ExpressionTree> lookupPredicate(String predicateIdentifier, String predicateValue, Predicate<ExpressionTree> predicate) {
+    return predicateMap.computeIfAbsent(predicateIdentifier + "_" + predicateValue, i -> predicate);
   }
 
+  private Predicate<ExpressionTree> lookupPredicate(String predicateIdentifier, String predicateValue, Supplier<Predicate<ExpressionTree>> predicateSupplier) {
+    return lookupPredicate(predicateIdentifier, predicateValue, predicateSupplier.get());
+  }
+
+  /**
+   * Tests true iff the target expression is a string literal, and it's value is not equal to the expected one.
+   */
+  public Predicate<ExpressionTree> notEqualTo(String expected) {
+    return lookupPredicate("notEqualTo", expected,
+      expression -> TextUtils.isValue(expression, expected).isFalse());
+  }
+
+  /**
+   * Tests true iff the target expression is a string literal, and it's value is equal to the expected one.
+   */
+  public Predicate<ExpressionTree> equalTo(String expected) {
+    return lookupPredicate("equalTo", expected,
+      expression -> TextUtils.isValue(expression, expected).isTrue());
+  }
+
+  /**
+   * Tests true iff the target expression is a string literal that fully matches the pattern.
+   */
+  public Predicate<ExpressionTree> matchesPattern(String pattern, int flags) {
+    return lookupPredicate("matchesPattern", pattern + "_flags:" + flags, () -> {
+      final var compliedPatter = Pattern.compile(pattern, flags);
+      return expression -> TextUtils.matchesValue(expression, s -> compliedPatter.matcher(s).matches()).isTrue();
+    });
+  }
+
+  /**
+   * Tests true iff the target expression is a string literal that fully matches the case-insensitive pattern.
+   */
+  public Predicate<ExpressionTree> matchesPattern(String pattern) {
+    return matchesPattern(pattern, Pattern.CASE_INSENSITIVE);
+  }
 
 }

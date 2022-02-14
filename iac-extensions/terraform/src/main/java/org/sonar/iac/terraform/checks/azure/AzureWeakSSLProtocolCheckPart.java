@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
-import static org.sonar.iac.terraform.checks.AbstractNewResourceCheck.CheckPredicates.notEqualsTo;
 import static org.sonar.iac.terraform.checks.WeakSSLProtocolCheck.OMITTING_WEAK_SSL_MESSAGE;
 import static org.sonar.iac.terraform.checks.WeakSSLProtocolCheck.WEAK_SSL_MESSAGE;
 
@@ -39,9 +38,9 @@ public class AzureWeakSSLProtocolCheckPart extends AbstractNewResourceCheck {
       checkSSLProtocol("min_tls_version"));
   }
 
-  private static Consumer<ResourceSymbol> checkSSLProtocol(String protocolAttribute) {
+  private Consumer<ResourceSymbol> checkSSLProtocol(String protocolAttribute) {
     return resource -> resource.attribute(protocolAttribute)
-      .reportIf(notEqualsTo("TLS1_2"), WEAK_SSL_MESSAGE)
+      .reportIf(notEqualTo("TLS1_2"), WEAK_SSL_MESSAGE)
       .reportIfAbsent(OMITTING_WEAK_SSL_MESSAGE);
   }
 }

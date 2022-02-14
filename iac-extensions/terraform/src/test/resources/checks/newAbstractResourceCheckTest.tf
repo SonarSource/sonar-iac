@@ -24,7 +24,7 @@ resource "attribute_reportIf" "noncompliant" {
   attribute = "not_expected_value" // Noncompliant {{attribute has not expected value}}
 }
 
-resource "attribute_reportIf" "noncompliant" {
+resource "attribute_reportIf" "compliant" {
   attribute = "expected_value"
 }
 
