@@ -54,6 +54,14 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck extends ResourceVisitor
     register("google_cloud_identity_group",
       resource -> resource.blocks("roles").forEach(
         block -> block.attribute("name").reportIf(IS_OWNER_OR_MANAGER, MESSAGE_ON_GRANT_FULL_ACCESS)));
+
+    register(List.of(
+        "google_bigquery_dataset_access",
+        "google_storage_bucket_access_control",
+        "google_storage_default_object_access_control",
+        "google_storage_object_access_control"),
+      resource -> resource.attribute("role")
+        .reportIfValueEquals("OWNER", MESSAGE_FOR_MEMBER));
   }
 
   private static final String[] IAM_BINDING_RESOURCE_NAMES = {
