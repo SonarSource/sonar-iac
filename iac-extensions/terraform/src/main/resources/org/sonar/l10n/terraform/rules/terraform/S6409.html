@@ -1,0 +1,37 @@
+<p>Enabling Legacy Authorization, Attribute-Based Access Control (ABAC), on Google Kubernetes Engine resources can reduce an organization’s ability to
+protect itself against access controls being compromised.</p>
+<p>For Kubernetes, Attribute-Based Access Control has been superseded by Role-Based Access Control. ABAC is not under active development anymore and
+thus should be avoided.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This resource is essential for the information system infrastructure. </li>
+  <li> This resource is essential for mission-critical functions. </li>
+  <li> Compliance policies require access to this resource to be enforced through the use of Role-Based Access Control. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Unless you are relying on ABAC, leave it disabled.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://cloud.google.com/kubernetes-engine">Google Kubernetes Engine</a>:</p>
+<pre>
+resource "google_container_cluster" "example" {
+  enable_legacy_abac = true # Sensitive
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://cloud.google.com/kubernetes-engine">Google Kubernetes Engine</a>:</p>
+<pre>
+resource "google_container_cluster" "example" {
+  enable_legacy_abac = false
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Boken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+  <li> <a href="https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#leave_abac_disabled">Google Cloud Documentation</a> -
+  Hardening your cluster’s security </li>
+</ul>
+
