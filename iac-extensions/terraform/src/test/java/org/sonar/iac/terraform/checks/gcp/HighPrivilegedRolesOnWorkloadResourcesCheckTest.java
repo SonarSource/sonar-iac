@@ -33,4 +33,9 @@ class HighPrivilegedRolesOnWorkloadResourcesCheckTest {
   void cloud_identity_group() {
     TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/cloud_identity_group.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
   }
+
+  @Test
+  void big_query_and_buckets() {
+    TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/big_query_and_buckets.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
+  }
 }
