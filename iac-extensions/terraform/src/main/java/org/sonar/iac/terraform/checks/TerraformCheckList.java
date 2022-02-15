@@ -34,6 +34,7 @@ import org.sonar.iac.terraform.checks.gcp.HighPrivilegedRolesOnWorkloadResources
 
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.terraform.checks.gcp.ExcessivePermissionsCheck;
 
 public class TerraformCheckList {
 
@@ -86,7 +87,8 @@ public class TerraformCheckList {
       // GCP
       AttributeBasedAccessControlCheck.class,
       CustomRoleCheck.class,
-      HighPrivilegedRolesOnWorkloadResourcesCheck.class
+      HighPrivilegedRolesOnWorkloadResourcesCheck.class,
+      ExcessivePermissionsCheck.class
     );
   }
 }

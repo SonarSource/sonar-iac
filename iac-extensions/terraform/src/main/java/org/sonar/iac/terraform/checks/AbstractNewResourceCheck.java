@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
     resourceConsumers.computeIfAbsent(resourceName, i -> new ArrayList<>()).add(consumer);
   }
 
-  protected void register(List<String> resourceNames, Consumer<ResourceSymbol> consumer) {
+  protected void register(Collection<String> resourceNames, Consumer<ResourceSymbol> consumer) {
     resourceNames.forEach(resourceName -> register(resourceName, consumer));
   }
 
