@@ -84,9 +84,9 @@ public class TerraformCheckList {
       SubscriptionRoleAssignmentCheck.class,
 
       // GCP
-      HighPrivilegedRolesOnWorkloadResourcesCheck.class,
       AttributeBasedAccessControlCheck.class,
-      CustomRoleCheck.class
+      CustomRoleCheck.class,
+      HighPrivilegedRolesOnWorkloadResourcesCheck.class
     );
   }
 }

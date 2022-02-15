@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.checks.gcp;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -73,6 +74,6 @@ public class CustomRoleCheck extends AbstractNewResourceCheck {
   }
 
   private static Predicate<ExpressionTree> isSensitiveLabel() {
-    return expression -> TextUtils.matchesValue(expression, s -> SENSITIVE_LABELS.contains(s.toLowerCase())).isTrue();
+    return expression -> TextUtils.matchesValue(expression, s -> SENSITIVE_LABELS.contains(s.toLowerCase(Locale.ROOT))).isTrue();
   }
 }
