@@ -1,0 +1,132 @@
+<p>Creating custom roles that allow privilege escalation can allow attackers to maliciously exploit an organization’s cloud resources.</p>
+<p>Certain GCP permissions allow impersonation of one or more privileged principals within a GCP infrastructure.<br> To prevent privilege escalation
+after an account has been compromised, proactively follow GCP Security Insights and ensure that custom roles contain as few privileges as possible
+that allow direct or indirect impersonation.</p>
+<p>For example, privileges like <code>deploymentmanager.deployments.create</code> allow impersonation of service accounts, even if the name does not
+sound like it.<br> Other privileges like <code>setIamPolicy</code>, which are more explicit, directly allow their holder to extend their
+privileges.</p>
+<p>After gaining a foothold in the target infrastructure, sophisticated attackers typically map their newfound roles to understand what is
+exploitable.</p>
+<p>The riskiest privileges are either:</p>
+<ul>
+  <li> At the infrastructure level: privileges to perform project, folder, or organization-wide administrative tasks. </li>
+  <li> At the resource level: privileges to perform resource-wide administrative tasks. </li>
+</ul>
+<p>In either case, the following privileges should be avoided or granted only with caution:</p>
+<ul>
+  <li> <code><strong>.</strong>.setIamPolicy</code> </li>
+  <li> <code>cloudbuilds.builds.create</code> </li>
+  <li> <code>cloudfunctions.functions.create</code> </li>
+  <li> <code>cloudfunctions.functions.update</code> </li>
+  <li> <code>cloudscheduler.jobs.create</code> </li>
+  <li> <code>composer.environments.create</code> </li>
+  <li> <code>compute.instances.create</code> </li>
+  <li> <code>dataflow.jobs.create</code> </li>
+  <li> <code>dataproc.clusters.create</code> </li>
+  <li> <code>deploymentmanager.deployments.create</code> </li>
+  <li> <code>iam.roles.update</code> </li>
+  <li> <code>iam.serviceAccountKeys.create</code> </li>
+  <li> <code>iam.serviceAccounts.actAs</code> </li>
+  <li> <code>iam.serviceAccounts.getAccessToken</code> </li>
+  <li> <code>iam.serviceAccounts.getOpenIdToken</code> </li>
+  <li> <code>iam.serviceAccounts.implicitDelegation</code> </li>
+  <li> <code>iam.serviceAccounts.signBlob</code> </li>
+  <li> <code>iam.serviceAccounts.signJwt</code> </li>
+  <li> <code>orgpolicy.policy.set</code> </li>
+  <li> <code>run.services.create</code> </li>
+  <li> <code>serviceusage.apiKeys.create</code> </li>
+  <li> <code>serviceusage.apiKeys.list</code> </li>
+  <li> <code>storage.hmacKeys.create</code> </li>
+</ul>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This role requires impersonation to perform specific tasks with different privileges. </li>
+  <li> This custom role is intended for a small group of administrators. </li>
+</ul>
+<p>There is a risk if you answered no to these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Use a permission that does not allow privilege escalation.</p>
+<h2>Sensitive Code Example</h2>
+<p>Lightweight custom role intended for a developer:</p>
+<pre>
+resource "google_organization_iam_custom_role" "example" {
+  permissions = [
+    "iam.serviceAccounts.getAccessToken",     # Sensitive
+    "iam.serviceAccounts.getOpenIdToken",     # Sensitive
+    "iam.serviceAccounts.actAs",              # Sensitive
+    "iam.serviceAccounts.implicitDelegation", # Sensitive
+    "resourcemanager.projects.get",
+    "resourcemanager.projects.list",
+    "run.services.create",
+    "run.services.delete",
+    "run.services.get",
+    "run.services.getIamPolicy",
+    "run.services.list",
+    "run.services.update",
+  ]
+}
+</pre>
+<p>Lightweight custom role intended for a read-only user:</p>
+<pre>
+resource "google_project_iam_custom_role" "example" {
+  permissions = [
+    "iam.serviceAccountKeys.create",        # Sensitive
+    "iam.serviceAccountKeys.get",           # Sensitive
+    "deploymentmanager.deployments.create", # Sensitive
+    "cloudbuild.builds.create",             # Sensitive
+    "resourcemanager.projects.get",
+    "resourcemanager.projects.list",
+    "run.services.get",
+    "run.services.getIamPolicy",
+    "run.services.list",
+  ]
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>Lightweight custom role intended for a developer:</p>
+<pre>
+resource "google_project_iam_custom_role" "example" {
+  permissions = [
+    "resourcemanager.projects.get",
+    "resourcemanager.projects.list",
+    "run.services.create",
+    "run.services.delete",
+    "run.services.get",
+    "run.services.getIamPolicy",
+    "run.services.list",
+    "run.services.update",
+  ]
+}
+</pre>
+<p>Lightweight custom role intended for a read-only user:</p>
+<pre>
+resource "google_project_iam_custom_role" "example" {
+  permissions = [
+    "resourcemanager.projects.get",
+    "resourcemanager.projects.list",
+    "run.services.get",
+    "run.services.getIamPolicy",
+    "run.services.list",
+  ]
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cloud.google.com/iam/docs/custom-roles-permissions-support">GCP IAM Docs</a> - Support levels for permissions in custom roles
+  </li>
+  <li> <a href="https://cloud.google.com/iam/docs/understanding-custom-roles">GCP IAM Docs</a> - Understanding IAM custom roles </li>
+  <li> <a href="https://www.youtube.com/watch?v=Z-JFVJZ-HDA">DEFONConference Youtube Video</a> - DEF CON Safe Mode - Dylan Ayrey and Allison Donovan -
+  Lateral Movement &amp; Privilege Escalation in GCP </li>
+  <li> <a href="https://rhinosecuritylabs.com/gcp/privilege-escalation-google-cloud-platform-part-1/">Rhino Security Labs</a> - Privilege Escalation
+  in Google Cloud Platform - Part 1 (IAM) </li>
+  <li> <a href="https://rhinosecuritylabs.com/cloud-security/privilege-escalation-google-cloud-platform-part-2/">Rhino Security Labs</a> - Privilege
+  Escalation in Google Cloud Platform - Part 2 (Non-IAM) </li>
+  <li> <a href="https://www.praetorian.com/blog/google-cloud-platform-gcp-service-account-based-privilege-escalation-paths/">Praetorian</a> - Google
+  Cloud Platform (GCP) Service Account-based Privilege Escalation paths </li>
+  <li> <a href="https://cloud.google.com/iam/docs/manage-policy-insights">GCP Docs</a> - Security Insights </li>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+</ul>
+
