@@ -1,0 +1,29 @@
+{
+  "title": "Creating custom roles allowing privilege escalation is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "gcp",
+    "cwe-284"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6408",
+  "sqKey": "S6408",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284
+    ],
+    "OWASP": [
+      "A5"
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
+    ]
+  },
+  "quickfix": "unknown"
+}
