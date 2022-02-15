@@ -1,5 +1,5 @@
 {
-  "title": "Having AWS policies that grant all privileges is security-sensitive",
+  "title": "Having policies that grant all privileges is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
@@ -7,9 +7,10 @@
     "constantCost": "5min"
   },
   "tags": [
-    "aws",
     "cwe",
-    "owasp-a5"
+    "owasp-a5",
+    "aws",
+    "gcp"
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-6302",
