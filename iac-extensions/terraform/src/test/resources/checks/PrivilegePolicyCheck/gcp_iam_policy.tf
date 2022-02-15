@@ -25,6 +25,11 @@ resource "google_project_iam_member" "s6302-noncompliant3" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
+resource "google_project_iam_member" "s6302-noncompliant4" {
+  # Catching also custom roles containing the sensitve roles
+  role    = "myOrganisation/my_parent/roles/actions.Superadmin"  # Noncompliant {{Make sure it is safe to grant that member full access.}}
+}
+
 ################# FALSE NEGATIVE #################
 
 # Reference to policy can be done via template invocation which we can not resolve properly

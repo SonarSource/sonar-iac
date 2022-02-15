@@ -33,19 +33,21 @@ import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
-import org.sonar.iac.terraform.checks.utils.TerraformUtils;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
+import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.ATTRIBUTE_ACCESS;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.getResourceType;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
+import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessToString;
 
 public class GcpPrivilegePolicyCheckPart extends AbstractNewResourceCheck {
 
   private static final String POLICY_MESSAGE = "Make sure it is safe to give all members full access.";
   private static final String MEMBER_MESSAGE = "Make sure it is safe to grant that member full access.";
   private static final String SECONDARY_MESSAGE = "The policy is used here.";
+
+  private static final String SENSITIVE_ROLES = ".*(?:admin|manager|owner|superuser).*";
 
   private final Map<String, AttributeTree> policyReferences = new HashMap<>();
 
@@ -71,17 +73,13 @@ public class GcpPrivilegePolicyCheckPart extends AbstractNewResourceCheck {
   }
 
   private void checkPolicy(ResourceSymbol data) {
-    AttributeTree reference = policyReferences.get(formatReference(data));
+    AttributeTree reference = policyReferences.get(String.format("data.google_iam_policy.%s.policy_data", data.name));
     if (reference != null) {
       SecondaryLocation secondary = new SecondaryLocation(reference, SECONDARY_MESSAGE);
       data.blocks("binding").forEach(
         binding -> binding.attribute("role")
-          .reportIf(matchesPattern(".*(?:admin|manager|owner|superuser).*"), POLICY_MESSAGE, secondary));
+          .reportIf(matchesPattern(SENSITIVE_ROLES), POLICY_MESSAGE, secondary));
     }
-  }
-
-  private static String formatReference(ResourceSymbol policy) {
-    return String.format("data.google_iam_policy.%s.policy_data", policy.name);
   }
 
   @Override
@@ -97,7 +95,7 @@ public class GcpPrivilegePolicyCheckPart extends AbstractNewResourceCheck {
 
   private void checkRole(ResourceSymbol resource, String message) {
     resource.attribute("role")
-      .reportIf(matchesPattern(".*(?:admin|manager|owner|superuser).*"), message);
+      .reportIf(matchesPattern(SENSITIVE_ROLES), message);
   }
 
   private class PolicyReferenceCollector extends TreeVisitor<TreeContext> {
@@ -116,8 +114,11 @@ public class GcpPrivilegePolicyCheckPart extends AbstractNewResourceCheck {
 
     private void collectReference(BlockTree tree) {
       PropertyUtils.get(tree, "policy_data", AttributeTree.class)
-        .filter(policyData -> policyData.value().is(TerraformTree.Kind.ATTRIBUTE_ACCESS))
-        .ifPresent(policyData -> policyReferences.put(TerraformUtils.attributeAccessToString((AttributeAccessTree) policyData.value()), policyData));
+        .filter(policyData -> policyData.value().is(ATTRIBUTE_ACCESS))
+        .ifPresent(policyData -> {
+          String key = attributeAccessToString((AttributeAccessTree) policyData.value());
+          policyReferences.put(key, policyData);
+        });
     }
   }
 }
