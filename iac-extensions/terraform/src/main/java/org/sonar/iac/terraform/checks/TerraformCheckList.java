@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.Arrays;
-import java.util.List;
 import org.sonar.iac.terraform.checks.azure.AnonymousAccessToResourceCheck;
 import org.sonar.iac.terraform.checks.azure.CertificateBasedAuthenticationCheck;
 import org.sonar.iac.terraform.checks.azure.HighPrivilegedRoleCheck;
@@ -31,7 +29,11 @@ import org.sonar.iac.terraform.checks.azure.RoleBasedAccessControlCheck;
 import org.sonar.iac.terraform.checks.azure.SubscriptionOwnerCapabilitiesCheck;
 import org.sonar.iac.terraform.checks.azure.SubscriptionRoleAssignmentCheck;
 import org.sonar.iac.terraform.checks.gcp.AttributeBasedAccessControlCheck;
+import org.sonar.iac.terraform.checks.gcp.CustomRoleCheck;
 import org.sonar.iac.terraform.checks.gcp.HighPrivilegedRolesOnWorkloadResourcesCheck;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class TerraformCheckList {
 
@@ -83,7 +85,8 @@ public class TerraformCheckList {
 
       // GCP
       HighPrivilegedRolesOnWorkloadResourcesCheck.class,
-      AttributeBasedAccessControlCheck.class
+      AttributeBasedAccessControlCheck.class,
+      CustomRoleCheck.class
     );
   }
 }
