@@ -21,7 +21,7 @@ package org.sonar.iac.terraform.checks.gcp;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.checks.ResourceVisitor;
+import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -32,7 +32,7 @@ import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStri
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 
 @Rule(key = "S6400")
-public class HighPrivilegedRolesOnWorkloadResourcesCheck extends ResourceVisitor {
+public class HighPrivilegedRolesOnWorkloadResourcesCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE_FOR_BINDING = "Make sure it is safe to give those members full access to the resource.";
   private static final String MESSAGE_FOR_MEMBER = "Make sure it is safe to grant that member full access to the resource.";
@@ -61,7 +61,7 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck extends ResourceVisitor
         "google_storage_default_object_access_control",
         "google_storage_object_access_control"),
       resource -> resource.attribute("role")
-        .reportIfValueEquals("OWNER", MESSAGE_FOR_MEMBER));
+        .reportIf(equalTo("OWNER"), MESSAGE_FOR_MEMBER));
   }
 
   private static final String[] IAM_BINDING_RESOURCE_NAMES = {
