@@ -38,4 +38,9 @@ class HighPrivilegedRolesOnWorkloadResourcesCheckTest {
   void big_query_and_buckets() {
     TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/big_query_and_buckets.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
   }
+
+  @Test
+  void roles_in_lists() {
+    TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/roles_in_lists.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
+  }
 }
