@@ -1,6 +1,6 @@
 
 resource "google_bigquery_dataset_access" "nc1" {
-  role  = "OwNer" # Noncompliant  {{Make sure it is safe to grant that member full access to the resource.}}
+  role  = "OwNer" # Noncompliant  {{Make sure it is safe to grant full access to the resource.}}
 # ^^^^^^^^^^^^^^^
 }
 
