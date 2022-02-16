@@ -34,16 +34,16 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck extends AbstractNewReso
   protected void registerResourceConsumer() {
     register(List.of(IAM_BINDING_RESOURCE_NAMES),
       resource -> resource.attribute("role")
-                          .reportIf(matchesPattern(".*(?:ADMIN|MANAGER|OWNER|SUPERUSER).*"), MESSAGE_FOR_BINDING));
+        .reportIf(matchesPattern(".*(?:ADMIN|MANAGER|OWNER|SUPERUSER).*"), MESSAGE_FOR_BINDING));
 
     register(List.of(IAM_MEMBER_RESOURCE_NAMES),
       resource -> resource.attribute("role")
-                          .reportIf(matchesPattern(".*(?:ADMIN|MANAGER|OWNER|SUPERUSER).*"), MESSAGE_FOR_MEMBER));
+        .reportIf(matchesPattern(".*(?:ADMIN|MANAGER|OWNER|SUPERUSER).*"), MESSAGE_FOR_MEMBER));
 
     register("google_cloud_identity_group",
       resource -> resource.blocks("roles").forEach(
         block -> block.attribute("name")
-                      .reportIf(matchesPattern("MANAGER|OWNER"), MESSAGE_ON_GRANT_FULL_ACCESS)));
+          .reportIf(matchesPattern("MANAGER|OWNER"), MESSAGE_ON_GRANT_FULL_ACCESS)));
 
     register(List.of(
         "google_bigquery_dataset_access",
@@ -51,14 +51,14 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck extends AbstractNewReso
         "google_storage_default_object_access_control",
         "google_storage_object_access_control"),
       resource -> resource.attribute("role")
-                          .reportIf(equalTo("OWNER"), MESSAGE_ON_GRANT_FULL_ACCESS));
+        .reportIf(equalTo("OWNER"), MESSAGE_ON_GRANT_FULL_ACCESS));
 
     register(List.of(
         "google_storage_bucket_acl",
         "google_storage_default_object_acl",
         "google_storage_object_acl"),
       resource -> resource.list("role_entity")
-                          .reportItemIf(matchesPattern("OWNER:.*"), MESSAGE_ON_GRANT_FULL_ACCESS));
+        .reportItemIf(matchesPattern("OWNER:.*"), MESSAGE_ON_GRANT_FULL_ACCESS));
   }
 
   private static final String[] IAM_BINDING_RESOURCE_NAMES = {

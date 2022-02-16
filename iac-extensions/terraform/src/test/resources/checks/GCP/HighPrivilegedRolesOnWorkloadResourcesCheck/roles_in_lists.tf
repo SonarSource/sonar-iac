@@ -1,6 +1,4 @@
 resource "google_storage_bucket_acl" "rspecS6400_example1" {
-  bucket = google_storage_bucket.rspecS6400_example.name1
-
   role_entity = [
     "READER:group-mygroup",
     "OWNER:serviceAccount:google_service_account.rspecS6400_example.email"  # NonCompliant {{Make sure it is safe to grant full access to the resource.}}
@@ -25,8 +23,6 @@ resource "google_storage_object_acl" "rspecS6400_example3" {
 ### Compliant ###
 
 resource "google_storage_bucket_acl" "rspecS6400_example1" {
-  bucket = google_storage_bucket.rspecS6400_example.name1
-
   role_entity = [
     "READER:group-mygroup",
     "OWNER:serviceAccount:${google_service_account.rspecS6400_example.email}"  # Compliant: references are not handled yet
@@ -34,8 +30,6 @@ resource "google_storage_bucket_acl" "rspecS6400_example1" {
 }
 
 resource "google_storage_bucket_acl" "compliant1" {
-  bucket = google_storage_bucket.rspecS6400_example.name1
-
   role_entity = [
     "READER:group-mygroup",
     "something:OWNER:something.else"  # Compliant
