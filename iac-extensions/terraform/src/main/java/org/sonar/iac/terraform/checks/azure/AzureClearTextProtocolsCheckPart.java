@@ -23,15 +23,15 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
-import org.sonar.iac.terraform.checks.ResourceVisitor;
+import org.sonar.iac.terraform.symbols.BlockSymbol;
 
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_CLEAR_TEXT;
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMITTING;
 
-public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
+public class AzureClearTextProtocolsCheckPart extends AbstractNewResourceCheck {
 
   @Override
   public void initialize(InitContext init) {
@@ -41,45 +41,42 @@ public class AzureClearTextProtocolsCheckPart extends ResourceVisitor {
 
   @Override
   protected void registerResourceConsumer() {
-    register(List.of("azurerm_spring_cloud_app",
-                     "azurerm_function_app",
-                     "azurerm_function_app_slot",
-                     "azurerm_app_service"),
+    register(List.of("azurerm_spring_cloud_app", "azurerm_function_app", "azurerm_function_app_slot", "azurerm_app_service"),
       resource -> resource.attribute("https_only")
-        .reportIfAbsence(MESSAGE_OMITTING)
-        .reportIfFalse(MESSAGE_CLEAR_TEXT));
+        .reportIf(isFalse(), MESSAGE_CLEAR_TEXT)
+        .reportIfAbsent(MESSAGE_OMITTING));
 
     register("azurerm_app_service",
       resource -> resource.block("site_config")
-        .ifPresent(block -> block.attribute("ftps_state")
-          .reportIfValueEquals("AllAllowed", MESSAGE_CLEAR_TEXT)));
+        .attribute("ftps_state")
+          .reportIf(equalTo("AllAllowed"), MESSAGE_CLEAR_TEXT));
 
     register("azurerm_cdn_endpoint",
       resource -> resource.attribute("is_http_allowed")
-        .reportIfAbsence(MESSAGE_OMITTING)
-        .reportIfTrue(MESSAGE_CLEAR_TEXT));
+        .reportIf(isTrue(), MESSAGE_CLEAR_TEXT)
+        .reportIfAbsent(MESSAGE_OMITTING));
 
     register("azurerm_redis_enterprise_database",
       resource -> resource.attribute("client_protocol")
-        .reportIfValueEquals("PLAINTEXT", MESSAGE_CLEAR_TEXT));
+        .reportIf(equalTo("PLAINTEXT"), MESSAGE_CLEAR_TEXT));
 
     register(List.of("azurerm_mysql_server", "azurerm_postgresql_server"),
       resource -> resource.attribute("ssl_enforcement_enabled")
-        .reportIfFalse(MESSAGE_CLEAR_TEXT));
+        .reportIf(isFalse(), MESSAGE_CLEAR_TEXT));
 
     register("azurerm_storage_account",
       resource -> resource.attribute("enable_https_traffic_only")
-        .reportIfFalse(MESSAGE_CLEAR_TEXT));
+        .reportIf(isFalse(), MESSAGE_CLEAR_TEXT));
 
     register("azurerm_api_management_api" ,
       resource -> resource.list("protocols")
-        .reportItemsWhichMatch(itemTree -> TextUtils.isValue(itemTree, "http").isTrue(), MESSAGE_CLEAR_TEXT));
+        .reportItemIf(equalTo("http"), MESSAGE_CLEAR_TEXT));
   }
 
   private void checkStorageAccountDataSource(CheckContext ctx, BlockTree tree) {
     if ("azurerm_storage_account_blob_container_sas".equals(getDataSourceType(tree))) {
-      new Block(ctx, tree).attribute("https_only")
-        .reportIfFalse(MESSAGE_CLEAR_TEXT);
+      BlockSymbol.fromPresent(ctx, tree, null).attribute("https_only")
+        .reportIf(isFalse(), MESSAGE_CLEAR_TEXT);
     }
   }
 
