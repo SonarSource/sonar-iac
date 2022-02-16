@@ -104,4 +104,11 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
   public Predicate<ExpressionTree> isTrue() {
     return TextUtils::isValueTrue;
   }
+
+  /**
+   * Tests true iff the target expression is a string literal, and it's value is false.
+   */
+  public Predicate<ExpressionTree> isFalse() {
+    return TextUtils::isValueFalse;
+  }
 }

@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
 
-import java.util.List;
-
 @Rule(key = "S6388")
-public class UnencryptedCloudServicesCheck extends ResourceVisitor {
+public class UnencryptedCloudServicesCheck extends AbstractNewResourceCheck {
   public static final String UNENCRYPTED_MESSAGE = "Make sure using unencrypted cloud storage is safe here.";
   public static final String FORMAT_OMITTING = "Omitting %s enables clear-text storage. Make sure it is safe here.";
 
@@ -32,26 +31,26 @@ public class UnencryptedCloudServicesCheck extends ResourceVisitor {
   protected void registerResourceConsumer() {
     register("azurerm_data_lake_store",
       resource -> resource.attribute("encryption_state")
-        .reportIfValueEquals("Disabled", UNENCRYPTED_MESSAGE));
+        .reportIf(equalTo("Disabled"), UNENCRYPTED_MESSAGE));
 
     register("azurerm_managed_disk",
       resource -> resource.attribute("disk_encryption_set_id")
-        .reportIfAbsence(FORMAT_OMITTING));
+        .reportIfAbsent(FORMAT_OMITTING));
 
     register("azurerm_mysql_server",
       resource -> resource.attribute("infrastructure_encryption_enabled")
-        .reportIfAbsence(FORMAT_OMITTING)
-        .reportIfFalse(UNENCRYPTED_MESSAGE));
+        .reportIf(isFalse(),UNENCRYPTED_MESSAGE)
+        .reportIfAbsent(FORMAT_OMITTING));
 
     register("azurerm_windows_virtual_machine_scale_set",
       resource -> resource.attribute("encryption_at_host_enabled")
-        .reportIfAbsence(FORMAT_OMITTING)
-        .reportIfFalse(UNENCRYPTED_MESSAGE));
+        .reportIf(isFalse(),UNENCRYPTED_MESSAGE)
+        .reportIfAbsent(FORMAT_OMITTING));
 
     register("azurerm_windows_virtual_machine_scale_set",
       resource -> List.of("os_disk", "data_disk")
         .forEach(blockName -> resource.block(blockName)
-          .ifPresent(block -> block.attribute("disk_encryption_set_id")
-            .reportIfAbsence(FORMAT_OMITTING))));
+          .attribute("disk_encryption_set_id")
+            .reportIfAbsent(FORMAT_OMITTING)));
   }
 }
