@@ -25,15 +25,16 @@ import java.util.function.Predicate;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck;
-import org.sonar.iac.terraform.checks.ResourceVisitor;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV4;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV6;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.MESSAGE;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
 
-public class GcpIpRestrictedAdminAccessCheckPart extends ResourceVisitor {
+public class GcpIpRestrictedAdminAccessCheckPart extends AbstractNewResourceCheck {
 
   private static final Set<String> SENSITIVE_PREFIXES = Set.of(ALL_IPV4, ALL_IPV6, "0::0/0", "::0/0");
 
@@ -46,26 +47,26 @@ public class GcpIpRestrictedAdminAccessCheckPart extends ResourceVisitor {
 
   @Override
   protected void registerResourceConsumer() {
-    register(List.of("google_compute_firewall"), GcpIpRestrictedAdminAccessCheckPart::checkFirewall);
+    register(List.of("google_compute_firewall"), this::checkFirewall);
   }
 
 
-  private static void checkFirewall(Block firewall) {
+  private void checkFirewall(ResourceSymbol firewall) {
     // Check preconditions for a sensitive firewall
-    if (firewall.attribute("direction").is("EGRESS")
-      || firewall.attribute("source_tags").exists()
-      || firewall.attribute("disabled").is("true")) {
+    if (firewall.attribute("direction").is(equalTo("EGRESS"))
+      || firewall.attribute("source_tags").isPresent()
+      || firewall.attribute("disabled").is(equalTo("true"))) {
       return;
     }
 
     SecondaryLocation[] sensitivePortLocations = firewall.blocks("allow")
-      .filter(allow -> allow.attribute("protocol").is("tcp"))
-      .flatMap(allow -> allow.list("ports").streamItemsWhich(RANGE_CONTAINS_SENSITIVE_PORTS))
+      .filter(allow -> allow.attribute("protocol").is(equalTo("tcp")))
+      .flatMap(allow -> allow.list("ports").getItemIf(RANGE_CONTAINS_SENSITIVE_PORTS))
       .map(sensitivePorts -> new SecondaryLocation(sensitivePorts, SECONDARY_MSG))
       .toArray(SecondaryLocation[]::new);
 
     if (sensitivePortLocations.length > 0) {
-      firewall.list("source_ranges").reportItemsWhichMatch(SENSITIVE_IP_RANGE, MESSAGE, sensitivePortLocations);
+      firewall.list("source_ranges").reportItemIf(SENSITIVE_IP_RANGE, MESSAGE, sensitivePortLocations);
     }
   }
 }

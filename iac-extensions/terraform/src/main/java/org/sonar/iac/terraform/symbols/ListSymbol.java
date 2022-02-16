@@ -22,6 +22,7 @@ package org.sonar.iac.terraform.symbols;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -54,6 +55,10 @@ public class ListSymbol extends Symbol<AttributeTree> {
   public ListSymbol reportItemIf(Predicate<ExpressionTree> predicate, String message, SecondaryLocation... secondaryLocations) {
     items.stream().filter(predicate).forEach(item -> ctx.reportIssue(item, message, List.of(secondaryLocations)));
     return this;
+  }
+
+  public Stream<ExpressionTree> getItemIf(Predicate<ExpressionTree> predicate) {
+    return items.stream().filter(predicate);
   }
 
   @Nullable

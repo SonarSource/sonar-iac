@@ -19,9 +19,8 @@
  */
 package org.sonar.iac.terraform.symbols;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -50,10 +49,9 @@ public class BlockSymbol extends Symbol<BlockTree> {
       .orElse(BlockSymbol.fromAbsent(ctx, name, this));
   }
 
-  public List<BlockSymbol> blocks(String name) {
+  public Stream<BlockSymbol> blocks(String name) {
     return PropertyUtils.getAll(tree, name, BlockTree.class).stream()
-      .map(block -> BlockSymbol.fromPresent(ctx, block, this))
-      .collect(Collectors.toList());
+      .map(block -> BlockSymbol.fromPresent(ctx, block, this));
   }
 
   public ListSymbol list(String name) {
