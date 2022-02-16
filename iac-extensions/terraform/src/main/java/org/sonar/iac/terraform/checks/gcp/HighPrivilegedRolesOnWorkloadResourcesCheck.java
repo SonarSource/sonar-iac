@@ -19,41 +19,31 @@
  */
 package org.sonar.iac.terraform.checks.gcp;
 
-import org.sonar.check.Rule;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.checks.ResourceVisitor;
-
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-
-import static org.sonar.iac.terraform.checks.utils.PredicateUtils.containsMatchStringPredicate;
-import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
-import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
+import org.sonar.check.Rule;
+import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 
 @Rule(key = "S6400")
-public class HighPrivilegedRolesOnWorkloadResourcesCheck extends ResourceVisitor {
+public class HighPrivilegedRolesOnWorkloadResourcesCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE_FOR_BINDING = "Make sure it is safe to give those members full access to the resource.";
   private static final String MESSAGE_FOR_MEMBER = "Make sure it is safe to grant that member full access to the resource.";
   private static final String MESSAGE_ON_GRANT_FULL_ACCESS = "Make sure it is safe to grant full access to the resource.";
 
-  private static final Predicate<ExpressionTree> IS_OWNER_OR_MANAGER = treePredicate(exactMatchStringPredicate("MANAGER|OWNER", Pattern.CASE_INSENSITIVE));
-  private static final Predicate<ExpressionTree> CONTAINS_PRIVILEGED_ROLE = treePredicate(containsMatchStringPredicate("ADMIN|MANAGER|OWNER|SUPERUSER", Pattern.CASE_INSENSITIVE));
-
   @Override
   protected void registerResourceConsumer() {
     register(List.of(IAM_BINDING_RESOURCE_NAMES),
       resource -> resource.attribute("role")
-        .reportIf(CONTAINS_PRIVILEGED_ROLE, MESSAGE_FOR_BINDING));
+        .reportIf(matchesPattern(".*(?:ADMIN|MANAGER|OWNER|SUPERUSER).*"), MESSAGE_FOR_BINDING));
 
     register(List.of(IAM_MEMBER_RESOURCE_NAMES),
       resource -> resource.attribute("role")
-        .reportIf(CONTAINS_PRIVILEGED_ROLE, MESSAGE_FOR_MEMBER));
+        .reportIf(matchesPattern(".*(?:ADMIN|MANAGER|OWNER|SUPERUSER).*"), MESSAGE_FOR_MEMBER));
 
     register("google_cloud_identity_group",
       resource -> resource.blocks("roles").forEach(
-        block -> block.attribute("name").reportIf(IS_OWNER_OR_MANAGER, MESSAGE_ON_GRANT_FULL_ACCESS)));
+        block -> block.attribute("name")
+          .reportIf(matchesPattern("MANAGER|OWNER"), MESSAGE_ON_GRANT_FULL_ACCESS)));
 
     register(List.of(
         "google_bigquery_dataset_access",
@@ -61,7 +51,14 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck extends ResourceVisitor
         "google_storage_default_object_access_control",
         "google_storage_object_access_control"),
       resource -> resource.attribute("role")
-        .reportIfValueEquals("OWNER", MESSAGE_FOR_MEMBER));
+        .reportIf(equalTo("OWNER"), MESSAGE_ON_GRANT_FULL_ACCESS));
+
+    register(List.of(
+        "google_storage_bucket_acl",
+        "google_storage_default_object_acl",
+        "google_storage_object_acl"),
+      resource -> resource.list("role_entity")
+        .reportItemIf(matchesPattern("OWNER:.*"), MESSAGE_ON_GRANT_FULL_ACCESS));
   }
 
   private static final String[] IAM_BINDING_RESOURCE_NAMES = {
