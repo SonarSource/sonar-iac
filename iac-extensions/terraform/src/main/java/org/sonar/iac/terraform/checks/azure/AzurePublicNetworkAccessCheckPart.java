@@ -30,6 +30,9 @@ import org.sonar.iac.terraform.symbols.ResourceSymbol;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualTo;
 import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessMatches;
 
 public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
@@ -100,13 +103,13 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
   }
 
 
-  private Consumer<ResourceSymbol> checkEnabledPublicIp(String propertyName) {
+  private static Consumer<ResourceSymbol> checkEnabledPublicIp(String propertyName) {
     return resource -> resource.attribute(propertyName)
       .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE)
       .reportIfAbsent(OMITTED_MESSAGE);
   }
 
-  private Consumer<ResourceSymbol> checkPublicIpConfiguration(String propertyName) {
+  private static Consumer<ResourceSymbol> checkPublicIpConfiguration(String propertyName) {
     return resource -> resource.blocks(propertyName).forEach(
       block -> block.attribute("public_ip_address_id")
         .reportIf(e -> attributeAccessMatches(e, STARTS_WITH_AZURERM_PUBLIC_IP).isTrue(), NETWORK_ACCESS_MESSAGE));

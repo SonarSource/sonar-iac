@@ -22,6 +22,9 @@ package org.sonar.iac.terraform.checks;
 import java.util.List;
 import org.sonar.check.Rule;
 
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+
 @Rule(key = "S6388")
 public class UnencryptedCloudServicesCheck extends AbstractNewResourceCheck {
   public static final String UNENCRYPTED_MESSAGE = "Make sure using unencrypted cloud storage is safe here.";

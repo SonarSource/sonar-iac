@@ -52,8 +52,9 @@ public class AttributeSymbol extends Symbol<AttributeTree> {
   public boolean is(Predicate<ExpressionTree> predicate) {
     if (tree != null) {
       return predicate.test(tree.value());
+    } else {
+      return predicate.test(null);
     }
-    return false;
   }
 
   @Nullable
@@ -61,4 +62,6 @@ public class AttributeSymbol extends Symbol<AttributeTree> {
   protected HasTextRange toHighlight() {
     return tree;
   }
+
+
 }

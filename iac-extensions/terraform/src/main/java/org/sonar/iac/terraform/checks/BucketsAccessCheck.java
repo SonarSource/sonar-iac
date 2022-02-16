@@ -23,6 +23,8 @@ import org.sonar.check.Rule;
 
 import static java.lang.String.format;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPattern;
 
 @Rule(key = "S6265")
 public class BucketsAccessCheck extends AbstractNewResourceCheck {

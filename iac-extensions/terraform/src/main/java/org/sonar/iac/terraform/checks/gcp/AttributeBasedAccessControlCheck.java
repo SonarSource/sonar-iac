@@ -22,6 +22,8 @@ package org.sonar.iac.terraform.checks.gcp;
 import org.sonar.check.Rule;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
+
 @Rule(key = "S6409")
 public class AttributeBasedAccessControlCheck extends AbstractNewResourceCheck {
 

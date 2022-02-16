@@ -33,6 +33,7 @@ import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IP
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV6;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.MESSAGE;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 
 public class GcpIpRestrictedAdminAccessCheckPart extends AbstractNewResourceCheck {
 

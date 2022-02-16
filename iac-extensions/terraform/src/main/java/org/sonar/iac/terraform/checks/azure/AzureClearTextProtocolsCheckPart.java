@@ -30,6 +30,9 @@ import org.sonar.iac.terraform.symbols.BlockSymbol;
 
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_CLEAR_TEXT;
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMITTING;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
 
 public class AzureClearTextProtocolsCheckPart extends AbstractNewResourceCheck {
 

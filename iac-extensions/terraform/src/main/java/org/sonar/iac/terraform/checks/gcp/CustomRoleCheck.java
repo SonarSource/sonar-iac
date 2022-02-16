@@ -30,6 +30,8 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPattern;
+
 @Rule(key = "S6408")
 public class CustomRoleCheck extends AbstractNewResourceCheck {
 

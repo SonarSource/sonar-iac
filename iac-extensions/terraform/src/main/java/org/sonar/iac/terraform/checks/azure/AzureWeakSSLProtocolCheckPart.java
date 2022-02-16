@@ -26,6 +26,7 @@ import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.checks.WeakSSLProtocolCheck.OMITTING_WEAK_SSL_MESSAGE;
 import static org.sonar.iac.terraform.checks.WeakSSLProtocolCheck.WEAK_SSL_MESSAGE;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualTo;
 
 public class AzureWeakSSLProtocolCheckPart extends AbstractNewResourceCheck {
 

@@ -39,6 +39,7 @@ import org.sonar.iac.terraform.symbols.ResourceSymbol;
 import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.ATTRIBUTE_ACCESS;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.getResourceType;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPattern;
 import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessToString;
 
 public class GcpPrivilegePolicyCheckPart extends AbstractNewResourceCheck {
