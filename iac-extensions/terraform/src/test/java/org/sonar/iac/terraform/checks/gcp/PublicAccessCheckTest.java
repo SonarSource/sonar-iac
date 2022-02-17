@@ -29,4 +29,9 @@ class PublicAccessCheckTest {
   void gcp_iam_resource() {
     verify("PublicAccessCheck/gcp_iam_resource.tf", new PublicAccessCheck());
   }
+
+  @Test
+  void gcp_access_resource() {
+    verify("PublicAccessCheck/gcp_access_resource.tf", new PublicAccessCheck());
+  }
 }

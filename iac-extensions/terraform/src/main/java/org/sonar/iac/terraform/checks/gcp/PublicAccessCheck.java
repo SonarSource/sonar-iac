@@ -53,6 +53,14 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
     register(IAM_MEMBER_RESOURCES,
       resource -> resource.attribute("member")
         .reportIf(matchesPattern(".*(?:allUsers|allAuthenticatedUsers).*"), MESSAGE));
+
+    register(Set.of("google_storage_default_object_access_control", "google_storage_object_access_control"),
+      resource -> resource.attribute("entity")
+        .reportIf(matchesPattern("allUsers|allAuthenticatedUsers"), MESSAGE));
+
+    register("google_bigquery_dataset_access",
+      resource -> resource.attribute("special_group")
+        .reportIf(matchesPattern("allUsers|allAuthenticatedUsers"), MESSAGE));
   }
 
 
