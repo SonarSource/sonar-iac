@@ -1,0 +1,102 @@
+<p>Granting public access to GCP resources may reduce an organization’s ability to protect itself against attacks or theft of its GCP resources.<br>
+Security incidents associated with misuse of public access include disruption of critical functions, data theft, and additional costs due to resource
+overload.</p>
+<p>To be as prepared as possible in the event of a security incident, authentication combined with fine-grained permissions helps maintain the
+principle of defense in depth and trace incidents back to the perpetrators.</p>
+<p>GCP also provides the ability to grant access to a large group of people:</p>
+<ul>
+  <li> If public access is granted to all Google users, the impact of a data theft is the same as if public access is granted to all Internet users.
+  </li>
+  <li> If access is granted to a large Google group, the impact of a data theft is limited based on the size of the group. </li>
+</ul>
+<p>The only thing that changes in these cases is the ability to track user access in the event of an incident.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This GCP resource is essential to the information system infrastructure. </li>
+  <li> This GCP resource is essential to mission-critical functions. </li>
+  <li> This GCP resource stores or processes sensitive data. </li>
+  <li> Compliance policies require that access to this resource be authenticated. </li>
+</ul>
+<p>There is a risk if you answered yes to any of these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Explicitly set access to this resource or function as private.</p>
+<h2>Sensitive Code Example</h2>
+<p>For IAM resources:</p>
+<pre>
+resource "google_cloudfunctions_function_iam_binding" "example" {
+  members = [
+    "allUsers",              # Sensitive
+    "allAuthenticatedUsers", # Sensitive
+  ]
+}
+
+resource "google_cloudfunctions_function_iam_member" "example" {
+  member = "allAuthenticatedUsers" # Sensitive
+}
+</pre>
+<p>For ACL resources:</p>
+<pre>
+resource "google_storage_bucket_access_control" "example" {
+  entity = "allUsers" # Sensitive
+}
+
+resource "google_storage_bucket_acl" "example" {
+  role_entity = [
+    "READER:allUsers",              # Sensitive
+    "READER:allAuthenticatedUsers", # Sensitive
+  ]
+}
+</pre>
+<p>For container clusters:</p>
+<pre>
+resource "google_container_cluster" "example" {
+  private_cluster_config {
+    enable_private_nodes    = false # Sensitive
+    enable_private_endpoint = false # Sensitive
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For IAM resources:</p>
+<pre>
+resource "google_cloudfunctions_function_iam_binding" "example" {
+  members = [
+    "serviceAccount:${google_service_account.example.email}",
+    "group:${var.example_group}"
+  ]
+}
+
+resource "google_cloudfunctions_function_iam_member" "example" {
+  member = "user:${var.example_user}" # Sensitive
+}
+</pre>
+<p>For ACL resources:</p>
+<pre>
+resource "google_storage_bucket_access_control" "example" {
+  entity = "user-${var.example_user]"
+}
+
+resource "google_storage_bucket_acl" "example" {
+  role_entity = [
+    "READER:user-name@example.com",
+    "READER:group-admins@example.com"
+  ]
+}
+</pre>
+<p>For container clusters:</p>
+<pre>
+resource "google_container_cluster" "example" {
+  private_cluster_config {
+    enable_private_nodes    = true
+    enable_private_endpoint = true
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+</ul>
+
