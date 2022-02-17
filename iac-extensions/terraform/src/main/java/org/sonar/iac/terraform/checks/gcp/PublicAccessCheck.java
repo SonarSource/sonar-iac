@@ -48,19 +48,23 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
   protected void registerResourceConsumer() {
     register(IAM_BINDING_RESOURCES,
       resource -> resource.list("members")
-        .reportItemIf(matchesPattern(".*(?:allUsers|allAuthenticatedUsers).*"), MESSAGE));
+        .reportItemIf(matchesPattern(".*all(Authenticated)?Users.*"), MESSAGE));
 
     register(IAM_MEMBER_RESOURCES,
       resource -> resource.attribute("member")
-        .reportIf(matchesPattern(".*(?:allUsers|allAuthenticatedUsers).*"), MESSAGE));
+        .reportIf(matchesPattern(".*all(Authenticated)?Users.*"), MESSAGE));
 
     register(Set.of("google_storage_default_object_access_control", "google_storage_object_access_control"),
       resource -> resource.attribute("entity")
-        .reportIf(matchesPattern("allUsers|allAuthenticatedUsers"), MESSAGE));
+        .reportIf(matchesPattern("all(Authenticated)?Users"), MESSAGE));
 
     register("google_bigquery_dataset_access",
       resource -> resource.attribute("special_group")
-        .reportIf(matchesPattern("allUsers|allAuthenticatedUsers"), MESSAGE));
+        .reportIf(matchesPattern("all(Authenticated)?Users"), MESSAGE));
+
+    register("google_storage_bucket_acl",
+      resource -> resource.list("role_entity")
+        .reportItemIf(matchesPattern(".*:all(Authenticated)?Users"), MESSAGE));
   }
 
 
