@@ -24,13 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
-
-import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 
 public abstract class AbstractNewResourceCheck implements IacCheck {
 
@@ -59,5 +58,21 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
 
   protected void register(List<String> resourceNames, Consumer<ResourceSymbol> consumer) {
     resourceNames.forEach(resourceName -> register(resourceName, consumer));
+  }
+
+  /** If needed - add similar method isData(BlockTree blockTree) */
+  public static boolean isResource(BlockTree blockTree) {
+    return "resource".equals(blockTree.key().value());
+  }
+
+  /** If needed - add similar method isResourceOfType(BlockTree blockTree, String dataType) */
+  public static boolean isDataOfType(BlockTree blockTree, String dataType) {
+    return "data".equals(blockTree.key().value()) && dataType.equals(resourceType(blockTree));
+  }
+
+  /** Despite its name, this method works fine for 'resource', 'data' and all other sorts of Terraform top-level blocks */
+  @CheckForNull
+  public static String resourceType(BlockTree tree) {
+    return tree.labels().isEmpty() ? null : tree.labels().get(0).value();
   }
 }

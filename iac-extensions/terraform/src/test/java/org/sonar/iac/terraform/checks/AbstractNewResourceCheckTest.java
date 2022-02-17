@@ -20,7 +20,9 @@
 package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.BlockTree;
 
 class AbstractNewResourceCheckTest {
 
@@ -45,6 +47,14 @@ class AbstractNewResourceCheckTest {
       register("attribute_reportIf",
         resource -> resource.attribute("attribute")
           .reportIf(expr -> TextUtils.isValue(expr, "expected_value").isFalse(), "attribute has not expected value"));
+    }
+
+    @Override
+    protected void provideResource(CheckContext ctx, BlockTree blockTree) {
+      super.provideResource(ctx, blockTree);
+      if (isResource(blockTree) && resourceType(blockTree) == null) {
+        ctx.reportIssue(blockTree, "missing resource type");
+      }
     }
   }
 }

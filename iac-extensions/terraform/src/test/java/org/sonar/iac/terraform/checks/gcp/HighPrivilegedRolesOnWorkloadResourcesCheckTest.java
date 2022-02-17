@@ -43,4 +43,10 @@ class HighPrivilegedRolesOnWorkloadResourcesCheckTest {
   void roles_in_lists() {
     TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/roles_in_lists.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
   }
+
+  @Test
+  void iam_policy() {
+    TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/iam_policy.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
+  }
+
 }

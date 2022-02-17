@@ -32,3 +32,6 @@ resource "attribute_reportIf" "compliant" {
 
 resource "not_relevant_resource" "coverage" {
 }
+
+resource { // Noncompliant {{missing resource type}}
+}
