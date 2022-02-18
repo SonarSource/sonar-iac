@@ -24,14 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
@@ -39,7 +35,6 @@ import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 public abstract class AbstractNewResourceCheck implements IacCheck {
 
   private final Map<String, List<Consumer<ResourceSymbol>>> resourceConsumers = new HashMap<>();
-  private final Map<String, Pattern> compiledPatterns = new HashMap<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -64,44 +59,5 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
 
   protected void register(List<String> resourceNames, Consumer<ResourceSymbol> consumer) {
     resourceNames.forEach(resourceName -> register(resourceName, consumer));
-  }
-
-  private Pattern pattern(String regex, int flags) {
-    return compiledPatterns.computeIfAbsent(String.format("pattern:%s,flags:%d", regex, flags), i -> Pattern.compile(regex, flags));
-  }
-
-  /**
-   * Tests true iff the target expression is a string literal, and it's value is not equal to the expected one.
-   */
-  public Predicate<ExpressionTree> notEqualTo(String expected) {
-    return expression -> TextUtils.isValue(expression, expected).isFalse();
-  }
-
-  /**
-   * Tests true iff the target expression is a string literal, and it's value is equal to the expected one.
-   */
-  public Predicate<ExpressionTree> equalTo(String expected) {
-    return expression -> TextUtils.isValue(expression, expected).isTrue();
-  }
-
-  /**
-   * Tests true iff the target expression is a string literal that fully matches the pattern.
-   */
-  public Predicate<ExpressionTree> matchesPattern(String pattern, int flags) {
-    return expression -> TextUtils.matchesValue(expression, s -> pattern(pattern, flags).matcher(s).matches()).isTrue();
-  }
-
-  /**
-   * Tests true iff the target expression is a string literal that fully matches the case-insensitive pattern.
-   */
-  public Predicate<ExpressionTree> matchesPattern(String pattern) {
-    return matchesPattern(pattern, Pattern.CASE_INSENSITIVE);
-  }
-
-  /**
-   * Tests true iff the target expression is a string literal, and it's value is true.
-   */
-  public Predicate<ExpressionTree> isTrue() {
-    return TextUtils::isValueTrue;
   }
 }
