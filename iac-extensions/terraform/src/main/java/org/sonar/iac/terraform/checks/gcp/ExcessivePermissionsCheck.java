@@ -70,7 +70,7 @@ public class ExcessivePermissionsCheck extends AbstractNewResourceCheck {
       });
   }
 
-  private Predicate<ExpressionTree> isSensitivePermission() {
+  private static Predicate<ExpressionTree> isSensitivePermission() {
     return expression -> TextUtils.getValue(expression)
       .map(String::toLowerCase)
       .map(ExcessivePermissionsCheck::getPermissionSuffix)
