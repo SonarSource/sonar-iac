@@ -23,6 +23,9 @@ import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPattern;
+
 @Rule(key = "S6400")
 public class HighPrivilegedRolesOnWorkloadResourcesCheck extends AbstractNewResourceCheck {
 
