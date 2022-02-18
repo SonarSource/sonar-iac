@@ -39,4 +39,9 @@ class PublicAccessCheckTest {
   void gcp_acl_resource() {
     verify("PublicAccessCheck/gcp_acl_resource.tf", new PublicAccessCheck());
   }
+
+  @Test
+  void gcp_dns_zone_resources() {
+    verify("PublicAccessCheck/gcp_dns_zone_resources.tf", new PublicAccessCheck());
+  }
 }

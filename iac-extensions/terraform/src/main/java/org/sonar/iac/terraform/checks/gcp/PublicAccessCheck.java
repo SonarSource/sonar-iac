@@ -28,6 +28,7 @@ import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 public class PublicAccessCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Ensure that granting public access to this resource is safe here.";
+  private static final String OMITTING_DNS = "Omitting %s will grant public access to this managed zone. Ensure it is safe here.";
 
   private static final Set<String> IAM_RESOURCES = Set.of("apigee_environment", "api_gateway_api_config", "api_gateway_api",
     "api_gateway_gateway", "artifact_registry_repository", "bigquery_dataset", "bigquery_table", "bigtable_instance", "bigtable_table",
@@ -65,6 +66,11 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
     register("google_storage_bucket_acl",
       resource -> resource.list("role_entity")
         .reportItemIf(matchesPattern(".*:all(Authenticated)?Users"), MESSAGE));
+
+    register("google_dns_managed_zone",
+      resource -> resource.attribute("visibility")
+        .reportIf(equalTo("public"), MESSAGE)
+        .reportIfAbsent(OMITTING_DNS));
   }
 
 
