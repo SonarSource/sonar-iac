@@ -34,6 +34,7 @@ import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IP
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.MESSAGE;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
 
 public class GcpIpRestrictedAdminAccessCheckPart extends AbstractNewResourceCheck {
 
@@ -56,7 +57,7 @@ public class GcpIpRestrictedAdminAccessCheckPart extends AbstractNewResourceChec
     // Check preconditions for a sensitive firewall
     if (firewall.attribute("direction").is(equalTo("EGRESS"))
       || firewall.attribute("source_tags").isPresent()
-      || firewall.attribute("disabled").is(equalTo("true"))) {
+      || firewall.attribute("disabled").is(isTrue())) {
       return;
     }
 
