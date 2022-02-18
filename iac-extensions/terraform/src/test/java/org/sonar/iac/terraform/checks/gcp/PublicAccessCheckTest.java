@@ -41,7 +41,12 @@ class PublicAccessCheckTest {
   }
 
   @Test
-  void gcp_dns_zone_resources() {
-    verify("PublicAccessCheck/gcp_dns_zone_resources.tf", new PublicAccessCheck());
+  void gcp_dns_zone_resource() {
+    verify("PublicAccessCheck/gcp_dns_zone_resource.tf", new PublicAccessCheck());
+  }
+
+  @Test
+  void gcp_kubernetes_resource() {
+    verify("PublicAccessCheck/gcp_kubernetes_resource.tf", new PublicAccessCheck());
   }
 }

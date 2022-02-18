@@ -21,14 +21,23 @@ package org.sonar.iac.terraform.checks.gcp;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
+import org.sonar.iac.terraform.symbols.AttributeSymbol;
+import org.sonar.iac.terraform.symbols.BlockSymbol;
+
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPattern;
 
 @Rule(key = "S6404")
 public class PublicAccessCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Ensure that granting public access to this resource is safe here.";
   private static final String OMITTING_DNS = "Omitting %s will grant public access to this managed zone. Ensure it is safe here.";
+  private static final String OMITTING_KUBERNETES = "Omitting %s grants public access to parts of this cluster. Make sure it is safe here.";
+  private static final String MESSAGE_KUBERNETES = "Ensure that granting public access is safe here.";
 
   private static final Set<String> IAM_RESOURCES = Set.of("apigee_environment", "api_gateway_api_config", "api_gateway_api",
     "api_gateway_gateway", "artifact_registry_repository", "bigquery_dataset", "bigquery_table", "bigtable_instance", "bigtable_table",
@@ -71,8 +80,25 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
       resource -> resource.attribute("visibility")
         .reportIf(equalTo("public"), MESSAGE)
         .reportIfAbsent(OMITTING_DNS));
-  }
 
+    register("google_container_cluster",
+      resource -> {
+        BlockSymbol config = resource.block("private_cluster_config");
+        config.reportIfAbsent(OMITTING_KUBERNETES);
+        AttributeSymbol nodes = config.attribute("enable_private_nodes");
+        AttributeSymbol endpoint = config.attribute("enable_private_endpoint");
+
+        if (!(nodes.isPresent() || endpoint.isPresent())) {
+          config.report(String.format(OMITTING_KUBERNETES, "enable_private_nodes and enable_private_endpoint"));
+        } else if (nodes.is(isFalse()) && endpoint.is(isFalse())) {
+          nodes.report(MESSAGE_KUBERNETES, endpoint.toSecondary(MESSAGE_KUBERNETES));
+        } else {
+          Stream.of(nodes, endpoint)
+            .forEach(symbol -> symbol.reportIf(isFalse(), MESSAGE_KUBERNETES)
+              .reportIfAbsent(OMITTING_KUBERNETES));
+        }
+      });
+  }
 
   private static Set<String> resourceNameSet(String prefix, String suffix, Set<String> resourceNames) {
     return resourceNames.stream()
