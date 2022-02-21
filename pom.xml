@@ -59,7 +59,6 @@
   <properties>
     <license.title>SonarQube IaC Plugin</license.title>
     <sonar.organization>sonarsource</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <version.sonar>8.9.0.43852</version.sonar>
