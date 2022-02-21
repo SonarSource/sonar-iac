@@ -33,7 +33,7 @@ class ListSymbolTest extends AbstractSymbolTest {
     AttributeTree tree = parseAttribute("my_list = [\"my_item\"]");
     ListSymbol list = ListSymbol.fromPresent(ctx, tree, parentBlock);
     list.report("message");
-    assertIssueReported(tree, "message");
+    assertIssueReported(tree.key(), "message");
   }
 
   @Test

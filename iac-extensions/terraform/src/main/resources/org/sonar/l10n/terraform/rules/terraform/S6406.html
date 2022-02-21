@@ -1,0 +1,93 @@
+<p>Excessive granting of GCP IAM permissions can allow attackers to exploit an organization’s cloud resources with malicious intent.</p>
+<p>To prevent improper creation or deletion of resources after an account is compromised, proactive measures include both following GCP Security
+Insights and ensuring custom roles contain as few privileges as possible.</p>
+<p>After gaining a foothold in the target infrastructure, sophisticated attacks typically consist of two major parts.<br> First, attackers must deploy
+new resources to carry out their malicious intent. To guard against this, operations teams must control what unexpectedly appears in the
+infrastructure, such as what is:</p>
+<ul>
+  <li> added </li>
+  <li> written down </li>
+  <li> updated </li>
+  <li> started </li>
+  <li> appended </li>
+  <li> applied </li>
+  <li> accessed. </li>
+</ul>
+<p>Once the malicious intent is executed, attackers must avoid detection at all costs.<br> To counter attackers' attempts to remove their
+fingerprints, operations teams must control what unexpectedly disappears from the infrastructure, such as what is:</p>
+<ul>
+  <li> stopped </li>
+  <li> disabled </li>
+  <li> canceled </li>
+  <li> deleted </li>
+  <li> destroyed </li>
+  <li> detached </li>
+  <li> disconnected </li>
+  <li> suspended </li>
+  <li> rejected </li>
+  <li> removed. </li>
+</ul>
+<p>For operations teams to be resilient in this scenario, their organization must apply both:</p>
+<ul>
+  <li> Detection security: log these actions to better detect malicious actions. </li>
+  <li> Preventive security: review and limit granted permissions. </li>
+</ul>
+<p>This rule raises an issue when a custom role grants a number of sensitive permissions (read-write or destructive permission) that is greater than a
+given parameter.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This custom role will be mostly used for read-only purposes. </li>
+  <li> Compliance policies require read-only access. </li>
+</ul>
+<p>There is a risk if you answered yes to any of these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>To reduce the risks associated with this role after a compromise:</p>
+<ul>
+  <li> Reduce the list of permissions to grant only those that are actually needed. </li>
+  <li> Favor read-only over read-write. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<p>This custom role grants more than 5 sensitive permissions:</p>
+<pre>
+<code data-lang="terraform">resource "google_project_iam_custom_role" "example" {
+  permissions = [ # Sensitive
+    "resourcemanager.projects.create", # Sensitive permission
+    "resourcemanager.projects.delete", # Sensitive permission
+    "resourcemanager.projects.get",
+    "resourcemanager.projects.list",
+    "run.services.create", # Sensitive permission
+    "run.services.delete", # Sensitive permission
+    "run.services.get",
+    "run.services.getIamPolicy",
+    "run.services.setIamPolicy",  # Sensitive permission
+    "run.services.list",
+    "run.services.update",  # Sensitive permission
+  ]
+}</code>
+</pre>
+<h2>Compliant Solution</h2>
+<p>This custom role grants less than 5 sensitive permissions:</p>
+<pre>
+<code data-lang="terraform">resource "google_project_iam_custom_role" "example" {
+  permissions = [
+    "resourcemanager.projects.get",
+    "resourcemanager.projects.list",
+    "run.services.create",
+    "run.services.delete",
+    "run.services.get",
+    "run.services.getIamPolicy",
+    "run.services.list",
+    "run.services.update",
+  ]
+}</code>
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cloud.google.com/iam/docs/recommender-overview">GCP Docs</a> - Enforce least privilege with role recommendations </li>
+  <li> <a href="https://cloud.google.com/iam/docs/manage-policy-insights">GCP Docs</a> - Security Insights </li>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+</ul>
+

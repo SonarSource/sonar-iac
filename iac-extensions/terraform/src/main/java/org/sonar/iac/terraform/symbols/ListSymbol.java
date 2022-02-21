@@ -64,6 +64,6 @@ public class ListSymbol extends Symbol<AttributeTree> {
   @Nullable
   @Override
   protected HasTextRange toHighlight() {
-    return tree;
+    return tree != null ? tree.key() : null;
   }
 }

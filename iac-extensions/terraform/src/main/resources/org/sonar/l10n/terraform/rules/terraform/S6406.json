@@ -1,0 +1,29 @@
+{
+  "title": "Excessive granting of GCP IAM permissions is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "gcp",
+    "cwe-284"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6406",
+  "sqKey": "S6406",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284
+    ],
+    "OWASP": [
+      "A5"
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
+    ]
+  },
+  "quickfix": "unknown"
+}
