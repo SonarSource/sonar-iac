@@ -1,0 +1,35 @@
+<p>The likelihood of security incidents increases when cryptographic keys are used for a long time. Thus, to strengthen the data protection it’s
+recommended to rotate the symmetric keys created with the Google Cloud Key Management Service (KMS) automatically and periodically. Note that it’s not
+possible in GCP KMS to rotate asymmetric keys automatically.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The cryptographic key is a symmetric key. </li>
+  <li> The application requires compliance with some security standards like PCI-DSS. </li>
+</ul>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to rotate keys automatically and regularly. The shorter the key period, the less data can be decrypted by an attacker if a key is
+compromised. So the key rotation period usually depends on the amount of data encrypted with a key or other requirements such as compliance with
+security standards. In general, a period of time of 90 days can be used.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+resource "google_kms_crypto_key" "noncompliant-key" { # Sensitive: a rotation period is not defined
+  name            = "crypto-key-compliant"
+  key_ring        = google_kms_key_ring.keyring.id"
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+resource "google_kms_crypto_key" "compliant-key" {
+  name            = "crypto-key-compliant"
+  key_ring        = google_kms_key_ring.keyring.id
+  rotation_period = "7776000s" # 90 days
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cloud.google.com/kms/docs/key-rotation">GCP Documentation</a> - KMS Key rotation </li>
+</ul>
+
