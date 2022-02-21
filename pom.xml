@@ -58,6 +58,8 @@
 
   <properties>
     <license.title>SonarQube IaC Plugin</license.title>
+    <sonar.organization>sonarsource</sonar.organization>
+
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <version.sonar>8.9.0.43852</version.sonar>
     <version.analyzer.commons>1.14.1.690</version.analyzer.commons>
