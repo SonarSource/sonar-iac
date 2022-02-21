@@ -39,7 +39,7 @@ public class ResourceSymbol extends BlockSymbol {
   }
 
   @Override
-  public void reportIfAbsent(String message, SecondaryLocation... secondaries) {
+  public ResourceSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
     throw new UnsupportedOperationException("Resource symbols should always exists");
   }
 

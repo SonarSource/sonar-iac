@@ -1,5 +1,5 @@
 {
-  "title": "Assigning public IP address to an AWS resource is security-sensitive",
+  "title": "Allowing public network access to cloud resources is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
@@ -7,9 +7,11 @@
     "constantCost": "5min"
   },
   "tags": [
-    "aws",
     "cwe",
-    "owasp-a5"
+    "owasp-a5",
+    "aws",
+    "azure",
+    "gcp"
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-6329",
@@ -17,7 +19,8 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      284
+      284,
+      668
     ],
     "OWASP": [
       "A5"
