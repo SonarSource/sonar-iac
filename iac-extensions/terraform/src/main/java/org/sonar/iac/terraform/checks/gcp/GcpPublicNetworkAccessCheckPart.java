@@ -43,5 +43,10 @@ public class GcpPublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
           block.block("ipv6_access_config").report(NETWORK_ACCESS_MESSAGE);
         }
       ));
+
+    register("google_notebooks_instance",
+      resource -> resource.attribute("no_public_ip")
+        .reportIf(isFalse(), NETWORK_ACCESS_MESSAGE)
+        .reportIfAbsent(OMITTED_MESSAGE));
   }
 }

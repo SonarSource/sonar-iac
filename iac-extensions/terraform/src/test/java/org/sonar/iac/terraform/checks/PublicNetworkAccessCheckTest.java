@@ -62,4 +62,9 @@ class PublicNetworkAccessCheckTest {
   void gcp_compute_instance() {
     TerraformVerifier.verify("PublicNetworkAccessCheck/gcp_compute_instance.tf", new PublicNetworkAccessCheck());
   }
+
+  @Test
+  void gcp_notebooks_instance() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/gcp_notebooks_instance.tf", new PublicNetworkAccessCheck());
+  }
 }

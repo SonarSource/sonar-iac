@@ -1,12 +1,12 @@
 resource "google_compute_instance" "noncompliant" {
   network_interface {
-    access_config {  // Noncompliant {{Make sure allowing public network access is safe here.}}
-    }
+    access_config { }  // Noncompliant {{Make sure allowing public network access is safe here.}}
+  # ^^^^^^^^^^^^^
   }
 
   network_interface {
-    ipv6_access_config {  // Noncompliant {{Make sure allowing public network access is safe here.}}
-    }
+    ipv6_access_config { } // Noncompliant {{Make sure allowing public network access is safe here.}}
+  # ^^^^^^^^^^^^^^^^^^
   }
 
   network_interface {
