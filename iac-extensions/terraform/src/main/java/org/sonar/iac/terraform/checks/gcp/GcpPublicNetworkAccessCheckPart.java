@@ -24,6 +24,7 @@ import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.NETWORK_ACCESS_MESSAGE;
 import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.OMITTED_MESSAGE;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
 
 public class GcpPublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
 
@@ -48,5 +49,9 @@ public class GcpPublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
       resource -> resource.attribute("no_public_ip")
         .reportIf(isFalse(), NETWORK_ACCESS_MESSAGE)
         .reportIfAbsent(OMITTED_MESSAGE));
+
+    register("google_sql_database_instance",
+      resource -> resource.block("settings").block("ip_configuration").attribute("ipv4_enabled")
+        .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE));
   }
 }
