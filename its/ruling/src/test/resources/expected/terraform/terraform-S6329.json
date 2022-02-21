@@ -46,6 +46,9 @@
 'terraform-project:sources/terraform/terragoat/terraform/azure/storage.tf':[
 1,
 ],
+'terraform-project:sources/terraform/terragoat/terraform/gcp/instances.tf':[
+15,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/deploy_ec2_to_default_vpc/main.tf':[
 49,
 ],
