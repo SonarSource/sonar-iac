@@ -1,0 +1,29 @@
+{
+  "title": "Granting public access to GCP resources is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "gcp",
+    "cwe-284"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6404",
+  "sqKey": "S6404",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284
+    ],
+    "OWASP": [
+      "A5"
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
+    ]
+  },
+  "quickfix": "unknown"
+}
