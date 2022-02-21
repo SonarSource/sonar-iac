@@ -38,7 +38,7 @@ public class ExcessivePermissionsCheck extends AbstractNewResourceCheck {
   private static final String SECONDARY_MESSAGE = "Sensitive permission";
   public static final int DEFAULT = 5;
 
-  private static final Set<String> SENSITIVE_FEATURE_SUFFIXES = Set.of("abort", "access", "add", "allocate", "analyze", "apply", "approve", "associate", "attach", "begin",
+  private static final List<String> SENSITIVE_ACTION_PREFIXES = List.of("abort", "access", "add", "allocate", "analyze", "apply", "approve", "associate", "attach", "begin",
       "bind", "call", "cancel", "clear", "close", "compute", "connect", "create", "delete", "deploy", "destroy", "detach",
       "disable", "drop", "enable", "evict", "exec", "import", "install", "invoke", "listVulnerabilities", "manage",
       "migrate", "move", "mutate", "patch", "pause", "proxy", "publish", "purchase", "purge", "put", "reject", "remove",
@@ -46,7 +46,7 @@ public class ExcessivePermissionsCheck extends AbstractNewResourceCheck {
       "sample", "scan", "send", "set", "sign", "sourceCodeGet", "sourceCodeSet", "start", "stop", "suspend", "undelete",
       "undeploy", "update", "upload", "use", "validate", "write");
 
-  private static final Set<String> SENSITIVE_FEATURE_SUFFIX_ELEMENTS = Set.of("login", "create", "delete", "set");
+  private static final List<String> SENSITIVE_ACTION_ELEMENTS = List.of("login", "create", "delete", "set");
 
   @RuleProperty(
     key = "max",
@@ -80,11 +80,11 @@ public class ExcessivePermissionsCheck extends AbstractNewResourceCheck {
   }
 
   private static String getPermissionSuffix(String permission) {
-    return (permission.indexOf('.') > -1 && permission.length() > 1) ? permission.substring(permission.lastIndexOf(".") + 1) : "";
+    return permission.substring(permission.lastIndexOf(".") + 1);
   }
 
   private static boolean isSensitiveSuffix(String suffix) {
-    return SENSITIVE_FEATURE_SUFFIXES.stream().anyMatch(suffix::startsWith)
-      || SENSITIVE_FEATURE_SUFFIX_ELEMENTS.stream().anyMatch(suffix::contains);
+    return SENSITIVE_ACTION_PREFIXES.stream().anyMatch(suffix::startsWith)
+      || SENSITIVE_ACTION_ELEMENTS.stream().anyMatch(suffix::contains);
   }
 }
