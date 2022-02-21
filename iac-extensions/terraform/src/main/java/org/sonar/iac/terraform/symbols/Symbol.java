@@ -41,10 +41,11 @@ public abstract class Symbol<T extends Tree> {
     this.parent = parent;
   }
 
-  public void reportIfAbsent(String message, SecondaryLocation... secondaries) {
+  public Symbol<T> reportIfAbsent(String message, SecondaryLocation... secondaries){
     if (tree == null && parent != null) {
       parent.report(String.format(message, name), List.of(secondaries));
     }
+    return this;
   }
 
   public Symbol<T> report(String message, SecondaryLocation... secondaryLocations) {
