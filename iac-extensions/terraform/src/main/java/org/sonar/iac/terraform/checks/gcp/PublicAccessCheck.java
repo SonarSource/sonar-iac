@@ -19,7 +19,8 @@
  */
 package org.sonar.iac.terraform.checks.gcp;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
@@ -39,7 +40,7 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
   private static final String OMITTING_KUBERNETES = "Omitting %s grants public access to parts of this cluster. Make sure it is safe here.";
   private static final String MESSAGE_KUBERNETES = "Ensure that granting public access is safe here.";
 
-  private static final Set<String> IAM_RESOURCES = Set.of("apigee_environment", "api_gateway_api_config", "api_gateway_api",
+  private static final List<String> IAM_RESOURCES = List.of("apigee_environment", "api_gateway_api_config", "api_gateway_api",
     "api_gateway_gateway", "artifact_registry_repository", "bigquery_dataset", "bigquery_table", "bigtable_instance", "bigtable_table",
     "billing_account", "binary_authorization_attestor", "cloudfunctions_function", "cloud_run_service", "compute_disk",
     "compute_image", "compute_instance", "compute_machine_image", "compute_region_disk", "compute_subnetwork", "dataproc_cluster",
@@ -51,8 +52,8 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
     "service_directory_namespace", "service_directory_service", "sourcerepo_repository", "spanner_database", "spanner_instance",
     "storage_bucket", "tags_tag_key", "tags_tag_value", "project", "organization", "service_account", "folder");
 
-  private static final Set<String> IAM_BINDING_RESOURCES = resourceNameSet("google_", "_iam_binding", IAM_RESOURCES);
-  private static final Set<String> IAM_MEMBER_RESOURCES = resourceNameSet("google_", "_iam_member", IAM_RESOURCES);
+  private static final List<String> IAM_BINDING_RESOURCES = resourceNameList("google_", "_iam_binding", IAM_RESOURCES);
+  private static final List<String> IAM_MEMBER_RESOURCES = resourceNameList("google_", "_iam_member", IAM_RESOURCES);
 
   @Override
   protected void registerResourceConsumer() {
@@ -64,7 +65,7 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
       resource -> resource.attribute("member")
         .reportIf(matchesPattern(".*all(Authenticated)?Users.*"), MESSAGE));
 
-    register(Set.of("google_storage_default_object_access_control", "google_storage_object_access_control"),
+    register(List.of("google_storage_default_object_access_control", "google_storage_object_access_control"),
       resource -> resource.attribute("entity")
         .reportIf(matchesPattern("all(Authenticated)?Users"), MESSAGE));
 
@@ -72,7 +73,9 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
       resource -> resource.attribute("special_group")
         .reportIf(matchesPattern("all(Authenticated)?Users"), MESSAGE));
 
-    register("google_storage_bucket_acl",
+    register(List.of("google_storage_bucket_acl",
+        "google_storage_default_object_acl",
+        "google_storage_object_acl"),
       resource -> resource.list("role_entity")
         .reportItemIf(matchesPattern(".*:all(Authenticated)?Users"), MESSAGE));
 
@@ -88,7 +91,7 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
         AttributeSymbol nodes = config.attribute("enable_private_nodes");
         AttributeSymbol endpoint = config.attribute("enable_private_endpoint");
 
-        if (!(nodes.isPresent() || endpoint.isPresent())) {
+        if (nodes.isAbsent() && endpoint.isAbsent()) {
           config.report(String.format(OMITTING_KUBERNETES, "enable_private_nodes and enable_private_endpoint"));
         } else if (nodes.is(isFalse()) && endpoint.is(isFalse())) {
           nodes.report(MESSAGE_KUBERNETES, endpoint.toSecondary(MESSAGE_KUBERNETES));
@@ -100,9 +103,9 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
       });
   }
 
-  private static Set<String> resourceNameSet(String prefix, String suffix, Set<String> resourceNames) {
+  private static List<String> resourceNameList(String prefix, String suffix, Collection<String> resourceNames) {
     return resourceNames.stream()
       .map(resourceName -> prefix + resourceName + suffix)
-      .collect(Collectors.toSet());
+      .collect(Collectors.toList());
   }
 }

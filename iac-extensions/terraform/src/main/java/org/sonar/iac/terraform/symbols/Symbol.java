@@ -75,4 +75,8 @@ public abstract class Symbol<T extends Tree> {
     return tree != null;
   }
 
+  public boolean isAbsent() {
+    return tree == null;
+  }
+
 }
