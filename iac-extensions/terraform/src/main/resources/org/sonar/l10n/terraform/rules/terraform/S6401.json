@@ -1,0 +1,25 @@
+{
+  "title": "Creating keys without a rotation period is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "gcp"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6401",
+  "sqKey": "S6401",
+  "scope": "All",
+  "securityStandards": {
+    "OWASP": [
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A2"
+    ]
+  },
+  "quickfix": "unknown"
+}
