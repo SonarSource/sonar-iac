@@ -24,6 +24,7 @@ import org.sonar.iac.terraform.symbols.AttributeSymbol;
 
 import static org.sonar.iac.terraform.checks.WeakSSLProtocolCheck.OMITTING_WEAK_SSL_MESSAGE;
 import static org.sonar.iac.terraform.checks.WeakSSLProtocolCheck.WEAK_SSL_MESSAGE;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualTo;
 
 public class GcpWeakSSLProtocolCheckPart extends AbstractNewResourceCheck {
@@ -33,7 +34,7 @@ public class GcpWeakSSLProtocolCheckPart extends AbstractNewResourceCheck {
     register("google_compute_ssl_policy",
       resource -> {
         AttributeSymbol minTlsVersion = resource.attribute("min_tls_version");
-        minTlsVersion.reportIf(notEqualTo("TLS_1_2"), WEAK_SSL_MESSAGE);
+        minTlsVersion.reportIf(equalTo("TLS_1_0").or(equalTo("TLS_1_1")), WEAK_SSL_MESSAGE);
         if (minTlsVersion.isAbsent()) {
           AttributeSymbol profile = resource.attribute("profile");
           if (profile.isAbsent() || profile.is(notEqualTo("RESTRICTED"))) {

@@ -3,6 +3,11 @@ resource "google_compute_ssl_policy" "tls11-ssl-policy" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
+resource "google_compute_ssl_policy" "tls11-ssl-policy" {
+  min_tls_version = "TLS_1_0" # Noncompliant
+}
+
+
 resource "google_compute_ssl_policy" "tls12-ssl-policy" {
   min_tls_version = "TLS_1_2"
 }
