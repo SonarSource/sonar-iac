@@ -31,6 +31,7 @@ import org.sonar.iac.terraform.checks.azure.RoleBasedAccessControlCheck;
 import org.sonar.iac.terraform.checks.azure.SubscriptionOwnerCapabilitiesCheck;
 import org.sonar.iac.terraform.checks.azure.SubscriptionRoleAssignmentCheck;
 import org.sonar.iac.terraform.checks.gcp.AttributeBasedAccessControlCheck;
+import org.sonar.iac.terraform.checks.gcp.CryptoKeyRotationPeriodCheck;
 import org.sonar.iac.terraform.checks.gcp.CustomRoleCheck;
 import org.sonar.iac.terraform.checks.gcp.ExcessivePermissionsCheck;
 import org.sonar.iac.terraform.checks.gcp.HighPrivilegedRolesOnWorkloadResourcesCheck;
@@ -86,6 +87,7 @@ public class TerraformCheckList {
 
       // GCP
       AttributeBasedAccessControlCheck.class,
+      CryptoKeyRotationPeriodCheck.class,
       CustomRoleCheck.class,
       ExcessivePermissionsCheck.class,
       HighPrivilegedRolesOnWorkloadResourcesCheck.class,
