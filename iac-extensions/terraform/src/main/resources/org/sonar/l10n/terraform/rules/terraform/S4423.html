@@ -45,6 +45,14 @@ resource "aws_apigatewayv2_domain_name" "example" {
   domain_name_configuration {} # Noncompliant
 }
 </pre>
+<p>For <a href="https://cloud.google.com/load-balancing/docs/use-ssl-policies">Google Cloud load balancers</a></p>
+<pre>
+resource "google_compute_ssl_policy" "example" {
+  name            = "example"
+  min_tls_version = "TLS_1_0" # Noncompliant
+  # ...
+}
+</pre>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://docs.aws.amazon.com/opensearch-service/index.html">Amazon OpenSearch domains</a>:</p>
 <pre>
@@ -69,6 +77,14 @@ resource "aws_apigatewayv2_domain_name" "example" {
   }
 }
 </pre>
+<p>For <a href="https://cloud.google.com/load-balancing/docs/use-ssl-policies">Google Cloud load balancers</a></p>
+<pre>
+resource "google_compute_ssl_policy" "example" {
+  name            = "example"
+  min_tls_version = "TLS_1_2"
+  # ...
+}
+</pre>
 <h2>See</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
@@ -89,5 +105,7 @@ resource "aws_apigatewayv2_domain_name" "example" {
   Practices - Use secure protocols</a> </li>
   <li> <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-custom-domain-tls-version.html">Amazon API Gateway</a> -
   Choosing a minimum TLS version </li>
+  <li> <a href="https://cloud.google.com/load-balancing/docs/ssl-policies-concepts#defining_an_ssl_policy">Google Cloud Load Balancing</a> - Defining
+  an SSL policy </li>
 </ul>
 
