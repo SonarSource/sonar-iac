@@ -1,0 +1,59 @@
+<p>By default, GCP SQL instances offer encryption in transit, with support for TLS, but insecure connections are still accepted. On an unsecured
+network, such as a public network, the risk of traffic being intercepted is high. When the data isn’t encrypted, an attacker can intercept it and read
+confidential information.</p>
+<p>When creating a GCP SQL instance, a public IP address is automatically assigned to it and connections to the SQL instance from public networks can
+be authorized.</p>
+<p>TLS is automatically used when connecting to SQL instances through:</p>
+<ul>
+  <li> The <a href="https://cloud.google.com/sql/docs/mysql/connect-admin-proxy">Cloud SQL Auth proxy</a>. </li>
+  <li> The <a href="https://cloud.google.com/sql/docs/mysql/connect-overview#languages">Java Socket Library</a>. </li>
+  <li> The built-in mechanisms in the <a href="https://cloud.google.com/appengine/docs">App Engine</a> environments. </li>
+</ul>
+<h2>Ask Yourself Whether</h2>
+<p>Connections are not already automatically encrypted by GCP (eg: SQL Auth proxy) and</p>
+<ul>
+  <li> Connections to the SQL instance are performed on untrusted networks. </li>
+  <li> The data stored in the SQL instance is confidential. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to encrypt all connections to the SQL instance, whether using public or private IP addresses. However, since private networks can
+be considered trusted, requiring TLS in this situation is usually a lower priority task.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+resource "google_sql_database_instance" "example" { # Sensitive: tls is not required
+  name             = "noncompliant-master-instance"
+  database_version = "POSTGRES_11"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+resource "google_sql_database_instance" "example" {
+  name             = "compliant-master-instance"
+  database_version = "POSTGRES_11"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      require_ssl = true
+      ipv4_enabled = true
+    }
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/311.html">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/79.html">MITRE, CWE-319</a> - Cleartext Transmission of Sensitive Information </li>
+  <li> <a href="https://cloud.google.com/sql/docs/mysql/authorize-ssl">GCP Documentation</a> - Cloud SQL: Authorizing with SSL/TLS certificates </li>
+</ul>
+
