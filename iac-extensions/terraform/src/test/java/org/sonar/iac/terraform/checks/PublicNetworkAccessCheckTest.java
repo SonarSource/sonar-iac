@@ -52,4 +52,24 @@ class PublicNetworkAccessCheckTest {
   void azureKubernetesCluster() {
     TerraformVerifier.verify("PublicNetworkAccessCheck/azureKubernetesCluster.tf", new PublicNetworkAccessCheck());
   }
+
+  @Test
+  void gcp_cloudbuild_worker_pool() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/gcp_cloudbuild_worker_pool.tf", new PublicNetworkAccessCheck());
+  }
+
+  @Test
+  void gcp_compute_instance() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/gcp_compute_instance.tf", new PublicNetworkAccessCheck());
+  }
+
+  @Test
+  void gcp_notebooks_instance() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/gcp_notebooks_instance.tf", new PublicNetworkAccessCheck());
+  }
+
+  @Test
+  void gcp_sql_database_instance() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/gcp_sql_database_instance.tf", new PublicNetworkAccessCheck());
+  }
 }

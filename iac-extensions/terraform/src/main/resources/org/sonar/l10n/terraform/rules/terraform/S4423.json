@@ -10,6 +10,7 @@
     "aws",
     "azure",
     "cwe",
+    "gcp",
     "privacy",
     "owasp-a6",
     "sans-top25-porous",

@@ -52,4 +52,9 @@ class WeakSSLProtocolCheckTest {
   void azure_storage_account() {
     TerraformVerifier.verify("WeakSSLProtocolCheck/azure_storage_account.tf", new WeakSSLProtocolCheck());
   }
+
+  @Test
+  void gcp_compute_ssl_policy() {
+    TerraformVerifier.verify("WeakSSLProtocolCheck/gcp_compute_ssl_policy.tf", new WeakSSLProtocolCheck());
+  }
 }

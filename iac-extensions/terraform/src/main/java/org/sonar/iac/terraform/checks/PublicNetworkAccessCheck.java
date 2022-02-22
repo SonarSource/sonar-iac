@@ -24,13 +24,18 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.checks.aws.AwsPublicNetworkAccessCheckPart;
 import org.sonar.iac.terraform.checks.azure.AzurePublicNetworkAccessCheckPart;
+import org.sonar.iac.terraform.checks.gcp.GcpPublicNetworkAccessCheckPart;
 
 @Rule(key = "S6329")
 public class PublicNetworkAccessCheck implements IacCheck {
+
+  public static final String NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
+  public static final String OMITTED_MESSAGE = "Omitting %s allows network access from the Internet. Make sure it is safe here.";
 
   @Override
   public void initialize(InitContext init) {
     new AwsPublicNetworkAccessCheckPart().initialize(init);
     new AzurePublicNetworkAccessCheckPart().initialize(init);
+    new GcpPublicNetworkAccessCheckPart().initialize(init);
   }
 }

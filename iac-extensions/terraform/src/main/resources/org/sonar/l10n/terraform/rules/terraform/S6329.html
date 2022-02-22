@@ -1,37 +1,102 @@
-<p>AWS resources that are launched into a VPC, such as EC2 or DMS instances, can have a private and public IP addresses. A public IP address allows
-the corresponding instance to send and receive Internet traffic through the Internet Gateway and therefore exposing it to potential malicious traffic
-like DDoS attacks.</p>
-<h2>Ask Yourself Whether</h2>
-<p>The instance launched in the VPC:</p>
+<p>Enabling public network access to cloud resources can affect an organization’s ability to protect its data or internal operations from data theft
+or disruption.</p>
+<p>Depending on the component, inbound access from the Internet can be enabled via:</p>
 <ul>
-  <li> doesn’t need to communicate with the Internet. </li>
-  <li> is not a public service. </li>
+  <li> a boolean value that explicitly allows access to the public network. </li>
+  <li> the assignment of a public IP address. </li>
+  <li> database firewall rules that allow public IP ranges. </li>
 </ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
+<p>Deciding to allow public access may happen for various reasons such as for quick maintenance, time saving, or by accident.</p>
+<p>This decision increases the likelihood of attacks on the organization, such as:</p>
+<ul>
+  <li> data breaches. </li>
+  <li> intrusions into the infrastructure to permanently steal from it. </li>
+  <li> and various malicious traffic, such as DDoS attacks. </li>
+</ul>
+<h2>Ask Yourself Whether</h2>
+<p>This cloud resource:</p>
+<ul>
+  <li> should be publicly accessible to any Internet user. </li>
+  <li> requires inbound traffic from the Internet to function properly. </li>
+</ul>
+<p>There is a risk if you answered no to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to avoid exposing instances on the Internet by assigning to them a public IP address, unless the instance is running a service
-designed to be publicly accessible, such as customer portals or e-commerce websites. To communicate with instances in another VPC, consider using <a
-href="https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html">VPC peering</a>.</p>
-<h2>Noncompliant Code Example</h2>
-<p>DMS and EC2 instances have a public IP address assigned to them:</p>
+<p>Avoid publishing cloud services on the Internet unless they are intended to be publicly accessible, such as customer portals or e-commerce
+sites.</p>
+<p>Use private networks (and associated private IP addresses) and VPC peering or other secure communication tunnels to communicate with other cloud
+components.</p>
+<p>The goal is to prevent the component from intercepting traffic coming in via the public IP address. If the cloud resource does not support the
+absence of a public IP address, assign a public IP address to it, but do not create listeners for the public IP address.</p>
+<h2>Sensitive Code Example</h2>
+<p>For AWS:</p>
 <pre>
-resource "aws_instance" "noncompliantec2" {
-  associate_public_ip_address = true # Sensitive, by default it's also set to true
+resource "aws_instance" "example" {
+  associate_public_ip_address = true # Sensitive
 }
+</pre>
+<pre>
+resource "aws_dms_replication_instance" "example" {
+  publicly_accessible = true # Sensitive
+}
+</pre>
+<p>For Azure:</p>
+<pre>
+resource "azurerm_postgresql_server" "example"  {
+  public_network_access_enabled = true # Sensitive
+}
+</pre>
+<pre>
+resource "azurerm_kubernetes_cluster" "production" {
+  api_server_authorized_ip_ranges = ["176.0.0.0/4"] # Sensitive
+  default_node_pool {
+    enable_node_public_ip = true # Sensitive
+  }
+}
+</pre>
+<p>For GCP:</p>
+<pre>
+resource "google_compute_instance" "example" {
+  network_interface {
+    network = "default"
 
-resource "aws_dms_replication_instance" "noncompliantdms" {
-  publicly_accessible          = true # Sensitive, by default it's also set to true
+    access_config {  # Sensitive
+      # Ephemeral public IP
+    }
+  }
 }
 </pre>
 <h2>Compliant Solution</h2>
-<p>DMS and EC2 instances doesn’t have a public IP address:</p>
+<p>For AWS:</p>
 <pre>
-resource "aws_instance" "compliantec2" {
+resource "aws_instance" "example" {
   associate_public_ip_address = false
 }
-
-resource "aws_dms_replication_instance" "compliantdms" {
+</pre>
+<pre>
+resource "aws_dms_replication_instance" "example" {
   publicly_accessible          = false
+}
+</pre>
+<p>For Azure:</p>
+<pre>
+resource "azurerm_postgresql_server" "example"  {
+  public_network_access_enabled = false
+}
+</pre>
+<pre>
+resource "azurerm_kubernetes_cluster" "production" {
+  api_server_authorized_ip_ranges = ["192.168.0.0/16"]
+  default_node_pool {
+    enable_node_public_ip = false
+  }
+}
+</pre>
+<p>For GCP:</p>
+<pre>
+resource "google_compute_instance" "example" {
+  network_interface {
+    network = "default"
+  }
 }
 </pre>
 <h2>See</h2>
@@ -41,7 +106,9 @@ resource "aws_dms_replication_instance" "compliantdms" {
   addressing </li>
   <li> <a href="https://docs.aws.amazon.com/dms/latest/userguide/CHAP_ReplicationInstance.PublicPrivate.html">AWS Documentation</a> - Public and
   private replication instances </li>
+  <li> <a href="https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html">AWS Documentation</a> - VPC Peering </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
   </li>
 </ul>

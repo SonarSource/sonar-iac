@@ -17,25 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks;
+package org.sonar.iac.terraform.checks.gcp;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.terraform.checks.aws.AwsWeakSSLProtocolCheckPart;
-import org.sonar.iac.terraform.checks.azure.AzureWeakSSLProtocolCheckPart;
-import org.sonar.iac.terraform.checks.gcp.GcpWeakSSLProtocolCheckPart;
+import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 
-@Rule(key = "S4423")
-public class WeakSSLProtocolCheck implements IacCheck {
-
-  public static final String WEAK_SSL_MESSAGE = "Change this configuration to use a stronger protocol.";
-  public static final String OMITTING_WEAK_SSL_MESSAGE = "Omitting %s disables traffic encryption. Make sure it is safe here.";
+@Rule(key = "S6402")
+public class DnsZoneCheck extends AbstractNewResourceCheck {
 
   @Override
-  public void initialize(InitContext init) {
-    new AwsWeakSSLProtocolCheckPart().initialize(init);
-    new AzureWeakSSLProtocolCheckPart().initialize(init);
-    new GcpWeakSSLProtocolCheckPart().initialize(init);
+  protected void registerResourceConsumer() {
+    register("google_dns_managed_zone",
+      resource -> resource.block("dnssec_config")
+        .reportIfAbsent("Make sure creating a DNS zone without DNSSEC enabled is safe here."));
   }
 }

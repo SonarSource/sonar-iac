@@ -28,6 +28,8 @@ import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.NETWORK_ACCESS_MESSAGE;
+import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.OMITTED_MESSAGE;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
@@ -37,8 +39,6 @@ import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAcces
 
 public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
 
-  private static final String OMITTED_MESSAGE = "Omitting %s allows network access from the Internet. Make sure it is safe here.";
-  private static final String NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
 
   private static final Predicate<String> STARTS_WITH_AZURERM_PUBLIC_IP = exactMatchStringPredicate("azurerm_public_ip.*", CASE_INSENSITIVE);
   private static final Predicate<ExpressionTree> IS_PUBLIC_IP_ADDRESS = treePredicate(exactMatchStringPredicate("(10|172[.]16|192[.]168)[.].*|0[.]0[.]0[.]0/32").negate());
