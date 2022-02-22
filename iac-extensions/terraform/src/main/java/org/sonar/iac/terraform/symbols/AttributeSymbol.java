@@ -57,6 +57,12 @@ public class AttributeSymbol extends Symbol<AttributeTree> {
     }
   }
 
+  @Override
+  public AttributeSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
+    super.reportIfAbsent(message, secondaries);
+    return this;
+  }
+
   @Nullable
   @Override
   protected HasTextRange toHighlight() {

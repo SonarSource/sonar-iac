@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
@@ -66,6 +67,12 @@ public class BlockSymbol extends Symbol<BlockTree> {
       .flatMap(tree -> PropertyUtils.get(tree, name, AttributeTree.class))
       .map(attribute -> AttributeSymbol.fromPresent(ctx, attribute, this))
       .orElse(AttributeSymbol.fromAbsent(ctx, name, this));
+  }
+
+  @Override
+  public BlockSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
+    super.reportIfAbsent(message, secondaries);
+    return this;
   }
 
   @Nullable
