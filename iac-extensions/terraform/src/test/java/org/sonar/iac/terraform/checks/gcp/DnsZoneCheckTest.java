@@ -22,10 +22,10 @@ package org.sonar.iac.terraform.checks.gcp;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.checks.TerraformVerifier;
 
-class DnsZoneMissingDnssecCheckTest {
+class DnsZoneCheckTest {
 
   @Test
   void dns_zone() {
-    TerraformVerifier.verify("GCP/DnsZoneMissingDnssecCheck/dns_zone.tf", new DnsZoneMissingDnssecCheck());
+    TerraformVerifier.verify("GCP/DnsZoneCheck/dns_zone.tf", new DnsZoneCheck());
   }
 }

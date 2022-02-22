@@ -23,7 +23,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 
 @Rule(key = "S6402")
-public class DnsZoneMissingDnssecCheck extends AbstractNewResourceCheck {
+public class DnsZoneCheck extends AbstractNewResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
