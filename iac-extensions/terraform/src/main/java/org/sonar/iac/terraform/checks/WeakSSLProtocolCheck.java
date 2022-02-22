@@ -24,6 +24,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.checks.aws.AwsWeakSSLProtocolCheckPart;
 import org.sonar.iac.terraform.checks.azure.AzureWeakSSLProtocolCheckPart;
+import org.sonar.iac.terraform.checks.gcp.GcpWeakSSLProtocolCheckPart;
 
 @Rule(key = "S4423")
 public class WeakSSLProtocolCheck implements IacCheck {
@@ -35,5 +36,6 @@ public class WeakSSLProtocolCheck implements IacCheck {
   public void initialize(InitContext init) {
     new AwsWeakSSLProtocolCheckPart().initialize(init);
     new AzureWeakSSLProtocolCheckPart().initialize(init);
+    new GcpWeakSSLProtocolCheckPart().initialize(init);
   }
 }
