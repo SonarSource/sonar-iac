@@ -1,0 +1,29 @@
+{
+  "title": "Creating DNS zones without DNSSEC enabled is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "gcp"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6402",
+  "sqKey": "S6402",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      345,
+      353
+    ],
+    "OWASP": [
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A8"
+    ]
+  },
+  "quickfix": "unknown"
+}

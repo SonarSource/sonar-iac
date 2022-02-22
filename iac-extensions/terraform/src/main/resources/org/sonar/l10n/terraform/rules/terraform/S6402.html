@@ -1,0 +1,56 @@
+<p>Domain Name Systems (DNS) are vulnerable by default to various types of attacks.</p>
+<p>One of the biggest risks is DNS cache poisoning, which occurs when a DNS accepts spoofed DNS data, caches the malicious records, and potentially
+sends them later in response to legitimate DNS request lookups. This attack typically relies on the attacker’s <a
+href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">MITM</a> ability on the network and can be used to redirect users from an intended
+website to a malicious website.</p>
+<p>To prevent these vulnerabilities, Domain Name System Security Extensions (DNSSEC) ensure the integrity and authenticity of DNS data by digitally
+signing DNS zones.</p>
+<p>The public key of a DNS zone used to validate signatures can be trusted as DNSSEC is based on the following chain of trust:</p>
+<ul>
+  <li> The parent DNS zone adds a "fingerprint" of the public key of the child zone in a "DS record". </li>
+  <li> The parent DNS zone signs it with its own private key. </li>
+  <li> And this process continues until the root zone. </li>
+</ul>
+<h2>Ask Yourself Whether</h2>
+<p>The parent DNS zone (likely managed by the DNS registrar of the domain name) supports DNSSEC and</p>
+<ul>
+  <li> The DNS zone is public (contains data such as public reachable IP addresses). </li>
+</ul>
+<p>There is a risk if you answered yes to this question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to use DNSSEC when creating private and public DNS zones.</p>
+<p>Private DNS zones cannot be queried on the Internet and provide DNS name resolution for private networks. The risk of MITM attacks might be
+considered low on these networks and therefore implementing DNSSEC is still recommended but not with a high priority.</p>
+<p>Note: Choose a robust signing algorithm when setting up DNSSEC, such as <code>rsasha256</code>. The <a
+href="https://en.wikipedia.org/wiki/SHA-1">insecure</a> <code>rsasha1</code> algorithm should no longer be used.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+resource "google_dns_managed_zone" "example" { # Sensitive: dnssec_config is missing
+  name     = "foobar"
+  dns_name = "foo.bar."
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+resource "google_dns_managed_zone" "example" {
+  name     = "foobar"
+  dns_name = "foo.bar."
+
+  dnssec_config {
+    default_key_specs {
+      algorithm = "rsasha256"
+    }
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/">OWASP Top 10 2021 Category A8</a> - Software and Data
+  Integrity Failures </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cloud.google.com/dns/docs/dnssec-config">GCP Documentation</a> - Manage DNSSEC configuration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/345.html">MITRE, CWE-345</a> - Insufficient Verification of Data Authenticity </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/353.html">MITRE, CWE-353</a> - Missing Support for Integrity Check </li>
+</ul>
+
