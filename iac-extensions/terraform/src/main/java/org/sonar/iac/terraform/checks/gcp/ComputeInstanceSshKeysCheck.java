@@ -9,17 +9,22 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
+import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
+import org.sonar.iac.terraform.api.tree.LiteralExprTree;
+import org.sonar.iac.terraform.api.tree.ObjectElementTree;
+import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
-import org.sonar.iac.terraform.symbols.BlockSymbol;
+import org.sonar.iac.terraform.symbols.AttributeSymbol;
 
+import static org.sonar.iac.common.checks.PropertyUtils.get;
 import static org.sonar.iac.common.checks.PropertyUtils.valueOrNull;
-import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.BOOLEAN_LITERAL;
+import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessToString;
 
 @Rule(key = "S6405")
 public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
@@ -38,24 +43,15 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register("google_compute_instance",
-      resource -> resource.block("metadata")
-        .reportIfAbsent(OMITTING_MESSAGE)
-        .attribute("block-project-ssh-keys")
-          .reportIfAbsent(OMITTING_MESSAGE)
-          .reportIf(isFalse(), MESSAGE));
+      resource -> checkMetadata(resource.attribute("metadata")));
 
     register("google_compute_instance_from_template",
       resource -> {
-        BlockSymbol metadata = resource.block("metadata");
-        if (metadata.isPresent()) {
-          metadata.attribute("block-project-ssh-keys")
-            .reportIfAbsent(OMITTING_MESSAGE)
-            .reportIf(isFalse(), MESSAGE);
-        } else {
-          var src = resource.attribute("source_instance_template");
+        if (!checkMetadata(resource.attribute("metadata"))) {
+          AttributeSymbol src = resource.attribute("source_instance_template");
           src.reportIfAbsent(OMITTING_MESSAGE);
           if (src.isPresent()) {
-            String templateKey = ((TextTree) src.tree).value();
+            String templateKey = attributeAccessToString((AttributeAccessTree) src.tree.value());
             Tree highlight = collector.getSensitiveTemplateHighlightArea(templateKey);
             if (highlight != null) {
               src.report(MESSAGE, List.of(new SecondaryLocation(highlight, "specified here")));
@@ -65,6 +61,27 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
           }
         }
       });
+  }
+
+  private boolean checkMetadata(AttributeSymbol metadata) {
+    if (metadata.isPresent()) {
+      if (metadata.tree.value() instanceof ObjectTree) {
+        var obj = (ObjectTree) metadata.tree.value();
+        Tree sshKeysProperty = PropertyUtils.valueOrNull(obj, "block-project-ssh-keys");
+        if (sshKeysProperty == null) {
+          metadata.report(OMITTING_MESSAGE);
+        } else if (!(sshKeysProperty instanceof TextTree)
+          || !((TextTree) sshKeysProperty).value().equalsIgnoreCase("true")) {
+          metadata.ctx.reportIssue(sshKeysProperty, MESSAGE);
+        }
+      } else {
+        metadata.report("Object value expected.");
+      }
+      return true;
+    } else {
+      metadata.reportIfAbsent(OMITTING_MESSAGE);
+      return false;
+    }
   }
 
   static class TemplatesCollector extends TreeVisitor<TreeContext> {
@@ -90,13 +107,14 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
       String templateName = resourceBlock.labels().get(1).value();
 
       Tree highlight = resourceBlock.key();
-      BlockTree metadataBlock = valueOrNull(resourceBlock, "metadata", BlockTree.class);
-      if (metadataBlock != null) {
-        highlight = metadataBlock;
-        AttributeTree sshKeysAttr = valueOrNull(metadataBlock, "block-project-ssh-keys", AttributeTree.class);
+      ObjectTree metadataObj = valueOrNull(resourceBlock, "metadata", ObjectTree.class);
+      if (metadataObj != null) {
+        highlight = metadataObj;
+        //LiteralExprTree sshKeysAttr = valueOrNull(metadataObj, "block-project-ssh-keys", LiteralExprTree.class);
+        ObjectElementTree sshKeysAttr = get(metadataObj, "block-project-ssh-keys", ObjectElementTree.class).orElse(null);
         if (sshKeysAttr != null) {
           highlight = sshKeysAttr;
-          if (TextUtils.isValueTrue(sshKeysAttr)) {
+          if (sshKeysAttr.value().is(BOOLEAN_LITERAL) && ((LiteralExprTree) sshKeysAttr.value()).token().value().equalsIgnoreCase("true")) {
             return; // Compliant
           }
         }
