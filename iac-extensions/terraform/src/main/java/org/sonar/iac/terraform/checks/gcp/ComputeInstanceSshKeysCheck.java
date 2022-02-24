@@ -51,12 +51,12 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
           AttributeSymbol src = resource.attribute("source_instance_template");
           src.reportIfAbsent(OMITTING_MESSAGE);
           if (src.isPresent()) {
-            String templateKey = attributeAccessToString((AttributeAccessTree) src.tree.value());
-            Tree highlight = collector.getSensitiveTemplateHighlightArea(templateKey);
+            String templateId = attributeAccessToString((AttributeAccessTree) src.tree.value());
+            Tree highlight = collector.sensitiveTemplatesTree.get(templateId);
             if (highlight != null) {
               src.report(MESSAGE, List.of(new SecondaryLocation(highlight, "specified here")));
-            } else {
-              src.report("Invalid template reference");
+            } else if (!collector.collectedTemplates.containsKey(templateId)){
+              src.report("Invalid template id.");
             }
           }
         }
@@ -85,7 +85,13 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
   }
 
   static class TemplatesCollector extends TreeVisitor<TreeContext> {
-    private final Map<String, Tree> sensitiveTemplates = new HashMap<>();
+    /** Maps template id to:
+     *  TRUE if Compliant template
+     *  FALSE if Sensitive template
+     *  null if no such template
+     */
+    private final Map<String, Boolean> collectedTemplates = new HashMap<>();
+    private final Map<String, Tree> sensitiveTemplatesTree = new HashMap<>();
     private final Set<String> relevantResourceTypes;
 
     public TemplatesCollector(String... relevantResourceTypes) {
@@ -105,30 +111,32 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
         return; // unnamed template can't be referenced
       }
       String templateName = resourceBlock.labels().get(1).value();
+      String templateId = String.format("google_compute_instance_template.%s.id", templateName);
 
       Tree highlight = resourceBlock.key();
       ObjectTree metadataObj = valueOrNull(resourceBlock, "metadata", ObjectTree.class);
       if (metadataObj != null) {
         highlight = metadataObj;
-        //LiteralExprTree sshKeysAttr = valueOrNull(metadataObj, "block-project-ssh-keys", LiteralExprTree.class);
         ObjectElementTree sshKeysAttr = get(metadataObj, "block-project-ssh-keys", ObjectElementTree.class).orElse(null);
         if (sshKeysAttr != null) {
           highlight = sshKeysAttr;
           if (sshKeysAttr.value().is(BOOLEAN_LITERAL) && ((LiteralExprTree) sshKeysAttr.value()).token().value().equalsIgnoreCase("true")) {
+            collectedTemplates.put(templateId, Boolean.TRUE);
             return; // Compliant
           }
         }
       }
-      String templateKey = String.format("google_compute_instance_template.%s.id", templateName);
-      sensitiveTemplates.put(templateKey, highlight);
+
+      collectedTemplates.put(templateId, Boolean.FALSE);
+      sensitiveTemplatesTree.put(templateId, highlight);
     }
 
-    /** Given a template key ref in the form of google_compute_instance_template.XXX.id
+    /** Given a template id (in the form of google_compute_instance_template.XXX.id)
      * returns that template's highlight Tree if the template is sensitive
-     * or null if it's non-sensitive
+     * or null if it's non-sensitive or no such template
      */
-    public Tree getSensitiveTemplateHighlightArea(String templateKey) {
-      return sensitiveTemplates.get(templateKey);
+    public Tree getSensitiveTemplateHighlightArea(String templateId) {
+      return sensitiveTemplatesTree.get(templateId);
     }
   }
 }
