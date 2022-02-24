@@ -1,0 +1,43 @@
+<p>TLS configuration of Google Cloud load balancers is defined through SSL policies. There are three managed profiles to choose from:
+<code>COMPATIBLE</code> (default), <code>MODERN</code> and <code>RESTRICTED</code>:</p>
+<ul>
+  <li> The <code>RESTRICTED</code> profile relies only on secure cipher suites and should be used by applications that require to comply with the
+  highest security standards. </li>
+  <li> The <code>MODERN</code> profile includes additional cipher suites that present security weaknesses like using the <code>SHA1</code> algorithm
+  for signing. </li>
+  <li> The <code>COMPATIBLE</code> profile offers the most common cipher suites and thus broader compatibility. Some of these use <code>SHA1</code> or
+  <code>3DES</code> algorithms which are considered weak. Also, this profile includes cipher suites that rely on obsolete key-exchange mechanisms that
+  don’t provide forward secrecy[<a href="https://en.wikipedia.org/wiki/Forward_secrecy">https://en.wikipedia.org/wiki/Forward_secrecy</a>] as a
+  feature. </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<pre>
+resource "google_compute_ssl_policy" "example" {
+  name            = "example"
+  min_tls_version = "TLS_1_2"
+  profile         = "COMPATIBLE" # Noncompliant
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+resource "google_compute_ssl_policy" "example" {
+  name            = "example"
+  min_tls_version = "TLS_1_2"
+  profile         = "RESTRICTED"
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
+  </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/327.html">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
+  <li> <a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#23-use-secure-cipher-suites">SSL and TLS Deployment
+  Best Practices</a> - Use Secure Cipher Suites </li>
+  <li> <a href="https://cloud.google.com/load-balancing/docs/ssl-policies-concepts#defining_an_ssl_policy">Google Cloud Load Balancing</a> - Defining
+  an SSL policy </li>
+</ul>
+
