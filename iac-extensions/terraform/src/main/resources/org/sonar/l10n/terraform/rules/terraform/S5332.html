@@ -119,6 +119,20 @@ resource "aws_lb_listener" "front_load_balancer" {
   }
 }
 </pre>
+<p>HTTP protocol is used for <a
+href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_backend_service">GCP Region Backend
+Services</a>:</p>
+<pre>
+resource "google_compute_region_backend_service" "example" {
+  name                            = "example-service"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.region.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+  load_balancing_scheme           = "EXTERNAL"
+  protocol                        = "HTTP" # Sensitive
+}
+</pre>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://aws.amazon.com/kinesis/">AWS Kinesis</a> Data Streams server-side encryption:</p>
 <pre>
@@ -186,6 +200,20 @@ resource "aws_lb_listener" "front_load_balancer" {
       protocol = "HTTPS"
     }
   }
+}
+</pre>
+<p>HTTPS protocol is used for <a
+href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_backend_service">GCP Region Backend
+Services</a>:</p>
+<pre>
+resource "google_compute_region_backend_service" "example" {
+  name                            = "example-service"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.region.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+  load_balancing_scheme           = "EXTERNAL"
+  protocol                        = "HTTPS"
 }
 </pre>
 <h2>Exceptions</h2>
