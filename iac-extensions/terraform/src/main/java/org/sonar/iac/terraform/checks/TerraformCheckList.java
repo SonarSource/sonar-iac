@@ -37,6 +37,7 @@ import org.sonar.iac.terraform.checks.gcp.DatabaseIpConfigCheck;
 import org.sonar.iac.terraform.checks.gcp.DnsZoneCheck;
 import org.sonar.iac.terraform.checks.gcp.ExcessivePermissionsCheck;
 import org.sonar.iac.terraform.checks.gcp.HighPrivilegedRolesOnWorkloadResourcesCheck;
+import org.sonar.iac.terraform.checks.gcp.LoadBalancerSslPolicyCheck;
 import org.sonar.iac.terraform.checks.gcp.PublicAccessCheck;
 
 public class TerraformCheckList {
@@ -95,6 +96,7 @@ public class TerraformCheckList {
       DatabaseIpConfigCheck.class,
       ExcessivePermissionsCheck.class,
       HighPrivilegedRolesOnWorkloadResourcesCheck.class,
+      LoadBalancerSslPolicyCheck.class,
       PublicAccessCheck.class
     );
   }

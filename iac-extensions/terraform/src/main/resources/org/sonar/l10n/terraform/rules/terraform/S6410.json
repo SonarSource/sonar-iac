@@ -1,0 +1,33 @@
+{
+  "title": "Google Cloud load balancers SSL policies should not offer weak cipher suites",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "gcp",
+    "owasp-a3",
+    "owasp-a5"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6410",
+  "sqKey": "S6410",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      327
+    ],
+    "OWASP": [
+      "A3",
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A2",
+      "A5"
+    ]
+  },
+  "quickfix": "unknown"
+}
