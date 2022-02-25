@@ -1,0 +1,65 @@
+<p>App Engine supports encryption in transit through TLS. As soon as the app is deployed, it can be requested using <code>appspot.com</code> domains
+or custom domains. By default, endpoints accept both clear-text and encrypted traffic. When communication isn’t encrypted, there is a risk that an
+attacker could intercept it and read confidential information.</p>
+<p>When creating an App Engine, request handlers can be set with different security level for encryption:</p>
+<ul>
+  <li> <code>SECURE_NEVER</code>: only HTTP requests are allowed (HTTPS requests are redirected to HTTP). </li>
+  <li> <code>SECURE_OPTIONAL</code> and <code>SECURE_DEFAULT</code>: both HTTP and HTTPS requests are allowed. </li>
+  <li> <code>SECURE_ALWAYS</code>: only HTTPS requests are allowed (HTTP requests are redirected to HTTPS). </li>
+</ul>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The handler serves confidential data in HTTP responses. </li>
+</ul>
+<p>There is a risk if you answered yes to this question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended for App Engine handlers to require TLS for all traffic. It can be achieved by setting the security level to
+<code>SECURE_ALWAYS</code>.</p>
+<h2>Sensitive Code Example</h2>
+<p><code>SECURE_DEFAULT</code>, <code>SECURE_NEVER</code> and <code>SECURE_OPTIONAL</code> are sensitive TLS security level:</p>
+<pre>
+resource "google_app_engine_standard_app_version" "example" {
+  version_id = "v1"
+  service    = "default"
+  runtime    = "nodejs"
+
+  handlers {
+    url_regex                   = ".*"
+    redirect_http_response_code = "REDIRECT_HTTP_RESPONSE_CODE_301"
+    security_level              = "SECURE_OPTIONAL" # Sensitive
+    script {
+      script_path = "auto"
+    }
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>Force the use of TLS for the handler by setting the security level on <code>SECURE_ALWAYS</code>:</p>
+<pre>
+resource "google_app_engine_standard_app_version" "example" {
+  version_id = "v1"
+  service    = "default"
+  runtime    = "nodejs"
+
+  handlers {
+    url_regex                   = ".*"
+    redirect_http_response_code = "REDIRECT_HTTP_RESPONSE_CODE_301"
+    security_level              = "SECURE_ALWAYS"
+    script {
+      script_path = "auto"
+    }
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
+  </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/200.html">MITRE, CWE-200</a> - Exposure of Sensitive Information to an Unauthorized Actor </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/319.html">MITRE, CWE-319</a> - Cleartext Transmission of Sensitive Information </li>
+  <li> <a href="https://cloud.google.com/appengine/docs/standard/nodejs/application-security">GCP Documentation</a> - Overview of App Security </li>
+</ul>
+

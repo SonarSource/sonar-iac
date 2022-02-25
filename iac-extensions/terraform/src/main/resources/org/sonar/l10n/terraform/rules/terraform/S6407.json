@@ -1,0 +1,30 @@
+{
+  "title": "Creating App Engine handlers without requiring TLS is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "gcp"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6407",
+  "sqKey": "S6407",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      200,
+      319
+    ],
+    "OWASP": [
+      "A3",
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A2"
+    ]
+  },
+  "quickfix": "unknown"
+}
