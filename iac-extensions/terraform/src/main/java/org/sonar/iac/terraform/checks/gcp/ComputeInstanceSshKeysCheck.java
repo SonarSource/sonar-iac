@@ -9,7 +9,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
@@ -20,6 +20,7 @@ import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.common.checks.PropertyUtils.get;
 import static org.sonar.iac.common.checks.PropertyUtils.valueOrNull;
@@ -43,55 +44,93 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register("google_compute_instance",
-      resource -> checkMetadata(resource.attribute("metadata")));
+      resource -> checkMetadata(resource, true));
 
     register("google_compute_instance_from_template",
-      resource -> {
-        if (!checkMetadata(resource.attribute("metadata"))) {
-          AttributeSymbol src = resource.attribute("source_instance_template");
-          src.reportIfAbsent(OMITTING_MESSAGE);
-          if (src.isPresent()) {
-            String templateId = attributeAccessToString((AttributeAccessTree) src.tree.value());
-            Tree highlight = collector.sensitiveTemplatesTree.get(templateId);
-            if (highlight != null) {
-              src.report(MESSAGE, List.of(new SecondaryLocation(highlight, "specified here")));
-            } else if (!collector.collectedTemplates.containsKey(templateId)){
-              src.report("Invalid template id.");
-            }
-          }
-        }
-      });
+      this::checkInstanceFromTemplate);
   }
 
-  private boolean checkMetadata(AttributeSymbol metadata) {
-    if (metadata.isPresent()) {
-      if (metadata.tree.value() instanceof ObjectTree) {
-        var obj = (ObjectTree) metadata.tree.value();
-        Tree sshKeysProperty = PropertyUtils.valueOrNull(obj, "block-project-ssh-keys");
-        if (sshKeysProperty == null) {
-          metadata.report(OMITTING_MESSAGE);
-        } else if (!(sshKeysProperty instanceof TextTree)
-          || !((TextTree) sshKeysProperty).value().equalsIgnoreCase("true")) {
-          metadata.ctx.reportIssue(sshKeysProperty, MESSAGE);
-        }
-      } else {
-        metadata.report("Object value expected.");
+  private void checkInstanceFromTemplate(ResourceSymbol resource) {
+    AttributeSymbol srcTemplate = resource.attribute("source_instance_template");
+    srcTemplate.reportIfAbsent("Missing source_instance_template reference.");
+    if (srcTemplate.isPresent()) {
+      Tree srcTemplateValue = srcTemplate.tree.value();
+      if (!(srcTemplateValue instanceof AttributeAccessTree)) {
+        srcTemplate.ctx.reportIssue(srcTemplateValue, "Template reference of unexpected type.");
+        checkMetadata(resource, true);
+        return;
       }
-      return true;
+      // Now it is safe to cast:
+      String templateId = attributeAccessToString((AttributeAccessTree) srcTemplateValue);
+      Boolean compliantTemplate = collector.collectedTemplates.get(templateId);
+      if (compliantTemplate == null) {
+        srcTemplate.report("Reference to missing template.");
+        checkMetadata(resource, true);
+      } else if (compliantTemplate) {
+        // It's a Compliant template but still the local definition has a chance of spoiling it:
+        checkMetadata(resource, false);
+      } else {
+        // It's a Noncompliant template but still the local definition has a chance of fixing it:
+        if (checkMetadata(resource, false) != Trilean.TRUE) {
+          Tree highlight = collector.sensitiveTemplatesTree.get(templateId);
+          srcTemplate.report(MESSAGE, List.of(new SecondaryLocation(highlight, "specified here")));
+        }
+      }
+    }
+  }
+
+  /**
+   * @param resource the target resource (of type 'google_compute_instance' or 'google_compute_instance_from_template')
+   * @param reportOnUndefined should we report in case of undefined 'block-project-ssh-keys' (or part of its path)?
+   * @return Trilean.TRUE    iff resource["metadata"]["block-project-ssh-keys"] is defined and == true
+   *         Trilean.FALSE   iff resource["metadata"]["block-project-ssh-keys"] is defined but != true
+   *         Trilean.UNKNWON iff resource["metadata"]["block-project-ssh-keys"] (or part of it) is not defined
+   */
+  private Trilean checkMetadata(ResourceSymbol resource, boolean reportOnUndefined) {
+    AttributeSymbol metadata = resource.attribute("metadata");
+
+    if (metadata.isAbsent()) {
+      if (reportOnUndefined) {
+        metadata.reportIfAbsent(OMITTING_MESSAGE);
+      }
+      return Trilean.UNKNOWN;
+    }
+
+    if (!(metadata.tree.value() instanceof ObjectTree)) {
+      if (reportOnUndefined) {
+        metadata.report("metadata of type Object expected.");
+      }
+      return Trilean.UNKNOWN;
+    }
+
+    var metadataObj = (ObjectTree) metadata.tree.value();
+    Tree sshKeysValue = valueOrNull(metadataObj, "block-project-ssh-keys");
+    if (sshKeysValue == null) {
+      if (reportOnUndefined) {
+        metadata.report(OMITTING_MESSAGE);
+      }
+      return Trilean.UNKNOWN;
+    }
+
+    if (sshKeysValue instanceof TextTree && ((TextTree) sshKeysValue).value().equalsIgnoreCase("true")) {
+      return Trilean.TRUE;
     } else {
-      metadata.reportIfAbsent(OMITTING_MESSAGE);
-      return false;
+      metadata.ctx.reportIssue(sshKeysValue, MESSAGE);
+      return Trilean.FALSE;
     }
   }
 
   static class TemplatesCollector extends TreeVisitor<TreeContext> {
     /** Maps template id to:
      *  TRUE if Compliant template
-     *  FALSE if Sensitive template
+     *  FALSE if Noncompliant template
      *  null if no such template
      */
     private final Map<String, Boolean> collectedTemplates = new HashMap<>();
+
+    /** Maps only Noncompliant template id to its corresponding Highlight */
     private final Map<String, Tree> sensitiveTemplatesTree = new HashMap<>();
+
     private final Set<String> relevantResourceTypes;
 
     public TemplatesCollector(String... relevantResourceTypes) {
@@ -121,14 +160,14 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
         if (sshKeysAttr != null) {
           highlight = sshKeysAttr;
           if (sshKeysAttr.value().is(BOOLEAN_LITERAL) && ((LiteralExprTree) sshKeysAttr.value()).token().value().equalsIgnoreCase("true")) {
-            collectedTemplates.put(templateId, Boolean.TRUE);
-            return; // Compliant
+            collectedTemplates.put(templateId, Boolean.TRUE); // Compliant
+            return;
           }
         }
       }
 
-      collectedTemplates.put(templateId, Boolean.FALSE);
-      sensitiveTemplatesTree.put(templateId, highlight);
+      collectedTemplates.put(templateId, Boolean.FALSE); // Noncompliant
+      sensitiveTemplatesTree.put(templateId, highlight); // Highlight area
     }
 
     /** Given a template id (in the form of google_compute_instance_template.XXX.id)
