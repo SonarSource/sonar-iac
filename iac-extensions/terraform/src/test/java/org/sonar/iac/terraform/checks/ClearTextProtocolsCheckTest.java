@@ -93,4 +93,8 @@ class ClearTextProtocolsCheckTest {
     TerraformVerifier.verify("ClearTextProtocolsCheck/azurerm_storage_account.tf", new ClearTextProtocolsCheck());
   }
 
+  @Test
+  void google_compute_region_backend_service() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/google_compute_region_backend_service.tf", new ClearTextProtocolsCheck());
+  }
 }

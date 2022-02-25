@@ -24,6 +24,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.checks.aws.AwsClearTextProtocolsCheckPart;
 import org.sonar.iac.terraform.checks.azure.AzureClearTextProtocolsCheckPart;
+import org.sonar.iac.terraform.checks.gcp.GcpClearTextProtocolsCheckPart;
 
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck implements IacCheck {
@@ -36,5 +37,6 @@ public class ClearTextProtocolsCheck implements IacCheck {
   public void initialize(InitContext init) {
     new AwsClearTextProtocolsCheckPart().initialize(init);
     new AzureClearTextProtocolsCheckPart().initialize(init);
+    new GcpClearTextProtocolsCheckPart().initialize(init);
   }
 }
