@@ -31,6 +31,7 @@ import org.sonar.iac.terraform.checks.azure.RoleBasedAccessControlCheck;
 import org.sonar.iac.terraform.checks.azure.SubscriptionOwnerCapabilitiesCheck;
 import org.sonar.iac.terraform.checks.azure.SubscriptionRoleAssignmentCheck;
 import org.sonar.iac.terraform.checks.gcp.AttributeBasedAccessControlCheck;
+import org.sonar.iac.terraform.checks.gcp.ComputeInstanceSshKeysCheck;
 import org.sonar.iac.terraform.checks.gcp.CryptoKeyRotationPeriodCheck;
 import org.sonar.iac.terraform.checks.gcp.CustomRoleCheck;
 import org.sonar.iac.terraform.checks.gcp.DatabaseIpConfigCheck;
@@ -90,6 +91,7 @@ public class TerraformCheckList {
       // GCP
       AttributeBasedAccessControlCheck.class,
       DnsZoneCheck.class,
+      ComputeInstanceSshKeysCheck.class,
       CryptoKeyRotationPeriodCheck.class,
       CustomRoleCheck.class,
       DatabaseIpConfigCheck.class,
