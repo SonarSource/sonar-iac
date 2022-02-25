@@ -35,8 +35,7 @@ public class LoadBalancerSslPolicyCheck extends AbstractNewResourceCheck {
     register("google_compute_ssl_policy",
       resource -> resource.attribute("profile")
         .reportIfAbsent(OMITTED_MESSAGE)
-        .reportIf(equalTo("COMPATIBLE"), INVALID_VALUE_MESSAGE)
-        .reportIf(equalTo("MODERN"), INVALID_VALUE_MESSAGE));
+        .reportIf(equalTo("COMPATIBLE").or(equalTo("MODERN")), INVALID_VALUE_MESSAGE));
   }
 
 }
