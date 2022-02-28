@@ -26,3 +26,20 @@ resource "google_compute_instance_from_template" "noncompliant2" {
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   }
 }
+
+####### various-stages-of-missing metadata.block-project-ssh-keys (for coverage)
+
+resource "google_compute_instance_from_template" "various-stages-of-missing-1" { # Compliant
+}
+
+resource "google_compute_instance_from_template" "various-stages-of-missing-2" {
+  metadata = true # Compliant
+}
+
+resource "google_compute_instance_from_template" "various-stages-of-missing-3" {
+  metadata = {} # Compliant
+}
+
+resource "google_compute_instance_from_template" "various-stages-of-missing-4" {
+  metadata = { block-project-ssh-keys = 1 } # Noncompliant {{Make sure that enabling project-wide SSH keys is safe here.}}
+}
