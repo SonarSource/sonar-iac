@@ -1,9 +1,3 @@
-# data block without name
-data "google_iam_policy" {
-
-}
-
-
 data "google_iam_policy" "noncompliant" {
 
   binding {
@@ -44,3 +38,13 @@ resource "google_api_gateway_api_config_iam_policy" "not_resolved" {
   policy_data = "${data.google_iam_policy.compliant_unused.policy_data}"
 }
 
+# data block without name
+data "google_iam_policy" {
+
+}
+
+data "non_google_iam_policy" "coverage" {
+
+}
+
+top_level_attribute = "Syntactical correct HCl, but not valid Terraform"
