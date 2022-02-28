@@ -22,15 +22,14 @@ package org.sonar.iac.terraform.checks.gcp;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.tree.PropertyTree;
-import org.sonar.iac.common.api.tree.TextTree;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.Trilean;
+import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
-import static org.sonar.iac.common.checks.PropertyUtils.get;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 
 @Rule(key = "S6405")
 public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
@@ -54,38 +53,31 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
    *         Trilean.FALSE   iff resource["metadata"]["block-project-ssh-keys"] is defined but != true
    *         Trilean.UNKNWON iff resource["metadata"]["block-project-ssh-keys"] (or part of it) is not defined
    */
-  private static Trilean checkMetadata(ResourceSymbol resource, boolean reportOnMissing) {
+  private static void checkMetadata(ResourceSymbol resource, boolean reportOnMissing) {
     AttributeSymbol metadata = resource.attribute("metadata");
 
     if (metadata.isAbsent()) {
       if (reportOnMissing) {
         metadata.reportIfAbsent(OMITTING_MESSAGE);
       }
-      return Trilean.UNKNOWN;
+      return;
     }
 
     if (!(metadata.tree.value() instanceof ObjectTree)) {
-      if (reportOnMissing) {
-        metadata.report(OMITTING_MESSAGE);
-      }
-      return Trilean.UNKNOWN;
+      return;
     }
 
     var metadataObj = (ObjectTree) metadata.tree.value();
-    PropertyTree sshKeysProperty = get(metadataObj, "block-project-ssh-keys").orElse(null);
+    PropertyTree sshKeysProperty = PropertyUtils.get(metadataObj, "block-project-ssh-keys").orElse(null);
     if (sshKeysProperty == null) {
       if (reportOnMissing) {
         metadata.report(OMITTING_MESSAGE);
       }
-      return Trilean.UNKNOWN;
+      return;
     }
 
-    Tree sshKeysValue = sshKeysProperty.value();
-    if (sshKeysValue instanceof TextTree && ((TextTree) sshKeysValue).value().equalsIgnoreCase("true")) {
-      return Trilean.TRUE;
-    } else {
+    if (isFalse().test((ExpressionTree) sshKeysProperty.value())) {
       metadata.ctx.reportIssue(sshKeysProperty, MESSAGE);
-      return Trilean.FALSE;
     }
   }
 }

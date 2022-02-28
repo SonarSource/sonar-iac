@@ -3,8 +3,7 @@ resource "google_compute_instance" "example1" { # Noncompliant {{Omitting metada
 }
 
 resource "google_compute_instance" "example2" {
-  metadata = true # Noncompliant {{Omitting metadata.block-project-ssh-keys enables project-wide SSH keys. Make sure it is safe here.}}
-# ^^^^^^^^^^^^^^^
+  metadata = true # Compliant
 }
 
 resource "google_compute_instance" "example3" {
@@ -21,8 +20,7 @@ resource "google_compute_instance" "example4" {
 
 resource "google_compute_instance" "example4" {
   metadata = {
-    block-project-ssh-keys = 1 # Noncompliant {{Make sure that enabling project-wide SSH keys is safe here.}}
-#   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    block-project-ssh-keys = 1 # Compliant
   }
 }
 
@@ -39,8 +37,7 @@ resource "google_compute_instance" "various-stages-of-missing-1" { # Noncomplian
 }
 
 resource "google_compute_instance" "various-stages-of-missing-2" {
-  metadata = true # Noncompliant {{Omitting metadata.block-project-ssh-keys enables project-wide SSH keys. Make sure it is safe here.}}
-# ^^^^^^^^^^^^^^^
+  metadata = true # Compliant
 }
 
 resource "google_compute_instance" "various-stages-of-missing-3" {
@@ -49,8 +46,7 @@ resource "google_compute_instance" "various-stages-of-missing-3" {
 }
 
 resource "google_compute_instance" "various-stages-of-missing-4" {
-  metadata = { block-project-ssh-keys = 1 } # Noncompliant {{Make sure that enabling project-wide SSH keys is safe here.}}
-#              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  metadata = { block-project-ssh-keys = 1 } # Compliant
 }
 
 #############
