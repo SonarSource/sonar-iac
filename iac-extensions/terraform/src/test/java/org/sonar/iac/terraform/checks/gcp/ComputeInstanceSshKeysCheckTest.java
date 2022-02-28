@@ -22,7 +22,7 @@ package org.sonar.iac.terraform.checks.gcp;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.checks.TerraformVerifier;
 
-public class ComputeInstanceSshKeysCheckTest {
+class ComputeInstanceSshKeysCheckTest {
 
   @Test
   void ssh_keys() {

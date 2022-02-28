@@ -54,7 +54,7 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
    *         Trilean.FALSE   iff resource["metadata"]["block-project-ssh-keys"] is defined but != true
    *         Trilean.UNKNWON iff resource["metadata"]["block-project-ssh-keys"] (or part of it) is not defined
    */
-  private Trilean checkMetadata(ResourceSymbol resource, boolean reportOnMissing) {
+  private static Trilean checkMetadata(ResourceSymbol resource, boolean reportOnMissing) {
     AttributeSymbol metadata = resource.attribute("metadata");
 
     if (metadata.isAbsent()) {
