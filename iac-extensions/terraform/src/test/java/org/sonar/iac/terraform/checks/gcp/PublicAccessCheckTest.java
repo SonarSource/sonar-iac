@@ -49,4 +49,9 @@ class PublicAccessCheckTest {
   void gcp_kubernetes_resource() {
     verify("PublicAccessCheck/gcp_kubernetes_resource.tf", new PublicAccessCheck());
   }
+
+  @Test
+  void gcp_iam_policy() {
+    verify("PublicAccessCheck/gcp_iam_policy.tf", new PublicAccessCheck());
+  }
 }

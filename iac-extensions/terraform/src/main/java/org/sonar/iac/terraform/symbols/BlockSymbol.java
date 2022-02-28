@@ -69,6 +69,13 @@ public class BlockSymbol extends Symbol<BlockTree> {
       .orElse(AttributeSymbol.fromAbsent(ctx, name, this));
   }
 
+  public ReferenceSymbol reference(String name) {
+    return Optional.ofNullable(tree)
+      .flatMap(tree -> PropertyUtils.get(tree, name, AttributeTree.class))
+      .map(attribute -> ReferenceSymbol.fromPresent(ctx, attribute, this))
+      .orElse(ReferenceSymbol.fromAbsent(ctx, name, this));
+  }
+
   @Override
   public BlockSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
     super.reportIfAbsent(message, secondaries);
