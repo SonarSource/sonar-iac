@@ -19,15 +19,27 @@
  */
 package org.sonar.iac.terraform.checks.gcp;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.FileTree;
+import org.sonar.iac.terraform.api.tree.StatementTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
+import org.sonar.iac.terraform.symbols.ReferenceSymbol;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
+import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.BLOCK;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPattern;
@@ -36,9 +48,12 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPa
 public class PublicAccessCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Ensure that granting public access to this resource is safe here.";
+  private static final String SECONDARY_MESSAGE = "Excessive granting of permissions.";
   private static final String OMITTING_DNS = "Omitting %s will grant public access to this managed zone. Ensure it is safe here.";
   private static final String OMITTING_KUBERNETES = "Omitting %s grants public access to parts of this cluster. Make sure it is safe here.";
   private static final String MESSAGE_KUBERNETES = "Ensure that granting public access is safe here.";
+
+  private static final String GCP_RESOURCE_PREFIX = "google_";
 
   private static final List<String> IAM_RESOURCES = List.of("apigee_environment", "api_gateway_api_config", "api_gateway_api",
     "api_gateway_gateway", "artifact_registry_repository", "bigquery_dataset", "bigquery_table", "bigtable_instance", "bigtable_table",
@@ -52,18 +67,32 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
     "service_directory_namespace", "service_directory_service", "sourcerepo_repository", "spanner_database", "spanner_instance",
     "storage_bucket", "tags_tag_key", "tags_tag_value", "project", "organization", "service_account", "folder");
 
-  private static final List<String> IAM_BINDING_RESOURCES = resourceNameList("google_", "_iam_binding", IAM_RESOURCES);
-  private static final List<String> IAM_MEMBER_RESOURCES = resourceNameList("google_", "_iam_member", IAM_RESOURCES);
+  private static final String CONTAINS_SENSITIVE_MEMBER = ".*all(Authenticated)?Users.*";
+
+  private Map<String, BlockSymbol> policyDataCollection = new HashMap<>();
+
+  @Override
+  public void initialize(InitContext init) {
+    init.register(FileTree.class, this::collectPolicyData);
+    super.initialize(init);
+  }
+
+  private void collectPolicyData(CheckContext ctx, FileTree file) {
+    policyDataCollection = file.properties().stream()
+      .filter(PublicAccessCheck::isPolicyDataBlock)
+      .map(BlockTree.class::cast)
+      .collect(Collectors.toMap(data -> String.format("data.google_iam_policy.%s.policy_data", getName(data)), data -> ResourceSymbol.fromPresent(ctx, data)));
+  }
 
   @Override
   protected void registerResourceConsumer() {
-    register(IAM_BINDING_RESOURCES,
+    register(iamResourceNameList("_iam_binding"),
       resource -> resource.list("members")
-        .reportItemIf(matchesPattern(".*all(Authenticated)?Users.*"), MESSAGE));
+        .reportItemIf(matchesPattern(CONTAINS_SENSITIVE_MEMBER), MESSAGE));
 
-    register(IAM_MEMBER_RESOURCES,
+    register(iamResourceNameList("_iam_member"),
       resource -> resource.attribute("member")
-        .reportIf(matchesPattern(".*all(Authenticated)?Users.*"), MESSAGE));
+        .reportIf(matchesPattern(CONTAINS_SENSITIVE_MEMBER), MESSAGE));
 
     register(List.of("google_storage_default_object_access_control", "google_storage_object_access_control"),
       resource -> resource.attribute("entity")
@@ -101,11 +130,35 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
               .reportIfAbsent(OMITTING_KUBERNETES));
         }
       });
+
+    register(iamResourceNameList("_iam_policy"),
+      resource -> {
+        ReferenceSymbol reference = resource.reference("policy_data");
+        List<SecondaryLocation> sensitiveMemberBindings = new ArrayList<>();
+
+        reference.resolve(policyDataCollection).blocks("binding")
+          .forEach(block -> block.list("members")
+            .getItemIf(matchesPattern(CONTAINS_SENSITIVE_MEMBER))
+            .forEach(sensitiveMember -> sensitiveMemberBindings.add(new SecondaryLocation(sensitiveMember, SECONDARY_MESSAGE))));
+
+        if (!sensitiveMemberBindings.isEmpty()) {
+          reference.report(MESSAGE, sensitiveMemberBindings);
+        }
+      });
   }
 
-  private static List<String> resourceNameList(String prefix, String suffix, Collection<String> resourceNames) {
-    return resourceNames.stream()
-      .map(resourceName -> prefix + resourceName + suffix)
+  private static List<String> iamResourceNameList(String suffix) {
+    return IAM_RESOURCES.stream()
+      .map(resourceName -> GCP_RESOURCE_PREFIX + resourceName + suffix)
       .collect(Collectors.toList());
+  }
+
+  private static boolean isPolicyDataBlock(StatementTree statement) {
+    return statement.is(BLOCK) && isDataOfType((BlockTree) statement, "google_iam_policy") && getName((BlockTree) statement) != null;
+  }
+
+  @CheckForNull
+  private static String getName(BlockTree block) {
+    return block.labels().size() >= 2 ?  block.labels().get(1).value() : null;
   }
 }
