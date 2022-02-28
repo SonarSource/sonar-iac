@@ -38,6 +38,18 @@ resource "google_api_gateway_api_config_iam_policy" "not_resolved" {
   policy_data = "${data.google_iam_policy.compliant_unused.policy_data}"
 }
 
+resource "something_unrelated" "x1" {
+  policy_data = data.google_iam_policy.noncompliant.policy_data #Compliant
+}
+
+resource "google_api_gateway_api_config_iam_policy" "x2" {
+  policy_data = data.google_iam_policy.xxx.policy_data
+}
+
+resource "google_api_gateway_api_config_iam_policy" "x3" {
+  policy_data = data.google_iam_policy.noncompliant.xxx
+}
+
 # data block without name
 data "google_iam_policy" {
 

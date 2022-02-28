@@ -32,8 +32,13 @@ import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAcces
 
 public class ReferenceSymbol extends Symbol<AttributeTree> {
 
-  protected ReferenceSymbol(CheckContext ctx, AttributeTree tree, String name, BlockSymbol parent) {
+  private AttributeAccessTree reference;
+
+  private ReferenceSymbol(CheckContext ctx, AttributeTree tree, String name, BlockSymbol parent) {
     super(ctx, tree, name, parent);
+    if (tree != null) {
+      this.reference = (AttributeAccessTree) tree.value();
+    }
   }
 
   public static ReferenceSymbol fromPresent(CheckContext ctx, AttributeTree tree, BlockSymbol parent) {
@@ -49,7 +54,7 @@ public class ReferenceSymbol extends Symbol<AttributeTree> {
 
   public BlockSymbol resolve(Map<String, BlockSymbol> symbolTable) {
     return Optional.ofNullable(tree)
-      .map(tree -> symbolTable.get(attributeAccessToString((AttributeAccessTree) tree.value())))
+      .map(tree -> symbolTable.get(attributeAccessToString(reference)))
       .orElse(BlockSymbol.fromAbsent(ctx, "unknown", null));
   }
 
