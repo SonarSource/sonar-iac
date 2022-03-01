@@ -1,0 +1,30 @@
+{
+  "title": "Enabling project-wide SSH keys to access VM instances is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "gcp"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6405",
+  "sqKey": "S6405",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      266,
+      269,
+      272
+    ],
+    "OWASP": [
+      "A2"
+    ],
+    "OWASP Top 10 2021": [
+      "A7"
+    ]
+  },
+  "quickfix": "unknown"
+}

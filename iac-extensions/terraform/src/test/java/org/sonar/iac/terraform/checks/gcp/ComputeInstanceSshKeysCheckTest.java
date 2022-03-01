@@ -17,9 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.api.tree;
+package org.sonar.iac.terraform.checks.gcp;
 
-public interface PropertyTree extends HasTextRange {
-  Tree key();
-  Tree value();
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.terraform.checks.TerraformVerifier;
+
+class ComputeInstanceSshKeysCheckTest {
+
+  @Test
+  void ssh_keys() {
+    TerraformVerifier.verify("GCP/ComputeInstanceSshKeysCheck/ssh_keys.tf", new ComputeInstanceSshKeysCheck());
+  }
+
+  @Test
+  void ssh_keys_by_template() {
+    TerraformVerifier.verify("GCP/ComputeInstanceSshKeysCheck/ssh_keys_by_template.tf", new ComputeInstanceSshKeysCheck());
+  }
+
 }
