@@ -21,9 +21,8 @@ package org.sonar.iac.terraform.checks.gcp;
 
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
@@ -49,9 +48,6 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
   /**
    * @param resource the target resource (of type 'google_compute_instance' or 'google_compute_instance_from_template')
    * @param reportOnMissing should we report in case of undefined 'block-project-ssh-keys' (or part of its path)?
-   * @return Trilean.TRUE    iff resource["metadata"]["block-project-ssh-keys"] is defined and == true
-   *         Trilean.FALSE   iff resource["metadata"]["block-project-ssh-keys"] is defined but != true
-   *         Trilean.UNKNWON iff resource["metadata"]["block-project-ssh-keys"] (or part of it) is not defined
    */
   private static void checkMetadata(ResourceSymbol resource, boolean reportOnMissing) {
     AttributeSymbol metadata = resource.attribute("metadata");
@@ -68,16 +64,15 @@ public class ComputeInstanceSshKeysCheck extends AbstractNewResourceCheck {
     }
 
     var metadataObj = (ObjectTree) metadata.tree.value();
-    PropertyTree sshKeysProperty = PropertyUtils.get(metadataObj, "block-project-ssh-keys").orElse(null);
-    if (sshKeysProperty == null) {
-      if (reportOnMissing) {
-        metadata.report(OMITTING_MESSAGE);
-      }
-      return;
-    }
-
-    if (isFalse().test((ExpressionTree) sshKeysProperty.value())) {
-      metadata.ctx.reportIssue(sshKeysProperty, MESSAGE);
-    }
+    PropertyUtils.get(metadataObj, "block-project-ssh-keys", ObjectElementTree.class)
+      .ifPresentOrElse(sshKeysProperty -> {
+        if (isFalse().test(sshKeysProperty.value())) {
+          metadata.ctx.reportIssue(sshKeysProperty, MESSAGE);
+        }
+      }, () -> {
+        if (reportOnMissing) {
+          metadata.ctx.reportIssue(metadata.tree.key(), OMITTING_MESSAGE);
+        }
+      });
   }
 }
