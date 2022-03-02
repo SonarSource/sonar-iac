@@ -14,7 +14,7 @@ Discover and update the CloudFormation [properties](/analysis/analysis-parameter
 Discover and update the Terraform [properties](/analysis/analysis-parameters/) in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > Languages > Terraform](/#sonarqube-admin#/admin/settings?category=Terraform)**
 
 ## Supported Versions, Formats and Providers
-* Terraform 1 (HCL/Terraform only)
+* Terraform 1.x (HCL format only)
 * CloudFormation with AWSTemplateFormatVersion 2010-09-09 (YAML and JSON)
 * AWS, Azure and GCP
 
