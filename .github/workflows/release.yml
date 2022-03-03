@@ -22,7 +22,7 @@ jobs:
           RELEASE_SSH_USER: ${{ secrets.RELEASE_SSH_USER }}
           RELEASE_SSH_KEY: ${{ secrets.RELEASE_SSH_KEY }}
           SLACK_API_TOKEN: ${{secrets.SLACK_API_TOKEN }}
-        uses: SonarSource/gh-action_release/main@v3
+        uses: SonarSource/gh-action_release/main@4.2.0
         with:
           publish_to_binaries: true
           slack_channel: team-lang-iac
