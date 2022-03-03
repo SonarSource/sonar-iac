@@ -16,7 +16,7 @@ production, a strategy could be to review the monitored activity in order to red
 <h2>Noncompliant Code Example</h2>
 <p>A customer-managed policy for AWS that grants all permissions by using the wildcard (*) in the <code>Action</code> property:</p>
 <pre>
-<code data-lang="terraform">resource "aws_iam_policy" "example" {
+resource "aws_iam_policy" "example" {
   name = "noncompliantpolicy"
 
   policy = jsonencode({
@@ -33,23 +33,23 @@ production, a strategy could be to review the monitored activity in order to red
       }
     ]
   })
-}</code>
+}
 </pre>
 <p>A customer-managed policy for GCP that grants all permissions by using the actions admin role <code>role</code> property:</p>
 <pre>
-<code data-lang="terraform">resource "google_project_iam_binding" "example" {
+resource "google_project_iam_binding" "example" {
   project = "example"
   role    = "roles/owner" # Sensitive
 
   members = [
     "user:jane@example.com",
   ]
-}</code>
+}
 </pre>
 <h2>Compliant Solution</h2>
 <p>A customer-managed policy for AWS that grants only the required permissions:</p>
 <pre>
-<code data-lang="terraform">resource "aws_iam_policy" "example" {
+resource "aws_iam_policy" "example" {
   name = "compliantpolicy"
 
   policy = jsonencode({
@@ -66,18 +66,18 @@ production, a strategy could be to review the monitored activity in order to red
       }
     ]
   })
-}</code>
+}
 </pre>
 <p>A customer-managed policy for GCP that grants restricted permissions by using the actions admin role <code>role</code> property:</p>
 <pre>
-<code data-lang="terraform">resource "google_project_iam_binding" "example" {
+resource "google_project_iam_binding" "example" {
   project = "example"
   role    = "roles/actions.Viewer"
 
   members = [
     "user:jane@example.com",
   ]
-}</code>
+}
 </pre>
 <h2>See</h2>
 <ul>

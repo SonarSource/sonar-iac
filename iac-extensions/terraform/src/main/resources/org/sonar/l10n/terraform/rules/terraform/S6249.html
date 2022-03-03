@@ -20,7 +20,7 @@ resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
   bucket = "mynoncompliantbucketname"
 }
 </pre>
-<p>A policy that forces, only for some users, HTTPs is used:</p>
+<p>A policy is defined but forces only HTTPs communication for some users:</p>
 <pre>
 resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
   bucket = "mynoncompliantbucketname"
