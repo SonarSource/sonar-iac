@@ -46,6 +46,11 @@ resource "azurerm_postgresql_server" "example"  {
 }
 </pre>
 <pre>
+resource "azurerm_postgresql_server" "example"  {
+  public_network_access_enabled = true # Sensitive
+}
+</pre>
+<pre>
 resource "azurerm_kubernetes_cluster" "production" {
   api_server_authorized_ip_ranges = ["176.0.0.0/4"] # Sensitive
   default_node_pool {
@@ -63,7 +68,6 @@ resource "google_compute_instance" "example" {
       # Ephemeral public IP
     }
   }
-}
 </pre>
 <h2>Compliant Solution</h2>
 <p>For AWS:</p>

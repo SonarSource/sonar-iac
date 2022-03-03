@@ -49,7 +49,7 @@ given parameter.</p>
 <h2>Sensitive Code Example</h2>
 <p>This custom role grants more than 5 sensitive permissions:</p>
 <pre>
-<code data-lang="terraform">resource "google_project_iam_custom_role" "example" {
+resource "google_project_iam_custom_role" "example" {
   permissions = [ # Sensitive
     "resourcemanager.projects.create", # Sensitive permission
     "resourcemanager.projects.delete", # Sensitive permission
@@ -63,12 +63,12 @@ given parameter.</p>
     "run.services.list",
     "run.services.update",  # Sensitive permission
   ]
-}</code>
+}
 </pre>
 <h2>Compliant Solution</h2>
 <p>This custom role grants less than 5 sensitive permissions:</p>
 <pre>
-<code data-lang="terraform">resource "google_project_iam_custom_role" "example" {
+resource "google_project_iam_custom_role" "example" {
   permissions = [
     "resourcemanager.projects.get",
     "resourcemanager.projects.list",
@@ -79,7 +79,7 @@ given parameter.</p>
     "run.services.list",
     "run.services.update",
   ]
-}</code>
+}
 </pre>
 <h2>See</h2>
 <ul>
