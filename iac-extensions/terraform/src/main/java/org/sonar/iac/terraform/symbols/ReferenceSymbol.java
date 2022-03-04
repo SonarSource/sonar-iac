@@ -34,22 +34,22 @@ public class ReferenceSymbol extends Symbol<AttributeTree> {
 
   private AttributeAccessTree reference;
 
-  private ReferenceSymbol(CheckContext ctx, AttributeTree tree, String name, BlockSymbol parent) {
+  private ReferenceSymbol(CheckContext ctx, AttributeTree tree, String name, BlockSymbol parent, AttributeAccessTree reference) {
     super(ctx, tree, name, parent);
-    if (tree != null) {
-      this.reference = (AttributeAccessTree) tree.value();
+    if (reference != null) {
+      this.reference = reference;
     }
   }
 
   public static ReferenceSymbol fromPresent(CheckContext ctx, AttributeTree tree, BlockSymbol parent) {
     if (tree.value().is(TerraformTree.Kind.ATTRIBUTE_ACCESS)) {
-      return new ReferenceSymbol(ctx, tree, tree.key().value(), parent);
+      return new ReferenceSymbol(ctx, tree, tree.key().value(),  parent, (AttributeAccessTree) tree.value());
     }
     return ReferenceSymbol.fromAbsent(ctx, tree.key().value(), parent);
   }
 
   public static ReferenceSymbol fromAbsent(CheckContext ctx, String name, BlockSymbol parent) {
-    return new ReferenceSymbol(ctx, null, name, parent);
+    return new ReferenceSymbol(ctx, null, name, parent, null);
   }
 
   public BlockSymbol resolve(Map<String, BlockSymbol> symbolTable) {

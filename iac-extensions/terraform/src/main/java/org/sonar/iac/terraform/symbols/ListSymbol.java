@@ -29,6 +29,7 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 
 public class ListSymbol extends Symbol<AttributeTree> {
@@ -42,7 +43,7 @@ public class ListSymbol extends Symbol<AttributeTree> {
 
   public static ListSymbol fromPresent(CheckContext ctx, AttributeTree tree, BlockSymbol parent) {
     // Declare list as absent if attribute is present but not of type list
-    if (tree.value() instanceof TupleTree) {
+    if (tree.value().is(TerraformTree.Kind.TUPLE)) {
       return new ListSymbol(ctx, tree, tree.key().value(), parent, ((TupleTree) tree.value()).elements().trees());
     }
     return fromAbsent(ctx, tree.key().value(), parent);
@@ -59,6 +60,13 @@ public class ListSymbol extends Symbol<AttributeTree> {
 
   public Stream<ExpressionTree> getItemIf(Predicate<ExpressionTree> predicate) {
     return items.stream().filter(predicate);
+  }
+
+  public ListSymbol reportIf(Predicate<AttributeTree> predicate, String message, SecondaryLocation... secondaryLocations) {
+    if (predicate.test(tree)) {
+      report(message, secondaryLocations);
+    }
+    return this;
   }
 
   @Nullable
