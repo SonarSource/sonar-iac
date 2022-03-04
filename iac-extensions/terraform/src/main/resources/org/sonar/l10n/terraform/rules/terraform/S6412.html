@@ -1,0 +1,40 @@
+<p>When object versioning for Google Cloud Storage (GCS) buckets is enabled, different versions of an object are stored in the bucket, preventing
+accidental deletion. A specific version can always be deleted when the generation number of an object version is specified in the request.</p>
+<p>Object versioning cannot be enabled on a bucket with a retention policy. A retention policy ensures that an object is retained for a specific
+period of time even if a request is made to delete or replace it. Thus, a retention policy locks the single current version of an object in the
+bucket, which differs from object versioning where different versions of an object are retained.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The bucket stores information that require high availability. </li>
+</ul>
+<p>There is a risk if you answered yes to this question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to enable GCS bucket versioning and thus to have the possibility to retrieve and restore different versions of an object.</p>
+<h2>Sensitive Code Example</h2>
+<p>Versioning is disabled by default:</p>
+<pre>
+resource "google_storage_bucket" "example" { # Sensitive
+  name          = "example"
+  location      = "US"
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>Versioning is enabled:</p>
+<pre>
+resource "google_storage_bucket" "example" {
+  name          = "example"
+  location      = "US"
+
+  versioning {
+    enabled = "true"
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
+  <li> <a href="https://cloud.google.com/storage/docs/object-versioning?hl=en">GCP documentation</a> - Object Versioning </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+</ul>
+
