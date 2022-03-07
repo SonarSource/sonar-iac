@@ -1,0 +1,25 @@
+{
+  "title": "Unversioned Google Cloud Storage buckets are security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "aws",
+    "owasp-a6"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6412",
+  "sqKey": "S6412",
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
+    ]
+  }
+}
