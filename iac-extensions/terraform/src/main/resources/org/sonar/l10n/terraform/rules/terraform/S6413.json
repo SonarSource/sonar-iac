@@ -1,0 +1,18 @@
+{
+  "title": "Defining a short log retention duration is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "azure",
+    "gcp"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6413",
+  "sqKey": "S6413",
+  "scope": "Main",
+  "securityStandards": {}
+}
