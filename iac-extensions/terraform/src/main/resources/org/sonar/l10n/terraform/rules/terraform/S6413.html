@@ -1,0 +1,54 @@
+<p>Defining a short log retention duration can reduce an organization’s ability to backtrace the actions of malicious actors in case of a security
+incident.</p>
+<p>Logging allows operational and security teams to get detailed and real-time feedback on an information system’s events. The logging coverage
+enables them to quickly react to events, ranging from the most benign bugs to the most impactful security incidents, such as intrusions.</p>
+<p>Apart from security detection, logging capabilities also directly influence future digital forensic analyses. For example, detailed logging will
+allow investigators to establish a timeline of the actions perpetrated by an attacker.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This component is essential for the information system infrastructure. </li>
+  <li> This component is essential for mission-critical functions. </li>
+  <li> Compliance policies require traceability for a longer duration. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Setting log retention period to 14 days is the bare minimum. It’s recommended to increase it to 30 days or above.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://docs.microsoft.com/en-us/azure/firewall-manager/policy-overview">Azure Firewall Policy</a>:</p>
+<pre>
+resource "azurerm_firewall_policy" "example" {
+  insights {
+    enabled = true
+    retention_in_days = 7 # Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://cloud.google.com/logging/docs/routing/overview#buckets">Google Cloud Logging buckets</a>:</p>
+<pre>
+resource "google_logging_project_bucket_config" "example" {
+    project = var.project
+    location = "global"
+    retention_days = 7 # Sensitive
+    bucket_id = "_Default"
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://docs.microsoft.com/en-us/azure/firewall-manager/policy-overview">Azure Firewall Policy</a>:</p>
+<pre>
+resource "azurerm_firewall_policy" "example" {
+  insights {
+    enabled = true
+    retention_in_days = 30
+  }
+}
+</pre>
+<p>For <a href="https://cloud.google.com/logging/docs/routing/overview#buckets">Google Cloud Logging buckets</a>:</p>
+<pre>
+resource "google_logging_project_bucket_config" "example" {
+    project = var.project
+    location = "global"
+    retention_days = 30
+    bucket_id = "_Default"
+}
+</pre>
+
