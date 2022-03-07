@@ -1,0 +1,44 @@
+<p>The Google Cloud audit logs service records administrative activities and accesses to Google Cloud resources of the project. It’s important to
+enable audit logs to be able to investigate malicious activities in the event of a security incident.</p>
+<p>Some project members may be exempted from having their activities recorded in the Google Cloud audit log service, creating a blind spot and
+reducing the capacity to investigate future security events.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The members exempted from having their activity logged have high privileges. </li>
+  <li> Compliance rules require that audit log should be activated for all members. </li>
+</ul>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It is recommended to have a consistent audit logging policy for all project members and therefore not to create logging exemptions for certain
+members.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+resource "google_project_iam_audit_config" "example" {
+  project = data.google_project.project.id
+  service = "allServices"
+  audit_log_config {
+    log_type = "ADMIN_READ"
+    exempted_members = [ # Sensitive
+      "user:rogue.administrator@gmail.com",
+    ]
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+resource "google_project_iam_audit_config" "example" {
+  project = data.google_project.project.id
+  service = "allServices"
+  audit_log_config {
+    log_type = "ADMIN_READ"
+  }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/">OWASP Top 10 2021 Category A9</a> - Security Logging and
+  Monitoring Failures </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A10_2017-Insufficient_Logging%2526Monitoring.html">OWASP Top 10 2017 Category A10</a> -
+  Insufficient Logging &amp; Monitoring </li>
+  <li> <a href="https://cloud.google.com/logging/docs/audit">GCP Documentation</a> - Cloud Audit Logs overview </li>
+</ul>
+
