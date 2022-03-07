@@ -1,8 +1,6 @@
 # Noncompliant@+1 {{Omitting versioning will disable versioning for GCS bucket. Ensure it is safe here.}}
 resource "google_storage_bucket" "noncompliant1" {
       #  ^^^^^^^^^^^^^^^^^^^^^^^
-
-  # no check required if `versioning.enabled` is missing due to it's a required attribute in `versioning
 }
 
 resource "google_storage_bucket" "noncompliant2" {
@@ -35,6 +33,12 @@ resource "google_storage_bucket" "compliant3" {
     enabled = var.gcs_versioning
   }
 }
+
+resource "google_storage_bucket" "compliant4" {
+  versioning {
+  }
+}
+
 
 resource "non_google_storage_bucket" "coverage" {
 }
