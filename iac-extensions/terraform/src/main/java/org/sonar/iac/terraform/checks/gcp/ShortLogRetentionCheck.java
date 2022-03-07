@@ -34,9 +34,9 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
   private static final int DEFAULT = 14;
 
   @RuleProperty(
-    key = "log_retention_duration",
+    key = "minimum_log_retention_days",
     defaultValue = "" + DEFAULT)
-  int logRetentionDuration = DEFAULT;
+  int minimumLogRetentionDays = DEFAULT;
 
   @Override
   protected void registerResourceConsumer() {
@@ -50,7 +50,7 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
 
   private Predicate<ExpressionTree> isTooShortRetention() {
     return expression -> TextUtils.getIntValue(expression)
-      .filter(retention -> retention != 0 && retention < logRetentionDuration)
+      .filter(retention -> retention != 0 && retention < minimumLogRetentionDays)
       .isPresent();
   }
 
