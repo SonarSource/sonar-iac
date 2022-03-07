@@ -19,11 +19,9 @@
  */
 package org.sonar.iac.terraform.checks.gcp;
 
-import java.util.function.Predicate;
 import org.sonar.check.Rule;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
+import org.sonar.iac.terraform.symbols.ListSymbol;
 
 @Rule(key = "S6414")
 public class AuditLogMemberExclusionCheck extends AbstractNewResourceCheck {
@@ -32,11 +30,11 @@ public class AuditLogMemberExclusionCheck extends AbstractNewResourceCheck {
   protected void registerResourceConsumer() {
     register("google_project_iam_audit_config",
       resource -> resource.blocks("audit_log_config")
-        .forEach(block -> block.list("exempted_members")
-          .reportIf(isNotEmpty(), "Make sure excluding members activity from audit logs is safe here.")));
-  }
-
-  private static Predicate<AttributeTree> isNotEmpty() {
-    return attribute -> attribute != null && !((TupleTree) attribute.value()).elements().trees().isEmpty();
+        .forEach(block -> {
+          ListSymbol list = block.list("exempted_members");
+          if (!list.isEmpty()) {
+            list.report( "Make sure excluding members activity from audit logs is safe here.");
+          }
+        }));
   }
 }

@@ -14,6 +14,14 @@ resource "google_project_iam_audit_config" "compliant" {
 
   audit_log_config { # Compliant missing equals empty
   }
+
+  audit_log_config {
+    exempted_members = var.audit_members
+  }
+
+  audit_log_config {
+    exempted_members = "user:eric.therond@sonarsource.com" # Invalid semantic
+  }
 }
 
 resource "non_google_project_iam_audit_config" "coverage" {

@@ -62,11 +62,8 @@ public class ListSymbol extends Symbol<AttributeTree> {
     return items.stream().filter(predicate);
   }
 
-  public ListSymbol reportIf(Predicate<AttributeTree> predicate, String message, SecondaryLocation... secondaryLocations) {
-    if (predicate.test(tree)) {
-      report(message, secondaryLocations);
-    }
-    return this;
+  public boolean isEmpty() {
+    return tree != null && items.isEmpty();
   }
 
   @Nullable
