@@ -24,63 +24,87 @@ import org.junit.jupiter.api.Test;
 class DisabledLoggingCheckTest {
 
   @Test
-  void test_S3_bucket() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_S3_bucket.tf", new DisabledLoggingCheck());
+  void aws_S3_bucket() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_S3_bucket.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_api_gateway_stage() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_api_gateway_stage.tf", new DisabledLoggingCheck());
+  void aws_api_gateway_stage() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_api_gateway_stage.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_api_gatewayv2_stage() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_api_gatewayv2_stage.tf", new DisabledLoggingCheck());
+  void aws_api_gatewayv2_stage() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_api_gatewayv2_stage.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_aws_msk_cluster() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_aws_msk_cluster.tf", new DisabledLoggingCheck());
+  void aws_aws_msk_cluster() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_aws_msk_cluster.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_neptune_cluster() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_neptune_cluster.tf", new DisabledLoggingCheck());
+  void aws_neptune_cluster() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_neptune_cluster.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_docdb_cluster() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_docdb_cluster.tf", new DisabledLoggingCheck());
+  void aws_docdb_cluster() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_docdb_cluster.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_mq_broker() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_mq_broker.tf", new DisabledLoggingCheck());
+  void aws_mq_broker() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_mq_broker.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_redshift_cluster() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_redshift_cluster.tf", new DisabledLoggingCheck());
+  void aws_redshift_cluster() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_redshift_cluster.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_global_accelerator() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_global_accelerator.tf", new DisabledLoggingCheck());
+  void aws_global_accelerator() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_global_accelerator.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_elastic_search_domain() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_elastic_search_domain.tf", new DisabledLoggingCheck());
+  void aws_elastic_search_domain() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_elastic_search_domain.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_cloudfront_distribution() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_cloudfront_distribution.tf", new DisabledLoggingCheck());
+  void aws_cloudfront_distribution() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_cloudfront_distribution.tf", new DisabledLoggingCheck());
   }
 
   @Test
-  void test_elastic_load_balancing() {
-    TerraformVerifier.verify("DisabledLoggingCheck/test_elastic_load_balancing.tf", new DisabledLoggingCheck());
+  void aws_elastic_load_balancing() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_elastic_load_balancing.tf", new DisabledLoggingCheck());
   }
 
+  @Test
+  void gcp_storage_bucket() {
+    TerraformVerifier.verify("DisabledLoggingCheck/gcp_storage_bucket.tf", new DisabledLoggingCheck());
+  }
+
+  @Test
+  void gcp_region_backend_service() {
+    TerraformVerifier.verify("DisabledLoggingCheck/gcp_region_backend_service.tf", new DisabledLoggingCheck());
+  }
+
+  @Test
+  void gcp_subnetwork() {
+    TerraformVerifier.verify("DisabledLoggingCheck/gcp_subnetwork.tf", new DisabledLoggingCheck());
+  }
+
+  @Test
+  void gcp_container_cluster() {
+    TerraformVerifier.verify("DisabledLoggingCheck/gcp_container_cluster.tf", new DisabledLoggingCheck());
+  }
+
+  @Test
+  void gcp_sql_database() {
+    TerraformVerifier.verify("DisabledLoggingCheck/gcp_sql_database.tf", new DisabledLoggingCheck());
+  }
 }
