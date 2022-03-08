@@ -33,7 +33,7 @@ class ShortLogRetentionCheckTest {
   @Test
   void gcp_logging_custom() {
     ShortLogRetentionCheck check = new ShortLogRetentionCheck();
-    check.minimumLogRetentionDays = 7;
+    check.minimumLogRetentionDays = 300;
     verify("ShortLogRetentionCheck/gcp_logging_custom.tf", check);
   }
 }
