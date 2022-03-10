@@ -26,17 +26,19 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
+import org.sonar.iac.terraform.symbols.AttributeSymbol;
 
 @Rule(key = "S6413")
 public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure that defining a short log retention duration is safe here.";
-  private static final int DEFAULT = 14;
+  private static final int DEFAULT = 30;
+  private static final int MIN_DEFAULT = 14;
 
   @RuleProperty(
     key = "minimum_log_retention_days",
-    defaultValue = "" + DEFAULT)
-  int minimumLogRetentionDays = DEFAULT;
+    defaultValue = "" + MIN_DEFAULT)
+  int minimumLogRetentionDays = MIN_DEFAULT;
 
   @Override
   protected void registerResourceConsumer() {
@@ -44,14 +46,20 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
         "google_logging_billing_account_bucket_config",
         "google_logging_organization_bucket_config",
         "google_logging_folder_bucket_config"),
-      resource -> resource.attribute("retention_days")
-        .reportIf(isTooShortRetention(), MESSAGE));
+      resource -> {
+        AttributeSymbol retention = resource.attribute("retention_days")
+          .reportIf(isTooShortRetention(), MESSAGE);
+
+        if (retention.isAbsent() && DEFAULT < minimumLogRetentionDays) {
+          resource.report(MESSAGE);
+        }
+      });
   }
 
   private Predicate<ExpressionTree> isTooShortRetention() {
     return expression -> TextUtils.getIntValue(expression)
-      .filter(retention -> retention != 0 && retention < minimumLogRetentionDays)
+      .map(retention -> retention == 0 ? DEFAULT : retention)
+      .filter(retention -> retention < minimumLogRetentionDays)
       .isPresent();
   }
-
 }
