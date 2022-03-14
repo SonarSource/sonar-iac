@@ -20,26 +20,20 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.checks.utils.ExpressionPredicate;
 
 @Rule(key = "S6332")
-public class DisabledEFSEncryptionCheck extends AbstractResourceCheck {
+public class DisabledEFSEncryptionCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure that using unencrypted EFS file systems is safe here.";
   private static final String SECONDARY_MESSAGE = "Related file system";
+  private static final String OMITTING_MASSAGE = "Omitting \"encrypted\" disables EFS file systems encryption. Make sure it is safe here.";
 
   @Override
-  protected void registerResourceChecks() {
-    register(DisabledEFSEncryptionCheck::checkFileSystem, "aws_efs_file_system");
-  }
-
-  private static void checkFileSystem(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "encrypted", AttributeTree.class)
-      .ifPresentOrElse(encrypted -> reportOnFalse(ctx, encrypted, MESSAGE, new SecondaryLocation(resource.labels().get(0), SECONDARY_MESSAGE)),
-        () -> reportResource(ctx, resource, MESSAGE));
+  protected void registerResourceConsumer() {
+    register("aws_efs_file_system",
+      resource -> resource.attribute("encrypted")
+        .reportIfAbsent(OMITTING_MASSAGE)
+        .reportIf(ExpressionPredicate.isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE)));
   }
 }
