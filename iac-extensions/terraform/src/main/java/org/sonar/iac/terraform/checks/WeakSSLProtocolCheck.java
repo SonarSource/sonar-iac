@@ -29,8 +29,8 @@ import org.sonar.iac.terraform.checks.gcp.GcpWeakSSLProtocolCheckPart;
 @Rule(key = "S4423")
 public class WeakSSLProtocolCheck implements IacCheck {
 
-  public static final String WEAK_SSL_MESSAGE = "Change this configuration to use a stronger protocol.";
-  public static final String OMITTING_WEAK_SSL_MESSAGE = "Omitting %s disables traffic encryption. Make sure it is safe here.";
+  public static final String WEAK_SSL_MESSAGE = "Change this code to disable support of older TLS versions.";
+  public static final String OMITTING_WEAK_SSL_MESSAGE = "Set \"%s\" to disable support of older TLS versions.";
 
   @Override
   public void initialize(InitContext init) {

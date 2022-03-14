@@ -1,9 +1,9 @@
 resource "azurerm_mysql_server" "mysql_noncompliant_old" {
-  ssl_minimal_tls_version_enforced  = "TLS1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
+  ssl_minimal_tls_version_enforced  = "TLS1_0"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting ssl_minimal_tls_version_enforced disables traffic encryption. Make sure it is safe here.}}
+# Noncompliant@+1 {{Set "ssl_minimal_tls_version_enforced" to disable support of older TLS versions.}}
 resource "azurerm_mysql_server" "mysql_noncompliant_missing" {
   #      ^^^^^^^^^^^^^^^^^^^^^^
 }

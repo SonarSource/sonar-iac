@@ -31,10 +31,11 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S4423")
 public class WeakSSLProtocolCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Change this configuration to use a stronger protocol.";
+  private static final String MESSAGE = "Change this code to disable support of older TLS versions.";
+  private static final String MESSAGE_OMITTING_FORMAT = "Set \"%s\" to disable support of older TLS versions.";
+
   private static final String STRONG_SSL_PROTOCOL = "TLS_1_2";
   private static final String ELASTIC_STRONG_POLICY = "Policy-Min-TLS-1-2-2019-07";
-  private static final String MESSAGE_OMITTING_FORMAT = "Omitting %s disables traffic encryption.";
   private static final String SECURITY_POLICY_KEY = "SecurityPolicy";
 
   @Override

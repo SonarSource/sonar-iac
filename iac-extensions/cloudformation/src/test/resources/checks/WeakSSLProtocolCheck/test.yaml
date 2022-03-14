@@ -3,11 +3,11 @@ Resources:
   WeakSecurityPolicyV1:
     Type: AWS::ApiGateway::DomainName
     Properties:
-      SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
+      SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
       #               ^^^^^^^^^
 
   NoSecurityPolicyV1:
-    Type: AWS::ApiGateway::DomainName # Noncompliant {{Omitting SecurityPolicy disables traffic encryption.}}
+    Type: AWS::ApiGateway::DomainName # Noncompliant {{Set "SecurityPolicy" to disable support of older TLS versions.}}
     #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       Foo: Bar
@@ -21,7 +21,7 @@ Resources:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
       DomainNameConfigurations:
-        - SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
+        - SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
           #               ^^^^^^^^^
 
   WeakSecurityPolicyV2MultipleConfigs:
@@ -30,25 +30,25 @@ Resources:
       DomainNameConfigurations:
         - "foo"
         - Bar: "bar"
-        - SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this configuration to use a stronger protocol.}}
+        - SecurityPolicy: "TLS_1_0"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
           #               ^^^^^^^^^
 
 
   NoSecurityPolicyV2:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
-      DomainNameConfigurations: # Noncompliant {{Omitting SecurityPolicy disables traffic encryption.}}
+      DomainNameConfigurations: # Noncompliant {{Set "SecurityPolicy" to disable support of older TLS versions.}}
     # ^^^^^^^^^^^^^^^^^^^^^^^^
         - Foo: Bar
 
   WrongSyntaxForSecurityPolicy:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
-      DomainNameConfigurations: # Noncompliant {{Omitting SecurityPolicy disables traffic encryption.}}
+      DomainNameConfigurations: # Noncompliant {{Set "SecurityPolicy" to disable support of older TLS versions.}}
         SecurityPolicy: "TLS_1_2"
 
   DomainNameConfiguration:
-    Type: AWS::ApiGatewayV2::DomainName # Noncompliant {{Omitting DomainNameConfigurations.SecurityPolicy disables traffic encryption.}}
+    Type: AWS::ApiGatewayV2::DomainName # Noncompliant {{Set "DomainNameConfigurations.SecurityPolicy" to disable support of older TLS versions.}}
     #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       Foo: Bar
@@ -60,18 +60,18 @@ Resources:
         - SecurityPolicy: "TLS_1_2"
 
   ElasticNoOptions:
-    Type: 'AWS::Elasticsearch::Domain' # Noncompliant {{Omitting DomainEndpointOptions.TLSSecurityPolicy disables traffic encryption.}}
+    Type: 'AWS::Elasticsearch::Domain' # Noncompliant {{Set "DomainEndpointOptions.TLSSecurityPolicy" to disable support of older TLS versions.}}
 
   ElasticWeakPolicy:
     Type: 'AWS::Elasticsearch::Domain'
     Properties:
       DomainEndpointOptions:
-        TLSSecurityPolicy: "Policy-Min-TLS-1-0-2019-07"  # Noncompliant
+        TLSSecurityPolicy: "Policy-Min-TLS-1-0-2019-07"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
 
   ElasticNoPolicy:
     Type: 'AWS::Elasticsearch::Domain'
     Properties:
-      DomainEndpointOptions: # Noncompliant {{Omitting TLSSecurityPolicy disables traffic encryption.}}
+      DomainEndpointOptions: # Noncompliant {{Set "TLSSecurityPolicy" to disable support of older TLS versions.}}
         Foo: Bar
 
   ElasticStrongPolicy:
@@ -81,18 +81,18 @@ Resources:
         TLSSecurityPolicy: "Policy-Min-TLS-1-2-2019-07"
 
   OpenSearchNoOptions:
-    Type: 'AWS::OpenSearchService::Domain' # Noncompliant {{Omitting DomainEndpointOptions.TLSSecurityPolicy disables traffic encryption.}}
+    Type: 'AWS::OpenSearchService::Domain' # Noncompliant {{Set "DomainEndpointOptions.TLSSecurityPolicy" to disable support of older TLS versions.}}
 
   OpenSearchWeakPolicy:
     Type: 'AWS::OpenSearchService::Domain'
     Properties:
       DomainEndpointOptions:
-        TLSSecurityPolicy: "Policy-Min-TLS-1-0-2019-07"  # Noncompliant
+        TLSSecurityPolicy: "Policy-Min-TLS-1-0-2019-07"  # Noncompliant {{Change this code to disable support of older TLS versions.}}
 
   OpenSearchNoPolicy:
     Type: 'AWS::OpenSearchService::Domain'
     Properties:
-      DomainEndpointOptions: # Noncompliant {{Omitting TLSSecurityPolicy disables traffic encryption.}}
+      DomainEndpointOptions: # Noncompliant {{Set "TLSSecurityPolicy" to disable support of older TLS versions.}}
         Foo: Bar
 
   OpenSearchStrongPolicy:
