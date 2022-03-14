@@ -205,7 +205,7 @@ class IacSensorTest extends AbstractSensorTest {
     Checks checks = mock(Checks.class);
     IacCheck validCheck = init ->
       init.register(Tree.class, (ctx, tree) ->
-        ctx.reportIssue(tree, "testIssue", new SecondaryLocation(tree, "testSecondary")));
+        ctx.reportIssue(tree, "testIssue", SecondaryLocation.of(tree, "testSecondary")));
 
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
