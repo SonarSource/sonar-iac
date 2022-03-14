@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting https_only enables clear-text traffic. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "https_only" enables clear-text traffic. Make sure it is safe here.}}
 resource "azurerm_spring_cloud_app" "noncompliant_https_missing" {
 }
 
