@@ -1,15 +1,18 @@
-# Noncompliant@+1 {{Narrow the actions or assignable scope of this custom role.}}
+# Noncompliant@+1 {{Narrow the number of actions or the assignable scope of this custom role.}}
 resource "azurerm_role_definition" "subscription-owner-role" {
+  #      ^^^^^^^^^^^^^^^^^^^^^^^^^
   name        = "subscription-owner-role"
   scope       = data.azurerm_subscription.primary.id
 
   permissions {
     actions     = ["*"]
+  #                ^^^< {{Allows all actions.}}
     not_actions = []
   }
 
   assignable_scopes = [
     data.azurerm_subscription.primary.id
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{Sensitive scope.}}
   ]
 }
 
@@ -31,15 +34,18 @@ resource "azurerm_role_definition" "subscription-owner-role-multiple-scopes" { #
 
 # Alternative ways to define a custom role with a subscription assignable scope
 resource "azurerm_role_definition" "subscription-owner-role-alternative-scope-1" { # Noncompliant
+  #      ^^^^^^^^^^^^^^^^^^^^^^^^^
   name        = "subscription-owner-role-alternative-scope-1"
   scope       = data.azurerm_subscription.primary.id
   permissions {
     actions     = ["*"]
+    #              ^^^<
     not_actions = []
   }
 
   assignable_scopes = [
     "${data.azurerm_subscription.primary.id}"
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{Sensitive scope.}}
   ]
 }
 
