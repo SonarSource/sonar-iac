@@ -8,6 +8,7 @@ resource "azuread_directory_role" "privileged-role-administrator" {
 # Assign the "Privileged Role Administrator" role
 resource "azuread_directory_role_member" "privileged-role-administrator-membership" {
   role_object_id   = azuread_directory_role.privileged-role-administrator.object_id
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{Role assigned here.}}
   member_object_id = data.azuread_user.user.object_id
 }
 
@@ -30,9 +31,21 @@ resource "azuread_directory_role_member" "privileged-role-administrator-membersh
   member_object_id = data.azuread_user.user.object_id
 }
 
+resource "azuread_directory_role" "privileged-role-administrator-duplicate" {
+  # Noncompliant@+1 {{Make sure that assigning the Privileged Role Administrator role is safe here.}}
+  display_name = "Privileged Role Administrator"
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+
+resource "azuread_directory_role_member" "privileged-role-administrator-membership-duplicate1" {
+  role_object_id   = azuread_directory_role.privileged-role-administrator-duplicate.object_id
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{Role assigned here.}}
+  member_object_id = data.azuread_user.user.object_id
+}
+
 # Duplicate assignment of higher privileged rule
-resource "azuread_directory_role_member" "privileged-role-administrator-membership-duplicate" {
-  role_object_id   = azuread_directory_role.privileged-role-administrator.object_id
+resource "azuread_directory_role_member" "privileged-role-administrator-membership-duplicate2" {
+  role_object_id   = azuread_directory_role.privileged-role-administrator-duplicate.object_id
   member_object_id = data.azuread_user.user.object_id
 }
 
