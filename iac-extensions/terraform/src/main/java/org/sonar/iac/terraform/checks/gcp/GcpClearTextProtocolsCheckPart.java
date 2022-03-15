@@ -21,19 +21,18 @@ package org.sonar.iac.terraform.checks.gcp;
 
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 
+import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_CLEAR_TEXT;
+import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMITTING;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 
 public class GcpClearTextProtocolsCheckPart extends AbstractNewResourceCheck {
-
-  private static final String MESSAGE = "Using HTTP protocol is insecure. Use HTTPS instead.";
-  private static final String OMITTING_MESSAGE = "Omitting 'protocol' enables 'HTTP' by default. Use HTTPS instead.";
 
   @Override
   protected void registerResourceConsumer() {
     register("google_compute_region_backend_service", resource -> resource
       .attribute("protocol")
-      .reportIf(equalTo("HTTP"), MESSAGE)
-      .reportIfAbsent(OMITTING_MESSAGE));
+      .reportIf(equalTo("HTTP"), MESSAGE_CLEAR_TEXT)
+      .reportIfAbsent(MESSAGE_OMITTING));
   }
 
 }
