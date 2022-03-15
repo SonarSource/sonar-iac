@@ -34,7 +34,8 @@ class UnencryptedSqsQueueCheckTest {
   @Test
   void test_json() {
     CloudformationVerifier.verify("UnencryptedSqsQueueCheck/test.json", new UnencryptedSqsQueueCheck(),
-      new Verifier.Issue(range(5, 14, 5, 31), "Make sure that using unencrypted SQS queues is safe here."));
+      new Verifier.Issue(range(5, 14, 5, 31),
+        "Omitting \"KmsMasterKeyId\" disables SQS queues encryption. Make sure it is safe here."));
   }
 
 }
