@@ -34,6 +34,7 @@ public class DisabledEFSEncryptionCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that using unencrypted EFS file systems is safe here.";
   private static final String SECONDARY_MESSAGE = "Related file system";
+  private static final String OMITTING_MESSAGE = "Omitting \"Encrypted\" disables EFS file systems encryption. Make sure it is safe here.";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -48,7 +49,7 @@ public class DisabledEFSEncryptionCheck extends AbstractResourceCheck {
         ctx.reportIssue(encryption.key(), MESSAGE, new SecondaryLocation(resourceType, SECONDARY_MESSAGE));
       }
     } else {
-      ctx.reportIssue(resourceType, MESSAGE);
+      ctx.reportIssue(resourceType, OMITTING_MESSAGE);
     }
   }
 }
