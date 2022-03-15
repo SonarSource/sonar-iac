@@ -11,5 +11,5 @@ resource "azurerm_machine_learning_workspace" "compliant_missing" {
 }
 
 resource "non_azurerm_machine_learning_workspace" "coverage" {
-  public_network_access_enabled = false
+  public_network_access_enabled = true
 }
