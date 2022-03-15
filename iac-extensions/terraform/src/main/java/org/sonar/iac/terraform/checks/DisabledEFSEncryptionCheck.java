@@ -27,7 +27,7 @@ public class DisabledEFSEncryptionCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure that using unencrypted EFS file systems is safe here.";
   private static final String SECONDARY_MESSAGE = "Related file system";
-  private static final String OMITTING_MASSAGE = "Omitting \"encrypted\" disables EFS file systems encryption. Make sure it is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"encrypted\" disables EFS file systems encryption. Make sure it is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
