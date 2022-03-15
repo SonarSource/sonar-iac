@@ -33,7 +33,7 @@ public class DisabledEFSEncryptionCheck extends AbstractNewResourceCheck {
   protected void registerResourceConsumer() {
     register("aws_efs_file_system",
       resource -> resource.attribute("encrypted")
-        .reportIfAbsent(OMITTING_MASSAGE)
+        .reportIfAbsent(OMITTING_MESSAGE)
         .reportIf(ExpressionPredicate.isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE)));
   }
 }
