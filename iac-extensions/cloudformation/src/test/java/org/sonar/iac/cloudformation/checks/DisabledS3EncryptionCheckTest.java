@@ -35,6 +35,6 @@ class DisabledS3EncryptionCheckTest {
   void test_json() {
     CloudformationVerifier.verify("DisabledS3EncryptionCheck/test.json", new DisabledS3EncryptionCheck(),
       new Verifier.Issue(range(5, 14, 5, 31),
-        "Make sure not using server-side encryption is safe here."));
+        "Omitting \"BucketEncryption\" disables server-side encryption. Make sure it is safe here."));
   }
 }

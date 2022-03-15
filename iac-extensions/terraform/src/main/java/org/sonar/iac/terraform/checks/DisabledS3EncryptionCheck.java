@@ -26,7 +26,8 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S6245")
 public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
-  private static final String MESSAGE = "Make sure not using server-side encryption is safe here.";
+
+  private static final String MESSAGE = "Omitting \"server_side_encryption_configuration\" disables server-side encryption. Make sure it is safe here.";
 
   @Override
   protected void registerResourceChecks() {

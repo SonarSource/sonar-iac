@@ -1,7 +1,7 @@
 resource "aws_ecs_task_definition" "ecs_task" {
 
   volume {
-    # Noncompliant@+1 {{Omitting transit_encryption enables clear-text traffic. Make sure it is safe here.}}
+    # Noncompliant@+1 {{Omitting "transit_encryption" enables clear-text traffic. Make sure it is safe here.}}
     efs_volume_configuration {
       file_system_id = aws_efs_file_system.fs.id
     }
