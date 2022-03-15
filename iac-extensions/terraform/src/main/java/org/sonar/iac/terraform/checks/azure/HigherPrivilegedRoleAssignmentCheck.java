@@ -20,13 +20,12 @@
 package org.sonar.iac.terraform.checks.azure;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -36,10 +35,11 @@ import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
+import org.sonar.iac.terraform.api.tree.TerraformTree;
 
-import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
-import static org.sonar.iac.terraform.checks.AbstractResourceCheck.hasReferenceLabel;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.getReferenceLabel;
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.hasReferenceLabel;
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 
 @Rule(key = "S6375")
 public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
@@ -58,20 +58,24 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
   );
 
   private static final String MESSAGE = "Make sure that assigning the %s role is safe here.";
+  private static final String SECONDARY_MESSAGE = "Role assigned here.";
 
   @Override
   public void initialize(InitContext init) {
     init.register(FileTree.class, (ctx, tree) -> {
       HigherPrivilegedRoleCollector collector = HigherPrivilegedRoleCollector.collect(tree);
-      checkAssignedRolePrivilegs(ctx, collector);
+      checkAssignedRolePrivileges(ctx, collector);
     });
   }
 
-  private static void checkAssignedRolePrivilegs(CheckContext ctx, HigherPrivilegedRoleCollector collector) {
-    collector.roleMember.stream()
-      .filter(collector.higherPrivilegedRoles::containsKey)
-      .map(collector.higherPrivilegedRoles::get)
-      .forEach(role -> ctx.reportIssue(role, message(((TextTree)role.value()).value())));
+  private static void checkAssignedRolePrivileges(CheckContext ctx, HigherPrivilegedRoleCollector collector) {
+    collector.roleMember.entrySet().stream()
+      .filter(member ->  collector.higherPrivilegedRoles.containsKey(member.getKey()))
+      .forEach(member -> {
+        AttributeTree role = collector.higherPrivilegedRoles.get(member.getKey());
+        SecondaryLocation secondary = new SecondaryLocation(member.getValue(), SECONDARY_MESSAGE);
+        ctx.reportIssue(role, message(((TextTree)role.value()).value()), secondary);
+      });
   }
 
   private static String message(String role) {
@@ -81,7 +85,7 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
   private static class HigherPrivilegedRoleCollector extends TreeVisitor<TreeContext> {
 
     private final Map<String, AttributeTree> higherPrivilegedRoles = new HashMap<>();
-    private final Set<String> roleMember = new HashSet<>();
+    private final Map<String, AttributeTree> roleMember = new HashMap<>();
 
     public HigherPrivilegedRoleCollector() {
       register(BlockTree.class, (ctx, blockTree) -> {
@@ -103,12 +107,11 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
         .ifPresent(id -> higherPrivilegedRoles.putIfAbsent(getReferenceLabel(resource), id));
     }
 
-
     private void collectDirectoryRoleMember(BlockTree resource) {
-      PropertyUtils.value(resource, "role_object_id", AttributeAccessTree.class)
-        .filter(HigherPrivilegedRoleCollector::isObjectIdReference)
-        .map(HigherPrivilegedRoleCollector::getObjectReferenceLabel)
-        .ifPresent(roleMember::add);
+      PropertyUtils.get(resource, "role_object_id", AttributeTree.class)
+        .filter(attribute -> attribute.value().is(TerraformTree.Kind.ATTRIBUTE_ACCESS))
+        .filter(attribute -> isObjectIdReference((AttributeAccessTree) attribute.value()))
+        .ifPresent(attribute -> roleMember.putIfAbsent(getObjectReferenceLabel((AttributeAccessTree) attribute.value()), attribute));
     }
 
     private static boolean isObjectIdReference(AttributeAccessTree tree) {
