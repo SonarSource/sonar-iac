@@ -19,7 +19,7 @@ Resources:
   Test3:
     Type: AWS::Elasticsearch::Domain
     Properties:
-      DomainEndpointOptions: # Noncompliant {{Omitting EnforceHTTPS enables clear-text traffic. Make sure it is safe here.}}
+      DomainEndpointOptions: # Noncompliant {{Omitting "EnforceHTTPS" enables clear-text traffic. Make sure it is safe here.}}
     # ^^^^^^^^^^^^^^^^^^^^^
         Foo: bar
       NodeToNodeEncryptionOptions:

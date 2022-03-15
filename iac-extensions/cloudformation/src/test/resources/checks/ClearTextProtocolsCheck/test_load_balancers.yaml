@@ -7,7 +7,7 @@ Resources:
         - Type: "redirect"
           RedirectConfig:
             Protocol: "HTTP"
-      Protocol: "HTTP" # Noncompliant {{Using HTTP protocol is insecure. Use HTTPS instead.}}
+      Protocol: "HTTP" # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
 
   HTTPlistener2:
     Type: "AWS::ElasticLoadBalancingV2::Listener"

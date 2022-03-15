@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting https_only enables clear-text traffic. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "https_only" enables clear-text traffic. Make sure it is safe here.}}
 resource "azurerm_app_service" "noncompliant_https_missing" {
 }
 
@@ -16,7 +16,7 @@ resource "not_an_azurerm_app_service" "for_coverage" {
 
 ######
 
-# Noncompliant@+1 {{Omitting https_only enables clear-text traffic. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "https_only" enables clear-text traffic. Make sure it is safe here.}}
 resource "azurerm_app_service" "noncompliant_all_allowed" {
   site_config {
     ftps_state = "AllAllowed"  # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
@@ -43,7 +43,7 @@ resource "azurerm_app_service" "noncompliant_all_allowed" {
 
 ######
 
-# Noncompliant@+1 {{Omitting https_only enables clear-text traffic. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "https_only" enables clear-text traffic. Make sure it is safe here.}}
 resource "azurerm_app_service" "compliant_some_allowed" {
   site_config {
     ftps_state = "SomeAllowed"  # Compliant

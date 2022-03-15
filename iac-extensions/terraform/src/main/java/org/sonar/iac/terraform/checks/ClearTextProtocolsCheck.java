@@ -29,9 +29,8 @@ import org.sonar.iac.terraform.checks.gcp.GcpClearTextProtocolsCheckPart;
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck implements IacCheck {
 
-  public static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use %s instead.";
   public static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
-  public static final String MESSAGE_OMITTING = "Omitting %s enables clear-text traffic. Make sure it is safe here.";
+  public static final String MESSAGE_OMITTING = "Omitting \"%s\" enables clear-text traffic. Make sure it is safe here.";
 
   @Override
   public void initialize(InitContext init) {
