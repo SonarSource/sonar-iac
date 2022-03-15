@@ -11,7 +11,8 @@ resource "aws_s3_bucket_public_access_block" "mycompliants6281_publicaccess" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket" "mynoncompliantfirstbuckets6281default" { # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
+# Noncompliant@+1 {{No Public Access Block configuration prevents public ACL/policies to be set on this S3 bucket. Make sure it is safe here.}}
+resource "aws_s3_bucket" "mynoncompliantfirstbuckets6281default" {
   bucket = "mynoncompliantfirstbuckets6281defaultname"
 }
 
@@ -20,7 +21,8 @@ resource "aws_s3_bucket" "mynoncompliantfirstbuckets6281" {
   bucket = "mynoncompliantfirstbuckets6281name"
 }
 
-resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_publicaccess_1" { # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
+# Noncompliant@+1 {{Make sure allowing public ACL/policies to be set is safe here.}}
+resource "aws_s3_bucket_public_access_block" "mynoncompliants6281_publicaccess_1" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   bucket = aws_s3_bucket.mynoncompliantfirstbuckets6281.id
 
@@ -75,7 +77,8 @@ resource "aws_s3_bucket" "mynoncompliantmissingbuckets6234" {
   bucket = "mynoncompliantmissingbuckets6234name"
 }
 
-resource "aws_s3_bucket_public_access_block" "mynoncompliants6234_missing" { # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
+# Noncompliant@+1 {{Make sure allowing public ACL/policies to be set is safe here.}}
+resource "aws_s3_bucket_public_access_block" "mynoncompliants6234_missing" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   bucket = "mynoncompliantmissingbuckets6234name"
 
@@ -89,7 +92,8 @@ resource "aws_s3_bucket" "mynoncompliantmultimissingbuckets61234" {
   bucket = "mynoncompliantmultimissingbuckets61234name"
 }
 
-resource "aws_s3_bucket_public_access_block" "mynoncompliants6231_multiple_missing" { # Noncompliant {{Make sure not preventing permissive ACL/policies to be set is safe here.}}
+# Noncompliant@+1 {{Make sure allowing public ACL/policies to be set is safe here.}}
+resource "aws_s3_bucket_public_access_block" "mynoncompliants6231_multiple_missing" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   bucket = "mynoncompliantmultimissingbuckets61234name"
 

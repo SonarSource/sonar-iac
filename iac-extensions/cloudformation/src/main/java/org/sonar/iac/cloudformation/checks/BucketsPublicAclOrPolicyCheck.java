@@ -33,7 +33,9 @@ import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6281")
 public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
-  private static final String MESSAGE = "Make sure not preventing permissive ACL/policies to be set is safe here.";
+
+  private static final String MESSAGE = "Make sure allowing public ACL/policies to be set is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"PublicAccessBlockConfiguration\" allows public ACL/policies to be set on this S3 bucket. Make sure it is safe here.";
   private static final String SECONDARY_MSG_PROPERTY = "Set this property to true";
   private static final String SECONDARY_MSG_BUCKET = "Related bucket";
   private static final List<String> ATTRIBUTES_TO_CHECK = Arrays.asList(
@@ -52,7 +54,7 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
     if (accessConfiguration.isPresent()) {
       checkConfiguration(ctx, resource, accessConfiguration.get());
     } else {
-      ctx.reportIssue(resource.type(), MESSAGE);
+      ctx.reportIssue(resource.type(), OMITTING_MESSAGE);
     }
   }
 
