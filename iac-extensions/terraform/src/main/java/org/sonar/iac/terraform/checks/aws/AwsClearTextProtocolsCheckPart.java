@@ -21,7 +21,6 @@ package org.sonar.iac.terraform.checks.aws;
 
 import java.util.Set;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -31,7 +30,6 @@ import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_CLEAR_TEXT;
 import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMITTING;
-import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_PROTOCOL_FORMAT;
 
 public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
 
@@ -59,12 +57,12 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
   private static void checkMskClientBroker(CheckContext ctx, BlockTree encryptionBlock) {
     PropertyUtils.get(encryptionBlock, "client_broker", AttributeTree.class)
       .filter(clientBroker -> TextUtils.isValue(clientBroker.value(), "TLS").isFalse())
-      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_PROTOCOL_FORMAT, ((TextTree) clientBroker.value()).value(), "TLS")));
+      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, MESSAGE_CLEAR_TEXT));
   }
 
   private static void checkESDomain(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
-      .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS")));
+      .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", MESSAGE_CLEAR_TEXT));
 
     PropertyUtils.get(resource, "node_to_node_encryption", BlockTree.class).ifPresentOrElse(encryption ->
         reportOnFalseProperty(ctx, encryption, "enabled", MESSAGE_CLEAR_TEXT),
@@ -85,7 +83,7 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
   private static void checkLbDefaultAction(CheckContext ctx, BlockTree resource, Tree rootProtocol) {
     if (PropertyUtils.getAll(resource, "default_action", BlockTree.class).stream()
       .anyMatch(defaultAction -> isInsecureRedirect(defaultAction) || isSensitiveAction(defaultAction))) {
-      ctx.reportIssue(rootProtocol, String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS"));
+      ctx.reportIssue(rootProtocol, MESSAGE_CLEAR_TEXT);
     }
   }
 

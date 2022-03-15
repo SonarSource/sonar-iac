@@ -13,7 +13,7 @@ Resources:
     # ^^^^^^^^^
 
   NoPropertiesEFSFileSystem:
-    Type: AWS::EFS::FileSystem # Noncompliant {{Make sure that using unencrypted EFS file systems is safe here.}}
+    Type: AWS::EFS::FileSystem # Noncompliant {{Omitting "Encrypted" disables EFS file systems encryption. Make sure it is safe here.}}
     #     ^^^^^^^^^^^^^^^^^^^^
 
   NoEFSFileSystemResource:

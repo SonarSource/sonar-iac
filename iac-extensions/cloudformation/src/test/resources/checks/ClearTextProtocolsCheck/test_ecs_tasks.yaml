@@ -4,7 +4,7 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Volumes:
-        - EFSVolumeConfiguration:  # Noncompliant {{Omitting TransitEncryption enables clear-text traffic. Make sure it is safe here.}}
+        - EFSVolumeConfiguration:  # Noncompliant {{Omitting "TransitEncryption" enables clear-text traffic. Make sure it is safe here.}}
       #   ^^^^^^^^^^^^^^^^^^^^^^
             FilesystemId: !Ref TestFilesystem
         - EFSVolumeConfiguration:

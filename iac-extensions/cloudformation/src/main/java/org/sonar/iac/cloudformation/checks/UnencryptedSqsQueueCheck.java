@@ -26,7 +26,7 @@ import org.sonar.iac.common.checks.PropertyUtils;
 @Rule(key = "S6330")
 public class UnencryptedSqsQueueCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Make sure that using unencrypted SQS queues is safe here.";
+  private static final String MESSAGE = "Omitting \"KmsMasterKeyId\" disables SQS queues encryption. Make sure it is safe here.";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {

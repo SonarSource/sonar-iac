@@ -21,7 +21,6 @@ resource "azurerm_eventgrid_domain" "production"  {} # Noncompliant
 resource "azurerm_eventgrid_topic" "production"  {} # Noncompliant
 resource "azurerm_healthcare_service" "production"  {} # Noncompliant
 resource "azurerm_iothub" "production"  {} # Noncompliant
-resource "azurerm_machine_learning_workspace" "production"  {} # Noncompliant
 resource "azurerm_managed_disk" "production"  {} # Noncompliant
 resource "azurerm_mariadb_server" "production"  {} # Noncompliant
 resource "azurerm_mssql_server" "production"  {} # Noncompliant

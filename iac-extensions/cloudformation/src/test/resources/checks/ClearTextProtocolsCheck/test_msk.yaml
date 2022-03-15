@@ -6,7 +6,7 @@ Resources:
       ClusterName: MSKCluster
       EncryptionInfo:
         EncryptionInTransit:
-          ClientBroker: PLAINTEXT # Noncompliant {{Using PLAINTEXT protocol is insecure. Use TLS instead.}}
+          ClientBroker: PLAINTEXT # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
 
   MSKCluster2:
     Type: 'AWS::MSK::Cluster'
