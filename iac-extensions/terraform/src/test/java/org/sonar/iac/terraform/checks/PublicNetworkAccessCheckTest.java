@@ -29,6 +29,11 @@ class PublicNetworkAccessCheckTest {
   }
 
   @Test
+  void azureMachineLearningWorkspace() {
+    TerraformVerifier.verify("PublicNetworkAccessCheck/azureMachineLearningWorkspace.tf", new PublicNetworkAccessCheck());
+  }
+
+  @Test
   void azurePublicNetworkAccess() {
     TerraformVerifier.verify("PublicNetworkAccessCheck/azurePublicNetworkAccess.tf", new PublicNetworkAccessCheck());
   }

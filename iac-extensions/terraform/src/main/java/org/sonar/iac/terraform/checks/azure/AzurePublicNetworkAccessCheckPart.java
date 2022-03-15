@@ -54,7 +54,6 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
       "azurerm_eventgrid_topic",
       "azurerm_healthcare_service",
       "azurerm_iothub",
-      "azurerm_machine_learning_workspace",
       "azurerm_managed_disk",
       "azurerm_mariadb_server",
       "azurerm_mssql_server",
@@ -100,6 +99,10 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
         resource.list("api_server_authorized_ip_ranges")
           .reportItemIf(IS_PUBLIC_IP_ADDRESS, NETWORK_ACCESS_MESSAGE);
       });
+
+    register("azurerm_machine_learning_workspace",
+      resource -> resource.attribute("public_network_access_enabled")
+        .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE));
   }
 
 
