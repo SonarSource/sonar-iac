@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting transit_encryption_enabled enables clear-text traffic. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "transit_encryption_enabled" enables clear-text traffic. Make sure it is safe here.}}
 resource "aws_elasticache_replication_group" "missing_property" {
 }
 

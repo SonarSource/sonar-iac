@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting https_only enables clear-text traffic. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "https_only" enables clear-text traffic. Make sure it is safe here.}}
 resource "azurerm_function_app" "noncompliant_https_missing" {
 }
 
@@ -14,7 +14,7 @@ resource "azurerm_function_app" "safe_https_value" {
 resource "not_an_azurerm_function_app" "for_coverage" {
 }
 
-# Noncompliant@+1 {{Omitting https_only enables clear-text traffic. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "https_only" enables clear-text traffic. Make sure it is safe here.}}
 resource "azurerm_function_app_slot" "noncompliant_https_missing" {
 }
 

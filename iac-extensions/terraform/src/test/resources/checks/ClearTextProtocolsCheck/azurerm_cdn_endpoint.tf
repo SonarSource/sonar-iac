@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting is_http_allowed enables clear-text traffic. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "is_http_allowed" enables clear-text traffic. Make sure it is safe here.}}
 resource "azurerm_cdn_endpoint" "missing_is_http_allowed" {
 }
 
