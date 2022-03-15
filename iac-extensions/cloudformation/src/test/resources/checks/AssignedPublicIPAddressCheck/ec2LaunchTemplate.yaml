@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  NonCompliantEC2LaunchTemplate:
+    # Noncompliant@+1 {{Omitting "LaunchTemplateData.NetworkInterfaces.AssociatePublicIpAddress" allows network access from the Internet. Make sure it is safe here.}}
+    Type: AWS::EC2::LaunchTemplate
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  NonCompliantEC2LaunchTemplate1:
+    Type: AWS::EC2::LaunchTemplate
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^> {{Related EC2 template}}
+    Properties:
+      # Noncompliant@+1 {{Omitting "NetworkInterfaces.AssociatePublicIpAddress" allows network access from the Internet. Make sure it is safe here.}}
+      LaunchTemplateData:
+    # ^^^^^^^^^^^^^^^^^^
+        InstanceType: t2.micro
+
+
+
+  NonCompliantEC2LaunchTemplate3:
+    Type: AWS::EC2::LaunchTemplate
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^> {{Related EC2 template}}
+    Properties:
+      LaunchTemplateData:
+        # Noncompliant@+1 {{Omitting "AssociatePublicIpAddress" allows network access from the Internet. Make sure it is safe here.}}
+        NetworkInterfaces:
+    #   ^^^^^^^^^^^^^^^^^
+          AssociatePublicIpAddress: false
+    # NetworkInterfaces expects a sequence, not a mapping
+
+  NonCompliantEC2LaunchTemplate4:
+    Type: AWS::EC2::LaunchTemplate
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^> {{Related EC2 template}}
+    Properties:
+      LaunchTemplateData:
+        NetworkInterfaces:
+          - AssociatePublicIpAddress: true # Noncompliant {{Make sure that using public IP address is safe here.}}
+        #                             ^^^^
+
+  CompliantEC2LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        NetworkInterfaces:
+          - AssociatePublicIpAddress: false
+
+  NonSensitiveResource:
+    Type: Some::Other::Type

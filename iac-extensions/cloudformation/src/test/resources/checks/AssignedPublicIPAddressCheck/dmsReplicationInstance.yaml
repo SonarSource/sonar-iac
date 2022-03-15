@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  NonCompliantDMSReplicationInstance:
+    # Noncompliant@+1 {{Omitting "PubliclyAccessible" allows network access from the Internet. Make sure it is safe here.}}
+    Type: AWS::DMS::ReplicationInstance
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  NonCompliantDMSReplicationInstance1:
+    Type: AWS::DMS::ReplicationInstance
+    #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Related DMS instance}}
+    Properties:
+      PubliclyAccessible: true # Noncompliant {{Make sure that using public IP address is safe here.}}
+    #                     ^^^^
+
+  CompliantDMSReplicationInstance:
+    Type: AWS::DMS::ReplicationInstance
+    Properties:
+      PubliclyAccessible: false
+
+  NonSensitiveResource:
+    Type: Some::Other::Type

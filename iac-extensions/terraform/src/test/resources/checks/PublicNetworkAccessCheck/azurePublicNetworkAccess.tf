@@ -1,4 +1,5 @@
-resource "azurerm_batch_account" "production"  {} # Noncompliant {{Omitting public_network_access_enabled allows network access from the Internet. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "public_network_access_enabled" allows network access from the Internet. Make sure it is safe here.}}
+resource "azurerm_batch_account" "production"  {}
 
 resource "azurerm_batch_account" "production"  {
   public_network_access_enabled = true # Noncompliant {{Make sure allowing public network access is safe here.}}

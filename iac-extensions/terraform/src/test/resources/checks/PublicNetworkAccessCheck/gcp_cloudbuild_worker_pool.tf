@@ -1,5 +1,5 @@
 resource "google_cloudbuild_worker_pool" "s6329-cbwp-noncompliant1" {
-  worker_config {  # Noncompliant {{Omitting no_external_ip allows network access from the Internet. Make sure it is safe here.}}
+  worker_config {  # Noncompliant {{Omitting "no_external_ip" allows network access from the Internet. Make sure it is safe here.}}
 # ^^^^^^^^^^^^^
   }
 }
@@ -11,7 +11,7 @@ resource "google_cloudbuild_worker_pool" "s6329-cbwp-noncompliant2" {
   }
 }
 
-# Noncompliant@+1 {{Omitting worker_config allows network access from the Internet. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "worker_config.no_external_ip" allows network access from the Internet. Make sure it is safe here.}}
 resource "google_cloudbuild_worker_pool" "s6329-cbwp-noncompliant3" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }

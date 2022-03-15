@@ -30,7 +30,10 @@ import org.sonar.iac.terraform.checks.gcp.GcpPublicNetworkAccessCheckPart;
 public class PublicNetworkAccessCheck implements IacCheck {
 
   public static final String NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
-  public static final String OMITTED_MESSAGE = "Omitting %s allows network access from the Internet. Make sure it is safe here.";
+  public static final String GATEWAYS_AND_INTERFACE_MESSAGE = "Make sure it is safe to use this public IP address.";
+  public static final String FIREWALL_MESSAGE = "Make sure that allowing public IP addresses is safe here.";
+
+  public static final String OMITTING_MESSAGE = "Omitting \"%s\" allows network access from the Internet. Make sure it is safe here.";
 
   @Override
   public void initialize(InitContext init) {

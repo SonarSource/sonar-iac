@@ -2,7 +2,7 @@
 
 resource "azurerm_application_gateway" "noncompliant" {
   frontend_ip_configuration {
-  # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
+  # Noncompliant@+1 {{Make sure it is safe to use this public IP address.}}
     public_ip_address_id = azurerm_public_ip.production.id
   # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   }
@@ -43,7 +43,7 @@ resource "azurerm_dev_test_linux_virtual_machine" "noncompliant" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting disallow_public_ip_address allows network access from the Internet. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "disallow_public_ip_address" allows network access from the Internet. Make sure it is safe here.}}
 resource "azurerm_dev_test_linux_virtual_machine" "noncompliant" {
        # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
@@ -104,7 +104,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "compliant" {
 
 resource "azurerm_network_interface" "production" {
   ip_configuration {
-  # Noncompliant@+1 {{Make sure allowing public network access is safe here.}}
+  # Noncompliant@+1 {{Make sure it is safe to use this public IP address.}}
     public_ip_address_id = azurerm_public_ip.production.id
   # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   }

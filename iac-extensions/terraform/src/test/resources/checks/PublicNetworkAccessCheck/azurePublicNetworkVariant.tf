@@ -3,7 +3,7 @@ resource "azurerm_data_factory" "noncompliant_enabled" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting public_network_enabled allows network access from the Internet. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "public_network_enabled" allows network access from the Internet. Make sure it is safe here.}}
 resource "azurerm_data_factory" "noncompliant_missing" {
 
 }

@@ -19,52 +19,34 @@
  */
 package org.sonar.iac.terraform.checks.aws;
 
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 
-public class AwsPublicNetworkAccessCheckPart extends AbstractResourceCheck {
+import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.NETWORK_ACCESS_MESSAGE;
+import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.OMITTING_MESSAGE;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
 
-  private static final String MESSAGE = "Make sure that using public IP address is safe here.";
+public class AwsPublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
+
   private static final String SECONDARY_INSTANCE_MESSAGE = "Related instance";
   private static final String SECONDARY_TEMPLATE_MESSAGE = "Related template";
 
   @Override
-  protected void registerResourceChecks() {
-    register(AwsPublicNetworkAccessCheckPart::checkDMSReplicationInstance, "aws_dms_replication_instance");
-    register(AwsPublicNetworkAccessCheckPart::checkEC2Instance, "aws_instance");
-    register(AwsPublicNetworkAccessCheckPart::checkEC2LaunchTemplate, "aws_launch_template");
+  protected void registerResourceConsumer() {
+    register("aws_dms_replication_instance",
+      resource -> resource.attribute("publicly_accessible")
+        .reportIfAbsent(OMITTING_MESSAGE)
+        .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE, resource.toSecondary(SECONDARY_INSTANCE_MESSAGE)));
+
+    register("aws_instance",
+      resource -> resource.attribute("associate_public_ip_address")
+        .reportIfAbsent(OMITTING_MESSAGE)
+        .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE, resource.toSecondary(SECONDARY_INSTANCE_MESSAGE)));
+
+    register("aws_launch_template",
+      resource -> resource.block("network_interfaces")
+        .reportIfAbsent(String.format(OMITTING_MESSAGE, "network_interfaces.associate_public_ip_address"))
+        .attribute("associate_public_ip_address")
+          .reportIfAbsent(OMITTING_MESSAGE, resource.toSecondary(SECONDARY_TEMPLATE_MESSAGE))
+          .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE, resource.toSecondary(SECONDARY_TEMPLATE_MESSAGE)));
   }
-
-  private static void checkDMSReplicationInstance(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "publicly_accessible", AttributeTree.class)
-      .ifPresentOrElse(publiclyAccessible -> reportOnTrue(ctx, publiclyAccessible, MESSAGE,
-          new SecondaryLocation(resource.labels().get(0),SECONDARY_INSTANCE_MESSAGE)),
-        () -> reportResource(ctx, resource, MESSAGE));
-  }
-
-  private static void checkEC2Instance(CheckContext ctx, BlockTree resource) {
-
-    PropertyUtils.get(resource, "associate_public_ip_address", AttributeTree.class)
-      .ifPresentOrElse(publiclyAccessible -> reportOnTrue(ctx, publiclyAccessible, MESSAGE,
-          new SecondaryLocation(resource.labels().get(0), SECONDARY_INSTANCE_MESSAGE)),
-        () -> reportResource(ctx, resource, MESSAGE));
-  }
-
-  private static void checkEC2LaunchTemplate(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "network_interfaces", BlockTree.class)
-      .ifPresentOrElse(networkInterfaces -> checkNetworkInterfaces(ctx, networkInterfaces, resource),
-        () -> reportResource(ctx, resource, MESSAGE));
-  }
-
-  private static void checkNetworkInterfaces(CheckContext ctx, BlockTree networkInterfaces, BlockTree resource) {
-    SecondaryLocation resourceAsSecondary = new SecondaryLocation(resource.labels().get(0), SECONDARY_TEMPLATE_MESSAGE);
-    PropertyUtils.get(networkInterfaces, "associate_public_ip_address", AttributeTree.class)
-      .ifPresentOrElse(associatePublicIpAddress -> reportOnTrue(ctx, associatePublicIpAddress, MESSAGE, resourceAsSecondary),
-        () -> ctx.reportIssue(networkInterfaces.key(), MESSAGE, resourceAsSecondary));
-  }
-
 }

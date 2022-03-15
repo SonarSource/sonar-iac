@@ -28,8 +28,10 @@ import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.FIREWALL_MESSAGE;
+import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.GATEWAYS_AND_INTERFACE_MESSAGE;
 import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.NETWORK_ACCESS_MESSAGE;
-import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.OMITTED_MESSAGE;
+import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.OMITTING_MESSAGE;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.treePredicate;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
@@ -70,7 +72,7 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
     register(List.of("azurerm_dev_test_linux_virtual_machine", "azurerm_dev_test_windows_virtual_machine"),
       resource -> resource.attribute("disallow_public_ip_address")
         .reportIf(isFalse(), NETWORK_ACCESS_MESSAGE)
-        .reportIfAbsent(OMITTED_MESSAGE));
+        .reportIfAbsent(OMITTING_MESSAGE));
 
     register("azurerm_dev_test_virtual_network",
       resource -> resource.block("subnet")
@@ -85,7 +87,7 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
       resource -> Set.of("internet_ingestion_enabled", "internet_query_enabled").forEach(
         attribute -> resource.attribute(attribute)
           .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE)
-          .reportIfAbsent(OMITTED_MESSAGE)));
+          .reportIfAbsent(OMITTING_MESSAGE)));
 
     register("azurerm_sql_managed_instance",
       resource -> resource.attribute("public_data_endpoint_enabled")
@@ -97,7 +99,7 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
           .attribute("enable_node_public_ip")
           .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE);
         resource.list("api_server_authorized_ip_ranges")
-          .reportItemIf(IS_PUBLIC_IP_ADDRESS, NETWORK_ACCESS_MESSAGE);
+          .reportItemIf(IS_PUBLIC_IP_ADDRESS, FIREWALL_MESSAGE);
       });
 
     register("azurerm_machine_learning_workspace",
@@ -109,12 +111,12 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
   private static Consumer<ResourceSymbol> checkEnabledPublicIp(String propertyName) {
     return resource -> resource.attribute(propertyName)
       .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE)
-      .reportIfAbsent(OMITTED_MESSAGE);
+      .reportIfAbsent(OMITTING_MESSAGE);
   }
 
   private static Consumer<ResourceSymbol> checkPublicIpConfiguration(String propertyName) {
     return resource -> resource.blocks(propertyName).forEach(
       block -> block.attribute("public_ip_address_id")
-        .reportIf(e -> attributeAccessMatches(e, STARTS_WITH_AZURERM_PUBLIC_IP).isTrue(), NETWORK_ACCESS_MESSAGE));
+        .reportIf(e -> attributeAccessMatches(e, STARTS_WITH_AZURERM_PUBLIC_IP).isTrue(), GATEWAYS_AND_INTERFACE_MESSAGE));
   }
 }
