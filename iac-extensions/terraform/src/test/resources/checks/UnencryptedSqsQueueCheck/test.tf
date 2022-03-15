@@ -1,4 +1,5 @@
-resource "aws_sqs_queue" "queue1" {  # Noncompliant {{Make sure that using unencrypted SQS queues is safe here.}}
+# Noncompliant@+1 {{Omitting "kms_master_key_id" disables SQS queues encryption. Make sure it is safe here.}}
+resource "aws_sqs_queue" "queue1" {
 #        ^^^^^^^^^^^^^^^
 }
 

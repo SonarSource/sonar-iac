@@ -20,24 +20,14 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S6330")
-public class UnencryptedSqsQueueCheck extends AbstractResourceCheck {
-
-  private static final String MESSAGE = "Make sure that using unencrypted SQS queues is safe here.";
+public class UnencryptedSqsQueueCheck extends AbstractNewResourceCheck {
 
   @Override
-  protected void registerResourceChecks() {
-    register(UnencryptedSqsQueueCheck::checkQueue, "aws_sqs_queue");
+  protected void registerResourceConsumer() {
+    register("aws_sqs_queue",
+      resource -> resource.attribute("kms_master_key_id")
+        .reportIfAbsent("Omitting \"kms_master_key_id\" disables SQS queues encryption. Make sure it is safe here."));
   }
-
-  private static void checkQueue(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.isMissing(resource, "kms_master_key_id")) {
-      reportResource(ctx, resource, MESSAGE);
-    }
-  }
-
 }

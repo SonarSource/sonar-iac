@@ -38,6 +38,10 @@ public class SecondaryLocation {
     this.message = message;
   }
 
+  public static SecondaryLocation of(HasTextRange tree, String message) {
+    return new SecondaryLocation(tree, message);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

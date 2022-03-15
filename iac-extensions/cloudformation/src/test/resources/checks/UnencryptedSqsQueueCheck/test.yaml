@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   UnencryptedQueue:
-    Type: AWS::SQS::Queue # Noncompliant {{Make sure that using unencrypted SQS queues is safe here.}}
+    Type: AWS::SQS::Queue # Noncompliant {{Omitting "KmsMasterKeyId" disables SQS queues encryption. Make sure it is safe here.}}
 #         ^^^^^^^^^^^^^^^
     Properties:
      "DisplayName": "unencrypted_queue"

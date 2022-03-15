@@ -19,27 +19,28 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.TupleTree;
-import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper;
 
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_MANAGEMENT_GROUP_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.PLAIN_SUBSCRIPTION_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN;
 import static org.sonar.iac.terraform.checks.azure.helper.RoleScopeHelper.REFERENCE_SUBSCRIPTION_SCOPE_PATTERN;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 
 @Rule(key = "S6385")
-public class SubscriptionOwnerCapabilitiesCheck extends AbstractResourceCheck {
+public class SubscriptionOwnerCapabilitiesCheck extends AbstractNewResourceCheck {
 
-  private static final String MESSAGE = "Narrow the actions or assignable scope of this custom role.";
+  private static final String MESSAGE = "Narrow the number of actions or the assignable scope of this custom role.";
+  private static final String PERMISSION_MESSAGE = "Allows all actions.";
+  private static final String SCOPE_MESSAGE = "Sensitive scope.";
 
   private static final Predicate<String> REFERENCE_SCOPE_PREDICATE = exactMatchStringPredicate(REFERENCE_SUBSCRIPTION_SCOPE_PATTERN +
     "|" + REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN);
@@ -47,35 +48,26 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractResourceCheck {
     "|" + PLAIN_MANAGEMENT_GROUP_SCOPE_PATTERN);
 
   @Override
-  protected void registerResourceChecks() {
-    register(SubscriptionOwnerCapabilitiesCheck::checkRoleDefinition, "azurerm_role_definition");
+  protected void registerResourceConsumer() {
+    register("azurerm_role_definition",
+      resource -> {
+        List<SecondaryLocation> ownerPermissions = resource.block("permissions")
+          .list("actions")
+          .getItemIf(equalTo("*"))
+          .map(scope -> SecondaryLocation.of(scope, PERMISSION_MESSAGE))
+          .collect(Collectors.toList());
+
+        List<SecondaryLocation> sensitiveScopes = resource.list("assignable_scopes")
+          .getItemIf(scope -> RoleScopeHelper.isSensitiveScope(scope, REFERENCE_SCOPE_PREDICATE, PLAIN_SCOPE_PREDICATE))
+          .map(scope -> SecondaryLocation.of(scope, SCOPE_MESSAGE))
+          .collect(Collectors.toList());
+
+        if (!(ownerPermissions.isEmpty() || sensitiveScopes.isEmpty())) {
+          List<SecondaryLocation> secondaries = new ArrayList<>(ownerPermissions);
+          secondaries.addAll(sensitiveScopes);
+          resource.report(MESSAGE, secondaries);
+        }
+      });
   }
 
-  private static void checkRoleDefinition(CheckContext ctx, BlockTree resource) {
-    if (hasOwnerPermission(resource) && hasSensitiveScope(resource)) {
-      reportResource(ctx, resource, MESSAGE);
-    }
-  }
-
-  private static boolean hasSensitiveScope(BlockTree resource) {
-    return PropertyUtils.value(resource, "assignable_scopes", TupleTree.class)
-      .filter(scopes -> scopes.elements().trees().stream()
-        .anyMatch(scope -> isSensitiveScope(scope)))
-      .isPresent();
-  }
-
-  private static boolean isSensitiveScope(ExpressionTree scope) {
-    return RoleScopeHelper.isSensitiveScope(scope, REFERENCE_SCOPE_PREDICATE, PLAIN_SCOPE_PREDICATE);
-  }
-
-  private static boolean hasOwnerPermission(BlockTree resource) {
-    return PropertyUtils.get(resource, "permissions", BlockTree.class)
-      .flatMap(permissions -> PropertyUtils.value(permissions, "actions", TupleTree.class))
-      .filter(SubscriptionOwnerCapabilitiesCheck::allowAllAction)
-      .isPresent();
-  }
-
-  private static boolean allowAllAction(TupleTree actions) {
-    return actions.elements().trees().stream().anyMatch(action -> TextUtils.isValue(action, "*").isTrue());
-  }
 }
