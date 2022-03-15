@@ -3,7 +3,7 @@ resource "aws_kinesis_stream" "sensitive_stream" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting encryption_type enables clear-text traffic. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "encryption_type" enables clear-text traffic. Make sure it is safe here.}}
 resource "aws_kinesis_stream" "missing_encryption_type" {
   #      ^^^^^^^^^^^^^^^^^^^^
 }

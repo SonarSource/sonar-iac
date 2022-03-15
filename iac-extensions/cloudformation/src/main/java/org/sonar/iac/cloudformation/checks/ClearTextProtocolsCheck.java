@@ -36,9 +36,8 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE_PROTOCOL_FORMAT = "Using %s protocol is insecure. Use %s instead.";
-  private static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
-  private static final String MESSAGE_OMITTING_FORMAT = "Omitting %s enables clear-text traffic. Make sure it is safe here.";
+  public static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
+  public static final String MESSAGE_OMITTING_FORMAT = "Omitting \"%s\" enables clear-text traffic. Make sure it is safe here.";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -69,7 +68,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
   private static void checkClientBroker(CheckContext ctx, MappingTree e) {
     PropertyUtils.value(e, "ClientBroker", ScalarTree.class)
       .filter(clientBroker -> !"TLS".equals(clientBroker.value()))
-      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, String.format(MESSAGE_PROTOCOL_FORMAT, clientBroker.value(), "TLS")));
+      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, MESSAGE_CLEAR_TEXT));
   }
 
   private static void checkSearchDomain(CheckContext ctx, Resource resource) {
@@ -103,7 +102,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     }
 
     if (defaultActions.get().elements().stream().anyMatch(a -> isFixedResponseOrForwardAction(a) || isRedirectToHttpAction(a))) {
-      ctx.reportIssue(rootProtocol.get(), String.format(MESSAGE_PROTOCOL_FORMAT, "HTTP", "HTTPS"));
+      ctx.reportIssue(rootProtocol.get(), MESSAGE_CLEAR_TEXT);
     }
   }
 
