@@ -8,7 +8,8 @@ Resources:
             - TestKey
             - KeyId
   UnencryptedSNSTopic:
-    Type: AWS::SNS::Topic # Noncompliant {{Make sure that using unencrypted SNS topics is safe here.}}
+    # Noncompliant@+1 {{Omitting "KmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.}}
+    Type: AWS::SNS::Topic
     #     ^^^^^^^^^^^^^^^
   NotSNSTopic:
     Type: Some::Other::Type

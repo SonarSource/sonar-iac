@@ -20,23 +20,14 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S6327")
-public class DisabledSNSTopicEncryptionCheck extends AbstractResourceCheck {
-
-  private static final String MESSAGE = "Make sure that using unencrypted SNS topics is safe here.";
+public class DisabledSNSTopicEncryptionCheck extends AbstractNewResourceCheck {
 
   @Override
-  protected void registerResourceChecks() {
-    register(DisabledSNSTopicEncryptionCheck::checkSnsTopic, "aws_sns_topic");
-  }
-
-  private static void checkSnsTopic(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.isMissing(resource, "kms_master_key_id")) {
-      reportResource(ctx, resource, MESSAGE);
-    }
+  protected void registerResourceConsumer() {
+    register("aws_sns_topic",
+      resource -> resource.attribute("kms_master_key_id")
+        .reportIfAbsent("Omitting \"kms_master_key_id\" disables SNS topics encryption. Make sure it is safe here."));
   }
 }
