@@ -35,10 +35,11 @@ class DisabledESDomainEncryptionCheckTest {
   @Test
   void test_json() {
     String message = "Make sure that using unencrypted Elasticsearch domains is safe here.";
+    String omittingMessage = "Omitting \"EncryptionAtRestOptions.Enabled\" disables Elasticsearch domains encryption. Make sure it is safe here.";
     String secondaryMessage = "Related domain";
     CloudformationVerifier.verify("DisabledESDomainEncryptionCheck/test.json", new DisabledESDomainEncryptionCheck(),
-        new Verifier.Issue(range(5, 14, 5, 42), message),
-        new Verifier.Issue(range(14, 8, 14, 33), message,
+        new Verifier.Issue(range(5, 14, 5, 42), omittingMessage),
+        new Verifier.Issue(range(14, 8, 14, 33), omittingMessage,
             new SecondaryLocation(range(11, 14, 11, 42), secondaryMessage)),
         new Verifier.Issue(range(25, 10, 25, 19), message,
             new SecondaryLocation(range(20, 14, 20, 42), secondaryMessage)));

@@ -19,44 +19,24 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.Optional;
-
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.LabelTree;
+
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 
 @Rule(key = "S6308")
-public class DisabledESDomainEncryptionCheck extends AbstractResourceCheck {
+public class DisabledESDomainEncryptionCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure that using unencrypted Elasticsearch domains is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"encrypt_at_rest.enabled\" disables Elasticsearch domains encryption. Make sure it is safe here.";
   private static final String SECONDARY_MESSAGE = "Related domain";
 
   @Override
-  protected void registerResourceChecks() {
-    register(DisabledESDomainEncryptionCheck::checkElasticSearchDomain, "aws_elasticsearch_domain");
-  }
-
-  protected static void checkElasticSearchDomain(CheckContext ctx, BlockTree resource) {
-    LabelTree resourceType = resource.labels().get(0);
-    Optional<BlockTree> maybeEncryption = PropertyUtils.get(resource, "encrypt_at_rest", BlockTree.class);
-    if (maybeEncryption.isPresent()) {
-      BlockTree encryption = maybeEncryption.get();
-      Optional<AttributeTree> maybeEnabled = PropertyUtils.get(encryption, "enabled", AttributeTree.class);
-      if (maybeEnabled.isPresent()) {
-        AttributeTree enabled = maybeEnabled.get();
-        if (TextUtils.isValueFalse(enabled.value())) {
-          ctx.reportIssue(enabled, MESSAGE, new SecondaryLocation(resourceType, SECONDARY_MESSAGE));
-        }
-        return;
-      }
-      ctx.reportIssue(encryption.key(), MESSAGE, new SecondaryLocation(resourceType, SECONDARY_MESSAGE));
-      return;
-    }
-    ctx.reportIssue(resourceType, MESSAGE);
+  protected void registerResourceConsumer() {
+    register("aws_elasticsearch_domain",
+      resource -> resource.block("encrypt_at_rest")
+        .reportIfAbsent(OMITTING_MESSAGE)
+        .attribute("enabled")
+          .reportIfAbsent(OMITTING_MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
+          .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE)));
   }
 }
