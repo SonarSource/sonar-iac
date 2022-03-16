@@ -20,7 +20,12 @@
 package org.sonar.iac.cloudformation.plugin;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.Version;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,13 +34,31 @@ class CloudformationRulesDefinitionTest {
 
   @Test
   void testActivationSonarLint() {
-    CloudformationRulesDefinition rulesDefinition = new CloudformationRulesDefinition();
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    rulesDefinition.define(context);
-    RulesDefinition.Repository repository = context.repository("cloudformation");
+    RulesDefinition.Repository repository = cloudformationRuleRepository(9, 3);
     assertThat(repository).isNotNull();
     assertThat(repository.name()).isEqualTo("SonarQube");
     assertThat(repository.language()).isEqualTo("cloudformation");
     assertThat(repository.rules()).hasSize(CloudformationCheckList.checks().size());
+  }
+
+  @Test
+  void owaspSecurityStandard() {
+    RulesDefinition.Repository repository_9_3 = cloudformationRuleRepository(9, 3);
+    RulesDefinition.Rule s4423_9_3 = repository_9_3.rule("S4423");
+    assertThat(s4423_9_3).isNotNull();
+    assertThat(s4423_9_3.securityStandards()).contains("owaspTop10-2021:a2", "owaspTop10-2021:a7");
+
+    RulesDefinition.Repository repository_9_2 = cloudformationRuleRepository(9, 2);
+    RulesDefinition.Rule s4423_9_2 = repository_9_2.rule("S4423");
+    assertThat(s4423_9_2).isNotNull();
+    assertThat(s4423_9_2.securityStandards()).doesNotContain("owaspTop10-2021:a2", "owaspTop10-2021:a7");
+  }
+
+  private static RulesDefinition.Repository cloudformationRuleRepository(int major, int minor) {
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
+    CloudformationRulesDefinition rulesDefinition = new CloudformationRulesDefinition(sonarRuntime);
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+    return context.repository("cloudformation");
   }
 }

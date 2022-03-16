@@ -20,7 +20,6 @@
 package org.sonar.iac.common.extension;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -68,7 +67,10 @@ public abstract class IacSensor implements Sensor {
     descriptor
       .onlyOnLanguage(language.getKey())
       .name("IaC " + language.getName() + " Sensor");
-    processesFilesIndependently(descriptor);
+
+    if (sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
+      descriptor.processesFilesIndependently();
+    }
   }
 
   protected abstract TreeParser<Tree> treeParser();
@@ -128,18 +130,6 @@ public abstract class IacSensor implements Sensor {
 
   private boolean isActive(SensorContext sensorContext) {
     return sensorContext.config().getBoolean(getActivationSettingKey()).orElse(false);
-  }
-
-  private void processesFilesIndependently(SensorDescriptor descriptor) {
-    if (!sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
-      return;
-    }
-    try {
-      Method method = descriptor.getClass().getMethod("processesFilesIndependently");
-      method.invoke(descriptor);
-    } catch (ReflectiveOperationException e) {
-      LOG.warn("Could not call SensorDescriptor.processesFilesIndependently() method", e);
-    }
   }
 
   private class Analyzer {
