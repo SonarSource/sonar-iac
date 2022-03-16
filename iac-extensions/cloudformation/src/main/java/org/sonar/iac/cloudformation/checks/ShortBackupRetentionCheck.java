@@ -29,6 +29,7 @@ import org.sonar.iac.common.checks.TextUtils;
 public class ShortBackupRetentionCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that defining a short backup retention duration is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"BackupRetentionPeriod\" sets the backup retention period to 1 day. Make sure that defining a short backup retention duration is safe here.";
   private static final int DEFAULT = 7;
 
   @RuleProperty(
@@ -49,6 +50,10 @@ public class ShortBackupRetentionCheck extends AbstractResourceCheck {
     PropertyUtils.value(resource.properties(), "BackupRetentionPeriod").ifPresentOrElse(period ->
         TextUtils.getIntValue(period).filter(currentPeriod -> currentPeriod < minPeriod)
           .ifPresent(currentPeriod -> ctx.reportIssue(period, MESSAGE)),
-      () -> reportResource(ctx, resource, MESSAGE));
+      () -> {
+        if (minPeriod != 1) {
+          reportResource(ctx, resource, OMITTING_MESSAGE);
+        }
+      });
   }
 }
