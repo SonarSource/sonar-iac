@@ -1,4 +1,5 @@
-resource "aws_sagemaker_notebook_instance" "notebook1" {  # Noncompliant {{Make sure that using unencrypted SageMaker notebook instances is safe here.}}
+# Noncompliant@+1 {{Omitting "kms_key_id" disable encryption of SageMaker notebook instances. Make sure it is safe here.}}
+resource "aws_sagemaker_notebook_instance" "notebook1" {
 #        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
