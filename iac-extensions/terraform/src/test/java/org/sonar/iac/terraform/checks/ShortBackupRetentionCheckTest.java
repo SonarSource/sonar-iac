@@ -35,10 +35,16 @@ class ShortBackupRetentionCheckTest {
   }
 
   @Test
-  void aws_custom() {
+  void azurerm_cosmosdb_account() {
+    TerraformVerifier.verify("ShortBackupRetentionCheck/azurerm_cosmosdb_account.tf", new ShortBackupRetentionCheck());
+  }
+
+  @Test
+  void custom() {
     ShortBackupRetentionCheck check = new ShortBackupRetentionCheck();
     check.backupRetentionDuration = 1;
     TerraformVerifier.verify("ShortBackupRetentionCheck/aws_custom.tf", check);
+    TerraformVerifier.verify("ShortBackupRetentionCheck/azurerm_cosmosdb_account_custom.tf", check);
   }
 
 }

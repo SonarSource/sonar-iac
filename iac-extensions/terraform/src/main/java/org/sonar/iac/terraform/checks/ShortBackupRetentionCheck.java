@@ -55,6 +55,13 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
       resource -> resource.block("retention_daily")
         .attribute("count")
           .reportIf(lessThan(backupRetentionDuration), MESSAGE));
+
+    register("azurerm_cosmosdb_account",
+      resource -> resource.block("backup")
+        .reportIfAbsent(String.format(OMITTING_MESSAGE, "backup.retention_in_hours"))
+        .attribute("retention_in_hours")
+          .reportIfAbsent(OMITTING_MESSAGE)
+          .reportIf(lessThan(backupRetentionDuration * 24), MESSAGE));
   }
 
   private void checkAwsRetentionRate(ResourceSymbol resource) {
