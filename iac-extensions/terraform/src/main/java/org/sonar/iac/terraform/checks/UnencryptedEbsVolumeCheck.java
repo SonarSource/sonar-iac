@@ -21,42 +21,34 @@ package org.sonar.iac.terraform.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.LabelTree;
+
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 
 @Rule(key = "S6275")
-public class UnencryptedEbsVolumeCheck extends AbstractResourceCheck {
+public class UnencryptedEbsVolumeCheck extends AbstractNewResourceCheck {
 
-  private static final String[] PROPERTIES = new String[] {"root_block_device", "ebs_block_device"};
+  private static final List<String> PROPERTIES = List.of("root_block_device", "ebs_block_device");
   private static final String MESSAGE = "Make sure that using unencrypted volumes is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"%s\" disables volumes encryption. Make sure it is safe here.";
+
 
   @Override
-  protected void registerResourceChecks() {
-    register((ctx, resource) -> checkEncrypted(ctx, resource, "enabled", true), "aws_ebs_encryption_by_default");
-    register((ctx, resource) -> checkEncrypted(ctx, resource, "encrypted", false), "aws_ebs_volume");
-    register(UnencryptedEbsVolumeCheck::checkEncryptionProperties, "aws_launch_configuration");
+  protected void registerResourceConsumer() {
+    register("aws_ebs_encryption_by_default",
+      resource -> resource.attribute("enabled")
+        .reportIf(isFalse(), MESSAGE));
+
+    register("aws_ebs_volume",
+      resource -> resource.attribute("encrypted")
+        .reportIfAbsent(OMITTING_MESSAGE)
+        .reportIf(isFalse(), MESSAGE));
+
+    register("aws_launch_configuration",
+      resource -> PROPERTIES.forEach(property -> resource.block(property)
+        .attribute("encrypted")
+        .reportIfAbsent(OMITTING_MESSAGE)
+        .reportIf(isFalse(), MESSAGE)));
   }
 
-  private static void checkEncryptionProperties(CheckContext ctx, BlockTree resource) {
-    for (String propertyName : PROPERTIES) {
-      PropertyUtils.get(resource, propertyName, BlockTree.class)
-        .ifPresent(propertyTree -> checkEncrypted(ctx, propertyTree, "encrypted", false));
-    }
-  }
 
-  private static void checkEncrypted(CheckContext ctx, BlockTree tree, String key, boolean secureByDefault) {
-    PropertyUtils.get(tree, key, AttributeTree.class)
-      .ifPresentOrElse(p -> reportOnFalse(ctx, p, MESSAGE),
-        () -> reportIfNotSecureByDefault(ctx, tree, secureByDefault));
-  }
-
-  private static void reportIfNotSecureByDefault(CheckContext ctx, BlockTree tree, boolean secureByDefault) {
-    if (!secureByDefault) {
-      List<LabelTree> labels = tree.labels();
-      ctx.reportIssue(labels.isEmpty() ? tree.key() : labels.get(0), MESSAGE);
-    }
-  }
 }

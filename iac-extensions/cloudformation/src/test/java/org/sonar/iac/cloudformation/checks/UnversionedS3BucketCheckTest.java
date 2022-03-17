@@ -41,7 +41,8 @@ class UnversionedS3BucketCheckTest {
           "Related bucket")),
       new Verifier.Issue(range(31, 8, 31, 33),
         "Make sure using unversioned S3 bucket is safe here."),
-      new Verifier.Issue(range(45, 14, 45, 31)));
+      new Verifier.Issue(range(45, 14, 45, 31),
+        "Omitting \"VersioningConfiguration\" disables S3 bucket versioning. Make sure it is safe here."));
   }
 
 }

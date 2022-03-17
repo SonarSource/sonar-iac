@@ -34,8 +34,10 @@ class UnencryptedEbsVolumeCheckTest {
   @Test
   void test_json() {
     CloudformationVerifier.verify("UnencryptedEbsVolumeCheck/test.json", new UnencryptedEbsVolumeCheck(),
-      new Verifier.Issue(range(7, 21, 7, 26), "Make sure that using unencrypted volumes is safe here."),
-      new Verifier.Issue(range(12, 14, 12, 32), "Make sure that using unencrypted volumes is safe here."));
+      new Verifier.Issue(range(7, 21, 7, 26),
+        "Make sure that using unencrypted volumes is safe here."),
+      new Verifier.Issue(range(12, 14, 12, 32),
+        "Omitting \"Encrypted\" disables volumes encryption. Make sure it is safe here."));
   }
 
 }
