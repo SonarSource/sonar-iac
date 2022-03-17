@@ -1,4 +1,5 @@
-resource "aws_s3_bucket" "mynoncompliantbucket" { # Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
+# Noncompliant@+1 {{Omitting "versioning" disables S3 bucket versioning. Make sure it is safe here.}}
+resource "aws_s3_bucket" "mynoncompliantbucket" {
   #      ^^^^^^^^^^^^^^^
   bucket = "mynoncompliantbucketname"
 }

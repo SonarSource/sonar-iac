@@ -33,6 +33,8 @@ import org.sonar.iac.common.checks.TextUtils;
 public class UnversionedS3BucketCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure using %s S3 bucket is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"VersioningConfiguration\" disables S3 bucket versioning. Make sure it is safe here.";
+
   private static final String UNVERSIONED_MSG = "unversioned";
   private static final String SUSPENDED_MSG = "suspended versioned";
   private static final String SECONDARY_MSG = "Related bucket";
@@ -60,7 +62,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
         ctx.reportIssue(versioningKey(properties), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG));
       }
     } else {
-      ctx.reportIssue(resource.type(), String.format(MESSAGE, UNVERSIONED_MSG));
+      ctx.reportIssue(resource.type(), OMITTING_MESSAGE);
     }
   }
 
