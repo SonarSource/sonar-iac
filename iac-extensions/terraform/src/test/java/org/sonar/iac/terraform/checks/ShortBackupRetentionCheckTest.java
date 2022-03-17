@@ -32,7 +32,7 @@ class ShortBackupRetentionCheckTest {
   @Test
   void custom() {
     ShortBackupRetentionCheck check = new ShortBackupRetentionCheck();
-    check.backupRetentionDuration = 2;
+    check.backupRetentionDuration = 1;
     TerraformVerifier.verify("ShortBackupRetentionCheck/custom.tf", check);
   }
 

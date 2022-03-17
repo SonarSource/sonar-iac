@@ -4,10 +4,11 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       DBName: NonCompliantDatabase
-      BackupRetentionPeriod: 2 # Noncompliant
+      BackupRetentionPeriod: 2 # Noncompliant {{Make sure that defining a short backup retention duration is safe here.}}
 
   DBInstanceMissingPeriod:
-    Type: AWS::RDS::DBInstance # Noncompliant
+    # Noncompliant@+1 {{Omitting "BackupRetentionPeriod" sets the backup retention period to 1 day. Make sure that defining a short backup retention duration is safe here.}}
+    Type: AWS::RDS::DBInstance
     Properties:
       DBName: NonCompliantDatabase
 

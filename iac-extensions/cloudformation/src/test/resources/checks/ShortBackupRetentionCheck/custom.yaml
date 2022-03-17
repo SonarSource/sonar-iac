@@ -4,10 +4,10 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       DBName: NonCompliantDatabase
-      BackupRetentionPeriod: 2
+      BackupRetentionPeriod: 1
 
   DBInstanceMissingPeriod:
-    Type: AWS::RDS::DBInstance # Noncompliant
+    Type: AWS::RDS::DBInstance
     Properties:
       DBName: NonCompliantDatabase
 
@@ -15,9 +15,4 @@ Resources:
     Type: AWS::RDS::DBCluster
     Properties:
       DBName: NonCompliantDatabase
-      BackupRetentionPeriod: 2
-
-  DBClusterMissingPeriod:
-    Type: AWS::RDS::DBCluster # Noncompliant
-    Properties:
-      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: 0 # Noncompliant
