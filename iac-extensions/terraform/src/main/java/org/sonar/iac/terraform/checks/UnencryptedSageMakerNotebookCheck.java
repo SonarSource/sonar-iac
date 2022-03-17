@@ -20,24 +20,14 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.BlockTree;
 
 @Rule(key = "S6319")
-public class UnencryptedSageMakerNotebookCheck extends AbstractResourceCheck {
-
-  private static final String MESSAGE = "Make sure that using unencrypted SageMaker notebook instances is safe here.";
+public class UnencryptedSageMakerNotebookCheck extends AbstractNewResourceCheck {
 
   @Override
-  protected void registerResourceChecks() {
-    register(UnencryptedSageMakerNotebookCheck::checkInstance, "aws_sagemaker_notebook_instance");
+  protected void registerResourceConsumer() {
+    register("aws_sagemaker_notebook_instance",
+      resource -> resource.attribute("kms_key_id")
+        .reportIfAbsent("Omitting \"kms_key_id\" disable encryption of SageMaker notebook instances. Make sure it is safe here."));
   }
-
-  private static void checkInstance(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.isMissing(resource, "kms_key_id")) {
-      reportResource(ctx, resource, MESSAGE);
-    }
-  }
-
 }

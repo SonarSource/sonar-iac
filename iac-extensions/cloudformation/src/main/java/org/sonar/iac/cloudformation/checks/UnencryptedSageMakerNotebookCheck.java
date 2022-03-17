@@ -26,15 +26,13 @@ import org.sonar.iac.common.checks.PropertyUtils;
 @Rule(key = "S6319")
 public class UnencryptedSageMakerNotebookCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Make sure that using unencrypted SageMaker notebook instances is safe here.";
-
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (!resource.isType("AWS::SageMaker::NotebookInstance")) {
       return;
     }
     if (PropertyUtils.isMissing(resource.properties(), "KmsKeyId")) {
-      ctx.reportIssue(resource.type(), MESSAGE);
+      ctx.reportIssue(resource.type(), "Omitting \"KmsKeyId\" disables encryption of SageMaker notebook instances. Make sure it is safe here.");
     }
   }
 
