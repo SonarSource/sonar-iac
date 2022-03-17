@@ -37,7 +37,7 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S6270")
 public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Make sure this policy granting anonymous access is safe here.";
+  private static final String MESSAGE = "Make sure granting public access is safe here.";
   private static final String SECONDARY_MESSAGE = "Related effect.";
 
   @Override

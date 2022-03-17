@@ -5,7 +5,7 @@ resource "aws_s3_bucket_policy" "sensitive_policy_with_anonymous_access_literal"
       {
         Effect: "Allow",
         #       ^^^^^^^> {{Related effect.}}
-        Principal: "*", # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+        Principal: "*", # Noncompliant {{Make sure granting public access is safe here.}}
         #          ^^^
       }
     ]
@@ -204,7 +204,7 @@ data "aws_iam_policy_document" "example_with_statements" {
    principals {
      type = "AWS"
      identifiers = [
-       "*"  # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+       "*"  # Noncompliant {{Make sure granting public access is safe here.}}
      # ^^^
      ]
     }
@@ -222,7 +222,7 @@ data "aws_iam_policy_document" "example_with_statements" {
    not_principals {
      type = "AWS"
      identifiers = [
-       "*"  # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+       "*"  # Noncompliant {{Make sure granting public access is safe here.}}
      # ^^^
      ]
     }
