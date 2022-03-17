@@ -70,10 +70,7 @@ class PrivilegeEscalationVectorTest {
   @Test
   void test_equals() {
     assertThat(new PrivilegeEscalationVector("foo:bar").equals(new PrivilegeEscalationVector("foo:bar"))).isTrue();
-
     PrivilegeEscalationVector vector = new PrivilegeEscalationVector("foo:bar");
-    assertThat(vector.equals(vector)).isTrue();
-
     assertThat(vector.equals(vector)).isTrue();
     assertThat(new PrivilegeEscalationVector("foo:bar").equals(new PrivilegeEscalationVector("bar:foo"))).isFalse();
     assertThat(new PrivilegeEscalationVector("foo:bar").equals(null)).isFalse();
