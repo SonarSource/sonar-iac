@@ -25,15 +25,20 @@ import org.junit.jupiter.api.Test;
 class ShortBackupRetentionCheckTest {
 
   @Test
-  void test() {
-    TerraformVerifier.verify("ShortBackupRetentionCheck/test.tf", new ShortBackupRetentionCheck());
+  void aws() {
+    TerraformVerifier.verify("ShortBackupRetentionCheck/aws.tf", new ShortBackupRetentionCheck());
   }
 
   @Test
-  void custom() {
+  void azurerm_backup_policy_file_share() {
+    TerraformVerifier.verify("ShortBackupRetentionCheck/azurerm_backup_policy_file_share.tf", new ShortBackupRetentionCheck());
+  }
+
+  @Test
+  void aws_custom() {
     ShortBackupRetentionCheck check = new ShortBackupRetentionCheck();
     check.backupRetentionDuration = 1;
-    TerraformVerifier.verify("ShortBackupRetentionCheck/custom.tf", check);
+    TerraformVerifier.verify("ShortBackupRetentionCheck/aws_custom.tf", check);
   }
 
 }

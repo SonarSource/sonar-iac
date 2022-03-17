@@ -4,7 +4,7 @@ resource "aws_db_instance" "too_low_period" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-# Noncompliant@+1 {{Omitting "backup_retention_period" sets the backup retention period to 1 day. Make sure that defining a short backup retention duration is safe here.}}
+# Noncompliant@+1 {{Omitting "backup_retention_period" results in a short backup retention duration. Make sure it is safe here.}}
 resource "aws_db_instance" "missing_period" {
   #      ^^^^^^^^^^^^^^^^^
   name                 = "non_compliant_db"
