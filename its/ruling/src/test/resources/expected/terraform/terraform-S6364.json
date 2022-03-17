@@ -11,6 +11,10 @@
 'terraform-project:sources/terraform/terragoat/terraform/aws/db-app.tf':[
 17,
 ],
+'terraform-project:sources/terraform/terragoat/terraform/azure/app_service.tf':[
+22,
+43,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/rds_retention_period_set/main.tf':[
 1,
 ],
