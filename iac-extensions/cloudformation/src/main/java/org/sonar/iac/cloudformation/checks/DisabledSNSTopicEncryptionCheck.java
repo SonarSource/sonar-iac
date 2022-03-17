@@ -26,7 +26,7 @@ import org.sonar.iac.common.checks.PropertyUtils;
 @Rule(key = "S6327")
 public class DisabledSNSTopicEncryptionCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Make sure that using unencrypted SNS topics is safe here.";
+  private static final String MESSAGE = "Omitting \"KmsMasterKeyId\" disables SNS topics encryption. Make sure it is safe here.";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {

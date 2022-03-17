@@ -3,7 +3,8 @@ resource "aws_sns_topic" "topic_encrypted" {
   kms_master_key_id = aws_kms_key.enc_key.key_id
 }
 
-resource "aws_sns_topic" "topic_unencrypted" { # Noncompliant {{Make sure that using unencrypted SNS topics is safe here.}}
+# Noncompliant@+1 {{Omitting "kms_master_key_id" disables SNS topics encryption. Make sure it is safe here.}}
+resource "aws_sns_topic" "topic_unencrypted" {
 #        ^^^^^^^^^^^^^^^
   name = "sns-unencrypted"
 }
