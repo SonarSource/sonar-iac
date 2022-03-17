@@ -29,7 +29,7 @@ import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 @Rule(key = "S6378")
 public class ManagedIdentityCheck extends AbstractResourceCheck {
 
-  private static final String MANAGED_IDENTITY_MESSAGE = "Omitting the `identity` block disables Azure Managed Identities. Make sure that it is safe here.";
+  private static final String MANAGED_IDENTITY_MESSAGE = "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here.";
   private static final String DATA_FACTORY_MESSAGE = "Make sure that disabling Azure Managed Identities is safe here.";
 
   @Override

@@ -37,6 +37,8 @@ import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
 public class UnversionedS3BucketCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure using %s S3 bucket is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"versioning\" disables S3 bucket versioning. Make sure it is safe here.";
+
   private static final String UNVERSIONED_MSG = "unversioned";
   private static final String SUSPENDED_MSG = "suspended versioned";
   private static final String SECONDARY_MESSAGE = "Related bucket";
@@ -57,7 +59,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     versioningAttribute.ifPresent(a -> checkAttribute(ctx, bucketLabel, a));
 
     if (versioningBlock.isEmpty() && versioningAttribute.isEmpty()) {
-      reportResource(ctx, resource, String.format(MESSAGE, UNVERSIONED_MSG));
+      reportResource(ctx, resource, OMITTING_MESSAGE);
     }
   }
 
