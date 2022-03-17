@@ -1,7 +1,8 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   ESDomain1:
-    Type: AWS::Elasticsearch::Domain # Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+    # Noncompliant@+1 {{Omitting "EncryptionAtRestOptions.Enabled" disables Elasticsearch domains encryption. Make sure it is safe here.}}
+    Type: AWS::Elasticsearch::Domain
     #     ^^^^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       DomainName: 'myDomain'
@@ -11,7 +12,8 @@ Resources:
     #     ^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Related domain}}
     Properties:
       DomainName: 'myDomain'
-      EncryptionAtRestOptions: # Noncompliant {{Make sure that using unencrypted Elasticsearch domains is safe here.}}
+      # Noncompliant@+1 {{Omitting "EncryptionAtRestOptions.Enabled" disables Elasticsearch domains encryption. Make sure it is safe here.}}
+      EncryptionAtRestOptions:
     # ^^^^^^^^^^^^^^^^^^^^^^^
         KmsKeyId: 123
 
