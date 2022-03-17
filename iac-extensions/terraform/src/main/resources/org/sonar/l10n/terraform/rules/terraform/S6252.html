@@ -9,24 +9,25 @@ bucket.</p>
 <p>It can lead to unintentional or intentional information loss.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The S3 bucket stores sensitive information that is required to be preserved on the long term. </li>
-  <li> The S3 bucket grants write permission to many users. </li>
+  <li> The bucket stores information that require high availability. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>It’s recommended to enable S3 versioning and thus to have the possibility to retrieve and restore different versions of an object.</p>
 <h2>Sensitive Code Example</h2>
-<p>Versioning is disabled by default:</p>
 <pre>
-resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
-  bucket = "mynoncompliantbucketname"
+Versioning is disabled by default:
+</pre>
+<pre>
+resource "aws_s3_bucket" "example" { # Sensitive
+  bucket = "example"
 }
 </pre>
 <h2>Compliant Solution</h2>
 <p>Versioning is enabled:</p>
 <pre>
-resource "aws_s3_bucket" "mycompliantbucket" { # Compliant
-  bucket = "mycompliantbucketname"
+resource "aws_s3_bucket" "example" { # Compliant
+  bucket = "example"
 
   versioning {
     enabled = true
