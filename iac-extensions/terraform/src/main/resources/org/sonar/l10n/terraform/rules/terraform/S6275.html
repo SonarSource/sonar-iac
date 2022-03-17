@@ -15,7 +15,7 @@ globally for a specific region.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume">aws_ebs_volume</a>:</p>
 <pre>
-resource "aws_ebs_volume" "ebs_volume" {  # Sensitive if "encrypted by default" is disabled
+resource "aws_ebs_volume" "ebs_volume" {  # Sensitive as encryption is disabled by default
 }
 </pre>
 <pre>
@@ -33,9 +33,9 @@ resource "aws_ebs_encryption_by_default" "default_encryption" {
 <p>For <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_configuration">aws_launch_configuration</a>:</p>
 <pre>
 resource "aws_launch_configuration" "launch_configuration" {
-  root_block_device {  # Sensitive if "encrypted by default" is disabled
+  root_block_device {  # Sensitive as encryption is disabled by default
   }
-  ebs_block_device {  # Sensitive if "encrypted by default" is disabled
+  ebs_block_device {  # Sensitive as encryption is disabled by default
   }
 }
 </pre>

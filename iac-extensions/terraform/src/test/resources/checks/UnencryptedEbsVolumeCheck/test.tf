@@ -1,4 +1,4 @@
-resource "aws_ebs_volume" "ebs_volume" { # Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
+resource "aws_ebs_volume" "ebs_volume" { # Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
 #        ^^^^^^^^^^^^^^^^
 }
 
@@ -22,10 +22,10 @@ resource "aws_ebs_encryption_by_default" "default_encryption_2" { # Compliant
 }
 
 resource "aws_launch_configuration" "launch_configuration" {
-  root_block_device { # Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
+  root_block_device { # Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
 # ^^^^^^^^^^^^^^^^^
   }
-  ebs_block_device { # Noncompliant
+  ebs_block_device { # Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
 # ^^^^^^^^^^^^^^^^
   }
 }
@@ -48,6 +48,10 @@ resource "aws_launch_configuration" "launch_configuration" {
   ebs_block_device {
     encrypted = true
   }
+}
+
+resource "aws_launch_configuration" "launch_configuration" {
+
 }
 
 resource "locals" {

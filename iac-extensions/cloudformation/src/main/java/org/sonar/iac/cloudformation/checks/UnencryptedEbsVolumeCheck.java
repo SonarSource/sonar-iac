@@ -19,10 +19,8 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
@@ -30,21 +28,21 @@ import org.sonar.iac.common.checks.TextUtils;
 public class UnencryptedEbsVolumeCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that using unencrypted volumes is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"Encrypted\" disables volumes encryption. Make sure it is safe here.";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (!resource.isType("AWS::EC2::Volume")) {
       return;
     }
-    Optional<Tree> property = PropertyUtils.value(resource.properties(), "Encrypted");
-    if (!property.isPresent()) {
-      ctx.reportIssue(resource.type(), MESSAGE);
-    } else {
-      Tree encryptedValue = property.get();
-      if (TextUtils.isValueFalse(encryptedValue)) {
-        ctx.reportIssue(encryptedValue, MESSAGE);
-      }
-    }
+
+    PropertyUtils.value(resource.properties(), "Encrypted").ifPresentOrElse(
+      encryptedValue -> {
+        if (TextUtils.isValueFalse(encryptedValue)) {
+          ctx.reportIssue(encryptedValue, MESSAGE);
+        }
+      }, () -> reportResource(ctx, resource, OMITTING_MESSAGE)
+    );
   }
 
 }
