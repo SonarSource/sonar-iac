@@ -23,10 +23,13 @@ import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
+import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
+
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
 
 @Rule(key = "S6364")
 public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
@@ -62,6 +65,22 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
         .attribute("retention_in_hours")
           .reportIfAbsent(OMITTING_MESSAGE)
           .reportIf(lessThan(backupRetentionDuration * 24), MESSAGE));
+
+    register("azurerm_app_service",
+      resource -> {
+        BlockSymbol backup = resource.block("backup").reportIfAbsent(OMITTING_MESSAGE);
+        AttributeSymbol enabled = backup.attribute("enabled");
+        if (enabled.isPresent()) {
+          enabled.reportIf(isFalse(), "Make sure disabling backup is safe here.");
+          if (enabled.is(isTrue())) {
+            backup.block("schedule")
+              .reportIfAbsent(String.format(OMITTING_MESSAGE, "schedule.retention_period_in_days"))
+              .attribute("retention_period_in_days")
+                .reportIfAbsent(OMITTING_MESSAGE)
+                .reportIf(lessThan(backupRetentionDuration), MESSAGE);
+          }
+        }
+      });
   }
 
   private void checkAwsRetentionRate(ResourceSymbol resource) {

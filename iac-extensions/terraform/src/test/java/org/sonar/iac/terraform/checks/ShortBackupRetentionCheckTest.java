@@ -40,6 +40,11 @@ class ShortBackupRetentionCheckTest {
   }
 
   @Test
+  void azurerm_app_service() {
+    TerraformVerifier.verify("ShortBackupRetentionCheck/azurerm_app_service.tf", new ShortBackupRetentionCheck());
+  }
+
+  @Test
   void custom() {
     ShortBackupRetentionCheck check = new ShortBackupRetentionCheck();
     check.backupRetentionDuration = 1;

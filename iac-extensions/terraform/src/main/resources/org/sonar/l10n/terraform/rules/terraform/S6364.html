@@ -13,17 +13,33 @@
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://aws.amazon.com/rds/">Amazon Relational Database Service</a> clusters and instances:</p>
 <pre>
-resource "aws_db_instance" "relational_database" {
-  name                 = "non_compliant_db"
+resource "aws_db_instance" "example" {
   backup_retention_period = 2 # Sensitive
+}
+</pre>
+<p>For <a href="https://docs.microsoft.com/en-us/azure/cosmos-db/introduction">Azure Cosmos DB</a> accounts:</p>
+<pre>
+resource "azurerm_cosmosdb_account" "example" {
+  backup {
+    type = "Periodic"
+    retention_in_hours = 8 # Sensitive
+  }
 }
 </pre>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://aws.amazon.com/rds/">Amazon Relational Database Service</a> clusters and instances:</p>
 <pre>
-resource "aws_db_instance" "relational_database" {
-  name                 = "compliant_db"
+resource "aws_db_instance" "example" {
   backup_retention_period = 5
+}
+</pre>
+<p>For <a href="https://docs.microsoft.com/en-us/azure/cosmos-db/introduction">Azure Cosmos DB</a> accounts:</p>
+<pre>
+resource "azurerm_cosmosdb_account" "example" {
+  backup {
+    type = "Periodic"
+    retention_in_hours = 300
+  }
 }
 </pre>
 
