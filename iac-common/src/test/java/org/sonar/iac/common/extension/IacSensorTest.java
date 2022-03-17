@@ -93,14 +93,6 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_descriptor_sonarqube_9_3_reflection_failure() {
-    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
-    sensor(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER), null)
-      .describe(descriptor);
-    assertThat(logTester.logs()).contains("Could not call SensorDescriptor.processesFilesIndependently() method");
-  }
-
-  @Test
   void test_empty_file() {
     analyse(sensor("S2260"), inputFile("emptyFile.iac", ""));
 

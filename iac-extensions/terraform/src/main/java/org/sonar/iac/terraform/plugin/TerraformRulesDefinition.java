@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.plugin;
 
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
@@ -26,12 +27,17 @@ import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 public class TerraformRulesDefinition implements RulesDefinition {
 
   private static final String RESOURCE_FOLDER = "org/sonar/l10n/terraform/rules/terraform";
+  private final SonarRuntime runtime;
+
+  public TerraformRulesDefinition(SonarRuntime runtime) {
+    this.runtime = runtime;
+  }
 
   @Override
   public void define(Context context) {
     NewRepository repository = context.createRepository(TerraformExtension.REPOSITORY_KEY, TerraformLanguage.KEY)
       .setName(TerraformExtension.REPOSITORY_NAME);
-    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER);
+    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER, runtime);
     metadataLoader.addRulesByAnnotatedClass(repository, TerraformCheckList.checks());
     repository.done();
   }

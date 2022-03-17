@@ -36,8 +36,11 @@ class DisabledRDSEncryptionCheckTest {
   void test_json() {
     String message = "Make sure that using unencrypted databases is safe here.";
     CloudformationVerifier.verify("DisabledRDSEncryptionCheck/test.json", new DisabledRDSEncryptionCheck(),
-      new Verifier.Issue(range(13, 8, 13, 26), message, new SecondaryLocation(range(11, 14, 11, 36), "Related RDS DBInstance")),
-      new Verifier.Issue(range(17, 14, 17, 36), message));
+      new Verifier.Issue(range(13, 8, 13, 26),
+        "Make sure that using unencrypted databases is safe here.",
+        new SecondaryLocation(range(11, 14, 11, 36), "Related RDS DBInstance")),
+      new Verifier.Issue(range(17, 14, 17, 36),
+        "Omitting \"StorageEncrypted\" disables databases encryption. Make sure it is safe here."));
   }
 
 }

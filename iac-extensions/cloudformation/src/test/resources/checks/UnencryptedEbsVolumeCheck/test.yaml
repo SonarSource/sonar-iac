@@ -7,7 +7,7 @@ Resources:
 #                ^^^^^
 
   Ec2Volume2:
-    Type: AWS::EC2::Volume # Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
+    Type: AWS::EC2::Volume # Noncompliant {{Omitting "Encrypted" disables volumes encryption. Make sure it is safe here.}}
 #         ^^^^^^^^^^^^^^^^
     Properties:
       Other: 'yolo'
