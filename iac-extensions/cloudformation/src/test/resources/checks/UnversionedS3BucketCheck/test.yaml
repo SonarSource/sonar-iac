@@ -38,7 +38,7 @@ Resources:
     VersioningConfiguration.Status: Suspended # FN SONARIAC-102 we do not support shorthand notation yet.
 
   BucketWithNoPropertiesSet:
-    Type: 'AWS::S3::Bucket' # Noncompliant
+    Type: 'AWS::S3::Bucket' # Noncompliant {{Omitting "VersioningConfiguration" disables S3 bucket versioning. Make sure it is safe here.}}
 
   NoBucket:
     Type: 'Not a Bucket'

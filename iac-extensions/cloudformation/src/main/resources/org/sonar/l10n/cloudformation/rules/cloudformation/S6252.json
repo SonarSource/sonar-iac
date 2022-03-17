@@ -1,5 +1,5 @@
 {
-  "title": "Unversioned or suspended versioned S3 bucket is security-sensitive",
+  "title": "Disabling versioning of S3 buckets is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {

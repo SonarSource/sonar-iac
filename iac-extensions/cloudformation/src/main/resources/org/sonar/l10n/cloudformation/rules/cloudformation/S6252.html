@@ -9,8 +9,7 @@ bucket.</p>
 <p>It can lead to unintentional or intentional information loss.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The S3 bucket stores sensitive information that is required to be preserved on the long term. </li>
-  <li> The S3 bucket grants write permission to many users. </li>
+  <li> The bucket stores information that require high availability. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -23,7 +22,7 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Sensitive
     Properties:
-      BucketName: "mynonompliantbucket"
+      BucketName: "Example"
 </pre>
 <h2>Compliant Solution</h2>
 <p>Versioning is enabled:</p>
@@ -33,7 +32,7 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Compliant
     Properties:
-      BucketName: "mycompliantbucket"
+      BucketName: "Example"
       VersioningConfiguration:
         Status: Enabled
 </pre>
