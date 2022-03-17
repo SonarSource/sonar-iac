@@ -35,6 +35,6 @@ class DisabledSNSTopicEncryptionCheckTest {
   void test_json() {
     CloudformationVerifier.verify("DisabledSNSTopicEncryptionCheck/test.json", new DisabledSNSTopicEncryptionCheck(),
       new Verifier.Issue(range(8, 14, 8, 31),
-        "Make sure that using unencrypted SNS topics is safe here."));
+        "Omitting \"KmsMasterKeyId\" disables SNS topics encryption. Make sure it is safe here."));
   }
 }

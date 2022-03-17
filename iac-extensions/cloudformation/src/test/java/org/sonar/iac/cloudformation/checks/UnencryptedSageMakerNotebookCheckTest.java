@@ -34,7 +34,8 @@ class UnencryptedSageMakerNotebookCheckTest {
   @Test
   void test_json() {
     CloudformationVerifier.verify("UnencryptedSageMakerNotebookCheck/test.json", new UnencryptedSageMakerNotebookCheck(),
-      new Verifier.Issue(range(5, 14, 5, 48), "Make sure that using unencrypted SageMaker notebook instances is safe here."));
+      new Verifier.Issue(range(5, 14, 5, 48),
+        "Omitting \"KmsKeyId\" disables encryption of SageMaker notebook instances. Make sure it is safe here."));
   }
 
 }

@@ -1,7 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   Notebook:
-    Type: AWS::SageMaker::NotebookInstance # Noncompliant {{Make sure that using unencrypted SageMaker notebook instances is safe here.}}
+    # Noncompliant@+1 {{Omitting "KmsKeyId" disables encryption of SageMaker notebook instances. Make sure it is safe here.}}
+    Type: AWS::SageMaker::NotebookInstance
 #         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       InstanceType: "ml.t2.medium"
