@@ -8,7 +8,8 @@ resource "aws_db_instance" "unencrypted1" {
 # ^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
-resource "aws_db_instance" "unencrypted2" { # Noncompliant {{Make sure that using unencrypted databases is safe here.}}
+# Noncompliant@+1 {{Omitting "storage_encrypted" disables databases encryption. Make sure it is safe here.}}
+resource "aws_db_instance" "unencrypted2" {
 #        ^^^^^^^^^^^^^^^^^
 }
 

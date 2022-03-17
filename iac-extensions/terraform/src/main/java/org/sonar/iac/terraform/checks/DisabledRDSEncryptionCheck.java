@@ -20,27 +20,22 @@
 package org.sonar.iac.terraform.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
+
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 
 
 @Rule(key = "S6303")
-public class DisabledRDSEncryptionCheck extends AbstractResourceCheck {
+public class DisabledRDSEncryptionCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure that using unencrypted databases is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"storage_encrypted\" disables databases encryption. Make sure it is safe here.";
   private static final String SECONDARY_MESSAGE = "Related RDS DBInstance";
 
   @Override
-  protected void registerResourceChecks() {
-    register(DisabledRDSEncryptionCheck::checkDbInstance, "aws_db_instance");
-  }
-
-  private static void checkDbInstance(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "storage_encrypted", AttributeTree.class)
-      .ifPresentOrElse(encrypted -> reportOnFalse(ctx, encrypted, MESSAGE, new SecondaryLocation(resource.labels().get(0), SECONDARY_MESSAGE)),
-        () -> reportResource(ctx, resource, MESSAGE));
+  protected void registerResourceConsumer() {
+    register("aws_db_instance",
+      resource -> resource.attribute("storage_encrypted")
+        .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
+        .reportIfAbsent(OMITTING_MESSAGE));
   }
 }
