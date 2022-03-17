@@ -1,5 +1,5 @@
 {
-  "title": "Having AWS policies that authorize public access to resources is security-sensitive",
+  "title": "Policies authorizing public access to resources are security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {

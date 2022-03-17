@@ -29,7 +29,7 @@ Resources:
           - Effect: Allow
             #       ^^^^^> {{Related effect.}}
             Principal:
-              AWS: "*" # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+              AWS: "*" # Noncompliant {{Make sure granting public access is safe here.}}
               #    ^^^
             Action: "s3:PutObject" # can put object
             Resource: arn:aws:s3:::mynoncompliantbuckets6270/*
@@ -43,7 +43,7 @@ Resources:
         Statement:
           - Effect: Allow
             #       ^^^^^> {{Related effect.}}
-            Principal: "*" # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+            Principal: "*" # Noncompliant {{Make sure granting public access is safe here.}}
             #          ^^^
             Action: "s3:PutObject" # can put object
             Resource: arn:aws:s3:::mynoncompliantbuckets6270/*
@@ -57,7 +57,7 @@ Resources:
             #       ^^^^^> {{Related effect.}}
             Principal:
               AWS:
-                - "*" # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+                - "*" # Noncompliant {{Make sure granting public access is safe here.}}
                 # ^^^
             Action: "s3:PutObject" # can put object
             Resource: arn:aws:s3:::mynoncompliantbuckets6270/*
@@ -71,7 +71,7 @@ Resources:
             #       ^^^^> {{Related effect.}}
             NotPrincipal:
               AWS:
-                - "*" # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+                - "*" # Noncompliant {{Make sure granting public access is safe here.}}
                 # ^^^
             Action: "s3:PutObject" # can put object
             Resource: arn:aws:s3:::mynoncompliantbuckets6270/*
@@ -83,7 +83,7 @@ Resources:
         Statement:
           - Effect: Deny
             #       ^^^^> {{Related effect.}}
-            NotPrincipal: "*" # Noncompliant {{Make sure this policy granting anonymous access is safe here.}}
+            NotPrincipal: "*" # Noncompliant {{Make sure granting public access is safe here.}}
                         # ^^^
             Action: "s3:PutObject" # can put object
             Resource: arn:aws:s3:::mynoncompliantbuckets6270/*

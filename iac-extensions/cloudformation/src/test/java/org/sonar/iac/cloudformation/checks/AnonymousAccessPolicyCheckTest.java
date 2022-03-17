@@ -34,13 +34,15 @@ class AnonymousAccessPolicyCheckTest {
 
   @Test
   void test_json() {
+    String message = "Make sure granting public access is safe here.";
+    String secondaryMessage = "Related effect.";
     CloudformationVerifier.verify("AnonymousAccessPolicyCheck/test.json", new AnonymousAccessPolicyCheck(),
-      new Verifier.Issue(range(39, 23, 39, 26), "Make sure this policy granting anonymous access is safe here.",
-        new SecondaryLocation(range(37, 24, 37, 31), "Related effect.")),
-      new Verifier.Issue(range(57, 18, 57, 21),  "Make sure this policy granting anonymous access is safe here.",
-        new SecondaryLocation(range(54, 24, 54, 31), "Related effect.")),
-      new Verifier.Issue(range(109, 16, 109, 19),  "Make sure this policy granting anonymous access is safe here.",
-        new SecondaryLocation(range(107, 24, 107, 31), "Related effect."))
+      new Verifier.Issue(range(39, 23, 39, 26), message,
+        new SecondaryLocation(range(37, 24, 37, 31), secondaryMessage)),
+      new Verifier.Issue(range(57, 18, 57, 21),  message,
+        new SecondaryLocation(range(54, 24, 54, 31), secondaryMessage)),
+      new Verifier.Issue(range(109, 16, 109, 19),  message,
+        new SecondaryLocation(range(107, 24, 107, 31), secondaryMessage))
     );
   }
 
