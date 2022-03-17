@@ -13,7 +13,8 @@ Resources:
     # ^^^^^^^^^^^^^^^^
 
   NoPropertiesDBInstance:
-    Type: AWS::RDS::DBInstance # Noncompliant {{Make sure that using unencrypted databases is safe here.}}
+    # Noncompliant@+1 {{Omitting "StorageEncrypted" disables databases encryption. Make sure it is safe here.}}
+    Type: AWS::RDS::DBInstance
     #     ^^^^^^^^^^^^^^^^^^^^
 
   NoDBInstanceResource:

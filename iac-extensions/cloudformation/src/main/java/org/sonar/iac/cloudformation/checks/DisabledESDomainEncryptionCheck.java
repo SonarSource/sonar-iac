@@ -33,6 +33,7 @@ import org.sonar.iac.common.checks.TextUtils;
 public class DisabledESDomainEncryptionCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that using unencrypted Elasticsearch domains is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"EncryptionAtRestOptions.Enabled\" disables Elasticsearch domains encryption. Make sure it is safe here.";
   private static final String SECONDARY_MESSAGE = "Related domain";
 
   @Override
@@ -52,9 +53,9 @@ public class DisabledESDomainEncryptionCheck extends AbstractResourceCheck {
         }
         return;
       }
-      ctx.reportIssue(encryption.key(), MESSAGE, new SecondaryLocation(resourceType, SECONDARY_MESSAGE));
+      ctx.reportIssue(encryption.key(), OMITTING_MESSAGE, new SecondaryLocation(resourceType, SECONDARY_MESSAGE));
       return;
     }
-    ctx.reportIssue(resourceType, MESSAGE);
+    ctx.reportIssue(resourceType, OMITTING_MESSAGE);
   }
 }
