@@ -107,4 +107,14 @@ class DisabledLoggingCheckTest {
   void gcp_sql_database() {
     TerraformVerifier.verify("DisabledLoggingCheck/gcp_sql_database.tf", new DisabledLoggingCheck());
   }
+
+  @Test
+  void azurerm_function_app() {
+    TerraformVerifier.verify("DisabledLoggingCheck/azurerm_function_app.tf", new DisabledLoggingCheck());
+  }
+
+  @Test
+  void azurerm_automation_runbook() {
+    TerraformVerifier.verify("DisabledLoggingCheck/azurerm_automation_runbook.tf", new DisabledLoggingCheck());
+  }
 }

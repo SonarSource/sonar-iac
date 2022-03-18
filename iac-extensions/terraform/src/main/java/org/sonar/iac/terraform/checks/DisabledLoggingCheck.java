@@ -23,6 +23,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.checks.aws.AwsDisabledLoggingCheckPart;
+import org.sonar.iac.terraform.checks.aws.AzureDisabledLoggingCheckPart;
 import org.sonar.iac.terraform.checks.gcp.GcpDisabledLoggingCheckPart;
 
 @Rule(key = "S6258")
@@ -35,5 +36,6 @@ public class DisabledLoggingCheck implements IacCheck {
   public void initialize(InitContext init) {
     new AwsDisabledLoggingCheckPart().initialize(init);
     new GcpDisabledLoggingCheckPart().initialize(init);
+    new AzureDisabledLoggingCheckPart().initialize(init);
   }
 }
