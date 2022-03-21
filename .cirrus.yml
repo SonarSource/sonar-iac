@@ -32,6 +32,12 @@ linux_1_cpu_1G_template: &LINUX_1_CPU_1G
     cpu: 1
     memory: 1G
 
+linux_1_cpu_2G_template: &LINUX_1_CPU_2G
+  gke_container:
+    <<: *LINUX_IMAGE
+    cpu: 1
+    memory: 2G
+
 linux_3_5_cpu_7G_template: &LINUX_3_5_CPU_7G
   gke_container:
     <<: *LINUX_IMAGE
@@ -72,7 +78,7 @@ build_task:
 ws_scan_task:
   depends_on:
     - build
-  <<: *LINUX_1_CPU_1G
+  <<: *LINUX_1_CPU_2G
   # run only on master and long-term branches
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
