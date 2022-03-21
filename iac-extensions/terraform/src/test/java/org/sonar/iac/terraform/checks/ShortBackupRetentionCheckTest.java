@@ -25,15 +25,31 @@ import org.junit.jupiter.api.Test;
 class ShortBackupRetentionCheckTest {
 
   @Test
-  void test() {
-    TerraformVerifier.verify("ShortBackupRetentionCheck/test.tf", new ShortBackupRetentionCheck());
+  void aws() {
+    TerraformVerifier.verify("ShortBackupRetentionCheck/aws.tf", new ShortBackupRetentionCheck());
+  }
+
+  @Test
+  void azurerm_backup_policy_file_share() {
+    TerraformVerifier.verify("ShortBackupRetentionCheck/azurerm_backup_policy_file_share.tf", new ShortBackupRetentionCheck());
+  }
+
+  @Test
+  void azurerm_cosmosdb_account() {
+    TerraformVerifier.verify("ShortBackupRetentionCheck/azurerm_cosmosdb_account.tf", new ShortBackupRetentionCheck());
+  }
+
+  @Test
+  void azurerm_app_service() {
+    TerraformVerifier.verify("ShortBackupRetentionCheck/azurerm_app_service.tf", new ShortBackupRetentionCheck());
   }
 
   @Test
   void custom() {
     ShortBackupRetentionCheck check = new ShortBackupRetentionCheck();
     check.backupRetentionDuration = 1;
-    TerraformVerifier.verify("ShortBackupRetentionCheck/custom.tf", check);
+    TerraformVerifier.verify("ShortBackupRetentionCheck/aws_custom.tf", check);
+    TerraformVerifier.verify("ShortBackupRetentionCheck/azurerm_cosmosdb_account_custom.tf", check);
   }
 
 }
