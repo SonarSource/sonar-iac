@@ -29,7 +29,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.Policy;
 import org.sonar.iac.common.checks.Policy.Statement;
-import org.sonar.iac.common.checks.PrivilegeEscalationCheckUtils;
+import org.sonar.iac.common.checks.PrivilegeEscalationVector;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6317")
@@ -72,6 +72,6 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
     }
 
     Stream<String> actionPermissions = ((SequenceTree) action).elements().stream().map(TextUtils::getValue).flatMap(Optional::stream);
-    return PrivilegeEscalationCheckUtils.escalationVectorApply(actionPermissions);
+    return PrivilegeEscalationVector.isSupersetOfAnEscalationVector(actionPermissions);
   }
 }

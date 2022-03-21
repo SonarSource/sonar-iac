@@ -23,42 +23,47 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.checks.PrivilegeEscalationCheckUtils.escalationVectorApply;
+import static org.sonar.iac.common.checks.PrivilegeEscalationVector.isSupersetOfAnEscalationVector;
 
-class PrivilegeEscalationCheckUtilsTest {
+class PrivilegeEscalationVectorTest {
 
   @Test
   void escalationVectorApply_on_single_sensitive_permission() {
-    assertThat(escalationVectorApply(Stream.of("iam:CreateAccessKey"))).isTrue();
+    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:CreateAccessKey"))).isTrue();
   }
 
   @Test
   void escalationVectorApply_on_single_compliant_permission() {
-    assertThat(escalationVectorApply(Stream.of("iam:bar"))).isFalse();
+    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:bar"))).isFalse();
   }
 
   @Test
   void escalationVectorApply_on_single_sensitive_wildcard_permission() {
-    assertThat(escalationVectorApply(Stream.of("ec2:*"))).isFalse();
+    assertThat(isSupersetOfAnEscalationVector(Stream.of("ec2:*"))).isFalse();
   }
 
   @Test
   void escalationVectorApply_on_single_compliant_wildcard_permission() {
-    assertThat(escalationVectorApply(Stream.of("iam:*"))).isTrue();
+    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:*"))).isTrue();
   }
 
   @Test
   void escalationVectorApply_on_multiple_permissions() {
-    assertThat(escalationVectorApply(Stream.of("glue:foo", "iam:CreateAccessKey"))).isTrue();
+    assertThat(isSupersetOfAnEscalationVector(Stream.of("glue:foo", "iam:CreateAccessKey"))).isTrue();
   }
 
   @Test
   void escalationVectorApply_on_multiple_sensitive_permission() {
-    assertThat(escalationVectorApply(Stream.of("iam:UpdateAssumeRolePolicy", "sts:AssumeRole"))).isTrue();
+    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:UpdateAssumeRolePolicy", "sts:AssumeRole"))).isTrue();
   }
 
   @Test
   void escalationVectorApply_on_multiple_sensitive_permission_with_wildcard() {
-    assertThat(escalationVectorApply(Stream.of("iam:*", "sts:AssumeRole"))).isTrue();
+    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:*", "sts:AssumeRole"))).isTrue();
+  }
+
+  @Test
+  void escalationVectorApply_unexpected_permission_format() {
+    assertThat(isSupersetOfAnEscalationVector(Stream.of("foo"))).isFalse();
   }
 }
