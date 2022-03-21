@@ -101,3 +101,12 @@ Resources:
             Action:
               - iam:PutRolePolicy
             Resource: "*"
+  Compliant8:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Resource: "*"

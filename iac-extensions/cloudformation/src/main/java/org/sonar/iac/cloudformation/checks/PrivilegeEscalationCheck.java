@@ -20,9 +20,8 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.api.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.utils.PolicyUtils;
@@ -30,43 +29,14 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.Policy;
 import org.sonar.iac.common.checks.Policy.Statement;
-import org.sonar.iac.common.checks.PrivilegeEscalationVector;
+import org.sonar.iac.common.checks.PrivilegeEscalationCheckUtils;
 import org.sonar.iac.common.checks.TextUtils;
-
-import static org.sonar.iac.common.checks.PrivilegeEscalationVector.getEscalationVectorsWithWildcard;
 
 @Rule(key = "S6317")
 public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Narrow these permissions to a smaller set of resources to avoid privilege escalation.";
   private static final Pattern RESOURCE_NAME_PATTERN = Pattern.compile("arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)/\\*");
-
-  private static final Set<PrivilegeEscalationVector> ESCALATION_VECTORS = Set.of(
-    new PrivilegeEscalationVector("iam:CreatePolicyVersion"),
-    new PrivilegeEscalationVector("iam:SetDefaultPolicyVersion"),
-    new PrivilegeEscalationVector("iam:CreateAccessKey"),
-    new PrivilegeEscalationVector("iam:CreateLoginProfile"),
-    new PrivilegeEscalationVector("iam:UpdateLoginProfile"),
-    new PrivilegeEscalationVector("iam:AttachUserPolicy"),
-    new PrivilegeEscalationVector("iam:AttachGroupPolicy"),
-    new PrivilegeEscalationVector("iam:AttachRolePolicy", "sts:AssumeRole"),
-    new PrivilegeEscalationVector("iam:PutUserPolicy"),
-    new PrivilegeEscalationVector("iam:PutGroupPolicy"),
-    new PrivilegeEscalationVector("iam:PutRolePolicy", "sts:AssumeRole"),
-    new PrivilegeEscalationVector("iam:AddUserToGroup"),
-    new PrivilegeEscalationVector("iam:UpdateAssumeRolePolicy", "sts:AssumeRole"),
-    new PrivilegeEscalationVector("iam:PassRole", "ec2:RunInstances"),
-    new PrivilegeEscalationVector("iam:PassRole", "lambda:CreateFunction", "lambda:InvokeFunction"),
-    new PrivilegeEscalationVector("iam:PassRole", "lambda:CreateFunction", "lambda:AddPermission"),
-    new PrivilegeEscalationVector("iam:PassRole", "lambda:CreateFunction", "lambda:CreateEventSourceMapping"),
-    new PrivilegeEscalationVector("iam:PassRole", "cloudformation:CreateStack"),
-    new PrivilegeEscalationVector("iam:PassRole", "datapipeline:CreatePipeline", "datapipeline:PutPipelineDefinition"),
-    new PrivilegeEscalationVector("iam:PassRole", "glue:CreateDevEndpoint"),
-    new PrivilegeEscalationVector("glue:UpdateDevEndpoint"),
-    new PrivilegeEscalationVector("lambda:UpdateFunctionCode")
-  );
-
-  private static final Set<PrivilegeEscalationVector> ESCALATION_VECTORS_WITH_WILDCARD = getEscalationVectorsWithWildcard(ESCALATION_VECTORS);
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -101,9 +71,7 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
       return false;
     }
 
-    Set<String> actionPermissions = ((SequenceTree) action).elements().stream()
-      .map(TextUtils::getValue).flatMap(Optional::stream).collect(Collectors.toSet());
-
-    return ESCALATION_VECTORS_WITH_WILDCARD.stream().anyMatch(vector -> vector.appliesToActionPermissions(actionPermissions));
+    Stream<String> actionPermissions = ((SequenceTree) action).elements().stream().map(TextUtils::getValue).flatMap(Optional::stream);
+    return PrivilegeEscalationCheckUtils.escalationVectorApply(actionPermissions);
   }
 }
