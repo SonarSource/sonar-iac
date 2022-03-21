@@ -117,4 +117,9 @@ class DisabledLoggingCheckTest {
   void azurerm_automation_runbook() {
     TerraformVerifier.verify("DisabledLoggingCheck/azurerm_automation_runbook.tf", new DisabledLoggingCheck());
   }
+
+  @Test
+  void azurerm_app_service() {
+    TerraformVerifier.verify("DisabledLoggingCheck/azurerm_app_service.tf", new DisabledLoggingCheck());
+  }
 }
