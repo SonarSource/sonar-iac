@@ -40,7 +40,8 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
 
   @RuleProperty(
     key = "backup_retention_duration",
-    defaultValue = "" + DEFAULT)
+    defaultValue = "" + DEFAULT,
+    description = "Minimum backup retention duration in days")
   int backupRetentionDuration = DEFAULT;
 
   @Override
@@ -74,9 +75,7 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
           enabled.reportIf(isFalse(), "Make sure disabling backup is safe here.");
           if (enabled.is(isTrue())) {
             backup.block("schedule")
-              .reportIfAbsent(String.format(OMITTING_MESSAGE, "schedule.retention_period_in_days"))
               .attribute("retention_period_in_days")
-                .reportIfAbsent(OMITTING_MESSAGE)
                 .reportIf(lessThan(backupRetentionDuration), MESSAGE);
           }
         }

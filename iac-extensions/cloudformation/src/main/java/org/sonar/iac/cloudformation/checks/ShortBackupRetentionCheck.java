@@ -34,7 +34,8 @@ public class ShortBackupRetentionCheck extends AbstractResourceCheck {
 
   @RuleProperty(
     key = "backup_retention_duration",
-    defaultValue = "" + DEFAULT)
+    defaultValue = "" + DEFAULT,
+    description = "Minimum backup retention duration in days")
   int backupRetentionDuration = DEFAULT;
 
 

@@ -11,7 +11,7 @@ resource "azurerm_cosmosdb_account" "s6364-cdba-nc-no-retention_in_hours" {
 
 resource "azurerm_cosmosdb_account" "s6364-cdba-nc-short-backup" {
   backup {
-    retention_in_hours = 48  # Noncompliant {{Make sure that defining a short backup retention duration is safe here.}}
+    retention_in_hours = 167  # Noncompliant {{Make sure that defining a short backup retention duration is safe here.}}
   }
 }
 

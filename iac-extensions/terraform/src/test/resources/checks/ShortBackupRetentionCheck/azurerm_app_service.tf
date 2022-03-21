@@ -8,17 +8,15 @@ resource "azurerm_app_service" "s6364-as-nc-disabled-backup" {
   }
 }
 
-resource "azurerm_app_service" "s6364-as-nc-missing-schedule" {
-  # Noncompliant@+1 {{Omitting "schedule.retention_period_in_days" results in a short backup retention duration. Make sure it is safe here.}}
+resource "azurerm_app_service" "s6364-as-c-missing-schedule" {
   backup {
     enabled = true
   }
 }
 
-resource "azurerm_app_service" "s6364-as-nc-missing-retention_period_in_days" {
+resource "azurerm_app_service" "s6364-as-c-missing-retention_period_in_days" {
   backup {
     enabled = true
-    # Noncompliant@+1 {{Omitting "retention_period_in_days" results in a short backup retention duration. Make sure it is safe here.}}
     schedule {
     }
   }
