@@ -63,6 +63,20 @@ resource "azurerm_monitor_log_profile" "s6413-mlp-c5" {
   }
 }
 
+resource "azurerm_network_watcher_flow_log" "s6413-nwfl-nc1" {
+  retention_policy {
+    enabled = true
+    days    = 13 # Noncompliant {{Make sure that defining a short log retention duration is safe here.}}
+  }
+}
+
+resource "azurerm_network_watcher_flow_log" "s6413-nwfl-nc2" {
+  retention_policy {
+    enabled = false # Noncompliant {{Make sure that defining a short log retention duration is safe here.}}
+    days    = 14
+  }
+}
+
 resource "non_azurerm_monitor_log_profile" "s6413-mlp-cov" {
   retention_policy {
     enabled = false

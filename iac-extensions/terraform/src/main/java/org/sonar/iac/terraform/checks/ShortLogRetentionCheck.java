@@ -77,7 +77,7 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
       resource -> resource.block("insights").attribute("retention_in_days")
         .reportIf(lessThanMinimumButNotZero(), MESSAGE));
 
-    register("azurerm_monitor_log_profile",
+    register(Set.of("azurerm_monitor_log_profile", "azurerm_network_watcher_flow_log"),
       resource -> {
         var retentionPolicy = resource.block("retention_policy");
         var enabled = retentionPolicy.attribute("enabled");
