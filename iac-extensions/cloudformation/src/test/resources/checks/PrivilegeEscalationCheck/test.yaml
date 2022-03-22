@@ -27,6 +27,16 @@ Resources:
             Action:
               - lambda:*
             Resource: "arn:foo:bar:baz:bax:user/*" # Noncompliant
+  NonCompliant4:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - iam:PutRolePolicy
+              - sts:AssumeRole
+            Resource: "*" # Noncompliant
   Compliant1:
     Type: AWS::IAM::ManagedPolicy
     Properties: 
@@ -81,4 +91,22 @@ Resources:
         Statement:
           - Effect: Allow
             Action: foo
+            Resource: "*"
+  Compliant7:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - iam:PutRolePolicy
+            Resource: "*"
+  Compliant8:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
             Resource: "*"

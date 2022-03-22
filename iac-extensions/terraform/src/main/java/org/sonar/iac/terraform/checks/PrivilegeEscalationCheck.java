@@ -19,17 +19,16 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Optional;
 import java.util.regex.Pattern;
-
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.Policy;
-import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.Policy.Statement;
+import org.sonar.iac.common.checks.PrivilegeEscalationVector;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.utils.PolicyUtils;
@@ -39,43 +38,6 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Narrow these permissions to a smaller set of resources to avoid privilege escalation.";
   private static final Pattern RESOURCE_NAME_PATTERN = Pattern.compile("arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)/\\*");
-  private static final Set<String> PREDEFINED_WILDCARD_ACTIONS = new HashSet<>(Arrays.asList(
-    "iam:*",
-    "sts:*",
-    "ec2:*",
-    "lambda:*",
-    "cloudformation:*",
-    "datapipeline:*",
-    "glue:*"
-  ));
-  private static final Set<String> PREDEFINED_ACTIONS = new HashSet<>(Arrays.asList(
-    "iam:CreatePolicyVersion",
-    "iam:SetDefaultPolicyVersion",
-    "iam:CreateAccessKey",
-    "iam:CreateLoginProfile",
-    "iam:UpdateLoginProfile",
-    "iam:AttachUserPolicy",
-    "iam:AttachGroupPolicy",
-    "iam:AttachRolePolicy",
-    "sts:AssumeRole",
-    "iam:PutUserPolicy",
-    "iam:PutGroupPolicy",
-    "iam:PutRolePolicy",
-    "iam:AddUserToGroup",
-    "iam:UpdateAssumeRolePolicy",
-    "iam:PassRole",
-    "ec2:RunInstances",
-    "lambda:CreateFunction",
-    "lambda:InvokeFunction",
-    "lambda:AddPermission",
-    "lambda:CreateEventSourceMapping",
-    "cloudformation:CreateStack",
-    "datapipeline:CreatePipeline",
-    "datapipeline:PutPipelineDefinition",
-    "glue:CreateDevEndpoint",
-    "glue:UpdateDevEndpoint",
-    "lambda:UpdateFunctionCode"
-  ));
 
   @Override
   protected void checkResource(CheckContext ctx, BlockTree resource) {
@@ -106,8 +68,11 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
   }
 
   private static boolean isSensitiveAction(Tree action) {
-    return action instanceof TupleTree && ((TupleTree) action).elements().trees().stream()
-        .map(TextUtils::getValue)
-        .anyMatch(act -> act.filter(a -> PREDEFINED_WILDCARD_ACTIONS.contains(a) || PREDEFINED_ACTIONS.contains(a)).isPresent());
+    if (!(action instanceof TupleTree)) {
+      return false;
+    }
+
+    Stream<String> actionPermissions = ((TupleTree) action).elements().trees().stream().map(TextUtils::getValue).flatMap(Optional::stream);
+    return PrivilegeEscalationVector.isSupersetOfAnEscalationVector(actionPermissions);
   }
 }

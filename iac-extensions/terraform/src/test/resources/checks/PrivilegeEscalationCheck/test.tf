@@ -37,6 +37,18 @@ resource "aws_iam_policy" "non_compliant_policy2" {
   })
 }
 
+resource "aws_iam_policy" "non_compliant_policy3" {
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [ "iam:PutRolePolicy", "sts:AssumeRole" ]
+        Resource = "*" # Noncompliant
+      }
+    ]
+  })
+}
+
 resource "aws_iam_policy" "compliant_policy1" {
   policy = jsonencode({
     Statement = [
@@ -105,6 +117,18 @@ resource "aws_iam_policy" "compliant_policy6" {
       {
         Effect = "Allow"
         Action = "foo"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "non_compliant_policy7" {
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [ "sts:AssumeRole" ]
         Resource = "*"
       }
     ]
