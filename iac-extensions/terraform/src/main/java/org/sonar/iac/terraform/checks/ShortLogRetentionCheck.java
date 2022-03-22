@@ -27,6 +27,7 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
+import org.sonar.iac.terraform.symbols.BlockSymbol;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.lessThan;
@@ -60,8 +61,7 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
       });
 
     register(List.of("azurerm_mssql_server_extended_auditing_policy", "azurerm_mssql_database_extended_auditing_policy"),
-      resource -> resource.attribute("retention_in_days")
-        .reportIf(lessThanMinimumButNotZero(), MESSAGE));
+      resource -> resource.consume(this::checkRetentionInDays));
 
     register("azurerm_app_service",
       resource -> {
@@ -69,13 +69,12 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
         Set.of(logs.block("http_logs").block("azure_blob_storage"),
             logs.block("http_logs").block("file_system"),
             logs.block("application_logs").block("azure_blob_storage"))
-          .forEach(block -> block.attribute("retention_in_days")
-            .reportIf(lessThanMinimumButNotZero(), MESSAGE));
+          .forEach(block -> block.consume(this::checkRetentionInDays));
     });
 
     register("azurerm_firewall_policy",
-      resource -> resource.block("insights").attribute("retention_in_days")
-        .reportIf(lessThanMinimumButNotZero(), MESSAGE));
+      resource -> resource.block("insights")
+        .consume(this::checkRetentionInDays));
 
     register(Set.of("azurerm_monitor_log_profile", "azurerm_network_watcher_flow_log"),
       resource -> {
@@ -90,8 +89,14 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
       });
 
     register(List.of("azurerm_sql_server", "azurerm_mysql_server", "azurerm_postgresql_server"),
-      resource -> resource.block("threat_detection_policy").attribute("retention_days")
+      resource -> resource.block("threat_detection_policy")
+        .attribute("retention_days")
         .reportIf(lessThanMinimumButNotZero(), MESSAGE));
+  }
+
+  private void checkRetentionInDays(BlockSymbol block) {
+    block.attribute("retention_in_days")
+      .reportIf(lessThanMinimumButNotZero(), MESSAGE);
   }
 
   private Predicate<ExpressionTree> lessThanMinimumButNotZero() {

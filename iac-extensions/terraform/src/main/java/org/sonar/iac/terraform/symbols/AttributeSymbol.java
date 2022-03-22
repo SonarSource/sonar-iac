@@ -77,5 +77,4 @@ public class AttributeSymbol extends Symbol<AttributeTree> {
     return tree;
   }
 
-
 }
