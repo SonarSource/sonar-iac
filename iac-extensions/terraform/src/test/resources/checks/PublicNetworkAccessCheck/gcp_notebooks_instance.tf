@@ -1,4 +1,4 @@
-# Noncompliant@+1 {{Omitting no_public_ip allows network access from the Internet. Make sure it is safe here.}}
+# Noncompliant@+1 {{Omitting "no_public_ip" allows network access from the Internet. Make sure it is safe here.}}
 resource "google_notebooks_instance" "s6329-ni-noncompliant1" {
   #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }

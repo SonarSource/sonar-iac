@@ -4,7 +4,7 @@ resource "azurerm_kubernetes_cluster" "production" {
 
   api_server_authorized_ip_ranges = [
     "192.168.27.2",
-    "51.67.288.198", # Noncompliant {{Make sure allowing public network access is safe here.}}
+    "51.67.288.198", # Noncompliant {{Make sure that allowing public IP addresses is safe here.}}
   # ^^^^^^^^^^^^^^^
     "172.16.0.0/12",
     "12.23.45.67" # Noncompliant
