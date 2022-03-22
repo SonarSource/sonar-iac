@@ -56,4 +56,9 @@ class ShortLogRetentionCheckTest {
   void azure_monitor_log_profile() {
     verify("ShortLogRetentionCheck/azure_monitor_log_profile.tf", new ShortLogRetentionCheck());
   }
+
+  @Test
+  void azure_mysql_server() {
+    verify("ShortLogRetentionCheck/azure_mysql_server.tf", new ShortLogRetentionCheck());
+  }
 }

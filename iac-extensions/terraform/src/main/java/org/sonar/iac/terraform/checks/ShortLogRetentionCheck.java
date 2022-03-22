@@ -88,6 +88,10 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
         retentionPolicy.attribute("days")
           .reportIf(lessThanMinimumButNotZero(), MESSAGE);
       });
+
+    register(List.of("azurerm_sql_server", "azurerm_mysql_server", "azurerm_postgresql_server"),
+      resource -> resource.block("threat_detection_policy").attribute("retention_days")
+        .reportIf(lessThanMinimumButNotZero(), MESSAGE));
   }
 
   private Predicate<ExpressionTree> lessThanMinimumButNotZero() {
