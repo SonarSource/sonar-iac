@@ -33,7 +33,7 @@ Resources:
     Properties:
       LaunchTemplateData:
         NetworkInterfaces:
-          - AssociatePublicIpAddress: true # Noncompliant {{Make sure that using public IP address is safe here.}}
+          - AssociatePublicIpAddress: true # Noncompliant {{Make sure allowing public network access is safe here.}}
         #                             ^^^^
 
   CompliantEC2LaunchTemplate:

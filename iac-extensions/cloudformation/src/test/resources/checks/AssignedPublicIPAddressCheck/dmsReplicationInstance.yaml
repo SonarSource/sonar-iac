@@ -9,7 +9,7 @@ Resources:
     Type: AWS::DMS::ReplicationInstance
     #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Related DMS instance}}
     Properties:
-      PubliclyAccessible: true # Noncompliant {{Make sure that using public IP address is safe here.}}
+      PubliclyAccessible: true # Noncompliant {{Make sure allowing public network access is safe here.}}
     #                     ^^^^
 
   CompliantDMSReplicationInstance:

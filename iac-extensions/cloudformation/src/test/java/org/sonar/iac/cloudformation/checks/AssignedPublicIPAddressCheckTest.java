@@ -49,7 +49,7 @@ class AssignedPublicIPAddressCheckTest {
         "Omitting \"PubliclyAccessible\" allows network access from the Internet. Make sure it is safe here."),
 
       new Verifier.Issue(range(10, 30, 10, 34),
-        "Make sure that using public IP address is safe here.",
+        "Make sure allowing public network access is safe here.",
         new SecondaryLocation(range(8, 14, 8, 45), "Related DMS instance")),
 
       new Verifier.Issue(range(20, 14, 20, 34),
@@ -64,7 +64,7 @@ class AssignedPublicIPAddressCheckTest {
         new SecondaryLocation(range(31, 14, 31, 34), "Related EC2 instance")),
 
       new Verifier.Issue(range(42, 40, 42, 44),
-        "Make sure that using public IP address is safe here.",
+        "Make sure allowing public network access is safe here.",
         new SecondaryLocation(range(39, 14, 39, 34), "Related EC2 instance")),
 
       new Verifier.Issue(range(55, 14, 55, 40),
@@ -83,7 +83,7 @@ class AssignedPublicIPAddressCheckTest {
         new SecondaryLocation(range(76, 14, 76, 40), "Related EC2 template")),
 
       new Verifier.Issue(range(90, 42, 90, 46),
-        "Make sure that using public IP address is safe here.",
+        "Make sure allowing public network access is safe here.",
         new SecondaryLocation(range(86, 14, 86, 40), "Related EC2 template")));
   }
 }

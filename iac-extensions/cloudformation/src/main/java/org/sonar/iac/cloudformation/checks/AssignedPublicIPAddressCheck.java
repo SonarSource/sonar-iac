@@ -35,7 +35,7 @@ import static org.sonar.iac.common.checks.PropertyUtils.value;
 @Rule(key = "S6329")
 public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Make sure that using public IP address is safe here.";
+  private static final String MESSAGE = "Make sure allowing public network access is safe here.";
   private static final String OMITTING_MESSAGE = "Omitting \"%s\" allows network access from the Internet. Make sure it is safe here.";
   private static final String SECONDARY_DMS_MESSAGE = "Related DMS instance";
   private static final String SECONDARY_EC2_INSTANCE_MESSAGE = "Related EC2 instance";
