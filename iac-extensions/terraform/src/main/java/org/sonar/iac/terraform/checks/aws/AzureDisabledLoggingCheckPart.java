@@ -21,15 +21,11 @@ package org.sonar.iac.terraform.checks.aws;
 
 import java.util.List;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
-import org.sonar.iac.terraform.checks.DisabledLoggingCheck;
-import org.sonar.iac.terraform.symbols.BlockSymbol;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 
 public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
-
-  private static final String APPLICATION_MESSAGE = "Make sure that deactivating application logs is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
@@ -46,56 +42,39 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
       resource -> {
         var logs = resource.block("logs");
         if (logs.isAbsent()) {
-          resource.report("Make sure that omitting the logs block is safe here.");
+          resource.report("Make sure that omitting the \"logs\" block is safe here.");
           return;
         }
 
         var httpLogs = logs.block("http_logs");
         var applicationLogs = logs.block("application_logs");
-        if (httpLogs.isAbsent() && applicationLogs.isAbsent()) {
+        boolean isHttpLogsDisabled = httpLogs.isAbsent();
+
+        if (isHttpLogsDisabled && applicationLogs.isAbsent()) {
           logs.report("Make sure that omitting http and application logging blocks is safe here.");
           return;
         }
 
-        boolean isHttpLogsDisabled = httpLogs.isAbsent();
-        boolean isApplicationLogCompliant = checkApplicationLogs(applicationLogs, isHttpLogsDisabled);
+        // Check 'application_logs' blog. The block is compliant if 'file_system_level' or 'azure_blob_storage' logging is enabled.
+        var fileSystemLevel = applicationLogs.attribute("file_system_level");
+        var azureBlobStorage = applicationLogs.block("azure_blob_storage");
 
-        if (isHttpLogsDisabled) {
-          if (isApplicationLogCompliant) {
-            logs.report("Make sure that omitting HTTP logs is safe here. If impossible: Make sure that disabling logging is safe here.");
-          } else {
-            logs.report(DisabledLoggingCheck.MESSAGE);
-          }
+        boolean isFileSystemLogDisabled = fileSystemLevel.isAbsent() || fileSystemLevel.is(equalTo("Off"));
+        boolean isBlobStorageLogDisabled = azureBlobStorage.isAbsent() || azureBlobStorage.attribute("level").is(equalTo("Off"));
+        boolean isApplicationLogDisabled = isFileSystemLogDisabled && isBlobStorageLogDisabled;
+
+        // Report on 'logs' or 'application_logs based on the 'http_logs' and 'application_logs' compliance
+        if (isHttpLogsDisabled && isApplicationLogDisabled) {
+          logs.report("Make sure that disabling logging is safe here.");
+        } else if (isHttpLogsDisabled) {
+          logs.report("Make sure that omitting HTTP logs is safe here.");
+        } else if (isApplicationLogDisabled) {
+          applicationLogs.report("Make sure that deactivating application logs is safe here.");
         }
       });
   }
 
-  /**
-   * Check 'application_logs' blog. The block is compliant if 'file_system_level' or 'azure_blob_storage' logging is enabled.
-   * @return false if application log is not compliant at all
-   */
-  private static boolean checkApplicationLogs(BlockSymbol applicationLogs, boolean isHttpLogsDisabled) {
-    var fileSystemLevel = applicationLogs.attribute("file_system_level");
-    var azureBlobStorage = applicationLogs.block("azure_blob_storage");
 
-    if (fileSystemLevel.isAbsent() &&  azureBlobStorage.isAbsent()) {
-      if (!isHttpLogsDisabled) {
-        fileSystemLevel.reportIfAbsent(APPLICATION_MESSAGE);
-      }
-      return false;
-    }
-
-    var blobStorageLevel = azureBlobStorage.attribute("level");
-    boolean isFileSystemLogDisabled = fileSystemLevel.isAbsent() || fileSystemLevel.is(equalTo("Off"));
-    boolean isBlobStorageLogDisabled = azureBlobStorage.isAbsent() || blobStorageLevel.is(equalTo("Off"));
-    boolean isApplicationLogDisabled = isFileSystemLogDisabled && isBlobStorageLogDisabled;
-
-    if (!isHttpLogsDisabled && isApplicationLogDisabled) {
-      fileSystemLevel.reportIf(equalTo("Off"), APPLICATION_MESSAGE);
-      blobStorageLevel.reportIf(equalTo("Off"), APPLICATION_MESSAGE);
-    }
-    return !isApplicationLogDisabled;
-  }
 
 
 }

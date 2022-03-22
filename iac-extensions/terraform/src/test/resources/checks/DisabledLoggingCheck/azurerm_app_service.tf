@@ -1,17 +1,17 @@
 resource "azurerm_app_service" "example" {
   logs {
     http_logs {}
-    application_logs {
-      file_system_level = "Off" # Noncompliant {{Make sure that deactivating application logs is safe here.}}
+    application_logs { # Noncompliant {{Make sure that deactivating application logs is safe here.}}
+      file_system_level = "Off"
       azure_blob_storage {
-        level = "Off" # Noncompliant {{Make sure that deactivating application logs is safe here.}}
+        level = "Off"
       }
     }
   }
 }
 
 resource "azurerm_app_service" "example" {
-  logs { # Noncompliant {{Make sure that omitting HTTP logs is safe here. If impossible: Make sure that disabling logging is safe here.}}
+  logs { # Noncompliant {{Make sure that omitting HTTP logs is safe here.}}
     # No http_logs {}
     application_logs {
       file_system_level = "Anything"
@@ -105,7 +105,7 @@ resource "azurerm_app_service_slot" "example" {
   }
 }
 
-resource "azurerm_app_service_slot" "example" { # Noncompliant {{Make sure that omitting the logs block is safe here.}}
+resource "azurerm_app_service_slot" "example" { # Noncompliant {{Make sure that omitting the "logs" block is safe here.}}
 }
 
 resource "azurerm_app_service_slot" "example" {

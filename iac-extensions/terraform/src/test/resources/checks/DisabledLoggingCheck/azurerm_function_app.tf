@@ -11,7 +11,7 @@ resource "azurerm_function_app" "s6258_fa_c" {
 }
 
 resource "azurerm_function_app" "s6258_fa_c" {
-  # enabaled by default
+  # enabled by default
 }
 
 resource "non_azurerm_function_app" "s6258_fa_cov" {
