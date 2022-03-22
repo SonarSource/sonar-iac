@@ -122,4 +122,9 @@ class DisabledLoggingCheckTest {
   void azurerm_app_service() {
     TerraformVerifier.verify("DisabledLoggingCheck/azurerm_app_service.tf", new DisabledLoggingCheck());
   }
+
+  @Test
+  void azure_container_group() {
+    TerraformVerifier.verify("DisabledLoggingCheck/azure_container_group.tf", new DisabledLoggingCheck());
+  }
 }

@@ -72,9 +72,9 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
           applicationLogs.report("Make sure that deactivating application logs is safe here.");
         }
       });
+
+    register("azurerm_container_group",
+      resource -> resource.block("diagnostic")
+        .reportIfAbsent("This resource does not have diagnostic logs enabled. Make sure it is safe here."));
   }
-
-
-
-
 }
