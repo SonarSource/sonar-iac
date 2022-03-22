@@ -28,6 +28,7 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.lessThan;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualTo;
 
@@ -75,6 +76,18 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
     register("azurerm_firewall_policy",
       resource -> resource.block("insights").attribute("retention_in_days")
         .reportIf(lessThanMinimumButNotZero(), MESSAGE));
+
+    register("azurerm_monitor_log_profile",
+      resource -> {
+        var retentionPolicy = resource.block("retention_policy");
+        var enabled = retentionPolicy.attribute("enabled");
+        if (enabled.is(isFalse())) {
+          enabled.report(MESSAGE);
+          return;
+        }
+        retentionPolicy.attribute("days")
+          .reportIf(lessThanMinimumButNotZero(), MESSAGE);
+      });
   }
 
   private Predicate<ExpressionTree> lessThanMinimumButNotZero() {
