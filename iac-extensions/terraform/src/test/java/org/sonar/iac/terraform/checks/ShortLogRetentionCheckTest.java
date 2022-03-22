@@ -41,4 +41,9 @@ class ShortLogRetentionCheckTest {
   void azure_mssql_auditing_policy() {
     verify("ShortLogRetentionCheck/azure_mssql_auditing_policy.tf", new ShortLogRetentionCheck());
   }
+
+  @Test
+  void azure_app_service() {
+    verify("ShortLogRetentionCheck/azure_app_service.tf", new ShortLogRetentionCheck());
+  }
 }

@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -59,10 +60,22 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
 
     register(List.of("azurerm_mssql_server_extended_auditing_policy", "azurerm_mssql_database_extended_auditing_policy"),
       resource -> resource.attribute("retention_in_days")
-        .reportIf(notEqualTo("0").and(lessThan(minimumLogRetentionDays)), MESSAGE));
+        .reportIf(lessThanMinimumButNotZero(), MESSAGE));
+
+    register("azurerm_app_service",
+      resource -> {
+        var logs = resource.block("logs");
+        Set.of(logs.block("http_logs").block("azure_blob_storage"),
+            logs.block("http_logs").block("file_system"),
+            logs.block("application_logs").block("azure_blob_storage"))
+          .forEach(block -> block.attribute("retention_in_days")
+            .reportIf(lessThanMinimumButNotZero(), MESSAGE));
+    });
   }
 
-
+  private Predicate<ExpressionTree> lessThanMinimumButNotZero() {
+    return lessThan(minimumLogRetentionDays).and(notEqualTo("0"));
+  }
 
   private Predicate<ExpressionTree> isTooShortRetention() {
     return expression -> TextUtils.getIntValue(expression)
