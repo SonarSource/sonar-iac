@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks.gcp;
+package org.sonar.iac.terraform.checks;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -25,8 +25,10 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
+
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.lessThan;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualTo;
 
 @Rule(key = "S6413")
 public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
@@ -54,7 +56,13 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
           resource.report(MESSAGE);
         }
       });
+
+    register(List.of("azurerm_mssql_server_extended_auditing_policy", "azurerm_mssql_database_extended_auditing_policy"),
+      resource -> resource.attribute("retention_in_days")
+        .reportIf(notEqualTo("0").and(lessThan(minimumLogRetentionDays)), MESSAGE));
   }
+
+
 
   private Predicate<ExpressionTree> isTooShortRetention() {
     return expression -> TextUtils.getIntValue(expression)

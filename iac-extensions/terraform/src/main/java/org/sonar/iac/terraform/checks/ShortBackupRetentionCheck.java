@@ -19,17 +19,15 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.lessThan;
 
 @Rule(key = "S6364")
 public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
@@ -89,10 +87,6 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
     if (retentionPeriod.isAbsent() && backupRetentionDuration != 1) {
       retentionPeriod.reportIfAbsent(OMITTING_MESSAGE);
     }
-  }
-
-  private static Predicate<ExpressionTree> lessThan(int other) {
-    return expression -> TextUtils.getIntValue(expression).filter(current -> current < other).isPresent();
   }
 
 }

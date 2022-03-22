@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks.gcp;
+package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,5 +35,10 @@ class ShortLogRetentionCheckTest {
     ShortLogRetentionCheck check = new ShortLogRetentionCheck();
     check.minimumLogRetentionDays = 300;
     verify("ShortLogRetentionCheck/gcp_logging_custom.tf", check);
+  }
+
+  @Test
+  void azure_mssql_auditing_policy() {
+    verify("ShortLogRetentionCheck/azure_mssql_auditing_policy.tf", new ShortLogRetentionCheck());
   }
 }
