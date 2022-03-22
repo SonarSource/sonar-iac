@@ -71,6 +71,10 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
           .forEach(block -> block.attribute("retention_in_days")
             .reportIf(lessThanMinimumButNotZero(), MESSAGE));
     });
+
+    register("azurerm_firewall_policy",
+      resource -> resource.block("insights").attribute("retention_in_days")
+        .reportIf(lessThanMinimumButNotZero(), MESSAGE));
   }
 
   private Predicate<ExpressionTree> lessThanMinimumButNotZero() {

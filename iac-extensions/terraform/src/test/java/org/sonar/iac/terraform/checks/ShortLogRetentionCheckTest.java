@@ -46,4 +46,9 @@ class ShortLogRetentionCheckTest {
   void azure_app_service() {
     verify("ShortLogRetentionCheck/azure_app_service.tf", new ShortLogRetentionCheck());
   }
+
+  @Test
+  void azure_firewall_policy() {
+    verify("ShortLogRetentionCheck/azure_firewall_policy.tf", new ShortLogRetentionCheck());
+  }
 }
