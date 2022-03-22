@@ -36,7 +36,7 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualT
 public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure that defining a short log retention duration is safe here.";
-  private static final int DEFAULT = 30;
+  private static final int FALLBACK_DEFAULT = 30;
   private static final int MIN_DEFAULT = 14;
 
   @RuleProperty(
@@ -52,9 +52,9 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
         "google_logging_folder_bucket_config"),
       resource -> {
         AttributeSymbol retention = resource.attribute("retention_days")
-          .reportIf(isTooShortRetention(), MESSAGE);
+          .reportIf(lessThanMinimumOrFallback(), MESSAGE);
 
-        if (retention.isAbsent() && DEFAULT < minimumLogRetentionDays) {
+        if (retention.isAbsent() && FALLBACK_DEFAULT < minimumLogRetentionDays) {
           resource.report(MESSAGE);
         }
       });
@@ -98,9 +98,9 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
     return lessThan(minimumLogRetentionDays).and(notEqualTo("0"));
   }
 
-  private Predicate<ExpressionTree> isTooShortRetention() {
+  private Predicate<ExpressionTree> lessThanMinimumOrFallback() {
     return expression -> TextUtils.getIntValue(expression)
-      .map(retention -> retention == 0 ? DEFAULT : retention)
+      .map(retention -> retention == 0 ? FALLBACK_DEFAULT : retention)
       .filter(retention -> retention < minimumLogRetentionDays)
       .isPresent();
   }
