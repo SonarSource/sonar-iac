@@ -20,7 +20,12 @@
 package org.sonar.iac.terraform.checks.aws;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
+import org.sonar.iac.terraform.checks.utils.ExpressionPredicate;
+import org.sonar.iac.terraform.symbols.AttributeSymbol;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
@@ -39,42 +44,73 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
         .reportIf(isFalse(), "Make sure that disabling progress logging is safe here."));
 
     register(List.of("azurerm_app_service", "azurerm_app_service_slot"),
-      resource -> {
-        var logs = resource.block("logs");
-        if (logs.isAbsent()) {
-          resource.report("Make sure that omitting the \"logs\" block is safe here.");
-          return;
-        }
-
-        var httpLogs = logs.block("http_logs");
-        var applicationLogs = logs.block("application_logs");
-        boolean isHttpLogsDisabled = httpLogs.isAbsent();
-
-        if (isHttpLogsDisabled && applicationLogs.isAbsent()) {
-          logs.report("Make sure that omitting http and application logging blocks is safe here.");
-          return;
-        }
-
-        // Check 'application_logs' blog. The block is compliant if 'file_system_level' or 'azure_blob_storage' logging is enabled.
-        var fileSystemLevel = applicationLogs.attribute("file_system_level");
-        var azureBlobStorage = applicationLogs.block("azure_blob_storage");
-
-        boolean isFileSystemLogDisabled = fileSystemLevel.isAbsent() || fileSystemLevel.is(equalTo("Off"));
-        boolean isBlobStorageLogDisabled = azureBlobStorage.isAbsent() || azureBlobStorage.attribute("level").is(equalTo("Off"));
-        boolean isApplicationLogDisabled = isFileSystemLogDisabled && isBlobStorageLogDisabled;
-
-        // Report on 'logs' or 'application_logs based on the 'http_logs' and 'application_logs' compliance
-        if (isHttpLogsDisabled && isApplicationLogDisabled) {
-          logs.report("Make sure that disabling logging is safe here.");
-        } else if (isHttpLogsDisabled) {
-          logs.report("Make sure that omitting HTTP logs is safe here.");
-        } else if (isApplicationLogDisabled) {
-          applicationLogs.report("Make sure that deactivating application logs is safe here.");
-        }
-      });
+      AzureDisabledLoggingCheckPart::checkAppService);
 
     register("azurerm_container_group",
       resource -> resource.block("diagnostic")
         .reportIfAbsent("This resource does not have diagnostic logs enabled. Make sure it is safe here."));
+
+    register("azurerm_storage_account",
+      AzureDisabledLoggingCheckPart::checkStorageAccount);
+  }
+
+  private static void checkAppService(ResourceSymbol resource) {
+    var logs = resource.block("logs");
+    if (logs.isAbsent()) {
+      resource.report("Make sure that omitting the \"logs\" block is safe here.");
+      return;
+    }
+
+    var httpLogs = logs.block("http_logs");
+    var applicationLogs = logs.block("application_logs");
+    boolean isHttpLogsDisabled = httpLogs.isAbsent();
+
+    if (isHttpLogsDisabled && applicationLogs.isAbsent()) {
+      logs.report("Make sure that omitting http and application logging blocks is safe here.");
+      return;
+    }
+
+    // Check 'application_logs' blog. The block is compliant if 'file_system_level' or 'azure_blob_storage' logging is enabled.
+    var fileSystemLevel = applicationLogs.attribute("file_system_level");
+    var azureBlobStorage = applicationLogs.block("azure_blob_storage");
+
+    boolean isFileSystemLogDisabled = fileSystemLevel.isAbsent() || fileSystemLevel.is(equalTo("Off"));
+    boolean isBlobStorageLogDisabled = azureBlobStorage.isAbsent() || azureBlobStorage.attribute("level").is(equalTo("Off"));
+    boolean isApplicationLogDisabled = isFileSystemLogDisabled && isBlobStorageLogDisabled;
+
+    // Report on 'logs' or 'application_logs based on the 'http_logs' and 'application_logs' compliance
+    if (isHttpLogsDisabled && isApplicationLogDisabled) {
+      logs.report("Make sure that disabling logging is safe here.");
+    } else if (isHttpLogsDisabled) {
+      logs.report("Make sure that omitting HTTP logs is safe here.");
+    } else if (isApplicationLogDisabled) {
+      applicationLogs.report("Make sure that deactivating application logs is safe here.");
+    }
+  }
+  private static void checkStorageAccount(ResourceSymbol resource) {
+    if (resource.attribute("account_kind").is(ExpressionPredicate.equalTo("BlobStorage"))) {
+      return;
+    }
+
+    var logging = resource.block("queue_properties")
+      .reportIfAbsent("Make sure that omitting to log is safe here.")
+      .block("logging")
+        .reportIfAbsent("Make sure that omitting to log is safe here.");
+
+    List<AttributeSymbol> loggingSettings = Stream.of("delete", "read", "write")
+      .map(logging::attribute).collect(Collectors.toList());
+
+    long disabledLoggings = loggingSettings.stream()
+      .map(setting -> setting.is(isFalse())).filter(b -> b).count();
+
+    if (disabledLoggings == 3) {
+      logging.report("Make sure that disabling logging is safe here.");
+      return;
+    } else if(disabledLoggings == 2) {
+      logging.report("Make sure that partially enabling logging is safe here.");
+      return;
+    }
+
+    loggingSettings.forEach(setting -> setting.reportIf(isFalse(), "Make sure that partially enabling logging is safe here."));
   }
 }

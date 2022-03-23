@@ -48,6 +48,9 @@
 22,
 43,
 ],
+'terraform-project:sources/terraform/terragoat/terraform/azure/storage.tf':[
+30,
+],
 'terraform-project:sources/terraform/terragoat/terraform/gcp/big_data.tf':[
 6,
 ],
