@@ -38,6 +38,24 @@ resource "non_azurerm_app_service" "s6413-as-c2" {
   logs {
     http_logs {
       azure_blob_storage {
+        retention_in_days = 13
+      }
+      file_system {
+        retention_in_days = 13
+      }
+    }
+    application_logs {
+      azure_blob_storage {
+        retention_in_days = 13
+      }
+    }
+  }
+}
+
+resource "azurerm_app_service" "s6413-as-c3" {
+  logs {
+    http_logs {
+      azure_blob_storage {
         retention_in_days = 0
       }
       file_system {

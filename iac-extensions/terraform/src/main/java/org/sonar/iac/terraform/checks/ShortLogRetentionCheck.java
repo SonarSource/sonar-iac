@@ -81,7 +81,7 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
         var retentionPolicy = resource.block("retention_policy");
         var enabled = retentionPolicy.attribute("enabled");
         if (enabled.is(isFalse())) {
-          enabled.report(MESSAGE);
+          enabled.report("Make sure that disabling retention policy is safe here.");
           return;
         }
         retentionPolicy.attribute("days")

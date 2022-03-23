@@ -7,7 +7,7 @@ resource "azurerm_monitor_log_profile" "s6413-mlp-nc1" {
 
 resource "azurerm_monitor_log_profile" "s6413-mlp-nc2" {
   retention_policy {
-    enabled = false # Noncompliant {{Make sure that defining a short log retention duration is safe here.}}
+    enabled = false # Noncompliant {{Make sure that disabling retention policy is safe here.}}
     days    = 14
   }
 }
@@ -72,7 +72,7 @@ resource "azurerm_network_watcher_flow_log" "s6413-nwfl-nc1" {
 
 resource "azurerm_network_watcher_flow_log" "s6413-nwfl-nc2" {
   retention_policy {
-    enabled = false # Noncompliant {{Make sure that defining a short log retention duration is safe here.}}
+    enabled = false # Noncompliant {{Make sure that disabling retention policy is safe here.}}
     days    = 14
   }
 }
