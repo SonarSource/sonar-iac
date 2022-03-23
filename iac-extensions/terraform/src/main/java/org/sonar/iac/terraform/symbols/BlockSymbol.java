@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.symbols;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -74,6 +75,11 @@ public class BlockSymbol extends Symbol<BlockTree> {
       .flatMap(tree -> PropertyUtils.get(tree, name, AttributeTree.class))
       .map(attribute -> ReferenceSymbol.fromPresent(ctx, attribute, this))
       .orElse(ReferenceSymbol.fromAbsent(ctx, name, this));
+  }
+
+  public BlockSymbol consume(Consumer<BlockSymbol> consumer) {
+    consumer.accept(this);
+    return this;
   }
 
   @Override

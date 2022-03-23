@@ -89,4 +89,11 @@ public class ExpressionPredicate {
   public static Predicate<ExpressionTree> isFalse() {
     return TextUtils::isValueFalse;
   }
+
+  /**
+   * Tests true iff the target expression is an int literal, and it's value is less than the provided.
+   */
+  public static Predicate<ExpressionTree> lessThan(int other) {
+    return expression -> TextUtils.getIntValue(expression).filter(current -> current < other).isPresent();
+  }
 }
