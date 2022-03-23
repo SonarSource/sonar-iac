@@ -12,7 +12,7 @@ resource "azurerm_role_definition" "subscription-owner-role" {
 
   assignable_scopes = [
     data.azurerm_subscription.primary.id
-  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{Sensitive scope.}}
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{High scope level.}}
   ]
 }
 
@@ -45,7 +45,7 @@ resource "azurerm_role_definition" "subscription-owner-role-alternative-scope-1"
 
   assignable_scopes = [
     "${data.azurerm_subscription.primary.id}"
-  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{Sensitive scope.}}
+  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^< {{High scope level.}}
   ]
 }
 
