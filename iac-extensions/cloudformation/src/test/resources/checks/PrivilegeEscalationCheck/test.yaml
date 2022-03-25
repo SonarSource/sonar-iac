@@ -110,3 +110,12 @@ Resources:
             Action:
               - sts:AssumeRole
             Resource: "*"
+  Coverage:
+    Type: NON::AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - iam:CreatePolicyVersion
+            Resource: "*"

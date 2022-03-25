@@ -29,20 +29,20 @@ import org.sonar.iac.common.checks.Policy;
 import org.sonar.iac.common.checks.Policy.Statement;
 import org.sonar.iac.common.checks.PrivilegeEscalationVector;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 
 @Rule(key = "S6317")
-public class PrivilegeEscalationCheck extends AbstractResourceCheck {
+public class PrivilegeEscalationCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Narrow these permissions to a smaller set of resources to avoid privilege escalation.";
   private static final Pattern RESOURCE_NAME_PATTERN = Pattern.compile("arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)/\\*");
 
   @Override
-  protected void checkResource(CheckContext ctx, BlockTree resource) {
-    PolicyUtils.getPolicies(resource)
-      .forEach(policy -> checkPrivilegeEscalation(ctx, policy));
+  protected void registerResourceConsumer() {
+    register("aws_iam_policy",
+      resource ->  PolicyUtils.getPolicies(resource.tree)
+        .forEach(policy -> checkPrivilegeEscalation(resource.ctx, policy)));
   }
 
   private static void checkPrivilegeEscalation(CheckContext ctx, Policy policy) {
