@@ -134,3 +134,15 @@ resource "aws_iam_policy" "non_compliant_policy7" {
     ]
   })
 }
+
+resource "non_aws_iam_policy" "coverage" {
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [ "iam:CreatePolicyVersion" ]
+        Resource = "*"
+      }
+    ]
+  })
+}

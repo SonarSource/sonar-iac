@@ -40,6 +40,9 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
+    if (!resource.isType("AWS::IAM::ManagedPolicy")) {
+      return;
+    }
     PolicyUtils.getPolicies(resource.properties())
       .forEach(policy -> checkPrivilegeEscalation(ctx, policy));
   }
