@@ -32,7 +32,7 @@ Resources:
   S3Bucketdefault:
     Type: 'AWS::S3::Bucket' # Sensitive
     Properties:
-      BucketName: "mynoncompliantbucket"
+      BucketName: "example"
 </pre>
 <p>This <code>PublicAccessBlockConfiguration</code> allows public ACL to be set:</p>
 <pre>
@@ -41,7 +41,7 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Sensitive
     Properties:
-      BucketName: "mynoncompliantbucket"
+      BucketName: "example"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false # should be true
         BlockPublicPolicy: true
@@ -57,7 +57,7 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket' # Compliant
     Properties:
-      BucketName: "mycompliantbucket"
+      BucketName: "example"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
