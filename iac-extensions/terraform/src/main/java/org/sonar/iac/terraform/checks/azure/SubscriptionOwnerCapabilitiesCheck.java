@@ -40,7 +40,7 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractNewResourceCheck
 
   private static final String MESSAGE = "Narrow the number of actions or the assignable scope of this custom role.";
   private static final String PERMISSION_MESSAGE = "Allows all actions.";
-  private static final String SCOPE_MESSAGE = "Sensitive scope.";
+  private static final String SCOPE_MESSAGE = "High scope level.";
 
   private static final Predicate<String> REFERENCE_SCOPE_PREDICATE = exactMatchStringPredicate(REFERENCE_SUBSCRIPTION_SCOPE_PATTERN +
     "|" + REFERENCE_MANAGEMENT_GROUP_SCOPE_PATTERN);
