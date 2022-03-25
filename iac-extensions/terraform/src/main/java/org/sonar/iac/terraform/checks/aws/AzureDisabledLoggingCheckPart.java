@@ -97,11 +97,12 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
       .block("logging")
         .reportIfAbsent("Make sure that omitting to log is safe here.");
 
-    List<AttributeSymbol> loggingSettings = Stream.of("delete", "read", "write")
-      .map(logging::attribute).collect(Collectors.toList());
+    List<AttributeSymbol> disabled = Stream.of("delete", "read", "write")
+      .map(logging::attribute)
+      .filter(setting -> setting.is(isFalse()))
+      .collect(Collectors.toList());
 
-    long disabledLoggings = loggingSettings.stream()
-      .map(setting -> setting.is(isFalse())).filter(b -> b).count();
+    long disabledLoggings = disabled.size();
 
     if (disabledLoggings == 3) {
       logging.report("Make sure that disabling logging is safe here.");
@@ -111,6 +112,6 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
       return;
     }
 
-    loggingSettings.forEach(setting -> setting.reportIf(isFalse(), "Make sure that partially enabling logging is safe here."));
+    disabled.forEach(setting -> setting.report("Make sure that partially enabling logging is safe here."));
   }
 }
