@@ -112,6 +112,62 @@ resource "aws_lb" "load_balancer" {
   }
 }
 </pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket/">Cloud Storage service</a>:</p>
+<pre>
+resource "google_storage_bucket" "example" { # Sensitive
+  name     = "example"
+  location = "US"
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_backend_service/">Region Backend
+Service</a>:</p>
+<pre>
+resource "google_compute_region_backend_service" "example" { # Sensitive
+  name                            = "example"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.region.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+  load_balancing_scheme           = "EXTERNAL"
+  protocol                        = "HTTPS"
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork/">VPC Subnetwork</a>:</p>
+<pre>
+resource "google_compute_subnetwork" "example" { # Sensitive
+  name          = "example"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.custom-test.id
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance/">SQL Database
+Instance</a>:</p>
+<pre>
+resource "google_sql_database_instance" "example" {
+  name             = "example"
+  database_version = "POSTGRES_11"
+  region           = "us-central1"
+
+  settings { # Sensitive
+    tier = "db-f1-micro"
+    ip_configuration {
+      require_ssl  = true
+      ipv4_enabled = true
+    }
+  }
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_cluster/">Kubernetes Engine (GKE)
+cluster</a>:</p>
+<pre>
+resource "google_container_cluster" "example" {
+  name               = "example"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  logging_service    = "none" # Sensitive
+}
+</pre>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://aws.amazon.com/s3/">Amazon S3 access requests</a>:</p>
 <pre>
@@ -232,6 +288,91 @@ resource "aws_lb" "load_balancer" {
     bucket = "mycompliantbucket"
     bucket_prefix = "log/lb-"
   }
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket/">Cloud Storage service</a>:</p>
+<pre>
+resource "google_storage_bucket" "example" {
+  name     = "example"
+  location = "US"
+  logging {
+    log_bucket = google_storage_bucket.bucket-log.name
+  }
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_backend_service/">Region Backend
+Service</a>:</p>
+<pre>
+resource "google_compute_region_backend_service" "example" {
+  name                            = "example"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.region.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+  load_balancing_scheme           = "EXTERNAL"
+  protocol                        = "HTTPS"
+
+  log_config {
+    enable = true
+  }
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork/">VPC Subnetwork</a>:</p>
+<pre>
+resource "google_compute_subnetwork" "example" {
+  name          = "example"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.custom-test.id
+
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance/">SQL Database
+Instance</a>:</p>
+<pre>
+resource "google_sql_database_instance" "example" {
+  name             = "example"
+  database_version = "POSTGRES_11"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      require_ssl  = true
+      ipv4_enabled = true
+    }
+    database_flags {
+      name  = "log_connections"
+      value = "on"
+    }
+    database_flags {
+      name  = "log_disconnections"
+      value = "on"
+    }
+    database_flags {
+      name  = "log_checkpoints"
+      value = "on"
+    }
+    database_flags {
+      name  = "log_lock_waits"
+      value = "on"
+    }
+  }
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_cluster/">Kubernetes Engine (GKE)
+cluster</a>:</p>
+<pre>
+resource "google_container_cluster" "example" {
+  name               = "example"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  logging_service    = "logging.googleapis.com/kubernetes"
 }
 </pre>
 <h2>See</h2>

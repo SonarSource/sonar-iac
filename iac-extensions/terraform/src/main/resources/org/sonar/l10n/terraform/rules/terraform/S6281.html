@@ -27,18 +27,18 @@
 <h2>Sensitive Code Example</h2>
 <p>By default, when not set, the <code>aws_s3_bucket_public_access_block</code> is fully deactivated (nothing is blocked):</p>
 <pre>
-resource "aws_s3_bucket" "mynoncompliantfirstbucket" { # sensitive: by default it's unsafe
-  bucket = "mynoncompliantfirstbucketname"
+resource "aws_s3_bucket" "example" { # Sensitive: no Public Access Block defined for this bucket
+  bucket = "example"
 }
 </pre>
 <p>This <code>aws_s3_bucket_public_access_block</code> allows public ACL to be set:</p>
 <pre>
-resource "aws_s3_bucket" "mynoncompliantsecondbucket" {  # sensitive (s6281)
-  bucket = "mynoncompliantsecondbucketname"
+resource "aws_s3_bucket" "example" {  # Sensitive
+  bucket = "examplename"
 }
 
-resource "aws_s3_bucket_public_access_block" "mynoncompliantspublicaccess" {
-  bucket = aws_s3_bucket.mynoncompliantsecondbucket.id
+resource "aws_s3_bucket_public_access_block" "example-public-access-block" {
+  bucket = aws_s3_bucket.example.id
 
   block_public_acls       = false # should be true
   block_public_policy     = true
@@ -50,12 +50,12 @@ resource "aws_s3_bucket_public_access_block" "mynoncompliantspublicaccess" {
 <p>This <code>aws_s3_bucket_public_access_block</code> blocks public ACLs and policies, ignores existing public ACLs and restricts existing public
 policies:</p>
 <pre>
-resource "aws_s3_bucket" "mycompliantbucket" {
-  bucket = "mycompliantbucketname"
+resource "aws_s3_bucket" "example" {
+  bucket = "example"
 }
 
-resource "aws_s3_bucket_public_access_block" "mycompliantpublicaccess" {
-  bucket = aws_s3_bucket.mycompliantbucket.id
+resource "aws_s3_bucket_public_access_block" "example-public-access-block" {
+  bucket = aws_s3_bucket.example.id
 
   block_public_acls       = true
   block_public_policy     = true

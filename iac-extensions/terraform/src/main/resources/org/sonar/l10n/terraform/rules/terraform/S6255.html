@@ -17,8 +17,8 @@ has a valid MFA device and a corresponding valid token.</p>
 <h2>Sensitive Code Example</h2>
 <p>A versioned S3 bucket doesn’t have MFA delete enabled:</p>
 <pre>
-resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
-  bucket = "mynoncompliantbucketname"
+resource "aws_s3_bucket" "example" { # Sensitive
+  bucket = "example"
 
   versioning {
     enabled = true
@@ -29,8 +29,8 @@ resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
 <p>MFA delete is enabled (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/629">it’s not possible to set this option</a> to a new
 S3 bucket with Terraform but the Terraform template can be updated that way it reflects the state):</p>
 <pre>
-resource "aws_s3_bucket" "mycompliantbucket" { # Compliant
-  bucket = "mycompliantbucketname"
+resource "aws_s3_bucket" "example" { # Compliant
+  bucket = "example"
 
   versioning {
     enabled = true
