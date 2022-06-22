@@ -30,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 import org.junit.ClassRule;
+import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.Measures.Measure;
@@ -94,6 +95,11 @@ public abstract class TestBase {
     return newWsClient().issues().search(new SearchRequest()
       .setRules(Collections.singletonList(rule))
       .setComponentKeys(Collections.singletonList(componentKey))).getIssuesList();
+  }
+
+  protected List<Hotspots.SearchWsResponse.Hotspot> getHotspotsForProject(String projectkey) {
+    return newWsClient().hotspots().search(new org.sonarqube.ws.client.hotspots.SearchRequest()
+      .setProjectKey(projectkey)).getHotspotsList();
   }
 
   protected Integer getMeasureAsInt(String componentKey, String metricKey) {

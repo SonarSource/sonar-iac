@@ -21,9 +21,13 @@ package org.sonar.iac.terraform.checks;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.sonar.api.utils.Version;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.terraform.parser.HclParser;
+import org.sonar.iac.terraform.plugin.TerraformProviders.Provider;
+import org.sonar.iac.terraform.visitors.TerraformProviderContext;
+import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 public class TerraformVerifier {
 
@@ -35,10 +39,34 @@ public class TerraformVerifier {
   private static final HclParser PARSER = new HclParser();
 
   public static void verify(String fileName, IacCheck check) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, TerraformTestContext::new);
+  }
+
+  public static void verifyWithProviderVersion(String fileName, IacCheck check, String providerVersion) {
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, verifier -> new TerraformTestContext(verifier, providerVersion));
   }
 
   public static void verifyNoIssue(String fileName, IacCheck check) {
     Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+  }
+
+  public static class TerraformTestContext extends Verifier.TestContext implements TerraformProviderContext {
+
+    final Provider provider;
+
+    public TerraformTestContext(SingleFileVerifier verifier) {
+      super(verifier);
+      this.provider = new Provider(null);
+    }
+
+    public TerraformTestContext(SingleFileVerifier verifier, String providerVersion) {
+      super(verifier);
+      this.provider = new Provider(Version.parse(providerVersion));
+    }
+
+    @Override
+    public Provider provider(Provider.Identifier p) {
+      return this.provider;
+    }
   }
 }

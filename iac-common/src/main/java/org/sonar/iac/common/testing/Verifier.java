@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
@@ -59,7 +60,14 @@ public final class Verifier {
   public static void verify(TreeParser<Tree> parser, Path path, IacCheck check) {
     Tree root = parse(parser, path);
     SingleFileVerifier verifier = createVerifier(path, root);
-    runAnalysis(verifier, check, root);
+    runAnalysis(new TestContext(verifier), check, root);
+    verifier.assertOneOrMoreIssues();
+  }
+
+  public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Function<SingleFileVerifier, TestContext> contextSupplier) {
+    Tree root = parse(parser, path);
+    SingleFileVerifier verifier = createVerifier(path, root);
+    runAnalysis(contextSupplier.apply(verifier), check, root);
     verifier.assertOneOrMoreIssues();
   }
 
@@ -68,18 +76,17 @@ public final class Verifier {
    */
   public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Issue... expectedIssues) {
     Tree root = parse(parser, path);
-    List<Issue> actualIssues = runAnalysis(createVerifier(path, root), check, root);
+    List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(path, root)), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
   public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check) {
     Tree root = parse(parser, path);
-    List<Issue> actualIssues = runAnalysis(createVerifier(path, root), check, root);
+    List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(path, root)), check, root);
     compare(actualIssues, Collections.emptyList());
   }
 
-  private static List<Issue> runAnalysis(SingleFileVerifier verifier, IacCheck check, Tree root) {
-    TestContext ctx = new TestContext(verifier);
+  private static List<Issue> runAnalysis(TestContext ctx, IacCheck check, Tree root) {
     check.initialize(ctx);
     ctx.scan(root);
     return ctx.raisedIssues;
@@ -116,8 +123,7 @@ public final class Verifier {
       throw new IllegalStateException("Cannot read " + path, e);
     }
   }
-
-  private static class TestContext extends TreeContext implements InitContext, CheckContext {
+  public static class TestContext extends TreeContext implements InitContext, CheckContext {
 
     private final TreeVisitor<TestContext> visitor;
     private final SingleFileVerifier verifier;

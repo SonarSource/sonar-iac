@@ -26,6 +26,7 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.checks.utils.ExpressionPredicate;
+import org.sonar.iac.terraform.plugin.TerraformProviders;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 
@@ -56,10 +57,9 @@ public class UnversionedS3BucketCheck extends AbstractNewResourceCheck {
         checkVersionAttribute(versioningAttribute, secondaryLocation);
       }
 
-      if (versioningBlock.isAbsent() && versioningAttribute.isAbsent()) {
+      if (resource.provider(TerraformProviders.Provider.Identifier.AWS).isLower("4") && versioningBlock.isAbsent() && versioningAttribute.isAbsent()) {
         resource.report(OMITTING_MESSAGE);
       }
-
     });
   }
 

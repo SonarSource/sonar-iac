@@ -33,6 +33,13 @@ public class PropertiesTest extends TestBase {
   }
 
   @Test
+  public void test_terraform_aws_provider_version() {
+    checkTerraformAwsProviderVersion("terraformAwsProviderVersion3", "3", 5);
+    checkTerraformAwsProviderVersion("terraformAwsProviderVersion4", "4", 4);
+    checkTerraformAwsProviderVersion("terraformAwsProviderVersionNotProvided", "", 4);
+  }
+
+  @Test
   public void test_cloudformation_identifier() {
     checkCustomFileIdentifierForLanguage("cloudformationDefaultIdentifier", "cloudformation", "AWSTemplateFormatVersion", 5);
     checkCustomFileIdentifierForLanguage("cloudformationCustomIdentifier", "cloudformation", "CustomIdentifier", 3);
@@ -49,5 +56,11 @@ public class PropertiesTest extends TestBase {
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "identifier/", language)
       .setProperty("sonar." + language + ".file.identifier", identifier));
     assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(expectedNcloc);
+  }
+
+  private void checkTerraformAwsProviderVersion(String projectKey, String version, int expectedHotspots) {
+    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "provider/", "terraform", "aws-provider")
+      .setProperty("sonar.terraform.provider.version.aws", version));
+    assertThat(getHotspotsForProject(projectKey)).hasSize(expectedHotspots);
   }
 }
