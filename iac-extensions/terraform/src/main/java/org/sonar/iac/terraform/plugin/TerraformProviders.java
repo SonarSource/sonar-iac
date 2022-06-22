@@ -45,7 +45,7 @@ public class TerraformProviders {
         .ifPresent(provider -> providers.put(identifier, provider));
     }
   }
-  private Optional<Version> parseProviderVersion(Provider.Identifier identifier, String version) {
+  private static Optional<Version> parseProviderVersion(Provider.Identifier identifier, String version) {
     try{
       if (version.trim().isEmpty()) {
         return Optional.empty();
@@ -86,7 +86,7 @@ public class TerraformProviders {
       return parseVersion(version).filter(v -> providerVersion.compareTo(v) < 0).isPresent();
     }
     
-    private Optional<Version> parseVersion(String version) {
+    private static Optional<Version> parseVersion(String version) {
       try {
         return Optional.of(Version.parse(version));
       } catch (IllegalArgumentException e) {
