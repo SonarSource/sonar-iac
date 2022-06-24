@@ -29,6 +29,7 @@ public class TerraformSettings {
 
   private static final String TERRAFORM_CATEGORY = "Terraform";
   private static final String GENERAL_SUBCATEGORY = "General";
+  private static final String VERSION_SUBCATEGORY = "Provider Versions";
 
   static final String ACTIVATION_KEY = "sonar.terraform.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
@@ -61,6 +62,17 @@ public class TerraformSettings {
         .category(TERRAFORM_CATEGORY)
         .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)
+        .build(),
+
+      PropertyDefinition.builder(TerraformProviders.Provider.Identifier.AWS.key)
+        .index(101)
+        .name("AWS Provider Version")
+        .description("Version of the AWS provider of lifecycle management of AWS resources," +
+          "including EC2, Lambda, EKS, ECS, VPC, S3, RDS, DynamoDB, and more. Use semantic versioning format like `3.4`, `4.17.1` or `4`")
+        .type(PropertyType.STRING)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(TERRAFORM_CATEGORY)
+        .subCategory(VERSION_SUBCATEGORY)
         .build()
     );
   }

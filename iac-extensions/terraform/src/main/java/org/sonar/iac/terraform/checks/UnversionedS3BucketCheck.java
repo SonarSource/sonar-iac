@@ -19,73 +19,62 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.util.Optional;
+import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.api.tree.ExpressionTree;
-import org.sonar.iac.terraform.api.tree.LabelTree;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.api.tree.TerraformTree.Kind;
+import org.sonar.iac.terraform.checks.utils.ExpressionPredicate;
+import org.sonar.iac.terraform.symbols.AttributeSymbol;
+import org.sonar.iac.terraform.symbols.BlockSymbol;
+
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
+import static org.sonar.iac.terraform.plugin.TerraformProviders.Provider.Identifier.AWS;
 
 @Rule(key = "S6252")
-public class UnversionedS3BucketCheck extends AbstractResourceCheck {
+public class UnversionedS3BucketCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure using %s S3 bucket is safe here.";
   private static final String OMITTING_MESSAGE = "Omitting \"versioning\" disables S3 bucket versioning. Make sure it is safe here.";
 
-  private static final String UNVERSIONED_MSG = "unversioned";
-  private static final String SUSPENDED_MSG = "suspended versioned";
+  private static final String UNVERSIONED_MSG = String.format(MESSAGE, "unversioned");
+  private static final String SUSPENDED_MSG = String.format(MESSAGE, "suspended versioned");
   private static final String SECONDARY_MESSAGE = "Related bucket";
+  private static final Version AWS_V_4 = Version.create(4, 0);
 
   @Override
-  protected void registerResourceChecks() {
-    register(UnversionedS3BucketCheck::checkBucket, S3_BUCKET);
-  }
+  protected void registerResourceConsumer() {
+    register(S3_BUCKET, resource -> {
+      SecondaryLocation secondaryLocation = resource.toSecondary(SECONDARY_MESSAGE);
 
-  private static void checkBucket(CheckContext ctx, BlockTree resource) {
+      BlockSymbol versioningBlock = resource.block("versioning");
+      versioningBlock.attribute("enabled")
+        .reportIf(ExpressionPredicate.isFalse(), SUSPENDED_MSG, secondaryLocation)
+        .reportIfAbsent(UNVERSIONED_MSG, secondaryLocation);
 
-    LabelTree bucketLabel = resource.labels().get(0);
-
-    Optional<BlockTree> versioningBlock = PropertyUtils.get(resource, "versioning", BlockTree.class);
-    versioningBlock.ifPresent(b -> checkBlock(ctx, bucketLabel, b));
-
-    Optional<AttributeTree> versioningAttribute = PropertyUtils.get(resource, "versioning", AttributeTree.class);
-    versioningAttribute.ifPresent(a -> checkAttribute(ctx, bucketLabel, a));
-
-    if (versioningBlock.isEmpty() && versioningAttribute.isEmpty()) {
-      reportResource(ctx, resource, OMITTING_MESSAGE);
-    }
-  }
-
-  private static void checkBlock(CheckContext ctx, LabelTree bucket, BlockTree block) {
-    Optional<AttributeTree> enabled = PropertyUtils.get(block, "enabled", AttributeTree.class);
-    if (enabled.isPresent()) {
-      checkSuspendedVersioning(ctx, bucket, enabled.get(), enabled.get().value());
-    } else {
-      ctx.reportIssue(block.key(), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(bucket, SECONDARY_MESSAGE));
-    }
-  }
-
-  private static void checkAttribute(CheckContext ctx, LabelTree bucketLabel, AttributeTree attribute) {
-    if (attribute.value().is(Kind.OBJECT)) {
-      Optional<ObjectElementTree> enabled = PropertyUtils.get(attribute.value(), "enabled", ObjectElementTree.class);
-      if (enabled.isPresent()) {
-        checkSuspendedVersioning(ctx, bucketLabel, enabled.get(), enabled.get().value());
-      } else {
-        ctx.reportIssue(attribute.key(), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(bucketLabel, SECONDARY_MESSAGE));
+      AttributeSymbol versioningAttribute = resource.attribute("versioning");
+      if (versioningAttribute.isPresent()) {
+        checkVersionAttribute(versioningAttribute, secondaryLocation);
       }
-    }
+
+      if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4) && versioningBlock.isAbsent() && versioningAttribute.isAbsent()) {
+        resource.report(OMITTING_MESSAGE);
+      }
+    });
   }
 
-  private static void checkSuspendedVersioning(CheckContext ctx, LabelTree bucket, TerraformTree setting, ExpressionTree value) {
-    if (TextUtils.isValueFalse(value)) {
-      ctx.reportIssue(setting, String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(bucket, SECONDARY_MESSAGE));
+  private static void checkVersionAttribute(AttributeSymbol attribute, SecondaryLocation secondaryLocation) {
+    if (attribute.tree.value().is(TerraformTree.Kind.OBJECT)) {
+      PropertyUtils.get(attribute.tree.value(), "enabled", ObjectElementTree.class)
+        .ifPresentOrElse(enabled -> {
+            if (TextUtils.isValueFalse(enabled.value())) {
+              attribute.ctx.reportIssue(enabled, SUSPENDED_MSG, secondaryLocation);
+            }
+          },
+          () -> attribute.ctx.reportIssue(attribute.tree.key(), UNVERSIONED_MSG, secondaryLocation)
+        );
     }
   }
 }

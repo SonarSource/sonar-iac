@@ -46,8 +46,11 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
     for (IacCheck check : activeChecks) {
       RuleKey ruleKey = checks.ruleKey(check);
       Objects.requireNonNull(ruleKey);
-      check.initialize(new ContextAdapter(ruleKey));
+      check.initialize(context(ruleKey));
     }
+  }
+  protected InitContext context(RuleKey ruleKey) {
+    return new ContextAdapter(ruleKey);
   }
 
   public class ContextAdapter implements InitContext, CheckContext {

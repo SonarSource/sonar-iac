@@ -24,6 +24,8 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.plugin.TerraformProviders.Provider;
+import org.sonar.iac.terraform.visitors.TerraformProviderContext;
 
 public class ResourceSymbol extends BlockSymbol {
 
@@ -36,6 +38,10 @@ public class ResourceSymbol extends BlockSymbol {
 
   public static ResourceSymbol fromPresent(CheckContext ctx, BlockTree tree) {
     return new ResourceSymbol(ctx, tree);
+  }
+
+  public Provider provider(Provider.Identifier identifier) {
+    return ((TerraformProviderContext) ctx).provider(identifier);
   }
 
   @Override

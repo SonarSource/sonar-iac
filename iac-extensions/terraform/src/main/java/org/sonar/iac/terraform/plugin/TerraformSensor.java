@@ -34,23 +34,25 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
-import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
 import org.sonar.iac.terraform.parser.HclParser;
+import org.sonar.iac.terraform.visitors.TerraformChecksVisitor;
 import org.sonar.iac.terraform.visitors.TerraformHighlightingVisitor;
 import org.sonar.iac.terraform.visitors.TerraformMetricsVisitor;
 
 public class TerraformSensor extends IacSensor {
 
   private final Checks<IacCheck> checks;
+  private final TerraformProviders providerVersions;
 
   public TerraformSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-                         NoSonarFilter noSonarFilter, TerraformLanguage language) {
+                         NoSonarFilter noSonarFilter, TerraformLanguage language, TerraformProviders providerVersions) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
-    checks.addAnnotatedChecks((Iterable<?>) TerraformCheckList.checks());
+    checks.addAnnotatedChecks(TerraformCheckList.checks());
+    this.providerVersions = providerVersions;
   }
 
   @Override
@@ -70,7 +72,7 @@ public class TerraformSensor extends IacSensor {
       visitors.add(new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter));
       visitors.add(new TerraformHighlightingVisitor());
     }
-    visitors.add(new ChecksVisitor(checks, statistics));
+    visitors.add(new TerraformChecksVisitor(checks, statistics, providerVersions));
     return visitors;
   }
 
