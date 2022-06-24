@@ -2,65 +2,56 @@ resource "aws_s3_bucket" "mynoncompliantbucket" {
   bucket = "mynoncompliantbucketname"
 }
 
-
-resource "aws_s3_bucket" "mynoncompliantbucket123454" {
-  #      ^^^^^^^^^^^^^^^> {{Related bucket}}
+resource "aws_s3_bucket" "mycompliantbucket" {
   bucket = "mycompliantbucketname"
 
-  versioning { } # Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
-# ^^^^^^^^^^
+  versioning {
+    enabled = true
+  }
+}
+
+resource "aws_s3_bucket" "mynoncompliantbucket123454" {
+  bucket = "mycompliantbucketname"
+
+  versioning { } # Noncompliant
 }
 
 resource "aws_s3_bucket" "mynoncompliantfalsebuckets6252" {
-  #      ^^^^^^^^^^^^^^^> {{Related bucket}}
   bucket = "mynoncompliantfalsebuckets6252name"
 
   versioning {
-    enabled = false # Noncompliant {{Make sure using suspended versioned S3 bucket is safe here.}}
-  # ^^^^^^^^^^^^^^^
+    enabled = false # Noncompliant
+  }
+}
+
+resource "not_a_bucket" "mynoncompliantbuckets6245" {}
+
+resource {} # no labels
+
+resource "aws_s3_bucket" "mynoncompliantbuckets6245" {
+  versioning = {
+    enabled = true
   }
 }
 
 resource "aws_s3_bucket" "mynoncompliantbuckets6245" {
-  #      ^^^^^^^^^^^^^^^> {{Related bucket}}
   versioning = {
-    enabled = false # Noncompliant {{Make sure using suspended versioned S3 bucket is safe here.}}
-  # ^^^^^^^^^^^^^^^
+    enabled = false # Noncompliant
   }
 }
 
 resource "aws_s3_bucket" "mynoncompliantbucket123454" {
-  #      ^^^^^^^^^^^^^^^> {{Related bucket}}
   bucket = "mycompliantbucketname"
 
-  versioning = { } # Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
-# ^^^^^^^^^^
+  versioning = { } # Noncompliant
 }
 
-resource "aws_s3_bucket_versioning" "non_compliant_disabled" {
-  #      ^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Related bucket}}
-  versioning_configuration {
-    status = "Disabled" # Noncompliant {{Make sure using unversioned S3 bucket is safe here.}}
-  # ^^^^^^^^^^^^^^^^^^^
+locals {
+  versioning = {
+    enabled = false
   }
 }
 
-resource "aws_s3_bucket_versioning" "non_compliant_suspended" {
-  #      ^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Related bucket}}
-  versioning_configuration {
-    status = "Suspended" # Noncompliant {{Make sure using suspended versioned S3 bucket is safe here.}}
-  # ^^^^^^^^^^^^^^^^^^^^
-  }
-}
-
-resource "aws_s3_bucket_versioning" "compliant" {
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_versioning" "compliant" {
-  versioning_configuration {
-    status = foo.versioning.status
-  }
+resource "aws_s3_bucket" "mynoncompliantbuckets6245" { # FN
+  versioning     = "${local.versioning}"
 }

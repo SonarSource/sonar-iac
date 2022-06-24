@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -26,11 +27,11 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.checks.utils.ExpressionPredicate;
-import org.sonar.iac.terraform.plugin.TerraformProviders;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
+import static org.sonar.iac.terraform.plugin.TerraformProviders.Provider.Identifier.AWS;
 
 @Rule(key = "S6252")
 public class UnversionedS3BucketCheck extends AbstractNewResourceCheck {
@@ -41,6 +42,7 @@ public class UnversionedS3BucketCheck extends AbstractNewResourceCheck {
   private static final String UNVERSIONED_MSG = String.format(MESSAGE, "unversioned");
   private static final String SUSPENDED_MSG = String.format(MESSAGE, "suspended versioned");
   private static final String SECONDARY_MESSAGE = "Related bucket";
+  private static final Version AWS_V_4 = Version.create(4, 0);
 
   @Override
   protected void registerResourceConsumer() {
@@ -57,7 +59,7 @@ public class UnversionedS3BucketCheck extends AbstractNewResourceCheck {
         checkVersionAttribute(versioningAttribute, secondaryLocation);
       }
 
-      if (resource.provider(TerraformProviders.Provider.Identifier.AWS).isLower("4") && versioningBlock.isAbsent() && versioningAttribute.isAbsent()) {
+      if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4) && versioningBlock.isAbsent() && versioningAttribute.isAbsent()) {
         resource.report(OMITTING_MESSAGE);
       }
     });

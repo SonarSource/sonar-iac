@@ -68,7 +68,7 @@ public class TerraformSettings {
         .index(101)
         .name("AWS Provider Version")
         .description("Version of the AWS provider of lifecycle management of AWS resources," +
-          "including EC2, Lambda, EKS, ECS, VPC, S3, RDS, DynamoDB, and more. Use semantic versioning format.")
+          "including EC2, Lambda, EKS, ECS, VPC, S3, RDS, DynamoDB, and more. Use semantic versioning format like `3.4`, `4.17.1` or `4`")
         .type(PropertyType.STRING)
         .onQualifiers(Qualifiers.PROJECT)
         .category(TERRAFORM_CATEGORY)

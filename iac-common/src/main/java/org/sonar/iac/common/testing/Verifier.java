@@ -58,10 +58,7 @@ public final class Verifier {
   }
 
   public static void verify(TreeParser<Tree> parser, Path path, IacCheck check) {
-    Tree root = parse(parser, path);
-    SingleFileVerifier verifier = createVerifier(path, root);
-    runAnalysis(new TestContext(verifier), check, root);
-    verifier.assertOneOrMoreIssues();
+    verify(parser, path, check, TestContext::new);
   }
 
   public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Function<SingleFileVerifier, TestContext> contextSupplier) {

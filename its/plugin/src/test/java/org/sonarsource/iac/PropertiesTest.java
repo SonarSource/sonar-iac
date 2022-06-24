@@ -34,9 +34,9 @@ public class PropertiesTest extends TestBase {
 
   @Test
   public void test_terraform_aws_provider_version() {
-    checkTerraformAwsProviderVersion("terraformAwsProviderVersion3", "3", 5);
-    checkTerraformAwsProviderVersion("terraformAwsProviderVersion4", "4", 4);
-    checkTerraformAwsProviderVersion("terraformAwsProviderVersionNotProvided", "", 4);
+    checkTerraformAwsProviderVersion("terraformAwsProviderVersion3", "3", 1);
+    checkTerraformAwsProviderVersion("terraformAwsProviderVersion4", "4", 0);
+    checkTerraformAwsProviderVersion("terraformAwsProviderVersionNotProvided", "", 0);
   }
 
   @Test
@@ -60,7 +60,7 @@ public class PropertiesTest extends TestBase {
 
   private void checkTerraformAwsProviderVersion(String projectKey, String version, int expectedHotspots) {
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "provider/", "terraform", "aws-provider")
-      .setProperty("sonar.terraform.provider.version.aws", version));
+      .setProperty("sonar.terraform.provider.aws.version", version));
     assertThat(getHotspotsForProject(projectKey)).hasSize(expectedHotspots);
   }
 }

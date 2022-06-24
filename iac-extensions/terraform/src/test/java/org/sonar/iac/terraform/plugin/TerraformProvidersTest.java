@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TerraformProvidersTest {
 
 
-  private static final String AWS_KEY = "sonar.terraform.provider.version.aws";
+  private static final String AWS_KEY = "sonar.terraform.provider.aws.version";
   @TempDir
   protected File baseDir;
 
@@ -56,7 +56,7 @@ class TerraformProvidersTest {
     Provider provider =  providerVersions.provider(Provider.Identifier.AWS);
     assertThat(provider.providerVersion).isNull();
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly("Can not parse provider version \"sonar.terraform.provider.version.aws\".");
+      .containsExactly("Can not parse provider version \"sonar.terraform.provider.aws.version\".");
   }
 
   @Test
@@ -67,28 +67,19 @@ class TerraformProvidersTest {
   }
 
   @Test
-  void isLower() {
-    Provider provider = new Provider(Version.parse("1.3.4"));
-    assertThat(provider.isLower("1.3.4")).isFalse();
-    assertThat(provider.isLower("1")).isFalse();
-    assertThat(provider.isLower("1.2.5")).isFalse();
-    assertThat(provider.isLower("1.4.3")).isTrue();
-    assertThat(provider.isLower("2")).isTrue();
+  void hasVersionLowerThan() {
+    Provider provider = new Provider(Version.create(1, 3, 4));
+    assertThat(provider.hasVersionLowerThan(Version.create(1, 3, 4))).isFalse();
+    assertThat(provider.hasVersionLowerThan(Version.create(1, 0))).isFalse();
+    assertThat(provider.hasVersionLowerThan(Version.create(1, 2, 5))).isFalse();
+    assertThat(provider.hasVersionLowerThan(Version.create(1, 4, 3))).isTrue();
+    assertThat(provider.hasVersionLowerThan(Version.create(2, 0))).isTrue();
   }
 
   @Test
   void assess_without_provider_version() {
     Provider provider = new Provider(null);
-    assertThat(provider.isLower("2")).isFalse();
-  }
-
-  @Test
-  void assess_with_invalid_version() {
-    Provider provider = new Provider(Version.parse("1.3.4"));
-    assertThat(provider.isLower("v2")).isFalse();
-
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .containsExactly("Can not parse version \"v2\" for provider verification.");
+    assertThat(provider.hasVersionLowerThan(Version.create(2, 0))).isFalse();
   }
 
   private SensorContext context(String key, String value) {

@@ -46,10 +46,10 @@ public class TerraformProviders {
     }
   }
   private static Optional<Version> parseProviderVersion(Provider.Identifier identifier, String version) {
+    if (version.trim().isEmpty()) {
+      return Optional.empty();
+    }
     try{
-      if (version.trim().isEmpty()) {
-        return Optional.empty();
-      }
       return Optional.of(Version.parse(version));
     } catch (IllegalArgumentException e) {
       LOG.warn("Can not parse provider version \"{}\".", identifier.key);
@@ -64,7 +64,7 @@ public class TerraformProviders {
   public static final class Provider {
 
     public enum Identifier {
-      AWS("sonar.terraform.provider.version.aws");
+      AWS("sonar.terraform.provider.aws.version");
 
       public final String key;
 
@@ -79,20 +79,11 @@ public class TerraformProviders {
       this.providerVersion = providerVersion;
     }
 
-    public boolean isLower(String version) {
+    public boolean hasVersionLowerThan(Version version) {
       if (providerVersion ==  null) {
         return false;
       }
-      return parseVersion(version).filter(v -> providerVersion.compareTo(v) < 0).isPresent();
-    }
-    
-    private static Optional<Version> parseVersion(String version) {
-      try {
-        return Optional.of(Version.parse(version));
-      } catch (IllegalArgumentException e) {
-        LOG.debug("Can not parse version \"{}\" for provider verification.", version);
-        return Optional.empty();
-      }
+      return providerVersion.compareTo(version) < 0;
     }
   }
 }
