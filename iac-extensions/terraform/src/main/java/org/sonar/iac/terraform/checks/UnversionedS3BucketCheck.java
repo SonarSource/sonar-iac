@@ -63,15 +63,6 @@ public class UnversionedS3BucketCheck extends AbstractNewResourceCheck {
         resource.report(OMITTING_MESSAGE);
       }
     });
-
-    register("aws_s3_bucket_versioning", resource -> {
-      SecondaryLocation secondary = resource.toSecondary(SECONDARY_MESSAGE);
-
-      resource.block("versioning_configuration")
-        .attribute("status")
-          .reportIf(ExpressionPredicate.equalTo("Disabled"), UNVERSIONED_MSG, secondary)
-          .reportIf(ExpressionPredicate.equalTo("Suspended"), SUSPENDED_MSG, secondary);
-    });
   }
 
   private static void checkVersionAttribute(AttributeSymbol attribute, SecondaryLocation secondaryLocation) {
