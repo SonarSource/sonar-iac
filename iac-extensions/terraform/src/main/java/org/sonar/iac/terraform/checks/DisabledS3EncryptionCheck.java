@@ -19,24 +19,27 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.terraform.api.tree.BlockTree;
+
+import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
+import static org.sonar.iac.terraform.plugin.TerraformProviders.Provider.Identifier.AWS;
 
 @Rule(key = "S6245")
-public class DisabledS3EncryptionCheck extends AbstractResourceCheck {
+public class DisabledS3EncryptionCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Omitting \"server_side_encryption_configuration\" disables server-side encryption. Make sure it is safe here.";
 
-  @Override
-  protected void registerResourceChecks() {
-    register(DisabledS3EncryptionCheck::checkBucket, S3_BUCKET);
-  }
+  private static final Version AWS_V_4 = Version.create(4, 0);
 
-  private static void checkBucket(CheckContext ctx, BlockTree resource) {
-    if (PropertyUtils.isMissing(resource, "server_side_encryption_configuration")) {
-      reportResource(ctx, resource, MESSAGE);
-    }
+  @Override
+  protected void registerResourceConsumer() {
+    register(S3_BUCKET, resource -> {
+      if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4)
+        && resource.block("server_side_encryption_configuration").isAbsent()
+        && resource.attribute("server_side_encryption_configuration").isAbsent()) {
+        resource.report(MESSAGE);
+      }
+    });
   }
 }

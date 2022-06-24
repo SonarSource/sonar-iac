@@ -20,11 +20,18 @@
 package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
 class DisabledS3EncryptionCheckTest {
 
+  IacCheck check = new DisabledS3EncryptionCheck();
   @Test
-  void test() {
-    TerraformVerifier.verify("DisabledS3EncryptionCheck/test.tf", new DisabledS3EncryptionCheck());
+  void aws_provider_v3() {
+    TerraformVerifier.verifyWithProviderVersion("DisabledS3EncryptionCheck/aws_provider_v3.tf", check, "3");
   }
+  @Test
+  void aws_provider_v4() {
+    TerraformVerifier.verifyNoIssueWithProviderVersion("DisabledS3EncryptionCheck/aws_provider_v4.tf", check, "4");
+  }
+
 }
