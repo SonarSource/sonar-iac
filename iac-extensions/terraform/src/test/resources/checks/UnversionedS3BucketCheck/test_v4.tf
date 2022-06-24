@@ -55,3 +55,27 @@ locals {
 resource "aws_s3_bucket" "mynoncompliantbuckets6245" { # FN
   versioning     = "${local.versioning}"
 }
+
+resource "aws_s3_bucket_versioning" "non_compliant_disabled" {
+  versioning_configuration {
+    status = "Disabled" # Noncompliant
+  }
+}
+
+resource "aws_s3_bucket_versioning" "non_compliant_suspended" {
+  versioning_configuration {
+    status = "Suspended" # Noncompliant
+  }
+}
+
+resource "aws_s3_bucket_versioning" "compliant" {
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_versioning" "compliant" {
+  versioning_configuration {
+    status = foo.versioning.status
+  }
+}
