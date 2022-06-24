@@ -19,18 +19,24 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.plugin.TerraformProviders.Provider.Identifier.AWS;
 
 @Rule(key = "S6255")
 public class DisabledMfaBucketDeletionCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE = "Make sure allowing object deletion without MFA is safe here.";
   private static final String MESSAGE_SECONDARY = "Related bucket";
+
+  private static final Version AWS_V_4 = Version.create(4, 0);
 
   @Override
   protected void registerResourceConsumer() {
@@ -40,9 +46,18 @@ public class DisabledMfaBucketDeletionCheck extends AbstractNewResourceCheck {
         AttributeSymbol mfaDelete = versioning.attribute("mfa_delete")
           .reportIf(isFalse(), MESSAGE, resource.toSecondary(MESSAGE_SECONDARY));
 
-        if (mfaDelete.isAbsent()) {
+        if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4) && mfaDelete.isAbsent()) {
           versioning.report(MESSAGE, resource.toSecondary(MESSAGE_SECONDARY));
         }
       });
+
+    register("aws_s3_bucket_versioning", resource -> {
+      SecondaryLocation secondary = resource.toSecondary(MESSAGE_SECONDARY);
+        resource.block("versioning_configuration")
+          .attribute("mfa_delete")
+            .reportIf(equalTo("Disabled"), MESSAGE, secondary)
+            .reportIfAbsent(MESSAGE, secondary);
+      }
+    );
   }
 }
