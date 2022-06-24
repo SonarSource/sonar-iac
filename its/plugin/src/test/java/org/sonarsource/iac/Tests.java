@@ -50,6 +50,7 @@ public class Tests {
       .addPlugin(IAC_PLUGIN_LOCATION)
       .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", SONAR_CONFIG_VERSION))
       .restoreProfileAtStartup(FileLocation.of("src/test/resources/nosonar-terraform.xml"))
+      .restoreProfileAtStartup(FileLocation.of("src/test/resources/aws-provider-terraform.xml"))
       .build();
   }
 }

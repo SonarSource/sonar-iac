@@ -37,7 +37,9 @@ public class TerraformExtension {
       TerraformSensor.class,
       // Rules and profiles
       TerraformRulesDefinition.class,
-      TerraformProfileDefinition.class
+      TerraformProfileDefinition.class,
+      // Additional extensions
+      TerraformProviders.class
     );
 
     context.addExtensions(TerraformSettings.getProperties());

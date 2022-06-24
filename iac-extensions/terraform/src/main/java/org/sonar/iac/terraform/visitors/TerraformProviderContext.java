@@ -17,26 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks;
+package org.sonar.iac.terraform.visitors;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.terraform.plugin.TerraformProviders.Provider;
 
-class UnversionedS3BucketCheckTest {
+public interface TerraformProviderContext {
 
-  private IacCheck check = new UnversionedS3BucketCheck();
-  @Test
-  void aws_provider_v3() {
-    TerraformVerifier.verifyWithProviderVersion("UnversionedS3BucketCheck/test_v3.tf", check, "3");
-  }
+  Provider provider(Provider.Identifier identifier);
 
-  @Test
-  void aws_provider_v4() {
-    TerraformVerifier.verifyWithProviderVersion("UnversionedS3BucketCheck/test_v4.tf", check, "4");
-  }
-
-  @Test
-  void aws_provider_non() {
-    TerraformVerifier.verify("UnversionedS3BucketCheck/test_v4.tf", check);
-  }
 }
