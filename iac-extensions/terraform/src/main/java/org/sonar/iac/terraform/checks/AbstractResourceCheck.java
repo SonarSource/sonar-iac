@@ -36,7 +36,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 
 public abstract class AbstractResourceCheck implements IacCheck {
 
-  protected static final String S3_BUCKET = "aws_s3_bucket";
+  public static final String S3_BUCKET = "aws_s3_bucket";
   private final Map<String, List<BiConsumer<CheckContext, BlockTree>>> resourceChecks = new HashMap<>();
   private final List<BiConsumer<CheckContext, BlockTree>> allResourcesChecks = new ArrayList<>();
 

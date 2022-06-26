@@ -78,8 +78,13 @@ public final class Verifier {
   }
 
   public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check) {
+    verifyNoIssue(parser, path, check, TestContext::new);
+  }
+
+  public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check, Function<SingleFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
-    List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(path, root)), check, root);
+    SingleFileVerifier verifier = createVerifier(path, root);
+    List<Issue> actualIssues = runAnalysis(contextSupplier.apply(verifier), check, root);
     compare(actualIssues, Collections.emptyList());
   }
 
