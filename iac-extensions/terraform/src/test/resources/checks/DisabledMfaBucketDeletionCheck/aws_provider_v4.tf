@@ -45,8 +45,3 @@ resource "aws_s3_bucket_versioning" "compliant_versioning" {
     mfa_delete = "Enabled"
   }
 }
-
-
-resource "not_a_bucket" "name" {
-  bucket = "mycompliantbuckets6255"
-}
