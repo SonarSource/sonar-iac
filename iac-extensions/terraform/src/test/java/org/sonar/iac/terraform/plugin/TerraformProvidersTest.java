@@ -33,13 +33,14 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.terraform.plugin.TerraformProviders.Provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class TerraformProvidersTest {
 
-  private AnalysisWarnings analysisWarnings = spy(AnalysisWarnings.class);
+  private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
 
   private static final String AWS_KEY = "sonar.terraform.provider.aws.version";
   @TempDir
@@ -53,6 +54,7 @@ class TerraformProvidersTest {
     TerraformProviders providers = providers(context(AWS_KEY, "1.3.4"));
     Provider provider =  providers.provider(Provider.Identifier.AWS);
     assertThat(provider.providerVersion).isEqualTo(Version.parse("1.3.4"));
+    verifyNoInteractions(analysisWarnings);
   }
 
   @Test
@@ -72,6 +74,9 @@ class TerraformProvidersTest {
     TerraformProviders providers = providers(context(AWS_KEY, ""));
     Provider provider =  providers.provider(Provider.Identifier.AWS);
     assertThat(provider.providerVersion).isNull();
+    verify(analysisWarnings, times(1))
+      .addUnique("Provide the used AWS provider version via the \"sonar.terraform.provider.aws.version\" " +
+        "property to increase the accuracy of your results.");
   }
 
   @Test
@@ -101,12 +106,14 @@ class TerraformProvidersTest {
     assertThat(provider.hasVersionLowerThan(Version.create(1, 2, 5))).isFalse();
     assertThat(provider.hasVersionLowerThan(Version.create(1, 4, 3))).isTrue();
     assertThat(provider.hasVersionLowerThan(Version.create(2, 0))).isTrue();
+    verifyNoInteractions(analysisWarnings);
   }
 
   @Test
   void assess_without_provider_version() {
     Provider provider = new Provider(null);
     assertThat(provider.hasVersionLowerThan(Version.create(2, 0))).isFalse();
+    verifyNoInteractions(analysisWarnings);
   }
 
   private TerraformProviders providers(SensorContext context) {
