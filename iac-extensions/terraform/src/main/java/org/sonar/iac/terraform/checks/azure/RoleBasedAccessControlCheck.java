@@ -22,11 +22,11 @@ package org.sonar.iac.terraform.checks.azure;
 import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
-import org.sonar.iac.terraform.checks.utils.ExpressionPredicate;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
 import static org.sonar.iac.terraform.plugin.TerraformProviders.Provider.Identifier.AZURE;
 
 @Rule(key = "S6383")
@@ -39,11 +39,6 @@ public class RoleBasedAccessControlCheck extends AbstractNewResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    // Report if 'role_based_access_control' block is missing or check its attributes.
-    // Report if 'role_based_access_control.enabled' is set to false
-    // or check 'role_based_access_control.azure_active_directory' block
-    // Report if 'role_based_access_control.azure_active_directory.managed' is set to true
-    // and 'role_based_access_control.azure_active_directory.managed' is missing or set to false.
     // https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
     register("azurerm_kubernetes_cluster", resource -> {
       BlockSymbol rbac = resource.block("role_based_access_control");
@@ -54,17 +49,10 @@ public class RoleBasedAccessControlCheck extends AbstractNewResourceCheck {
 
       AttributeSymbol rbacEnabled = rbac.attribute("enabled").reportIf(isFalse(), DISABLED_MESSAGE);
       if (!rbacEnabled.is(isFalse())) {
-        BlockSymbol activeDirectory = rbac.block("azure_active_directory");
-        AttributeSymbol activeDirectoryManaged = activeDirectory.attribute("managed");
-        if (activeDirectoryManaged.is(ExpressionPredicate.isTrue())) {
-          AttributeSymbol adRbacEnabled = activeDirectory.attribute("azure_rbac_enabled")
-            .reportIf(isFalse(), DISABLED_MESSAGE);
-
-          if (adRbacEnabled.isAbsent()) {
-            activeDirectoryManaged.report(String.format(MISSING_MESSAGE, "azure_rbac_enabled"));
-          }
-        }
+        checkActiveDirectoryRoleBasedAccessControl(rbac.block("azure_active_directory"));
       }
+
+      checkActiveDirectoryRoleBasedAccessControl(resource.block("azure_active_directory_role_based_access_control"));
 
       resource.attribute("role_based_access_control_enabled")
         .reportIf(isFalse(), DISABLED_MESSAGE);
@@ -75,5 +63,16 @@ public class RoleBasedAccessControlCheck extends AbstractNewResourceCheck {
       resource.attribute("enable_rbac_authorization")
         .reportIf(isFalse(), DISABLED_MESSAGE)
         .reportIfAbsent(MISSING_MESSAGE));
+  }
+
+  private static void checkActiveDirectoryRoleBasedAccessControl(BlockSymbol adRbac) {
+    AttributeSymbol activeDirectoryManaged = adRbac.attribute("managed");
+    if (activeDirectoryManaged.is(isTrue())) {
+      AttributeSymbol adRbacEnabled = adRbac.attribute("azure_rbac_enabled")
+        .reportIf(isFalse(), DISABLED_MESSAGE);
+      if (adRbacEnabled.isAbsent()) {
+        activeDirectoryManaged.report(String.format(MISSING_MESSAGE, "azure_rbac_enabled"));
+      }
+    }
   }
 }
