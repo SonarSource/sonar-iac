@@ -46,7 +46,9 @@ public class ListSymbol extends Symbol<AttributeTree> {
     if (tree.value().is(TerraformTree.Kind.TUPLE)) {
       return new ListSymbol(ctx, tree, tree.key().value(), parent, ((TupleTree) tree.value()).elements().trees());
     }
-    return fromAbsent(ctx, tree.key().value(), parent);
+    // List can also be provided as reference. To avoid false positives due to a missing reference resolution
+    // we create an empty ListSymbol
+    return new ListSymbol(ctx, tree, tree.key().value(), parent, Collections.emptyList());
   }
 
   public static ListSymbol fromAbsent(CheckContext ctx, String name, BlockSymbol parent) {
@@ -58,12 +60,33 @@ public class ListSymbol extends Symbol<AttributeTree> {
     return this;
   }
 
+  public ListSymbol reportIfEmpty(String message, SecondaryLocation... secondaryLocations) {
+    if (isEmpty()) {
+      report(message, secondaryLocations);
+    }
+    return this;
+  }
+
   public Stream<ExpressionTree> getItemIf(Predicate<ExpressionTree> predicate) {
     return items.stream().filter(predicate);
   }
 
   public boolean isEmpty() {
-    return tree != null && items.isEmpty();
+    return tree != null && items.isEmpty() && !isByReference();
+  }
+
+  @Override
+  public boolean isPresent() {
+    return tree != null && !isByReference();
+  }
+
+  public boolean isByReference() {
+    return tree != null && !tree.value().is(TerraformTree.Kind.TUPLE);
+  }
+
+  @Override
+  public ListSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
+    return (ListSymbol) super.reportIfAbsent(message, secondaries);
   }
 
   @Nullable

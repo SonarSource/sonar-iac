@@ -47,7 +47,11 @@ public class TerraformVerifier {
   }
 
   public static void verifyNoIssue(String fileName, IacCheck check) {
-    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check, TerraformTestContext::new);
+  }
+
+  public static void verifyNoIssueWithProviderVersion(String fileName, IacCheck check, String providerVersion) {
+    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check, verifier -> new TerraformTestContext(verifier, providerVersion));
   }
 
   public static class TerraformTestContext extends Verifier.TestContext implements TerraformProviderContext {

@@ -111,6 +111,20 @@ class VerifierTest {
   }
 
   @Test
+  void issues_list_verifier_verifyNoIssue() {
+    IacCheck emptyCheck = init -> init.register(Tree.class, (ctx, tree) -> {});
+    TreeParser<Tree> parser = mock(TreeParser.class);
+    when(parser.parse(any(), any())).thenReturn(new AbstractTestTree() {
+      @Override
+      public TextRange textRange() {
+        return TextRanges.range(1, 5, 1, 9);
+      }
+    });
+
+    assertDoesNotThrow(() -> Verifier.verifyNoIssue(parser, path, emptyCheck));
+  }
+
+  @Test
   void issues_list_verifier_failure_wrong_number() {
     Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range);
     // we expect the issue twice
