@@ -33,11 +33,13 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -171,7 +173,7 @@ class TerraformSensorTest extends AbstractSensorTest {
   }
 
   private TerraformProviders providerVersions() {
-    return new TerraformProviders(context);
+    return new TerraformProviders(context, mock(AnalysisWarnings.class));
   }
 
   @Override
