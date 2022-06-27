@@ -86,7 +86,8 @@ public class TerraformProviders {
   public static final class Provider {
 
     public enum Identifier {
-      AWS("sonar.terraform.provider.aws.version", "AWS");
+      AWS("sonar.terraform.provider.aws.version", "AWS"),
+      AZURE("sonar.terraform.provider.azure.version", "Azure");
 
       public final String key;
       private final String name;
