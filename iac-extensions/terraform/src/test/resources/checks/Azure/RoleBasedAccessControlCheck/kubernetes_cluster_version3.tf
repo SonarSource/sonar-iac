@@ -46,7 +46,7 @@ resource "azurerm_kubernetes_cluster" "incomplete_azure_active_directory_role_ba
 
 resource "azurerm_kubernetes_cluster" "compliant_azure_active_directory_role_based_access_control" {
   azure_active_directory_role_based_access_control {
-    managed = flase
+    managed = false
   }
 }
 
