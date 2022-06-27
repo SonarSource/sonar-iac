@@ -20,8 +20,7 @@ Discover and update the Terraform [properties](/analysis/analysis-parameters/) i
 
 ### Terraform provider versions
 
-The respective Terraform providers are frequently updated. New resources, properties and default values are added. At the same time, others are deprecated or dropped. For this reason, the Terraform analysis is defensive by default.
-Some issues will be automatically silenced to avoid raising False Positives. In order to get a more precise analysis you can specify the provider versions your code supports via a parameter.
+The respective Terraform providers are frequently updated. New resources, properties and default values are added. At the same time, others are deprecated or dropped. For this reason, the Terraform analysis is defensive by default: some issues will be automatically silenced to avoid raising false positives. In order to get a more precise analysis you can specify the provider versions your code supports via a parameter.
 
 **AWS**: `sonar.terraform.provider.aws.version`<br>
 **Azure**: `sonar.terraform.provider.azure.version`<br>
