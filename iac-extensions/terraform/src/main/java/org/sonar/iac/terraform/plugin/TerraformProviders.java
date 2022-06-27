@@ -20,9 +20,8 @@
 package org.sonar.iac.terraform.plugin;
 
 import java.util.EnumMap;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Optional;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.notifications.AnalysisWarnings;
@@ -45,7 +44,7 @@ public class TerraformProviders {
 
   private final AnalysisWarnings analysisWarnings;
 
-  private final Set<Provider.Identifier> raisedWarnings = new HashSet<>();
+  private final EnumSet<Provider.Identifier> raisedWarnings = EnumSet.noneOf(Provider.Identifier.class);
 
   public TerraformProviders(SensorContext sensorContext, AnalysisWarnings analysisWarnings) {
     this.analysisWarnings = analysisWarnings;
