@@ -116,6 +116,15 @@ class TerraformProvidersTest {
     verifyNoInteractions(analysisWarnings);
   }
 
+  @Test
+  void check_property_registration() {
+    long registeredProperties = TerraformSettings.getProperties().stream()
+      .filter(propertyDefinition -> propertyDefinition.key().startsWith("sonar.terraform.provider"))
+      .count();
+
+    assertThat(registeredProperties).isEqualTo(Provider.Identifier.values().length);
+  }
+
   private TerraformProviders providers(SensorContext context) {
     return new TerraformProviders(context, analysisWarnings);
   }
