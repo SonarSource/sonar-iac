@@ -42,8 +42,8 @@ class DisabledLoggingCheckTest {
   }
 
   @Test
-  void aws_api_gatewayv2_stage() {
-    TerraformVerifier.verify("DisabledLoggingCheck/aws_api_gatewayv2_stage.tf", check);
+  void aws_apigatewayv2_stage() {
+    TerraformVerifier.verify("DisabledLoggingCheck/aws_apigatewayv2_stage.tf", check);
   }
 
   @Test

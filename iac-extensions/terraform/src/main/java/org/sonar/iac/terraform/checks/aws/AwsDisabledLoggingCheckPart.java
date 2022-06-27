@@ -65,7 +65,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apigatewayv2_api
-    register(Set.of("aws_api_gatewayv2_stage", "aws_api_gateway_stage"), resource ->
+    register(Set.of("aws_apigatewayv2_stage", "aws_api_gateway_stage"), resource ->
       resource.block("access_log_settings")
         .reportIfAbsent(MESSAGE_OMITTING));
 
