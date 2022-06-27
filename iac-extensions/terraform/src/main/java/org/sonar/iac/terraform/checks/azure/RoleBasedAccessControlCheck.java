@@ -19,70 +19,60 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
+import org.sonar.api.utils.Version;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.terraform.api.tree.AttributeTree;
-import org.sonar.iac.terraform.api.tree.BlockTree;
-import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
+import org.sonar.iac.terraform.symbols.AttributeSymbol;
+import org.sonar.iac.terraform.symbols.BlockSymbol;
+
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
+import static org.sonar.iac.terraform.plugin.TerraformProviders.Provider.Identifier.AZURE;
 
 @Rule(key = "S6383")
-public class RoleBasedAccessControlCheck extends AbstractResourceCheck {
+public class RoleBasedAccessControlCheck extends AbstractNewResourceCheck {
 
   private static final String MISSING_MESSAGE = "Omitting '%s' disables role-based access control for this resource. Make sure it is safe here.";
   private static final String DISABLED_MESSAGE = "Make sure that disabling role-based access control is safe here.";
 
+  private static final Version AZURE_V_3 = Version.create(3, 0);
+
   @Override
-  protected void registerResourceChecks() {
-    register(RoleBasedAccessControlCheck::checkKubernetesCluster, "azurerm_kubernetes_cluster");
-    register(RoleBasedAccessControlCheck::checkKeyVault, "azurerm_key_vault");
+  protected void registerResourceConsumer() {
+    // https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster
+    register("azurerm_kubernetes_cluster", resource -> {
+      BlockSymbol rbac = resource.block("role_based_access_control");
+
+      if (resource.provider(AZURE).hasVersionLowerThan(AZURE_V_3)) {
+        rbac.reportIfAbsent(MISSING_MESSAGE);
+      }
+
+      AttributeSymbol rbacEnabled = rbac.attribute("enabled").reportIf(isFalse(), DISABLED_MESSAGE);
+      if (!rbacEnabled.is(isFalse())) {
+        checkActiveDirectoryRoleBasedAccessControl(rbac.block("azure_active_directory"));
+      }
+
+      checkActiveDirectoryRoleBasedAccessControl(resource.block("azure_active_directory_role_based_access_control"));
+
+      resource.attribute("role_based_access_control_enabled")
+        .reportIf(isFalse(), DISABLED_MESSAGE);
+    });
+
+    // https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault
+    register("azurerm_key_vault",  resource ->
+      resource.attribute("enable_rbac_authorization")
+        .reportIf(isFalse(), DISABLED_MESSAGE)
+        .reportIfAbsent(MISSING_MESSAGE));
   }
 
-  /**
-   * Report if 'role_based_access_control' block is missing or check its attributes
-   */
-  private static void checkKubernetesCluster(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "role_based_access_control", BlockTree.class)
-      .ifPresentOrElse(rbac -> checkRoleBasedAccessControl(ctx, rbac),
-        () -> reportResource(ctx, resource, String.format(MISSING_MESSAGE, "role_based_access_control")));
-  }
-
-  /**
-   * Report if 'role_based_access_control->enabled' is set to false
-   * or check 'role_based_access_control->azure_active_directory' block
-   */
-  private static void checkRoleBasedAccessControl(CheckContext ctx, BlockTree rbac) {
-    PropertyUtils.get(rbac, "enabled", AttributeTree.class)
-      .filter(attr -> TextUtils.isValueFalse(attr.value()))
-      .ifPresentOrElse(attr -> ctx.reportIssue(attr, DISABLED_MESSAGE),
-        () -> checkAzureActiveDirectory(ctx, rbac));
-  }
-
-  /**
-   * Check if 'azure_active_directory->managed' is set to true
-   */
-  private static void checkAzureActiveDirectory(CheckContext ctx, BlockTree rbac) {
-    PropertyUtils.get(rbac, "azure_active_directory", BlockTree.class)
-      .ifPresent(activeDirectory -> PropertyUtils.get(activeDirectory, "managed", AttributeTree.class)
-        .filter(managed -> TextUtils.isValueTrue(managed.value()))
-        .ifPresent(managed -> checkRbacEnabled(ctx, activeDirectory, managed)));
-  }
-
-  /**
-   * Report if 'role_based_access_control->azure_active_directory->managed' is set to true
-   * and 'role_based_access_control->azure_active_directory->managed' is missing or set to false.
-   * Highlight the 'managed' attribute or the 'azure_rbac_enabled' if it's set to false.
-   */
-  private static void checkRbacEnabled(CheckContext ctx, BlockTree activeDirectory, AttributeTree managed) {
-    PropertyUtils.get(activeDirectory, "azure_rbac_enabled", AttributeTree.class)
-      .ifPresentOrElse(rbacEnabled -> reportOnFalse(ctx, rbacEnabled, DISABLED_MESSAGE),
-        () -> ctx.reportIssue(managed, String.format(MISSING_MESSAGE,"azure_rbac_enabled")));
-  }
-
-  private static void checkKeyVault(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "enable_rbac_authorization", AttributeTree.class)
-      .ifPresentOrElse(rbacAuthorization -> reportOnFalse(ctx, rbacAuthorization, DISABLED_MESSAGE),
-        () -> reportResource(ctx, resource, String.format(MISSING_MESSAGE, "enable_rbac_authorization")));
+  private static void checkActiveDirectoryRoleBasedAccessControl(BlockSymbol adRbac) {
+    AttributeSymbol activeDirectoryManaged = adRbac.attribute("managed");
+    if (activeDirectoryManaged.is(isTrue())) {
+      AttributeSymbol adRbacEnabled = adRbac.attribute("azure_rbac_enabled")
+        .reportIf(isFalse(), DISABLED_MESSAGE);
+      if (adRbacEnabled.isAbsent()) {
+        activeDirectoryManaged.report(String.format(MISSING_MESSAGE, "azure_rbac_enabled"));
+      }
+    }
   }
 }

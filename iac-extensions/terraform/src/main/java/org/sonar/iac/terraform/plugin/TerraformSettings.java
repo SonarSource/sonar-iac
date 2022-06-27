@@ -65,10 +65,21 @@ public class TerraformSettings {
         .build(),
 
       PropertyDefinition.builder(TerraformProviders.Provider.Identifier.AWS.key)
-        .index(101)
+        .index(100)
         .name("AWS Provider Version")
-        .description("Version of the AWS provider of lifecycle management of AWS resources," +
-          "including EC2, Lambda, EKS, ECS, VPC, S3, RDS, DynamoDB, and more. Use semantic versioning format like `3.4`, `4.17.1` or `4`")
+        .description("Version of the AWS provider of lifecycle management of AWS resources." +
+          "Use semantic versioning format like `3.4`, `4.17.1` or `4`")
+        .type(PropertyType.STRING)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(TERRAFORM_CATEGORY)
+        .subCategory(VERSION_SUBCATEGORY)
+        .build(),
+
+      PropertyDefinition.builder(TerraformProviders.Provider.Identifier.AZURE.key)
+        .index(101)
+        .name("Azure Provider Version")
+        .description("Version of the Azure Resource Manager provider of lifecycle management of Microsoft Azure resources." +
+          "Use semantic versioning format like `3.4`, `4.17.1` or `4`")
         .type(PropertyType.STRING)
         .onQualifiers(Qualifiers.PROJECT)
         .category(TERRAFORM_CATEGORY)

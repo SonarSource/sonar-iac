@@ -20,19 +20,27 @@
 package org.sonar.iac.terraform.checks.azure;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.terraform.checks.TerraformVerifier;
 
 
 class RoleBasedAccessControlCheckTest {
 
+  final IacCheck check = new RoleBasedAccessControlCheck();
+
   @Test
-  void kubernetes_cluster() {
-    TerraformVerifier.verify("Azure/RoleBasedAccessControlCheck/kubernetes_cluster.tf", new RoleBasedAccessControlCheck());
+  void kubernetes_cluster_v2() {
+    TerraformVerifier.verifyWithProviderVersion("Azure/RoleBasedAccessControlCheck/kubernetes_cluster_version2.tf", check, "2");
+  }
+
+  @Test
+  void kubernetes_cluster_v3() {
+    TerraformVerifier.verifyWithProviderVersion("Azure/RoleBasedAccessControlCheck/kubernetes_cluster_version3.tf", check, "3");
   }
 
   @Test
   void key_vault() {
-    TerraformVerifier.verify("Azure/RoleBasedAccessControlCheck/key_vault.tf", new RoleBasedAccessControlCheck());
+    TerraformVerifier.verify("Azure/RoleBasedAccessControlCheck/key_vault.tf", check);
   }
 
 }
