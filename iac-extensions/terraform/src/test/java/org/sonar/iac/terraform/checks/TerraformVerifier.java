@@ -21,6 +21,7 @@ package org.sonar.iac.terraform.checks;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Function;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.testing.Verifier;
@@ -43,7 +44,7 @@ public class TerraformVerifier {
   }
 
   public static void verifyWithProviderVersion(String fileName, IacCheck check, String providerVersion) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, verifier -> new TerraformTestContext(verifier, providerVersion));
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, context(providerVersion));
   }
 
   public static void verifyNoIssue(String fileName, IacCheck check) {
@@ -51,7 +52,11 @@ public class TerraformVerifier {
   }
 
   public static void verifyNoIssueWithProviderVersion(String fileName, IacCheck check, String providerVersion) {
-    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check, verifier -> new TerraformTestContext(verifier, providerVersion));
+    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check, context(providerVersion));
+  }
+
+  private static Function<SingleFileVerifier, Verifier.TestContext> context(String providerVersion) {
+    return verifier -> new TerraformTestContext(verifier, providerVersion);
   }
 
   public static class TerraformTestContext extends Verifier.TestContext implements TerraformProviderContext {
