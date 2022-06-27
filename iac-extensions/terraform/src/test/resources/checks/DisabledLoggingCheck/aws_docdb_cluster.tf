@@ -1,7 +1,7 @@
 resource "aws_docdb_cluster" "sensitive_exports_value" {
   cluster_identifier = "DB Cluster With Logs"
   enabled_cloudwatch_logs_exports = ["profiler"] # Noncompliant {{Make sure that disabling logging is safe here.}}
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
 # Noncompliant@+1 {{Omitting enabled_cloudwatch_logs_exports makes logs incomplete. Make sure it is safe here.}}

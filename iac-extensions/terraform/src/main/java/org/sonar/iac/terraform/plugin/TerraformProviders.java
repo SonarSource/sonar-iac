@@ -20,9 +20,11 @@
 package org.sonar.iac.terraform.plugin;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
@@ -31,13 +33,21 @@ import org.sonar.api.utils.log.Loggers;
 @ScannerSide
 public class TerraformProviders {
 
+  private static final String MISSING_PROVIDER_VERSION = "Provide the used %s provider version via the \"%s\" property to increase the accuracy of your results.";
+  private static final String INVALID_PROVIDER_VERSION = "Can not parse provider version for \"%s\". Please check format.";
+
   private static final Logger LOG = Loggers.get(TerraformProviders.class);
 
   private static final Provider UNKNOWN_PROVIDER = new Provider(null);
 
   private final EnumMap<Provider.Identifier, Provider> providers = new EnumMap<>(Provider.Identifier.class);
 
-  public TerraformProviders(SensorContext sensorContext) {
+  private final AnalysisWarnings analysisWarnings;
+
+  private final EnumSet<Provider.Identifier> raisedWarnings = EnumSet.noneOf(Provider.Identifier.class);
+
+  public TerraformProviders(SensorContext sensorContext, AnalysisWarnings analysisWarnings) {
+    this.analysisWarnings = analysisWarnings;
     for (Provider.Identifier identifier : Provider.Identifier.values()) {
       sensorContext.config().get(identifier.key)
         .flatMap(version -> parseProviderVersion(identifier, version))
@@ -45,31 +55,45 @@ public class TerraformProviders {
         .ifPresent(provider -> providers.put(identifier, provider));
     }
   }
-  private static Optional<Version> parseProviderVersion(Provider.Identifier identifier, String version) {
+  private Optional<Version> parseProviderVersion(Provider.Identifier identifier, String version) {
     if (version.trim().isEmpty()) {
       return Optional.empty();
     }
     try{
       return Optional.of(Version.parse(version));
     } catch (IllegalArgumentException e) {
-      LOG.warn("Can not parse provider version \"{}\".", identifier.key);
+      raiseWarning(identifier, String.format(INVALID_PROVIDER_VERSION, identifier.key));
+      LOG.warn("Can not parse provider version \"{}\". Input: \"{}\"", identifier.key, version);
       return Optional.empty();
     }
   }
 
+  private void raiseWarning(Provider.Identifier identifier, String text) {
+    if (raisedWarnings.add(identifier)) {
+      analysisWarnings.addUnique(text);
+    }
+  }
+
   public Provider provider(Provider.Identifier identifier) {
-    return providers.getOrDefault(identifier, UNKNOWN_PROVIDER);
+    if (providers.containsKey(identifier)) {
+      return providers.get(identifier);
+    } else {
+      raiseWarning(identifier, String.format(MISSING_PROVIDER_VERSION, identifier.name, identifier.key));
+      return UNKNOWN_PROVIDER;
+    }
   }
 
   public static final class Provider {
 
     public enum Identifier {
-      AWS("sonar.terraform.provider.aws.version");
+      AWS("sonar.terraform.provider.aws.version", "AWS");
 
       public final String key;
+      private final String name;
 
-      Identifier(String key) {
+      Identifier(String key, String name) {
         this.key = key;
+        this.name = name;
       }
     }
 
