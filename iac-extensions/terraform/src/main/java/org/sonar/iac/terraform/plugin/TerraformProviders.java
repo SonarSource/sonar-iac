@@ -64,7 +64,7 @@ public class TerraformProviders {
       return Optional.of(Version.parse(version));
     } catch (IllegalArgumentException e) {
       raiseWarning(identifier, String.format(INVALID_PROVIDER_VERSION, identifier.key));
-      LOG.warn("Can not parse provider version \"{}\".", identifier.key);
+      LOG.warn("Can not parse provider version \"{}\". Input: \"{}\"", identifier.key, version);
       return Optional.empty();
     }
   }

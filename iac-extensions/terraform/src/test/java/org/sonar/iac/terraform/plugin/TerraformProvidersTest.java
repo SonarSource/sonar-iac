@@ -64,7 +64,7 @@ class TerraformProvidersTest {
 
     assertThat(provider.providerVersion).isNull();
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly("Can not parse provider version \"sonar.terraform.provider.aws.version\".");
+      .containsExactly("Can not parse provider version \"sonar.terraform.provider.aws.version\". Input: \"v1.3.4\"");
     verify(analysisWarnings, times(1))
       .addUnique("Can not parse provider version for \"sonar.terraform.provider.aws.version\". Please check format.");
   }
