@@ -45,8 +45,9 @@ public class TerraformSettings {
       PropertyDefinition.builder(ACTIVATION_KEY)
         .index(1)
         .defaultValue(ACTIVATION_DEFAULT_VALUE)
-        .name("Activate Terraform analysis")
-        .description("Activate analysis of Terraform files.")
+        .name("Activate Terraform Analysis")
+        .description("Disabling Terraform analysis ensures that no Terraform files are parsed, highlighted and analyzed, " +
+          "and no IaC analysis results are included in the quality gate.")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
         .category(TERRAFORM_CATEGORY)
@@ -67,7 +68,7 @@ public class TerraformSettings {
       PropertyDefinition.builder(TerraformProviders.Provider.Identifier.AWS.key)
         .index(100)
         .name("AWS Provider Version")
-        .description("Version of the AWS provider of lifecycle management of AWS resources." +
+        .description("Version of the AWS provider of lifecycle management of AWS resources. " +
           "Use semantic versioning format like `3.4`, `4.17.1` or `4`")
         .type(PropertyType.STRING)
         .onQualifiers(Qualifiers.PROJECT)
@@ -78,7 +79,7 @@ public class TerraformSettings {
       PropertyDefinition.builder(TerraformProviders.Provider.Identifier.AZURE.key)
         .index(101)
         .name("Azure Provider Version")
-        .description("Version of the Azure Resource Manager provider of lifecycle management of Microsoft Azure resources." +
+        .description("Version of the Azure Resource Manager provider of lifecycle management of Microsoft Azure resources. " +
           "Use semantic versioning format like `3.4`, `4.17.1` or `4`")
         .type(PropertyType.STRING)
         .onQualifiers(Qualifiers.PROJECT)
