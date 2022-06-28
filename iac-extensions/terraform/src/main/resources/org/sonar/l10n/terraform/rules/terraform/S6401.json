@@ -19,6 +19,12 @@
     ],
     "OWASP Top 10 2021": [
       "A2"
+    ],
+    "PCI DSS 3.2": [
+      "3.6.4"
+    ],
+    "PCI DSS 4.0": [
+      "3.7.4"
     ]
   },
   "quickfix": "unknown"

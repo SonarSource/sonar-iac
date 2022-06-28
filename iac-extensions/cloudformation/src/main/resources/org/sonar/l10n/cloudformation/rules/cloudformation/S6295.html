@@ -13,7 +13,8 @@ ever may be not compliant with company policy or regulatory rules.</p>
       Runtime: nodejs12.x
       Description: Example of Lambda Function
 
-  MyFunctionLogGroup:                                                                                                                                                 Type: AWS::Logs::LogGroup
+  MyFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]
       # Noncompliant: "RetentionInDays" property is not set: logs are kept for ever
@@ -26,7 +27,8 @@ ever may be not compliant with company policy or regulatory rules.</p>
       Runtime: nodejs12.x
       Description: Example of Lambda Function
 
-  MyFunctionLogGroup:                                                                                                                                                 Type: AWS::Logs::LogGroup
+  MyFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]
       RetentionInDays: 30

@@ -45,9 +45,109 @@ from the account, including users with high privileges.</p>
 attached to.</p>
 <p>Privilege escalation is a serious issue as it allows a malicious user to easily escalate to a high privilege identity from a low privilege identity
 it took control of.</p>
-<p>The example above is just one of many permission combinations that the rule can detect. There are other variants based on
-<code>iam:PassRole</code>, <code>lambda:UpdateFunctionCode</code>, and other IAM permissions that allow to update, create, and attach IAM
-policies.</p>
+<p>The example above is just one of many permission escalation vectors. Here is the list of vectors that the rule can detect:</p>
+<table>
+  <colgroup>
+    <col style="width: 50%;">
+    <col style="width: 50%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Vector name</th>
+      <th>Summary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><p>Create Policy Version</p></td>
+      <td><p>Create new IAM policy and set it as default</p></td>
+    </tr>
+    <tr>
+      <td><p>Set Default Policy Version</p></td>
+      <td><p>Set a different IAM policy version as default</p></td>
+    </tr>
+    <tr>
+      <td><p>Create AccessKey</p></td>
+      <td><p>Create a new access key for any user</p></td>
+    </tr>
+    <tr>
+      <td><p>Create Login Profile</p></td>
+      <td><p>Create an access with a chosen password</p></td>
+    </tr>
+    <tr>
+      <td><p>Update Login Profile</p></td>
+      <td><p>Update the existing password</p></td>
+    </tr>
+    <tr>
+      <td><p>Attach User Policy</p></td>
+      <td><p>Attach a permissive IAM policy like "AdministratorAccess" to a user the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Attach Group Policy</p></td>
+      <td><p>Attach a permissive IAM policy like "AdministratorAccess" to a group containing a user the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Attach Role Policy</p></td>
+      <td><p>Attach a permissive IAM policy like "AdministratorAccess" to a role that can be assumed by the user the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Put User Policy</p></td>
+      <td><p>Alter the existing inline IAM policy from a user the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Put Group Policy</p></td>
+      <td><p>Alter the existing inline IAM policy from a group containing a user that the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Put Role Policy</p></td>
+      <td><p>Alter an existing inline IAM role policy. The rule will then be assumed by the user that the attacker controls</p></td>
+    </tr>
+    <tr>
+      <td><p>Add User to Group</p></td>
+      <td><p>Add a user that the attacker controls to a group that has a larger range of permissions</p></td>
+    </tr>
+    <tr>
+      <td><p>Update Assume Role Policy</p></td>
+      <td><p>Update a role’s "AssumeRolePolicyDocument" to allow a user the attacker controls to assume it</p></td>
+    </tr>
+    <tr>
+      <td><p>EC2</p></td>
+      <td><p>Create an EC2 instance that will execute with high privileges</p></td>
+    </tr>
+    <tr>
+      <td><p>Lambda Create and Invoke</p></td>
+      <td><p>Create a lambda function that will execute with high privileges and invoke it</p></td>
+    </tr>
+    <tr>
+      <td><p>Lambda Create and Add Permission</p></td>
+      <td><p>Create a lambda function that will execute with high privileges and grant permission to invoke it to a user or a service</p></td>
+    </tr>
+    <tr>
+      <td><p>Lambda triggered with an external event</p></td>
+      <td><p>Create a lambda function that will execute with high privileges and link it to an external event</p></td>
+    </tr>
+    <tr>
+      <td><p>CloudFormation</p></td>
+      <td><p>Create a CloudFormation stack that will execute with high privileges</p></td>
+    </tr>
+    <tr>
+      <td><p>Data Pipeline</p></td>
+      <td><p>Create a Pipeline that will execute with high privileges</p></td>
+    </tr>
+    <tr>
+      <td><p>Glue Development Endpoint</p></td>
+      <td><p>Create a Glue Development Endpoint that will execute with high privileges</p></td>
+    </tr>
+    <tr>
+      <td><p>Update Glue Dev Endpoint</p></td>
+      <td><p>Update the associated SSH key for the Glue endpoint</p></td>
+    </tr>
+    <tr>
+      <td><p>Update Lambda code</p></td>
+      <td><p>Update the code of a lambda function executing with high privileges</p></td>
+    </tr>
+  </tbody>
+</table>
 <p>The general recommendation to protect against privilege escalation is to restrict the resources that are granted sensitive permissions to. The
 first example above is a good demonstration of sensitive permissions being used with a narrow scope of resources and where no privilege escalation is
 possible.</p>
@@ -97,6 +197,6 @@ Resources:
   <li> <a href="https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/">Rhino Security Labs</a> - AWS IAM Privilege Escalation
   – Methods and Mitigation </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A5-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-269</a> - Improper Privilege Management </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-269</a> - Improper Privilege Management </li>
 </ul>
 
