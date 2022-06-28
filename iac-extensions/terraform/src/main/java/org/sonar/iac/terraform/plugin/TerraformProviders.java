@@ -34,7 +34,8 @@ import org.sonar.api.utils.log.Loggers;
 public class TerraformProviders {
 
   private static final String MISSING_PROVIDER_VERSION = "Provide the used %s provider version via the \"%s\" property to increase the accuracy of your results.";
-  private static final String INVALID_PROVIDER_VERSION = "Can not parse provider version for \"%s\". Please check format.";
+  private static final String INVALID_PROVIDER_VERSION = "Can not parse provider version for \"%s\". " +
+    "Please check the format of your used %s version in the project settings.";
 
   private static final Logger LOG = Loggers.get(TerraformProviders.class);
 
@@ -62,7 +63,7 @@ public class TerraformProviders {
     try{
       return Optional.of(Version.parse(version));
     } catch (IllegalArgumentException e) {
-      raiseWarning(identifier, String.format(INVALID_PROVIDER_VERSION, identifier.key));
+      raiseWarning(identifier, String.format(INVALID_PROVIDER_VERSION, identifier.key, identifier.name));
       LOG.warn("Can not parse provider version \"{}\". Input: \"{}\"", identifier.key, version);
       return Optional.empty();
     }
