@@ -13,31 +13,25 @@ allow investigators to establish a timeline of the actions perpetrated by an att
 <h2>Recommended Secure Coding Practices</h2>
 <p>Enable the logging capabilities of this component.</p>
 <h2>Sensitive Code Example</h2>
-<p>For <a href="https://aws.amazon.com/s3/">Amazon S3 access requests</a>:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket">S3 access requests</a>:</p>
 <pre>
-resource "aws_s3_bucket" "mynoncompliantbucket" { # Sensitive
-  bucket = "mynoncompliantbucketname"
+resource "aws_s3_bucket" "example" { # Sensitive
+  bucket = "example"
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a> stages:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage">API Gateway stages</a>:</p>
 <pre>
-resource "aws_api_gateway_stage" "api-v1" { # Sensitive
-  deployment_id = aws_api_gateway_deployment.example.id
-  rest_api_id   = aws_api_gateway_rest_api.example.id
-  stage_name    = "v1-prod-api"
+resource "aws_api_gateway_stage" "example" { # Sensitive
   xray_tracing_enabled = false # Sensitive
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/neptune/">Amazon Neptune</a> clusters:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/msk_cluster">MSK Broker logs</a>:</p>
 <pre>
-resource "aws_neptune_cluster" "cluster" {
-  enable_cloudwatch_logs_exports = []  # Sensitive
-}
-</pre>
-<p>For <a href="https://aws.amazon.com/msk/">Amazon MSK</a> broker logs:</p>
-<pre>
-resource "aws_msk_cluster" "sensitive_msk" {
-  cluster_name = "sensitive_msk"
+resource "aws_msk_cluster" "example" {
+  cluster_name           = "example"
+  kafka_version          = "2.7.1"
+  number_of_broker_nodes = 3
+
   logging_info {
     broker_logs { # Sensitive
       firehose {
@@ -50,86 +44,44 @@ resource "aws_msk_cluster" "sensitive_msk" {
   }
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/amazon-mq/">Amazon MQ</a>:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/mq_broker">MQ Brokers</a>:</p>
 <pre>
-resource "aws_mq_broker" "broker" {
+resource "aws_mq_broker" "example" {
   logs {  # Sensitive
-    audit = false
+    audit   = false
     general = false
   }
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/documentdb/">Amazon DocumentDB</a>:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster">Amazon DocumentDB</a>:</p>
 <pre>
-resource "aws_docdb_cluster" "docdb_omitting_logs" { # Sensitive
-  cluster_identifier = "DB Cluster Without Logs"
+resource "aws_docdb_cluster" "example" { # Sensitive
+  cluster_identifier = "example"
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/redshift/">Amazon Redshift</a>:</p>
+<p>For Azure <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service">App Services</a>:</p>
 <pre>
-resource "aws_redshift_cluster" "cluster" {
-  cluster_identifier = "redshift-cluster"
-
-  logging {
-    enable = false # Sensitive
+resource "azurerm_app_service" "example" {
+  logs {
+    application_logs {
+      file_system_level = "Off" # Sensitive
+      azure_blob_storage {
+        level = "Off"           # Sensitive
+      }
+    }
   }
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/global-accelerator/">Amazon Global Accelerator</a>:</p>
+<p>For Azure <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account">Storage Accounts</a>:</p>
 <pre>
-resource "aws_globalaccelerator_accelerator" "accelerator" {
-  attributes {
-    flow_logs_enabled   = false  # Sensitive
-    flow_logs_s3_bucket = "example-bucket"
-    flow_logs_s3_prefix = "flow-logs/"
+resource "azurerm_storage_account" "example" {
+  queue_properties {
+    logging { # Sensitive
+      delete = false
+      read   = false
+      write  = false
+    }
   }
-}
-</pre>
-<p>For <a href="https://aws.amazon.com/opensearch-service/">Amazon OpenSearch</a> service, or Amazon Elasticsearch service:</p>
-<pre>
-resource "aws_elasticsearch_domain" "domain" {
-  log_publishing_options {
-    cloudwatch_log_group_arn = "arn:aws:logs:us-east-1:1234:log-group:es-audit-logs"
-    log_type = "AUDIT_LOGS"
-    enabled = false # Sensitive
-  }
-}
-</pre>
-<p>For <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a> distributions:</p>
-<pre>
-resource "aws_cloudfront_distribution" "cloudfront_distribution" { # Sensitive
-  default_root_object = "index.html"
-}
-</pre>
-<p>For both Amazon <a href="https://aws.amazon.com/elasticloadbalancing/classic-load-balancer/">Classic Load Balancing</a> and <a
-href="https://aws.amazon.com/elasticloadbalancing/application-load-balancer/">Application Load Balancing</a>:</p>
-<pre>
-resource "aws_lb" "load_balancer" {
-  access_logs {
-    enabled = false # Sensitive
-    bucket = "mycompliantbucket"
-    bucket_prefix = "log/lb-"
-  }
-}
-</pre>
-<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket/">Cloud Storage service</a>:</p>
-<pre>
-resource "google_storage_bucket" "example" { # Sensitive
-  name     = "example"
-  location = "US"
-}
-</pre>
-<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_backend_service/">Region Backend
-Service</a>:</p>
-<pre>
-resource "google_compute_region_backend_service" "example" { # Sensitive
-  name                            = "example"
-  region                          = "us-central1"
-  health_checks                   = [google_compute_region_health_check.region.id]
-  connection_draining_timeout_sec = 10
-  session_affinity                = "CLIENT_IP"
-  load_balancing_scheme           = "EXTERNAL"
-  protocol                        = "HTTPS"
 }
 </pre>
 <p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork/">VPC Subnetwork</a>:</p>
@@ -138,16 +90,14 @@ resource "google_compute_subnetwork" "example" { # Sensitive
   name          = "example"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.id
+  network       = google_compute_network.example.id
 }
 </pre>
 <p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance/">SQL Database
 Instance</a>:</p>
 <pre>
 resource "google_sql_database_instance" "example" {
-  name             = "example"
-  database_version = "POSTGRES_11"
-  region           = "us-central1"
+  name = "example"
 
   settings { # Sensitive
     tier = "db-f1-micro"
@@ -163,157 +113,105 @@ cluster</a>:</p>
 <pre>
 resource "google_container_cluster" "example" {
   name               = "example"
-  location           = "us-central1-a"
-  initial_node_count = 3
   logging_service    = "none" # Sensitive
 }
 </pre>
 <h2>Compliant Solution</h2>
-<p>For <a href="https://aws.amazon.com/s3/">Amazon S3 access requests</a>:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket">S3 access requests</a>:</p>
 <pre>
-resource "aws_s3_bucket" "myloggingbucket" {
-  bucket = "myloggingbucketname"
+resource "aws_s3_bucket" "example" {
+  bucket = "example_logstorage"
   acl    = "log-delivery-write"
 }
 
-resource "aws_s3_bucket" "mycompliantbucket" {
-  bucket = "mycompliantbucketname"
+resource "aws_s3_bucket" "example" {
+  bucket = "example"
 
   logging {
-      target_bucket = "myloggingbucketname"
-      target_prefix = "log/mycompliantbucket"
+      target_bucket = "example_logstorage"
+      target_prefix = "log/example"
   }
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/api-gateway/">Amazon API Gateway</a> stages:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage">API Gateway stages</a>:</p>
 <pre>
-resource "aws_api_gateway_stage" "api-v1" {
-  deployment_id = aws_api_gateway_deployment.example.id
-  rest_api_id   = aws_api_gateway_rest_api.example.id
-  stage_name    = "v1-prod-api"
+resource "aws_api_gateway_stage" "example" {
   xray_tracing_enabled = true
+
   access_log_settings {
-    destination_arn = "arn:aws:logs:eu-west-1:123456789:test"
+    destination_arn = "arn:aws:logs:eu-west-1:123456789:example"
     format = "..."
   }
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/neptune/">Amazon Neptune</a> clusters:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/msk_cluster">MSK Broker logs</a>:</p>
 <pre>
-resource "aws_neptune_cluster" "cluster" {
-  enable_cloudwatch_logs_exports = ["audit"]
-}
-</pre>
-<p>For <a href="https://aws.amazon.com/msk/">Amazon MSK</a> broker logs:</p>
-<pre>
-resource "aws_msk_cluster" "sensitive_msk" {
-  cluster_name = "sensitive_msk"
+resource "aws_msk_cluster" "example" {
+  cluster_name           = "example"
+  kafka_version          = "2.7.1"
+  number_of_broker_nodes = 3
+
   logging_info {
     broker_logs {
-      firehose {
+      firehose   {
         enabled = false
       }
       s3 {
         enabled = true
-        bucket  = "myloggingbucketname"
+        bucket  = "example"
         prefix  = "log/msk-"
       }
     }
   }
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/amazon-mq/">Amazon MQ</a> enable <code>audit</code> or <code>general</code>:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/mq_broker">MQ Brokers</a>, enable
+<code>audit</code> or <code>general</code>:</p>
 <pre>
-resource "aws_mq_broker" "broker" {
+resource "aws_mq_broker" "example" {
   logs {
-    audit = true
+    audit   = true
     general = true
   }
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/documentdb/">Amazon DocumentDB</a>:</p>
+<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster">Amazon DocumentDB</a>:</p>
 <pre>
-resource "aws_docdb_cluster" "docdb_omitting_logs" {
-  cluster_identifier = "DB Cluster With Logs"
+resource "aws_docdb_cluster" "example" {
+  cluster_identifier              = "example"
   enabled_cloudwatch_logs_exports = ["audit"]
 }
 </pre>
-<p>For <a href="https://aws.amazon.com/redshift/">Amazon Redshift</a>:</p>
+<p>For Azure <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service">App Services</a>:</p>
 <pre>
-resource "aws_redshift_cluster" "cluster" {
-  cluster_identifier = "compliant-redshift-cluster"
-  logging {
-    enable           = true
-    bucket_name      = "infra_logs"
-    s3_key_prefix    = "log/redshift-"
-  }
-}
-</pre>
-<p>For <a href="https://aws.amazon.com/global-accelerator/">Amazon Global Accelerator</a>:</p>
-<pre>
-resource "aws_globalaccelerator_accelerator" "accelerator" {
-  attributes {
-    flow_logs_enabled   = true
-    flow_logs_s3_bucket = "example-bucket"
-    flow_logs_s3_prefix = "flow-logs/"
-  }
-}
-</pre>
-<p>For <a href="https://aws.amazon.com/opensearch-service/">Amazon OpenSearch</a> service, or Amazon Elasticsearch service:</p>
-<pre>
-resource "aws_elasticsearch_domain" "domain" {
-  log_publishing_options {
-    cloudwatch_log_group_arn = "arn:aws:logs:us-east-1:1234:log-group:es-audit-logs"
-    log_type = "AUDIT_LOGS"
-    enabled = true
-  }
-}
-</pre>
-<p>For <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a> distributions:</p>
-<pre>
-resource "aws_cloudfront_distribution" "cloudfront_distribution" {
-  default_root_object = "index.html"
-  logging_config {
-    bucket          = "mycompliantbucketname"
-    prefix          = "log/cloudfront-"
-  }
-}
-</pre>
-<p>For both Amazon <a href="https://aws.amazon.com/elasticloadbalancing/classic-load-balancer/">Classic Load Balancing</a> and <a
-href="https://aws.amazon.com/elasticloadbalancing/application-load-balancer/">Application Load Balancing</a>:</p>
-<pre>
-resource "aws_lb" "load_balancer" {
-  access_logs {
-    enabled = true
-    bucket = "mycompliantbucket"
-    bucket_prefix = "log/lb-"
-  }
-}
-</pre>
-<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket/">Cloud Storage service</a>:</p>
-<pre>
-resource "google_storage_bucket" "example" {
-  name     = "example"
-  location = "US"
-  logging {
-    log_bucket = google_storage_bucket.bucket-log.name
-  }
-}
-</pre>
-<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_backend_service/">Region Backend
-Service</a>:</p>
-<pre>
-resource "google_compute_region_backend_service" "example" {
-  name                            = "example"
-  region                          = "us-central1"
-  health_checks                   = [google_compute_region_health_check.region.id]
-  connection_draining_timeout_sec = 10
-  session_affinity                = "CLIENT_IP"
-  load_balancing_scheme           = "EXTERNAL"
-  protocol                        = "HTTPS"
+resource "azurerm_app_service" "example" {
+ logs {
+    http_logs {
+      file_system {
+        retention_in_days = 90
+        retention_in_mb   = 100
+      }
+    }
 
-  log_config {
-    enable = true
+ application_logs {
+      file_system_level = "Error"
+      azure_blob_storage {
+        retention_in_days = 90
+        level             = "Error"
+      }
+    }
+  }
+}
+</pre>
+<p>For Azure <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account">Storage Accounts</a>:</p>
+<pre>
+resource "azurerm_storage_account" "example" {
+  queue_properties {
+    logging {
+      delete = true
+      read   = true
+      write  = true
+    }
   }
 }
 </pre>
@@ -323,7 +221,7 @@ resource "google_compute_subnetwork" "example" {
   name          = "example"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.id
+  network       = google_compute_network.example.id
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
@@ -337,11 +235,8 @@ Instance</a>:</p>
 <pre>
 resource "google_sql_database_instance" "example" {
   name             = "example"
-  database_version = "POSTGRES_11"
-  region           = "us-central1"
 
   settings {
-    tier = "db-f1-micro"
     ip_configuration {
       require_ssl  = true
       ipv4_enabled = true
@@ -370,8 +265,6 @@ cluster</a>:</p>
 <pre>
 resource "google_container_cluster" "example" {
   name               = "example"
-  location           = "us-central1-a"
-  initial_node_count = 3
   logging_service    = "logging.googleapis.com/kubernetes"
 }
 </pre>
@@ -381,7 +274,7 @@ resource "google_container_cluster" "example" {
   Monitoring Failures </li>
   <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html">AWS Documentation</a> - Logging requests using server access
   logging </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/778.html">MITRE, CWE-778</a> - Insufficient Logging </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/778">MITRE, CWE-778</a> - Insufficient Logging </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A10_2017-Insufficient_Logging%2526Monitoring">OWASP Top 10 2017 Category A10</a> -
   Insufficient Logging &amp; Monitoring </li>
 </ul>

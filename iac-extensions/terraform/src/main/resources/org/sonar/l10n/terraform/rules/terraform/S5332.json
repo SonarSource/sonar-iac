@@ -5,9 +5,9 @@
   "tags": [
     "aws",
     "azure",
+    "gcp",
     "cwe",
-    "owasp-a3",
-    "owasp-m3"
+    "owasp-a3"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5332",
@@ -29,6 +29,14 @@
     ],
     "OWASP Top 10 2021": [
       "A2"
+    ],
+    "PCI DSS 3.2": [
+      "4.1",
+      "6.5.4"
+    ],
+    "PCI DSS 4.0": [
+      "4.2.1",
+      "6.2.4"
     ]
   }
 }
