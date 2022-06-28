@@ -66,8 +66,8 @@
     <version.orchestrator>3.35.1.2719</version.orchestrator>
     <version.sslr>1.24.0.633</version.sslr>
     <version.junit>5.8.1</version.junit>
-    <version.assertj>3.19.0</version.assertj>
-    <version.mockito>3.9.0</version.mockito>
+    <version.assertj>3.23.1</version.assertj>
+    <version.mockito>4.6.1</version.mockito>
     <version.snakeyaml>2.3</version.snakeyaml>
     <gitRepositoryName>sonar-iac</gitRepositoryName>
     <!-- Release: enable publication to Bintray -->
