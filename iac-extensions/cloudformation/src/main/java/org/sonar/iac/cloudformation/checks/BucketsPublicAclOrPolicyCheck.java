@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
@@ -50,7 +50,7 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
       return;
     }
 
-    Optional<CloudformationTree> accessConfiguration = PropertyUtils.value(resource.properties(), "PublicAccessBlockConfiguration", CloudformationTree.class);
+    Optional<YamlTree> accessConfiguration = PropertyUtils.value(resource.properties(), "PublicAccessBlockConfiguration", YamlTree.class);
     if (accessConfiguration.isPresent()) {
       checkConfiguration(ctx, resource, accessConfiguration.get());
     } else {
@@ -58,7 +58,7 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
     }
   }
 
-  private static void checkConfiguration(CheckContext ctx, Resource resource, CloudformationTree configuration) {
+  private static void checkConfiguration(CheckContext ctx, Resource resource, YamlTree configuration) {
     List<SecondaryLocation> problemsAsSecondaryLocations = configurationProblemsAsSecondaryLocations(configuration);
     Tree primaryLocationTree = PropertyUtils.key(resource.properties(), "PublicAccessBlockConfiguration").orElse(configuration);
 
@@ -68,11 +68,11 @@ public class BucketsPublicAclOrPolicyCheck extends AbstractResourceCheck {
     }
   }
 
-  private static boolean hasMissingSetting(CloudformationTree configuration) {
+  private static boolean hasMissingSetting(YamlTree configuration) {
     return ATTRIBUTES_TO_CHECK.stream().anyMatch(a -> PropertyUtils.isMissing(configuration, a));
   }
 
-  private static List<SecondaryLocation> configurationProblemsAsSecondaryLocations(CloudformationTree configuration) {
+  private static List<SecondaryLocation> configurationProblemsAsSecondaryLocations(YamlTree configuration) {
     List<SecondaryLocation> problems = new ArrayList<>();
     ATTRIBUTES_TO_CHECK.forEach(attribute -> PropertyUtils.value(configuration, attribute)
       .filter(TextUtils::isValueFalse)

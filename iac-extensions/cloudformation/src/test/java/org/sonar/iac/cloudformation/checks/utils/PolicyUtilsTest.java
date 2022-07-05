@@ -20,9 +20,9 @@
 package org.sonar.iac.cloudformation.checks.utils;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.CloudformationVerifier;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -102,14 +102,14 @@ class PolicyUtilsTest {
       .isEmpty();
   }
 
-  private static CloudformationTree of(String filename) {
+  private static YamlTree of(String filename) {
     TestPolicyCheck check = new TestPolicyCheck();
     CloudformationVerifier.verifyNoIssue(filename, check);
     return check.root;
   }
 
   private static class TestPolicyCheck implements IacCheck {
-    private CloudformationTree root;
+    private YamlTree root;
 
     @Override
     public void initialize(InitContext init) {

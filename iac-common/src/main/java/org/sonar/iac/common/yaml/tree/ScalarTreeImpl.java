@@ -17,41 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.common.yaml.tree;
 
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
 import java.util.Collections;
 import java.util.List;
 
-public class FileTreeImpl extends CloudformationTreeImpl implements FileTree {
-  private final CloudformationTree root;
+public class ScalarTreeImpl extends YamlTreeImpl implements ScalarTree {
 
-  public FileTreeImpl(CloudformationTree root, TextRange textRange) {
-    // A file on its own has no comments. They will be attached to the root node.
-    super(textRange, Collections.emptyList());
-    this.root = root;
+  private final String value;
+  private final String tag;
+  private final Style style;
+
+  public ScalarTreeImpl(String value, Style style, String tag, TextRange textRange, List<Comment> comments) {
+    super(textRange, comments);
+    this.value = value;
+    this.style = style;
+    this.tag = tag;
   }
 
   @Override
-  public CloudformationTree root() {
-    return root;
+  public String value() {
+    return value;
+  }
+
+  @Override
+  public Style style() {
+    return style;
   }
 
   @Override
   public List<Tree> children() {
-    if (root == null) {
-      return Collections.emptyList();
-    }
-    return Collections.singletonList(root);
+    return Collections.emptyList();
   }
 
   @Override
   public String tag() {
-    return "FILE";
+    return tag;
   }
-
 }

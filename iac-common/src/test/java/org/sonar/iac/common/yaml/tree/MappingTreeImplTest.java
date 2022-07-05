@@ -17,25 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.visitors;
+package org.sonar.iac.common.yaml.tree;
 
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.junit.jupiter.api.Test;
 
-import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
-import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class CloudformationHighlightingVisitor extends SyntaxHighlightingVisitor {
+class MappingTreeImplTest extends YamlTreeTest {
 
-  @Override
-  protected void languageSpecificHighlighting() {
-    register(TupleTree.class, (ctx, tree) -> highlight(tree.key(), KEYWORD));
-    register(ScalarTree.class, (ctx, tree) -> ctx.ancestors().stream().findFirst().ifPresent(p -> {
-      if (!(p instanceof TupleTree && ((TupleTree) p).key().equals(tree))) {
-        highlight(tree, STRING);
-      }
-    }));
+  @Test
+  void simple_mapping() {
+    MappingTree tree = (MappingTree) parse("a: b").root();
+    assertThat(tree.elements()).hasSize(1);
+    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:map");
+    assertThat(tree.elements().get(0)).isInstanceOf(TupleTree.class);
   }
-
 }

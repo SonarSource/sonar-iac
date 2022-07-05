@@ -17,18 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.common.yaml.tree;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
 import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
-class FileTreeImplTest extends CloudformationTreeTest {
+class FileTreeImplTest extends YamlTreeTest {
 
   @Test
   void file_has_a_root_tree() {

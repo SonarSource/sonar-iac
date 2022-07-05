@@ -17,24 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.common.yaml.tree;
 
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
-import org.sonar.iac.cloudformation.parser.CloudformationParser;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public abstract class CloudformationTreeTest {
+class TupleTreeImplTest extends YamlTreeTest {
 
-  protected FileTree parse(String source) {
-    CloudformationParser parser = new CloudformationParser();
-    return parser.parse(source, null);
-  }
-
-  protected <T extends CloudformationTree> T parse(String source, Class<T> clazz) {
-    CloudformationTree rootTree = parse(source).root();
-    assertThat(rootTree).isInstanceOf(clazz);
-    return (T) rootTree;
+  @Test
+  void simple_tuple() {
+    TupleTree tree = ((MappingTree) parse("a: b").root()).elements().get(0);
+    assertThat(tree.tag()).isEqualTo("TUPLE");
+    assertThat(tree.key()).isInstanceOfSatisfying(ScalarTree.class, k -> assertThat(k.value()).isEqualTo("a"));
+    assertThat(tree.value()).isInstanceOfSatisfying(ScalarTree.class, k -> assertThat(k.value()).isEqualTo("b"));
   }
 }

@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.common.yaml.tree;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
+import org.sonar.iac.common.yaml.YamlParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
-class SequenceTreeImplTest extends CloudformationTreeTest {
+public abstract class YamlTreeTest {
 
-  @Test
-  void simple_sequence() {
-    SequenceTree tree = (SequenceTree) parse("[1, \"a\"]").root();
-    assertThat(tree.elements()).hasSize(2);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
-    assertThat(tree.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
-    assertThat(tree.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
+  protected FileTree parse(String source) {
+    YamlParser parser = new YamlParser();
+    return (FileTree) parser.parse(source, null);
+  }
+
+  protected <T extends YamlTree> T parse(String source, Class<T> clazz) {
+    YamlTree rootTree = parse(source).root();
+    assertThat(rootTree).isInstanceOf(clazz);
+    return (T) rootTree;
   }
 }

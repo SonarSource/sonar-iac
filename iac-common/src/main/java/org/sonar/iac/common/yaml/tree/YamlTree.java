@@ -17,5 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.cloudformation.api.tree;
+package org.sonar.iac.common.yaml.tree;
+
+import org.sonar.iac.common.api.tree.HasComments;
+import org.sonar.iac.common.api.tree.Tree;
+
+public interface YamlTree extends HasComments, Tree {
+  String tag();
+}

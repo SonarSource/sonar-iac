@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.common.yaml.tree;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
-class ScalarTreeImplTest extends CloudformationTreeTest {
+class ScalarTreeImplTest extends YamlTreeTest {
 
   @Test
   void double_quoted() {

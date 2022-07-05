@@ -22,10 +22,10 @@ package org.sonar.iac.cloudformation.checks;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;
@@ -106,12 +106,12 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     }
   }
 
-  private static boolean isFixedResponseOrForwardAction(CloudformationTree action) {
+  private static boolean isFixedResponseOrForwardAction(YamlTree action) {
     Tree type = PropertyUtils.valueOrNull(action, "Type");
     return TextUtils.isValue(type, "fixed-response").isTrue() || TextUtils.isValue(type, "forward").isTrue();
   }
 
-  private static boolean isRedirectToHttpAction(CloudformationTree action) {
+  private static boolean isRedirectToHttpAction(YamlTree action) {
     return TextUtils.isValue(PropertyUtils.valueOrNull(action, "Type"), "redirect").isTrue() &&
       TextUtils.isValue(XPathUtils.getSingleTree(action, "/RedirectConfig/Protocol").orElse(null), "HTTP").isTrue();
   }
@@ -121,7 +121,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       .ifPresent(volumes -> volumes.elements().forEach(v -> checkEcsTaskDefinitionVolume(ctx, v)));
   }
 
-  private static void checkEcsTaskDefinitionVolume(CheckContext ctx, CloudformationTree volume) {
+  private static void checkEcsTaskDefinitionVolume(CheckContext ctx, YamlTree volume) {
     Optional<PropertyTree> configuration = PropertyUtils.get(volume, "EFSVolumeConfiguration");
     if (configuration.isEmpty()) {
       return;

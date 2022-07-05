@@ -17,11 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.api.tree;
+package org.sonar.iac.common.yaml.tree;
 
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.Tree;
+
+import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.common.api.tree.HasProperties;
 
-public interface MappingTree extends CloudformationTree, HasProperties {
-  List<TupleTree> elements();
+public class SequenceTreeImpl extends YamlTreeImpl implements SequenceTree {
+  private final List<YamlTree> elements;
+  private final String tag;
+
+  public SequenceTreeImpl(List<YamlTree> elements, String tag, TextRange textRange, List<Comment> comments) {
+    super(textRange, comments);
+    this.elements = elements;
+    this.tag = tag;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return new ArrayList<>(elements);
+  }
+
+  @Override
+  public List<YamlTree> elements() {
+    return elements;
+  }
+
+  @Override
+  public String tag() {
+    return tag;
+  }
 }

@@ -51,5 +51,11 @@
       <artifactId>sonar-analyzer-test-commons</artifactId>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.snakeyaml</groupId>
+      <artifactId>snakeyaml-engine</artifactId>
+      <version>${version.snakeyaml}</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 </project>

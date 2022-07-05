@@ -17,51 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.common.yaml.tree;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.FunctionCallTree;
-import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class FunctionCallTreeImpl extends CloudformationTreeImpl implements FunctionCallTree {
+public class FileTreeImpl extends YamlTreeImpl implements FileTree {
+  private final YamlTree root;
 
-  private final String name;
-  private final Style style;
-  private final List<CloudformationTree> arguments;
+  public FileTreeImpl(YamlTree root, TextRange textRange) {
+    // A file on its own has no comments. They will be attached to the root node.
+    super(textRange, Collections.emptyList());
+    this.root = root;
+  }
 
-  public FunctionCallTreeImpl(String name, Style style, List<CloudformationTree> arguments, TextRange textRange, List<Comment> comments) {
-    super(textRange, comments);
-    this.name = name;
-    this.style = style;
-    this.arguments = arguments;
+  @Override
+  public YamlTree root() {
+    return root;
   }
 
   @Override
   public List<Tree> children() {
-    return new ArrayList<>(arguments);
+    if (root == null) {
+      return Collections.emptyList();
+    }
+    return Collections.singletonList(root);
   }
 
   @Override
   public String tag() {
-    return "FUNCTION_CALL";
+    return "FILE";
   }
 
-  @Override
-  public String name() {
-    return name;
-  }
-
-  @Override
-  public Style style() {
-    return style;
-  }
-
-  @Override
-  public List<CloudformationTree> arguments() {
-    return arguments;
-  }
 }

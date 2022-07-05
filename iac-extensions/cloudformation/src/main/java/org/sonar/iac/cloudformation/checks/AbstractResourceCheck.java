@@ -25,10 +25,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -60,10 +60,10 @@ public abstract class AbstractResourceCheck implements IacCheck {
 
   public static class Resource {
     private final ScalarTree name;
-    private final CloudformationTree type;
-    private final CloudformationTree properties;
+    private final YamlTree type;
+    private final YamlTree properties;
 
-    Resource(ScalarTree name, CloudformationTree type, @Nullable CloudformationTree properties) {
+    Resource(ScalarTree name, YamlTree type, @Nullable YamlTree properties) {
       this.name = name;
       this.type = type;
       this.properties = properties;
@@ -71,10 +71,10 @@ public abstract class AbstractResourceCheck implements IacCheck {
 
     @CheckForNull
     private static Resource fromMapping(ScalarTree name, MappingTree mapping) {
-      return PropertyUtils.value(mapping, "Type", CloudformationTree.class).map(typeTree -> new Resource(
+      return PropertyUtils.value(mapping, "Type", YamlTree.class).map(typeTree -> new Resource(
         name,
         typeTree,
-        PropertyUtils.valueOrNull(mapping, "Properties", CloudformationTree.class)
+        PropertyUtils.valueOrNull(mapping, "Properties", YamlTree.class)
       )).orElse(null);
 
     }
@@ -83,12 +83,12 @@ public abstract class AbstractResourceCheck implements IacCheck {
       return name;
     }
 
-    public CloudformationTree type() {
+    public YamlTree type() {
       return type;
     }
 
     @CheckForNull
-    public CloudformationTree properties() {
+    public YamlTree properties() {
       return properties;
     }
 

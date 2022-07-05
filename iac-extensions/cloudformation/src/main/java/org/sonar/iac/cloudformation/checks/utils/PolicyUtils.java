@@ -25,8 +25,8 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.Policy;
 import org.sonar.iac.common.checks.TextUtils;
@@ -54,7 +54,7 @@ public class PolicyUtils {
 
     private void collectPolicy(TupleTree tree) {
       if (isPolicyDocument(tree)) {
-        CloudformationTree treeValue = tree.value();
+        YamlTree treeValue = tree.value();
         policies.add(new Policy(treeValue, policy -> XPathUtils.getTrees(policy, "/Statement[]")));
       }
     }

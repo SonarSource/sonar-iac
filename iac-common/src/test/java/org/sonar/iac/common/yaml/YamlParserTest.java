@@ -17,41 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.parser;
+package org.sonar.iac.common.yaml;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class CloudformationParserTest {
+class YamlParserTest {
+
   private InputFileContext inputFileContext;
-  private InputFile inputFile;
-  private final CloudformationParser parser = new CloudformationParser();
+
+  private final YamlParser parser = new YamlParser();
 
   @BeforeEach
   void setup() {
-    inputFile = mock(InputFile.class);
+    InputFile inputFile = mock(InputFile.class);
     inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
-  }
-
-  @Test
-  void test_parse_comments_for_yaml() {
     when(inputFile.filename()).thenReturn("foo.yaml");
-    FileTree tree = (FileTree) parser.parse("# Comment\na: 1", inputFileContext);
-    assertThat(tree.root().comments()).hasSize(1);
   }
 
   @Test
-  void test_no_comment_parsing_for_json() {
-    when(inputFile.filename()).thenReturn("foo.json");
-    FileTree tree = (FileTree) parser.parse("# Comment\na: 1", inputFileContext);
-    assertThat(tree.root().comments()).isEmpty();
+  void parse_empty_file() {
+    Exception exception = assertThrows(ParseException.class, () -> parser.parse("", inputFileContext));
+    assertThat(exception.getMessage()).isEqualTo("Unexpected empty nodes list while converting file");
+  }
+
+  @Test
+  void parse_recursion() {
+    Exception exception = assertThrows(ParserException.class, () -> parser.parse("some_key: &some_anchor\n  sub_key: *some_anchor", inputFileContext));
+    assertThat(exception.getMessage()).isEqualTo("Recursive node found\n" +
+      " in reader, line 1, column 11:\n" +
+      "    some_key: &some_anchor\n" +
+      "              ^\n");
   }
 }

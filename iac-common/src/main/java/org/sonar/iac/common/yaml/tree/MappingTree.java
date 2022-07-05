@@ -17,21 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.common.yaml.tree;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import java.util.List;
+import org.sonar.iac.common.api.tree.HasProperties;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class MappingTreeImplTest extends CloudformationTreeTest {
-
-  @Test
-  void simple_mapping() {
-    MappingTree tree = (MappingTree) parse("a: b").root();
-    assertThat(tree.elements()).hasSize(1);
-    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:map");
-    assertThat(tree.elements().get(0)).isInstanceOf(TupleTree.class);
-  }
+public interface MappingTree extends YamlTree, HasProperties {
+  List<TupleTree> elements();
 }

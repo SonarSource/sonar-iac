@@ -17,11 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.api.tree;
+package org.sonar.iac.common.yaml.tree;
 
-import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.TextTree;
 
-public interface TupleTree extends CloudformationTree, PropertyTree {
-  CloudformationTree key();
-  CloudformationTree value();
+public interface ScalarTree extends TextTree, YamlTree {
+  enum Style {
+    DOUBLE_QUOTED,
+    SINGLE_QUOTED,
+    LITERAL,
+    FOLDED,
+    PLAIN,
+    OTHER
+  }
+
+  Style style();
 }

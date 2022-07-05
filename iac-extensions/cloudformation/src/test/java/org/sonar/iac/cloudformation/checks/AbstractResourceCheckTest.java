@@ -25,10 +25,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.tree.impl.MappingTreeImpl;
-import org.sonar.iac.cloudformation.tree.impl.ScalarTreeImpl;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
+import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
 import org.sonar.iac.common.api.checks.CheckContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

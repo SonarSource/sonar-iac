@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.common.yaml.tree;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.TupleTree;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class MappingTreeImpl extends CloudformationTreeImpl implements MappingTree {
+public class MappingTreeImpl extends YamlTreeImpl implements MappingTree {
   private final List<TupleTree> elements;
   private final String tag;
 

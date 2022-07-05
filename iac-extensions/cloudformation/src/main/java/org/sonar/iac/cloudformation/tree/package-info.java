@@ -17,28 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
-
-import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.common.api.tree.Comment;
-
-public abstract class CloudformationTreeImpl implements CloudformationTree {
-  protected final TextRange textRange;
-  protected final List<Comment> comments;
-
-  protected CloudformationTreeImpl(TextRange textRange, List<Comment> comments) {
-    this.textRange = textRange;
-    this.comments = comments;
-  }
-
-  @Override
-  public TextRange textRange() {
-    return textRange;
-  }
-
-  public List<Comment> comments() {
-    return comments;
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.cloudformation.tree;

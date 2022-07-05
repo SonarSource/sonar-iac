@@ -17,32 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.cloudformation.tree;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.YamlTreeImpl;
 
-import java.util.Collections;
-import java.util.List;
+public class FunctionCallTreeImpl extends YamlTreeImpl implements FunctionCallTree {
 
-public class ScalarTreeImpl extends CloudformationTreeImpl implements ScalarTree {
-
-  private final String value;
-  private final String tag;
+  private final String name;
   private final Style style;
+  private final List<YamlTree> arguments;
 
-  public ScalarTreeImpl(String value, Style style, String tag, TextRange textRange, List<Comment> comments) {
+  public FunctionCallTreeImpl(String name, Style style, List<YamlTree> arguments, TextRange textRange, List<Comment> comments) {
     super(textRange, comments);
-    this.value = value;
+    this.name = name;
     this.style = style;
-    this.tag = tag;
+    this.arguments = arguments;
   }
 
   @Override
-  public String value() {
-    return value;
+  public List<Tree> children() {
+    return new ArrayList<>(arguments);
+  }
+
+  @Override
+  public String tag() {
+    return "FUNCTION_CALL";
+  }
+
+  @Override
+  public String name() {
+    return name;
   }
 
   @Override
@@ -51,12 +61,7 @@ public class ScalarTreeImpl extends CloudformationTreeImpl implements ScalarTree
   }
 
   @Override
-  public List<Tree> children() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public String tag() {
-    return tag;
+  public List<YamlTree> arguments() {
+    return arguments;
   }
 }

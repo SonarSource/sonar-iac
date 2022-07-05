@@ -17,19 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.cloudformation.tree;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.cloudformation.api.tree.FunctionCallTree;
-import org.sonar.iac.cloudformation.api.tree.FunctionCallTree.Style;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
+import org.sonar.iac.cloudformation.parser.CloudformationParser;
+import org.sonar.iac.cloudformation.tree.FunctionCallTree.Style;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
-class FunctionCallTreeImplTest extends CloudformationTreeTest {
+class FunctionCallTreeImplTest {
 
   @Test
   void parse_function_call() {
@@ -117,6 +120,17 @@ class FunctionCallTreeImplTest extends CloudformationTreeTest {
   }
 
   private void assertNoFunctionCall(String source) {
-    assertThat(parse(source).root()).isNotInstanceOf(FunctionCallTree.class);
+    Assertions.assertThat(parse(source).root()).isNotInstanceOf(FunctionCallTree.class);
+  }
+
+  protected FileTree parse(String source) {
+    CloudformationParser parser = new CloudformationParser();
+    return parser.parse(source, null);
+  }
+
+  protected <T extends YamlTree> T parse(String source, Class<T> clazz) {
+    YamlTree rootTree = parse(source).root();
+    assertThat(rootTree).isInstanceOf(clazz);
+    return (T) rootTree;
   }
 }

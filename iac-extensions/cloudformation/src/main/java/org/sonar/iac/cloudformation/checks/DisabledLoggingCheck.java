@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
-import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -73,13 +73,13 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkS3Bucket(CheckContext ctx, Resource resource) {
-    CloudformationTree properties = resource.properties();
+    YamlTree properties = resource.properties();
     if (PropertyUtils.value(properties, "LoggingConfiguration").isEmpty() && !isMaybeLoggingBucket(properties)) {
       ctx.reportIssue(resource.type(), omittingMessage("LoggingConfiguration"));
     }
   }
 
-  private static boolean isMaybeLoggingBucket(@Nullable CloudformationTree properties) {
+  private static boolean isMaybeLoggingBucket(@Nullable YamlTree properties) {
     Optional<Tree> acl = PropertyUtils.value(properties, "AccessControl");
     if (acl.isPresent()) {
       Optional<String> scalarValue = TextUtils.getValue(acl.get());
@@ -89,7 +89,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkApiGatewayStage(CheckContext ctx, Resource resource) {
-    CloudformationTree properties = resource.properties();
+    YamlTree properties = resource.properties();
     PropertyUtils.value(properties, "TracingEnabled").ifPresentOrElse(f -> reportOnFalse(ctx, f),
       () -> reportResource(ctx, resource, omittingMessage("TracingEnabled")));
     reportOnMissingProperty(ctx, properties, "AccessLogSetting", resource.type());

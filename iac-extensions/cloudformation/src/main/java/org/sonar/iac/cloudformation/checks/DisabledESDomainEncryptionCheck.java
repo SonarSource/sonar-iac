@@ -22,7 +22,7 @@ package org.sonar.iac.cloudformation.checks;
 import java.util.Optional;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.PropertyTree;
@@ -41,7 +41,7 @@ public class DisabledESDomainEncryptionCheck extends AbstractResourceCheck {
     if (!resource.isType("AWS::Elasticsearch::Domain")) {
       return;
     }
-    CloudformationTree resourceType = resource.type();
+    YamlTree resourceType = resource.type();
     Optional<PropertyTree> maybeEncryption = PropertyUtils.get(resource.properties(), "EncryptionAtRestOptions");
     if (maybeEncryption.isPresent()) {
       PropertyTree encryption = maybeEncryption.get();

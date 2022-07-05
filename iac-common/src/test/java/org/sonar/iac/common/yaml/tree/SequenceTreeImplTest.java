@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.api.tree;
+package org.sonar.iac.common.yaml.tree;
 
-import org.sonar.iac.common.api.tree.TextTree;
+import org.junit.jupiter.api.Test;
 
-public interface ScalarTree extends TextTree, CloudformationTree {
-  enum Style {
-    DOUBLE_QUOTED,
-    SINGLE_QUOTED,
-    LITERAL,
-    FOLDED,
-    PLAIN,
-    OTHER
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+
+class SequenceTreeImplTest extends YamlTreeTest {
+
+  @Test
+  void simple_sequence() {
+    SequenceTree tree = (SequenceTree) parse("[1, \"a\"]").root();
+    assertThat(tree.elements()).hasSize(2);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
+    assertThat(tree.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
+    assertThat(tree.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
   }
-
-  Style style();
 }

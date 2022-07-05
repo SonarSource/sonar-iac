@@ -40,7 +40,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
-import org.sonar.iac.cloudformation.parser.CloudformationParser;
+import org.sonar.iac.cloudformation.parser.CloudformationConverter;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.cloudformation.visitors.CloudformationHighlightingVisitor;
 import org.sonar.iac.cloudformation.visitors.CloudformationMetricsVisitor;
@@ -53,6 +53,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.yaml.YamlParser;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 public class CloudformationSensor extends IacSensor {
@@ -76,7 +77,7 @@ public class CloudformationSensor extends IacSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return new CloudformationParser();
+    return new YamlParser(new CloudformationConverter());
   }
 
   @Override
