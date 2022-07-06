@@ -10,5 +10,7 @@
 ],
 'cloudformation-project:ruling/src/test/resources/sources/cloudformation/recursiveAnchorParseError.yaml':[
 3,
+],'cloudformation-project:sources/cloudformation/taskcat/tests/data/config_full_example/.taskcat.yml':[
+27,
 ],
 }

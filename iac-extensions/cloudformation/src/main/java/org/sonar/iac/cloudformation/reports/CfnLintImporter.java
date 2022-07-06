@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.cloudformation.plugin.CfnLintRulesDefinition;
@@ -47,10 +48,11 @@ public class CfnLintImporter {
   private CfnLintImporter() {
   }
 
-  public static void importReport(SensorContext context, File reportFile) {
+  public static void importReport(SensorContext context, File reportFile, AnalysisWarnings analysisWarnings) {
     String path = reportFile.getPath();
     if (!reportFile.isFile()) {
-      LOG.warn(String.format("Cfn-lint report importing: path does not seem to point to a file %s", path));
+      String message = String.format("Cfn-lint report importing: path does not seem to point to a file %s", path);
+      logWarnAndAddUnique(analysisWarnings, message);
       return;
     }
 
@@ -58,13 +60,19 @@ public class CfnLintImporter {
     try {
       issuesJson = (JSONArray) jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
     } catch (IOException e) {
-      LOG.warn(String.format("Cfn-lint report importing: could not read report file %s", path), e);
+      String message = String.format("Cfn-lint report importing: could not read report file %s", path);
+      LOG.warn(message, e);
+      analysisWarnings.addUnique(message);
       return;
     } catch (ParseException e) {
-      LOG.warn(String.format("Cfn-lint report importing: could not parse file as JSON %s", path), e);
+      String message = String.format("Cfn-lint report importing: could not parse file as JSON %s", path);
+      LOG.warn(message, e);
+      analysisWarnings.addUnique(message);
       return;
     } catch (RuntimeException e) {
-      LOG.warn(String.format("Cfn-lint report importing: file is expected to contain a JSON array but didn't %s", path), e);
+      String message = String.format("Cfn-lint report importing: file is expected to contain a JSON array but didn't %s", path);
+      LOG.warn(message, e);
+      analysisWarnings.addUnique(message);
       return;
     }
 
@@ -79,7 +87,8 @@ public class CfnLintImporter {
     }
 
     if (failedToSaveIssues > 0) {
-      LOG.warn(String.format("Cfn-lint report importing: could not save %d out of %d issues from %s", failedToSaveIssues, issuesJson.size(), path));
+      String message = String.format("Cfn-lint report importing: could not save %d out of %d issues from %s", failedToSaveIssues, issuesJson.size(), path);
+      logWarnAndAddUnique(analysisWarnings, message);
     }
   }
 
@@ -131,5 +140,10 @@ public class CfnLintImporter {
   private static int getIntOutOfJson(Object o) {
     // The JSON parser transforms the values to long
     return Math.toIntExact((long) o);
+  }
+
+  private static void logWarnAndAddUnique(AnalysisWarnings analysisWarnings, String message) {
+    LOG.warn(message);
+    analysisWarnings.addUnique(message);
   }
 }

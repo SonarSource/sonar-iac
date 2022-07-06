@@ -69,7 +69,7 @@ class VerifierTest {
     Path path = Paths.get("src", "test", "resources", "doesNotExist.ext");
     IllegalStateException exception = assertThrows(IllegalStateException.class,
       () -> Verifier.verify(mockParser, path, noIssueRaiseCheck));
-    assertThat(exception.getMessage()).isEqualTo("Cannot read src/test/resources/doesNotExist.ext");
+    assertThat(exception.getMessage()).isEqualTo("Cannot read " + Paths.get("src/test/resources/doesNotExist.ext"));
   }
 
   @Test

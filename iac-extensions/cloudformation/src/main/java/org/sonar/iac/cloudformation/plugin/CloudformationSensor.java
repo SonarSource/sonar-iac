@@ -37,6 +37,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
@@ -60,10 +61,13 @@ public class CloudformationSensor extends IacSensor {
   private static final String YAML_LANGUAGE_KEY = "yaml";
   private final Checks<IacCheck> checks;
 
+  private final AnalysisWarnings analysisWarnings;
+
   public CloudformationSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-                              NoSonarFilter noSonarFilter, CloudformationLanguage language) {
+                              NoSonarFilter noSonarFilter, CloudformationLanguage language, AnalysisWarnings analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(CloudformationExtension.REPOSITORY_KEY);
+    this.analysisWarnings = analysisWarnings;
     checks.addAnnotatedChecks((Iterable<?>) CloudformationCheckList.checks());
   }
 
@@ -107,7 +111,7 @@ public class CloudformationSensor extends IacSensor {
   @Override
   protected void importExternalReports(SensorContext sensorContext) {
     ExternalReportProvider.getReportFiles(sensorContext, CloudformationSettings.CFN_LINT_REPORTS_KEY)
-      .forEach(report -> CfnLintImporter.importReport(sensorContext, report));
+      .forEach(report -> CfnLintImporter.importReport(sensorContext, report, analysisWarnings));
   }
 
   @Override

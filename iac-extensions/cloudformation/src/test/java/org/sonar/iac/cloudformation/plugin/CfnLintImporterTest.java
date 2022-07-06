@@ -30,18 +30,22 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.spy;
 
 class CfnLintImporterTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private SensorContextTester context;
+
+  private final AnalysisWarnings spyAnalysisWarnings = spy(AnalysisWarnings.class);
 
   @BeforeEach
   void setUp() throws IOException {
@@ -54,28 +58,30 @@ class CfnLintImporterTest {
 
   @ParameterizedTest
   @CsvSource({
-    "src/test/resources/cfn-lint/doesNotExist.json, Cfn-lint report importing: path does not seem to point to a file %s",
-    "src/test/resources/cfn-lint/parseError.json, Cfn-lint report importing: could not parse file as JSON %s",
-    "src/test/resources/cfn-lint/noArray.json, Cfn-lint report importing: file is expected to contain a JSON array but didn't %s",
+    "src/test/resources/cfn-lint/doesNotExist.json, src\\test\\resources\\cfn-lint\\doesNotExist.json, Cfn-lint report importing: path does not seem to point to a file %s",
+    "src/test/resources/cfn-lint/parseError.json, src\\test\\resources\\cfn-lint\\parseError.json, Cfn-lint report importing: could not parse file as JSON %s",
+    "src/test/resources/cfn-lint/noArray.json, src\\test\\resources\\cfn-lint\\noArray.json,  Cfn-lint report importing: file is expected to contain a JSON array but didn't %s",
   })
-  void problem_when_reading_or_parsing_file(String reportPath, String expectedLog) {
-    File reportFile = new File(reportPath);
-    CfnLintImporter.importReport(context, reportFile);
+  void problem_when_reading_or_parsing_file(String reportPath, String reportPathWindows, String expectedLog) {
+    String path = File.separatorChar == '/' ? reportPath : reportPathWindows;
+    File reportFile = new File(path);
+
+    CfnLintImporter.importReport(context, reportFile, spyAnalysisWarnings);
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly(String.format(expectedLog, reportPath));
+      .containsExactly(String.format(expectedLog, path));
   }
 
   @Test
   void no_issues() {
     File reportFile = new File("src/test/resources/cfn-lint/emptyArray.json");
-    CfnLintImporter.importReport(context, reportFile);
+    CfnLintImporter.importReport(context, reportFile, spyAnalysisWarnings);
     assertThat(context.allExternalIssues()).isEmpty();
   }
 
   @Test
   void invalid_issue() {
     File reportFile = new File("src/test/resources/cfn-lint/invalidIssue.json");
-    CfnLintImporter.importReport(context, reportFile);
+    CfnLintImporter.importReport(context, reportFile, spyAnalysisWarnings);
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(String.format("Cfn-lint report importing: could not save 1 out of 1 issues from %s", reportFile.getPath()));
@@ -84,7 +90,7 @@ class CfnLintImporterTest {
   @Test
   void valid_issue() {
     File reportFile = new File("src/test/resources/cfn-lint/validIssue.json");
-    CfnLintImporter.importReport(context, reportFile);
+    CfnLintImporter.importReport(context, reportFile, spyAnalysisWarnings);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
     assertThat(issue.ruleId()).isEqualTo("E0000");
@@ -96,7 +102,7 @@ class CfnLintImporterTest {
   @Test
   void one_invalid_and_one_valid_issue() {
     File reportFile = new File("src/test/resources/cfn-lint/validAndInvalid.json");
-    CfnLintImporter.importReport(context, reportFile);
+    CfnLintImporter.importReport(context, reportFile, spyAnalysisWarnings);
     assertThat(context.allExternalIssues()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(String.format("Cfn-lint report importing: could not save 1 out of 2 issues from %s", reportFile.getPath()));
@@ -105,7 +111,7 @@ class CfnLintImporterTest {
   @Test
   void unknown_rule() {
     File reportFile = new File("src/test/resources/cfn-lint/unknownRule.json");
-    CfnLintImporter.importReport(context, reportFile);
+    CfnLintImporter.importReport(context, reportFile, spyAnalysisWarnings);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
     assertThat(issue.ruleId()).isEqualTo("cfn-lint.fallback");
