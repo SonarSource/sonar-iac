@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: foo
+      securityContext:
+        privileged: true # NonCompliant {{Ensure that enabling privileged mode is safe here.}}
+      # ^^^^^^^^^^^^^^^^

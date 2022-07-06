@@ -17,5 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.cloudformation.tree.impl;
+package org.sonar.iac.kubernetes.checks;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.testing.Verifier;
+import org.sonar.iac.common.yaml.YamlParser;
+
+public class KubernetesVerifier {
+
+  private KubernetesVerifier() {
+  }
+
+  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  private static final YamlParser PARSER = new YamlParser();
+
+  public static void verify(String fileName, IacCheck check) {
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
+  }
+
+  public static void verifyNoIssue(String fileName, IacCheck check) {
+    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+  }
+}

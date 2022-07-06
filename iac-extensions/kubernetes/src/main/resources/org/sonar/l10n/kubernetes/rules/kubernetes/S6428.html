@@ -1,0 +1,52 @@
+<p>Running containers in privileged mode can reduce the resilience of a cluster in the event of a security incident because it weakens the isolation
+between hosts and containers.</p>
+<p>Process permissions in privileged containers are essentially the same as root permissions on the host. If these processes are not protected by
+robust security measures, an attacker who compromises a root process on a Pod’s host is likely to gain the ability to pivot within the cluster.<br>
+Depending on how resilient the cluster is, attackers can extend their attack to the cluster by compromising the nodes from which the cluster launched
+the process.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The services of this Pod are accessible to people who are not administrators of the Kubernetes cluster. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Disable privileged mode.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+        privileged: true # Sensitive
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+        privileged: false
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
+</ul>
+
