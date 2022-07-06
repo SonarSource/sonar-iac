@@ -61,18 +61,15 @@ public class CfnLintImporter {
       issuesJson = (JSONArray) jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
     } catch (IOException e) {
       String message = String.format("Cfn-lint report importing: could not read report file %s", path);
-      LOG.warn(message, e);
-      analysisWarnings.addUnique(message);
+      logWarnAndAddUnique(analysisWarnings, message);
       return;
     } catch (ParseException e) {
       String message = String.format("Cfn-lint report importing: could not parse file as JSON %s", path);
-      LOG.warn(message, e);
-      analysisWarnings.addUnique(message);
+      logWarnAndAddUnique(analysisWarnings, message);
       return;
     } catch (RuntimeException e) {
       String message = String.format("Cfn-lint report importing: file is expected to contain a JSON array but didn't %s", path);
-      LOG.warn(message, e);
-      analysisWarnings.addUnique(message);
+      logWarnAndAddUnique(analysisWarnings, message);
       return;
     }
 

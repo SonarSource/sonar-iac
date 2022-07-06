@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
@@ -37,7 +38,9 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 class CfnLintImporterTest {
 
@@ -60,8 +63,7 @@ class CfnLintImporterTest {
   @CsvSource({
     "src/test/resources/cfn-lint/doesNotExist.json, src\\test\\resources\\cfn-lint\\doesNotExist.json, Cfn-lint report importing: path does not seem to point to a file %s",
     "src/test/resources/cfn-lint/parseError.json, src\\test\\resources\\cfn-lint\\parseError.json, Cfn-lint report importing: could not parse file as JSON %s",
-    "src/test/resources/cfn-lint/noArray.json, src\\test\\resources\\cfn-lint\\noArray.json,  Cfn-lint report importing: file is expected to contain a JSON array but didn't %s",
-  })
+    "src/test/resources/cfn-lint/noArray.json, src\\test\\resources\\cfn-lint\\noArray.json, Cfn-lint report importing: file is expected to contain a JSON array but didn't %s"})
   void problem_when_reading_or_parsing_file(String reportPath, String reportPathWindows, String expectedLog) {
     String path = File.separatorChar == '/' ? reportPath : reportPathWindows;
     File reportFile = new File(path);
@@ -69,6 +71,19 @@ class CfnLintImporterTest {
     CfnLintImporter.importReport(context, reportFile, spyAnalysisWarnings);
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(String.format(expectedLog, path));
+  }
+
+  @Test
+  void reading_issue(){
+    String path = "src\\test\\resources\\cfn-lint\\throwsIOException.json";
+    File reportFile = Mockito.mock(File.class);
+    when(reportFile.getPath()).thenReturn(path);
+    when(reportFile.isFile()).thenReturn(true);
+    doAnswer((invocation) -> {throw new IOException();}).when(reportFile).toPath();
+
+    CfnLintImporter.importReport(context, reportFile, spyAnalysisWarnings);
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .containsExactly(String.format("Cfn-lint report importing: could not read report file %s", path));
   }
 
   @Test
