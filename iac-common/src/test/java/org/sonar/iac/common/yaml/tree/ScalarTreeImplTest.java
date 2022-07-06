@@ -30,6 +30,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
   void double_quoted() {
     ScalarTree tree = (ScalarTree) parse("\"a\"").root();
     assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.children()).isEmpty();
     assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 3);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED);
@@ -39,6 +40,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
   void single_quoted() {
     ScalarTree tree = (ScalarTree) parse("'a'").root();
     assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.children()).isEmpty();
     assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 3);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.SINGLE_QUOTED);
@@ -48,6 +50,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
   void literal() {
     ScalarTree tree = (ScalarTree) parse("| \n a").root();
     assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.children()).isEmpty();
     assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
     assertTextRange(tree.textRange()).hasRange(1, 0, 2, 2);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.LITERAL);
@@ -57,6 +60,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
   void folded() {
     ScalarTree tree = (ScalarTree) parse("> \n a").root();
     assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.children()).isEmpty();
     assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
     assertTextRange(tree.textRange()).hasRange(1, 0, 2, 2);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.FOLDED);
@@ -66,6 +70,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
   void plain() {
     ScalarTree tree = (ScalarTree) parse("a").root();
     assertThat(tree.value()).isEqualTo("a");
+    assertThat(tree.children()).isEmpty();
     assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:str");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 1);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.PLAIN);
@@ -75,6 +80,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
   void plain_integer() {
     ScalarTree tree = (ScalarTree) parse("123").root();
     assertThat(tree.value()).isEqualTo("123");
+    assertThat(tree.children()).isEmpty();
     assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:int");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 3);
     assertThat(tree.style()).isEqualTo(ScalarTree.Style.PLAIN);

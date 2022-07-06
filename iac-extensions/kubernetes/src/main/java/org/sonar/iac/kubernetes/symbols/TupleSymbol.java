@@ -28,18 +28,18 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class TupleSymbol extends KubernetesSymbol<TupleSymbol, TupleTree> {
 
-  protected TupleSymbol(CheckContext ctx, TupleTree tree, String key, BlockSymbol parent) {
+  protected TupleSymbol(CheckContext ctx, TupleTree tree, String key, BlockSymbol<?> parent) {
     super(ctx, tree, key, parent);
   }
 
-  public static TupleSymbol fromPresent(CheckContext ctx, YamlTree tree, String key, BlockSymbol parent) {
+  public static TupleSymbol fromPresent(CheckContext ctx, YamlTree tree, String key, BlockSymbol<?> parent) {
     if (tree instanceof TupleTree) {
       return new TupleSymbol(ctx, (TupleTree) tree, key, parent);
     }
     return fromAbsent(ctx, key, parent);
   }
 
-  public static TupleSymbol fromAbsent(CheckContext ctx, String key, BlockSymbol parent) {
+  public static TupleSymbol fromAbsent(CheckContext ctx, String key, BlockSymbol<?> parent) {
     return new TupleSymbol(ctx, null, key, parent);
   }
 

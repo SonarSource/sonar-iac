@@ -26,17 +26,17 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class TupleBlockSymbol extends BlockSymbol<TupleBlockSymbol, MappingTree> {
+public class TupleBlockSymbol extends BlockSymbol<TupleBlockSymbol> {
 
 
   private final HasTextRange toHighlight;
 
-  protected TupleBlockSymbol(CheckContext ctx, @Nullable HasTextRange toHighlight, MappingTree block, String key, BlockSymbol<?,?> parent) {
+  protected TupleBlockSymbol(CheckContext ctx, @Nullable HasTextRange toHighlight, MappingTree block, String key, BlockSymbol<?> parent) {
     super(ctx, block, key, parent);
     this.toHighlight = toHighlight;
   }
 
-  public static TupleBlockSymbol fromPresent(CheckContext ctx, YamlTree tree, String key, BlockSymbol<?,?> parent) {
+  public static TupleBlockSymbol fromPresent(CheckContext ctx, YamlTree tree, String key, BlockSymbol<?> parent) {
     if (tree instanceof TupleTree && ((TupleTree) tree).value() instanceof MappingTree) {
       TupleTree tuple = (TupleTree) tree;
       return new TupleBlockSymbol(ctx, tuple.key(), (MappingTree) tuple.value(), key, parent);
@@ -44,7 +44,7 @@ public class TupleBlockSymbol extends BlockSymbol<TupleBlockSymbol, MappingTree>
     return fromAbsent(ctx, key, parent);
   }
 
-  public static TupleBlockSymbol fromAbsent(CheckContext ctx, String key, BlockSymbol<?,?> parent) {
+  public static TupleBlockSymbol fromAbsent(CheckContext ctx, String key, BlockSymbol<?> parent) {
     return new TupleBlockSymbol(ctx, null, null, key, parent);
   }
 

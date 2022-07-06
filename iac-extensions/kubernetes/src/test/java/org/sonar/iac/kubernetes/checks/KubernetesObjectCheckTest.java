@@ -17,20 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.tree;
+package org.sonar.iac.kubernetes.checks;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TupleTreeImplTest extends YamlTreeTest {
+class KubernetesObjectCheckTest {
+
+  boolean invokedConsumer = false;
+  IacCheck check = new KubernetesObjectCheck() {
+
+    @Override
+    void registerObjectCheck() {
+      register(List.of("Pod", "Job"), pod -> invokedConsumer = true);
+    }
+  };
 
   @Test
-  void simple_tuple() {
-    TupleTree tree = ((MappingTree) parse("a: b").root()).elements().get(0);
-    assertThat(tree.children()).hasSize(2);
-    assertThat(tree.tag()).isEqualTo("TUPLE");
-    assertThat(tree.key()).isInstanceOfSatisfying(ScalarTree.class, k -> assertThat(k.value()).isEqualTo("a"));
-    assertThat(tree.value()).isInstanceOfSatisfying(ScalarTree.class, k -> assertThat(k.value()).isEqualTo("b"));
+  void invalid_object_structure() {
+    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/invalid_object_structure.yaml", check);
+    assertThat(invokedConsumer).isFalse();
   }
+
+  @Test
+  void valid_object_structure() {
+    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/valid_object_structure.yaml", check);
+    assertThat(invokedConsumer).isTrue();
+  }
+
+  @Test
+  void non_matching_object() {
+    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/non_matching_object.yaml", check);
+    assertThat(invokedConsumer).isFalse();
+  }
+
 }

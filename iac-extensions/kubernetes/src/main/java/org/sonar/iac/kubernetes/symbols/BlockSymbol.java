@@ -24,13 +24,13 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.common.yaml.tree.YamlTree;
 
-abstract class BlockSymbol<T extends KubernetesSymbol<?, ?>, K extends YamlTree> extends KubernetesSymbol<T, K> {
+abstract class BlockSymbol<T extends KubernetesSymbol<?, ?>> extends KubernetesSymbol<T, MappingTree> {
 
-  protected BlockSymbol(CheckContext ctx, @Nullable K tree, String key, BlockSymbol<?, ?> parent) {
+  protected BlockSymbol(CheckContext ctx, @Nullable MappingTree tree, String key, BlockSymbol<?> parent) {
     super(ctx, tree, key, parent);
   }
 

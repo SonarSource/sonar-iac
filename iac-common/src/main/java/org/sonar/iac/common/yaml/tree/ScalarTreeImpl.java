@@ -19,13 +19,11 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.common.api.tree.Tree;
-
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.Tree;
 
 public class ScalarTreeImpl extends YamlTreeImpl implements ScalarTree {
 

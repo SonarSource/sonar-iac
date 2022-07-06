@@ -28,6 +28,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,12 +36,12 @@ import static org.mockito.Mockito.when;
 class YamlParserTest {
 
   private InputFileContext inputFileContext;
+  private final InputFile inputFile = mock(InputFile.class);
 
   private final YamlParser parser = new YamlParser();
 
   @BeforeEach
   void setup() {
-    InputFile inputFile = mock(InputFile.class);
     inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
     when(inputFile.filename()).thenReturn("foo.yaml");
   }
@@ -49,6 +50,17 @@ class YamlParserTest {
   void parse_empty_file() {
     Exception exception = assertThrows(ParseException.class, () -> parser.parse("", inputFileContext));
     assertThat(exception.getMessage()).isEqualTo("Unexpected empty nodes list while converting file");
+  }
+
+  @Test
+  void parse_json_file() {
+    when(inputFile.filename()).thenReturn("foo.json");
+    assertThatNoException().isThrownBy(() -> parser.parse("foo: {bar: 1234}", inputFileContext));
+  }
+
+  @Test
+  void parse_without_context() {
+    assertThatNoException().isThrownBy(() -> parser.parse("# comment", null));
   }
 
   @Test

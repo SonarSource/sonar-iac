@@ -25,9 +25,9 @@ import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class SequenceBlockSymbol extends BlockSymbol<SequenceBlockSymbol, MappingTree> {
+public class SequenceBlockSymbol extends BlockSymbol<SequenceBlockSymbol> {
 
-  protected SequenceBlockSymbol(CheckContext ctx, MappingTree tree, String key, BlockSymbol<?,?> parent) {
+  protected SequenceBlockSymbol(CheckContext ctx, MappingTree tree, String key, BlockSymbol<?> parent) {
     super(ctx, tree, key, parent);
   }
 
@@ -37,14 +37,14 @@ public class SequenceBlockSymbol extends BlockSymbol<SequenceBlockSymbol, Mappin
     return tree;
   }
 
-  public static SequenceBlockSymbol fromPresent(CheckContext ctx, YamlTree tree, String key, BlockSymbol<?,?> parent) {
+  public static SequenceBlockSymbol fromPresent(CheckContext ctx, YamlTree tree, String key, BlockSymbol<?> parent) {
     if (tree instanceof MappingTree) {
       return new SequenceBlockSymbol(ctx, (MappingTree) tree, key, parent);
     }
     return fromAbsent(ctx, key, parent);
   }
 
-  public static SequenceBlockSymbol fromAbsent(CheckContext ctx, String key, BlockSymbol<?,?> parent) {
+  public static SequenceBlockSymbol fromAbsent(CheckContext ctx, String key, BlockSymbol<?> parent) {
     return new SequenceBlockSymbol(ctx, null, key, parent);
   }
 }

@@ -29,6 +29,8 @@ class MappingTreeImplTest extends YamlTreeTest {
   void simple_mapping() {
     MappingTree tree = (MappingTree) parse("a: b").root();
     assertThat(tree.elements()).hasSize(1);
+    assertThat(tree.children()).hasSize(1);
+    assertThat(tree.properties()).hasSize(1);
     assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:map");
     assertThat(tree.elements().get(0)).isInstanceOf(TupleTree.class);
   }

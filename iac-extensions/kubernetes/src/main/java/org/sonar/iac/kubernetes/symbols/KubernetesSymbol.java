@@ -31,10 +31,10 @@ abstract class KubernetesSymbol<T extends KubernetesSymbol<?, ?>, K extends Yaml
   public final CheckContext ctx;
   public final @Nullable K tree;
   private final String key;
-  private final BlockSymbol<?, ?> parent;
+  private final @Nullable BlockSymbol<?> parent;
 
 
-  protected KubernetesSymbol(CheckContext ctx, @Nullable K tree, String key, BlockSymbol<?, ?> parent) {
+  protected KubernetesSymbol(CheckContext ctx, @Nullable K tree, String key, @Nullable BlockSymbol<?> parent) {
     this.ctx = ctx;
     this.tree = tree;
     this.key = key;
@@ -46,7 +46,7 @@ abstract class KubernetesSymbol<T extends KubernetesSymbol<?, ?>, K extends Yaml
 
   public T reportIfTree(Predicate<YamlTree> predicate, String message) {
     if (predicate.test(tree)) {
-      if (tree == null) {
+      if (tree == null && parent != null) {
         parent.report(message);
       } else {
         report(message);

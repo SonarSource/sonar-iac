@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.Tree;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.Tree;
 
 public class TupleTreeImpl extends YamlTreeImpl implements TupleTree {
   private final YamlTree key;

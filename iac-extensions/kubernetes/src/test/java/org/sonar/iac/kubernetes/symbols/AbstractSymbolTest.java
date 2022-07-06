@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.tree;
+package org.sonar.iac.kubernetes.symbols;
 
-import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.common.yaml.tree.FileTree;
 
-public class KubernetesTree implements Tree {
+import static org.mockito.Mockito.mock;
 
-  @Override
-  public TextRange textRange() {
-    return null;
-  }
+public abstract class AbstractSymbolTest {
 
-  @Override
-  public List<Tree> children() {
-    return null;
+  private final YamlParser parser = new YamlParser();
+  CheckContext ctx = mock(CheckContext.class);
+
+  BlockSymbol parentBlock = TupleBlockSymbol.fromPresent(ctx, parse("parent_block:\n  foo: bar"), "parent", null);
+
+  protected FileTree parse(String source) {
+    return parser.parse(source, null);
   }
 
 }

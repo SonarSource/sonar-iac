@@ -30,8 +30,10 @@ class SequenceTreeImplTest extends YamlTreeTest {
   void simple_sequence() {
     SequenceTree tree = (SequenceTree) parse("[1, \"a\"]").root();
     assertThat(tree.elements()).hasSize(2);
+    assertThat(tree.children()).hasSize(2);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
     assertThat(tree.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
+    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:seq");
   }
 }
