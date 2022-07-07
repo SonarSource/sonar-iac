@@ -52,7 +52,7 @@ linux_4_cpu_8G_template: &LINUX_4_CPU_8G
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   gce_instance:
-    image_project: release-engineering-ci-prod
+    image_project: language-team
     image_family: lt-base-windows-jdk11
     platform: windows
     zone: europe-west4-b
@@ -86,7 +86,7 @@ build_task:
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
-build_win_task:
+qa_os_win_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_IF_SONARSOURCE_QA
   depends_on:
@@ -95,11 +95,8 @@ build_win_task:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
   build_script:
-    - git config --global core.autocrlf input
-    - git submodule update --init
     - source cirrus-env CI
-    - unset SONARSOURCE_QA
-    - mvn.cmd package -DskipTypeshed=true
+    - mvn.cmd clean verify
 
 ws_scan_task:
   depends_on:
