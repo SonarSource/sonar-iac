@@ -52,7 +52,7 @@ linux_4_cpu_8G_template: &LINUX_4_CPU_8G
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   gce_instance:
-    image_project: language-team
+    image_project: release-engineering-ci-prod
     image_family: lt-base-windows-jdk11
     platform: windows
     zone: europe-west4-b
