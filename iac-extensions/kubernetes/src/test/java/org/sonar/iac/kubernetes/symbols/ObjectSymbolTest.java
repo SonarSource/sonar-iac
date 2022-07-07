@@ -19,6 +19,19 @@
  */
 package org.sonar.iac.kubernetes.symbols;
 
-class ObjectSymbolTest {
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ObjectSymbolTest extends AbstractSymbolTest {
+
+  @Test
+  void fromPresent() {
+    TupleTree specTuple = parseTupleBlock("spec:\n foo: bar");
+    ObjectSymbol object = ObjectSymbol.fromPresent(ctx, specTuple, "Pod");
+    assertThat(object.key).isEqualTo("Pod");
+    assertThat(object.parent).isNull();
+    assertThat(object.tree).isNotNull();
+  }
 }

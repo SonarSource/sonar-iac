@@ -22,6 +22,8 @@ package org.sonar.iac.kubernetes.symbols;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 
 import static org.mockito.Mockito.mock;
 
@@ -34,6 +36,10 @@ public abstract class AbstractSymbolTest {
 
   protected FileTree parse(String source) {
     return parser.parse(source, null);
+  }
+
+  protected TupleTree parseTupleBlock(String source) {
+    return ((MappingTree) parse(source).root()).elements().get(0);
   }
 
 }

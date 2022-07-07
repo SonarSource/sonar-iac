@@ -27,7 +27,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class SequenceBlockSymbol extends BlockSymbol<SequenceBlockSymbol> {
 
-  protected SequenceBlockSymbol(CheckContext ctx, MappingTree tree, String key, BlockSymbol<?> parent) {
+  SequenceBlockSymbol(CheckContext ctx, @Nullable MappingTree tree, String key, @Nullable BlockSymbol<?> parent) {
     super(ctx, tree, key, parent);
   }
 

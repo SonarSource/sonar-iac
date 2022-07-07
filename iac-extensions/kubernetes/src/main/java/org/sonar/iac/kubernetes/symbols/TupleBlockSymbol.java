@@ -31,7 +31,7 @@ public class TupleBlockSymbol extends BlockSymbol<TupleBlockSymbol> {
 
   private final HasTextRange toHighlight;
 
-  protected TupleBlockSymbol(CheckContext ctx, @Nullable HasTextRange toHighlight, MappingTree block, String key, BlockSymbol<?> parent) {
+  TupleBlockSymbol(CheckContext ctx, @Nullable HasTextRange toHighlight, @Nullable MappingTree block, String key, BlockSymbol<?> parent) {
     super(ctx, block, key, parent);
     this.toHighlight = toHighlight;
   }

@@ -32,6 +32,7 @@ class FileTreeImplTest extends YamlTreeTest {
   void file_has_a_root_tree() {
     FileTree tree = parse("a: b");
     assertThat(tree.tag()).isEqualTo("FILE");
+    assertThat(tree.children()).hasSize(1);
     assertThat(tree.root()).isInstanceOf(MappingTree.class);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 4);
     assertThat(tree.textRange()).isEqualTo(tree.root().textRange());

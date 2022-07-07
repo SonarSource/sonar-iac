@@ -30,8 +30,8 @@ abstract class KubernetesSymbol<T extends KubernetesSymbol<?, ?>, K extends Yaml
 
   public final CheckContext ctx;
   public final @Nullable K tree;
-  private final String key;
-  private final @Nullable BlockSymbol<?> parent;
+  public final String key;
+  public final @Nullable BlockSymbol<?> parent;
 
 
   protected KubernetesSymbol(CheckContext ctx, @Nullable K tree, String key, @Nullable BlockSymbol<?> parent) {

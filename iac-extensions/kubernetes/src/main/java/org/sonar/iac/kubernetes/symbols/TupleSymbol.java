@@ -28,7 +28,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class TupleSymbol extends KubernetesSymbol<TupleSymbol, TupleTree> {
 
-  protected TupleSymbol(CheckContext ctx, TupleTree tree, String key, BlockSymbol<?> parent) {
+  TupleSymbol(CheckContext ctx, @Nullable TupleTree tree, String key, BlockSymbol<?> parent) {
     super(ctx, tree, key, parent);
   }
 

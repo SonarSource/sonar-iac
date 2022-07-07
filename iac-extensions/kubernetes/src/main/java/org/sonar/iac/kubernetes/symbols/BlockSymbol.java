@@ -30,7 +30,7 @@ import org.sonar.iac.common.yaml.tree.TupleTree;
 
 abstract class BlockSymbol<T extends KubernetesSymbol<?, ?>> extends KubernetesSymbol<T, MappingTree> {
 
-  protected BlockSymbol(CheckContext ctx, @Nullable MappingTree tree, String key, BlockSymbol<?> parent) {
+  protected BlockSymbol(CheckContext ctx, @Nullable MappingTree tree, String key, @Nullable BlockSymbol<?> parent) {
     super(ctx, tree, key, parent);
   }
 

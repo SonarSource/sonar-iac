@@ -40,9 +40,6 @@ public class FileTreeImpl extends YamlTreeImpl implements FileTree {
 
   @Override
   public List<Tree> children() {
-    if (root == null) {
-      return Collections.emptyList();
-    }
     return Collections.singletonList(root);
   }
 
