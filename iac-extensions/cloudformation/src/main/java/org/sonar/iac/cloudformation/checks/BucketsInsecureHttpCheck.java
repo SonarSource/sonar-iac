@@ -142,23 +142,30 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   private static List<String> getListValueElements(CloudformationTree tree){
     if(tree instanceof ScalarTree){
       return List.of(TextUtils.getValue(tree).orElse(""));
-    } else if (tree instanceof SequenceTree){
-      return ((SequenceTree) tree).elements().stream()
-        .map(BucketsInsecureHttpCheck::getListValueElements)
-        .flatMap(Collection::stream)
-        .collect(Collectors.toList());
+    } else {
+      return Optional.of(tree)
+        .filter(SequenceTree.class::isInstance)
+        .map(t -> getValuesOfSequenceTree(((SequenceTree) t)))
+        .orElse(Collections.emptyList());
     }
-    return Collections.emptyList();
+  }
+
+  private static List<String> getValuesOfSequenceTree(SequenceTree tree){
+    return tree.elements().stream()
+      .map(BucketsInsecureHttpCheck::getListValueElements)
+      .flatMap(List::stream)
+      .collect(Collectors.toList());
   }
 
   private static String getNameOfBucket(Resource bucket){
     MappingTree properties = ((MappingTree) bucket.properties());
     return Optional.ofNullable(properties).stream()
       .map(prop -> prop.elements().get(0).value())
-      .map(ScalarTree.class::cast)
+      .map(TextTree.class::cast)
       .map(TextTree::value)
       .findFirst().orElse("");
   }
+
   private static class PolicyValidator {
 
     private static Map<YamlTree, String> getInsecureValues(Resource policy) {

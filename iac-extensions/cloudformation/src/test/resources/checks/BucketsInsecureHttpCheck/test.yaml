@@ -258,6 +258,11 @@ Resources:
             Condition:
               Bool:
                 "aws:SecureTransport": false
+  # Coverage purpose
+  PolicyWithNonExistentFunctionCall:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !NonExistentFunctionCall [ '', [ 'mycompliantbucket6249' ] ]
 
   NonCompliantBucketDueToResolvedRelation:
     Type: 'AWS::S3::Bucket' # Noncompliant
