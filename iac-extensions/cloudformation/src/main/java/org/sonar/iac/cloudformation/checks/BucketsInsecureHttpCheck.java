@@ -20,6 +20,8 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -114,6 +117,11 @@ public class BucketsInsecureHttpCheck implements IacCheck {
         .map(TextUtils::getValue)
         .flatMap(Optional::stream)
         .anyMatch(argument -> TextUtils.isValue(bucket.name(), argument).isTrue());
+    } else if (policyBucketId instanceof FunctionCallTree && isJoin((FunctionCallTree) policyBucketId) ) {
+      return  ((FunctionCallTree) policyBucketId).arguments().stream()
+        .map(BucketsInsecureHttpCheck::getListValueElements)
+        .flatMap(Collection::stream)
+        .anyMatch(elementValue -> getNameOfBucket(bucket).equals(elementValue));
     } else if (policyBucketId instanceof ScalarTree) {
       return PropertyUtils.value(bucket.properties(), "BucketName", YamlTree.class)
         .filter(bucketName -> TextUtils.isValue(bucketName, ((ScalarTree) policyBucketId).value()).isTrue())
@@ -127,6 +135,30 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     return referringFunctions.contains(functionCall.name());
   }
 
+  private static boolean isJoin(FunctionCallTree functionCall) {
+    return functionCall.name().contains("Join");
+  }
+
+  private static List<String> getListValueElements(CloudformationTree tree){
+    if(tree instanceof ScalarTree){
+      return List.of(TextUtils.getValue(tree).orElse(""));
+    } else if (tree instanceof SequenceTree){
+      return ((SequenceTree) tree).elements().stream()
+        .map(BucketsInsecureHttpCheck::getListValueElements)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
+    }
+    return Collections.emptyList();
+  }
+
+  private static String getNameOfBucket(Resource bucket){
+    MappingTree properties = ((MappingTree) bucket.properties());
+    return Optional.ofNullable(properties).stream()
+      .map(prop -> prop.elements().get(0).value())
+      .map(ScalarTree.class::cast)
+      .map(TextTree::value)
+      .findFirst().orElse("");
+  }
   private static class PolicyValidator {
 
     private static Map<YamlTree, String> getInsecureValues(Resource policy) {
