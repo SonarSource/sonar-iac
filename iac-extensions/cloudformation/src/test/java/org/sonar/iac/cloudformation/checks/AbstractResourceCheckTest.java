@@ -25,15 +25,18 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.tree.impl.MappingTreeImpl;
-import org.sonar.iac.cloudformation.tree.impl.ScalarTreeImpl;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
+import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AbstractResourceCheckTest {
+
+  private static final YamlTreeMetadata METADATA = new YamlTreeMetadata(null, null, Collections.emptyList());
 
   @Test
   void checkResource_is_called_on_every_resource() {
@@ -53,7 +56,7 @@ class AbstractResourceCheckTest {
     "AWS::S3::Bucket, true",
   })
   void test_isS3Bucket(String type, boolean isBucket) {
-    ScalarTree typeScalar = new ScalarTreeImpl(type, null, null, null, Collections.emptyList());
+    ScalarTree typeScalar = new ScalarTreeImpl(type, null, METADATA);
     AbstractResourceCheck.Resource resource = new AbstractResourceCheck.Resource(null, typeScalar, null);
     assertThat(AbstractResourceCheck.isS3Bucket(resource)).isEqualTo(isBucket);
   }
@@ -63,7 +66,7 @@ class AbstractResourceCheckTest {
     AbstractResourceCheck.Resource resource = new AbstractResourceCheck.Resource(null, null, null);
     assertThat(AbstractResourceCheck.isS3Bucket(resource)).isFalse();
 
-    MappingTree type = new MappingTreeImpl(Collections.emptyList(), null, null, Collections.emptyList());
+    MappingTree type = new MappingTreeImpl(Collections.emptyList(), METADATA);
     resource = new AbstractResourceCheck.Resource(null, type, null);
     assertThat(AbstractResourceCheck.isS3Bucket(resource)).isFalse();
   }

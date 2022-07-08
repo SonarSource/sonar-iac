@@ -20,7 +20,7 @@
 package org.sonar.iac.cloudformation.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
 

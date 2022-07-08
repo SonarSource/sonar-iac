@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,13 +45,13 @@ class CloudformationParserTest {
   void test_parse_comments_for_yaml() {
     when(inputFile.filename()).thenReturn("foo.yaml");
     FileTree tree = parser.parse("# Comment\na: 1", inputFileContext);
-    assertThat(tree.root().comments()).hasSize(1);
+    assertThat(tree.root().metadata().comments()).hasSize(1);
   }
 
   @Test
   void test_no_comment_parsing_for_json() {
     when(inputFile.filename()).thenReturn("foo.json");
     FileTree tree = parser.parse("# Comment\na: 1", inputFileContext);
-    assertThat(tree.root().comments()).isEmpty();
+    assertThat(tree.root().metadata().comments()).isEmpty();
   }
 }

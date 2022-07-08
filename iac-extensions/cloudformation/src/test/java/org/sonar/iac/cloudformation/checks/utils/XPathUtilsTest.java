@@ -21,10 +21,10 @@ package org.sonar.iac.cloudformation.checks.utils;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.CloudformationVerifier;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class XPathUtilsTest {
 
-  private CloudformationTree root;
+  private YamlTree root;
 
   @BeforeEach
   void setUp() {
@@ -47,9 +47,9 @@ class XPathUtilsTest {
   void test_getTrees() {
     assertThat(XPathUtils.getTrees(root, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]/Principal/AWS"))
       .isNotEmpty().hasSize(1)
-      .satisfies(t -> { CloudformationTree tree = t.get(0);
+      .satisfies(t -> { YamlTree tree = t.get(0);
         assertThat(tree).isInstanceOfSatisfying(SequenceTree.class, s ->
-          assertThat(s.elements()).hasSize(1).satisfies(els -> { CloudformationTree element = els.get(0);
+          assertThat(s.elements()).hasSize(1).satisfies(els -> { YamlTree element = els.get(0);
               assertThat(element).isInstanceOfSatisfying(ScalarTree.class, v ->
                 assertThat(v.value()).isEqualTo("arn:aws:iam::123456789123:root"));
             }));
@@ -83,7 +83,7 @@ class XPathUtilsTest {
   }
 
   private static class TestXPathCheck implements IacCheck {
-    private CloudformationTree root;
+    private YamlTree root;
 
     @Override
     public void initialize(InitContext init) {

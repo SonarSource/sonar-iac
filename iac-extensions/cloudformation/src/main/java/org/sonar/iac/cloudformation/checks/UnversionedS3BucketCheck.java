@@ -21,7 +21,7 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
@@ -51,7 +51,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   }
 
   protected void checkVersioning(CheckContext ctx, Resource resource) {
-    CloudformationTree properties = resource.properties();
+    YamlTree properties = resource.properties();
     Optional<Tree> versioning = PropertyUtils.value(properties, "VersioningConfiguration");
     if (versioning.isPresent()) {
       Optional<Tree> status = PropertyUtils.value(versioning.get(), "Status");
@@ -66,7 +66,7 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
     }
   }
 
-  private static Tree versioningKey(CloudformationTree properties) {
+  private static Tree versioningKey(YamlTree properties) {
     return PropertyUtils.key(properties, "VersioningConfiguration").orElse(properties);
   }
 }

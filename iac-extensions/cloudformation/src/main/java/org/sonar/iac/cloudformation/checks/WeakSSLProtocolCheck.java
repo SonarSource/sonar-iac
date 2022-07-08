@@ -21,8 +21,8 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
-import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;

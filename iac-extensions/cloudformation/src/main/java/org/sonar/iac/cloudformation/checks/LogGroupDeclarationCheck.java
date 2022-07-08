@@ -30,12 +30,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
-import org.sonar.iac.cloudformation.api.tree.FunctionCallTree;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.cloudformation.tree.FunctionCallTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -81,15 +81,15 @@ public class LogGroupDeclarationCheck implements IacCheck {
 
   // Return extracted reference identifiers for a certain LogGroup resource
   private static Set<String> getReferenceIdentifiers(Resource logGroupResource) {
-    return PropertyUtils.value(logGroupResource.properties(), "LogGroupName", CloudformationTree.class)
+    return PropertyUtils.value(logGroupResource.properties(), "LogGroupName", YamlTree.class)
       .map(LogGroupDeclarationCheck::resolveIdentifiersFromProperty)
       .orElse(Collections.emptySet());
   }
 
   // Reference identifiers can be resolved as function names directly from scalar properties or extracted from intrinsic functions
-  private static Set<String> resolveIdentifiersFromProperty(CloudformationTree property) {
+  private static Set<String> resolveIdentifiersFromProperty(YamlTree property) {
     // We have to check the tag type and not the property value instance due to some functions are also represented as ScalarTrees
-    if (property.tag().endsWith("str")) {
+    if (property.metadata().tag().endsWith("str")) {
       // extract function name from LogGroupName (e.g /aws/lambda/my-function-name -> my-function-name)
       String value = ((ScalarTree) property).value();
       return Collections.singleton(value.substring(value.lastIndexOf("/") + 1));
@@ -154,7 +154,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
       references.add(ref.value());
     }
 
-    public static Set<String> get(CloudformationTree logGroupNameProperty) {
+    public static Set<String> get(YamlTree logGroupNameProperty) {
       FunctionReferenceCollector collector = new FunctionReferenceCollector();
       collector.scan(new TreeContext(), logGroupNameProperty);
       return collector.references;

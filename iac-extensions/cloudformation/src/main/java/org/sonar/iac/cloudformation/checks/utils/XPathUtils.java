@@ -24,28 +24,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.stream.Stream;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
-import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.checks.TextUtils;
 
 public class XPathUtils {
 
-  private final List<CloudformationTree> result = new ArrayList<>();
+  private final List<YamlTree> result = new ArrayList<>();
 
   private XPathUtils() {
   }
 
-  public static Optional<CloudformationTree> getSingleTree(CloudformationTree root, String expression) {
-    List<CloudformationTree> trees = getTrees(root, expression);
+  public static Optional<YamlTree> getSingleTree(YamlTree root, String expression) {
+    List<YamlTree> trees = getTrees(root, expression);
     if (trees.size() == 1) {
       return Optional.of(trees.get(0));
     }
     return Optional.empty();
   }
 
-  public static List<CloudformationTree> getTrees(CloudformationTree root, String expression) {
+  public static List<YamlTree> getTrees(YamlTree root, String expression) {
     if (!expression.startsWith("/")) {
       throw new InvalidXPathExpression("For now all paths have to start with slash");
     }
@@ -54,7 +54,7 @@ public class XPathUtils {
     return utils.result;
   }
 
-  void visitTree(CloudformationTree tree, StringTokenizer tokenizer) {
+  void visitTree(YamlTree tree, StringTokenizer tokenizer) {
     if (!tokenizer.hasMoreTokens()) {
       result.add(tree);
       return;
@@ -62,7 +62,7 @@ public class XPathUtils {
     visitTree(tree, tokenizer, tokenizer.nextToken());
   }
 
-  void visitTree(CloudformationTree tree, StringTokenizer tokenizer, String token) {
+  void visitTree(YamlTree tree, StringTokenizer tokenizer, String token) {
     boolean expectSequence = false;
     if (token.endsWith("[]")) {
       expectSequence = true;

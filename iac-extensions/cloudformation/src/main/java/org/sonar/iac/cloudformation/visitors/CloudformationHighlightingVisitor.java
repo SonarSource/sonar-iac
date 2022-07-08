@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.cloudformation.visitors;
 
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.api.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;

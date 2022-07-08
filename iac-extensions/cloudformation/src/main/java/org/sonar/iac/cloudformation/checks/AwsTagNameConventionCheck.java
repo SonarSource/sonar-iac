@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -49,7 +49,7 @@ public class AwsTagNameConventionCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
-    CloudformationTree properties = resource.properties();
+    YamlTree properties = resource.properties();
     if (properties != null) {
       getTagKeyStream(properties)
         .filter(this::isMismatchingKey)
@@ -57,7 +57,7 @@ public class AwsTagNameConventionCheck extends AbstractResourceCheck {
     }
   }
 
-  private static Stream<ScalarTree> getTagKeyStream(CloudformationTree properties) {
+  private static Stream<ScalarTree> getTagKeyStream(YamlTree properties) {
     return XPathUtils.getTrees(properties, "/Tags[]/Key").stream()
       .filter(ScalarTree.class::isInstance).map(ScalarTree.class::cast);
   }

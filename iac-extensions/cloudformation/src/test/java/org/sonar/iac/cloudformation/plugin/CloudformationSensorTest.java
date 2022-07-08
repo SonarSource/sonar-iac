@@ -55,7 +55,7 @@ class CloudformationSensorTest extends AbstractSensorTest {
 
   @Test
   void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
-    analyse(sensor("S2260"), inputFile("comment.json", "foo: &fooanchor\n" +
+    analyse(sensor("S2260"), inputFile("comment.yaml", "foo: &fooanchor\n" +
       " bar: *fooanchor"));
 
     assertThat(context.allIssues()).as("").hasSize(1);

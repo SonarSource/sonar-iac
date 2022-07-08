@@ -28,12 +28,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.FileTree;
-import org.sonar.iac.cloudformation.api.tree.FunctionCallTree;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.cloudformation.tree.FunctionCallTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -80,7 +80,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   }
 
   private static void checkBucketPolicy(CheckContext ctx, Resource bucket, Resource policy) {
-    Map<CloudformationTree, String> insecureValues = PolicyValidator.getInsecureValues(policy);
+    Map<YamlTree, String> insecureValues = PolicyValidator.getInsecureValues(policy);
     if (!insecureValues.isEmpty()) {
       List<SecondaryLocation> secondaryLocations = insecureValues.entrySet().stream()
         .map(e -> new SecondaryLocation(e.getKey(), e.getValue()))
@@ -90,9 +90,9 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   }
 
   private static Map<Resource, Resource> bucketsToPolicies(List<Resource> buckets, List<Resource> policies) {
-    Map<CloudformationTree, Resource> bucketIdToPolicies = new HashMap<>();
+    Map<YamlTree, Resource> bucketIdToPolicies = new HashMap<>();
     for (Resource policy : policies) {
-      PropertyUtils.value(policy.properties(), "Bucket", CloudformationTree.class)
+      PropertyUtils.value(policy.properties(), "Bucket", YamlTree.class)
         .ifPresent(b -> bucketIdToPolicies.put(b, policy));
     }
 
@@ -108,14 +108,14 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     return result;
   }
 
-  private static boolean correspondsToBucket(@Nullable CloudformationTree policyBucketId, Resource bucket) {
+  private static boolean correspondsToBucket(@Nullable YamlTree policyBucketId, Resource bucket) {
     if (policyBucketId instanceof FunctionCallTree && isReferringFunction((FunctionCallTree) policyBucketId)) {
       return ((FunctionCallTree) policyBucketId).arguments().stream()
         .map(TextUtils::getValue)
         .flatMap(Optional::stream)
         .anyMatch(argument -> TextUtils.isValue(bucket.name(), argument).isTrue());
     } else if (policyBucketId instanceof ScalarTree) {
-      return PropertyUtils.value(bucket.properties(), "BucketName", CloudformationTree.class)
+      return PropertyUtils.value(bucket.properties(), "BucketName", YamlTree.class)
         .filter(bucketName -> TextUtils.isValue(bucketName, ((ScalarTree) policyBucketId).value()).isTrue())
         .isPresent();
     }
@@ -129,12 +129,12 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
   private static class PolicyValidator {
 
-    private static Map<CloudformationTree, String> getInsecureValues(Resource policy) {
-      HashMap<CloudformationTree, String> result = new HashMap<>();
+    private static Map<YamlTree, String> getInsecureValues(Resource policy) {
+      HashMap<YamlTree, String> result = new HashMap<>();
 
-      CloudformationTree properties = policy.properties();
+      YamlTree properties = policy.properties();
       if (properties != null) {
-        Optional<CloudformationTree> statement = XPathUtils.getSingleTree(properties, "/PolicyDocument/Statement[]");
+        Optional<YamlTree> statement = XPathUtils.getSingleTree(properties, "/PolicyDocument/Statement[]");
         if (statement.isPresent()) {
           XPathUtils.getSingleTree(statement.get(), "/Effect")
             .filter(PolicyValidator::isInsecureEffect).ifPresent(t -> result.put(t, MESSAGE_SECONDARY_EFFECT));
@@ -152,10 +152,10 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       return result;
     }
 
-    private static boolean isInsecureResource(CloudformationTree resource) {
+    private static boolean isInsecureResource(YamlTree resource) {
       if (resource instanceof FunctionCallTree && "Join".equals(((FunctionCallTree) resource).name()) && (((FunctionCallTree) resource).arguments().size() == 2)) {
         FunctionCallTree joinCall = (FunctionCallTree) resource;
-        CloudformationTree listOfValues = joinCall.arguments().get(1);
+        YamlTree listOfValues = joinCall.arguments().get(1);
         if (listOfValues instanceof SequenceTree) {
           SequenceTree sequence = (SequenceTree) listOfValues;
           // Extract last element of Join value list to be checked if it's insecure
@@ -165,7 +165,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       return !(resource instanceof ScalarTree && ((ScalarTree) resource).value().endsWith("*"));
     }
 
-    private static boolean isInsecurePrincipal(CloudformationTree principal) {
+    private static boolean isInsecurePrincipal(YamlTree principal) {
       Tree valueToCheck = principal;
       if (principal instanceof MappingTree) {
         valueToCheck = PropertyUtils.valueOrNull(principal, "AWS");
@@ -173,15 +173,15 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       return !TextUtils.isValue(valueToCheck, "*").isTrue();
     }
 
-    private static boolean isInsecureAction(CloudformationTree action) {
+    private static boolean isInsecureAction(YamlTree action) {
       return !(TextUtils.isValue(action, "*").isTrue() || TextUtils.isValue(action, "s3:*").isTrue());
     }
 
-    private static boolean isInsecureCondition(CloudformationTree condition) {
+    private static boolean isInsecureCondition(YamlTree condition) {
       return TextUtils.isValue(condition, "true").isTrue();
     }
 
-    private static boolean isInsecureEffect(CloudformationTree effect) {
+    private static boolean isInsecureEffect(YamlTree effect) {
       return TextUtils.isValue(effect, "Allow").isTrue();
     }
   }

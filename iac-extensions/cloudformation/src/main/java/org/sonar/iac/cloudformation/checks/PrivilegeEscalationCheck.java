@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.utils.PolicyUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;

@@ -21,10 +21,10 @@ package org.sonar.iac.cloudformation.visitors;
 
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.cloudformation.api.tree.CloudformationTree;
-import org.sonar.iac.cloudformation.api.tree.MappingTree;
-import org.sonar.iac.cloudformation.api.tree.ScalarTree;
-import org.sonar.iac.cloudformation.api.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 
@@ -43,7 +43,7 @@ public class CloudformationMetricsVisitor extends MetricsVisitor {
     });
     register(MappingTree.class, (ctx, tree) -> addBraces(tree));
     register(SequenceTree.class, (ctx, tree) -> addBraces(tree));
-    register(CloudformationTree.class, (ctx, tree) -> addCommentLines(tree.comments()));
+    register(YamlTree.class, (ctx, tree) -> addCommentLines(tree.metadata().comments()));
   }
 
   // SONARIAC-82 Lines which contain only brackets should also be counted for metrics
