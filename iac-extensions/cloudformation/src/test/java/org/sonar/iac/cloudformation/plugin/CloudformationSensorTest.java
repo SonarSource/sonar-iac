@@ -24,10 +24,12 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
 
 class CloudformationSensorTest extends AbstractSensorTest {
 
@@ -131,7 +133,7 @@ class CloudformationSensorTest extends AbstractSensorTest {
 
   @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    return new CloudformationSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, language());
+    return new CloudformationSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, language(), spy(AnalysisWarnings.class));
   }
 
   @Override
