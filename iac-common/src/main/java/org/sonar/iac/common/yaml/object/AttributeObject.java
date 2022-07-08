@@ -17,34 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.symbols;
+package org.sonar.iac.common.yaml.object;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class SequenceBlockSymbol extends BlockSymbol<SequenceBlockSymbol> {
+// TODO: Find better naming for wrapped trees than object or symbol
+abstract class AttributeObject<T extends AttributeObject<?, ?>, K extends YamlTree> {
 
-  SequenceBlockSymbol(CheckContext ctx, @Nullable MappingTree tree, String key, @Nullable BlockSymbol<?> parent) {
-    super(ctx, tree, key, parent);
+  public final CheckContext ctx;
+  public final @Nullable K tree;
+  public final String key;
+  public final Status status;
+
+  enum Status {
+    PRESENT,
+    ABSENT,
+    UNKNOWN
+  }
+
+  protected AttributeObject(CheckContext ctx, @Nullable K tree, String key, Status status) {
+    this.ctx = ctx;
+    this.tree = tree;
+    this.key = key;
+    this.status = status;
   }
 
   @Nullable
-  @Override
-  protected HasTextRange toHighlight() {
-    return tree;
-  }
+  protected abstract HasTextRange toHighlight();
 
-  public static SequenceBlockSymbol fromPresent(CheckContext ctx, YamlTree tree, String key, BlockSymbol<?> parent) {
-    if (tree instanceof MappingTree) {
-      return new SequenceBlockSymbol(ctx, (MappingTree) tree, key, parent);
-    }
-    return fromAbsent(ctx, key, parent);
-  }
-
-  public static SequenceBlockSymbol fromAbsent(CheckContext ctx, String key, BlockSymbol<?> parent) {
-    return new SequenceBlockSymbol(ctx, null, key, parent);
+  public T report(String message) {
+    Optional.ofNullable(toHighlight())
+      .ifPresent(hasTextRange -> ctx.reportIssue(hasTextRange, message));
+    return (T) this;
   }
 }

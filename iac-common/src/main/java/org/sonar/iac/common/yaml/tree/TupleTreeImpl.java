@@ -20,18 +20,15 @@
 package org.sonar.iac.common.yaml.tree;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class TupleTreeImpl extends YamlTreeImpl implements TupleTree {
   private final YamlTree key;
   private final YamlTree value;
 
-  public TupleTreeImpl(YamlTree key, YamlTree value, TextRange textRange) {
-    // Comments are attached to the key and value trees separately
-    super(textRange, Collections.emptyList());
+  public TupleTreeImpl(YamlTree key, YamlTree value, YamlTreeMetadata metadata) {
+    super(metadata);
     this.key = key;
     this.value = value;
   }
@@ -49,10 +46,5 @@ public class TupleTreeImpl extends YamlTreeImpl implements TupleTree {
   @Override
   public YamlTree value() {
     return value;
-  }
-
-  @Override
-  public String tag() {
-    return "TUPLE";
   }
 }

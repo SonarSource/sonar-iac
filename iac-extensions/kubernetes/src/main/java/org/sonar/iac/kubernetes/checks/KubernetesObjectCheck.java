@@ -31,11 +31,11 @@ import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
-import org.sonar.iac.kubernetes.symbols.ObjectSymbol;
+import org.sonar.iac.common.yaml.object.BlockObject;
 
 public abstract class KubernetesObjectCheck implements IacCheck {
 
-  private final Map<String, List<Consumer<ObjectSymbol>>> objectConsumer = new HashMap<>();
+  private final Map<String, List<Consumer<BlockObject>>> objectConsumersByKind = new HashMap<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -44,13 +44,14 @@ public abstract class KubernetesObjectCheck implements IacCheck {
         MappingTree fileMap = (MappingTree) fileTree.root();
         PropertyUtils.get(fileMap, "kind")
           .flatMap(kind -> TextUtils.getValue(kind.value()))
-          .filter(objectConsumer::containsKey)
+          .filter(objectConsumersByKind::containsKey)
           .ifPresent(kind -> PropertyUtils.get(fileMap, "spec")
             .filter(TupleTree.class::isInstance)
             .map(TupleTree.class::cast)
+            .filter(t -> t.value() instanceof MappingTree)
             .ifPresent(spec -> {
-              ObjectSymbol obj = ObjectSymbol.fromPresent(ctx, spec, kind);
-              objectConsumer.get(kind).forEach(consumer -> consumer.accept(obj));
+              BlockObject obj = BlockObject.fromPresent(ctx, spec.value(), kind);
+              objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(obj));
             }));
       }
     });
@@ -59,11 +60,11 @@ public abstract class KubernetesObjectCheck implements IacCheck {
 
   abstract void registerObjectCheck();
 
-  protected void register(String kind, Consumer<ObjectSymbol> consumer) {
-    objectConsumer.computeIfAbsent(kind, s -> new ArrayList<>()).add(consumer);
+  protected void register(String kind, Consumer<BlockObject> consumer) {
+    objectConsumersByKind.computeIfAbsent(kind, s -> new ArrayList<>()).add(consumer);
   }
 
-  protected void register(Iterable<String> kinds, Consumer<ObjectSymbol> consumer) {
+  protected void register(Iterable<String> kinds, Consumer<BlockObject> consumer) {
     kinds.forEach(kind -> register(kind, consumer));
   }
 

@@ -22,8 +22,7 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.List;
 import org.sonar.check.Rule;
 
-import static org.sonar.iac.kubernetes.symbols.TreePredicates.isAbsent;
-import static org.sonar.iac.kubernetes.symbols.TreePredicates.isTrue;
+import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
 
 @Rule(key = "S6428")
 public class ContainerPrivilegedModeCheck extends KubernetesObjectCheck {
@@ -36,7 +35,6 @@ public class ContainerPrivilegedModeCheck extends KubernetesObjectCheck {
     register("Pod", pod ->
       pod.blocks("containers").forEach(container ->
         container.block("securityContext")
-          .reportIfTree(isAbsent(), MESSAGE)
           .attribute("privileged")
             .reportIfValue(isTrue(), MESSAGE)
       )
@@ -45,7 +43,6 @@ public class ContainerPrivilegedModeCheck extends KubernetesObjectCheck {
     register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
       obj.block("template").block("spec").blocks("containers").forEach(container ->
         container.block("securityContext")
-          .reportIfTree(isAbsent(), MESSAGE)
           .attribute("privileged")
             .reportIfValue(isTrue(), MESSAGE)
       )

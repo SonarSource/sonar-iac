@@ -21,11 +21,10 @@ package org.sonar.iac.cloudformation.tree;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeImpl;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 public class FunctionCallTreeImpl extends YamlTreeImpl implements FunctionCallTree {
 
@@ -33,8 +32,8 @@ public class FunctionCallTreeImpl extends YamlTreeImpl implements FunctionCallTr
   private final Style style;
   private final List<YamlTree> arguments;
 
-  public FunctionCallTreeImpl(String name, Style style, List<YamlTree> arguments, TextRange textRange, List<Comment> comments) {
-    super(textRange, comments);
+  public FunctionCallTreeImpl(String name, Style style, List<YamlTree> arguments, YamlTreeMetadata metadata) {
+    super(metadata);
     this.name = name;
     this.style = style;
     this.arguments = arguments;
@@ -44,12 +43,6 @@ public class FunctionCallTreeImpl extends YamlTreeImpl implements FunctionCallTr
   public List<Tree> children() {
     return new ArrayList<>(arguments);
   }
-
-  @Override
-  public String tag() {
-    return "FUNCTION_CALL";
-  }
-
   @Override
   public String name() {
     return name;

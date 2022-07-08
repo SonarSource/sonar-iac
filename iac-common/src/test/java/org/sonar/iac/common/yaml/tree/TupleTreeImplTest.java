@@ -29,7 +29,7 @@ class TupleTreeImplTest extends YamlTreeTest {
   void simple_tuple() {
     TupleTree tree = ((MappingTree) parse("a: b").root()).elements().get(0);
     assertThat(tree.children()).hasSize(2);
-    assertThat(tree.tag()).isEqualTo("TUPLE");
+    assertThat(tree.metadata().tag()).isEqualTo("TUPLE");
     assertThat(tree.key()).isInstanceOfSatisfying(ScalarTree.class, k -> assertThat(k.value()).isEqualTo("a"));
     assertThat(tree.value()).isInstanceOfSatisfying(ScalarTree.class, k -> assertThat(k.value()).isEqualTo("b"));
   }

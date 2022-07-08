@@ -31,7 +31,7 @@ class FileTreeImplTest extends YamlTreeTest {
   @Test
   void file_has_a_root_tree() {
     FileTree tree = parse("a: b");
-    assertThat(tree.tag()).isEqualTo("FILE");
+    assertThat(tree.metadata().tag()).isEqualTo("FILE");
     assertThat(tree.children()).hasSize(1);
     assertThat(tree.root()).isInstanceOf(MappingTree.class);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 4);
@@ -46,11 +46,11 @@ class FileTreeImplTest extends YamlTreeTest {
   @Test
   void file_with_only_a_comment() {
     FileTree tree = parse("# foo");
-    assertThat(tree.tag()).isEqualTo("FILE");
+    assertThat(tree.metadata().tag()).isEqualTo("FILE");
     assertThat(tree.root()).isInstanceOf(MappingTree.class);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 0);
-    assertThat(tree.root().comments()).hasSize(1);
-    assertThat(tree.root().comments().get(0).value()).isEqualTo("# foo");
-    assertThat(tree.root().comments().get(0).contentText()).isEqualTo(" foo");
+    assertThat(tree.root().metadata().comments()).hasSize(1);
+    assertThat(tree.root().metadata().comments().get(0).value()).isEqualTo("# foo");
+    assertThat(tree.root().metadata().comments().get(0).contentText()).isEqualTo(" foo");
   }
 }

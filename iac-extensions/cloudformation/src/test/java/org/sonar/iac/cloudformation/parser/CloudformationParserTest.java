@@ -44,14 +44,14 @@ class CloudformationParserTest {
   @Test
   void test_parse_comments_for_yaml() {
     when(inputFile.filename()).thenReturn("foo.yaml");
-    FileTree tree = (FileTree) parser.parse("# Comment\na: 1", inputFileContext);
-    assertThat(tree.root().comments()).hasSize(1);
+    FileTree tree = parser.parse("# Comment\na: 1", inputFileContext);
+    assertThat(tree.root().metadata().comments()).hasSize(1);
   }
 
   @Test
   void test_no_comment_parsing_for_json() {
     when(inputFile.filename()).thenReturn("foo.json");
-    FileTree tree = (FileTree) parser.parse("# Comment\na: 1", inputFileContext);
-    assertThat(tree.root().comments()).isEmpty();
+    FileTree tree = parser.parse("# Comment\na: 1", inputFileContext);
+    assertThat(tree.root().metadata().comments()).isEmpty();
   }
 }

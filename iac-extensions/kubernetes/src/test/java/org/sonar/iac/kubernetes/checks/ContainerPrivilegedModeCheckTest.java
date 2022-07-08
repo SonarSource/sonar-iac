@@ -26,66 +26,13 @@ class ContainerPrivilegedModeCheckTest {
 
   IacCheck check = new ContainerPrivilegedModeCheck();
 
-  // Pods
   @Test
-  void noncompliant_pod_privileged() {
-    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/noncompliant_pod_privileged.yaml", check);
+  void test_pod_object() {
+    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/test_pod_object.yaml", check);
   }
 
   @Test
-  void noncompliant_pod_context_missing() {
-    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/noncompliant_pod_context_missing.yaml", check);
-  }
-
-  @Test
-  void noncompliant_pod_privileged_missing() {
-    KubernetesVerifier.verifyNoIssue("ContainerPrivilegedModeCheck/compliant_pod_privileged_missing.yaml", check);
-  }
-
-  @Test
-  void noncompliant_multi_pod_privileged() {
-    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/noncompliant_multi_pod_privileged.yaml", check);
-  }
-
-  @Test
-  void compliant_pod_privileged() {
-    KubernetesVerifier.verifyNoIssue("ContainerPrivilegedModeCheck/compliant_pod_privileged.yaml", check);
-  }
-
-  @Test
-  void compliant_non_pod_privileged() {
-    KubernetesVerifier.verifyNoIssue("ContainerPrivilegedModeCheck/compliant_non_pod_privileged.yaml", check);
-  }
-
-  // Templates
-
-  @Test
-  void noncompliant_template_privileged() {
-    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/noncompliant_template_privileged.yaml", check);
-  }
-
-  @Test
-  void noncompliant_template_context_missing() {
-    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/noncompliant_template_context_missing.yaml", check);
-  }
-
-  @Test
-  void compliant_template_privileged_missing() {
-    KubernetesVerifier.verifyNoIssue("ContainerPrivilegedModeCheck/compliant_template_privileged_missing.yaml", check);
-  }
-
-  @Test
-  void noncompliant_multi_template_privileged() {
-    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/noncompliant_multi_template_privileged.yaml", check);
-  }
-
-  @Test
-  void compliant_template_privileged() {
-    KubernetesVerifier.verifyNoIssue("ContainerPrivilegedModeCheck/compliant_template_privileged.yaml", check);
-  }
-
-  @Test
-  void compliant_non_template_privileged() {
-    KubernetesVerifier.verifyNoIssue("ContainerPrivilegedModeCheck/compliant_non_template_privileged.yaml", check);
+  void test_template_object() {
+    KubernetesVerifier.verify("ContainerPrivilegedModeCheck/test_template_object.yaml", check);
   }
 }

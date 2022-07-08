@@ -43,7 +43,7 @@ public class CloudformationMetricsVisitor extends MetricsVisitor {
     });
     register(MappingTree.class, (ctx, tree) -> addBraces(tree));
     register(SequenceTree.class, (ctx, tree) -> addBraces(tree));
-    register(YamlTree.class, (ctx, tree) -> addCommentLines(tree.comments()));
+    register(YamlTree.class, (ctx, tree) -> addCommentLines(tree.metadata().comments()));
   }
 
   // SONARIAC-82 Lines which contain only brackets should also be counted for metrics

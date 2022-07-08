@@ -20,7 +20,6 @@
 package org.sonar.iac.cloudformation.parser;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -32,8 +31,6 @@ import org.snakeyaml.engine.v2.nodes.SequenceNode;
 import org.snakeyaml.engine.v2.nodes.Tag;
 import org.sonar.iac.cloudformation.tree.FunctionCallTree;
 import org.sonar.iac.cloudformation.tree.FunctionCallTreeImpl;
-import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.YamlConverter;
 import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
@@ -41,6 +38,9 @@ import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
 import org.sonar.iac.common.yaml.tree.SequenceTreeImpl;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
+
+import static org.sonar.iac.common.yaml.tree.YamlTreeMetadata.tag;
 
 public class CloudformationConverter extends YamlConverter {
 
@@ -60,7 +60,7 @@ public class CloudformationConverter extends YamlConverter {
       elements.add(convertTuple(elementNode));
     }
 
-    return new MappingTreeImpl(elements, tag(mappingNode), range(mappingNode), comments(mappingNode));
+    return new MappingTreeImpl(elements, YamlTreeMetadata.fromNode(mappingNode));
   }
 
   @Nullable
@@ -74,12 +74,7 @@ public class CloudformationConverter extends YamlConverter {
       } else {
         arguments.add(convert(argumentList));
       }
-
-      List<Comment> functionComments = comments(functionNameNode);
-      functionComments.addAll(comments(argumentList));
-
-      var functionRange = TextRanges.merge(List.of(range(functionNameNode), range(argumentList)));
-      return new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.FULL, arguments, functionRange, functionComments);
+      return new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.FULL, arguments, YamlTreeMetadata.fromNodes("FUNCTION_CALL", functionNameNode, argumentList));
     }).orElse(null);
   }
 
@@ -89,7 +84,7 @@ public class CloudformationConverter extends YamlConverter {
     if (functionCallFromScalar != null) {
       return functionCallFromScalar;
     }
-    return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()), tag(scalarNode), range(scalarNode), comments(scalarNode));
+    return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()), YamlTreeMetadata.fromNode(scalarNode));
   }
 
   @Override
@@ -104,22 +99,21 @@ public class CloudformationConverter extends YamlConverter {
     if (functionCallFromScalar != null) {
       return functionCallFromScalar;
     }
-    return new SequenceTreeImpl(elements, tag(sequenceNode), range(sequenceNode), comments(sequenceNode));
+    return new SequenceTreeImpl(elements, YamlTreeMetadata.fromNode(sequenceNode));
   }
 
   @Nullable
   private static FunctionCallTree convertSequenceToFunctionCall(SequenceNode functionNode, List<YamlTree> arguments) {
     return shortStyleFunctionName(functionNode).map(functionName ->
-      new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.SHORT, arguments, range(functionNode), comments(functionNode))
+      new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.SHORT, arguments, YamlTreeMetadata.fromNode("FUNCTION_CALL", functionNode))
     ).orElse(null);
   }
 
   @Nullable
   private static FunctionCallTree convertScalarToFunctionCall(ScalarNode scalarNode) {
     return shortStyleFunctionName(scalarNode).map(functionName -> {
-      var functionRange = range(scalarNode);
-      var argument = new ScalarTreeImpl(scalarNode.getValue(), ScalarTree.Style.OTHER, Tag.STR.getValue(), functionRange, Collections.emptyList());
-      return new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.SHORT, List.of(argument), functionRange, comments(scalarNode));
+      var argument = new ScalarTreeImpl(scalarNode.getValue(), ScalarTree.Style.OTHER, YamlTreeMetadata.fromNode(Tag.STR.getValue(), scalarNode));
+      return new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.SHORT, List.of(argument), YamlTreeMetadata.fromNode("FUNCTION_CALL", scalarNode));
     }).orElse(null);
   }
 

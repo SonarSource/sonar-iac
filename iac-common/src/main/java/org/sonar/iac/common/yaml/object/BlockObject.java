@@ -17,42 +17,61 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.symbols;
+package org.sonar.iac.common.yaml.object;
 
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
-abstract class BlockSymbol<T extends KubernetesSymbol<?, ?>> extends KubernetesSymbol<T, MappingTree> {
+public class BlockObject extends AttributeObject<BlockObject, MappingTree> {
 
-  protected BlockSymbol(CheckContext ctx, @Nullable MappingTree tree, String key, @Nullable BlockSymbol<?> parent) {
-    super(ctx, tree, key, parent);
+  protected BlockObject(CheckContext ctx, @Nullable MappingTree tree, String key, Status status) {
+    super(ctx, tree, key, status);
   }
 
-  public Stream<SequenceBlockSymbol> blocks(String key) {
+  @Nullable
+  @Override
+  protected HasTextRange toHighlight() {
+    return tree;
+  }
+
+  public static BlockObject fromPresent(CheckContext ctx, YamlTree tree, String key) {
+    if (tree instanceof MappingTree) {
+      return new BlockObject(ctx, (MappingTree) tree, key, Status.PRESENT);
+    }
+    return new BlockObject(ctx, null, key, Status.UNKNOWN);
+  }
+
+  public static BlockObject fromAbsent(CheckContext ctx, String key) {
+    return new BlockObject(ctx, null, key, Status.ABSENT);
+  }
+
+  public Stream<BlockObject> blocks(String key) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.value(tree, key, SequenceTree.class))
       .map(sequence -> sequence.elements().stream()
-          .map(block -> SequenceBlockSymbol.fromPresent(ctx, block, key, this)))
+          .map(block -> BlockObject.fromPresent(ctx, block, key)))
       .orElse(Stream.empty());
   }
 
-  public TupleBlockSymbol block(String key) {
+  public BlockObject block(String key) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
-      .map(tuple -> TupleBlockSymbol.fromPresent(ctx, tuple, key, this))
-      .orElse(TupleBlockSymbol.fromAbsent(ctx, key, this));
+      .map(tuple -> BlockObject.fromPresent(ctx, tuple.value(), key))
+      .orElse(BlockObject.fromAbsent(ctx, key));
   }
 
-  public TupleSymbol attribute(String key) {
+  public TupleObject attribute(String key) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
-      .map(attribute -> TupleSymbol.fromPresent(ctx, attribute, key, this))
-      .orElse(TupleSymbol.fromAbsent(ctx, key, this));
+      .map(attribute -> TupleObject.fromPresent(ctx, attribute, key))
+      .orElse(TupleObject.fromAbsent(ctx, key));
   }
 }

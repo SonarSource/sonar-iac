@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.symbols;
+package org.sonar.iac.common.yaml.object;
 
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -26,24 +26,24 @@ import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class TupleSymbol extends KubernetesSymbol<TupleSymbol, TupleTree> {
+public class TupleObject extends AttributeObject<TupleObject, TupleTree> {
 
-  TupleSymbol(CheckContext ctx, @Nullable TupleTree tree, String key, BlockSymbol<?> parent) {
-    super(ctx, tree, key, parent);
+  TupleObject(CheckContext ctx, @Nullable TupleTree tree, String key, Status status) {
+    super(ctx, tree, key, status);
   }
 
-  public static TupleSymbol fromPresent(CheckContext ctx, YamlTree tree, String key, BlockSymbol<?> parent) {
+  public static TupleObject fromPresent(CheckContext ctx, YamlTree tree, String key) {
     if (tree instanceof TupleTree) {
-      return new TupleSymbol(ctx, (TupleTree) tree, key, parent);
+      return new TupleObject(ctx, (TupleTree) tree, key, Status.PRESENT);
     }
-    return fromAbsent(ctx, key, parent);
+    return new TupleObject(ctx, null, key, Status.UNKNOWN);
   }
 
-  public static TupleSymbol fromAbsent(CheckContext ctx, String key, BlockSymbol<?> parent) {
-    return new TupleSymbol(ctx, null, key, parent);
+  public static TupleObject fromAbsent(CheckContext ctx, String key) {
+    return new TupleObject(ctx, null, key, Status.ABSENT);
   }
 
-  public TupleSymbol reportIfValue(Predicate<YamlTree> predicate, String message) {
+  public TupleObject reportIfValue(Predicate<YamlTree> predicate, String message) {
     if (tree != null && predicate.test(tree.value())) {
       report(message);
     }

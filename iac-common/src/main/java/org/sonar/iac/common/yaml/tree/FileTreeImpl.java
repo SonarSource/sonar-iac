@@ -21,15 +21,14 @@ package org.sonar.iac.common.yaml.tree;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class FileTreeImpl extends YamlTreeImpl implements FileTree {
   private final YamlTree root;
 
-  public FileTreeImpl(YamlTree root, TextRange textRange) {
+  public FileTreeImpl(YamlTree root, YamlTreeMetadata metadata) {
     // A file on its own has no comments. They will be attached to the root node.
-    super(textRange, Collections.emptyList());
+    super(metadata);
     this.root = root;
   }
 
@@ -41,11 +40,6 @@ public class FileTreeImpl extends YamlTreeImpl implements FileTree {
   @Override
   public List<Tree> children() {
     return Collections.singletonList(root);
-  }
-
-  @Override
-  public String tag() {
-    return "FILE";
   }
 
 }

@@ -27,7 +27,7 @@ public abstract class YamlTreeTest {
 
   protected FileTree parse(String source) {
     YamlParser parser = new YamlParser();
-    return (FileTree) parser.parse(source, null);
+    return parser.parse(source, null);
   }
 
   protected <T extends YamlTree> T parse(String source, Class<T> clazz) {

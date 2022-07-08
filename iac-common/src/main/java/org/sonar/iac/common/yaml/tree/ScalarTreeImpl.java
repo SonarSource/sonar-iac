@@ -21,21 +21,17 @@ package org.sonar.iac.common.yaml.tree;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ScalarTreeImpl extends YamlTreeImpl implements ScalarTree {
 
   private final String value;
-  private final String tag;
   private final Style style;
 
-  public ScalarTreeImpl(String value, Style style, String tag, TextRange textRange, List<Comment> comments) {
-    super(textRange, comments);
+  public ScalarTreeImpl(String value, Style style, YamlTreeMetadata metadata) {
+    super(metadata);
     this.value = value;
     this.style = style;
-    this.tag = tag;
   }
 
   @Override
@@ -51,10 +47,5 @@ public class ScalarTreeImpl extends YamlTreeImpl implements ScalarTree {
   @Override
   public List<Tree> children() {
     return Collections.emptyList();
-  }
-
-  @Override
-  public String tag() {
-    return tag;
   }
 }

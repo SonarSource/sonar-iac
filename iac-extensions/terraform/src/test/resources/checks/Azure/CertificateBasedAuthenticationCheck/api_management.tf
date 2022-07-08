@@ -16,6 +16,14 @@ resource "azurerm_api_management" "example" {
 
 resource "azurerm_api_management" "example" {
   sku_name = "Consumption_" # Compliant
+
+  foo {
+    foo = bar
+  }
+
+  foo {
+    foo = bar
+  }
 }
 
 resource "azurerm_api_management" "example" {

@@ -22,6 +22,6 @@ package org.sonar.iac.common.yaml.tree;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
 
-public interface YamlTree extends HasComments, Tree {
-  String tag();
+public interface YamlTree extends Tree, HasComments {
+  YamlTreeMetadata metadata();
 }

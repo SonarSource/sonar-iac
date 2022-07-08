@@ -89,7 +89,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
   // Reference identifiers can be resolved as function names directly from scalar properties or extracted from intrinsic functions
   private static Set<String> resolveIdentifiersFromProperty(YamlTree property) {
     // We have to check the tag type and not the property value instance due to some functions are also represented as ScalarTrees
-    if (property.tag().endsWith("str")) {
+    if (property.metadata().tag().endsWith("str")) {
       // extract function name from LogGroupName (e.g /aws/lambda/my-function-name -> my-function-name)
       String value = ((ScalarTree) property).value();
       return Collections.singleton(value.substring(value.lastIndexOf("/") + 1));

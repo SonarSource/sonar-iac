@@ -21,18 +21,14 @@ package org.sonar.iac.common.yaml.tree;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class SequenceTreeImpl extends YamlTreeImpl implements SequenceTree {
   private final List<YamlTree> elements;
-  private final String tag;
 
-  public SequenceTreeImpl(List<YamlTree> elements, String tag, TextRange textRange, List<Comment> comments) {
-    super(textRange, comments);
+  public SequenceTreeImpl(List<YamlTree> elements, YamlTreeMetadata metadata) {
+    super(metadata);
     this.elements = elements;
-    this.tag = tag;
   }
 
   @Override
@@ -43,10 +39,5 @@ public class SequenceTreeImpl extends YamlTreeImpl implements SequenceTree {
   @Override
   public List<YamlTree> elements() {
     return elements;
-  }
-
-  @Override
-  public String tag() {
-    return tag;
   }
 }

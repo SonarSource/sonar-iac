@@ -17,21 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.symbols;
+package org.sonar.iac.common.yaml;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.yaml.tree.TupleTree;
+import java.util.function.Predicate;
+import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class TreePredicates {
 
-class ObjectSymbolTest extends AbstractSymbolTest {
+  private TreePredicates() {
+  }
 
-  @Test
-  void fromPresent() {
-    TupleTree specTuple = parseTupleBlock("spec:\n foo: bar");
-    ObjectSymbol object = ObjectSymbol.fromPresent(ctx, specTuple, "Pod");
-    assertThat(object.key).isEqualTo("Pod");
-    assertThat(object.parent).isNull();
-    assertThat(object.tree).isNotNull();
+  public static Predicate<YamlTree> isTrue() {
+    return TextUtils::isValueTrue;
   }
 }

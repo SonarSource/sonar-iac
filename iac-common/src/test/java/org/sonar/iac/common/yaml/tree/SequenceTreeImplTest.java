@@ -34,6 +34,6 @@ class SequenceTreeImplTest extends YamlTreeTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
     assertThat(tree.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
-    assertThat(tree.tag()).isEqualTo("tag:yaml.org,2002:seq");
+    assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:seq");
   }
 }

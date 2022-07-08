@@ -140,7 +140,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
 
   private static boolean containsOnlyStringsWithoutAudit(SequenceTree exports) {
     return exports.elements().stream().allMatch(
-      export -> export.tag().endsWith("str") && TextUtils.isValue(export, "audit").isFalse());
+      export -> export.metadata().tag().endsWith("str") && TextUtils.isValue(export, "audit").isFalse());
   }
 
   private static void checkAmazonMQBroker(CheckContext ctx, Resource resource) {

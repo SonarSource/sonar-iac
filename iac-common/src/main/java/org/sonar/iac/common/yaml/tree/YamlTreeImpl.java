@@ -24,20 +24,24 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 
 public abstract class YamlTreeImpl implements YamlTree {
-  protected final TextRange textRange;
-  protected final List<Comment> comments;
 
-  protected YamlTreeImpl(TextRange textRange, List<Comment> comments) {
-    this.textRange = textRange;
-    this.comments = comments;
+  private final YamlTreeMetadata metadata;
+
+  protected YamlTreeImpl(YamlTreeMetadata metadata) {
+    this.metadata = metadata;
+  }
+  @Override
+  public YamlTreeMetadata metadata() {
+    return metadata;
   }
 
   @Override
   public TextRange textRange() {
-    return textRange;
+    return metadata.textRange();
   }
 
+  @Override
   public List<Comment> comments() {
-    return comments;
+    return metadata.comments();
   }
 }

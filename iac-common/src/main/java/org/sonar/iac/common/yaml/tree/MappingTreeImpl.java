@@ -21,18 +21,14 @@ package org.sonar.iac.common.yaml.tree;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class MappingTreeImpl extends YamlTreeImpl implements MappingTree {
   private final List<TupleTree> elements;
-  private final String tag;
 
-  public MappingTreeImpl(List<TupleTree> elements, String tag, TextRange textRange, List<Comment> comments) {
-    super(textRange, comments);
+  public MappingTreeImpl(List<TupleTree> elements, YamlTreeMetadata metadata) {
+    super(metadata);
     this.elements = elements;
-    this.tag = tag;
   }
 
   @Override
@@ -48,10 +44,5 @@ public class MappingTreeImpl extends YamlTreeImpl implements MappingTree {
   @Override
   public List<TupleTree> properties() {
     return elements;
-  }
-
-  @Override
-  public String tag() {
-    return tag;
   }
 }
