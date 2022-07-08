@@ -102,10 +102,13 @@ public final class YamlTreeMetadata implements HasTextRange {
       throw new ParseException("Nodes are expected to have a start mark during conversion", null);
     }
 
+    int startLine = startMark.get().getLine() + 1;
+    int startColumn = startMark.get().getColumn();
+
     // endMark is not present. This happens for example when we have a file with only a comment.
     // in that case, the root node will be an empty MappingNode with only a startMark to which the comment is attached
-    return endMark.map(mark -> TextRanges.range(startMark.get().getLine() + 1, startMark.get().getColumn(), mark.getLine() + 1, mark.getColumn()))
-      .orElseGet(() -> TextRanges.range(startMark.get().getLine() + 1, startMark.get().getColumn(), startMark.get().getLine() + 1, startMark.get().getColumn()));
+    return endMark.map(mark -> TextRanges.range(startLine, startColumn, mark.getLine() + 1, mark.getColumn()))
+      .orElseGet(() -> TextRanges.range(startLine, startColumn, startLine, startColumn));
   }
 
   public static String tag(Node node) {

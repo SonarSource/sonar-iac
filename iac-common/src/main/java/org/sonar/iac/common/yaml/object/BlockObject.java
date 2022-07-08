@@ -30,7 +30,7 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class BlockObject extends AttributeObject<BlockObject, MappingTree> {
+public class BlockObject extends YamlObject<BlockObject, MappingTree> {
 
   protected BlockObject(CheckContext ctx, @Nullable MappingTree tree, String key, Status status) {
     super(ctx, tree, key, status);
@@ -68,10 +68,10 @@ public class BlockObject extends AttributeObject<BlockObject, MappingTree> {
       .orElse(BlockObject.fromAbsent(ctx, key));
   }
 
-  public TupleObject attribute(String key) {
+  public AttributeObject attribute(String key) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
-      .map(attribute -> TupleObject.fromPresent(ctx, attribute, key))
-      .orElse(TupleObject.fromAbsent(ctx, key));
+      .map(attribute -> AttributeObject.fromPresent(ctx, attribute, key))
+      .orElse(AttributeObject.fromAbsent(ctx, key));
   }
 }

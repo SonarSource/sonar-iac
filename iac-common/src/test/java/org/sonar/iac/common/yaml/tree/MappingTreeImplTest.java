@@ -33,5 +33,16 @@ class MappingTreeImplTest extends YamlTreeTest {
     assertThat(tree.properties()).hasSize(1);
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:map");
     assertThat(tree.elements().get(0)).isInstanceOf(TupleTree.class);
+    assertThat(tree.comments()).isEmpty();
+  }
+
+  @Test
+  void file_comment() {
+    MappingTree tree = (MappingTree) parse("# comment").root();
+    assertThat(tree.elements()).isEmpty();
+    assertThat(tree.children()).isEmpty();
+    assertThat(tree.properties()).isEmpty();
+    assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:comment");
+    assertThat(tree.comments()).hasSize(1);
   }
 }

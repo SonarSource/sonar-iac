@@ -19,43 +19,39 @@
  */
 package org.sonar.iac.common.yaml.object;
 
-import java.util.function.Predicate;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class TupleObject extends AttributeObject<TupleObject, TupleTree> {
+// TODO: Find better naming for wrapped trees than object or symbol
+abstract class YamlObject<T extends YamlObject<?, ?>, K extends YamlTree> {
 
-  TupleObject(CheckContext ctx, @Nullable TupleTree tree, String key, Status status) {
-    super(ctx, tree, key, status);
+  public final CheckContext ctx;
+  public final @Nullable K tree;
+  public final String key;
+  public final Status status;
+
+  enum Status {
+    PRESENT,
+    ABSENT,
+    UNKNOWN
   }
 
-  public static TupleObject fromPresent(CheckContext ctx, YamlTree tree, String key) {
-    if (tree instanceof TupleTree) {
-      return new TupleObject(ctx, (TupleTree) tree, key, Status.PRESENT);
-    }
-    return new TupleObject(ctx, null, key, Status.UNKNOWN);
-  }
-
-  public static TupleObject fromAbsent(CheckContext ctx, String key) {
-    return new TupleObject(ctx, null, key, Status.ABSENT);
-  }
-
-  public TupleObject reportIfValue(Predicate<YamlTree> predicate, String message) {
-    if (tree != null && predicate.test(tree.value())) {
-      report(message);
-    }
-    return this;
+  protected YamlObject(CheckContext ctx, @Nullable K tree, String key, Status status) {
+    this.ctx = ctx;
+    this.tree = tree;
+    this.key = key;
+    this.status = status;
   }
 
   @Nullable
-  @Override
-  protected HasTextRange toHighlight() {
-    return tree;
+  protected abstract HasTextRange toHighlight();
+
+  public T report(String message) {
+    Optional.ofNullable(toHighlight())
+      .ifPresent(hasTextRange -> ctx.reportIssue(hasTextRange, message));
+    return (T) this;
   }
-
-
-
 }

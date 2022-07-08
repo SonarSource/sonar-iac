@@ -25,12 +25,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class YamlTreeTest {
 
-  protected FileTree parse(String source) {
+  protected static FileTree parse(String source) {
     YamlParser parser = new YamlParser();
     return parser.parse(source, null);
   }
 
-  protected <T extends YamlTree> T parse(String source, Class<T> clazz) {
+  protected static <T extends YamlTree> T parse(String source, Class<T> clazz) {
     YamlTree rootTree = parse(source).root();
     assertThat(rootTree).isInstanceOf(clazz);
     return (T) rootTree;
