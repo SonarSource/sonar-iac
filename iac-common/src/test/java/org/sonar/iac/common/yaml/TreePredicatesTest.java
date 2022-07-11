@@ -44,6 +44,11 @@ class TreePredicatesTest {
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(notTextTree())).isFalse();
   }
 
+  @Test
+  void isEqualTo() {
+    assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(text("VALUE_TEST"))).isTrue();
+  }
+
   private ScalarTree text(String value) {
     return new ScalarTreeImpl(value, null, null);
   }
