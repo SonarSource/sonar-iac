@@ -31,4 +31,8 @@ public class TreePredicates {
   public static Predicate<YamlTree> isTrue() {
     return TextUtils::isValueTrue;
   }
+
+  public static Predicate<YamlTree> isEqualTo(String parameter) {
+    return t -> TextUtils.isValue(t, parameter).isTrue();
+  }
 }

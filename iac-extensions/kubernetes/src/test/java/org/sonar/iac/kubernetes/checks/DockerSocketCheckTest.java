@@ -17,27 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml;
+package org.sonar.iac.kubernetes.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class DockerSocketCheckTest {
 
-class TreePredicatesTest {
+  IacCheck check = new DockerSocketCheck();
 
   @Test
-  void isTrue() {
-    assertThat(TreePredicates.isTrue().test(text("true"))).isTrue();
+  void test_persistent_volume() {
+    KubernetesVerifier.verify("DockerSocketCheck/test_persistent_vol.yaml", check);
+    KubernetesVerifier.verifyNoIssue("DockerSocketCheck/test_persistent_vol_compliant.yaml", check);
   }
 
   @Test
-  void isEqualTo() {
-    assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(text("VALUE_TEST"))).isTrue();
+  void test_pod_object() {
+    KubernetesVerifier.verify("DockerSocketCheck/test_pod_object.yaml", check);
   }
 
-  private ScalarTree text(String value) {
-    return new ScalarTreeImpl(value, null, null);
+  @Test
+  void test_template_object() {
+    KubernetesVerifier.verify("DockerSocketCheck/test_template_object.yaml", check);
   }
 }
