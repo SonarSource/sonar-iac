@@ -279,6 +279,11 @@ Resources:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
       Bucket: !NonExistentFunctionCall [ '', [ 'mycompliantbucket6249' ] ]
+  # Coverage purpose
+  PolicyWithUnexpectedJoinResources:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+        Bucket: !Join [ '', [ a: b ] ]
 
   NonCompliantBucketDueToResolvedRelation:
     Type: 'AWS::S3::Bucket' # Noncompliant
