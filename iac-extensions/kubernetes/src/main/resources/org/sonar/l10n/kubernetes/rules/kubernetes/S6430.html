@@ -1,0 +1,56 @@
+<p>Allowing process privilege escalations exposes the Pod to attacks that exploit setuid binaries.</p>
+<p>This field directly controls whether the <code>no_new_privs</code> flag is set in the container process.<br> When this flag is enabled, binaries
+configured with setuid or setgid bits cannot change their runtime uid or gid: Potential attackers must rely on other privilege escalation techniques
+to successfully operate as root on the Pod.</p>
+<p>Depending on how resilient the Kubernetes cluster and Pods are, attackers can extend their attack to the cluster by compromising the nodes from
+which the cluster started the Pod.</p>
+<p>The <code>allowPrivilegeEscalation</code> field should not be set to true unless the Pod’s risks related to setuid or setgid bits have been
+mitigated.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This Pod is accessible to people who are not administrators of the Kubernetes cluster. </li>
+  <li> This Pod contains binaries with setuid or setgid capabilities. </li>
+</ul>
+<p>There is a risk if you answered yes to all of these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Disable privilege escalation.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+        allowPrivilegeEscalation: true # Sensitive
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+        allowPrivilegeEscalation: false
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
+  <li> <a href="https://www.kernel.org/doc/Documentation/prctl/no_new_privs.txt">Linux Kernel Archives, no_new_privs</a> - Official docs </li>
+</ul>
+

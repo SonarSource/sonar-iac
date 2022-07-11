@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: nginx
+          ports:
+            - name: web
+              containerPort: 80
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: true # NonCompliant {{Make sure that enabling privilege escalation is safe here.}}
+          # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        - name: web-compliant
+          image: nginx
+          ports:
+            - name: web
+              containerPort: 80
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
