@@ -28,6 +28,7 @@ import static org.sonar.iac.common.yaml.TreePredicates.isEqualTo;
 public class DockerSocketCheck extends KubernetesObjectCheck {
 
   private static final String MESSAGE = "Make sure exposing the Docker socket is safe here.";
+  // Here the path to the docker socket is immutable, thus it must be hardcoded. Therefore, we remove the warning about the hardcoded URIs.
   @SuppressWarnings("java:S1075")
   private static final String DOCKER_SOCK_PATH = "/var/run/docker.sock";
   private static final String HOST_PATH = "hostPath";
