@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+        allowPrivilegeEscalation: true # NonCompliant {{Make sure that enabling privilege escalation is safe here.}}
+      # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    - name: compliant_unprivileged_pod
+      image: nginx
+      ports:
+        - name: web-compliant
+          containerPort: 80
+          protocol: TCP
+      securityContext:
+        allowPrivilegeEscalation: false
+
+    - name: compliant_unprivileged_by_default_1
+      image: nginx
+      ports:
+        - name: web-compliant
+          containerPort: 80
+          protocol: TCP
+     # securityContext is not defined
