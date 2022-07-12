@@ -140,7 +140,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
     return functionCall.name().contains("Join");
   }
 
-  private static List<String> getListValueElements(CloudformationTree tree){
+  private static List<String> getListValueElements(YamlTree tree){
     if(tree instanceof ScalarTree){
       return List.of(TextUtils.getValue(tree).orElse(""));
     } else if (tree instanceof SequenceTree) {
