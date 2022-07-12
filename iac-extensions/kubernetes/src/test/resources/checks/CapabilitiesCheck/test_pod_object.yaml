@@ -46,9 +46,16 @@ spec:
       name: test-container
       securityContext:
         capabilities:
-          add: ["", ~]
+          add: null
 
     - image: ubuntu-6
+      command: [ "sleep", "6000" ]
+      name: test-container
+      securityContext:
+        capabilities:
+          add: ["", ~]
+
+    - image: ubuntu-7
       command: [ "sleep", "6000" ]
       name: test-container
       securityContext:

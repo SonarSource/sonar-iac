@@ -30,7 +30,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 public class CapabilitiesCheck extends KubernetesObjectCheck {
 
   private static final String MESSAGE = "Make sure setting capabilities is safe here.";
-  private static final List<String> STRINGS_CONSIDERED_AS_EMPTY = Arrays.asList("", "~", "[]");
+  private static final List<String> STRINGS_CONSIDERED_AS_EMPTY = Arrays.asList("", "~", "[]", "null");
 
   @Override
   void registerObjectCheck() {
