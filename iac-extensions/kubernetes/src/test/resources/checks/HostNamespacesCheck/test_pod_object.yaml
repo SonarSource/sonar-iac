@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  hostNetwork: true # Noncompliant {{Make sure it is safe to use host operating system namespaces here.}}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-2
+spec:
+  hostPID: true     # Noncompliant {{Make sure it is safe to use host operating system namespaces here.}}
+  hostIPC: true     # Noncompliant {{Make sure it is safe to use host operating system namespaces here.}}
+  hostNetwork: true
+# ^^^^^^^^^^^^^^^^^
+# Noncompliant@-2
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-3
+spec:
+  hostPID: true     # Noncompliant {{Make sure it is safe to use host operating system namespaces here.}}
+# ^^^^^^^^^^^^^
+  hostIPC: false
+  hostNetwork: false
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-4
+spec:
+  hostPID: false
+  hostIPC: false
+  hostNetwork: false

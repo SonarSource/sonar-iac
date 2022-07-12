@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: s6431-explicitlynoncompliant-network
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: nginx
+          ports:
+            - name: web
+              containerPort: 80
+              protocol: TCP
+      hostNetwork: true # Noncompliant {{Make sure it is safe to use host operating system namespaces here.}}
+    # ^^^^^^^^^^^^^^^^^
+      hostPID: false
+      hostIPC: false
