@@ -237,16 +237,16 @@ Resources:
               Bool:
                 "aws:SecureTransport": false
 
-  # TODO SONARIAC-323 Unsimulated intrinsic functions lead to false positives and negatives
-  NoncompliantBucketDueToUnresolvedRelation:
-    Type: 'AWS::S3::Bucket' # Noncompliant
+  # SONARIAC-323 Unsimulated intrinsic functions lead to false positives and negatives
+  CompliantBucketDueToResolvedRelation:
+    Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: "mynoncompliantbucket6249"
-  NoncomplianPolicyDueToUnresolvedRelation:
+      BucketName: "mycompliantbucket6249"
+  CompliantPolicyDueToResolvedRelation:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
       # Bucket relation is not resolved. However, a function call, which is not ref or sub, would not make sense here.
-      Bucket: !Join ['', ['mynoncompliantbucket6249']]
+      Bucket: !Join [ '', [ 'mycompliantbucket6249' ] ]
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -258,6 +258,52 @@ Resources:
             Condition:
               Bool:
                 "aws:SecureTransport": false
+  AnotherCompliantPolicyDueToResolvedRelation:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket:
+        Fn::Join: [ '', [ 'mycompliantbucket6249' ] ]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: arn:aws:s3:::mycompliantbuckets6249/* # for any resources
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+  # Coverage purpose
+  PolicyWithNonExistentFunctionCall:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !NonExistentFunctionCall [ '', [ 'mycompliantbucket6249' ] ]
+  # Coverage purpose
+  PolicyWithUnexpectedJoinResources:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+        Bucket: !Join [ '', [ a: b ] ]
+
+  NonCompliantBucketDueToResolvedRelation:
+    Type: 'AWS::S3::Bucket' # Noncompliant
+    Properties:
+      BucketName: "mynoncompliantbucket6249"
+  NonompliantPolicyDueToResolvedRelation:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Join [ '', [ 'mynoncompliantbucket6249' ] ]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal:
+              AWS: "*" # all principals should use https
+            Action: "*" # for any actions
+            Resource: arn:aws:s3:::mycompliantbuckets6249/* # for any resources
+            Condition:
+              Bool:
+                "aws:SecureTransport": true
 
   # SONARIAC-324 S6249 raises false positives on policies on unknown statement
   CompliantBucketDueToInsecureResourcePolicy:

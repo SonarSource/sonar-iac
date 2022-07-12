@@ -20,6 +20,8 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +116,13 @@ public class BucketsInsecureHttpCheck implements IacCheck {
         .map(TextUtils::getValue)
         .flatMap(Optional::stream)
         .anyMatch(argument -> TextUtils.isValue(bucket.name(), argument).isTrue());
+    } else if (policyBucketId instanceof FunctionCallTree && isJoin((FunctionCallTree) policyBucketId)) {
+      return ((FunctionCallTree) policyBucketId).arguments().stream()
+        .map(BucketsInsecureHttpCheck::getListValueElements)
+        .flatMap(Collection::stream)
+        // Remove the empty strings before checking for equality, as the bucket name can also be an empty string
+        .filter(elem -> !"".equals(elem))
+        .anyMatch(elementValue -> getNameOfBucket(bucket).equals(elementValue));
     } else if (policyBucketId instanceof ScalarTree) {
       return PropertyUtils.value(bucket.properties(), "BucketName", YamlTree.class)
         .filter(bucketName -> TextUtils.isValue(bucketName, ((ScalarTree) policyBucketId).value()).isTrue())
@@ -125,6 +134,33 @@ public class BucketsInsecureHttpCheck implements IacCheck {
   private static boolean isReferringFunction(FunctionCallTree functionCall) {
     final var referringFunctions = Set.of("Ref", "Sub");
     return referringFunctions.contains(functionCall.name());
+  }
+
+  private static boolean isJoin(FunctionCallTree functionCall) {
+    return functionCall.name().contains("Join");
+  }
+
+  private static List<String> getListValueElements(YamlTree tree){
+    if(tree instanceof ScalarTree){
+      return List.of(TextUtils.getValue(tree).orElse(""));
+    } else if (tree instanceof SequenceTree) {
+      return getValuesOfSequenceTree((SequenceTree) tree);
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  private static List<String> getValuesOfSequenceTree(SequenceTree tree) {
+    return tree.elements().stream()
+      .map(BucketsInsecureHttpCheck::getListValueElements)
+      .flatMap(List::stream)
+      .collect(Collectors.toList());
+  }
+
+  private static String getNameOfBucket(Resource bucket) {
+    return PropertyUtils.value(bucket.properties(), "BucketName")
+      .flatMap(TextUtils::getValue)
+      .orElse("");
   }
 
   private static class PolicyValidator {
