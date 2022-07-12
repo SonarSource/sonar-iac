@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      volumes:
+        - name: test-volume
+          hostPath:
+            path: /var/run/docker.sock # Noncompliant {{Make sure exposing the Docker socket is safe here.}}
+          # ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        - name: test-volume-compliant
+          hostPath:
+            path: /another/path/docker.sock
+          securityContext:
+            privileged: false
+
+        - name: test-no-path-compliant
+          securityContext:
+            privileged: false

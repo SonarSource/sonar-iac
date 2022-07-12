@@ -17,22 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml;
+package org.sonar.iac.kubernetes.checks;
 
-import java.util.function.Predicate;
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-public class TreePredicates {
+class DockerSocketCheckTest {
 
-  private TreePredicates() {
+  IacCheck check = new DockerSocketCheck();
+
+  @Test
+  void test_persistent_volume() {
+    KubernetesVerifier.verify("DockerSocketCheck/test_persistent_vol.yaml", check);
+    KubernetesVerifier.verifyNoIssue("DockerSocketCheck/test_persistent_vol_compliant.yaml", check);
   }
 
-  public static Predicate<YamlTree> isTrue() {
-    return TextUtils::isValueTrue;
+  @Test
+  void test_pod_object() {
+    KubernetesVerifier.verify("DockerSocketCheck/test_pod_object.yaml", check);
   }
 
-  public static Predicate<YamlTree> isEqualTo(String parameter) {
-    return t -> TextUtils.isValue(t, parameter).isTrue();
+  @Test
+  void test_template_object() {
+    KubernetesVerifier.verify("DockerSocketCheck/test_template_object.yaml", check);
   }
 }
