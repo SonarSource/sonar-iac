@@ -20,6 +20,7 @@
 package org.sonar.iac.common.yaml;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.yaml.tree.FileTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
 
@@ -32,6 +33,7 @@ class TreePredicatesTest {
     assertThat(TreePredicates.isTrue().test(text("true"))).isTrue();
     assertThat(TreePredicates.isTrue().test(text("false"))).isFalse();
     assertThat(TreePredicates.isTrue().test(text(null))).isFalse();
+    assertThat(TreePredicates.isTrue().test(notTextTree())).isFalse();
   }
 
   @Test
@@ -39,9 +41,14 @@ class TreePredicatesTest {
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(text("VALUE_TEST"))).isTrue();
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(text("NOT_VALUE_TEST"))).isFalse();
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(text(null))).isFalse();
+    assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(notTextTree())).isFalse();
   }
 
   private ScalarTree text(String value) {
     return new ScalarTreeImpl(value, null, null);
+  }
+
+  private FileTreeImpl notTextTree() {
+    return new FileTreeImpl(null, null);
   }
 }
