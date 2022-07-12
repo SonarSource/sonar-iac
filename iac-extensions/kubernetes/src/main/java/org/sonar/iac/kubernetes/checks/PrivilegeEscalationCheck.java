@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
 
 @Rule(key = "S6430")
-public class PrivilegeEscalationCheck extends KubernetesObjectCheck {
+public class PrivilegeEscalationCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Make sure that enabling privilege escalation is safe here.";
   private static final String PRIVILEGE_ESCALATION_ATTRIBUTE = "allowPrivilegeEscalation";

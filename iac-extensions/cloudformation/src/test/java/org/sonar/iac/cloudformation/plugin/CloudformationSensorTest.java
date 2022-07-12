@@ -22,19 +22,17 @@ package org.sonar.iac.cloudformation.plugin;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.iac.common.testing.AbstractSensorTest;
-import org.sonar.iac.common.testing.TextRangeAssert;
+import org.sonar.iac.common.testing.AbstractYamlSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 
-class CloudformationSensorTest extends AbstractSensorTest {
+class CloudformationSensorTest extends AbstractYamlSensorTest {
 
   @Test
-  void should_return_terraform_descriptor() {
+  void should_return_cloudformation_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC CloudFormation Sensor");
@@ -51,53 +49,6 @@ class CloudformationSensorTest extends AbstractSensorTest {
   void yaml_only_comment_should_raise_no_issue() {
     analyse(sensor("S2260"), inputFile("comment.yaml", "# Some Comment"));
     assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
-  }
-
-  @Test
-  void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
-    analyse(sensor("S2260"), inputFile("comment.yaml", "foo: &fooanchor\n" +
-      " bar: *fooanchor"));
-
-    assertThat(context.allIssues()).as("").hasSize(1);
-
-    Issue issue = context.allIssues().iterator().next();
-    assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo("S2260");
-
-    TextRangeAssert.assertTextRange(issue.primaryLocation().textRange()).hasRange(1, 0, 1, 15);
-  }
-
-  @Test
-  void parsing_error_should_raise_an_issue_if_check_rule_is_activated() {
-    analyse(sensor("S2260"), inputFile("parserError.json", "\"a'"));
-
-    assertThat(context.allIssues()).as("One issue must be raised").hasSize(1);
-
-    Issue issue = context.allIssues().iterator().next();
-    assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo("S2260");
-
-    TextRangeAssert.assertTextRange(issue.primaryLocation().textRange()).hasRange(1, 0, 1, 3);
-  }
-
-  @Test
-  void parsing_error_should_raise_issue_in_sensor_context() {
-    analyse(inputFile("parserError.tf", "\"a'"));
-    assertThat(context.allAnalysisErrors()).hasSize(1);
-  }
-
-  @Test
-  void parsing_error_should_raise_no_issue_if_check_rule_is_not_activated() {
-    analyse(inputFile("parserError.tf", "a {"));
-    assertThat(context.allIssues()).as("One issue must be raised").isEmpty();
-  }
-
-  @Test
-  void should_raise_no_issue_when_sensor_deactivated() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(getActivationSettingKey(), false);
-    context.setSettings(settings);
-
-    analyse(sensor("S2260"), inputFile("parserError.json", "\"a'"));
-    assertThat(context.allIssues()).as("One issue must be raised").isEmpty();
   }
 
   @Test

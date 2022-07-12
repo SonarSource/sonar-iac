@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.visitors;
+package org.sonar.iac.common.yaml.visitors;
 
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.extension.visitors.MetricsVisitor;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class CloudformationMetricsVisitor extends MetricsVisitor {
+public class YamlMetricsVisitor extends MetricsVisitor {
 
-  public CloudformationMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
+  public YamlMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
     super(fileLinesContextFactory, noSonarFilter);
   }
 

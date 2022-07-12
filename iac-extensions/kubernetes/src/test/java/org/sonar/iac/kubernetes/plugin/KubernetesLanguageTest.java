@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.kubernetes.plugin;
 
-import java.util.List;
-import org.sonar.api.SonarRuntime;
-import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
-import org.sonar.iac.common.extension.IacRulesDefinition;
+import org.junit.jupiter.api.Test;
 
-public class CloudformationRulesDefinition extends IacRulesDefinition {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public CloudformationRulesDefinition(SonarRuntime runtime) {
-    super(runtime);
+class KubernetesLanguageTest {
+
+  @Test
+  void should_return_kubernetes_file_suffixes() {
+    KubernetesLanguage language = new KubernetesLanguage();
+    assertThat(language.getFileSuffixes()).isEmpty();
   }
 
-  @Override
-  public String languageKey() {
-    return CloudformationLanguage.KEY;
-  }
-
-  @Override
-  protected List<Class<?>> checks() {
-    return CloudformationCheckList.checks();
-  }
 }

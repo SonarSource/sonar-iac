@@ -20,32 +20,18 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
-import org.sonar.check.Rule;
 
-import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
+public final class KubernetesCheckList {
 
-@Rule(key = "S6428")
-public class ContainerPrivilegedModeCheck extends AbstractKubernetesObjectCheck {
+  private KubernetesCheckList() {
+  }
 
-  private static final String MESSAGE = "Ensure that enabling privileged mode is safe here.";
-
-
-  @Override
-  void registerObjectCheck() {
-    register("Pod", pod ->
-      pod.blocks("containers").forEach(container ->
-        container.block("securityContext")
-          .attribute("privileged")
-            .reportIfValue(isTrue(), MESSAGE)
-      )
-    );
-
-    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      obj.block("template").block("spec").blocks("containers").forEach(container ->
-        container.block("securityContext")
-          .attribute("privileged")
-            .reportIfValue(isTrue(), MESSAGE)
-      )
+  public static List<Class<?>> checks() {
+    return List.of(
+      ContainerPrivilegedModeCheck.class,
+      DockerSocketCheck.class,
+      ParsingErrorCheck.class,
+      PrivilegeEscalationCheck.class
     );
   }
 }

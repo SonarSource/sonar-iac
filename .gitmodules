@@ -16,3 +16,6 @@
 [submodule "its/sources/cloudformation/taskcat"]
 	path = its/sources/cloudformation/taskcat
 	url = https://github.com/aws-quickstart/taskcat.git
+[submodule "its/sources/kubernetes/examples"]
+	path = its/sources/kubernetes/examples
+	url = https://github.com/kubernetes/examples

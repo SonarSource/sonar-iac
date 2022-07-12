@@ -17,26 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.common.extension;
 
-import java.util.List;
-import org.sonar.api.SonarRuntime;
-import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
-import org.sonar.iac.common.extension.IacRulesDefinition;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
-public class CloudformationRulesDefinition extends IacRulesDefinition {
+public abstract class IacDefaultProfileDefinition implements BuiltInQualityProfilesDefinition, ProvideLanguageKey {
 
-  public CloudformationRulesDefinition(SonarRuntime runtime) {
-    super(runtime);
-  }
+  private static final String PROFILE_NAME = "Sonar way";
+  private static final String SONAR_WAY_PATH_FORMAT = "org/sonar/l10n/%1$s/rules/%1$s/Sonar_way_profile.json";
 
   @Override
-  public String languageKey() {
-    return CloudformationLanguage.KEY;
+  public void define(Context context) {
+    String languageKey = languageKey();
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, languageKey);
+    String sonarWayPath = String.format(SONAR_WAY_PATH_FORMAT, languageKey);
+    BuiltInQualityProfileJsonLoader.load(profile, languageKey, sonarWayPath);
+    profile.setDefault(true);
+    profile.done();
   }
 
-  @Override
-  protected List<Class<?>> checks() {
-    return CloudformationCheckList.checks();
-  }
 }

@@ -17,27 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.kubernetes.plugin;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-class CloudformationProfileDefinitionTest {
+class KubernetesProfileDefinitionTest {
 
   @Test
   void should_create_sonar_way_profile() {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    CloudformationProfileDefinition definition = new CloudformationProfileDefinition();
+    KubernetesProfileDefinition definition = new KubernetesProfileDefinition();
     definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("cloudformation", "Sonar way");
-    assertThat(profile.language()).isEqualTo("cloudformation");
+    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("kubernetes", "Sonar way");
+    assertThat(profile.language()).isEqualTo("kubernetes");
     assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSizeGreaterThan(3);
-    assertThat(profile.rules()).extracting(BuiltInActiveRule::ruleKey)
-      .contains("S6245") // DisabledS3EncryptionCheck
+    assertThat(profile.rules()).hasSizeGreaterThan(0);
+    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .contains("S6428") // ContainerPrivilegedModeCheck
       .doesNotContain("S2260"); // ParsingErrorCheck
   }
+
 }

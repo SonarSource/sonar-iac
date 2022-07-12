@@ -17,41 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.kubernetes.checks;
+package org.sonar.iac.kubernetes.plugin;
 
-import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.api.Plugin;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class KubernetesObjectCheckTest {
+class KubernetesExtensionTest {
 
-  boolean invokedConsumer = false;
-  IacCheck check = new KubernetesObjectCheck() {
-
-    @Override
-    void registerObjectCheck() {
-      register(List.of("Pod", "Job"), pod -> invokedConsumer = true);
-    }
-  };
+  private static final Version VERSION_9_5 = Version.create(9, 5);
 
   @Test
-  void invalid_object_structure() {
-    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/invalid_object_structure.yaml", check);
-    assertThat(invokedConsumer).isFalse();
+  void sonarqube_extensions() {
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_5, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    Plugin.Context context = new Plugin.Context(runtime);
+    KubernetesExtension.define(context);
+    assertThat(context.getExtensions()).hasSize(5);
   }
-
-  @Test
-  void valid_object_structure() {
-    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/valid_object_structure.yaml", check);
-    assertThat(invokedConsumer).isTrue();
-  }
-
-  @Test
-  void non_matching_object() {
-    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/non_matching_object.yaml", check);
-    assertThat(invokedConsumer).isFalse();
-  }
-
 }

@@ -17,30 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.visitors;
+package org.sonar.iac.common.yaml.visitors;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
+import org.sonar.iac.common.yaml.YamlParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
-class CloudformationMetricsVisitorTest extends AbstractMetricsTest {
+class YamlMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
-  protected CloudformationParser treeParser() {
-    return new CloudformationParser();
+  protected YamlParser treeParser() {
+    return new YamlParser();
   }
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new CloudformationMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+    return new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter);
   }
 
   @Test
