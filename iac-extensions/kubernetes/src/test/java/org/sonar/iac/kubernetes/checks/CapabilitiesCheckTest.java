@@ -17,28 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml;
+package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
-import java.util.function.Predicate;
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-public class TreePredicates {
+class CapabilitiesCheckTest {
+  IacCheck check = new CapabilitiesCheck();
 
-  private TreePredicates() {
+  @Test
+  void test_pod_object() {
+    KubernetesVerifier.verify("CapabilitiesCheck/test_pod_object.yaml", check);
   }
 
-  public static Predicate<YamlTree> isTrue() {
-    return TextUtils::isValueTrue;
-  }
-
-  public static Predicate<YamlTree> isEqualTo(String parameter) {
-    return t -> TextUtils.isValue(t, parameter).isTrue();
-  }
-  public static Predicate<YamlTree> containsOtherThan(List<String> strings) {
-    return t -> TextUtils
-      .getListValueElements(t).stream()
-      .anyMatch(value -> !strings.contains(value));
+  @Test
+  void test_template_object() {
+    KubernetesVerifier.verify("CapabilitiesCheck/test_template_object.yaml", check);
   }
 }

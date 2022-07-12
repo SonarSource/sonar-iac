@@ -19,10 +19,15 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.yaml.tree.FileTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
+import org.sonar.iac.common.yaml.tree.SequenceTreeImpl;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,11 +49,36 @@ class TreePredicatesTest {
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(notTextTree())).isFalse();
   }
 
+  @Test
+  void containsOtherThan(){
+    assertThat(TreePredicates.containsOtherThan(Collections.emptyList()).test(text("otherValue"))).isTrue();
+    assertThat(TreePredicates.containsOtherThan(Collections.emptyList()).test(text(""))).isTrue();
+    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("")).test(text("otherValue"))).isTrue();
+    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("test")).test(text("otherValue"))).isTrue();
+
+    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("")).test(text(""))).isFalse();
+    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("test")).test(text("test"))).isFalse();
+
+    assertThat(TreePredicates.containsOtherThan(List.of("", "~")).test(yaml(List.of("", "~", "a")))).isTrue();
+    assertThat(TreePredicates.containsOtherThan(List.of("", "~", "a")).test(yaml(List.of("", "~", "a")))).isFalse();
+    assertThat(TreePredicates.containsOtherThan(List.of("", "~", "a")).test(yaml(Collections.emptyList()))).isFalse();
+
+    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("")).test(notTextTree())).isFalse();
+  }
+
   private ScalarTree text(String value) {
     return new ScalarTreeImpl(value, null, null);
   }
 
   private FileTreeImpl notTextTree() {
     return new FileTreeImpl(null, null);
+  }
+
+  private YamlTree yaml(List<String> values) {
+    if (values.size() <= 1) {
+      return new ScalarTreeImpl(values.stream().findFirst().orElse(""), null, null);
+    }
+    List<YamlTree> elements = values.stream().map(v -> new ScalarTreeImpl(v, null, null)).collect(Collectors.toList());
+    return new SequenceTreeImpl(elements, null);
   }
 }

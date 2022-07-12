@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-caps3
+  labels:
+    app: ubuntu
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    metadata:
+      labels:
+        app: ubuntu
+    spec:
+      containers:
+        - name: ubuntu
+          image: ubuntu
+          command: ["sleep", "6000"]
+          securityContext:
+            capabilities:
+              add: ["SYS_ADMIN"] # Noncompliant {{Make sure setting capabilities is safe here.}}
+            # ^^^^^^^^^^^^^^^^^^
+
+        - image: ubuntu-2
+          command: [ "sleep", "6000" ]
+          name: test-container
+          securityContext:
+            capabilities:
+              add: ~
+
+        - image: ubuntu-3
+          command: [ "sleep", "6000" ]
+          name: test-container
+          securityContext:
+            capabilities:
+              add: []
+
+        - image: ubuntu-4
+          command: [ "sleep", "6000" ]
+          name: test-container
+          securityContext:
+            capabilities:
+              add: [~]
