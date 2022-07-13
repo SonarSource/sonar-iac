@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.kubernetes.plugin;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
 
-class CloudformationSensorTest extends AbstractSensorTest {
+class KubernetesSensorTest extends AbstractSensorTest {
 
+  private static final String K8_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\nspec: ~\n";
   private static final String PARSING_ERROR_KEY = "S2260";
+
   @Test
   void yaml_file_with_invalid_syntax_should_not_raise_parsing_if_rule_is_deactivated() {
     analyse(sensor(checkFactory()), inputFile("error.yaml", "a: b: c"));
@@ -71,74 +72,58 @@ class CloudformationSensorTest extends AbstractSensorTest {
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo(PARSING_ERROR_KEY);
   }
+
   @Test
-  void should_return_cloudformation_descriptor() {
+  void should_return_kubernetes_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("IaC CloudFormation Sensor");
+    assertThat(descriptor.name()).isEqualTo("IaC Kubernetes Sensor");
     assertThat(descriptor.languages()).containsExactly("json", "yaml");
   }
 
   @Test
-  void empty_file_should_raise_no_issue() {
-    analyse(sensor("S2260"), inputFile("empty.json", ""));
-    assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
-  }
-
-  @Test
-  void yaml_only_comment_should_raise_no_issue() {
-    analyse(sensor("S2260"), inputFile("comment.yaml", "# Some Comment"));
-    assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
-  }
-
-  @Test
-  void should_raise_no_parsing_issue_in_file_without_identifier() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, "myIdentifier");
-    settings.setProperty(getActivationSettingKey(), true);
-    context.setSettings(settings);
-
-    analyse(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
+  void yaml_file_without_identifiers_should_not_be_parsed() {
+    analyse(sensor("S2260"), inputFileWithoutIdentifiers("error.yaml", "a: b: c"));
     assertThat(context.allIssues()).isEmpty();
   }
 
-  @Test
-  void should_raise_parsing_issue_in_file_with_identifier() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, "myIdentifier");
-    settings.setProperty(getActivationSettingKey(), true);
-    context.setSettings(settings);
 
-    analyse(sensor("S2260"), inputFile("parserError.json", "\"myIdentifier'"));
-    assertThat(context.allIssues()).hasSize(1);
+  protected InputFile inputFileWithoutIdentifiers(String relativePath, String content) {
+    return super.inputFile(relativePath, content);
   }
 
-  private CloudformationSensor sensor(String... rules) {
-    return sensor(checkFactory(rules));
+  @Override
+  protected InputFile inputFile(String relativePath, String content) {
+    return super.inputFile(relativePath, K8_IDENTIFIERS + content);
   }
 
   @Override
   protected String getActivationSettingKey() {
-    return CloudformationSettings.ACTIVATION_KEY;
+    return KubernetesSettings.ACTIVATION_KEY;
   }
 
+  private KubernetesSensor sensor(String... rules) {
+    return sensor(checkFactory(rules));
+  }
+
+
   @Override
-  protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    return new CloudformationSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, language(), spy(AnalysisWarnings.class));
+  protected KubernetesSensor sensor(CheckFactory checkFactory) {
+    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, language());
   }
 
   @Override
   protected String repositoryKey() {
-    return CloudformationExtension.REPOSITORY_KEY;
+    return KubernetesExtension.REPOSITORY_KEY;
   }
 
   @Override
-  protected CloudformationLanguage language() {
-    return new CloudformationLanguage();
+  protected KubernetesLanguage language() {
+    return new KubernetesLanguage();
   }
 
   @Override
   protected String fileLanguageKey() {
-    return "json";
+    return "yaml";
   }
 }

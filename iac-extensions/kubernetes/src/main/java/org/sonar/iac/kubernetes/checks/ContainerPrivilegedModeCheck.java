@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
 
 @Rule(key = "S6428")
-public class ContainerPrivilegedModeCheck extends KubernetesObjectCheck {
+public class ContainerPrivilegedModeCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Ensure that enabling privileged mode is safe here.";
 

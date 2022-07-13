@@ -17,26 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.kubernetes.checks;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TerraformProfileDefinitionTest {
+class AbstractKubernetesObjectCheckTest {
+
+  boolean invokedConsumer = false;
+  IacCheck check = new AbstractKubernetesObjectCheck() {
+
+    @Override
+    void registerObjectCheck() {
+      register(List.of("Pod", "Job"), pod -> invokedConsumer = true);
+    }
+  };
 
   @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    TerraformProfileDefinition definition = new TerraformProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("terraform", "Sonar way");
-    assertThat(profile.language()).isEqualTo("terraform");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSizeGreaterThan(3);
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .contains("S6245") // DisabledS3EncryptionCheck
-      .doesNotContain("S2260"); // ParsingErrorCheck
+  void invalid_object_structure() {
+    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/invalid_object_structure.yaml", check);
+    assertThat(invokedConsumer).isFalse();
   }
+
+  @Test
+  void valid_object_structure() {
+    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/valid_object_structure.yaml", check);
+    assertThat(invokedConsumer).isTrue();
+  }
+
+  @Test
+  void non_matching_object() {
+    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/non_matching_object.yaml", check);
+    assertThat(invokedConsumer).isFalse();
+  }
+
 }

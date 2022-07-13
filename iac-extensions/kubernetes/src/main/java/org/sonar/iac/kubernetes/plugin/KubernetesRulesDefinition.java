@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.kubernetes.plugin;
 
 import java.util.List;
 import org.sonar.api.SonarRuntime;
-import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.common.extension.IacRulesDefinition;
+import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 
-public class CloudformationRulesDefinition extends IacRulesDefinition {
+public class KubernetesRulesDefinition extends IacRulesDefinition {
 
-  public CloudformationRulesDefinition(SonarRuntime runtime) {
+  public KubernetesRulesDefinition(SonarRuntime runtime) {
     super(runtime);
   }
 
   @Override
-  public String languageKey() {
-    return CloudformationLanguage.KEY;
+  protected List<Class<?>> checks() {
+    return KubernetesCheckList.checks();
   }
 
   @Override
-  protected List<Class<?>> checks() {
-    return CloudformationCheckList.checks();
+  public String languageKey() {
+    return KubernetesLanguage.KEY;
   }
 }

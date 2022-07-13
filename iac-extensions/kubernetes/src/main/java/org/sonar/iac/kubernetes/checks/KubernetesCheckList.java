@@ -20,29 +20,19 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
-import org.sonar.check.Rule;
 
-import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
+public final class KubernetesCheckList {
 
-@Rule(key = "S6431")
-public class HostNamespacesCheck extends AbstractKubernetesObjectCheck {
+  private KubernetesCheckList() {
+  }
 
-  private static final String MESSAGE = "Make sure it is safe to use host operating system namespaces here.";
-  private static final List<String> HOST_NAMESPACES_ATTRIBUTES = List.of("hostPID", "hostIPC", "hostNetwork");
-
-  @Override
-  void registerObjectCheck() {
-    register("Pod", pod ->
-      HOST_NAMESPACES_ATTRIBUTES.forEach(name ->
-        pod.attribute(name)
-          .reportIfValue(isTrue(), MESSAGE))
-    );
-
-    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      HOST_NAMESPACES_ATTRIBUTES.forEach(name ->
-        obj.block("template").block("spec")
-          .attribute(name)
-            .reportIfValue(isTrue(), MESSAGE))
+  public static List<Class<?>> checks() {
+    return List.of(
+      ContainerPrivilegedModeCheck.class,
+      DockerSocketCheck.class,
+      HostNamespacesCheck.class,
+      ParsingErrorCheck.class,
+      PrivilegeEscalationCheck.class
     );
   }
 }

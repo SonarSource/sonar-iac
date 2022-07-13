@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -49,13 +48,13 @@ class IacRulingTest {
   private static final String SONAR_CONFIG_VERSION = "DEV";
 
   private static Orchestrator orchestrator;
-  private static boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
+  private static final boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
 
-  private static final Set<String> LANGUAGES = new HashSet<>();
-  static {
-    LANGUAGES.add("terraform");
-    LANGUAGES.add("cloudformation");
-  }
+  private static final Set<String> LANGUAGES = Set.of(
+    "terraform",
+    "cloudformation",
+    "kubernetes"
+  );
 
   @BeforeAll
   public static void setUp() {
@@ -68,13 +67,11 @@ class IacRulingTest {
     orchestrator = builder.build();
     orchestrator.start();
 
-    ProfileGenerator.RulesConfiguration terraformRulesConfiguration = new ProfileGenerator.RulesConfiguration();
-    File terraformProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "terraform", "terraform", terraformRulesConfiguration, Collections.emptySet());
-    orchestrator.getServer().restoreProfile(FileLocation.of(terraformProfile));
-
-    ProfileGenerator.RulesConfiguration cloudformationRulesConfiguration = new ProfileGenerator.RulesConfiguration();
-    File cloudformationProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "cloudformation", "cloudformation", cloudformationRulesConfiguration, Collections.emptySet());
-    orchestrator.getServer().restoreProfile(FileLocation.of(cloudformationProfile));
+    LANGUAGES.forEach(language -> {
+      ProfileGenerator.RulesConfiguration languageRulesConfiguration = new ProfileGenerator.RulesConfiguration();
+      File languageProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), language, language, languageRulesConfiguration, Collections.emptySet());
+      orchestrator.getServer().restoreProfile(FileLocation.of(languageProfile));
+    });
   }
 
   @Test
@@ -92,6 +89,14 @@ class IacRulingTest {
       "sources/cloudformation/**/*.yml, ruling/src/test/resources/sources/cloudformation/**/*.yml,");
     properties.put("sonar.cloudformation.file.identifier", "");
     run_ruling_test("cloudformation", properties);
+  }
+
+  @Test
+  void test_kubernetes() throws IOException {
+    Map<String, String> properties = new HashMap<>();
+    properties.put("sonar.inclusions", "sources/kubernetes/**/*.yaml, ruling/src/test/resources/sources/kubernetes/**/*.yaml," +
+      "sources/kubernetes/**/*.yml, ruling/src/test/resources/sources/kubernetes/**/*.yml");
+    run_ruling_test("kubernetes", properties);
   }
 
   @Disabled("This test is only a helper to diagnose failures on the local system")

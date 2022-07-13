@@ -33,7 +33,7 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.object.BlockObject;
 
-public abstract class KubernetesObjectCheck implements IacCheck {
+public abstract class AbstractKubernetesObjectCheck implements IacCheck {
 
   private final Map<String, List<Consumer<BlockObject>>> objectConsumersByKind = new HashMap<>();
 

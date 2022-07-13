@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import static org.sonar.iac.common.yaml.TreePredicates.isEqualTo;
 
 @Rule(key = "S6429")
-public class DockerSocketCheck extends KubernetesObjectCheck {
+public class DockerSocketCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Make sure exposing the Docker socket is safe here.";
   // Here the path to the docker socket is immutable, thus it must be hardcoded. Therefore, we remove the warning about the hardcoded URIs.

@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.visitors;
+package org.sonar.iac.common.yaml.visitors;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.common.testing.AbstractHighlightingTest;
+import org.sonar.iac.common.yaml.YamlParser;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
 
-class CloudformationHighlightingVisitorTest extends AbstractHighlightingTest {
+class YamlHighlightingVisitorTest extends AbstractHighlightingTest {
 
-  public CloudformationHighlightingVisitorTest() {
-    super(new CloudformationHighlightingVisitor(), new CloudformationParser());
+  public YamlHighlightingVisitorTest() {
+    super(new YamlHighlightingVisitor(), new YamlParser());
   }
 
   @Test

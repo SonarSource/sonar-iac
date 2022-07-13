@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.SonarRuntime;
@@ -37,12 +38,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
-import org.sonar.iac.cloudformation.parser.CloudformationConverter;
-import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
@@ -55,22 +52,21 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
-import org.sonarsource.analyzer.commons.ExternalReportProvider;
+import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 
-public class CloudformationSensor extends IacSensor {
+public class KubernetesSensor extends IacSensor {
 
   private static final String JSON_LANGUAGE_KEY = "json";
   private static final String YAML_LANGUAGE_KEY = "yaml";
+
   private final Checks<IacCheck> checks;
+  private static final FilePredicate KUBERNETES_FILE_PREDICATE = new KubernetesFilePredicate();
 
-  private final AnalysisWarnings analysisWarnings;
-
-  public CloudformationSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-                              NoSonarFilter noSonarFilter, CloudformationLanguage language, AnalysisWarnings analysisWarnings) {
+  protected KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+                             NoSonarFilter noSonarFilter, KubernetesLanguage language) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
-    this.analysisWarnings = analysisWarnings;
-    checks = checkFactory.create(CloudformationExtension.REPOSITORY_KEY);
-    checks.addAnnotatedChecks(CloudformationCheckList.checks());
+    checks = checkFactory.create(KubernetesExtension.REPOSITORY_KEY);
+    checks.addAnnotatedChecks(KubernetesCheckList.checks());
   }
 
   @Override
@@ -82,12 +78,12 @@ public class CloudformationSensor extends IacSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return new YamlParser(new CloudformationConverter());
+    return new YamlParser();
   }
 
   @Override
   protected String repositoryKey() {
-    return CloudformationExtension.REPOSITORY_KEY;
+    return KubernetesExtension.REPOSITORY_KEY;
   }
 
   @Override
@@ -102,23 +98,17 @@ public class CloudformationSensor extends IacSensor {
   }
 
   @Override
+  protected String getActivationSettingKey() {
+    return KubernetesSettings.ACTIVATION_KEY;
+  }
+
+  @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
     FileSystem fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(fileSystem.predicates().and(
-      fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY), fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
-      fileSystem.predicates().hasType(InputFile.Type.MAIN)),
-      new FileIdentificationPredicate(sensorContext.config().get(CloudformationSettings.FILE_IDENTIFIER_KEY).orElse("")));
-  }
-
-  @Override
-  protected void importExternalReports(SensorContext sensorContext) {
-    ExternalReportProvider.getReportFiles(sensorContext, CloudformationSettings.CFN_LINT_REPORTS_KEY)
-      .forEach(report -> CfnLintImporter.importReport(sensorContext, report, analysisWarnings));
-  }
-
-  @Override
-  protected String getActivationSettingKey() {
-    return CloudformationSettings.ACTIVATION_KEY;
+        fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY), fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
+        fileSystem.predicates().hasType(InputFile.Type.MAIN)),
+      KUBERNETES_FILE_PREDICATE);
   }
 
   @Override
@@ -135,27 +125,26 @@ public class CloudformationSensor extends IacSensor {
     return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
   }
 
-  private static class FileIdentificationPredicate implements FilePredicate {
-    private static final Logger LOG = Loggers.get(FileIdentificationPredicate.class);
-    private final String fileIdentifier;
+  static class KubernetesFilePredicate implements FilePredicate {
 
-    public FileIdentificationPredicate(String fileIdentifier) {
-      this.fileIdentifier = fileIdentifier;
-    }
+    // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
+    private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata", "spec");
+    private static final Logger LOG = Loggers.get(KubernetesFilePredicate.class);
 
     @Override
     public boolean apply(InputFile inputFile) {
-      return hasFileIdentifier(inputFile);
+      return hasKubernetesObjectStructure(inputFile);
     }
 
-    private boolean hasFileIdentifier(InputFile inputFile) {
-      if ("".equals(fileIdentifier)) {
-        return true;
-      }
-
+    private static boolean hasKubernetesObjectStructure(InputFile inputFile) {
+      int identifierCount = 0;
       try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
         while (scanner.hasNextLine()) {
-          if (scanner.nextLine().contains(fileIdentifier)) {
+          String line = scanner.nextLine();
+          if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
+            identifierCount++;
+          }
+          if (identifierCount == 4) {
             return true;
           }
         }
@@ -163,7 +152,6 @@ public class CloudformationSensor extends IacSensor {
         LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
         LOG.error(e.getMessage());
       }
-
       return false;
     }
   }

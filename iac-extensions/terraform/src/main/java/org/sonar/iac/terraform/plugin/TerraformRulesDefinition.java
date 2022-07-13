@@ -19,26 +19,24 @@
  */
 package org.sonar.iac.terraform.plugin;
 
+import java.util.List;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.iac.common.extension.IacRulesDefinition;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
-import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
-public class TerraformRulesDefinition implements RulesDefinition {
-
-  private static final String RESOURCE_FOLDER = "org/sonar/l10n/terraform/rules/terraform";
-  private final SonarRuntime runtime;
+public class TerraformRulesDefinition extends IacRulesDefinition {
 
   public TerraformRulesDefinition(SonarRuntime runtime) {
-    this.runtime = runtime;
+    super(runtime);
   }
 
   @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(TerraformExtension.REPOSITORY_KEY, TerraformLanguage.KEY)
-      .setName(TerraformExtension.REPOSITORY_NAME);
-    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(RESOURCE_FOLDER, runtime);
-    metadataLoader.addRulesByAnnotatedClass(repository, TerraformCheckList.checks());
-    repository.done();
+  public String languageKey() {
+    return TerraformLanguage.KEY;
+  }
+
+  @Override
+  protected List<Class<?>> checks() {
+    return TerraformCheckList.checks();
   }
 }

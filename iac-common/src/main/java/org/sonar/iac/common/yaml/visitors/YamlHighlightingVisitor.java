@@ -17,5 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.cloudformation.visitors;
+package org.sonar.iac.common.yaml.visitors;
+
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
+
+public class YamlHighlightingVisitor extends SyntaxHighlightingVisitor {
+
+  @Override
+  protected void languageSpecificHighlighting() {
+    register(TupleTree.class, (ctx, tree) -> highlight(tree.key(), KEYWORD));
+    register(ScalarTree.class, (ctx, tree) -> ctx.ancestors().stream().findFirst().ifPresent(p -> {
+      if (!(p instanceof TupleTree && ((TupleTree) p).key().equals(tree))) {
+        highlight(tree, STRING);
+      }
+    }));
+  }
+
+}

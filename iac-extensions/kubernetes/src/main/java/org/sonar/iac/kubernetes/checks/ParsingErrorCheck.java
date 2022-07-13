@@ -19,30 +19,19 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
 
-import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
-
-@Rule(key = "S6431")
-public class HostNamespacesCheck extends AbstractKubernetesObjectCheck {
-
-  private static final String MESSAGE = "Make sure it is safe to use host operating system namespaces here.";
-  private static final List<String> HOST_NAMESPACES_ATTRIBUTES = List.of("hostPID", "hostIPC", "hostNetwork");
+/**
+ * This class does nothing. It exists only to be present in the SonarQube profile and GUI.
+ * Issues for this class are created upfront, during the parsing.
+ */
+@Rule(key = "S2260")
+public class ParsingErrorCheck implements IacCheck {
 
   @Override
-  void registerObjectCheck() {
-    register("Pod", pod ->
-      HOST_NAMESPACES_ATTRIBUTES.forEach(name ->
-        pod.attribute(name)
-          .reportIfValue(isTrue(), MESSAGE))
-    );
-
-    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      HOST_NAMESPACES_ATTRIBUTES.forEach(name ->
-        obj.block("template").block("spec")
-          .attribute(name)
-            .reportIfValue(isTrue(), MESSAGE))
-    );
+  public void initialize(InitContext init) {
+    // errors are reported in InputFileContext#reportParseError
   }
 }

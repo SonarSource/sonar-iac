@@ -17,26 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.kubernetes.plugin;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.Plugin;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TerraformProfileDefinitionTest {
+class KubernetesExtensionTest {
+
+  private static final Version VERSION_9_5 = Version.create(9, 5);
 
   @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    TerraformProfileDefinition definition = new TerraformProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("terraform", "Sonar way");
-    assertThat(profile.language()).isEqualTo("terraform");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSizeGreaterThan(3);
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .contains("S6245") // DisabledS3EncryptionCheck
-      .doesNotContain("S2260"); // ParsingErrorCheck
+  void sonarqube_extensions() {
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_5, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    Plugin.Context context = new Plugin.Context(runtime);
+    KubernetesExtension.define(context);
+    assertThat(context.getExtensions()).hasSize(5);
   }
 }

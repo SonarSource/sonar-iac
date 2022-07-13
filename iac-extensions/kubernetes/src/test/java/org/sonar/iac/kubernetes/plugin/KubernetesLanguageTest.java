@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.kubernetes.plugin;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TerraformProfileDefinitionTest {
+class KubernetesLanguageTest {
 
   @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    TerraformProfileDefinition definition = new TerraformProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("terraform", "Sonar way");
-    assertThat(profile.language()).isEqualTo("terraform");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSizeGreaterThan(3);
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .contains("S6245") // DisabledS3EncryptionCheck
-      .doesNotContain("S2260"); // ParsingErrorCheck
+  void should_return_kubernetes_file_suffixes() {
+    KubernetesLanguage language = new KubernetesLanguage();
+    assertThat(language.getFileSuffixes()).isEmpty();
   }
+
 }

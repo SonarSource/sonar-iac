@@ -17,26 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.common.extension;
 
-import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public abstract class IacDefaultProfileDefinition implements BuiltInQualityProfilesDefinition, ProvideLanguageKey {
 
-class TerraformProfileDefinitionTest {
+  private static final String PROFILE_NAME = "Sonar way";
+  private static final String SONAR_WAY_PATH_FORMAT = "org/sonar/l10n/%1$s/rules/%1$s/Sonar_way_profile.json";
 
-  @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    TerraformProfileDefinition definition = new TerraformProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("terraform", "Sonar way");
-    assertThat(profile.language()).isEqualTo("terraform");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSizeGreaterThan(3);
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .contains("S6245") // DisabledS3EncryptionCheck
-      .doesNotContain("S2260"); // ParsingErrorCheck
+  @Override
+  public void define(Context context) {
+    String languageKey = languageKey();
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, languageKey);
+    String sonarWayPath = String.format(SONAR_WAY_PATH_FORMAT, languageKey);
+    BuiltInQualityProfileJsonLoader.load(profile, languageKey, sonarWayPath);
+    profile.setDefault(true);
+    profile.done();
   }
+
 }

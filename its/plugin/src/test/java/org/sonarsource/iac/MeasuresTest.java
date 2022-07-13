@@ -19,6 +19,7 @@
  */
 package org.sonarsource.iac;
 
+import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,5 +74,21 @@ public class MeasuresTest extends TestBase {
     assertThat(getMeasureAsInt(file1, "ncloc")).isEqualTo(9);
     assertThat(getMeasureAsInt(file1, "comment_lines")).isZero();
     assertThat(getMeasure(file1, "ncloc_data").getValue()).isEqualTo("1=1;2=1;3=1;4=1;5=1;6=1;7=1;8=1;9=1");
+  }
+
+  @Test
+  public void kubernetes_yaml_measures() {
+    final String projectKey = "kubernetesYamlMeasures";
+    SonarScanner scanner = getSonarScanner(projectKey, BASE_DIRECTORY, "kubernetes");
+
+    ORCHESTRATOR.executeBuild(scanner);
+
+    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(1);
+
+    final String file1 = projectKey + ":file_with_indicators.yml";
+
+    assertThat(getMeasureAsInt(file1, "ncloc")).isEqualTo(10);
+    assertThat(getMeasureAsInt(file1, "comment_lines")).isEqualTo(1);
+    assertThat(getMeasure(file1, "ncloc_data").getValue()).isEqualTo("1=1;2=1;3=1;4=1;5=1;7=1;8=1;9=1;10=1;11=1");
   }
 }
