@@ -93,23 +93,6 @@ class BlockObjectTest {
     assertThat(absentAttr.status).isEqualTo(YamlObject.Status.ABSENT);
   }
 
-  @Test
-  void attributes() {
-    BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: bar \nfoo2: bar2 \nfoo3: bar3"), "a");
-    List<AttributeObject> attributes = block.attributes(List.of("foo", "foo3"));
-
-    assertThat(attributes).hasSize(2);
-    assertThat(attributes.stream().map(attribute -> attribute.status)).containsOnly(YamlObject.Status.PRESENT);
-    assertThat(attributes).doesNotContain(block.attribute("foo2"));
-
-    AttributeObject absentAttr = block.attribute("bar");
-    assertThat(absentAttr.status).isEqualTo(YamlObject.Status.ABSENT);
-
-    BlockObject block2 = BlockObject.fromPresent(ctx, parseMap("foo: bar"), "a");
-    List<AttributeObject> attributes2 = block2.attributes(List.of("foo2", "foo3"));
-    assertThat(attributes2.stream().map(attribute -> attribute.status)).containsOnly(YamlObject.Status.ABSENT);
-  }
-
   private MappingTree parseMap(String source) {
     return (MappingTree) PARSER.parse(source, null).root();
   }

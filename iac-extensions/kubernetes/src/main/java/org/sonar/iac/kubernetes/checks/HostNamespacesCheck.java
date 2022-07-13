@@ -28,20 +28,21 @@ import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
 public class HostNamespacesCheck extends KubernetesObjectCheck {
 
   private static final String MESSAGE = "Make sure it is safe to use host operating system namespaces here.";
-  private static final String TEMPLATE = "template";
   private static final List<String> HOST_NAMESPACES_ATTRIBUTES = List.of("hostPID", "hostIPC", "hostNetwork");
 
   @Override
   void registerObjectCheck() {
     register("Pod", pod ->
-      pod.attributes(HOST_NAMESPACES_ATTRIBUTES)
-        .forEach(attribute -> attribute.reportIfValue(isTrue(), MESSAGE))
+      HOST_NAMESPACES_ATTRIBUTES.forEach(name ->
+        pod.attribute(name)
+          .reportIfValue(isTrue(), MESSAGE))
     );
 
     register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      obj.block(TEMPLATE).block("spec")
-        .attributes(HOST_NAMESPACES_ATTRIBUTES)
-          .forEach(attribute -> attribute.reportIfValue(isTrue(), MESSAGE))
+      HOST_NAMESPACES_ATTRIBUTES.forEach(name ->
+        obj.block("template").block("spec")
+          .attribute(name)
+            .reportIfValue(isTrue(), MESSAGE))
     );
   }
 }

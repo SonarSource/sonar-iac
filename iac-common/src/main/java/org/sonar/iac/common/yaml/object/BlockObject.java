@@ -19,9 +19,7 @@
  */
 package org.sonar.iac.common.yaml.object;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -75,9 +73,5 @@ public class BlockObject extends YamlObject<BlockObject, MappingTree> {
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
       .map(attribute -> AttributeObject.fromPresent(ctx, attribute, key))
       .orElse(AttributeObject.fromAbsent(ctx, key));
-  }
-
-  public List<AttributeObject> attributes(List<String> keys) {
-    return keys.stream().map(this::attribute).collect(Collectors.toList());
   }
 }
