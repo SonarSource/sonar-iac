@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - image: ubuntu
+      name: test-container
+      volumeMounts:
+        - mountPath: /foo
+          name: test-volume
+  volumes:
+    - name: test-volume
+      hostPath:
+        path: /etc # Noncompliant {{Make sure mounting the file system path is safe here.}}
+      # ^^^^^^^^^^

@@ -1,0 +1,28 @@
+{
+  "title": "Mounting sensitive file system paths is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "60min"
+  },
+  "tags": [
+    "cwe"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6433",
+  "sqKey": "S6433",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      668
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  },
+  "quickfix": "unknown"
+}
