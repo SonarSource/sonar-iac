@@ -1,0 +1,62 @@
+<p>Using host operating system namespaces can lead to compromise of the host systems.<br> These attacks would target:</p>
+<ul>
+  <li> host processes </li>
+  <li> host inter-process communication (IPC) mechanisms </li>
+  <li> network services of the local host system </li>
+</ul>
+<p>These three items likely include systems that support either the internal operation of the Kubernetes cluster or the enterprise’s internal
+infrastructure.</p>
+<p>Opening these points to containers opens new attack surfaces for attackers who have already successfully exploited services exposed by containers.
+Depending on how resilient the cluster is, attackers can extend their attack to the cluster by compromising the nodes from which the cluster started
+the process.</p>
+<p>Host network sharing could provide a significant performance advantage for workloads that require critical network performance. However, the
+successful exploitation of this attack vector could have a catastrophic impact on confidentiality within the cluster.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The services of this Pod are accessible to people who are not administrators of the Kubernetes cluster. </li>
+  <li> The cluster’s services performances do <strong>not</strong> rely on operating system namespaces. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Do not use host operating system namespaces.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+  hostPID: true     # Sensitive
+  hostIPC: true     # Sensitive
+  hostNetwork: true # Sensitive
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+  hostPID: false
+  hostIPC: false
+  hostNetwork: false
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
+</ul>
+

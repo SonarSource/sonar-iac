@@ -1,0 +1,27 @@
+{
+  "title": "Using host operating system namespaces is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "60min"
+  },
+  "tags": [
+    "cwe"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6431",
+  "sqKey": "S6431",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  }
+}
