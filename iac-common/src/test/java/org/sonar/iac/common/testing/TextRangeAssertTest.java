@@ -55,8 +55,9 @@ class TextRangeAssertTest {
 
   @Test
   void range_failure() {
+    TextRangeAssert assertion = assertTextRange(range);
     assertThrows(AssertionError.class,
-      () -> assertTextRange(range).hasRange(1, 2, 3, 5));
+      () -> assertion.hasRange(1, 2, 3, 5));
   }
 
 }

@@ -29,7 +29,7 @@ import org.sonar.iac.common.checks.TextUtils;
 public class ShortBackupRetentionCheck extends AbstractResourceCheck {
 
   private static final String MESSAGE = "Make sure that defining a short backup retention duration is safe here.";
-  private static final String OMITTING_MESSAGE = "Omitting \"BackupRetentionPeriod\" sets the backup retention period to 1 day. Make sure that defining a short backup retention duration is safe here.";
+  private static final String OMITTING_MESSAGE = "Omitting \"BackupRetentionPeriod\" sets the backup retention period to 1 day. " + MESSAGE;
   private static final int DEFAULT = 7;
 
   @RuleProperty(

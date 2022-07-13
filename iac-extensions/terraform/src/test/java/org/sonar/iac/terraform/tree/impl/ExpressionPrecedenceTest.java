@@ -24,7 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
@@ -32,7 +33,7 @@ import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExpressionPrecedenceTest extends TerraformTreeModelTest {
+class ExpressionPrecedenceTest extends TerraformTreeModelTest {
 
   /**
    * Precedence levels according to specification
@@ -45,47 +46,42 @@ public class ExpressionPrecedenceTest extends TerraformTreeModelTest {
    *   2      &&
    *   1      ||
    */
-  @Test
-  public void binary_operators_precedence() throws Exception {
-    assertPrecedence("a && b || c", "(a && b) || c");
-    assertPrecedence("a || b && c", "a || (b && c)");
-    assertPrecedence("a == b && c", "(a == b) && c");
-    assertPrecedence("a && b == c", "a && (b == c)");
-    assertPrecedence("a != b && c", "(a != b) && c");
-    assertPrecedence("a && b != c", "a && (b != c)");
-    assertPrecedence("a == b != c", "(a == b) != c");
-    assertPrecedence("a > b == c", "(a > b) == c");
-    assertPrecedence("a == b > c", "a == (b > c)");
-    assertPrecedence("a >= b == c", "(a >= b) == c");
-    assertPrecedence("a == b >= c", "a == (b >= c)");
-    assertPrecedence("a < b == c", "(a < b) == c");
-    assertPrecedence("a == b < c", "a == (b < c)");
-    assertPrecedence("a <= b == c", "(a <= b) == c");
-    assertPrecedence("a == b <= c", "a == (b <= c)");
-    assertPrecedence("a > b >= c < d <= e", "(((a > b) >= c) < d) <= e");
-    assertPrecedence("a + b > c", "(a + b) > c");
-    assertPrecedence("a > b + c", "a > (b + c)");
-    assertPrecedence("a - b > c", "(a - b) > c");
-    assertPrecedence("a > b - c", "a > (b - c)");
-    assertPrecedence("a + b - c", "(a + b) - c");
-    assertPrecedence("a * b + c", "(a * b) + c");
-    assertPrecedence("a + b * c", "a + (b * c)");
-    assertPrecedence("a / b + c", "(a / b) + c");
-    assertPrecedence("a + b / c", "a + (b / c)");
-    assertPrecedence("a % b + c", "(a % b) + c");
-    assertPrecedence("a + b % c", "a + (b % c)");
-    assertPrecedence("a * b / c % e", "((a * b) / c) % e");
-  }
-
-  @Test
-  public void binary_operators_combined_with_unary_operators() {
-    assertPrecedence("a && !b", "a && (! b)");
-    assertPrecedence("!a || b", "(! a) || b");
-    assertPrecedence("a + -b", "a + (- b)");
-    assertPrecedence("a + -b - c", "(a + (- b)) - c");
-  }
-
-  private void assertPrecedence(String code, String expected) {
+  @ParameterizedTest
+  @CsvSource({
+    "a && b || c,         (a && b) || c",
+    "a || b && c,         a || (b && c)",
+    "a == b && c,         (a == b) && c",
+    "a && b == c,         a && (b == c)",
+    "a != b && c,         (a != b) && c",
+    "a && b != c,         a && (b != c)",
+    "a == b != c,         (a == b) != c",
+    "a > b == c,          (a > b) == c",
+    "a == b > c,          a == (b > c)",
+    "a >= b == c,         (a >= b) == c",
+    "a == b >= c,         a == (b >= c)",
+    "a < b == c,          (a < b) == c",
+    "a == b < c,          a == (b < c)",
+    "a <= b == c,         (a <= b) == c",
+    "a == b <= c,         a == (b <= c)",
+    "a > b >= c < d <= e, (((a > b) >= c) < d) <= e",
+    "a + b > c,           (a + b) > c",
+    "a > b + c,           a > (b + c)",
+    "a - b > c,           (a - b) > c",
+    "a > b - c,           a > (b - c)",
+    "a + b - c,           (a + b) - c",
+    "a * b + c,           (a * b) + c",
+    "a + b * c,           a + (b * c)",
+    "a / b + c,           (a / b) + c",
+    "a + b / c,           a + (b / c)",
+    "a % b + c,           (a % b) + c",
+    "a + b % c,           a + (b % c)",
+    "a * b / c % e,       ((a * b) / c) % e",
+    "a && !b,             a && (! b)",
+    "!a || b,             (! a) || b",
+    "a + -b,              a + (- b)",
+    "a + -b - c,          (a + (- b)) - c"
+  })
+  void binary_operators_precedence(String code, String expected) {
     ExpressionTree expression = parse(code, HclLexicalGrammar.EXPRESSION);
     String actual = dumpWithParentheses(expression).stream().collect(Collectors.joining(" "));
     assertThat(actual).isEqualTo(expected);

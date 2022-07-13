@@ -89,7 +89,7 @@ class TerraformSensorTest extends AbstractSensorTest {
     TextRange range = issue.primaryLocation().textRange();
     assertThat(range).isNotNull();
     assertThat(range.start().line()).isEqualTo(1);
-    assertThat(range.start().lineOffset()).isEqualTo(0);
+    assertThat(range.start().lineOffset()).isZero();
     assertThat(range.end().line()).isEqualTo(1);
     assertThat(range.end().lineOffset()).isEqualTo(3);
   }

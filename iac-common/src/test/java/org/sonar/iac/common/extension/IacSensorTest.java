@@ -124,7 +124,7 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(textPointer.line()).isEqualTo(2);
     assertThat(textPointer.lineOffset()).isEqualTo(1);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR).size()).isEqualTo(2);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains(String.format("Unable to parse file: %s. Parse error at position 2:1", inputFile.uri()))
       .contains("Cannot parse 'file1.iac': null");

@@ -21,7 +21,6 @@ package org.sonar.iac.terraform.checks.azure;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
@@ -38,7 +37,12 @@ public class AzureClearTextProtocolsCheckPart extends AbstractNewResourceCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(BlockTree.class, this::checkStorageAccountDataSource);
+    init.register(BlockTree.class, (ctx, tree) -> {
+      if ("azurerm_storage_account_blob_container_sas".equals(getDataSourceType(tree))) {
+        BlockSymbol.fromPresent(ctx, tree, null).attribute("https_only")
+          .reportIf(isFalse(), MESSAGE_CLEAR_TEXT);
+      }
+    });
     super.initialize(init);
   }
 
@@ -74,13 +78,6 @@ public class AzureClearTextProtocolsCheckPart extends AbstractNewResourceCheck {
     register("azurerm_api_management_api" ,
       resource -> resource.list("protocols")
         .reportItemIf(equalTo("http"), MESSAGE_CLEAR_TEXT));
-  }
-
-  private void checkStorageAccountDataSource(CheckContext ctx, BlockTree tree) {
-    if ("azurerm_storage_account_blob_container_sas".equals(getDataSourceType(tree))) {
-      BlockSymbol.fromPresent(ctx, tree, null).attribute("https_only")
-        .reportIf(isFalse(), MESSAGE_CLEAR_TEXT);
-    }
   }
 
   @Nullable
