@@ -42,7 +42,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void simple_block() {
-    BlockTree tree = parse("a{\n b = true \nc = null}", HclLexicalGrammar.BLOCK);
+    BlockTree tree = parse("a{\n b = true\nc = null}", HclLexicalGrammar.BLOCK);
     assertThat(tree.getKind()).isEqualTo(TerraformTree.Kind.BLOCK);
     assertThat(tree.key().value()).isEqualTo("a");
     assertThat(tree.labels()).isEmpty();
