@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import static org.sonar.iac.common.yaml.TreePredicates.isTrue;
 
 @Rule(key = "S6431")
-public class HostNamespacesCheck extends KubernetesObjectCheck {
+public class HostNamespacesCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Make sure it is safe to use host operating system namespaces here.";
   private static final List<String> HOST_NAMESPACES_ATTRIBUTES = List.of("hostPID", "hostIPC", "hostNetwork");

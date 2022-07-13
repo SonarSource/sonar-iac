@@ -30,6 +30,7 @@ public final class KubernetesCheckList {
     return List.of(
       ContainerPrivilegedModeCheck.class,
       DockerSocketCheck.class,
+      HostNamespacesCheck.class,
       ParsingErrorCheck.class,
       PrivilegeEscalationCheck.class
     );

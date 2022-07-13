@@ -33,7 +33,7 @@ class KubernetesProfileDefinitionTest {
     BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("kubernetes", "Sonar way");
     assertThat(profile.language()).isEqualTo("kubernetes");
     assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSizeGreaterThan(0);
+    assertThat(profile.rules()).hasSizeGreaterThan(3);
     assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
       .contains("S6428") // ContainerPrivilegedModeCheck
       .doesNotContain("S2260"); // ParsingErrorCheck
