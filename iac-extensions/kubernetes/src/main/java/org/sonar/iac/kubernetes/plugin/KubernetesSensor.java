@@ -114,7 +114,7 @@ public class KubernetesSensor extends YamlIacSensor {
       return hasKubernetesObjectStructure(inputFile);
     }
 
-    private boolean hasKubernetesObjectStructure(InputFile inputFile) {
+    private static boolean hasKubernetesObjectStructure(InputFile inputFile) {
       int identifierCount = 0;
       try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
         while (scanner.hasNextLine()) {
