@@ -19,18 +19,15 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.TreePredicates;
-import org.sonar.iac.common.yaml.tree.YamlTree;
+
+import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
 @Rule(key = "S5849")
 public class CapabilitiesCheck extends KubernetesObjectCheck {
 
   private static final String MESSAGE = "Make sure setting capabilities is safe here.";
-  private static final List<String> STRINGS_CONSIDERED_AS_EMPTY = Arrays.asList("", "~", "[]", "null");
 
   @Override
   void registerObjectCheck() {
@@ -38,22 +35,18 @@ public class CapabilitiesCheck extends KubernetesObjectCheck {
       pod.blocks("containers").forEach(container ->
         container.block("securityContext")
           .block("capabilities")
-            .attribute("add")
-              .reportIfValue(isNotEmpty(), MESSAGE)
+            .list("add")
+              .reportItemIf(isSet(), MESSAGE)
       )
     );
 
     register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
       obj.block("template").block("spec").blocks("containers").forEach(container ->
         container.block("securityContext")
-          .block( "capabilities")
-            .attribute("add")
-              .reportIfValue(isNotEmpty(), MESSAGE)
+          .block("capabilities")
+            .list("add")
+              .reportItemIf(isSet(), MESSAGE)
       )
     );
-  }
-  
-  private static Predicate<YamlTree> isNotEmpty(){
-    return TreePredicates.containsOtherThan(STRINGS_CONSIDERED_AS_EMPTY);
   }
 }

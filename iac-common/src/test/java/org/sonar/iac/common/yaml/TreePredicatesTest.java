@@ -50,20 +50,29 @@ class TreePredicatesTest {
   }
 
   @Test
-  void containsOtherThan(){
-    assertThat(TreePredicates.containsOtherThan(Collections.emptyList()).test(text("otherValue"))).isTrue();
-    assertThat(TreePredicates.containsOtherThan(Collections.emptyList()).test(text(""))).isTrue();
-    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("")).test(text("otherValue"))).isTrue();
-    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("test")).test(text("otherValue"))).isTrue();
+  void containsOtherThan() {
+    assertThat(TreePredicates.isNotPartOf(Collections.emptyList()).test(text("otherValue"))).isTrue();
+    assertThat(TreePredicates.isNotPartOf(Collections.emptyList()).test(text(""))).isTrue();
+    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("")).test(text("otherValue"))).isTrue();
+    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("test")).test(text("otherValue"))).isTrue();
 
-    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("")).test(text(""))).isFalse();
-    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("test")).test(text("test"))).isFalse();
+    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("")).test(text(""))).isFalse();
+    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("test")).test(text("test"))).isFalse();
 
-    assertThat(TreePredicates.containsOtherThan(List.of("", "~")).test(yaml(List.of("", "~", "a")))).isTrue();
-    assertThat(TreePredicates.containsOtherThan(List.of("", "~", "a")).test(yaml(List.of("", "~", "a")))).isFalse();
-    assertThat(TreePredicates.containsOtherThan(List.of("", "~", "a")).test(yaml(Collections.emptyList()))).isFalse();
+    assertThat(TreePredicates.isNotPartOf(List.of("", "~")).test(yaml(List.of("", "~", "a")))).isTrue();
+    assertThat(TreePredicates.isNotPartOf(List.of("", "~", "a")).test(yaml(List.of("", "~", "a")))).isFalse();
+    assertThat(TreePredicates.isNotPartOf(List.of("", "~", "a")).test(yaml(Collections.emptyList()))).isFalse();
 
-    assertThat(TreePredicates.containsOtherThan(Collections.singletonList("")).test(notTextTree())).isFalse();
+    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("")).test(notTextTree())).isFalse();
+  }
+
+  @Test
+  void isSet() {
+    assertThat(TreePredicates.isSet().test(yaml(List.of("")))).isFalse();
+    assertThat(TreePredicates.isSet().test(yaml(List.of("", "~")))).isFalse();
+    assertThat(TreePredicates.isSet().test(yaml(List.of("a")))).isTrue();
+    assertThat(TreePredicates.isSet().test(yaml(List.of("a", "")))).isTrue();
+    assertThat(TreePredicates.isSet().test(notTextTree())).isFalse();
   }
 
   private ScalarTree text(String value) {

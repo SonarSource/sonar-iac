@@ -12,7 +12,15 @@ spec:
           add: ["SYS_ADMIN"] # Noncompliant {{Make sure setting capabilities is safe here.}}
         # ^^^^^^^^^^^^^^^^^^
 
-    - image: ubuntu
+    - image: ubuntu-2
+      command: ["sleep", "6000"]
+      name: test-container
+      securityContext:
+        capabilities:
+          add: [~, "SYS_ADMIN"] # Noncompliant {{Make sure setting capabilities is safe here.}}
+        # ^^^^^^^^^^^^^^^^^^^^^
+
+    - image: ubuntu-3
       command: [ "sleep", "6000" ]
       name: test-container
       securityContext:
@@ -20,42 +28,42 @@ spec:
           add: ["NET_ADMIN", "SYS_TIME"] # Noncompliant {{Make sure setting capabilities is safe here.}}
         # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    - image: ubuntu-2
+    - image: ubuntu-4
       command: [ "sleep", "6000" ]
       name: test-container
       securityContext:
         capabilities:
           add: ~
 
-    - image: ubuntu-3
+    - image: ubuntu-5
       command: [ "sleep", "6000" ]
       name: test-container
       securityContext:
         capabilities:
           add: [""]
 
-    - image: ubuntu-4
+    - image: ubuntu-6
       command: [ "sleep", "6000" ]
       name: test-container
       securityContext:
         capabilities:
           add: ""
 
-    - image: ubuntu-5
+    - image: ubuntu-7
       command: [ "sleep", "6000" ]
       name: test-container
       securityContext:
         capabilities:
           add: null
 
-    - image: ubuntu-6
+    - image: ubuntu-8
       command: [ "sleep", "6000" ]
       name: test-container
       securityContext:
         capabilities:
           add: ["", ~]
 
-    - image: ubuntu-7
+    - image: ubuntu-9
       command: [ "sleep", "6000" ]
       name: test-container
       securityContext:
