@@ -48,7 +48,7 @@ class IacRulingTest {
   private static final String SONAR_CONFIG_VERSION = "DEV";
 
   private static Orchestrator orchestrator;
-  private static boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
+  private static final boolean keepSonarqubeRunning = "true".equals(System.getProperty("keepSonarqubeRunning"));
 
   private static final Set<String> LANGUAGES = Set.of(
     "terraform",
