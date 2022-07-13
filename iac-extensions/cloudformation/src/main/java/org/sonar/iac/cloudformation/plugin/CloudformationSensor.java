@@ -22,11 +22,15 @@ package org.sonar.iac.cloudformation.plugin;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
+import org.snakeyaml.engine.v2.exceptions.Mark;
+import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -42,18 +46,21 @@ import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.common.yaml.YamlIacSensor;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
-public class CloudformationSensor extends YamlIacSensor {
+public class CloudformationSensor extends IacSensor {
 
+  private static final String JSON_LANGUAGE_KEY = "json";
+  private static final String YAML_LANGUAGE_KEY = "yaml";
   private final Checks<IacCheck> checks;
 
   private final AnalysisWarnings analysisWarnings;
@@ -114,7 +121,19 @@ public class CloudformationSensor extends YamlIacSensor {
     return CloudformationSettings.ACTIVATION_KEY;
   }
 
+  @Override
+  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
+    if (!(cause instanceof MarkedYamlEngineException)) {
+      return super.toParseException(action, inputFile, cause);
+    }
 
+    Optional<Mark> problemMark = ((MarkedYamlEngineException) cause).getProblemMark();
+    TextPointer position = null;
+    if (problemMark.isPresent()) {
+      position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);
+    }
+    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
+  }
 
   private static class FileIdentificationPredicate implements FilePredicate {
     private static final Logger LOG = Loggers.get(FileIdentificationPredicate.class);
