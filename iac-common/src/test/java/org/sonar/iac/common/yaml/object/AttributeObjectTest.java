@@ -28,13 +28,14 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.common.yaml.YamlTreeTest;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class AttributeObjectTest {
+class AttributeObjectTest extends YamlTreeTest {
 
   static final List<TestIssue> raisedIssues = new ArrayList<>();
   static YamlParser PARSER = new YamlParser();
@@ -52,7 +53,7 @@ class AttributeObjectTest {
 
   @Test
   void fromPresent_unknown() {
-    YamlTree tree = PARSER.parse("a:b", null).root();
+    YamlTree tree = parse("a:b", YamlTree.class);
     AttributeObject attr = AttributeObject.fromPresent(ctx, tree, "a");
     assertThat(attr.key).isEqualTo("a");
     assertThat(attr.status).isEqualTo(YamlObject.Status.UNKNOWN);
@@ -82,7 +83,7 @@ class AttributeObjectTest {
   }
 
   private static TupleTree parseTuple(String source) {
-    return ((MappingTree) PARSER.parse(source, null).root()).elements().get(0);
+    return parse(source, MappingTree.class).elements().get(0);
   }
 
   private static class TestContext implements CheckContext {

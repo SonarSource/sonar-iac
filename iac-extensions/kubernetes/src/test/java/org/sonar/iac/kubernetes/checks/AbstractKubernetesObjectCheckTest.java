@@ -19,39 +19,48 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.yaml.object.BlockObject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AbstractKubernetesObjectCheckTest {
 
-  boolean invokedConsumer = false;
+  Set<BlockObject> visitedObjects = new HashSet<>();
   IacCheck check = new AbstractKubernetesObjectCheck() {
 
     @Override
     void registerObjectCheck() {
-      register(List.of("Pod", "Job"), pod -> invokedConsumer = true);
+      register(List.of("Pod", "Job"), pod -> visitedObjects.add(pod));
     }
   };
 
   @Test
   void invalid_object_structure() {
-    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/invalid_object_structure.yaml", check);
-    assertThat(invokedConsumer).isFalse();
+    KubernetesVerifier.verifyNoIssue("AbstractKubernetesObjectCheck/invalid_object_structure.yaml", check);
+    assertThat(visitedObjects).isEmpty();
   }
 
   @Test
   void valid_object_structure() {
-    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/valid_object_structure.yaml", check);
-    assertThat(invokedConsumer).isTrue();
+    KubernetesVerifier.verifyNoIssue("AbstractKubernetesObjectCheck/valid_object_structure.yaml", check);
+    assertThat(visitedObjects).hasSize(1);
   }
 
   @Test
   void non_matching_object() {
-    KubernetesVerifier.verifyNoIssue("KubernetesObjectCheck/non_matching_object.yaml", check);
-    assertThat(invokedConsumer).isFalse();
+    KubernetesVerifier.verifyNoIssue("AbstractKubernetesObjectCheck/non_matching_object.yaml", check);
+    assertThat(visitedObjects).isEmpty();
   }
+
+//  @Test
+//  void multiple_object_file() {
+//    KubernetesVerifier.verifyNoIssue("AbstractKubernetesObjectCheck/multiple_objects.yaml", check);
+//    assertThat(visitedObjects).hasSize(2);
+//  }
 
 }

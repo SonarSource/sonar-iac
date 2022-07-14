@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
+import java.util.List;
+
 public interface FileTree extends YamlTree {
-  YamlTree root();
+  List<YamlTree> documents();
 }

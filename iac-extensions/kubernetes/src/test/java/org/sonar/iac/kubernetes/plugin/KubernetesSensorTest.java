@@ -20,11 +20,14 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,9 +37,42 @@ class KubernetesSensorTest extends AbstractSensorTest {
   private static final String K8_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\nspec: ~\n";
   private static final String PARSING_ERROR_KEY = "S2260";
 
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+
+  @Test
+  void yaml_file_with_identifiers_should_be_parsed() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS));
+    assertOneSourceFileIsParsed();
+  }
+
+  @Test
+  void yaml_file_without_identifiers_should_not_be_parsed() {
+    analyse(sensor(), inputFile( ""));
+    asserNotSourceFileIsParsed();
+  }
+
+  @Test
+  void yaml_file_with_incomplete_identifiers_should_not_be_parsed() {
+    analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n"));
+    asserNotSourceFileIsParsed();
+  }
+
+  @Test
+  void yaml_files_within_single_stream_should_be_parsed() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + "---\n" + K8_IDENTIFIERS));
+    assertOneSourceFileIsParsed();
+  }
+
+  @Test
+  void yaml_files_with_incomplete_identifiers_within_single_stream_should_not_be_parsed() {
+    analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n---\n" + K8_IDENTIFIERS));
+    asserNotSourceFileIsParsed();
+  }
+
   @Test
   void yaml_file_with_invalid_syntax_should_not_raise_parsing_if_rule_is_deactivated() {
-    analyse(sensor(checkFactory()), inputFile("error.yaml", "a: b: c"));
+    analyse(sensor(checkFactory()), inputFileWithIdentifiers("a: b: c"));
 
     assertThat(context.allAnalysisErrors()).hasSize(1);
     assertThat(context.allIssues()).isEmpty();
@@ -44,7 +80,7 @@ class KubernetesSensorTest extends AbstractSensorTest {
 
   @Test
   void yaml_file_with_invalid_syntax_should_raise_parsing() {
-    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("error.yaml", "a: b: c"));
+    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFileWithIdentifiers("a: b: c"));
 
     assertThat(context.allAnalysisErrors()).hasSize(1);
     assertThat(context.allIssues()).hasSize(1);
@@ -58,13 +94,13 @@ class KubernetesSensorTest extends AbstractSensorTest {
     settings.setProperty(getActivationSettingKey(), false);
     context.setSettings(settings);
 
-    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("parserError.json", "\"a'"));
+    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFileWithIdentifiers("\"a'"));
     assertThat(context.allIssues()).isEmpty();
   }
 
   @Test
   void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
-    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("loop.yaml", "foo: &fooanchor\n" +
+    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFileWithIdentifiers("foo: &fooanchor\n" +
       " bar: *fooanchor"));
 
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -81,20 +117,20 @@ class KubernetesSensorTest extends AbstractSensorTest {
     assertThat(descriptor.languages()).containsExactly("json", "yaml");
   }
 
-  @Test
-  void yaml_file_without_identifiers_should_not_be_parsed() {
-    analyse(sensor("S2260"), inputFileWithoutIdentifiers("error.yaml", "a: b: c"));
-    assertThat(context.allIssues()).isEmpty();
+  private void asserNotSourceFileIsParsed() {
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("0 source files to be analyzed");
   }
 
-
-  protected InputFile inputFileWithoutIdentifiers(String relativePath, String content) {
-    return super.inputFile(relativePath, content);
+  private void assertOneSourceFileIsParsed() {
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("1 source file to be analyzed");
   }
 
-  @Override
-  protected InputFile inputFile(String relativePath, String content) {
-    return super.inputFile(relativePath, K8_IDENTIFIERS + content);
+  protected InputFile inputFile(String content) {
+    return super.inputFile("k8.yaml", content);
+  }
+
+  protected InputFile inputFileWithIdentifiers(String content) {
+    return super.inputFile("k8.yaml", K8_IDENTIFIERS + content);
   }
 
   @Override

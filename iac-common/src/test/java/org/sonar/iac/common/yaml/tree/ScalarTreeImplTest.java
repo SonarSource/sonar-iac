@@ -20,6 +20,7 @@
 package org.sonar.iac.common.yaml.tree;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.yaml.YamlTreeTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -28,7 +29,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
 
   @Test
   void double_quoted() {
-    ScalarTree tree = (ScalarTree) parse("\"a\"").root();
+    ScalarTree tree = parse("\"a\"", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
@@ -38,7 +39,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
 
   @Test
   void single_quoted() {
-    ScalarTree tree = (ScalarTree) parse("'a'").root();
+    ScalarTree tree = parse("'a'", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
@@ -48,7 +49,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
 
   @Test
   void literal() {
-    ScalarTree tree = (ScalarTree) parse("| \n a").root();
+    ScalarTree tree = parse("| \n a", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
@@ -58,7 +59,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
 
   @Test
   void folded() {
-    ScalarTree tree = (ScalarTree) parse("> \n a").root();
+    ScalarTree tree = parse("> \n a", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
@@ -68,7 +69,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
 
   @Test
   void plain() {
-    ScalarTree tree = (ScalarTree) parse("a").root();
+    ScalarTree tree = parse("a", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("a");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:str");
@@ -78,7 +79,7 @@ class ScalarTreeImplTest extends YamlTreeTest {
 
   @Test
   void plain_integer() {
-    ScalarTree tree = (ScalarTree) parse("123").root();
+    ScalarTree tree = parse("123", ScalarTree.class);
     assertThat(tree.value()).isEqualTo("123");
     assertThat(tree.children()).isEmpty();
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:int");

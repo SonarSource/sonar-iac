@@ -19,22 +19,20 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public abstract class AbstractResourceCheck implements IacCheck {
 
@@ -44,14 +42,11 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   public static List<Resource> getFileResources(FileTree file) {
-    Tree resourcesTree = PropertyUtils.valueOrNull(file.root(), "Resources");
-    if (!(resourcesTree instanceof MappingTree)) {
-      return Collections.emptyList();
-    }
-
-    return ((MappingTree) resourcesTree).elements().stream()
-      .filter(element -> element.key() instanceof ScalarTree && element.value() instanceof MappingTree)
-      .map(element -> Resource.fromMapping((ScalarTree) element.key(), (MappingTree) element.value()))
+    return file.documents().stream()
+      .flatMap(document -> PropertyUtils.value(document, "Resources", MappingTree.class).stream())
+      .flatMap(resources -> resources.elements().stream())
+      .filter(resource -> resource.key() instanceof ScalarTree && resource.value() instanceof MappingTree)
+      .map(resource -> Resource.fromMapping((ScalarTree) resource.key(), (MappingTree) resource.value()))
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
   }

@@ -20,21 +20,12 @@
 package org.sonar.iac.cloudformation.plugin;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
-import org.snakeyaml.engine.v2.exceptions.Mark;
-import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.notifications.AnalysisWarnings;
@@ -43,41 +34,20 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationConverter;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
-import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.DurationStatistics;
-import org.sonar.iac.common.extension.IacSensor;
-import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
-import org.sonar.iac.common.extension.visitors.ChecksVisitor;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlParser;
-import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
-import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
+import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
-public class CloudformationSensor extends IacSensor {
-
-  private static final String JSON_LANGUAGE_KEY = "json";
-  private static final String YAML_LANGUAGE_KEY = "yaml";
-  private final Checks<IacCheck> checks;
+public class CloudformationSensor extends YamlSensor {
 
   private final AnalysisWarnings analysisWarnings;
 
   public CloudformationSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
                               NoSonarFilter noSonarFilter, CloudformationLanguage language, AnalysisWarnings analysisWarnings) {
-    super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
+    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks());
     this.analysisWarnings = analysisWarnings;
-    checks = checkFactory.create(CloudformationExtension.REPOSITORY_KEY);
-    checks.addAnnotatedChecks(CloudformationCheckList.checks());
-  }
-
-  @Override
-  public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .onlyOnLanguages(JSON_LANGUAGE_KEY, YAML_LANGUAGE_KEY)
-      .name("IaC " + language.getName() + " Sensor");
   }
 
   @Override
@@ -86,28 +56,13 @@ public class CloudformationSensor extends IacSensor {
   }
 
   @Override
+  protected FilePredicate customFilePredicate(SensorContext sensorContext) {
+    return new FileIdentificationPredicate(sensorContext.config().get(CloudformationSettings.FILE_IDENTIFIER_KEY).orElse(""));
+  }
+
+  @Override
   protected String repositoryKey() {
     return CloudformationExtension.REPOSITORY_KEY;
-  }
-
-  @Override
-  protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
-    List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    if (isSonarLintContext(sensorContext)) {
-      visitors.add(new YamlHighlightingVisitor());
-      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
-    }
-    visitors.add(new ChecksVisitor(checks, statistics));
-    return visitors;
-  }
-
-  @Override
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
-    FileSystem fileSystem = sensorContext.fileSystem();
-    return fileSystem.predicates().and(fileSystem.predicates().and(
-      fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY), fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
-      fileSystem.predicates().hasType(InputFile.Type.MAIN)),
-      new FileIdentificationPredicate(sensorContext.config().get(CloudformationSettings.FILE_IDENTIFIER_KEY).orElse("")));
   }
 
   @Override
@@ -121,19 +76,6 @@ public class CloudformationSensor extends IacSensor {
     return CloudformationSettings.ACTIVATION_KEY;
   }
 
-  @Override
-  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
-    if (!(cause instanceof MarkedYamlEngineException)) {
-      return super.toParseException(action, inputFile, cause);
-    }
-
-    Optional<Mark> problemMark = ((MarkedYamlEngineException) cause).getProblemMark();
-    TextPointer position = null;
-    if (problemMark.isPresent()) {
-      position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);
-    }
-    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
-  }
 
   private static class FileIdentificationPredicate implements FilePredicate {
     private static final Logger LOG = Loggers.get(FileIdentificationPredicate.class);

@@ -17,29 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.tree;
+package org.sonar.iac.common.yaml;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class FileTreeImpl extends YamlTreeImpl implements FileTree {
-  private final List<YamlTree> documents;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public FileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata) {
-    // A file on its own has no comments. They will be attached to the root node.
-    super(metadata);
-    this.documents = documents;
+public abstract class YamlTreeTest {
+
+  protected static FileTree parse(String source) {
+    YamlParser parser = new YamlParser();
+    return parser.parse(source, null);
   }
 
-  @Override
-  public List<YamlTree> documents() {
-    return documents;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return new ArrayList<>(documents);
+  protected static <T extends YamlTree> T parse(String source, Class<T> clazz) {
+    FileTree fileTree = parse(source);
+    assertThat(fileTree.documents()).as("Parsed source code contains not a single document").hasSize(1);
+    YamlTree rootTree = fileTree.documents().get(0);
+    assertThat(rootTree).isInstanceOf(clazz);
+    return (T) rootTree;
   }
 
 }

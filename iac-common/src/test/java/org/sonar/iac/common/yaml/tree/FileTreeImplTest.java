@@ -19,8 +19,14 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.yaml.YamlTreeTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -29,13 +35,25 @@ import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 class FileTreeImplTest extends YamlTreeTest {
 
   @Test
-  void file_has_a_root_tree() {
+  void file_contains_single_document() {
     FileTree tree = parse("a: b");
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
     assertThat(tree.children()).hasSize(1);
-    assertThat(tree.root()).isInstanceOf(MappingTree.class);
+    assertThat(tree.documents()).hasSize(1);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 4);
-    assertThat(tree.textRange()).isEqualTo(tree.root().textRange());
+    assertThat(tree.textRange()).isEqualTo(tree.documents().get(0).textRange());
+  }
+
+  @Test
+  void file_contains_multiple_documents() {
+    FileTree tree = parse("a: b\n---\na: b");
+    assertThat(tree.metadata().tag()).isEqualTo("FILE");
+    assertThat(tree.children()).hasSize(2);
+    assertThat(tree.documents()).hasSize(2);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 3, 4);
+
+    List<TextRange> documentRanges = tree.documents().stream().map(HasTextRange::textRange).collect(Collectors.toList());
+    assertThat(tree.textRange()).isEqualTo(TextRanges.merge(documentRanges));
   }
 
   @Test
@@ -46,11 +64,13 @@ class FileTreeImplTest extends YamlTreeTest {
   @Test
   void file_with_only_a_comment() {
     FileTree tree = parse("# foo");
+    assertThat(tree.documents()).hasSize(1);
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
-    assertThat(tree.root()).isInstanceOf(MappingTree.class);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 0);
-    assertThat(tree.root().metadata().comments()).hasSize(1);
-    assertThat(tree.root().metadata().comments().get(0).value()).isEqualTo("# foo");
-    assertThat(tree.root().metadata().comments().get(0).contentText()).isEqualTo(" foo");
+    YamlTree document = tree.documents().get(0);
+    assertThat(document).isInstanceOf(MappingTree.class);
+    assertThat(document.metadata().comments()).hasSize(1);
+    assertThat(document.metadata().comments().get(0).value()).isEqualTo("# foo");
+    assertThat(document.metadata().comments().get(0).contentText()).isEqualTo(" foo");
   }
 }

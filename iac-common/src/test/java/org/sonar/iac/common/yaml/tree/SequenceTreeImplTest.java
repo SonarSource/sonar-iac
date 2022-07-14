@@ -20,6 +20,7 @@
 package org.sonar.iac.common.yaml.tree;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.yaml.YamlTreeTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -28,7 +29,7 @@ class SequenceTreeImplTest extends YamlTreeTest {
 
   @Test
   void simple_sequence() {
-    SequenceTree tree = (SequenceTree) parse("[1, \"a\"]").root();
+    SequenceTree tree = parse("[1, \"a\"]", SequenceTree.class);
     assertThat(tree.elements()).hasSize(2);
     assertThat(tree.children()).hasSize(2);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
