@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.common.yaml;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -47,23 +46,6 @@ class TreePredicatesTest {
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(text("NOT_VALUE_TEST"))).isFalse();
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(text(null))).isFalse();
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(notTextTree())).isFalse();
-  }
-
-  @Test
-  void containsOtherThan() {
-    assertThat(TreePredicates.isNotPartOf(Collections.emptyList()).test(text("otherValue"))).isTrue();
-    assertThat(TreePredicates.isNotPartOf(Collections.emptyList()).test(text(""))).isTrue();
-    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("")).test(text("otherValue"))).isTrue();
-    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("test")).test(text("otherValue"))).isTrue();
-
-    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("")).test(text(""))).isFalse();
-    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("test")).test(text("test"))).isFalse();
-
-    assertThat(TreePredicates.isNotPartOf(List.of("", "~")).test(yaml(List.of("", "~", "a")))).isTrue();
-    assertThat(TreePredicates.isNotPartOf(List.of("", "~", "a")).test(yaml(List.of("", "~", "a")))).isFalse();
-    assertThat(TreePredicates.isNotPartOf(List.of("", "~", "a")).test(yaml(Collections.emptyList()))).isFalse();
-
-    assertThat(TreePredicates.isNotPartOf(Collections.singletonList("")).test(notTextTree())).isFalse();
   }
 
   @Test

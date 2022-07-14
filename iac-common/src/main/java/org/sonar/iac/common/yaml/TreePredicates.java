@@ -40,13 +40,9 @@ public class TreePredicates {
     return t -> TextUtils.isValue(t, parameter).isTrue();
   }
 
-  public static Predicate<YamlTree> isSet(){
-    return TreePredicates.isNotPartOf(STRINGS_CONSIDERED_AS_EMPTY);
-  }
-
-  public static Predicate<YamlTree> isNotPartOf(List<String> strings) {
+  public static Predicate<YamlTree> isSet() {
     return t -> TextUtils
       .getListValueElements(t).stream()
-      .anyMatch(value -> !strings.contains(value));
+      .anyMatch(value -> !STRINGS_CONSIDERED_AS_EMPTY.contains(value));
   }
 }

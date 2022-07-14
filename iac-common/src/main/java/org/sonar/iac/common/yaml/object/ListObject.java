@@ -50,7 +50,7 @@ public class ListObject extends YamlObject<ListObject, SequenceTree>{
     }
     // List can also be provided as reference. To avoid false positives due to a missing reference resolution
     // we create an empty ListObject
-    return new ListObject(ctx, null, key, Status.PRESENT, null, Collections.emptyList());
+    return new ListObject(ctx, null, key, Status.UNKNOWN, null, Collections.emptyList());
   }
 
   public static ListObject fromAbsent(CheckContext ctx, String key) {
@@ -61,17 +61,13 @@ public class ListObject extends YamlObject<ListObject, SequenceTree>{
     return items.stream().filter(predicate);
   }
 
-  public ListObject reportItemIf(Predicate<YamlTree> predicate, String message) {
-    getItemIf(predicate).forEach(item -> report(message));
+  public ListObject reportItemIfAny(Predicate<YamlTree> predicate, String message) {
+    getItemIf(predicate).findFirst().ifPresent(item -> report(message));
     return this;
   }
 
-  public boolean isByReference() {
-    return tree != null && !(tree instanceof TupleTree);
-  }
-
-  public boolean isPresent() {
-    return tree != null && !isByReference();
+  public boolean isEmpty() {
+    return items.isEmpty();
   }
 
   @Nullable

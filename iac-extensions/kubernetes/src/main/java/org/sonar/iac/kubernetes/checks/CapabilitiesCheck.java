@@ -36,7 +36,7 @@ public class CapabilitiesCheck extends KubernetesObjectCheck {
         container.block("securityContext")
           .block("capabilities")
             .list("add")
-              .reportItemIf(isSet(), MESSAGE)
+              .reportItemIfAny(isSet(), MESSAGE)
       )
     );
 
@@ -45,7 +45,7 @@ public class CapabilitiesCheck extends KubernetesObjectCheck {
         container.block("securityContext")
           .block("capabilities")
             .list("add")
-              .reportItemIf(isSet(), MESSAGE)
+              .reportItemIfAny(isSet(), MESSAGE)
       )
     );
   }
