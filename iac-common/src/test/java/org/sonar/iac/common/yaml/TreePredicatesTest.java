@@ -19,8 +19,11 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.yaml.tree.FileTreeImpl;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.yaml.YamlTreeUtils.scalar;
@@ -51,6 +54,22 @@ class TreePredicatesTest {
     assertThat(TreePredicates.isSet().test(scalar("a"))).isTrue();
     assertThat(TreePredicates.isSet().test(scalar("SET_VALUE"))).isTrue();
     assertThat(TreePredicates.isSet().test(notTextTree())).isFalse();
+  }
+
+  @Test
+  void startsWith() {
+    assertThat(TreePredicates.startsWith(List.of("/etc")).test(text("/etc/init.d"))).isTrue();
+    assertThat(TreePredicates.startsWith(List.of("/etc")).test(text("/var/init.d"))).isFalse();
+    assertThat(TreePredicates.startsWith(List.of("/etc")).test(text("/var/etc/init.d"))).isFalse();
+    assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(text("/bin/log"))).isTrue();
+    assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(text("/var/log"))).isFalse();
+    assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(text("etc/log"))).isFalse();
+    assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(text(null))).isFalse();
+    assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(notTextTree())).isFalse();
+  }
+
+  private ScalarTree text(String value) {
+    return new ScalarTreeImpl(value, null, null);
   }
 
   private FileTreeImpl notTextTree() {

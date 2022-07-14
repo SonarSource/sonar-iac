@@ -33,7 +33,7 @@ public class TextUtils {
 
   public static Optional<String> getValue(@Nullable Tree tree) {
     if (tree instanceof TextTree) {
-      return Optional.of(((TextTree) tree).value());
+      return Optional.ofNullable(((TextTree) tree).value());
     }
     return Optional.empty();
   }
