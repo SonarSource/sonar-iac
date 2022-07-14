@@ -61,7 +61,7 @@ public class ListObject extends YamlObject<ListObject, SequenceTree>{
     return items.stream().filter(predicate);
   }
 
-  public ListObject reportItemIfAny(Predicate<YamlTree> predicate, String message) {
+  public ListObject reportIfAnyItem(Predicate<YamlTree> predicate, String message) {
     getItemIf(predicate).findFirst().ifPresent(item -> report(message));
     return this;
   }

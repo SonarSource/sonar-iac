@@ -28,6 +28,7 @@ public final class KubernetesCheckList {
 
   public static List<Class<?>> checks() {
     return List.of(
+      CapabilitiesCheck.class,
       ContainerPrivilegedModeCheck.class,
       DockerSocketCheck.class,
       HostNamespacesCheck.class,

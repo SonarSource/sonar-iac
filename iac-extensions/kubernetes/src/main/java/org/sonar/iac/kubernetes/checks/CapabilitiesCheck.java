@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import static org.sonar.iac.common.yaml.TreePredicates.isSet;
 
 @Rule(key = "S5849")
-public class CapabilitiesCheck extends KubernetesObjectCheck {
+public class CapabilitiesCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Make sure setting capabilities is safe here.";
 
@@ -36,7 +36,7 @@ public class CapabilitiesCheck extends KubernetesObjectCheck {
         container.block("securityContext")
           .block("capabilities")
             .list("add")
-              .reportItemIfAny(isSet(), MESSAGE)
+              .reportIfAnyItem(isSet(), MESSAGE)
       )
     );
 
@@ -45,7 +45,7 @@ public class CapabilitiesCheck extends KubernetesObjectCheck {
         container.block("securityContext")
           .block("capabilities")
             .list("add")
-              .reportItemIfAny(isSet(), MESSAGE)
+              .reportIfAnyItem(isSet(), MESSAGE)
       )
     );
   }
