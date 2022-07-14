@@ -99,11 +99,12 @@ class BlockObjectTest {
     BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: [bar, car]"), "a");
     ListObject listPresent = block.list("foo");
     assertThat(listPresent.status).isEqualTo(YamlObject.Status.PRESENT);
-    assertThat(listPresent.getItemIf(e -> true)
+    assertThat(listPresent.items.stream()
       .map(tree -> ((ScalarTree) tree).value()))
       .containsExactly("bar", "car");
 
     ListObject listAbsent = block.list("bar");
+    assertThat(listAbsent.items).isEmpty();
     assertThat(listAbsent.status).isEqualTo(YamlObject.Status.ABSENT);
   }
 

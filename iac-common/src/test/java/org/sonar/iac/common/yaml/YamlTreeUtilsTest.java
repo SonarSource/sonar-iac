@@ -23,34 +23,19 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.yaml.tree.FileTreeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.yaml.YamlTreeUtils.getListValueElements;
 import static org.sonar.iac.common.yaml.YamlTreeUtils.scalar;
+import static org.sonar.iac.common.yaml.YamlTreeUtils.sequence;
 
-class TreePredicatesTest {
-
-  @Test
-  void isTrue() {
-    assertThat(TreePredicates.isTrue().test(scalar("true"))).isTrue();
-    assertThat(TreePredicates.isTrue().test(scalar("false"))).isFalse();
-    assertThat(TreePredicates.isTrue().test(scalar(null))).isFalse();
-    assertThat(TreePredicates.isTrue().test(notTextTree())).isFalse();
-  }
+class YamlTreeUtilsTest {
 
   @Test
-  void isEqualTo() {
-    assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(scalar("VALUE_TEST"))).isTrue();
-    assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(scalar("NOT_VALUE_TEST"))).isFalse();
-    assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(scalar(null))).isFalse();
-    assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(notTextTree())).isFalse();
-  }
-
-  @Test
-  void isSet() {
-    assertThat(TreePredicates.isSet().test(scalar(""))).isFalse();
-    assertThat(TreePredicates.isSet().test(scalar("~"))).isFalse();
-    assertThat(TreePredicates.isSet().test(scalar("null"))).isFalse();
-    assertThat(TreePredicates.isSet().test(scalar("a"))).isTrue();
-    assertThat(TreePredicates.isSet().test(scalar("SET_VALUE"))).isTrue();
-    assertThat(TreePredicates.isSet().test(notTextTree())).isFalse();
+  void getListValueElement() {
+    assertThat(getListValueElements(scalar(""))).containsExactly("");
+    assertThat(getListValueElements(scalar("false"))).containsExactly("false");
+    assertThat(getListValueElements(sequence("false", "true", "test"))).containsExactly("false", "true", "test");
+    assertThat(getListValueElements(notTextTree())).isEmpty();
+    assertThat(getListValueElements(null)).isEmpty();
   }
 
   private FileTreeImpl notTextTree() {

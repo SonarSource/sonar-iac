@@ -46,8 +46,7 @@ class ListObjectTest {
   void report_fromPresent() {
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.key).isEqualTo("my_list");
-    assertThat(list.isEmpty()).isFalse();
-    assertThat(list.getItemIf(e -> true)).hasSize(2);
+    assertThat(list.items).hasSize(2);
     assertThat(list.status).isEqualTo(YamlObject.Status.PRESENT);
     assertNoIssueReported();
 
@@ -59,7 +58,7 @@ class ListObjectTest {
   void report_fromAbsent() {
     ListObject list = ListObject.fromAbsent(ctx, "unexistent");
     list.report("message");
-    assertThat(list.getItemIf(e -> true)).isEmpty();
+    assertThat(list.items).isEmpty();
     assertNoIssueReported();
   }
 
@@ -67,7 +66,7 @@ class ListObjectTest {
   void reportItemIf_fromPresent() {
     TupleTree tree = ((MappingTree) PARSER.parse("my_list : [\"my_item\"]", null).root()).elements().get(0);
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
-    assertThat(list.getItemIf(e -> true)).hasSize(1);
+    assertThat(list.items).hasSize(1);
     list.reportIfAnyItem(e -> true, "message");
     assertIssueReported(tree, "message");
   }
@@ -83,7 +82,7 @@ class ListObjectTest {
   void reportItemIf_fromInvalid() {
     YamlTree tree = PARSER.parse("my_list : not_a_list", null).root();
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
-    assertThat(list.isEmpty()).isTrue();
+    assertThat(list.items).isEmpty();
     list.reportIfAnyItem(e -> true, "message");
     assertNoIssueReported();
   }

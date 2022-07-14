@@ -19,16 +19,11 @@
  */
 package org.sonar.iac.common.checks;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
-import org.sonar.iac.common.yaml.tree.SequenceTreeImpl;
-import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.checks.TextUtilsTest.TestTextTree.text;
@@ -83,14 +78,7 @@ class TextUtilsTest {
     assertThat(TextUtils.isValueFalse(null)).isFalse();
   }
 
-  @Test
-  void getListValueElement() {
-    assertThat(TextUtils.getListValueElements(yaml(Collections.emptyList()))).containsExactly("");
-    assertThat(TextUtils.getListValueElements(yaml(List.of("false")))).containsExactly("false");
-    assertThat(TextUtils.getListValueElements(yaml(List.of("false", "true", "test")))).containsExactly("false", "true", "test");
-    assertThat(TextUtils.getListValueElements(TestTextTree.text("test"))).isEmpty();
-    assertThat(TextUtils.getListValueElements(null)).isEmpty();
-  }
+
 
 
   static class TestTree implements Tree {
@@ -126,14 +114,6 @@ class TextUtilsTest {
     public String value() {
       return value;
     }
-  }
-
-  private YamlTree yaml(List<String> values) {
-    if (values.size() <= 1) {
-      return new ScalarTreeImpl(values.stream().findFirst().orElse(""), null, null);
-    }
-    List<YamlTree> elements = values.stream().map(v -> new ScalarTreeImpl(v, null, null)).collect(Collectors.toList());
-    return new SequenceTreeImpl(elements, null);
   }
 
 }

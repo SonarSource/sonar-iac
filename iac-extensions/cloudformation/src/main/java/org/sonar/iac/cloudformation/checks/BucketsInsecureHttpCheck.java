@@ -39,6 +39,7 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.YamlTreeUtils;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
@@ -117,7 +118,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
         .anyMatch(argument -> TextUtils.isValue(bucket.name(), argument).isTrue());
     } else if (policyBucketId instanceof FunctionCallTree && isJoin((FunctionCallTree) policyBucketId)) {
       return ((FunctionCallTree) policyBucketId).arguments().stream()
-        .map(TextUtils::getListValueElements)
+        .map(YamlTreeUtils::getListValueElements)
         .flatMap(Collection::stream)
         // Remove the empty strings before checking for equality, as the bucket name can also be an empty string
         .filter(elem -> !"".equals(elem))

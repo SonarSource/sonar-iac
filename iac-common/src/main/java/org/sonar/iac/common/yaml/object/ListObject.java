@@ -32,7 +32,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class ListObject extends YamlObject<ListObject, SequenceTree>{
 
-  private final List<YamlTree> items;
+  protected final List<YamlTree> items;
   private final YamlTree parent;
 
   ListObject(CheckContext ctx, @Nullable SequenceTree tree, String key, Status status, @Nullable YamlTree parent, List<YamlTree> items) {
@@ -57,17 +57,13 @@ public class ListObject extends YamlObject<ListObject, SequenceTree>{
     return new ListObject(ctx, null, key, Status.ABSENT, null, Collections.emptyList());
   }
 
-  public Stream<YamlTree> getItemIf(Predicate<YamlTree> predicate) {
+  private Stream<YamlTree> getItemIf(Predicate<YamlTree> predicate) {
     return items.stream().filter(predicate);
   }
 
   public ListObject reportIfAnyItem(Predicate<YamlTree> predicate, String message) {
     getItemIf(predicate).findFirst().ifPresent(item -> report(message));
     return this;
-  }
-
-  public boolean isEmpty() {
-    return items.isEmpty();
   }
 
   @Nullable

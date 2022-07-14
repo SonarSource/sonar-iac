@@ -19,6 +19,9 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.common.yaml.YamlParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,4 +38,5 @@ public abstract class YamlTreeTest {
     assertThat(rootTree).isInstanceOf(clazz);
     return (T) rootTree;
   }
+
 }

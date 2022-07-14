@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.common.yaml;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.iac.common.checks.TextUtils;
@@ -27,7 +26,7 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class TreePredicates {
 
-  private static final List<String> STRINGS_CONSIDERED_AS_EMPTY = Arrays.asList("", "~", "[]", "null");
+  private static final List<String> STRINGS_CONSIDERED_AS_EMPTY = List.of("", "~", "[]", "null");
 
   private TreePredicates() {
   }
@@ -41,8 +40,6 @@ public class TreePredicates {
   }
 
   public static Predicate<YamlTree> isSet() {
-    return t -> TextUtils
-      .getListValueElements(t).stream()
-      .anyMatch(value -> !STRINGS_CONSIDERED_AS_EMPTY.contains(value));
+    return t -> TextUtils.matchesValue(t, value -> !STRINGS_CONSIDERED_AS_EMPTY.contains(value)).isTrue();
   }
 }

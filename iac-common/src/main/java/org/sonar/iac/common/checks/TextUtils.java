@@ -19,16 +19,11 @@
  */
 package org.sonar.iac.common.checks;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
 
 public class TextUtils {
 
@@ -72,23 +67,6 @@ public class TextUtils {
 
   public static boolean isValueFalse(@Nullable Tree tree) {
     return isValue(tree, "false").isTrue();
-  }
-
-  public static List<String> getListValueElements(@Nullable Tree tree){
-    if(tree instanceof ScalarTree){
-      return List.of(TextUtils.getValue(tree).orElse(""));
-    } else if (tree instanceof SequenceTree) {
-      return getValuesOfSequenceTree((SequenceTree) tree);
-    } else {
-      return Collections.emptyList();
-    }
-  }
-
-  private static List<String> getValuesOfSequenceTree(SequenceTree tree) {
-    return tree.elements().stream()
-      .map(TextUtils::getListValueElements)
-      .flatMap(List::stream)
-      .collect(Collectors.toList());
   }
 
 }
