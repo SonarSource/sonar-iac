@@ -65,9 +65,9 @@ class KubernetesSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void yaml_files_with_incomplete_identifiers_within_single_stream_should_not_be_parsed() {
+  void yaml_files_with_at_least_one_document_with_identifiers_should_be_parsed() {
     analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n---\n" + K8_IDENTIFIERS));
-    asserNotSourceFileIsParsed();
+    assertOneSourceFileIsParsed();
   }
 
   @Test

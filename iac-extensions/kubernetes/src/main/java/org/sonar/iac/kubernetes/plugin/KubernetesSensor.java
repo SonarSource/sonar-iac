@@ -74,17 +74,13 @@ public class KubernetesSensor extends YamlSensor {
           String line = scanner.nextLine();
           if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
             identifierCount++;
-          }
-          // There can be multiple files in a single YAML stream.
-          // If not all identifier are identified in the previous file the Kubernetes object is not completed and should not be parsed.
-          else if (FILE_SEPERATOR.equals(line)) {
-            if (identifierCount != 4) {
-              return false;
-            }
+          } else if (FILE_SEPERATOR.equals(line)) {
             identifierCount = 0;
           }
+          if (identifierCount == 4) {
+            return true;
+          }
         }
-        return identifierCount == 4;
       } catch (IOException e) {
         LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
         LOG.error(e.getMessage());

@@ -22,8 +22,7 @@ package org.sonar.iac.common.yaml.object;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.yaml.YamlParser;
-import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.YamlTreeTest;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
@@ -35,11 +34,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-class ListObjectTest {
+class ListObjectTest extends YamlTreeTest {
 
-  private final YamlParser PARSER = new YamlParser();
   CheckContext ctx = mock(CheckContext.class);
-  private final TupleTree tree = ((MappingTree) PARSER.parse("my_list : [\"my_item\", a]", null).root()).elements().get(0);
+  private final TupleTree tree = parseTuple("my_list : [\"my_item\", a]");
 
 
   @Test
@@ -64,7 +62,7 @@ class ListObjectTest {
 
   @Test
   void reportItemIf_fromPresent() {
-    TupleTree tree = ((MappingTree) PARSER.parse("my_list : [\"my_item\"]", null).root()).elements().get(0);
+    TupleTree tree = parseTuple("my_list : [\"my_item\"]");
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.items).hasSize(1);
     list.reportIfAnyItem(e -> true, "message");
@@ -80,7 +78,7 @@ class ListObjectTest {
 
   @Test
   void reportItemIf_fromInvalid() {
-    YamlTree tree = PARSER.parse("my_list : not_a_list", null).root();
+    YamlTree tree = parseTuple("my_list : not_a_list");
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);
     assertThat(list.items).isEmpty();
     list.reportIfAnyItem(e -> true, "message");

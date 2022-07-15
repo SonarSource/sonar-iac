@@ -57,10 +57,10 @@ class AbstractKubernetesObjectCheckTest {
     assertThat(visitedObjects).isEmpty();
   }
 
-//  @Test
-//  void multiple_object_file() {
-//    KubernetesVerifier.verifyNoIssue("AbstractKubernetesObjectCheck/multiple_objects.yaml", check);
-//    assertThat(visitedObjects).hasSize(2);
-//  }
+  @Test
+  void multiple_object_file() {
+    KubernetesVerifier.verifyNoIssue("AbstractKubernetesObjectCheck/multiple_objects.yaml", check);
+    assertThat(visitedObjects).hasSize(2);
+  }
 
 }

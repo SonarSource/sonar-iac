@@ -20,6 +20,8 @@
 package org.sonar.iac.common.yaml;
 
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +39,10 @@ public abstract class YamlTreeTest {
     YamlTree rootTree = fileTree.documents().get(0);
     assertThat(rootTree).isInstanceOf(clazz);
     return (T) rootTree;
+  }
+
+  protected static TupleTree parseTuple(String source) {
+    return parse(source, MappingTree.class).elements().get(0);
   }
 
 }
