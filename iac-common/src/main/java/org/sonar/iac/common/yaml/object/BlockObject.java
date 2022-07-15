@@ -74,4 +74,11 @@ public class BlockObject extends YamlObject<BlockObject, MappingTree> {
       .map(attribute -> AttributeObject.fromPresent(ctx, attribute, key))
       .orElse(AttributeObject.fromAbsent(ctx, key));
   }
+
+  public ListObject list(String key) {
+    return  Optional.ofNullable(tree)
+      .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
+      .map(attribute -> ListObject.fromPresent(ctx, attribute, key, null))
+      .orElse(ListObject.fromAbsent(ctx, key));
+  }
 }

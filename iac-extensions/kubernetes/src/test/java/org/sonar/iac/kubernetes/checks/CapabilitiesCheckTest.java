@@ -17,26 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.tree;
+package org.sonar.iac.kubernetes.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.iac.common.yaml.YamlParser;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class CapabilitiesCheckTest {
+  IacCheck check = new CapabilitiesCheck();
 
-public abstract class YamlTreeTest {
-
-  protected static FileTree parse(String source) {
-    YamlParser parser = new YamlParser();
-    return parser.parse(source, null);
+  @Test
+  void test_pod_object() {
+    KubernetesVerifier.verify("CapabilitiesCheck/test_pod_object.yaml", check);
   }
 
-  protected static <T extends YamlTree> T parse(String source, Class<T> clazz) {
-    YamlTree rootTree = parse(source).root();
-    assertThat(rootTree).isInstanceOf(clazz);
-    return (T) rootTree;
+  @Test
+  void test_template_object() {
+    KubernetesVerifier.verify("CapabilitiesCheck/test_template_object.yaml", check);
   }
-
 }

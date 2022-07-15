@@ -1,0 +1,50 @@
+<p>Setting capabilities can lead to privilege escalation and container escapes.</p>
+<p>Linux capabilities allow you to assign narrow slices of <code>root</code>'s permissions to processes. A thread with capabilities bypasses the
+normal kernel security checks to execute high-privilege actions such as mounting a device to a directory, without requiring additional root
+privileges.</p>
+<p>In a container, capabilities might allow to access resources from the host system which can result in container escapes. For example, with the
+capability <code>SYS_ADMIN</code> an attacker might be able to mount devices from the host system inside of the container.</p>
+<h2>Ask Yourself Whether</h2>
+<p>Capabilities are granted:</p>
+<ul>
+  <li> To a process that does not require all capabilities to do its job. </li>
+  <li> To a not trusted process. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Capabilities are high privileges, traditionally associated with superuser (root), thus make sure that the most restrictive and necessary
+capabilities are assigned.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+  - image: k8s.gcr.io/test-webserver
+    name: test-container
+    securityContext:
+      capabilities:
+        add: ["SYS_ADMIN"] # Sensitive
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+  - image: k8s.gcr.io/test-webserver
+    name: test-container
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/250">MITRE, CWE-250</a> - Execution with Unnecessary Privileges </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/266">MITRE, CWE-266</a> - Incorrect Privilege Assignment </li>
+  <li> <a href="https://kubernetes.io/docs/tasks/configure-pod-container/security-context/">Kubernetes Documentation</a> - Configure a Security
+  Context for a Pod or Container </li>
+  <li> <a href="https://man7.org/linux/man-pages/man7/capabilities.7.html">Linux manual page</a> - capabilities(7) </li>
+</ul>
+

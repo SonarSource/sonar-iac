@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,6 +92,20 @@ class BlockObjectTest {
 
     AttributeObject absentAttr = block.attribute("bar");
     assertThat(absentAttr.status).isEqualTo(YamlObject.Status.ABSENT);
+  }
+
+  @Test
+  void list() {
+    BlockObject block = BlockObject.fromPresent(ctx, parseMap("foo: [bar, car]"), "a");
+    ListObject listPresent = block.list("foo");
+    assertThat(listPresent.status).isEqualTo(YamlObject.Status.PRESENT);
+    assertThat(listPresent.items.stream()
+      .map(tree -> ((ScalarTree) tree).value()))
+      .containsExactly("bar", "car");
+
+    ListObject listAbsent = block.list("bar");
+    assertThat(listAbsent.items).isEmpty();
+    assertThat(listAbsent.status).isEqualTo(YamlObject.Status.ABSENT);
   }
 
   private MappingTree parseMap(String source) {

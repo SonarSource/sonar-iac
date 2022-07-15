@@ -78,6 +78,9 @@ class TextUtilsTest {
     assertThat(TextUtils.isValueFalse(null)).isFalse();
   }
 
+
+
+
   static class TestTree implements Tree {
 
     static Tree tree() {
@@ -112,6 +115,5 @@ class TextUtilsTest {
       return value;
     }
   }
-
 
 }

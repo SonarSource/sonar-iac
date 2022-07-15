@@ -21,7 +21,6 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,14 +29,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.cloudformation.tree.FunctionCallTree;
-import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.checks.utils.XPathUtils;
+import org.sonar.iac.cloudformation.tree.FunctionCallTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -45,6 +39,12 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.yaml.YamlTreeUtils;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 @Rule(key = "S6249")
 public class BucketsInsecureHttpCheck implements IacCheck {
@@ -118,7 +118,7 @@ public class BucketsInsecureHttpCheck implements IacCheck {
         .anyMatch(argument -> TextUtils.isValue(bucket.name(), argument).isTrue());
     } else if (policyBucketId instanceof FunctionCallTree && isJoin((FunctionCallTree) policyBucketId)) {
       return ((FunctionCallTree) policyBucketId).arguments().stream()
-        .map(BucketsInsecureHttpCheck::getListValueElements)
+        .map(YamlTreeUtils::getListValueElements)
         .flatMap(Collection::stream)
         // Remove the empty strings before checking for equality, as the bucket name can also be an empty string
         .filter(elem -> !"".equals(elem))
@@ -138,23 +138,6 @@ public class BucketsInsecureHttpCheck implements IacCheck {
 
   private static boolean isJoin(FunctionCallTree functionCall) {
     return functionCall.name().contains("Join");
-  }
-
-  private static List<String> getListValueElements(YamlTree tree){
-    if(tree instanceof ScalarTree){
-      return List.of(TextUtils.getValue(tree).orElse(""));
-    } else if (tree instanceof SequenceTree) {
-      return getValuesOfSequenceTree((SequenceTree) tree);
-    } else {
-      return Collections.emptyList();
-    }
-  }
-
-  private static List<String> getValuesOfSequenceTree(SequenceTree tree) {
-    return tree.elements().stream()
-      .map(BucketsInsecureHttpCheck::getListValueElements)
-      .flatMap(List::stream)
-      .collect(Collectors.toList());
   }
 
   private static String getNameOfBucket(Resource bucket) {
