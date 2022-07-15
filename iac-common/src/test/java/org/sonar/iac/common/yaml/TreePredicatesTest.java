@@ -34,7 +34,6 @@ class TreePredicatesTest {
   void isTrue() {
     assertThat(TreePredicates.isTrue().test(scalar("true"))).isTrue();
     assertThat(TreePredicates.isTrue().test(scalar("false"))).isFalse();
-    assertThat(TreePredicates.isTrue().test(scalar(null))).isFalse();
     assertThat(TreePredicates.isTrue().test(notTextTree())).isFalse();
   }
 
@@ -42,7 +41,6 @@ class TreePredicatesTest {
   void isEqualTo() {
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(scalar("VALUE_TEST"))).isTrue();
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(scalar("NOT_VALUE_TEST"))).isFalse();
-    assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(scalar(null))).isFalse();
     assertThat(TreePredicates.isEqualTo("VALUE_TEST").test(notTextTree())).isFalse();
   }
 
@@ -64,7 +62,6 @@ class TreePredicatesTest {
     assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(text("/bin/log"))).isTrue();
     assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(text("/var/log"))).isFalse();
     assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(text("etc/log"))).isFalse();
-    assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(text(null))).isFalse();
     assertThat(TreePredicates.startsWith(List.of("/etc", "/bin")).test(notTextTree())).isFalse();
   }
 
