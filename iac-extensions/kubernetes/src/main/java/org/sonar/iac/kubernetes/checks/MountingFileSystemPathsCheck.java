@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import static org.sonar.iac.common.yaml.TreePredicates.startsWith;
 
 @Rule(key = "S6433")
-public class MountingFileSystemPathsCheck extends KubernetesObjectCheck {
+public class MountingFileSystemPathsCheck extends AbstractKubernetesObjectCheck {
 
   private static final String MESSAGE = "Make sure mounting the file system path is safe here.";
   private static final List<String> SENSITIVE_PATHS = List.of("/bin", "/boot", "/etc", "/home", "/root", "/sbin", "/usr", "/var");

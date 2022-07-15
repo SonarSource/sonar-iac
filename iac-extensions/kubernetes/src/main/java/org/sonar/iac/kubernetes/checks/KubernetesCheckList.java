@@ -32,6 +32,7 @@ public final class KubernetesCheckList {
       ContainerPrivilegedModeCheck.class,
       DockerSocketCheck.class,
       HostNamespacesCheck.class,
+      MountingFileSystemPathsCheck.class,
       ParsingErrorCheck.class,
       PrivilegeEscalationCheck.class
     );
