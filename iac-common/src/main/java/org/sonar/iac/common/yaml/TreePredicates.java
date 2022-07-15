@@ -45,6 +45,6 @@ public class TreePredicates {
 
   public static Predicate<YamlTree> startsWith(List<String> strings) {
     return t -> strings.stream()
-      .anyMatch(string -> TextUtils.getValue(t).orElse("").startsWith(string));
+      .anyMatch(string -> TextUtils.matchesValue(t, value -> value.startsWith(string)).isTrue());
   }
 }
