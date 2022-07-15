@@ -19,22 +19,25 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-public final class KubernetesCheckList {
+class MountingFileSystemPathsCheckTest {
 
-  private KubernetesCheckList() {
+  IacCheck check = new MountingFileSystemPathsCheck();
+
+  @Test
+  void test_persistent_volume() {
+    KubernetesVerifier.verify("MountingFileSystemPathsCheck/test_persistent_vol.yaml", check);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CapabilitiesCheck.class,
-      ContainerPrivilegedModeCheck.class,
-      DockerSocketCheck.class,
-      HostNamespacesCheck.class,
-      MountingFileSystemPathsCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegeEscalationCheck.class
-    );
+  @Test
+  void test_pod_object() {
+    KubernetesVerifier.verify("MountingFileSystemPathsCheck/test_pod_object.yaml", check);
+  }
+
+  @Test
+  void test_template_object() {
+    KubernetesVerifier.verify("MountingFileSystemPathsCheck/test_template_object.yaml", check);
   }
 }

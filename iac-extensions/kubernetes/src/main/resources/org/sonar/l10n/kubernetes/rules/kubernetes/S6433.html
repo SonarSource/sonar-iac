@@ -1,0 +1,56 @@
+<p>Mounting sensitive file system paths can lead to information disclosure and compromise of the host systems.</p>
+<p>System paths can contain sensitive information like configuration files or cache files. Those might be used by attackers to expand permissions or
+to collect information for further attacks. System paths can also contain binaries and scripts that might be executed by the host system periodically.
+A compromised or rogue container with access to sensitive files could endanger the integrity of the whole Kubernetes cluster.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The mounted file path contains sensitive information. </li>
+  <li> The mounted file path contains configuration files or executables that are writable. </li>
+  <li> The Pod is untrusted or might contain vulnerabilities. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It is recommended to avoid mounting sensitive system file paths into containers. If it is necessary to mount such a path due to the architecture,
+the least privileges should be given, for instance by making the mount read-only to prevent unwanted modifications.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+spec:
+  containers:
+  - image: k8s.gcr.io/test-webserver
+    name: test-container
+    volumeMounts:
+    - mountPath: /data
+      name: test-volume
+  volumes:
+  - name: test-volume
+    hostPath:
+      path: /etc # Sensitive
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+spec:
+  containers:
+  - image: k8s.gcr.io/test-webserver
+    name: test-container
+    volumeMounts:
+    - mountPath: /data
+      name: test-volume
+  volumes:
+  - name: test-volume
+    hostPath:
+      path: /mnt/nfs
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://kubernetes.io/docs/concepts/storage/volumes/#hostpath">Kubernetes Documentation</a> - Volumes </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+</ul>
+

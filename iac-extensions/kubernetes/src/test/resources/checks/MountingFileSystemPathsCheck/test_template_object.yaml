@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-path4
+  labels:
+    app: ubuntu
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    metadata:
+      labels:
+        app: ubuntu
+    spec:
+      containers:
+        - name: ubuntu
+          image: ubuntu
+          volumeMounts:
+            - mountPath: /foo
+              name: test-volume
+      volumes:
+        - name: test-volume
+          hostPath:
+            path: /etc # Noncompliant {{Make sure mounting the file system path is safe here.}}
+          # ^^^^^^^^^^

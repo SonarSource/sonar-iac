@@ -42,4 +42,9 @@ public class TreePredicates {
   public static Predicate<YamlTree> isSet() {
     return t -> TextUtils.matchesValue(t, value -> !STRINGS_CONSIDERED_AS_EMPTY.contains(value)).isTrue();
   }
+
+  public static Predicate<YamlTree> startsWith(List<String> strings) {
+    return t -> strings.stream()
+      .anyMatch(string -> TextUtils.matchesValue(t, value -> value.startsWith(string)).isTrue());
+  }
 }
