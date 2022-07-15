@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -39,23 +40,24 @@ public abstract class AbstractKubernetesObjectCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(FileTree.class, (ctx, fileTree) -> {
-      if (fileTree.root() instanceof MappingTree) {
-        MappingTree fileMap = (MappingTree) fileTree.root();
-        PropertyUtils.get(fileMap, "kind")
-          .flatMap(kind -> TextUtils.getValue(kind.value()))
-          .filter(objectConsumersByKind::containsKey)
-          .ifPresent(kind -> PropertyUtils.get(fileMap, "spec")
-            .filter(TupleTree.class::isInstance)
-            .map(TupleTree.class::cast)
-            .filter(t -> t.value() instanceof MappingTree)
-            .ifPresent(spec -> {
-              BlockObject obj = BlockObject.fromPresent(ctx, spec.value(), kind);
-              objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(obj));
-            }));
-      }
-    });
+    init.register(FileTree.class, (ctx, fileTree) -> fileTree.documents().stream()
+      .filter(MappingTree.class::isInstance)
+      .forEach(documentTree -> visitDocument((MappingTree) documentTree, ctx)));
     registerObjectCheck();
+  }
+
+  private void visitDocument(MappingTree documentTree, CheckContext ctx) {
+    PropertyUtils.get(documentTree, "kind")
+      .flatMap(kind -> TextUtils.getValue(kind.value()))
+      .filter(objectConsumersByKind::containsKey)
+      .ifPresent(kind -> PropertyUtils.get(documentTree, "spec")
+        .filter(TupleTree.class::isInstance)
+        .map(TupleTree.class::cast)
+        .filter(t -> t.value() instanceof MappingTree)
+        .ifPresent(spec -> {
+          BlockObject obj = BlockObject.fromPresent(ctx, spec.value(), kind);
+          objectConsumersByKind.get(kind).forEach(consumer -> consumer.accept(obj));
+        }));
   }
 
   abstract void registerObjectCheck();

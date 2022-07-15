@@ -20,6 +20,7 @@
 package org.sonar.iac.common.yaml.tree;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.yaml.YamlTreeTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,7 +28,7 @@ class MappingTreeImplTest extends YamlTreeTest {
 
   @Test
   void simple_mapping() {
-    MappingTree tree = (MappingTree) parse("a: b").root();
+    MappingTree tree = parse("a: b", MappingTree.class);
     assertThat(tree.elements()).hasSize(1);
     assertThat(tree.children()).hasSize(1);
     assertThat(tree.properties()).hasSize(1);
@@ -38,7 +39,7 @@ class MappingTreeImplTest extends YamlTreeTest {
 
   @Test
   void file_comment() {
-    MappingTree tree = (MappingTree) parse("# comment").root();
+    MappingTree tree = parse("# comment", MappingTree.class);
     assertThat(tree.elements()).isEmpty();
     assertThat(tree.children()).isEmpty();
     assertThat(tree.properties()).isEmpty();

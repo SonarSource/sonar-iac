@@ -21,24 +21,21 @@ package org.sonar.iac.cloudformation.checks.utils;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.cloudformation.checks.CloudformationVerifier;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
-import org.sonar.iac.cloudformation.checks.CloudformationVerifier;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class XPathUtilsTest {
+class XPathUtilsTest extends AbstractUtilsTest {
 
   private YamlTree root;
 
   @BeforeEach
   void setUp() {
-    TestXPathCheck check = new TestXPathCheck();
+    TestCheck check = new TestCheck();
     CloudformationVerifier.verifyNoIssue("AbstractXPathCheck/test.yaml", check);
     this.root = check.root;
   }
@@ -80,17 +77,6 @@ class XPathUtilsTest {
   @Test
   void test_only_root_expression() {
     assertThat(XPathUtils.getSingleTree(root,"/")).isPresent().get().isEqualTo(root);
-  }
-
-  private static class TestXPathCheck implements IacCheck {
-    private YamlTree root;
-
-    @Override
-    public void initialize(InitContext init) {
-      init.register(FileTree.class, (ctx, tree) -> {
-        this.root = tree.root();
-      });
-    }
   }
 
 }

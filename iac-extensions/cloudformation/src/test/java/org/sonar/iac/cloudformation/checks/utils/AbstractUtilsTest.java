@@ -17,26 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.tree;
+package org.sonar.iac.cloudformation.checks.utils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public abstract class AbstractUtilsTest {
 
-public abstract class YamlTreeTest {
+  protected static class TestCheck implements IacCheck {
+    YamlTree root;
 
-  protected static FileTree parse(String source) {
-    YamlParser parser = new YamlParser();
-    return parser.parse(source, null);
+    @Override
+    public void initialize(InitContext init) {
+      init.register(FileTree.class, (ctx, tree) -> {
+        this.root = tree.documents().get(0);
+      });
+    }
   }
-
-  protected static <T extends YamlTree> T parse(String source, Class<T> clazz) {
-    YamlTree rootTree = parse(source).root();
-    assertThat(rootTree).isInstanceOf(clazz);
-    return (T) rootTree;
-  }
-
 }

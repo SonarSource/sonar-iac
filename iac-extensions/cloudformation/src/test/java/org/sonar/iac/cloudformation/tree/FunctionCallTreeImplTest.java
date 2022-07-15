@@ -79,7 +79,7 @@ class FunctionCallTreeImplTest {
 
   @Test
   void function_call_with_multiple_arguments() {
-    FunctionCallTree tree = (FunctionCallTree) parse("{'Fn::Sub': ['foo', {'foo':'bar'}]}").root();
+    FunctionCallTree tree = parse("{'Fn::Sub': ['foo', {'foo':'bar'}]}", FunctionCallTree.class);
     assertThat(tree.arguments()).hasSize(2);
     assertThat(tree.arguments().get(0)).isInstanceOf(ScalarTree.class);
     assertThat(tree.arguments().get(1)).isInstanceOf(MappingTree.class);
@@ -87,7 +87,7 @@ class FunctionCallTreeImplTest {
 
   @Test
   void function_call_with_variable() {
-    FunctionCallTree tree = (FunctionCallTree) parse("!Sub 'arn:aws:iam::${AWS::AccountId}:root'").root();
+    FunctionCallTree tree = parse("!Sub 'arn:aws:iam::${AWS::AccountId}:root'", FunctionCallTree.class);
     assertThat(tree.arguments()).hasSize(1);
     assertThat(tree.arguments().get(0)).isInstanceOfSatisfying(ScalarTree.class, argument -> {
       assertThat(argument.value()).isEqualTo("arn:aws:iam::${AWS::AccountId}:root");
@@ -96,7 +96,7 @@ class FunctionCallTreeImplTest {
 
   @Test
   void nested_function_call() {
-    FunctionCallTree tree = (FunctionCallTree) parse("!Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]").root();
+    FunctionCallTree tree = parse("!Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]", FunctionCallTree.class);
     assertThat(tree.arguments()).hasSize(2);
     assertThat(tree.arguments().get(1)).isInstanceOfSatisfying(SequenceTree.class, sequence -> {
       assertThat(sequence.elements()).hasSize(2);
@@ -120,16 +120,18 @@ class FunctionCallTreeImplTest {
   }
 
   private void assertNoFunctionCall(String source) {
-    Assertions.assertThat(parse(source).root()).isNotInstanceOf(FunctionCallTree.class);
+    Assertions.assertThat(parse(source, YamlTree.class)).isNotInstanceOf(FunctionCallTree.class);
   }
 
-  protected FileTree parse(String source) {
+  protected static FileTree parse(String source) {
     CloudformationParser parser = new CloudformationParser();
     return parser.parse(source, null);
   }
 
-  protected <T extends YamlTree> T parse(String source, Class<T> clazz) {
-    YamlTree rootTree = parse(source).root();
+  protected static <T extends YamlTree> T parse(String source, Class<T> clazz) {
+    FileTree fileTree = parse(source);
+    assertThat(fileTree.documents()).as("Parsed source code contains not a single document").hasSize(1);
+    YamlTree rootTree = fileTree.documents().get(0);
     assertThat(rootTree).isInstanceOf(clazz);
     return (T) rootTree;
   }

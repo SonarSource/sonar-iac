@@ -20,6 +20,7 @@
 package org.sonar.iac.common.yaml.tree;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.yaml.YamlTreeTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,7 +28,7 @@ class TupleTreeImplTest extends YamlTreeTest {
 
   @Test
   void simple_tuple() {
-    TupleTree tree = ((MappingTree) parse("a: b").root()).elements().get(0);
+    TupleTree tree = parse("a: b", MappingTree.class).elements().get(0);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.metadata().tag()).isEqualTo("TUPLE");
     assertThat(tree.key()).isInstanceOfSatisfying(ScalarTree.class, k -> assertThat(k.value()).isEqualTo("a"));

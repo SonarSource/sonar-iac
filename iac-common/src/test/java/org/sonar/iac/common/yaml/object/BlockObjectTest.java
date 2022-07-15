@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.YamlParser;
+import org.sonar.iac.common.yaml.YamlTreeTest;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -31,9 +32,8 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-class BlockObjectTest {
+class BlockObjectTest extends YamlTreeTest {
 
-  static YamlParser PARSER = new YamlParser();
   CheckContext ctx = mock(CheckContext.class);
 
   @Test
@@ -48,7 +48,7 @@ class BlockObjectTest {
 
   @Test
   void fromPresent_unknown() {
-    YamlTree tree = PARSER.parse("a:b", null).root();
+    YamlTree tree = parse("a:b", YamlTree.class);
     BlockObject block = BlockObject.fromPresent(ctx, tree, "a");
     assertThat(block.key).isEqualTo("a");
     assertThat(block.status).isEqualTo(YamlObject.Status.UNKNOWN);
@@ -108,8 +108,8 @@ class BlockObjectTest {
     assertThat(listAbsent.status).isEqualTo(YamlObject.Status.ABSENT);
   }
 
-  private MappingTree parseMap(String source) {
-    return (MappingTree) PARSER.parse(source, null).root();
+  public MappingTree parseMap(String source) {
+    return parse(source, MappingTree.class);
   }
 
 }

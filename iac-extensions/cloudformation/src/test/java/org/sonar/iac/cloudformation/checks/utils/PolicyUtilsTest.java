@@ -20,19 +20,16 @@
 package org.sonar.iac.cloudformation.checks.utils;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.yaml.tree.YamlTree;
-import org.sonar.iac.common.yaml.tree.FileTree;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.cloudformation.checks.CloudformationVerifier;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.checks.Policy;
 import org.sonar.iac.common.checks.Policy.Statement;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
-import static org.sonar.iac.cloudformation.checks.utils.PolicyUtils.getPolicies;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.cloudformation.checks.utils.PolicyUtils.getPolicies;
 
-class PolicyUtilsTest {
+class PolicyUtilsTest extends AbstractUtilsTest {
 
   @Test
   void test_policy() {
@@ -103,19 +100,8 @@ class PolicyUtilsTest {
   }
 
   private static YamlTree of(String filename) {
-    TestPolicyCheck check = new TestPolicyCheck();
+    TestCheck check = new TestCheck();
     CloudformationVerifier.verifyNoIssue(filename, check);
     return check.root;
-  }
-
-  private static class TestPolicyCheck implements IacCheck {
-    private YamlTree root;
-
-    @Override
-    public void initialize(InitContext init) {
-      init.register(FileTree.class, (ctx, tree) -> {
-        this.root = tree.root();
-      });
-    }
   }
 }

@@ -19,27 +19,27 @@
  */
 package org.sonar.iac.common.yaml.tree;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class FileTreeImpl extends YamlTreeImpl implements FileTree {
-  private final YamlTree root;
+  private final List<YamlTree> documents;
 
-  public FileTreeImpl(YamlTree root, YamlTreeMetadata metadata) {
+  public FileTreeImpl(List<YamlTree> documents, YamlTreeMetadata metadata) {
     // A file on its own has no comments. They will be attached to the root node.
     super(metadata);
-    this.root = root;
+    this.documents = documents;
   }
 
   @Override
-  public YamlTree root() {
-    return root;
+  public List<YamlTree> documents() {
+    return documents;
   }
 
   @Override
   public List<Tree> children() {
-    return Collections.singletonList(root);
+    return new ArrayList<>(documents);
   }
 
 }

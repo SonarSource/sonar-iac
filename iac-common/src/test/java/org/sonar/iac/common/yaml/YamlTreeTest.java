@@ -17,24 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.tree;
+package org.sonar.iac.common.yaml;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.yaml.YamlTreeTest;
+import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
-class SequenceTreeImplTest extends YamlTreeTest {
+public abstract class YamlTreeTest {
 
-  @Test
-  void simple_sequence() {
-    SequenceTree tree = parse("[1, \"a\"]", SequenceTree.class);
-    assertThat(tree.elements()).hasSize(2);
-    assertThat(tree.children()).hasSize(2);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
-    assertThat(tree.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
-    assertThat(tree.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
-    assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:seq");
+  protected static FileTree parse(String source) {
+    YamlParser parser = new YamlParser();
+    return parser.parse(source, null);
   }
+
+  protected static <T extends YamlTree> T parse(String source, Class<T> clazz) {
+    FileTree fileTree = parse(source);
+    assertThat(fileTree.documents()).as("Parsed source code contains not a single document").hasSize(1);
+    YamlTree rootTree = fileTree.documents().get(0);
+    assertThat(rootTree).isInstanceOf(clazz);
+    return (T) rootTree;
+  }
+
+  protected static TupleTree parseTuple(String source) {
+    return parse(source, MappingTree.class).elements().get(0);
+  }
+
 }

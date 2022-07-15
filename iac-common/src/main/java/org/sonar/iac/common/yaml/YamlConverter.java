@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.exceptions.ParserException;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
@@ -69,7 +70,8 @@ public class YamlConverter {
     }
     TextRange fileRange = TextRanges.merge(List.of(range(nodes.get(0)), range(ListUtils.getLast(nodes))));
     YamlTreeMetadata metadata = new YamlTreeMetadata("FILE", fileRange, Collections.emptyList());
-    return new FileTreeImpl(convert(nodes.get(0)), metadata);
+    List<YamlTree> documents = nodes.stream().map(this::convert).collect(Collectors.toList());
+    return new FileTreeImpl(documents, metadata);
   }
 
   protected YamlTree convertMapping(MappingNode mappingNode) {
