@@ -1,5 +1,5 @@
 ---
-title: Terraform/CloudFormation
+title: Terraform/CloudFormation/Kubernetes
 key: iac
 ---
 
@@ -9,13 +9,17 @@ key: iac
 
 ## Language-Specific Properties
 
+Discover and update the Terraform [properties](/analysis/analysis-parameters/) in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > Languages > Terraform](/#sonarqube-admin#/admin/settings?category=Terraform)**
+
 Discover and update the CloudFormation [properties](/analysis/analysis-parameters/) in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > Languages > CloudFormation](/#sonarqube-admin#/admin/settings?category=CloudFormation)**
 
-Discover and update the Terraform [properties](/analysis/analysis-parameters/) in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > Languages > Terraform](/#sonarqube-admin#/admin/settings?category=Terraform)**
+Discover and update the Kubernetes [properties](/analysis/analysis-parameters/) in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > Languages > Kubernetes](/#sonarqube-admin#/admin/settings?category=Kubernetes)**
+
 
 ## Supported Versions, Formats and Providers
 * Terraform 1.x (HCL format only)
 * CloudFormation with AWSTemplateFormatVersion 2010-09-09 (YAML and JSON)
+* Kubernetes (YAML)
 * AWS, Azure and GCP
 
 ### Terraform provider versions
