@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.List;
+import java.util.Optional;
 import org.sonar.check.Rule;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
@@ -30,12 +32,18 @@ public class DisabledRDSEncryptionCheck extends AbstractNewResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted databases is safe here.";
   private static final String OMITTING_MESSAGE = "Omitting \"storage_encrypted\" disables databases encryption. Make sure it is safe here.";
   private static final String SECONDARY_MESSAGE = "Related RDS DBInstance";
+  private static final List<String> EXCLUDE_AURORA_ATTRIBUTE = List.of("aurora", "aurora-mysql", "aurora-postgresql");
 
   @Override
   protected void registerResourceConsumer() {
     register("aws_db_instance",
-      resource -> resource.attribute("storage_encrypted")
-        .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
-        .reportIfAbsent(OMITTING_MESSAGE));
+      resource -> {
+        String engineProperty = Optional.ofNullable(resource.attribute("engine").asString()).orElse("");
+        if (!EXCLUDE_AURORA_ATTRIBUTE.contains(engineProperty)) {
+          resource.attribute("storage_encrypted")
+            .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
+            .reportIfAbsent(OMITTING_MESSAGE);
+        }
+      });
   }
 }
