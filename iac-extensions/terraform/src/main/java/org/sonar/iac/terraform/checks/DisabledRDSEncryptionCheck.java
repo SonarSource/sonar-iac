@@ -20,9 +20,10 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.List;
-import java.util.Optional;
 import org.sonar.check.Rule;
+import org.sonar.iac.terraform.symbols.AttributeSymbol;
 
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 
 
@@ -38,7 +39,7 @@ public class DisabledRDSEncryptionCheck extends AbstractNewResourceCheck {
   protected void registerResourceConsumer() {
     register("aws_db_instance",
       resource -> {
-         AttributeSymbol engine = resource.attribute("engine");
+        AttributeSymbol engine = resource.attribute("engine");
         if (EXCLUDE_AURORA_ATTRIBUTE.stream().anyMatch(auroraAttribute -> engine.is(equalTo(auroraAttribute)))) {
           return;
         }
