@@ -40,7 +40,10 @@ class DisabledRDSEncryptionCheckTest {
         "Make sure that using unencrypted databases is safe here.",
         new SecondaryLocation(range(11, 14, 11, 36), "Related RDS DBInstance")),
       new Verifier.Issue(range(17, 14, 17, 36),
-        "Omitting \"StorageEncrypted\" disables databases encryption. Make sure it is safe here."));
+        "Omitting \"StorageEncrypted\" disables databases encryption. Make sure it is safe here."),
+      new Verifier.Issue(range(50, 8, 50, 26),
+        "Make sure that using unencrypted databases is safe here.",
+        new SecondaryLocation(range(47, 14, 47, 36), "Related RDS DBInstance")));
   }
 
 }

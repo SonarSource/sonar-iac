@@ -23,6 +23,32 @@
       "Properties": {
         "StorageEncrypted": false
       }
+    },
+    "AuroraDBInstanceResource:": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "aurora",
+        "StorageEncrypted": false
+      }
+    },
+    "AuroraMysqlDBInstanceResource:": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "aurora-mysql"
+      }
+    },
+    "AuroraPostgresqlDBInstanceResource:": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "aurora-postgresql"
+      }
+    },
+    "NonCompliantDBInstanceResource:": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "a",
+        "StorageEncrypted": false
+      }
     }
   }
 }
