@@ -145,17 +145,12 @@ class KubernetesSensorTest extends AbstractSensorTest {
 
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
-    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, language());
+    return new KubernetesSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage());
   }
 
   @Override
   protected String repositoryKey() {
     return KubernetesExtension.REPOSITORY_KEY;
-  }
-
-  @Override
-  protected KubernetesLanguage language() {
-    return new KubernetesLanguage();
   }
 
   @Override
