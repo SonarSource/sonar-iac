@@ -38,12 +38,13 @@ public class DisabledRDSEncryptionCheck extends AbstractNewResourceCheck {
   protected void registerResourceConsumer() {
     register("aws_db_instance",
       resource -> {
-        String engineProperty = Optional.ofNullable(resource.attribute("engine").asString()).orElse("");
-        if (!EXCLUDE_AURORA_ATTRIBUTE.contains(engineProperty)) {
-          resource.attribute("storage_encrypted")
-            .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
-            .reportIfAbsent(OMITTING_MESSAGE);
+         AttributeSymbol engine = resource.attribute("engine");
+        if (EXCLUDE_AURORA_ATTRIBUTE.stream().anyMatch(auroraAttribute -> engine.is(equalTo(auroraAttribute)))) {
+          return;
         }
+        resource.attribute("storage_encrypted")
+          .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
+          .reportIfAbsent(OMITTING_MESSAGE);
       });
   }
 }
