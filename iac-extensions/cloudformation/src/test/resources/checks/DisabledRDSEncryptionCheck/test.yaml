@@ -21,3 +21,28 @@ Resources:
     Type: Some::Other::Type
     Properties:
       StorageEncrypted: false
+
+  AuroraDBInstanceResource:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora
+      StorageEncrypted: false
+
+  AuroraMysqlDBInstanceResource:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora-mysql
+      StorageEncrypted: false
+
+  AuroraPostgresqlDBInstanceResource:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora-postgresql
+      StorageEncrypted: false
+
+  NonCompliantInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine : a
+      StorageEncrypted: false  # Noncompliant {{Make sure that using unencrypted databases is safe here.}}
+    # ^^^^^^^^^^^^^^^^

@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -31,10 +32,17 @@ public class DisabledRDSEncryptionCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted databases is safe here.";
   private static final String OMITTING_MESSAGE = "Omitting \"StorageEncrypted\" disables databases encryption. Make sure it is safe here.";
   private static final String SECONDARY_MESSAGE = "Related RDS DBInstance";
+  private static final List<String> EXCLUDE_AURORA_ATTRIBUTE = List.of("aurora", "aurora-mysql", "aurora-postgresql");
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if (!resource.isType("AWS::RDS::DBInstance")) {
+      return;
+    }
+    // S6303 should not raise an issue if the property Engine of the resource AWS::RDS::DBInstance is one of EXCLUDE_AURORA_ATTRIBUTE
+    if (PropertyUtils.get(resource.properties(), "Engine").stream()
+      .anyMatch(engine -> TextUtils.matchesValue(engine.value(),
+        EXCLUDE_AURORA_ATTRIBUTE::contains).isTrue())) {
       return;
     }
     PropertyUtils.get(resource.properties(), "StorageEncrypted").ifPresentOrElse(
