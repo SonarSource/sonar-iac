@@ -13,7 +13,7 @@ spec:
   hostPID: true     # Noncompliant {{Make sure it is safe to use host operating system namespaces here.}}
   hostIPC: true     # Noncompliant {{Make sure it is safe to use host operating system namespaces here.}}
   hostNetwork: true # Noncompliant
-# TODO: SONARIAC-430 issue location is not parsed correctly
+# ^^^^^^^^^^^^^^^^^
 ---
 apiVersion: v1
 kind: Pod
@@ -21,7 +21,7 @@ metadata:
   name: example-3
 spec:
   hostPID: true     # Noncompliant {{Make sure it is safe to use host operating system namespaces here.}}
-# TODO: SONARIAC-430 issue location is not parsed correctly
+# ^^^^^^^^^^^^^
   hostIPC: false
   hostNetwork: false
 ---

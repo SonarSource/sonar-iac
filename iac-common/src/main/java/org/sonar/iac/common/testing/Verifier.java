@@ -102,18 +102,24 @@ public final class Verifier {
   private static SingleFileVerifier createVerifier(Path path, Tree root) {
 
     SingleFileVerifier verifier = SingleFileVerifier.create(path, UTF_8);
-
+    Map<Integer, Set<Comment>> commentsByLine = new HashMap<>();
     final Set<TextRange> alreadyAdded = new HashSet<>();
     (new TreeVisitor<>())
       .register(Tree.class, (ctx, tree) -> {
         if (tree instanceof HasComments && !alreadyAdded.contains(tree.textRange())) {
           for (Comment comment : ((HasComments) tree).comments()) {
-            TextPointer start = comment.textRange().start();
-            verifier.addComment(start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
+            commentsByLine.computeIfAbsent(comment.textRange().start().line(), i -> new HashSet<>()).add(comment);
           }
           alreadyAdded.add(tree.textRange());
         }
+
       }).scan(new TreeContext(), root);
+
+    commentsByLine.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue)
+      .forEach(comments -> comments.forEach(comment  -> {
+        TextPointer start = comment.textRange().start();
+        verifier.addComment(start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
+      }));
 
     return verifier;
   }
