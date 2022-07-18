@@ -34,13 +34,15 @@
     "AuroraMysqlDBInstanceResource:": {
       "Type": "AWS::RDS::DBInstance",
       "Properties": {
-        "Engine": "aurora-mysql"
+        "Engine": "aurora-mysql",
+        "StorageEncrypted": false
       }
     },
     "AuroraPostgresqlDBInstanceResource:": {
       "Type": "AWS::RDS::DBInstance",
       "Properties": {
-        "Engine": "aurora-postgresql"
+        "Engine": "aurora-postgresql",
+        "StorageEncrypted": false
       }
     },
     "NonCompliantDBInstanceResource:": {

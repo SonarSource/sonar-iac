@@ -40,9 +40,9 @@ public class DisabledRDSEncryptionCheck extends AbstractResourceCheck {
       return;
     }
     // S6303 should not raise an issue if the property Engine of the resource AWS::RDS::DBInstance is one of EXCLUDE_AURORA_ATTRIBUTE
-    if(PropertyUtils.get(resource.properties(), "Engine")
-      .map(propertyTree -> EXCLUDE_AURORA_ATTRIBUTE.contains(TextUtils.getValue(propertyTree.value()).orElse("")))
-      .orElse(false)) {
+    if (PropertyUtils.get(resource.properties(), "Engine").stream()
+      .anyMatch(engine -> TextUtils.matchesValue(engine.value(),
+        EXCLUDE_AURORA_ATTRIBUTE::contains).isTrue())) {
       return;
     }
     PropertyUtils.get(resource.properties(), "StorageEncrypted").ifPresentOrElse(
