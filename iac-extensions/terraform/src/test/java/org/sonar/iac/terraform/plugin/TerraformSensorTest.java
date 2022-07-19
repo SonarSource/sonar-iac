@@ -169,7 +169,7 @@ class TerraformSensorTest extends AbstractSensorTest {
 
   @Override
   protected TerraformSensor sensor(CheckFactory checkFactory) {
-    return new TerraformSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, language(), providerVersions());
+    return new TerraformSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new TerraformLanguage(new MapSettings().asConfig()), providerVersions());
   }
 
   private TerraformProviders providerVersions() {
@@ -182,12 +182,7 @@ class TerraformSensorTest extends AbstractSensorTest {
   }
 
   @Override
-  protected TerraformLanguage language() {
-    return new TerraformLanguage(new MapSettings().asConfig());
-  }
-
-  @Override
   protected String fileLanguageKey() {
-    return language().getKey();
+    return TerraformLanguage.KEY;
   }
 }

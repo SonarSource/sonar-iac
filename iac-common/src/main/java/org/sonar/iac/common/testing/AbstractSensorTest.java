@@ -41,7 +41,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
@@ -110,8 +109,6 @@ public abstract class AbstractSensorTest {
   protected abstract Sensor sensor(CheckFactory checkFactory);
 
   protected abstract String repositoryKey();
-
-  protected abstract Language language();
 
   protected abstract String fileLanguageKey();
 }
