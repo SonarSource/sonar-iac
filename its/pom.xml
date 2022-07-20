@@ -5,7 +5,7 @@
   <parent>
     <artifactId>iac</artifactId>
     <groupId>org.sonarsource.iac</groupId>
-    <version>1.9-SNAPSHOT</version>
+    <version>1.9.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>iac-its</artifactId>
