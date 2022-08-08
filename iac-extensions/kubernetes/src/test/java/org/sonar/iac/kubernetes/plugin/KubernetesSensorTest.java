@@ -71,6 +71,36 @@ class KubernetesSensorTest extends AbstractSensorTest {
   }
 
   @Test
+  void yaml_file_with_helm_template_directives_should_not_be_parsed() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + "{{ .Values.count }}"));
+    asserNotSourceFileIsParsed();
+  }
+
+  @Test
+  void yaml_file_with_helm_template_directives_alike_single_quoted_strings_should_be_parsed() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + "'{{ .Values.count }}'"));
+    assertOneSourceFileIsParsed();
+  }
+
+  @Test
+  void yaml_file_with_helm_template_directives_alike_double_quoted_strings_should_be_parsed() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + "\"{{ .Values.count }}\""));
+    assertOneSourceFileIsParsed();
+  }
+
+  @Test
+  void yaml_file_with_helm_template_directives_alike_comments_should_be_parsed() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + "# {{ .Values.count }}"));
+    assertOneSourceFileIsParsed();
+  }
+
+  @Test
+  void yaml_file_with_codefresh_variable_should_be_parsed() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + "custom-label: {{MY_CUSTOM_LABEL}}"));
+    assertOneSourceFileIsParsed();
+  }
+
+  @Test
   void yaml_file_with_invalid_syntax_should_not_raise_parsing_if_rule_is_deactivated() {
     analyse(sensor(checkFactory()), inputFileWithIdentifiers("a: b: c"));
 
