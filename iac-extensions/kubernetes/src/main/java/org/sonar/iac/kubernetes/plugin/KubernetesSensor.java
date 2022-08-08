@@ -22,6 +22,7 @@ package org.sonar.iac.kubernetes.plugin;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,6 +36,13 @@ import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 
 public class KubernetesSensor extends YamlSensor {
+
+  private static final String DIRECTIVE_IN_COMMENT = "#.*\\{\\{";
+  private static final String DIRECTIVE_IN_SINGLE_QUOTE = "'[^']*\\{\\{[^']*'";
+  private static final String DIRECTIVE_IN_DOUBLE_QUOTE = "\"[^\"]*\\{\\{[^\"]*\"";
+  private static final String CODEFRESH_VARIABLES = "\\{\\{[\\w\\s]+}}";
+  private static final Pattern HELM_DIRECTIVE_IN_COMMENT_OR_STRING = Pattern.compile("("+
+    String.join("|", DIRECTIVE_IN_COMMENT, DIRECTIVE_IN_SINGLE_QUOTE, DIRECTIVE_IN_DOUBLE_QUOTE, CODEFRESH_VARIABLES) + ")");
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
                              NoSonarFilter noSonarFilter, KubernetesLanguage language) {
@@ -70,17 +78,22 @@ public class KubernetesSensor extends YamlSensor {
     private static boolean hasKubernetesObjectStructure(InputFile inputFile) {
       int identifierCount = 0;
       try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
+        boolean atLeastOneCompleteObject = false;
         while (scanner.hasNextLine()) {
           String line = scanner.nextLine();
           if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
             identifierCount++;
           } else if (FILE_SEPERATOR.equals(line)) {
             identifierCount = 0;
+          } else if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
+            // SONARIAC-435: Do not parse Helm files with template directives
+            return false;
           }
           if (identifierCount == 4) {
-            return true;
+            atLeastOneCompleteObject = true;
           }
         }
+        return atLeastOneCompleteObject;
       } catch (IOException e) {
         LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
         LOG.error(e.getMessage());
