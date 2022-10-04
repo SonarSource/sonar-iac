@@ -4,9 +4,6 @@
 [submodule "its/sources/terraform/ibm-tf-training"]
 	path = its/sources/terraform/ibm-tf-training
 	url = https://github.com/venkateshk111/IBM-TF-Training.git
-[submodule "its/sources/terraform/terraform-aws-iam-role"]
-	path = its/sources/terraform/terraform-aws-iam-role
-	url = https://github.com/terraform-aws-iac/terraform-aws-iam-role.git
 [submodule "its/sources/terraform/terraform-aws-secure-baseline"]
 	path = its/sources/terraform/terraform-aws-secure-baseline
 	url = https://github.com/nozaq/terraform-aws-secure-baseline.git
