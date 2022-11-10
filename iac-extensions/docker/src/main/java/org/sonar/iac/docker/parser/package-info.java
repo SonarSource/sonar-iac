@@ -17,27 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
-
-import org.sonar.api.Plugin;
-
-public class DockerExtension {
-  public static final String REPOSITORY_KEY = "docker";
-
-  private DockerExtension() {
-  }
-
-  public static void define(Plugin.Context context) {
-    context.addExtensions(
-      //Language
-      DockerLanguage.class,
-      // Sensor
-      DockerSensor.class,
-      // Rules and profiles
-      DockerRulesDefinition.class,
-      DockerProfileDefinition.class
-      // Additional extensions
-    );
-    context.addExtensions(DockerSettings.getProperties());
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.docker.parser;

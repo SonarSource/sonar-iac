@@ -17,27 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
+package org.sonar.iac.docker.parser;
 
-import org.sonar.api.Plugin;
+import com.sonar.sslr.api.Rule;
+import com.sonar.sslr.api.TokenType;
+import com.sonar.sslr.api.Trivia;
+import com.sonar.sslr.api.typed.Input;
+import com.sonar.sslr.api.typed.NodeBuilder;
+import java.util.List;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public class DockerExtension {
-  public static final String REPOSITORY_KEY = "docker";
-
-  private DockerExtension() {
+public class DockerNodeBuilder implements NodeBuilder {
+  @Override
+  public Object createNonTerminal(GrammarRuleKey grammarRuleKey, Rule rule, List<Object> list, int i, int i1) {
+    return null;
   }
 
-  public static void define(Plugin.Context context) {
-    context.addExtensions(
-      //Language
-      DockerLanguage.class,
-      // Sensor
-      DockerSensor.class,
-      // Rules and profiles
-      DockerRulesDefinition.class,
-      DockerProfileDefinition.class
-      // Additional extensions
-    );
-    context.addExtensions(DockerSettings.getProperties());
+  @Override
+  public Object createTerminal(Input input, int i, int i1, List<Trivia> list, TokenType tokenType) {
+    return null;
   }
 }
