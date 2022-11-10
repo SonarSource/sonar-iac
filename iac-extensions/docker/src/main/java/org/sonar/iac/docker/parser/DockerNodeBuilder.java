@@ -17,30 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.docker.parser;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import com.sonar.sslr.api.Rule;
+import com.sonar.sslr.api.TokenType;
+import com.sonar.sslr.api.Trivia;
+import com.sonar.sslr.api.typed.Input;
+import com.sonar.sslr.api.typed.NodeBuilder;
+import java.util.List;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DockerNodeBuilder implements NodeBuilder {
+  @Override
+  public Object createNonTerminal(GrammarRuleKey grammarRuleKey, Rule rule, List<Object> list, int i, int i1) {
+    return null;
+  }
 
-class IacPluginTest {
-
-  private static final Version VERSION_8_9 = Version.create(8, 9);
-
-  private final IacPlugin iacPlugin = new IacPlugin();
-
-  @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    iacPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(31);
+  @Override
+  public Object createTerminal(Input input, int i, int i1, List<Trivia> list, TokenType tokenType) {
+    return null;
   }
 }
-

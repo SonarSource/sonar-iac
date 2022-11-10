@@ -21,6 +21,7 @@ package org.sonar.plugins.iac;
 
 import org.sonar.api.Plugin;
 import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
+import org.sonar.iac.docker.plugin.DockerExtension;
 import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
 import org.sonar.iac.terraform.plugin.TerraformExtension;
 
@@ -31,5 +32,6 @@ public class IacPlugin implements Plugin {
     TerraformExtension.define(context);
     CloudformationExtension.define(context);
     KubernetesExtension.define(context);
+    DockerExtension.define(context);
   }
 }

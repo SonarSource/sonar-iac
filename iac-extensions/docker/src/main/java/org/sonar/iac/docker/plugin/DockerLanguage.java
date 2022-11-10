@@ -17,30 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.docker.plugin;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import java.util.Arrays;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.AbstractLanguage;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DockerLanguage extends AbstractLanguage {
+  static final String KEY = "docker";
+  static final String NAME = "Docker";
 
-class IacPluginTest {
+  private final Configuration configuration;
 
-  private static final Version VERSION_8_9 = Version.create(8, 9);
+  public DockerLanguage(Configuration configuration) {
+    super(KEY, NAME);
+    this.configuration = configuration;
+  }
 
-  private final IacPlugin iacPlugin = new IacPlugin();
-
-  @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    iacPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(31);
+  @Override
+  public String[] getFileSuffixes() {
+    String[] suffixes = Arrays.stream(configuration.getStringArray(DockerSettings.FILE_SUFFIXES_KEY))
+      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
+    return suffixes.length > 0 ? suffixes : DockerSettings.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
   }
 }
-

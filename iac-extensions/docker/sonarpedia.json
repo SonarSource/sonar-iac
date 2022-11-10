@@ -1,0 +1,11 @@
+{
+  "rules-metadata-path": "./src/main/resources/org/sonar/l10n/docker/rules/docker",
+  "languages": [
+    "DOCKER"
+  ],
+  "latest-update": "2022-11-10T10:50:27.329839Z",
+  "options": {
+    "no-language-in-filenames": true,
+    "preserve-filenames": true
+  }
+}
