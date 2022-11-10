@@ -23,7 +23,6 @@ import org.sonar.api.Plugin;
 
 public class DockerExtension {
   public static final String REPOSITORY_KEY = "docker";
-  public static final String REPOSITORY_NAME = "SonarQube";
 
   private DockerExtension() {
   }
@@ -33,12 +32,11 @@ public class DockerExtension {
       //Language
       DockerLanguage.class,
       // Sensor
-      DockerSensor.class,
+      // DockerSensor.class,
       // Rules and profiles
       DockerRulesDefinition.class,
-      DockerProfileDefinition.class,
+      DockerProfileDefinition.class
       // Additional extensions
-      DockerProviders.class
     );
     context.addExtensions(DockerSettings.getProperties());
   }

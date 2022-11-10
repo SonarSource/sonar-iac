@@ -34,8 +34,6 @@ class DockerProfileDefinitionTest {
     BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("docker", "Sonar way");
     assertThat(profile.language()).isEqualTo("docker");
     assertThat(profile.name()).isEqualTo("Sonar way");
-//    assertThat(profile.rules()).hasSizeGreaterThan(3);
-//    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-//      .doesNotContain("S2260"); // ParsingErrorCheck
+    assertThat(profile.rules()).isEmpty();
   }
 }

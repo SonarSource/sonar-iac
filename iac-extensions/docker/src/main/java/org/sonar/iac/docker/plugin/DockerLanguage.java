@@ -19,25 +19,18 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import java.util.Arrays;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
 public class DockerLanguage extends AbstractLanguage {
   static final String KEY = "docker";
   static final String NAME = "Docker";
 
-  private final Configuration configuration;
-
-  public DockerLanguage(Configuration configuration) {
+  public DockerLanguage() {
     super(KEY, NAME);
-    this.configuration = configuration;
   }
 
   @Override
   public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(configuration.getStringArray(DockerSettings.FILE_SUFFIXES_KEY))
-      .filter(s -> !s.trim().isEmpty()).toArray(String[]::new);
-    return suffixes.length > 0 ? suffixes : DockerSettings.FILE_SUFFIXES_DEFAULT_VALUE.split(",");
+    return new String[] { "Dockerfile" };
   }
 }

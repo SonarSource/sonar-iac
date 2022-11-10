@@ -29,16 +29,7 @@ class DockerLanguageTest {
   @Test
   void should_return_docker_file_suffixes() {
     MapSettings settings = new MapSettings();
-    DockerLanguage language = new DockerLanguage(settings.asConfig());
+    DockerLanguage language = new DockerLanguage();
     assertThat(language.getFileSuffixes()).containsOnly("Dockerfile");
-
-    settings.setProperty(DockerSettings.FILE_SUFFIXES_KEY, "");
-    assertThat(language.getFileSuffixes()).containsOnly("Dockerfile");
-
-    settings.setProperty(DockerSettings.FILE_SUFFIXES_KEY, ".bar, .foo");
-    assertThat(language.getFileSuffixes()).containsOnly(".bar", ".foo");
-
-    settings.setProperty(DockerSettings.FILE_SUFFIXES_KEY, ".foo, , ");
-    assertThat(language.getFileSuffixes()).containsOnly(".foo");
   }
 }

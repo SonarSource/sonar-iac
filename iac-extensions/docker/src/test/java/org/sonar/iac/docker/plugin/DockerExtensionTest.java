@@ -31,13 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DockerExtensionTest {
 
-  private static final Version VERSION_8_9 = Version.create(8, 9);
+  private static final Version VERSION_9_7 = Version.create(9, 7);
 
   @Test
   void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_7, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     DockerExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(9);
+    assertThat(context.getExtensions()).hasSize(4);
   }
 }

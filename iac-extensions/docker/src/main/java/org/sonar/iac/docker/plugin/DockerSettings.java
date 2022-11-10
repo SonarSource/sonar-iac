@@ -29,13 +29,10 @@ public class DockerSettings {
 
   private static final String DOCKER_CATEGORY = "Docker";
   private static final String GENERAL_SUBCATEGORY = "General";
-  private static final String VERSION_SUBCATEGORY = "Provider Versions";
 
   static final String ACTIVATION_KEY = "sonar.docker.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
 
-  static final String FILE_SUFFIXES_KEY = "sonar.docker.file.suffixes";
-  static final String FILE_SUFFIXES_DEFAULT_VALUE = "Dockerfile";
 
   private DockerSettings() {
   }
@@ -52,39 +49,6 @@ public class DockerSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(DOCKER_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(FILE_SUFFIXES_KEY)
-        .index(2)
-        .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
-        .name("File Suffixes")
-        .description("List of suffixes of Docker files to analyze.")
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(DOCKER_CATEGORY)
-        .multiValues(true)
-        .subCategory(GENERAL_SUBCATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(DockerProviders.Provider.Identifier.AWS.key)
-        .index(100)
-        .name("AWS Provider Version")
-        .description("Version of the AWS provider of lifecycle management of AWS resources. " +
-          "Use semantic versioning format like `3.4`, `4.17.1` or `4`")
-        .type(PropertyType.STRING)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(DOCKER_CATEGORY)
-        .subCategory(VERSION_SUBCATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(DockerProviders.Provider.Identifier.AZURE.key)
-        .index(101)
-        .name("Azure Provider Version")
-        .description("Version of the Azure Resource Manager provider of lifecycle management of Microsoft Azure resources. " +
-          "Use semantic versioning format like `3.4`, `4.17.1` or `4`")
-        .type(PropertyType.STRING)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(DOCKER_CATEGORY)
-        .subCategory(VERSION_SUBCATEGORY)
         .build()
     );
   }
