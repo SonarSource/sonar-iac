@@ -16,6 +16,7 @@
     <module>terraform</module>
     <module>cloudformation</module>
     <module>kubernetes</module>
+    <module>docker</module>
   </modules>
 
 </project>
