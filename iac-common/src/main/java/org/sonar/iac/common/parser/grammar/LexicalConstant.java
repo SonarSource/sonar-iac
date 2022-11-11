@@ -37,11 +37,10 @@ public class LexicalConstant {
   /**
    * Comment
    */
-  private static final String SINGLE_LINE_COMMENT_CONTENT = "(?:[^\\n\\r])*+";
-  private static final String SINGLE_LINE_COMMENT1 = "//" + SINGLE_LINE_COMMENT_CONTENT;
-  private static final String SINGLE_LINE_COMMENT2 = "#" + SINGLE_LINE_COMMENT_CONTENT;
-  private static final String MULTI_LINE_COMMENT = "/\\*[\\s\\S]*?\\*/";
-  public static final String COMMENT = "(?:" + SINGLE_LINE_COMMENT1 + "|" + SINGLE_LINE_COMMENT2 + "|" + MULTI_LINE_COMMENT + ")";
+  public static final String SINGLE_LINE_COMMENT_CONTENT = "(?:[^\\n\\r])*+";
+  public static final String SINGLE_LINE_COMMENT_DOUBLE_SLASH = "//" + SINGLE_LINE_COMMENT_CONTENT;
+  public static final String SINGLE_LINE_COMMENT_HASH = "#" + SINGLE_LINE_COMMENT_CONTENT;
+  public static final String MULTI_LINE_COMMENT = "/\\*[\\s\\S]*?\\*/";
 
   /**
    * IDENTIFIERS

@@ -65,7 +65,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(SPACING).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
       b.zeroOrMore(
-        b.commentTrivia(b.regexp(LexicalConstant.COMMENT)),
+        b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
         b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")))
     ).skip();
 

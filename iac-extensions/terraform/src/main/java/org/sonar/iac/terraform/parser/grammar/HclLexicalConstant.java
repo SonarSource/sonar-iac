@@ -17,27 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.impl;
+package org.sonar.iac.terraform.parser.grammar;
 
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.common.parser.grammar.LexicalConstant;
 
-public abstract class DockerTreeImpl implements DockerTree {
+public class HclLexicalConstant {
 
-  @Override
-  public final boolean is(Kind... kind) {
-    for (Kind kindIter : kind) {
-      if (getKind() == kindIter) {
-        return true;
-      }
-    }
-    return false;
+  private HclLexicalConstant() {
   }
 
-  @Override
-  public TextRange textRange() {
-    //TODO: This implementation needs to be extended in some next task
-    return TextRanges.range(0, 0, "");
-  }
+  public static final String COMMENT = "(?:" + LexicalConstant.SINGLE_LINE_COMMENT_DOUBLE_SLASH + "|" + LexicalConstant.SINGLE_LINE_COMMENT_HASH + "|" + LexicalConstant.MULTI_LINE_COMMENT + ")";
+
 }
