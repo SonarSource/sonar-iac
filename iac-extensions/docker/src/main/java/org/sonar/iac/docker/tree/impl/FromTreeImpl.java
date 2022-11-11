@@ -19,10 +19,11 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.api.tree.FromTree;
+import org.sonar.iac.docker.tree.api.FromTree;
 
 public class FromTreeImpl extends DockerTreeImpl implements FromTree {
 
@@ -33,7 +34,7 @@ public class FromTreeImpl extends DockerTreeImpl implements FromTree {
 
   @Override
   public List<Tree> children() {
-    return null;
+    return Collections.emptyList();
   }
   @Override
   public Kind getKind() {

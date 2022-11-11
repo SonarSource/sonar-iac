@@ -22,9 +22,9 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.api.tree.FileTree;
-import org.sonar.iac.docker.api.tree.InstructionTree;
-import org.sonar.iac.docker.api.tree.SyntaxToken;
+import org.sonar.iac.docker.tree.api.FileTree;
+import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class FileTreeImpl extends DockerTreeImpl implements FileTree {
 

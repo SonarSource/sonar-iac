@@ -21,17 +21,15 @@ package org.sonar.iac.docker.tree.impl;
 
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.api.tree.DockerTree;
+import org.sonar.iac.docker.tree.api.DockerTree;
 
 public abstract class DockerTreeImpl implements DockerTree {
 
   @Override
   public final boolean is(Kind... kind) {
-    if (getKind() != null) {
-      for (Kind kindIter : kind) {
-        if (getKind() == kindIter) {
-          return true;
-        }
+    for (Kind kindIter : kind) {
+      if (getKind() == kindIter) {
+        return true;
       }
     }
     return false;
@@ -39,6 +37,6 @@ public abstract class DockerTreeImpl implements DockerTree {
 
   @Override
   public TextRange textRange() {
-    return TextRanges.range(0,0,"");
+    return TextRanges.range(0, 0, "");
   }
 }

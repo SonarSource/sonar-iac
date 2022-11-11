@@ -20,10 +20,10 @@
 package org.sonar.iac.docker.parser.grammar;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
-import org.sonar.iac.docker.api.tree.FileTree;
-import org.sonar.iac.docker.api.tree.FromTree;
-import org.sonar.iac.docker.api.tree.InstructionTree;
-import org.sonar.iac.docker.api.tree.SyntaxToken;
+import org.sonar.iac.docker.tree.api.FileTree;
+import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.parser.TreeFactory;
 
 public class DockerGrammar {

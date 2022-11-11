@@ -20,8 +20,9 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.docker.api.tree.DockerTree;
-import org.sonar.iac.docker.api.tree.FileTree;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,5 +46,19 @@ class FileTreeImplTest {
   void shouldParseFileWithMultipleEmptyLines() {
     FileTree tree = parse("\n\n\n", DockerLexicalGrammar.FILE);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FILE);
+  }
+
+  @Test
+  void checkIsKindMethod() {
+    FileTree tree = parse("", DockerLexicalGrammar.FILE);
+    assertThat(tree.is(DockerTree.Kind.FILE)).isTrue();
+    assertThat(tree.is(DockerTree.Kind.FILE, DockerTree.Kind.FROM)).isTrue();
+    assertThat(tree.is(DockerTree.Kind.FROM)).isFalse();
+  }
+
+  @Test
+  void checkTextRange() {
+    FileTree tree = parse("", DockerLexicalGrammar.FILE);
+    assertThat(tree.textRange()).isEqualTo(TextRanges.range(0, 0, ""));
   }
 }

@@ -20,8 +20,8 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.docker.api.tree.DockerTree;
-import org.sonar.iac.docker.api.tree.FromTree;
+import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
