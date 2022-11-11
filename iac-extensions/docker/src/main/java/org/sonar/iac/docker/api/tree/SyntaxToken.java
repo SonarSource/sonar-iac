@@ -17,19 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser;
+package org.sonar.iac.docker.api.tree;
 
-import com.sonar.sslr.api.typed.Optional;
-import java.util.Collections;
-import java.util.List;
-import org.sonar.iac.docker.api.tree.FileTree;
-import org.sonar.iac.docker.api.tree.InstructionTree;
-import org.sonar.iac.docker.api.tree.SyntaxToken;
-import org.sonar.iac.docker.tree.impl.FileTreeImpl;
-
-public class TreeFactory {
-
-  public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
-  }
+public interface SyntaxToken extends DockerTree  {
 }

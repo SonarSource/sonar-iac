@@ -21,6 +21,8 @@ package org.sonar.iac.docker.parser.grammar;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
 import org.sonar.iac.docker.api.tree.DockerTree;
+import org.sonar.iac.docker.api.tree.FileTree;
+import org.sonar.iac.docker.api.tree.InstructionTree;
 import org.sonar.iac.docker.parser.TreeFactory;
 
 public class DockerGrammar {
@@ -33,4 +35,16 @@ public class DockerGrammar {
     this.f = f;
   }
 
+  public FileTree FILE() {
+    return b.<FileTree>nonterminal(DockerLexicalGrammar.FILE).is(
+      f.file(
+        b.zeroOrMore(b.firstOf(INSTRUCTION())),
+        b.optional(b.token(DockerLexicalGrammar.SPACING)),
+        b.token(DockerLexicalGrammar.EOF))
+    );
+  }
+
+  private InstructionTree INSTRUCTION() {
+    return null;
+  }
 }

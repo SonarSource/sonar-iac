@@ -17,23 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.api.tree;
+package org.sonar.iac.common.parser.grammar;
 
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public interface DockerTree extends Tree {
+public enum Punctuator implements GrammarRuleKey {
+  COLON(":"),
+  COMMA(","),
+  DOUBLEARROW("=>"),
+  DOT("."),
+  EQU("="),
+  ELLIPSIS("..."),
+  LBRACKET("["),
+  RBRACKET("]"),
+  LCURLYBRACE("{"),
+  RCURLYBRACE("}"),
+  LPARENTHESIS("("),
+  RPARENTHESIS(")"),
+  OR("||"),
+  AND("&&"),
+  EQUAL("=="),
+  NOT_EQUAL("!="),
+  GREATER_THAN(">"),
+  GREATER_OR_EQUAL(">="),
+  LESS_THAN("<"),
+  LESS_OR_EQUAL("<="),
+  PLUS("+"),
+  MINUS("-"),
+  DIV("/"),
+  PERCENT("%"),
+  STAR("*"),
+  QUERY("?"),
+  EXCLAMATION("!"),
+  DOUBLE_QUOTE("\""),
+  DOLLAR_LCURLY("${"),
+  DOLLAR_LCURLY_TILDE("${~"),
+  PERCENT_LCURLY("%{"),
+  PERCENT_LCURLY_TILDE("%{~"),
+  TILDE_RCURLY("~}")
+  ;
 
-  boolean is(Kind... kind);
-  Kind getKind();
+  private final String value;
 
-  enum Kind implements GrammarRuleKey {
-    FILE(FileTree.class);
+  Punctuator(String value) {
+    this.value = value;
+  }
 
-    private final Class<? extends DockerTree> associatedInterface;
-
-    Kind(Class<? extends DockerTree> associatedInterface) {
-      this.associatedInterface = associatedInterface;
-    }
+  public String getValue() {
+    return value;
   }
 }

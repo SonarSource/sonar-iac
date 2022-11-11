@@ -19,15 +19,45 @@
  */
 package org.sonar.iac.docker.parser.grammar;
 
+import org.sonar.iac.common.parser.grammar.LexicalConstant;
+import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 
 public enum DockerLexicalGrammar implements GrammarRuleKey {
 
-  FILE
-  ;
+  FILE,
+
+  /**
+   * Lexical
+   */
+  EOF,
+
+  /**
+   * SPACING
+   */
+  SPACING;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
-    return LexerlessGrammarBuilder.create();
+    LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
+
+    lexical(b);
+    punctuators(b);
+
+    return b;
+  }
+
+  private static void punctuators(LexerlessGrammarBuilder b) {
+    for (Punctuator p : Punctuator.values()) {
+      b.rule(p).is(SPACING, p.getValue()).skip();
+    }
+  }
+  private static void lexical(LexerlessGrammarBuilder b) {
+    b.rule(SPACING).is(
+      b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
+      b.zeroOrMore(
+        b.commentTrivia(b.regexp(LexicalConstant.COMMENT)),
+        b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")))
+    ).skip();
   }
 }

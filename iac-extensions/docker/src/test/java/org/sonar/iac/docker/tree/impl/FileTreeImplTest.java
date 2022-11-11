@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser;
+package org.sonar.iac.docker.tree.impl;
 
-import com.sonar.sslr.api.typed.Optional;
-import java.util.Collections;
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.docker.api.tree.DockerTree;
 import org.sonar.iac.docker.api.tree.FileTree;
-import org.sonar.iac.docker.api.tree.InstructionTree;
-import org.sonar.iac.docker.api.tree.SyntaxToken;
-import org.sonar.iac.docker.tree.impl.FileTreeImpl;
+import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 
-public class TreeFactory {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
-  public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
+class FileTreeImplTest {
+
+  @Test
+  void shouldParseEmptyFile() {
+    FileTree tree = parse("", DockerLexicalGrammar.FILE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FILE);
   }
 }

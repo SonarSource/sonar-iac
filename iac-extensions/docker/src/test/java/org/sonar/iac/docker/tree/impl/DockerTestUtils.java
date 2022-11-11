@@ -17,53 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser.grammar;
+package org.sonar.iac.docker.tree.impl;
 
+import org.sonar.iac.docker.api.tree.DockerTree;
+import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public enum HclPunctuator implements GrammarRuleKey {
-  COLON(":"),
-  COMMA(","),
-  DOUBLEARROW("=>"),
-  DOT("."),
-  EQU("="),
-  ELLIPSIS("..."),
-  LBRACKET("["),
-  RBRACKET("]"),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  LPARENTHESIS("("),
-  RPARENTHESIS(")"),
-  OR("||"),
-  AND("&&"),
-  EQUAL("=="),
-  NOT_EQUAL("!="),
-  GREATER_THAN(">"),
-  GREATER_OR_EQUAL(">="),
-  LESS_THAN("<"),
-  LESS_OR_EQUAL("<="),
-  PLUS("+"),
-  MINUS("-"),
-  DIV("/"),
-  PERCENT("%"),
-  STAR("*"),
-  QUERY("?"),
-  EXCLAMATION("!"),
-  DOUBLE_QUOTE("\""),
-  DOLLAR_LCURLY("${"),
-  DOLLAR_LCURLY_TILDE("${~"),
-  PERCENT_LCURLY("%{"),
-  PERCENT_LCURLY_TILDE("%{~"),
-  TILDE_RCURLY("~}")
-  ;
+public class DockerTestUtils {
 
-  private final String value;
+  public static <T extends DockerTree> T parse(String input, GrammarRuleKey rootRule) {
+    DockerParser parser = new DockerParser(rootRule);
+    DockerTree tree = parser.parse(input);
 
-  HclPunctuator(String value) {
-    this.value = value;
+    return (T) tree;
   }
 
-  public String getValue() {
-    return value;
-  }
 }
