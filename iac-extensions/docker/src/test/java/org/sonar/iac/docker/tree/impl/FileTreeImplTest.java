@@ -24,6 +24,7 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
@@ -60,5 +61,12 @@ class FileTreeImplTest {
   void checkTextRange() {
     FileTree tree = parse("", DockerLexicalGrammar.FILE);
     assertThat(tree.textRange()).isEqualTo(TextRanges.range(0, 0, ""));
+  }
+
+  @Test
+  void checkChildren() {
+    FileTree tree = parse("", DockerLexicalGrammar.FILE);
+    assertThat(((SyntaxToken)tree.children().get(0))).isNull();
+    assertThat(tree.children()).hasSize(1);
   }
 }
