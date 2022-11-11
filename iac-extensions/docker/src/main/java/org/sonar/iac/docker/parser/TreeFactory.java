@@ -19,17 +19,14 @@
  */
 package org.sonar.iac.docker.parser;
 
-import com.sonar.sslr.api.typed.Optional;
 import java.util.Collections;
-import java.util.List;
 import org.sonar.iac.docker.api.tree.FileTree;
-import org.sonar.iac.docker.api.tree.InstructionTree;
 import org.sonar.iac.docker.api.tree.SyntaxToken;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 
 public class TreeFactory {
 
-  public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
+  public FileTree file(SyntaxToken eof) {
+    return new FileTreeImpl(Collections.emptyList(), eof);
   }
 }

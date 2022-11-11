@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.parser.grammar;
 
+import com.sonar.sslr.api.GenericTokenType;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -27,6 +28,7 @@ import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   FILE,
+  INSTRUCTION,
 
   /**
    * Lexical
@@ -59,5 +61,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
         b.commentTrivia(b.regexp(LexicalConstant.COMMENT)),
         b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")))
     ).skip();
+
+    b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
   }
 }
