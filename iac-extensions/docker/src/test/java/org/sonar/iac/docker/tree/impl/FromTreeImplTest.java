@@ -17,27 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
+package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
-class DockerExtensionTest {
+class FromTreeImplTest {
 
-  private static final Version VERSION_9_7 = Version.create(9, 7);
 
+  // TODO Remove with SONARIAC-443
   @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_7, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    DockerExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(5);
+  void shouldParseEmptyFromInstruction() {
+    FromTree tree = parse("FROM", DockerLexicalGrammar.FROM);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FROM);
   }
 }

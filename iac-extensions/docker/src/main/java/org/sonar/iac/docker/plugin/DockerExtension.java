@@ -32,7 +32,7 @@ public class DockerExtension {
       //Language
       DockerLanguage.class,
       // Sensor
-      // DockerSensor.class,
+      DockerSensor.class,
       // Rules and profiles
       DockerRulesDefinition.class,
       DockerProfileDefinition.class

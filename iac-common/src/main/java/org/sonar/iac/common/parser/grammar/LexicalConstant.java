@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser.grammar;
+package org.sonar.iac.common.parser.grammar;
 
 public class LexicalConstant {
 
@@ -37,11 +37,10 @@ public class LexicalConstant {
   /**
    * Comment
    */
-  private static final String SINGLE_LINE_COMMENT_CONTENT = "(?:[^\\n\\r])*+";
-  private static final String SINGLE_LINE_COMMENT1 = "//" + SINGLE_LINE_COMMENT_CONTENT;
-  private static final String SINGLE_LINE_COMMENT2 = "#" + SINGLE_LINE_COMMENT_CONTENT;
-  private static final String MULTI_LINE_COMMENT = "/\\*[\\s\\S]*?\\*/";
-  public static final String COMMENT = "(?:" + SINGLE_LINE_COMMENT1 + "|" + SINGLE_LINE_COMMENT2 + "|" + MULTI_LINE_COMMENT + ")";
+  public static final String SINGLE_LINE_COMMENT_CONTENT = "(?:[^\\n\\r])*+";
+  public static final String SINGLE_LINE_COMMENT_DOUBLE_SLASH = "//" + SINGLE_LINE_COMMENT_CONTENT;
+  public static final String SINGLE_LINE_COMMENT_HASH = "#" + SINGLE_LINE_COMMENT_CONTENT;
+  public static final String MULTI_LINE_COMMENT = "/\\*[\\s\\S]*?\\*/";
 
   /**
    * IDENTIFIERS

@@ -17,27 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
+package org.sonar.iac.docker.tree.impl;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.FileTree;
+import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class FileTreeImpl extends DockerTreeImpl implements FileTree {
 
-class DockerExtensionTest {
+  private final List<InstructionTree> instructions;
+  private final SyntaxToken eof;
 
-  private static final Version VERSION_9_7 = Version.create(9, 7);
+  public FileTreeImpl(List<InstructionTree> instructions, SyntaxToken eof) {
+    this.instructions = instructions;
+    this.eof = eof;
+  }
 
-  @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_7, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    DockerExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(5);
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>(instructions);
+    children.add(eof);
+    return children;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.FILE;
   }
 }

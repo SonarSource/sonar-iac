@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
+package org.sonar.iac.terraform.parser.grammar;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import static org.sonar.iac.common.parser.grammar.LexicalConstant.MULTI_LINE_COMMENT;
+import static org.sonar.iac.common.parser.grammar.LexicalConstant.SINGLE_LINE_COMMENT_DOUBLE_SLASH;
+import static org.sonar.iac.common.parser.grammar.LexicalConstant.SINGLE_LINE_COMMENT_HASH;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class HclLexicalConstant {
 
-class DockerExtensionTest {
-
-  private static final Version VERSION_9_7 = Version.create(9, 7);
-
-  @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_7, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    DockerExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(5);
+  private HclLexicalConstant() {
   }
+
+  public static final String COMMENT = "(?:"
+    + SINGLE_LINE_COMMENT_DOUBLE_SLASH
+    + "|" + SINGLE_LINE_COMMENT_HASH
+    + "|" + MULTI_LINE_COMMENT + ")";
+
 }

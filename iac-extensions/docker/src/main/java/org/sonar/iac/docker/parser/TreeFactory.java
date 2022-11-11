@@ -17,27 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
+package org.sonar.iac.docker.parser;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import com.sonar.sslr.api.typed.Optional;
+import java.util.Collections;
+import java.util.List;
+import org.sonar.iac.docker.tree.api.FileTree;
+import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.impl.FileTreeImpl;
+import org.sonar.iac.docker.tree.impl.FromTreeImpl;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class TreeFactory {
 
-class DockerExtensionTest {
+  public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
+    return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
+  }
 
-  private static final Version VERSION_9_7 = Version.create(9, 7);
-
-  @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_7, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    DockerExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(5);
+  public FromTree from(SyntaxToken token) {
+    return new FromTreeImpl();
   }
 }

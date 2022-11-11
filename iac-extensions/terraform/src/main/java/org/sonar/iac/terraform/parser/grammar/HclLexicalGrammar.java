@@ -20,6 +20,8 @@
 package org.sonar.iac.terraform.parser.grammar;
 
 import com.sonar.sslr.api.GenericTokenType;
+import org.sonar.iac.common.parser.grammar.LexicalConstant;
+import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 
@@ -78,7 +80,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void punctuators(LexerlessGrammarBuilder b) {
-    for (HclPunctuator p : HclPunctuator.values()) {
+    for (Punctuator p : Punctuator.values()) {
       b.rule(p).is(SPACING, p.getValue()).skip();
     }
   }
@@ -87,14 +89,14 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
     b.rule(SPACING).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
       b.zeroOrMore(
-        b.commentTrivia(b.regexp(LexicalConstant.COMMENT)),
+        b.commentTrivia(b.regexp(HclLexicalConstant.COMMENT)),
         b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")))
     ).skip();
 
     b.rule(NEWLINE).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.WHITESPACE + "]*+")),
       b.zeroOrMore(
-        b.commentTrivia(b.regexp(LexicalConstant.COMMENT)),
+        b.commentTrivia(b.regexp(HclLexicalConstant.COMMENT)),
         b.skippedTrivia(b.regexp("[" + LexicalConstant.WHITESPACE + "]*+"))),
       b.regexp("[" + LexicalConstant.LINE_TERMINATOR + "]")).skip();
 

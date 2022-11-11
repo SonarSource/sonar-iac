@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.parser.grammar;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -55,8 +56,10 @@ public class HclGrammar {
 
   public FileTree FILE() {
     return b.<FileTree>nonterminal(HclLexicalGrammar.FILE).is(
-      f.file(b.zeroOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK())),
-        b.optional(b.token(HclLexicalGrammar.SPACING)), b.token(HclLexicalGrammar.EOF)
+      f.file(b.zeroOrMore(
+        b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK())),
+        b.optional(b.token(HclLexicalGrammar.SPACING)),
+        b.token(HclLexicalGrammar.EOF)
       ));
   }
 
@@ -64,10 +67,10 @@ public class HclGrammar {
     return b.<BlockTree>nonterminal(HclLexicalGrammar.BLOCK).is(
       f.block(b.token(HclLexicalGrammar.IDENTIFIER),
         b.zeroOrMore(LABEL()),
-        b.token(HclPunctuator.LCURLYBRACE),
+        b.token(Punctuator.LCURLYBRACE),
         b.token(HclLexicalGrammar.NEWLINE),
         b.zeroOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK())),
-        b.token(HclPunctuator.RCURLYBRACE)
+        b.token(Punctuator.RCURLYBRACE)
       ));
   }
 
@@ -75,9 +78,9 @@ public class HclGrammar {
     return b.<BlockTree>nonterminal(HclLexicalGrammar.ONE_LINE_BLOCK).is(
       f.oneLineBlock(b.token(HclLexicalGrammar.IDENTIFIER),
         b.zeroOrMore(LABEL()),
-        b.token(HclPunctuator.LCURLYBRACE),
+        b.token(Punctuator.LCURLYBRACE),
         b.optional(ATTRIBUTE()),
-        b.token(HclPunctuator.RCURLYBRACE)
+        b.token(Punctuator.RCURLYBRACE)
       ));
   }
 
@@ -89,7 +92,7 @@ public class HclGrammar {
 
   public AttributeTree ATTRIBUTE() {
     return b.<AttributeTree>nonterminal(HclLexicalGrammar.ATTRIBUTE).is(
-      f.attribute(b.token(HclLexicalGrammar.IDENTIFIER), b.token(HclPunctuator.EQU), EXPRESSION())
+      f.attribute(b.token(HclLexicalGrammar.IDENTIFIER), b.token(Punctuator.EQU), EXPRESSION())
     );
   }
 
@@ -100,20 +103,20 @@ public class HclGrammar {
   public ExpressionTree CONDITIONAL_OR_EXPR() {
     return b.<ExpressionTree>nonterminal().is(
       f.binaryExpression(CONDITIONAL_AND_EXPR(),
-        b.zeroOrMore(f.newPair(b.token(HclPunctuator.OR), CONDITIONAL_AND_EXPR()))));
+        b.zeroOrMore(f.newPair(b.token(Punctuator.OR), CONDITIONAL_AND_EXPR()))));
   }
 
   public ExpressionTree CONDITIONAL_AND_EXPR() {
     return b.<ExpressionTree>nonterminal().is(
       f.binaryExpression(EQUALITY_EXPR(),
-        b.zeroOrMore(f.newPair(b.token(HclPunctuator.AND), EQUALITY_EXPR()))));
+        b.zeroOrMore(f.newPair(b.token(Punctuator.AND), EQUALITY_EXPR()))));
   }
 
   public ExpressionTree EQUALITY_EXPR() {
     return b.<ExpressionTree>nonterminal().is(
       f.binaryExpression(RELATIONAL_EXPR(),
         b.zeroOrMore(f.newPair(
-          b.firstOf(b.token(HclPunctuator.EQUAL), b.token(HclPunctuator.NOT_EQUAL)),
+          b.firstOf(b.token(Punctuator.EQUAL), b.token(Punctuator.NOT_EQUAL)),
           RELATIONAL_EXPR()))));
   }
 
@@ -121,7 +124,7 @@ public class HclGrammar {
     return b.<ExpressionTree>nonterminal().is(
       f.binaryExpression(ADDITIVE_EXPR(),
         b.zeroOrMore(f.newPair(
-          b.firstOf(b.token(HclPunctuator.GREATER_OR_EQUAL), b.token(HclPunctuator.GREATER_THAN), b.token(HclPunctuator.LESS_OR_EQUAL), b.token(HclPunctuator.LESS_THAN)),
+          b.firstOf(b.token(Punctuator.GREATER_OR_EQUAL), b.token(Punctuator.GREATER_THAN), b.token(Punctuator.LESS_OR_EQUAL), b.token(Punctuator.LESS_THAN)),
           ADDITIVE_EXPR()))));
   }
 
@@ -129,7 +132,7 @@ public class HclGrammar {
     return b.<ExpressionTree>nonterminal().is(
       f.binaryExpression(MULTIPLICATIVE_EXPR(),
         b.zeroOrMore(f.newPair(
-          b.firstOf(b.token(HclPunctuator.PLUS), b.token(HclPunctuator.MINUS)),
+          b.firstOf(b.token(Punctuator.PLUS), b.token(Punctuator.MINUS)),
           MULTIPLICATIVE_EXPR()))));
   }
 
@@ -137,13 +140,13 @@ public class HclGrammar {
     return b.<ExpressionTree>nonterminal().is(
       f.binaryExpression(PREFIX_EXPRESSION(),
         b.zeroOrMore(f.newPair(
-          b.firstOf(b.token(HclPunctuator.STAR), b.token(HclPunctuator.DIV), b.token(HclPunctuator.PERCENT)),
+          b.firstOf(b.token(Punctuator.STAR), b.token(Punctuator.DIV), b.token(Punctuator.PERCENT)),
           PREFIX_EXPRESSION()))));
   }
 
   public ExpressionTree PREFIX_EXPRESSION() {
     return b.<ExpressionTree>nonterminal().is(
-      f.prefixExpression(b.zeroOrMore(b.firstOf(b.token(HclPunctuator.MINUS), b.token(HclPunctuator.EXCLAMATION))),
+      f.prefixExpression(b.zeroOrMore(b.firstOf(b.token(Punctuator.MINUS), b.token(Punctuator.EXCLAMATION))),
         f.expression(PRIMARY_EXPRESSION(), b.zeroOrMore(POSTFIX_EXPRESSION()))));
   }
 
@@ -166,12 +169,12 @@ public class HclGrammar {
         f.stringLiteral(b.token(HclLexicalGrammar.STRING_WITHOUT_INTERPOLATION)),
         f.templateExpr(
           b.token(HclLexicalGrammar.SPACING),
-          b.token(HclPunctuator.DOUBLE_QUOTE),
+          b.token(Punctuator.DOUBLE_QUOTE),
           b.oneOrMore(
             b.firstOf(
               f.templateStringLiteral(b.token(HclLexicalGrammar.QUOTED_TEMPLATE_STRING_CHARACTERS)),
               TEMPLATE())),
-          b.token(HclPunctuator.DOUBLE_QUOTE))
+          b.token(Punctuator.DOUBLE_QUOTE))
       ));
   }
 
@@ -186,9 +189,9 @@ public class HclGrammar {
   public TemplateInterpolationTree TEMPLATE_INTERPOLATION() {
     return b.<TemplateInterpolationTree>nonterminal().is(
       f.templateInterpolation(
-        b.firstOf(b.token(HclPunctuator.DOLLAR_LCURLY_TILDE), b.token(HclPunctuator.DOLLAR_LCURLY)),
+        b.firstOf(b.token(Punctuator.DOLLAR_LCURLY_TILDE), b.token(Punctuator.DOLLAR_LCURLY)),
         EXPRESSION(),
-        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE))));
+        b.firstOf(b.token(Punctuator.TILDE_RCURLY), b.token(Punctuator.RCURLYBRACE))));
   }
 
   public TemplateIfDirectiveTree TEMPLATE_IF_DIRECTIVE() {
@@ -196,27 +199,27 @@ public class HclGrammar {
       f.templateIfDirective(
         TEMPLATE_IF_DIRECTIVE_IF_PART(),
         b.optional(TEMPLATE_IF_DIRECTIVE_ELSE_PART()),
-        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.firstOf(b.token(Punctuator.PERCENT_LCURLY_TILDE), b.token(Punctuator.PERCENT_LCURLY)),
         b.token(HclKeyword.END_IF),
-        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE))));
+        b.firstOf(b.token(Punctuator.TILDE_RCURLY), b.token(Punctuator.RCURLYBRACE))));
   }
 
   public TemplateIfDirectiveTreeImpl.IfPart TEMPLATE_IF_DIRECTIVE_IF_PART() {
     return b.<TemplateIfDirectiveTreeImpl.IfPart>nonterminal().is(
       f.templateIfDirectiveIfPart(
-        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.firstOf(b.token(Punctuator.PERCENT_LCURLY_TILDE), b.token(Punctuator.PERCENT_LCURLY)),
         b.token(HclKeyword.IF),
         EXPRESSION(),
-        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE)),
+        b.firstOf(b.token(Punctuator.TILDE_RCURLY), b.token(Punctuator.RCURLYBRACE)),
         TEMPLATE()));
   }
 
   public TemplateIfDirectiveTreeImpl.ElsePart TEMPLATE_IF_DIRECTIVE_ELSE_PART() {
     return b.<TemplateIfDirectiveTreeImpl.ElsePart>nonterminal().is(
       f.templateIfDirectiveElsePart(
-        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.firstOf(b.token(Punctuator.PERCENT_LCURLY_TILDE), b.token(Punctuator.PERCENT_LCURLY)),
         b.token(HclKeyword.ELSE),
-        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE)),
+        b.firstOf(b.token(Punctuator.TILDE_RCURLY), b.token(Punctuator.RCURLYBRACE)),
         TEMPLATE()));
   }
 
@@ -225,25 +228,25 @@ public class HclGrammar {
       f.templateForDirective(
         TEMPLATE_FOR_DIRECTIVE_INTRO(),
         TEMPLATE(),
-        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.firstOf(b.token(Punctuator.PERCENT_LCURLY_TILDE), b.token(Punctuator.PERCENT_LCURLY)),
         b.token(HclKeyword.END_FOR),
-        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE))));
+        b.firstOf(b.token(Punctuator.TILDE_RCURLY), b.token(Punctuator.RCURLYBRACE))));
   }
 
   public TemplateForDirectiveTreeImpl.Intro TEMPLATE_FOR_DIRECTIVE_INTRO() {
     return b.<TemplateForDirectiveTreeImpl.Intro>nonterminal().is(
       f.templateForDirectiveIntro(
-        b.firstOf(b.token(HclPunctuator.PERCENT_LCURLY_TILDE), b.token(HclPunctuator.PERCENT_LCURLY)),
+        b.firstOf(b.token(Punctuator.PERCENT_LCURLY_TILDE), b.token(Punctuator.PERCENT_LCURLY)),
         b.token(HclKeyword.FOR),
-        f.forIntroIdentifiers(VARIABLE_EXPRESSION(), b.optional(f.newPair(b.token(HclPunctuator.COMMA), VARIABLE_EXPRESSION()))),
+        f.forIntroIdentifiers(VARIABLE_EXPRESSION(), b.optional(f.newPair(b.token(Punctuator.COMMA), VARIABLE_EXPRESSION()))),
         b.token(HclKeyword.IN),
         EXPRESSION(),
-        b.firstOf(b.token(HclPunctuator.TILDE_RCURLY), b.token(HclPunctuator.RCURLYBRACE))));
+        b.firstOf(b.token(Punctuator.TILDE_RCURLY), b.token(Punctuator.RCURLYBRACE))));
   }
 
   public ParenthesizedExpressionTree PARENTHESIZED_EXPRESSION() {
     return b.<ParenthesizedExpressionTree>nonterminal().is(
-      f.parenthesizedExpression(b.token(HclPunctuator.LPARENTHESIS), EXPRESSION(), b.token(HclPunctuator.RPARENTHESIS)));
+      f.parenthesizedExpression(b.token(Punctuator.LPARENTHESIS), EXPRESSION(), b.token(Punctuator.RPARENTHESIS)));
   }
 
   public TreeFactory.PartialAccess POSTFIX_EXPRESSION() {
@@ -253,96 +256,96 @@ public class HclGrammar {
 
   public TreeFactory.PartialAccess CONDITION() {
     return b.<TreeFactory.PartialAccess>nonterminal().is(
-      f.condition(b.token(HclPunctuator.QUERY), EXPRESSION(), b.token(HclPunctuator.COLON), EXPRESSION()));
+      f.condition(b.token(Punctuator.QUERY), EXPRESSION(), b.token(Punctuator.COLON), EXPRESSION()));
   }
 
   public TreeFactory.PartialAttributeAccess ATTRIBUTE_ACCESS() {
     return b.<TreeFactory.PartialAttributeAccess>nonterminal().is(
       f.partialAttributeAccess(
-        b.token(HclPunctuator.DOT),
+        b.token(Punctuator.DOT),
         b.firstOf(b.token(HclLexicalGrammar.IDENTIFIER), b.token(HclLexicalGrammar.NUMERIC_INDEX))));
   }
 
   public TreeFactory.PartialIndexAccess INDEX_ACCESS() {
     return b.<TreeFactory.PartialIndexAccess>nonterminal().is(
       f.partialIndexAccess(
-        b.token(HclPunctuator.LBRACKET),
+        b.token(Punctuator.LBRACKET),
         EXPRESSION(),
-        b.token(HclPunctuator.RBRACKET)));
+        b.token(Punctuator.RBRACKET)));
   }
 
   public TreeFactory.PartialIndexSplatAccess INDEX_SPLAT_ACCESS() {
     return b.<TreeFactory.PartialIndexSplatAccess>nonterminal().is(
       f.partialIndexSplatAccess(
-        b.token(HclPunctuator.LBRACKET),
-        b.token(HclPunctuator.STAR),
-        b.token(HclPunctuator.RBRACKET)));
+        b.token(Punctuator.LBRACKET),
+        b.token(Punctuator.STAR),
+        b.token(Punctuator.RBRACKET)));
   }
 
   public TreeFactory.PartialAttrSplatAccess ATTRIBUTE_SPLAT_ACCESS() {
     return b.<TreeFactory.PartialAttrSplatAccess>nonterminal().is(
       f.partialAttrSplatAccess(
-        b.token(HclPunctuator.DOT),
-        b.token(HclPunctuator.STAR)));
+        b.token(Punctuator.DOT),
+        b.token(Punctuator.STAR)));
   }
 
   public ObjectTree OBJECT() {
     return b.<ObjectTree>nonterminal(HclLexicalGrammar.OBJECT).is(
-      f.object(b.token(HclPunctuator.LCURLYBRACE),
+      f.object(b.token(Punctuator.LCURLYBRACE),
         b.optional(OBJECT_ELEMENTS()),
-        b.token(HclPunctuator.RCURLYBRACE)));
+        b.token(Punctuator.RCURLYBRACE)));
   }
 
   public ForTupleTree FOR_TUPLE() {
     return b.<ForTupleTree>nonterminal().is(
-      f.forTuple(b.token(HclPunctuator.LBRACKET),
+      f.forTuple(b.token(Punctuator.LBRACKET),
         FOR_INTRO(),
         EXPRESSION(),
         b.optional(f.newPair(b.token(HclKeyword.IF), EXPRESSION())),
-        b.token(HclPunctuator.RBRACKET)));
+        b.token(Punctuator.RBRACKET)));
   }
 
   public ForObjectTree FOR_OBJECT() {
     return b.<ForObjectTree>nonterminal().is(
-      f.forObject(b.token(HclPunctuator.LCURLYBRACE),
+      f.forObject(b.token(Punctuator.LCURLYBRACE),
         FOR_INTRO(),
         EXPRESSION(),
-        b.token(HclPunctuator.DOUBLEARROW),
+        b.token(Punctuator.DOUBLEARROW),
         EXPRESSION(),
-        b.optional(b.token(HclPunctuator.ELLIPSIS)),
+        b.optional(b.token(Punctuator.ELLIPSIS)),
         b.optional(f.newPair(b.token(HclKeyword.IF), EXPRESSION())),
-        b.token(HclPunctuator.RCURLYBRACE)));
+        b.token(Punctuator.RCURLYBRACE)));
   }
 
   public AbstractForTree.ForIntro FOR_INTRO() {
     return b.<AbstractForTree.ForIntro>nonterminal().is(
       f.forIntro(b.token(HclKeyword.FOR),
-        f.forIntroIdentifiers(VARIABLE_EXPRESSION(), b.optional(f.newPair(b.token(HclPunctuator.COMMA), VARIABLE_EXPRESSION()))),
+        f.forIntroIdentifiers(VARIABLE_EXPRESSION(), b.optional(f.newPair(b.token(Punctuator.COMMA), VARIABLE_EXPRESSION()))),
         b.token(HclKeyword.IN),
         EXPRESSION(),
-        b.token(HclPunctuator.COLON)));
+        b.token(Punctuator.COLON)));
   }
 
   public SeparatedTrees<ObjectElementTree> OBJECT_ELEMENTS() {
     return b.<SeparatedTrees<ObjectElementTree>>nonterminal().is(
       f.objectElements(OBJECT_ELEMENT(),
-        b.zeroOrMore(f.newPair(b.firstOf(b.token(HclPunctuator.COMMA), b.token(HclLexicalGrammar.NEWLINE)), OBJECT_ELEMENT())),
-        b.optional(b.token(HclPunctuator.COMMA))
+        b.zeroOrMore(f.newPair(b.firstOf(b.token(Punctuator.COMMA), b.token(HclLexicalGrammar.NEWLINE)), OBJECT_ELEMENT())),
+        b.optional(b.token(Punctuator.COMMA))
         ));
   }
 
   public TupleTree TUPLE() {
     return b.<TupleTree>nonterminal(HclLexicalGrammar.TUPLE).is(
-      f.tuple(b.token(HclPunctuator.LBRACKET),
+      f.tuple(b.token(Punctuator.LBRACKET),
         b.optional(TUPLE_ELEMENTS()),
-        b.token(HclPunctuator.RBRACKET)));
+        b.token(Punctuator.RBRACKET)));
   }
 
   public SeparatedTrees<ExpressionTree> TUPLE_ELEMENTS() {
     return b.<SeparatedTrees<ExpressionTree>>nonterminal().is(
       f.tupleElements(EXPRESSION(),
-        b.zeroOrMore(f.newPair(b.token(HclPunctuator.COMMA), EXPRESSION())),
-        b.optional(b.token(HclPunctuator.COMMA))
+        b.zeroOrMore(f.newPair(b.token(Punctuator.COMMA), EXPRESSION())),
+        b.optional(b.token(Punctuator.COMMA))
       ));
   }
 
@@ -350,7 +353,7 @@ public class HclGrammar {
     return b.<ObjectElementTree>nonterminal(HclLexicalGrammar.OBJECT_ELEMENT).is(
       f.objectElement(
         EXPRESSION(),
-        b.firstOf(b.token(HclPunctuator.EQU), b.token(HclPunctuator.COLON)),
+        b.firstOf(b.token(Punctuator.EQU), b.token(Punctuator.COLON)),
         EXPRESSION()));
   }
 
@@ -372,15 +375,15 @@ public class HclGrammar {
   public FunctionCallTree FUNCTION_CALL() {
     return b.<FunctionCallTree>nonterminal(HclLexicalGrammar.FUNCTION_CALL).is(
       f.functionCall(b.token(HclLexicalGrammar.IDENTIFIER),
-        b.token(HclPunctuator.LPARENTHESIS),
+        b.token(Punctuator.LPARENTHESIS),
         b.optional(FUNCTION_CALL_ARGUMENTS()),
-        b.token(HclPunctuator.RPARENTHESIS)));
+        b.token(Punctuator.RPARENTHESIS)));
   }
 
   public SeparatedTrees<ExpressionTree> FUNCTION_CALL_ARGUMENTS() {
     return b.<SeparatedTrees<ExpressionTree>>nonterminal().is(
       f.functionCallArguments(EXPRESSION(),
-        b.zeroOrMore(f.newPair(b.token(HclPunctuator.COMMA), EXPRESSION())),
-        b.optional(b.firstOf(b.token(HclPunctuator.COMMA), b.token(HclPunctuator.ELLIPSIS)))));
+        b.zeroOrMore(f.newPair(b.token(Punctuator.COMMA), EXPRESSION())),
+        b.optional(b.firstOf(b.token(Punctuator.COMMA), b.token(Punctuator.ELLIPSIS)))));
   }
 }

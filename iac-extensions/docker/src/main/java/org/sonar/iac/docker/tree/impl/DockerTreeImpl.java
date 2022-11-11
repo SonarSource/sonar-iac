@@ -17,27 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
+package org.sonar.iac.docker.tree.impl;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.tree.api.DockerTree;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public abstract class DockerTreeImpl implements DockerTree {
 
-class DockerExtensionTest {
+  protected TextRange textRange;
 
-  private static final Version VERSION_9_7 = Version.create(9, 7);
+  @Override
+  public final boolean is(Kind... kind) {
+    for (Kind kindIter : kind) {
+      if (getKind() == kindIter) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-  @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_7, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    DockerExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(5);
+  @Override
+  public TextRange textRange() {
+    if (textRange == null) {
+      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).collect(Collectors.toList());
+      textRange = TextRanges.merge(childRanges);
+    }
+    return textRange;
   }
 }
