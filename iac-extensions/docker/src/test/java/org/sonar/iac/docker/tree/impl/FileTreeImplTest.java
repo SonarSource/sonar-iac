@@ -40,4 +40,10 @@ class FileTreeImplTest {
     FileTree tree = parse(" ", DockerLexicalGrammar.FILE);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FILE);
   }
+
+  @Test
+  void shouldParseFileWithMultipleEmptyLines() {
+    FileTree tree = parse("\n\n\n", DockerLexicalGrammar.FILE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FILE);
+  }
 }

@@ -17,7 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.api.tree;
+package org.sonar.iac.docker.parser.grammar;
 
-public interface InstructionTree extends DockerTree {
+import org.sonar.sslr.grammar.GrammarRuleKey;
+
+public enum DockerKeyword implements GrammarRuleKey {
+
+  FROM("FROM");
+
+  private final String value;
+
+  DockerKeyword(String value) {
+    this.value = value;
+  }
+
+  public String getValue() {
+    return value;
+  }
 }

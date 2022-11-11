@@ -17,7 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.api.tree;
+package org.sonar.iac.docker.tree.impl;
 
-public interface InstructionTree extends DockerTree {
+import java.util.List;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.api.tree.FromTree;
+
+public class FromTreeImpl extends DockerTreeImpl implements FromTree {
+
+  @Override
+  public TextRange textRange() {
+    return null;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return null;
+  }
+  @Override
+  public Kind getKind() {
+    return Kind.FROM;
+  }
 }

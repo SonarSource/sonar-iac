@@ -19,5 +19,5 @@
  */
 package org.sonar.iac.docker.api.tree;
 
-public interface InstructionTree extends DockerTree {
+public interface FromTree extends InstructionTree {
 }

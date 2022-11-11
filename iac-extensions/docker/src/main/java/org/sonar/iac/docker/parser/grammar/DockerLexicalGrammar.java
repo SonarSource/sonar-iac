@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.parser.grammar;
 
 import com.sonar.sslr.api.GenericTokenType;
+import java.util.Arrays;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -38,13 +39,19 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   /**
    * SPACING
    */
-  SPACING;
+  SPACING,
+
+  /**
+   * INSTRUCTIONS
+   */
+  FROM;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
 
     lexical(b);
     punctuators(b);
+    keywords(b);
 
     return b;
   }
@@ -63,5 +70,15 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     ).skip();
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
+  }
+
+  private static void keywords(LexerlessGrammarBuilder b) {
+    Arrays.stream(DockerKeyword.values()).forEach(tokenType ->
+      b.rule(tokenType).is(
+        SPACING,
+        b.regexp(tokenType.getValue()),
+        b.nextNot(b.regexp(LexicalConstant.IDENTIFIER))
+      ).skip()
+    );
   }
 }

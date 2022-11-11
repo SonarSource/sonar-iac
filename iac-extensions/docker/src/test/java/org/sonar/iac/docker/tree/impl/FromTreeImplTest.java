@@ -17,7 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.api.tree;
+package org.sonar.iac.docker.tree.impl;
 
-public interface InstructionTree extends DockerTree {
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.docker.api.tree.DockerTree;
+import org.sonar.iac.docker.api.tree.FromTree;
+import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
+
+class FromTreeImplTest {
+
+
+  // TODO Remove with SONARIAC-443
+  @Test
+  void shouldParseEmptyFromInstruction() {
+    FromTree tree = parse("FROM", DockerLexicalGrammar.FROM);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FROM);
+  }
 }
