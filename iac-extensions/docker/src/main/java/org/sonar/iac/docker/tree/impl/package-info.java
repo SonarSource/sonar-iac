@@ -17,20 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.parser.grammar;
-
-import static org.sonar.iac.common.parser.grammar.LexicalConstant.MULTI_LINE_COMMENT;
-import static org.sonar.iac.common.parser.grammar.LexicalConstant.SINGLE_LINE_COMMENT_DOUBLE_SLASH;
-import static org.sonar.iac.common.parser.grammar.LexicalConstant.SINGLE_LINE_COMMENT_HASH;
-
-public class HclLexicalConstant {
-
-  private HclLexicalConstant() {
-  }
-
-  public static final String COMMENT = "(?:"
-    + SINGLE_LINE_COMMENT_DOUBLE_SLASH
-    + "|" + SINGLE_LINE_COMMENT_HASH
-    + "|" + MULTI_LINE_COMMENT + ")";
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.docker.tree.impl;
