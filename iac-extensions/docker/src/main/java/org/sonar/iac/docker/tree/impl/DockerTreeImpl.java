@@ -19,11 +19,16 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.tree.api.DockerTree;
 
 public abstract class DockerTreeImpl implements DockerTree {
+
+  protected TextRange textRange;
 
   @Override
   public final boolean is(Kind... kind) {
@@ -37,7 +42,10 @@ public abstract class DockerTreeImpl implements DockerTree {
 
   @Override
   public TextRange textRange() {
-    //TODO: This implementation needs to be extended in some next task
-    return TextRanges.range(0, 0, "");
+    if (textRange == null) {
+      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).collect(Collectors.toList());
+      textRange = TextRanges.merge(childRanges);
+    }
+    return textRange;
   }
 }

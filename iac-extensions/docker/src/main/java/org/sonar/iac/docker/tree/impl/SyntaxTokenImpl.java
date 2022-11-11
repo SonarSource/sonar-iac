@@ -17,25 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser;
+package org.sonar.iac.docker.tree.impl;
 
-import com.sonar.sslr.api.typed.Optional;
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.docker.tree.api.FileTree;
-import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.tree.impl.FileTreeImpl;
-import org.sonar.iac.docker.tree.impl.FromTreeImpl;
 
-public class TreeFactory {
+public class SyntaxTokenImpl extends DockerTreeImpl implements SyntaxToken {
 
-  public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
+  private final String value;
+  private final List<Comment> comments;
+
+  public SyntaxTokenImpl(String value, TextRange textRange, List<Comment> comments) {
+    this.value = value;
+    this.textRange = textRange;
+    this.comments = comments;
   }
 
-  public FromTree from(SyntaxToken token) {
-    return new FromTreeImpl();
+  @Override
+  public TextRange textRange() {
+    return textRange;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.TOKEN;
+  }
+
+  @Override
+  public String value() {
+    return value;
+  }
+
+  @Override
+  public List<Comment> comments() {
+    return comments;
   }
 }
