@@ -34,4 +34,10 @@ class FileTreeImplTest {
     FileTree tree = parse("", DockerLexicalGrammar.FILE);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FILE);
   }
+
+  @Test
+  void shouldParseFileWithSpace() {
+    FileTree tree = parse(" ", DockerLexicalGrammar.FILE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FILE);
+  }
 }

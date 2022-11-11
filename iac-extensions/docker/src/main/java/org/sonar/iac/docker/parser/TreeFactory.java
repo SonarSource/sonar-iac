@@ -26,7 +26,7 @@ import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 
 public class TreeFactory {
 
-  public FileTree file(SyntaxToken eof) {
+  public FileTree file(SyntaxToken spacing, SyntaxToken eof) {
     return new FileTreeImpl(Collections.emptyList(), eof);
   }
 }

@@ -37,7 +37,7 @@ public class DockerGrammar {
   public FileTree FILE() {
     return b.<FileTree>nonterminal(DockerLexicalGrammar.FILE).is(
       f.file(
-        //b.optional(b.token(DockerLexicalGrammar.SPACING)),
+        b.token(DockerLexicalGrammar.SPACING),
         b.token(DockerLexicalGrammar.EOF))
     );
   }
