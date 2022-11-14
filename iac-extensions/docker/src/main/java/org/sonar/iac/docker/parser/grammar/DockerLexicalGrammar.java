@@ -34,6 +34,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   /**
    * Lexical
    */
+  STRING_LITERAL,
   EOF,
 
   /**
@@ -44,7 +45,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   /**
    * INSTRUCTIONS
    */
-  FROM;
+  FROM,
+  MAINTAINER;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -61,6 +63,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
       b.rule(p).is(SPACING, p.getValue()).skip();
     }
   }
+
   private static void lexical(LexerlessGrammarBuilder b) {
     b.rule(SPACING).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
@@ -70,6 +73,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     ).skip();
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
+
+    b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
