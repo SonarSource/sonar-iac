@@ -20,42 +20,17 @@
 package org.sonar.iac.docker.checks;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.testing.AbstractCheckListTest;
 
-import static org.apache.commons.io.filefilter.FileFilterUtils.and;
-import static org.apache.commons.io.filefilter.FileFilterUtils.notFileFilter;
-import static org.apache.commons.io.filefilter.FileFilterUtils.prefixFileFilter;
-import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
-import static org.apache.commons.io.filefilter.FileFilterUtils.trueFileFilter;
-import static org.assertj.core.api.Assertions.assertThat;
-
-class DockerCheckListTest {
-  /**
-   * Enforces that each check is declared in the list.
-   */
-  @Test
-  void count() {
-    File directory = new File("src/main/java/org/sonar/iac/docker/checks/");
-    IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
-    Collection<File> files = FileUtils.listFiles(directory, filter, trueFileFilter());
-    assertThat(DockerCheckList.checks()).hasSize(files.size());
+class DockerCheckListTest extends AbstractCheckListTest {
+  @Override
+  protected List<Class<?>> checks() {
+    return (DockerCheckList.checks());
   }
 
-  /**
-   * Enforces that each check has a test
-   */
-  @Test
-  void test() {
-    List<Class<?>> checks = DockerCheckList.checks();
-    for (Class<?> cls : checks) {
-      String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
-      assertThat(getClass().getResource(testName))
-        .overridingErrorMessage("No test for " + cls.getSimpleName())
-        .isNotNull();
-    }
+  @Override
+  protected File checkClassDir() {
+    return new File("src/main/java/org/sonar/iac/docker/checks/");
   }
 }
