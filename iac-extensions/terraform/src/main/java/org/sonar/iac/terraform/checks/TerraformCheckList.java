@@ -21,6 +21,7 @@ package org.sonar.iac.terraform.checks;
 
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.common.checks.ParsingErrorCheck;
 import org.sonar.iac.terraform.checks.azure.AnonymousAccessToResourceCheck;
 import org.sonar.iac.terraform.checks.azure.CertificateBasedAuthenticationCheck;
 import org.sonar.iac.terraform.checks.azure.HighPrivilegedRoleCheck;

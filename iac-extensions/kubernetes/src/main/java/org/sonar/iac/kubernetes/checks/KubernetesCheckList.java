@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
+import org.sonar.iac.common.checks.ParsingErrorCheck;
 
 public final class KubernetesCheckList {
 
