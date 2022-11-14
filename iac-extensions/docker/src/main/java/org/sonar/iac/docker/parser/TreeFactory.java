@@ -22,18 +22,22 @@ package org.sonar.iac.docker.parser;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
+import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
+import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
+import org.sonar.iac.docker.tree.impl.PortTreeImpl;
 
 public class TreeFactory {
 
@@ -59,5 +63,13 @@ public class TreeFactory {
 
   public WorkdirTree workdir(SyntaxToken token, List<SyntaxToken> values) {
     return new WorkdirTreeImpl(token, values);
+  }
+
+  public ExposeTree expose(SyntaxToken exposeToken, List<PortTree> ports) {
+    return new ExposeTreeImpl(exposeToken, ports);
+  }
+
+  public PortTree port(SyntaxToken portToken) {
+    return new PortTreeImpl(portToken);
   }
 }

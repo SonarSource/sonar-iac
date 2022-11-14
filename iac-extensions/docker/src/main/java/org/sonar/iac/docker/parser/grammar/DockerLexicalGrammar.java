@@ -49,11 +49,13 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   MAINTAINER,
   STOPSIGNAL,
   WORKDIR,
+  EXPOSE,
 
   /**
    * EXPRESSIONS
    */
-  ARGUMENTS;
+  ARGUMENTS,
+  PORT;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
