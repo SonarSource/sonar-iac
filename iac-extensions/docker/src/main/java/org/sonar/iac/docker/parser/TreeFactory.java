@@ -26,10 +26,12 @@ import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
+import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
+import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
 
 public class TreeFactory {
 
@@ -47,5 +49,9 @@ public class TreeFactory {
 
   public SyntaxToken argument(SyntaxToken token) {
     return token;
+  }
+
+  public StopSignalTree stopsignal(SyntaxToken token, SyntaxToken tokenValue) {
+    return new StopSignalTreeImpl(token, tokenValue);
   }
 }

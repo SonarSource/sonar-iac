@@ -25,8 +25,12 @@ import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
+import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.parser.TreeFactory;
+
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 
 public class DockerGrammar {
 
@@ -42,7 +46,7 @@ public class DockerGrammar {
     return b.<FileTree>nonterminal(DockerLexicalGrammar.FILE).is(
       f.file(
         b.zeroOrMore(INSTRUCTION()),
-        b.optional(b.token(DockerLexicalGrammar.SPACING)),
+        b.optional(b.token(SPACING)),
         b.token(DockerLexicalGrammar.EOF))
     );
   }
@@ -51,7 +55,8 @@ public class DockerGrammar {
     return b.<InstructionTree>nonterminal(DockerLexicalGrammar.INSTRUCTION).is(
       b.firstOf(
         FROM(),
-        MAINTAINER()
+        MAINTAINER(),
+        STOPSIGNAL()
       )
     );
   }
@@ -72,6 +77,15 @@ public class DockerGrammar {
     return b.<List<SyntaxToken>>nonterminal(DockerLexicalGrammar.ARGUMENTS).is(
       b.oneOrMore(
         f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL))
+      )
+    );
+  }
+
+  public StopSignalTree STOPSIGNAL() {
+    return b.<StopSignalTree>nonterminal(DockerLexicalGrammar.STOPSIGNAL).is(
+      f.stopsignal(
+        b.token(DockerKeyword.STOPSIGNAL),
+        b.token(STRING_LITERAL)
       )
     );
   }
