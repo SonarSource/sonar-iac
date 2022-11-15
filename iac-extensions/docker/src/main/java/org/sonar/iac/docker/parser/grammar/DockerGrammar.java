@@ -32,6 +32,7 @@ import org.sonar.iac.docker.parser.TreeFactory;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 
+@SuppressWarnings("java:S100")
 public class DockerGrammar {
 
   private final GrammarBuilder<SyntaxToken> b;

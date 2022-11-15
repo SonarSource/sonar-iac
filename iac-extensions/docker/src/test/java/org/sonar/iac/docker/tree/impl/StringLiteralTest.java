@@ -21,13 +21,13 @@ package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
-import org.sonar.iac.docker.parser.utils.DockerAssertions;
+import org.sonar.iac.docker.parser.utils.Assertions;
 
-class StringLiteralImplTest {
+class StringLiteralTest {
 
   @Test
   void test() {
-    DockerAssertions.assertThat(DockerLexicalGrammar.STRING_LITERAL)
+    Assertions.assertThat(DockerLexicalGrammar.STRING_LITERAL)
       .matches("f")
       .matches("foo")
       .matches("   foo")

@@ -22,19 +22,14 @@ package org.sonar.iac.docker.parser.utils;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.fest.assertions.GenericAssert;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
-import org.sonar.iac.docker.parser.DockerNodeBuilder;
 import org.sonar.iac.docker.parser.DockerParser;
-import org.sonar.iac.docker.parser.TreeFactory;
-import org.sonar.iac.docker.parser.grammar.DockerGrammar;
+import org.sonar.iac.docker.parser.grammar.DockerKeyword;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.impl.DockerTreeImpl;
-import org.sonar.sslr.grammar.GrammarRuleKey;
-import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.tests.ParsingResultComparisonFailure;
 import org.sonar.sslr.tests.RuleAssert;
 import org.sonarsource.analyzer.commons.TokenLocation;
@@ -45,11 +40,17 @@ public class Assertions {
     return new RuleAssert(actual);
   }
 
-  public static ParserAssert assertThat(GrammarRuleKey rule) {
-    return assertThat(DockerLexicalGrammar.createGrammarBuilder(), rule);
+  public static ParserAssert assertThat(DockerLexicalGrammar rule) {
+    return new ParserAssert(new DockerParser(rule));
   }
 
-  public static ParserAssert assertThat(LexerlessGrammarBuilder b, GrammarRuleKey rule) {
+  /**
+   * In most cases you need {@link #assertThat(DockerLexicalGrammar)} method.
+   * <p>
+   * This one is added to avoid mistakes like passing {@link DockerKeyword} and expected {@link DockerTree}
+   * instead of {@link org.sonar.iac.docker.tree.api.SyntaxToken}.
+   */
+  public static ParserAssert assertKeyword(DockerKeyword rule) {
     return new ParserAssert(new DockerParser(rule));
   }
 
@@ -64,7 +65,7 @@ public class Assertions {
       TokenLocation loc = new TokenLocation(1, 0, input);
       if (!tree.textRange().end().equals(new DefaultTextPointer(loc.endLine(), loc.endLineOffset()))) {
         throw new RecognitionException(
-          0, "Did not match till EOF, but till line " + tree.textRange().end().line());
+          0, "Did not match till EOF, but till line " + tree.textRange().end().line() + " line offset: " + tree.textRange().end().lineOffset());
       }
     }
 

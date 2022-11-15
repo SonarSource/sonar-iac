@@ -19,22 +19,23 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.docker.parser.grammar.DockerKeyword;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
-import org.sonar.iac.docker.parser.utils.DockerAssertions;
+import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class StopSignalTreeImplTest {
 
   @Test
   void test() {
-    DockerAssertions.assertThat(DockerLexicalGrammar.STOPSIGNAL)
+    Assertions.assertThat(DockerLexicalGrammar.STOPSIGNAL)
       .matches("STOPSIGNAL SIGKILL")
       .matches("STOPSIGNAL SIGTERM")
+      .matches("STOPSIGNAL \"SIGTERM\"")
       .matches("STOPSIGNAL foo")
       .matches("STOPSIGNAL 9")
       .matches("STOPSIGNAL 1")
@@ -42,14 +43,15 @@ class StopSignalTreeImplTest {
       .notMatches("STOPSIGNALfooo")
       .notMatches("stopsignal")
       .notMatches("stopsignal 9")
+      .notMatches("STOPSIGNAL foo bar")
       .notMatches("STOPSIGNALL");
   }
 
   @Test
   void test2() {
     StopSignalTree tree = DockerTestUtils.parse("STOPSIGNAL SIGKILL", DockerLexicalGrammar.STOPSIGNAL);
-    Assertions.assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
-    Assertions.assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("STOPSIGNAL");
-    Assertions.assertThat(((SyntaxToken)tree.children().get(1)).value()).isEqualTo("SIGKILL");
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
+    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("STOPSIGNAL");
+    assertThat(((SyntaxToken)tree.children().get(1)).value()).isEqualTo("SIGKILL");
   }
 }
