@@ -42,10 +42,6 @@ public class DockerAssertions {
   }
 
   public static ParserAssert assertThat(GrammarRuleKey rule) {
-    return assertThat(DockerLexicalGrammar.createGrammarBuilder(), rule);
-  }
-
-  public static ParserAssert assertThat(LexerlessGrammarBuilder b, GrammarRuleKey rule) {
     return new ParserAssert(new DockerParser(rule));
   }
 

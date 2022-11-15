@@ -22,6 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerKeyword;
+import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.DockerAssertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
@@ -31,7 +32,7 @@ class StopSignalTreeImplTest {
 
   @Test
   void test() {
-    DockerAssertions.assertThat(DockerKeyword.STOPSIGNAL)
+    DockerAssertions.assertThat(DockerLexicalGrammar.STOPSIGNAL)
       .matches("STOPSIGNAL SIGKILL")
       .matches("STOPSIGNAL SIGTERM")
       .matches("STOPSIGNAL foo")
@@ -46,7 +47,7 @@ class StopSignalTreeImplTest {
 
   @Test
   void test2() {
-    StopSignalTree tree = DockerTestUtils.parse("STOPSIGNAL SIGKILL", DockerKeyword.STOPSIGNAL);
+    StopSignalTree tree = DockerTestUtils.parse("STOPSIGNAL SIGKILL", DockerLexicalGrammar.STOPSIGNAL);
     Assertions.assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
     Assertions.assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("STOPSIGNAL");
     Assertions.assertThat(((SyntaxToken)tree.children().get(1)).value()).isEqualTo("SIGKILL");
