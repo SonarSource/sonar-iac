@@ -36,6 +36,8 @@ import static org.mockito.Mockito.when;
 
 public abstract class ExtensionSensorTest extends AbstractSensorTest {
 
+  protected static final String PARSING_ERROR_RULE_KEY = "S2260";
+
   protected abstract InputFile emptyFile();
 
   protected abstract InputFile fileWithParsingError();
@@ -44,20 +46,20 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
 
   @Test
   void emptyFileShouldRaiseNoIssue() {
-    analyse(sensor(checkFactory("S2260")), emptyFile());
-    assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
+    analyse(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), emptyFile());
+    assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).isEmpty();
   }
 
   @Test
   void shouldRaiseIssueOnParsingErrorWhenIssueActive() {
     InputFile inputFile = fileWithParsingError();
-    analyse(sensor(checkFactory("S2260")), inputFile);
+    analyse(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), inputFile);
 
     // Test issue
-    assertThat(context.allIssues()).as("One issue must be raised").hasSize(1);
+    assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
-    assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo("S2260");
+    assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo(PARSING_ERROR_RULE_KEY);
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("A parsing error occurred in this file.");
@@ -81,7 +83,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
   @Test
   void shouldRaiseNoIssueOnParsingErrorWhenIssueInactive() {
     analyse(sensor(checkFactory()), fileWithParsingError());
-    assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
+    assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
@@ -91,8 +93,8 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     settings.setProperty(getActivationSettingKey(), false);
     context.setSettings(settings);
 
-    analyse(sensor(checkFactory("S2260")), fileWithParsingError());
-    assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
+    analyse(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), fileWithParsingError());
+    assertThat(context.allIssues()).isEmpty();
     assertThat(context.allAnalysisErrors()).isEmpty();
   }
 
