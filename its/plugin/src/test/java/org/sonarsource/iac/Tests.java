@@ -46,6 +46,7 @@ public class Tests {
 
   static {
     ORCHESTRATOR = Orchestrator.builderEnv()
+      .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
       .addPlugin(IAC_PLUGIN_LOCATION)
       .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", SONAR_CONFIG_VERSION))

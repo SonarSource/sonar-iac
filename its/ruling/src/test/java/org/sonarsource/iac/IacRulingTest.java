@@ -59,6 +59,7 @@ class IacRulingTest {
   @BeforeAll
   public static void setUp() {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
+      .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
       .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-iac-plugin/target"), "sonar-iac-plugin-*.jar"))
       .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION))

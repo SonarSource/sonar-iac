@@ -63,7 +63,7 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <version.sonar>9.3.0.51899</version.sonar>
     <version.analyzer.commons>1.24.0.965</version.analyzer.commons>
-    <version.orchestrator>3.35.1.2719</version.orchestrator>
+    <version.orchestrator>3.40.0.183</version.orchestrator>
     <version.sslr>1.24.0.633</version.sslr>
     <version.junit>5.8.1</version.junit>
     <version.assertj>3.23.1</version.assertj>
