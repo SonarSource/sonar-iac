@@ -84,7 +84,7 @@ public class DockerGrammar {
 
   public StopSignalTree STOPSIGNAL() {
     return b.<StopSignalTree>nonterminal(DockerLexicalGrammar.STOPSIGNAL).is(
-      f.stopsignal(
+      f.stopSignal(
         b.token(DockerKeyword.STOPSIGNAL),
         b.token(STRING_LITERAL)
       )

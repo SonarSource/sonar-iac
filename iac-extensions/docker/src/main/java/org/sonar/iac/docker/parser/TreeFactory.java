@@ -51,7 +51,7 @@ public class TreeFactory {
     return token;
   }
 
-  public StopSignalTree stopsignal(SyntaxToken token, SyntaxToken tokenValue) {
+  public StopSignalTree stopSignal(SyntaxToken token, SyntaxToken tokenValue) {
     return new StopSignalTreeImpl(token, tokenValue);
   }
 }

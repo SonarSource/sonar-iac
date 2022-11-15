@@ -26,17 +26,17 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class StopSignalTreeImpl extends DockerTreeImpl implements StopSignalTree {
 
-  private final SyntaxToken stopSignalToken;
-  private final SyntaxToken stopSignalValueToken;
+  private final SyntaxToken instructionKeyword;
+  private final SyntaxToken signal;
 
-  public StopSignalTreeImpl(SyntaxToken stopSignalToken, SyntaxToken tokenValue) {
-    this.stopSignalToken = stopSignalToken;
-    this.stopSignalValueToken = tokenValue;
+  public StopSignalTreeImpl(SyntaxToken instructionKeyword, SyntaxToken signal) {
+    this.instructionKeyword = instructionKeyword;
+    this.signal = signal;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(stopSignalToken, stopSignalValueToken);
+    return List.of(instructionKeyword, signal);
   }
 
   @Override
@@ -45,12 +45,12 @@ public class StopSignalTreeImpl extends DockerTreeImpl implements StopSignalTree
   }
 
   @Override
-  public SyntaxToken stopSignalToken() {
-    return stopSignalToken;
+  public SyntaxToken instructionKeyword() {
+    return instructionKeyword;
   }
 
   @Override
-  public SyntaxToken stopSignalValueToken() {
-    return stopSignalValueToken;
+  public SyntaxToken signal() {
+    return signal;
   }
 }

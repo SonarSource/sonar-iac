@@ -33,6 +33,14 @@ class StringLiteralTest {
       .matches("   foo")
       .matches("1")
       .matches("123")
-      .matches("SIGKILL");
+      .matches("SIGKILL")
+      .matches("\"mystring\"")
+      .matches("\"partial_quotes_1")
+      .matches("partial_quotes_2\"")
+      .notMatches("")
+      .notMatches("   ")
+      .notMatches("foo\nbar")
+      .notMatches("foo\rbar")
+      ;
   }
 }
