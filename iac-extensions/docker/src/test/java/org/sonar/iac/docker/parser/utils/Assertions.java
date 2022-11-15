@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.fest.assertions.GenericAssert;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.iac.docker.parser.DockerNodeBuilder;
+import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.parser.TreeFactory;
 import org.sonar.iac.docker.parser.grammar.DockerGrammar;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
@@ -49,13 +50,7 @@ public class Assertions {
   }
 
   public static ParserAssert assertThat(LexerlessGrammarBuilder b, GrammarRuleKey rule) {
-    return new ParserAssert(new ActionParser<>(
-      StandardCharsets.UTF_8,
-      b,
-      DockerGrammar.class,
-      new TreeFactory(),
-      new DockerNodeBuilder(),
-      rule));
+    return new ParserAssert(new DockerParser(rule));
   }
 
   public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<DockerTree>> {

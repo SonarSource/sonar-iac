@@ -33,12 +33,15 @@ class MaintainerTreeImplTest {
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.MAINTAINER)
       .matches("MAINTAINER bob")
+      .matches("    MAINTAINER bob")
       .notMatches("maintainer bob") // should match
       .matches("MAINTAINER \"bob\"")
       .matches("MAINTAINER \"bob")
       .matches("MAINTAINER bob boberman bob@bob.com")
       .matches("MAINTAINER \"bob boberman bob@bob.com\"")
+      .matches("MAINTAINER bob /  boberman")
       .notMatches("MAINTAINER")
+      .notMatches("MAINTAINERbob")
       .notMatches("MAINTAINER ");
   }
 
@@ -46,9 +49,9 @@ class MaintainerTreeImplTest {
   void maintainerInstructionWithAuthorValue() {
     MaintainerTree tree = parse("MAINTAINER \"bob\"", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
-    assertThat(tree.maintainerToken().value()).isEqualTo("MAINTAINER");
-    assertThat(tree.authorsToken()).hasSize(1);
-    assertThat(tree.authorsToken().get(0).value()).isEqualTo("\"bob\"");
+    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.authors()).hasSize(1);
+    assertThat(tree.authors().get(0).value()).isEqualTo("\"bob\"");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
@@ -60,29 +63,41 @@ class MaintainerTreeImplTest {
   void simpleStringWithoutQuotes() {
     MaintainerTree tree = parse("MAINTAINER bob", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
-    assertThat(tree.maintainerToken().value()).isEqualTo("MAINTAINER");
-    assertThat(tree.authorsToken()).hasSize(1);
-    assertThat(tree.authorsToken().get(0).value()).isEqualTo("bob");
+    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.authors()).hasSize(1);
+    assertThat(tree.authors().get(0).value()).isEqualTo("bob");
   }
 
   @Test
   void stringWithoutQuotesAndWithSpaces() {
     MaintainerTree tree = parse("MAINTAINER bob boberman bob@bob.bob", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
-    assertThat(tree.maintainerToken().value()).isEqualTo("MAINTAINER");
-    assertThat(tree.authorsToken()).hasSize(3);
-    assertThat(tree.authorsToken().get(0).value()).isEqualTo("bob");
-    assertThat(tree.authorsToken().get(1).value()).isEqualTo("boberman");
-    assertThat(tree.authorsToken().get(2).value()).isEqualTo("bob@bob.bob");
+    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.authors()).hasSize(3);
+    assertThat(tree.authors().get(0).value()).isEqualTo("bob");
+    assertThat(tree.authors().get(1).value()).isEqualTo("boberman");
+    assertThat(tree.authors().get(2).value()).isEqualTo("bob@bob.bob");
   }
 
   @Test
   void mixOfBoth() {
     MaintainerTree tree = parse("MAINTAINER bob \"boberman bob@bob.bob\"", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
-    assertThat(tree.maintainerToken().value()).isEqualTo("MAINTAINER");
-    assertThat(tree.authorsToken()).hasSize(2);
-    assertThat(tree.authorsToken().get(0).value()).isEqualTo("bob");
-    assertThat(tree.authorsToken().get(1).value()).isEqualTo("\"boberman bob@bob.bob\"");
+    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.authors()).hasSize(2);
+    assertThat(tree.authors().get(0).value()).isEqualTo("bob");
+    assertThat(tree.authors().get(1).value()).isEqualTo("\"boberman bob@bob.bob\"");
+  }
+
+  @Test
+  void multiline() {
+    MaintainerTree tree = parse("MAINTAINER bob / boberman", DockerLexicalGrammar.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
+    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    // TODO : SONARIAC-481 support multiline and fix below tests
+    assertThat(tree.authors()).hasSize(3);
+    assertThat(tree.authors().get(0).value()).isEqualTo("bob");
+    assertThat(tree.authors().get(1).value()).isEqualTo("/");
+    assertThat(tree.authors().get(2).value()).isEqualTo("boberman");
   }
 }
