@@ -31,8 +31,8 @@ public interface DockerTree extends Tree {
     FILE(FileTree.class),
     FROM(FromTree.class),
     MAINTAINER(MaintainerTree.class),
-
     STOPSIGNAL(StopSignalTree.class),
+
     TOKEN(SyntaxToken.class);
 
 

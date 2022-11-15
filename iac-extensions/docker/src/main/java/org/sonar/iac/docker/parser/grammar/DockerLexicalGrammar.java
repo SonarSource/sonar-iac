@@ -21,7 +21,6 @@ package org.sonar.iac.docker.parser.grammar;
 
 import com.sonar.sslr.api.GenericTokenType;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
