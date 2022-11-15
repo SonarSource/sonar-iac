@@ -69,7 +69,15 @@ public class TreeFactory {
     return new ExposeTreeImpl(exposeToken, ports);
   }
 
+  public PortTree port(SyntaxToken portToken, SyntaxToken separatorToken, Optional<SyntaxToken> protocolToken) {
+    return new PortTreeImpl(portToken, separatorToken, protocolToken.orNull(), null);
+  }
+
   public PortTree port(SyntaxToken portToken) {
-    return new PortTreeImpl(portToken);
+    return new PortTreeImpl(portToken, null, null, null);
+  }
+
+  public PortTree portKey(SyntaxToken portKeyToken) {
+    return new PortTreeImpl(null, null, null, portKeyToken);
   }
 }

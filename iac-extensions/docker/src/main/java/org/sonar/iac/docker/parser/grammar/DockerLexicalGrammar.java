@@ -35,6 +35,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * Lexical
    */
   STRING_LITERAL,
+  STRING_LITERAL_WITHOUT_SPACE,
+  NUMERIC_LITERAL,
+  SEPARATOR_PORT,
   EOF,
 
   /**
@@ -84,6 +87,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
+    b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
+    b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
+    b.rule(STRING_LITERAL_WITHOUT_SPACE).is(b.regexp(DockerLexicalConstant.STRING_LITERAL));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
