@@ -17,29 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.parser.utils.Assertions;
 
-public interface DockerTree extends Tree {
+class StringLiteralTest {
 
-  boolean is(Kind... kind);
-  Kind getKind();
-
-  enum Kind implements GrammarRuleKey {
-    FILE(FileTree.class),
-    FROM(FromTree.class),
-    MAINTAINER(MaintainerTree.class),
-    STOPSIGNAL(StopSignalTree.class),
-
-    TOKEN(SyntaxToken.class);
-
-
-    private final Class<? extends DockerTree> associatedInterface;
-
-    Kind(Class<? extends DockerTree> associatedInterface) {
-      this.associatedInterface = associatedInterface;
-    }
+  @Test
+  void test() {
+    Assertions.assertThat(DockerLexicalGrammar.STRING_LITERAL)
+      .matches("f")
+      .matches("foo")
+      .matches("   foo")
+      .matches("1")
+      .matches("123")
+      .matches("SIGKILL")
+      .matches("\"mystring\"")
+      .matches("\"partial_quotes_1")
+      .matches("partial_quotes_2\"")
+      .notMatches("")
+      .notMatches("   ")
+      .notMatches("foo\nbar")
+      .notMatches("foo\rbar")
+      ;
   }
 }

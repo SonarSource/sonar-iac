@@ -47,6 +47,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    */
   FROM,
   MAINTAINER,
+  STOPSIGNAL,
 
   /**
    * EXPRESSIONS

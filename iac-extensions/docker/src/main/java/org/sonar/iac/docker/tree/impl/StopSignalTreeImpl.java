@@ -17,29 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.iac.docker.tree.api.StopSignalTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public interface DockerTree extends Tree {
+public class StopSignalTreeImpl extends DockerTreeImpl implements StopSignalTree {
 
-  boolean is(Kind... kind);
-  Kind getKind();
+  private final SyntaxToken instructionKeyword;
+  private final SyntaxToken signal;
 
-  enum Kind implements GrammarRuleKey {
-    FILE(FileTree.class),
-    FROM(FromTree.class),
-    MAINTAINER(MaintainerTree.class),
-    STOPSIGNAL(StopSignalTree.class),
+  public StopSignalTreeImpl(SyntaxToken instructionKeyword, SyntaxToken signal) {
+    this.instructionKeyword = instructionKeyword;
+    this.signal = signal;
+  }
 
-    TOKEN(SyntaxToken.class);
+  @Override
+  public List<Tree> children() {
+    return List.of(instructionKeyword, signal);
+  }
 
+  @Override
+  public Kind getKind() {
+    return Kind.STOPSIGNAL;
+  }
 
-    private final Class<? extends DockerTree> associatedInterface;
+  @Override
+  public SyntaxToken instructionKeyword() {
+    return instructionKeyword;
+  }
 
-    Kind(Class<? extends DockerTree> associatedInterface) {
-      this.associatedInterface = associatedInterface;
-    }
+  @Override
+  public SyntaxToken signal() {
+    return signal;
   }
 }
