@@ -24,6 +24,8 @@ import java.util.List;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.KeyValuePairTree;
+import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
@@ -32,8 +34,10 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.parser.TreeFactory;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.EQUALS_OPERATOR;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
 @SuppressWarnings("java:S100")
 public class DockerGrammar {
@@ -62,7 +66,8 @@ public class DockerGrammar {
         MAINTAINER(),
         STOPSIGNAL(),
         WORKDIR(),
-        EXPOSE()
+        EXPOSE(),
+        LABEL()
       )
     );
   }
@@ -117,6 +122,31 @@ public class DockerGrammar {
         f.port(b.token(DockerLexicalGrammar.NUMERIC_LITERAL), b.token(DockerLexicalGrammar.SEPARATOR_PORT), b.optional(b.token(DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE))),
         f.port(b.token(DockerLexicalGrammar.STRING_LITERAL))
       )
+    );
+  }
+
+  public LabelTree LABEL () {
+    return b.<LabelTree>nonterminal(DockerLexicalGrammar.LABEL).is(
+      b.firstOf(
+        f.label(b.token(DockerKeyword.LABEL), KEY_VALUE_PAIR_WITH_EQUALS()),
+        f.label(b.token(DockerKeyword.LABEL), KEY_VALUE_PAIR_SINGLE())
+      )
+    );
+  }
+
+  // To match such element : INSTRUCTION key1=value1 key2=value2
+  public List<KeyValuePairTree> KEY_VALUE_PAIR_WITH_EQUALS() {
+    return b.<List<KeyValuePairTree>>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
+      b.oneOrMore(
+        f.keyValuePairEquals(b.token(STRING_LITERAL), b.token(EQUALS_OPERATOR),b.token(STRING_LITERAL))
+      )
+    );
+  }
+
+  // To match single element as a list for compatibility with above equals method : INSTRUCTION key1 value1 value1bis value1tris
+  public List<KeyValuePairTree> KEY_VALUE_PAIR_SINGLE() {
+    return b.<List<KeyValuePairTree>>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_SINGLE).is(
+      f.keyValuePairSingle(b.token(STRING_LITERAL), b.token(STRING_UNTIL_EOL))
     );
   }
 }
