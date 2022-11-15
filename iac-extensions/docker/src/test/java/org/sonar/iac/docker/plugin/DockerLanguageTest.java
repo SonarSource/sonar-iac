@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.plugin;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,8 +27,7 @@ class DockerLanguageTest {
 
   @Test
   void should_return_docker_file_suffixes() {
-    MapSettings settings = new MapSettings();
     DockerLanguage language = new DockerLanguage();
-    assertThat(language.getFileSuffixes()).containsOnly("Dockerfile");
+    assertThat(language.getFileSuffixes()).isEmpty();
   }
 }

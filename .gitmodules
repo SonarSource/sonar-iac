@@ -16,3 +16,9 @@
 [submodule "its/sources/kubernetes/examples"]
 	path = its/sources/kubernetes/examples
 	url = https://github.com/kubernetes/examples
+[submodule "its/sources/docker/dockerfile-examples"]
+	path = its/sources/docker/dockerfile-examples
+	url = https://github.com/komljen/dockerfile-examples.git
+[submodule "its/sources/docker/docker-containers"]
+	path = its/sources/docker/docker-containers
+	url = https://github.com/sudeepgupta90/DockerContainers.git

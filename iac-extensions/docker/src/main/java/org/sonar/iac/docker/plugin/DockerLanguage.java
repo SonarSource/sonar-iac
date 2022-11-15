@@ -31,6 +31,6 @@ public class DockerLanguage extends AbstractLanguage {
 
   @Override
   public String[] getFileSuffixes() {
-    return new String[] { "Dockerfile" };
+    return new String[0];
   }
 }

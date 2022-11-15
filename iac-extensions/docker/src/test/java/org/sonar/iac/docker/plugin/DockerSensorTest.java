@@ -37,7 +37,8 @@ class DockerSensorTest extends ExtensionSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC Docker Sensor");
-    assertThat(descriptor.languages()).containsOnly("docker");
+    assertThat(descriptor.languages()).isEmpty();
+    assertThat(descriptor.isProcessesFilesIndependently()).isTrue();
   }
 
   @Test

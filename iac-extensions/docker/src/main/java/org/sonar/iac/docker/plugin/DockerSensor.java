@@ -22,9 +22,13 @@ package org.sonar.iac.docker.plugin;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -44,6 +48,21 @@ public class DockerSensor extends IacSensor {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(DockerCheckList.checks());
+  }
+
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .processesFilesIndependently()
+      .name("IaC " + language.getName() + " Sensor");
+  }
+
+  @Override
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+    FileSystem fileSystem = sensorContext.fileSystem();
+    return fileSystem.predicates().and(
+      fileSystem.predicates().matchesPathPattern("**/Dockerfile"),
+      fileSystem.predicates().hasType(InputFile.Type.MAIN));
   }
 
   @Override

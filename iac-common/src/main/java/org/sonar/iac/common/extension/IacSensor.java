@@ -51,7 +51,7 @@ public abstract class IacSensor implements Sensor {
   private static final Logger LOG = Loggers.get(IacSensor.class);
   private static final Pattern EMPTY_FILE_CONTENT_PATTERN = Pattern.compile("\\s*+");
 
-  private final SonarRuntime sonarRuntime;
+  protected final SonarRuntime sonarRuntime;
   protected final FileLinesContextFactory fileLinesContextFactory;
   protected final NoSonarFilter noSonarFilter;
   protected final Language language;
