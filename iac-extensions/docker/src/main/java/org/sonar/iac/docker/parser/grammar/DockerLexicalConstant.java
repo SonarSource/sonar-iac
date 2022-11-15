@@ -27,5 +27,8 @@ public class DockerLexicalConstant {
   }
 
   public static final String COMMENT = "(?:" + LexicalConstant.SINGLE_LINE_COMMENT_HASH + ")";
+  public static final String STRING_LITERAL_WITH_QUOTES = "\"(?:[^\"\\\\]*+(?:\\\\[\\s\\S])?+)*+\"";
+  public static final String STRING_LITERAL_WITHOUT_QUOTES = "\\S+";
+  public static final String STRING_LITERAL = "(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES + ")";
 
 }

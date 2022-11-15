@@ -17,35 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser;
+package org.sonar.iac.docker.tree.impl;
 
-import com.sonar.sslr.api.typed.Optional;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.docker.tree.api.FileTree;
-import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.tree.impl.FileTreeImpl;
-import org.sonar.iac.docker.tree.impl.FromTreeImpl;
-import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
 
-public class TreeFactory {
+public class MaintainerTreeImpl extends DockerTreeImpl implements MaintainerTree {
+  private final SyntaxToken maintainer;
+  private final List<SyntaxToken> authors;
 
-  public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
+  public MaintainerTreeImpl(SyntaxToken maintainerToken, List<SyntaxToken> authorsToken) {
+    this.maintainer = maintainerToken;
+    this.authors = authorsToken;
   }
 
-  public FromTree from(SyntaxToken token) {
-    return new FromTreeImpl();
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>();
+    children.add(maintainer);
+    children.addAll(authors);
+    return children;
   }
 
-  public MaintainerTree maintainer(SyntaxToken maintainerToken, List<SyntaxToken> authorsToken) {
-    return new MaintainerTreeImpl(maintainerToken, authorsToken);
+  @Override
+  public Kind getKind() {
+    return Kind.MAINTAINER;
   }
 
-  public SyntaxToken argument(SyntaxToken token) {
-    return token;
+  @Override
+  public SyntaxToken maintainer() {
+    return maintainer;
+  }
+
+  @Override
+  public List<SyntaxToken> authors() {
+    return authors;
   }
 }

@@ -23,7 +23,8 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public enum DockerKeyword implements GrammarRuleKey {
 
-  FROM("FROM");
+  FROM("FROM"),
+  MAINTAINER("MAINTAINER");
 
   private final String value;
 
