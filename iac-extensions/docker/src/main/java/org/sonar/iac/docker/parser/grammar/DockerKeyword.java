@@ -25,7 +25,8 @@ public enum DockerKeyword implements GrammarRuleKey {
 
   FROM("FROM"),
   MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL");
+  STOPSIGNAL("STOPSIGNAL"),
+  WORKDIR("WORKDIR");
 
   private final String value;
 

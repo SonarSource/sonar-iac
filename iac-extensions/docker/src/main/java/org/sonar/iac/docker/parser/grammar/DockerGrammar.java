@@ -28,6 +28,7 @@ import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.parser.TreeFactory;
+import org.sonar.iac.docker.tree.api.WorkdirTree;
 
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
@@ -57,7 +58,8 @@ public class DockerGrammar {
       b.firstOf(
         FROM(),
         MAINTAINER(),
-        STOPSIGNAL()
+        STOPSIGNAL(),
+        WORKDIR()
       )
     );
   }
@@ -87,6 +89,15 @@ public class DockerGrammar {
       f.stopSignal(
         b.token(DockerKeyword.STOPSIGNAL),
         b.token(STRING_LITERAL)
+      )
+    );
+  }
+
+  public WorkdirTree WORKDIR() {
+    return b.<WorkdirTree>nonterminal(DockerLexicalGrammar.WORKDIR).is(
+      f.workdir(
+        b.token(DockerKeyword.WORKDIR),
+        ARGUMENTS()
       )
     );
   }
