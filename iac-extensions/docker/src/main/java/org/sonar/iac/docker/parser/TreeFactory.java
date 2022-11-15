@@ -41,7 +41,11 @@ public class TreeFactory {
     return new FromTreeImpl();
   }
 
-  public MaintainerTree maintainer(SyntaxToken maintainerToken, SyntaxToken authorToken) {
-    return new MaintainerTreeImpl(maintainerToken, authorToken);
+  public MaintainerTree maintainer(SyntaxToken maintainerToken, List<SyntaxToken> authorsToken) {
+    return new MaintainerTreeImpl(maintainerToken, authorsToken);
+  }
+
+  public SyntaxToken argument(SyntaxToken token) {
+    return token;
   }
 }

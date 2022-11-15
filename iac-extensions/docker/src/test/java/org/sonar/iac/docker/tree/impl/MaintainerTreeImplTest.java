@@ -19,23 +19,36 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class MaintainerTreeImplTest {
   @Test
+  void matchingSimple() {
+    Assertions.assertThat(DockerLexicalGrammar.MAINTAINER)
+      .matches("MAINTAINER bob")
+      .notMatches("maintainer bob") // should match
+      .matches("MAINTAINER \"bob\"")
+      .matches("MAINTAINER \"bob")
+      .matches("MAINTAINER bob boberman bob@bob.com")
+      .matches("MAINTAINER \"bob boberman bob@bob.com\"")
+      .notMatches("MAINTAINER")
+      .notMatches("MAINTAINER ");
+  }
+
+  @Test
   void maintainerInstructionWithAuthorValue() {
     MaintainerTree tree = parse("MAINTAINER \"bob\"", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.maintainerToken().value()).isEqualTo("MAINTAINER");
-    assertThat(tree.authorToken().value()).isEqualTo("\"bob\"");
+    assertThat(tree.authorsToken()).hasSize(1);
+    assertThat(tree.authorsToken().get(0).value()).isEqualTo("\"bob\"");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
@@ -48,7 +61,8 @@ class MaintainerTreeImplTest {
     MaintainerTree tree = parse("MAINTAINER bob", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.maintainerToken().value()).isEqualTo("MAINTAINER");
-    assertThat(tree.authorToken().value()).isEqualTo("bob");
+    assertThat(tree.authorsToken()).hasSize(1);
+    assertThat(tree.authorsToken().get(0).value()).isEqualTo("bob");
   }
 
   @Test
@@ -56,6 +70,19 @@ class MaintainerTreeImplTest {
     MaintainerTree tree = parse("MAINTAINER bob boberman bob@bob.bob", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.maintainerToken().value()).isEqualTo("MAINTAINER");
-    assertThat(tree.authorToken().value()).isEqualTo("bob boberman bob@bob.bob");
+    assertThat(tree.authorsToken()).hasSize(3);
+    assertThat(tree.authorsToken().get(0).value()).isEqualTo("bob");
+    assertThat(tree.authorsToken().get(1).value()).isEqualTo("boberman");
+    assertThat(tree.authorsToken().get(2).value()).isEqualTo("bob@bob.bob");
+  }
+
+  @Test
+  void mixOfBoth() {
+    MaintainerTree tree = parse("MAINTAINER bob \"boberman bob@bob.bob\"", DockerLexicalGrammar.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
+    assertThat(tree.maintainerToken().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.authorsToken()).hasSize(2);
+    assertThat(tree.authorsToken().get(0).value()).isEqualTo("bob");
+    assertThat(tree.authorsToken().get(1).value()).isEqualTo("\"boberman bob@bob.bob\"");
   }
 }

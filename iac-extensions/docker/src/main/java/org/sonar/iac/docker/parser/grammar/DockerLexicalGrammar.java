@@ -46,7 +46,12 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * INSTRUCTIONS
    */
   FROM,
-  MAINTAINER;
+  MAINTAINER,
+
+  /**
+   * EXPRESSIONS
+   */
+  ARGUMENTS;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();

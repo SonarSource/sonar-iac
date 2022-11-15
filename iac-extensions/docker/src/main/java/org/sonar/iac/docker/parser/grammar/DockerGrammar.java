@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.parser.grammar;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import java.util.List;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
@@ -63,7 +64,15 @@ public class DockerGrammar {
 
   public MaintainerTree MAINTAINER() {
     return b.<MaintainerTree>nonterminal(DockerLexicalGrammar.MAINTAINER).is(
-      f.maintainer(b.token(DockerKeyword.MAINTAINER), b.token(DockerLexicalGrammar.STRING_LITERAL))
+      f.maintainer(b.token(DockerKeyword.MAINTAINER), ARGUMENTS())
+    );
+  }
+
+  public List<SyntaxToken> ARGUMENTS() {
+    return b.<List<SyntaxToken>>nonterminal(DockerLexicalGrammar.ARGUMENTS).is(
+      b.oneOrMore(
+        f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL))
+      )
     );
   }
 }

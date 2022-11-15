@@ -19,31 +19,25 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.Arrays;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class MaintainerTreeImpl extends DockerTreeImpl implements MaintainerTree {
   private final SyntaxToken maintainerToken;
-  private final SyntaxToken authorToken;
+  private final List<SyntaxToken> authorsToken;
 
-  public MaintainerTreeImpl(SyntaxToken maintainerToken, SyntaxToken authorToken) {
+  public MaintainerTreeImpl(SyntaxToken maintainerToken, List<SyntaxToken> authorsToken) {
     this.maintainerToken = maintainerToken;
-    this.authorToken = authorToken;
-  }
-
-  @Override
-  public TextRange textRange() {
-    return TextRanges.merge(List.of(maintainerToken.textRange(), authorToken.textRange()));
+    this.authorsToken = authorsToken;
   }
 
   @Override
   public List<Tree> children() {
-    return Arrays.asList(maintainerToken, authorToken);
+    return Stream.concat(Stream.of(maintainerToken), authorsToken.stream()).collect(Collectors.toList());
   }
 
   @Override
@@ -57,7 +51,7 @@ public class MaintainerTreeImpl extends DockerTreeImpl implements MaintainerTree
   }
 
   @Override
-  public SyntaxToken authorToken() {
-    return authorToken;
+  public List<SyntaxToken> authorsToken() {
+    return authorsToken;
   }
 }
