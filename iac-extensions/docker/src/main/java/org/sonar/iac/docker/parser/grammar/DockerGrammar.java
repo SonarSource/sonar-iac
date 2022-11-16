@@ -47,6 +47,7 @@ import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserTree;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
+import org.sonar.iac.docker.tree.api.VolumeTree;
 
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAME;
@@ -92,7 +93,8 @@ public class DockerGrammar {
         ENTRYPOINT(),
         ADD(),
         COPY(),
-        USER()
+        USER(),
+        VOLUME()
       )
     );
   }
@@ -375,6 +377,18 @@ public class DockerGrammar {
       f.shellForm(
         b.oneOrMore(
           b.token(STRING_LITERAL)
+        )
+      )
+    );
+  }
+
+  public VolumeTree VOLUME() {
+    return b.<VolumeTree>nonterminal(DockerLexicalGrammar.VOLUME).is(
+      f.volume(
+        b.token(DockerKeyword.VOLUME),
+        b.firstOf(
+          EXEC_FORM(),
+          SHELL_FORM()
         )
       )
     );
