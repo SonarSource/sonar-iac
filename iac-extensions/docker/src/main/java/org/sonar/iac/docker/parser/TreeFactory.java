@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Optional;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.docker.tree.api.ExposeTree;
@@ -86,10 +85,8 @@ public class TreeFactory {
     return new LabelTreeImpl(token, keyValuePairs);
   }
 
-  public List<KeyValuePairTree> keyValuePairSingle(SyntaxToken key, SyntaxToken value) {
-    List<KeyValuePairTree> result = new ArrayList<>();
-    result.add(new KeyValuePairTreeImpl(key, value));
-    return result;
+  public KeyValuePairTree keyValuePair(SyntaxToken key, SyntaxToken value) {
+    return new KeyValuePairTreeImpl(key, value);
   }
 
   public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, SyntaxToken value) {

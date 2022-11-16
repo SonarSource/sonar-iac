@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,16 +53,18 @@ class LabelTreeImplTest {
     LabelTree tree = parse("LABEL key1 value1", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.label().value()).isEqualTo("LABEL");
-    assertThat(tree.keyValuePairs()).hasSize(1);
-    assertThat(tree.keyValuePairs().get(0).getKind()).isEqualTo(DockerTree.Kind.KEYVALUEPAIR);
-    assertThat(tree.keyValuePairs().get(0).key().value()).isEqualTo("key1");
-    assertThat(tree.keyValuePairs().get(0).equals()).isNull();
-    assertThat(tree.keyValuePairs().get(0).value().value()).isEqualTo("value1");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
     assertThat(tree.textRange().end().lineOffset()).isEqualTo(17);
     assertThat(tree.children()).hasSize(3);
+    assertThat(tree.keyValuePairs()).hasSize(1);
+
+    KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
+    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEYVALUEPAIR);
+    assertThat(keyValuePair.key().value()).isEqualTo("key1");
+    assertThat(keyValuePair.equals()).isNull();
+    assertThat(keyValuePair.value().value()).isEqualTo("value1");
   }
 
   @Test
@@ -70,8 +73,9 @@ class LabelTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.label().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(1);
-    assertThat(tree.keyValuePairs().get(0).key().value()).isEqualTo("key1");
-    assertThat(tree.keyValuePairs().get(0).value().value()).isEqualTo("value1 still_value1 again_value1");
+    KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
+    assertThat(keyValuePair.key().value()).isEqualTo("key1");
+    assertThat(keyValuePair.value().value()).isEqualTo("value1 still_value1 again_value1");
     assertThat(tree.children()).hasSize(3);
   }
 
@@ -81,9 +85,10 @@ class LabelTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.label().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(1);
-    assertThat(tree.keyValuePairs().get(0).key().value()).isEqualTo("key1");
-    assertThat(tree.keyValuePairs().get(0).equals().value()).isEqualTo("=");
-    assertThat(tree.keyValuePairs().get(0).value().value()).isEqualTo("value1");
+    KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
+    assertThat(keyValuePair.key().value()).isEqualTo("key1");
+    assertThat(keyValuePair.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair.value().value()).isEqualTo("value1");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
@@ -97,17 +102,20 @@ class LabelTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.label().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(2);
-    assertThat(tree.keyValuePairs().get(0).key().value()).isEqualTo("key1");
-    assertThat(tree.keyValuePairs().get(0).equals().value()).isEqualTo("=");
-    assertThat(tree.keyValuePairs().get(0).value().value()).isEqualTo("value1");
-    assertThat(tree.keyValuePairs().get(1).key().value()).isEqualTo("key2");
-    assertThat(tree.keyValuePairs().get(1).equals().value()).isEqualTo("=");
-    assertThat(tree.keyValuePairs().get(1).value().value()).isEqualTo("value2");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
     assertThat(tree.textRange().end().lineOffset()).isEqualTo(29);
     assertThat(tree.children()).hasSize(7);
+
+    KeyValuePairTree keyValuePair1 = tree.keyValuePairs().get(0);
+    assertThat(keyValuePair1.key().value()).isEqualTo("key1");
+    assertThat(keyValuePair1.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair1.value().value()).isEqualTo("value1");
+    KeyValuePairTree keyValuePair2 = tree.keyValuePairs().get(1);
+    assertThat(keyValuePair2.key().value()).isEqualTo("key2");
+    assertThat(keyValuePair2.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair2.value().value()).isEqualTo("value2");
   }
 
   @Test
@@ -116,19 +124,23 @@ class LabelTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.label().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(3);
-    assertThat(tree.keyValuePairs().get(0).key().value()).isEqualTo("\"key1\"");
-    assertThat(tree.keyValuePairs().get(0).equals().value()).isEqualTo("=");
-    assertThat(tree.keyValuePairs().get(0).value().value()).isEqualTo("\"value1\"");
-    assertThat(tree.keyValuePairs().get(1).key().value()).isEqualTo("\"key2\"");
-    assertThat(tree.keyValuePairs().get(1).equals().value()).isEqualTo("=");
-    assertThat(tree.keyValuePairs().get(1).value().value()).isEqualTo("value2");
-    assertThat(tree.keyValuePairs().get(2).key().value()).isEqualTo("key3");
-    assertThat(tree.keyValuePairs().get(2).equals().value()).isEqualTo("=");
-    assertThat(tree.keyValuePairs().get(2).value().value()).isEqualTo("\"value3\"");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
     assertThat(tree.textRange().end().lineOffset()).isEqualTo(49);
     assertThat(tree.children()).hasSize(10);
+
+    KeyValuePairTree keyValuePair1 = tree.keyValuePairs().get(0);
+    assertThat(keyValuePair1.key().value()).isEqualTo("\"key1\"");
+    assertThat(keyValuePair1.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair1.value().value()).isEqualTo("\"value1\"");
+    KeyValuePairTree keyValuePair2 = tree.keyValuePairs().get(1);
+    assertThat(keyValuePair2.key().value()).isEqualTo("\"key2\"");
+    assertThat(keyValuePair2.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair2.value().value()).isEqualTo("value2");
+    KeyValuePairTree keyValuePair3 = tree.keyValuePairs().get(2);
+    assertThat(keyValuePair3.key().value()).isEqualTo("key3");
+    assertThat(keyValuePair3.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair3.value().value()).isEqualTo("\"value3\"");
   }
 }

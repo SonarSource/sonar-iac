@@ -127,26 +127,29 @@ public class DockerGrammar {
 
   public LabelTree LABEL () {
     return b.<LabelTree>nonterminal(DockerLexicalGrammar.LABEL).is(
-      b.firstOf(
-        f.label(b.token(DockerKeyword.LABEL), KEY_VALUE_PAIR_WITH_EQUALS()),
-        f.label(b.token(DockerKeyword.LABEL), KEY_VALUE_PAIR_SINGLE())
+      f.label(b.token(DockerKeyword.LABEL),
+        b.oneOrMore(
+          b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
+        )
       )
     );
   }
 
-  // To match such element : INSTRUCTION key1=value1 key2=value2
-  public List<KeyValuePairTree> KEY_VALUE_PAIR_WITH_EQUALS() {
-    return b.<List<KeyValuePairTree>>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
-      b.oneOrMore(
-        f.keyValuePairEquals(b.token(STRING_LITERAL), b.token(EQUALS_OPERATOR),b.token(STRING_LITERAL))
-      )
+  /**
+   * To match such element : key1 value1 value1bis value1tris
+   */
+  public KeyValuePairTree KEY_VALUE_PAIR() {
+    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_SINGLE).is(
+      f.keyValuePair(b.token(STRING_LITERAL), b.token(STRING_UNTIL_EOL))
     );
   }
 
-  // To match single element as a list for compatibility with above equals method : INSTRUCTION key1 value1 value1bis value1tris
-  public List<KeyValuePairTree> KEY_VALUE_PAIR_SINGLE() {
-    return b.<List<KeyValuePairTree>>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_SINGLE).is(
-      f.keyValuePairSingle(b.token(STRING_LITERAL), b.token(STRING_UNTIL_EOL))
+  /**
+   * To match such element : key1=value1 key2=value2
+   */
+  public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
+    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
+      f.keyValuePairEquals(b.token(STRING_LITERAL), b.token(EQUALS_OPERATOR), b.token(STRING_LITERAL))
     );
   }
 }
