@@ -17,21 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.checks;
+package org.sonar.iac.common.testing;
 
-import org.sonar.check.Rule;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
+import java.io.File;
+import java.util.List;
+import org.junit.jupiter.api.Disabled;
+import org.sonar.iac.common.checks.ParsingErrorCheck;
 
-/**
- * This class does nothing. It exists only to be present in the SonarQube profile and GUI.
- * Issues for this class are created upfront, during the parsing.
- */
-@Rule(key = "S2260")
-public class ParsingErrorCheck implements IacCheck {
+public class AbstractCheckListTestTest extends AbstractCheckListTest {
 
   @Override
-  public void initialize(InitContext init) {
-    // errors are reported in InputFileContext#reportParseError
+  protected List<Class<?>> checks() {
+    return List.of(
+      TestCheck.class,
+      ParsingErrorCheck.class
+    );
   }
+
+  @Override
+  protected File checkClassDir() {
+    return new File("src/test/resources/org/sonar/iac/common/checks/");
+  }
+
+  @Override
+  @Disabled
+  void test() {
+    // not implemented
+  }
+
+  static class TestCheck {}
 }

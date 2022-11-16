@@ -25,7 +25,7 @@ import org.sonar.api.resources.AbstractLanguage;
 
 public class TerraformLanguage extends AbstractLanguage {
 
-  static final String KEY = "terraform";
+  public static final String KEY = "terraform";
   static final String NAME = "Terraform";
 
   private final Configuration configuration;

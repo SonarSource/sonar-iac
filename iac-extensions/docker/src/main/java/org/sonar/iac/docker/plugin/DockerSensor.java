@@ -22,18 +22,47 @@ package org.sonar.iac.docker.plugin;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.docker.checks.DockerCheckList;
 import org.sonar.iac.docker.parser.DockerParser;
 
 public class DockerSensor extends IacSensor {
-  protected DockerSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, DockerLanguage language) {
+  private final Checks<IacCheck> checks;
+
+  protected DockerSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+                         NoSonarFilter noSonarFilter, DockerLanguage language) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
+    checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
+    checks.addAnnotatedChecks(DockerCheckList.checks());
+  }
+
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .processesFilesIndependently()
+      .name("IaC " + language.getName() + " Sensor");
+  }
+
+  @Override
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+    FileSystem fileSystem = sensorContext.fileSystem();
+    return fileSystem.predicates().and(
+      fileSystem.predicates().matchesPathPattern("**/Dockerfile"),
+      fileSystem.predicates().hasType(InputFile.Type.MAIN));
   }
 
   @Override
@@ -48,7 +77,9 @@ public class DockerSensor extends IacSensor {
 
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
-    return new ArrayList<>();
+    List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+    visitors.add(new ChecksVisitor(checks, statistics));
+    return visitors;
   }
 
   @Override

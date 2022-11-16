@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.extension;
 
+import com.sonar.sslr.api.RecognitionException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +51,7 @@ public abstract class IacSensor implements Sensor {
   private static final Logger LOG = Loggers.get(IacSensor.class);
   private static final Pattern EMPTY_FILE_CONTENT_PATTERN = Pattern.compile("\\s*+");
 
-  private final SonarRuntime sonarRuntime;
+  protected final SonarRuntime sonarRuntime;
   protected final FileLinesContextFactory fileLinesContextFactory;
   protected final NoSonarFilter noSonarFilter;
   protected final Language language;
@@ -125,7 +126,11 @@ public abstract class IacSensor implements Sensor {
   }
 
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
-    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), null);
+    TextPointer position = null;
+    if (cause instanceof RecognitionException) {
+      position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
+    }
+    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
   }
 
   private boolean isActive(SensorContext sensorContext) {

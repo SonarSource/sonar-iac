@@ -19,12 +19,9 @@
  */
 package org.sonar.iac.terraform.plugin;
 
-import com.sonar.sslr.api.RecognitionException;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -33,7 +30,6 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
-import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.checks.TerraformCheckList;
@@ -79,14 +75,5 @@ public class TerraformSensor extends IacSensor {
   @Override
   protected String getActivationSettingKey() {
     return TerraformSettings.ACTIVATION_KEY;
-  }
-
-  @Override
-  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
-    TextPointer position = null;
-    if (cause instanceof RecognitionException) {
-      position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
-    }
-    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
   }
 }

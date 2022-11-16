@@ -53,7 +53,8 @@ class IacRulingTest {
   private static final Set<String> LANGUAGES = Set.of(
     "terraform",
     "cloudformation",
-    "kubernetes"
+    "kubernetes",
+    "docker"
   );
 
   @BeforeAll
@@ -98,6 +99,13 @@ class IacRulingTest {
     properties.put("sonar.inclusions", "sources/kubernetes/**/*.yaml, ruling/src/test/resources/sources/kubernetes/**/*.yaml," +
       "sources/kubernetes/**/*.yml, ruling/src/test/resources/sources/kubernetes/**/*.yml");
     run_ruling_test("kubernetes", properties);
+  }
+
+  @Test
+  void test_docker() throws IOException {
+    Map<String, String> properties = new HashMap<>();
+    properties.put("sonar.inclusions", "sources/docker/**/Dockerfile, ruling/src/test/resources/sources/docker/**");
+    run_ruling_test("docker", properties);
   }
 
   @Disabled("This test is only a helper to diagnose failures on the local system")

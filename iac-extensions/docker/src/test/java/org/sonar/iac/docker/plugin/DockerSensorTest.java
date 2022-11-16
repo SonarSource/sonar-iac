@@ -20,22 +20,25 @@
 package org.sonar.iac.docker.plugin;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.iac.common.testing.AbstractSensorTest;
+import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.docker.parser.DockerParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DockerSensorTest extends AbstractSensorTest {
+class DockerSensorTest extends ExtensionSensorTest {
+
 
   @Test
   void shouldReturnDockerDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
-    sensor(checkFactory()).describe(descriptor);
+    sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC Docker Sensor");
-    assertThat(descriptor.languages()).containsOnly("docker");
+    assertThat(descriptor.languages()).isEmpty();
+    assertThat(descriptor.isProcessesFilesIndependently()).isTrue();
   }
 
   @Test
@@ -55,7 +58,7 @@ class DockerSensorTest extends AbstractSensorTest {
 
   @Test
   void shouldReturnVisitors() {
-    assertThat(sensor().visitors(null, null)).isEmpty();
+    assertThat(sensor().visitors(null, null)).hasSize(1);
   }
 
   @Override
@@ -68,6 +71,7 @@ class DockerSensorTest extends AbstractSensorTest {
     return new DockerSensor(
       SONAR_RUNTIME_8_9,
       fileLinesContextFactory,
+      checkFactory,
       noSonarFilter,
       new DockerLanguage());
   }
@@ -79,10 +83,26 @@ class DockerSensorTest extends AbstractSensorTest {
 
   @Override
   protected String fileLanguageKey() {
-    return "Dockerfile";
+    return "docker";
   }
 
-  private DockerSensor sensor() {
-    return (DockerSensor) sensor(checkFactory());
+  @Override
+  protected InputFile emptyFile() {
+    return inputFile("Dockerfile", "");
   }
+
+  @Override
+  protected InputFile fileWithParsingError() {
+    return inputFile("Dockerfile", "FOOBAR");
+  }
+
+  @Override
+  protected InputFile validFile() {
+    return inputFile("Dockerfile", "FROM");
+  }
+
+  private DockerSensor sensor(String... rules) {
+    return (DockerSensor) sensor(checkFactory(rules));
+  }
+
 }

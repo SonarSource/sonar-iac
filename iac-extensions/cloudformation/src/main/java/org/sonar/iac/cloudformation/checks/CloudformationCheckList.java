@@ -21,6 +21,7 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.iac.common.checks.ParsingErrorCheck;
 
 public class CloudformationCheckList {
 

@@ -20,46 +20,20 @@
 package org.sonar.iac.cloudformation.plugin;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.iac.common.testing.AbstractSensorTest;
+import org.sonar.iac.common.testing.ExtensionSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 
-class CloudformationSensorTest extends AbstractSensorTest {
+class CloudformationSensorTest extends ExtensionSensorTest {
 
   private static final String PARSING_ERROR_KEY = "S2260";
-  @Test
-  void yaml_file_with_invalid_syntax_should_not_raise_parsing_if_rule_is_deactivated() {
-    analyse(sensor(checkFactory()), inputFile("error.yaml", "a: b: c"));
-
-    assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(context.allIssues()).isEmpty();
-  }
-
-  @Test
-  void yaml_file_with_invalid_syntax_should_raise_parsing() {
-    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("error.yaml", "a: b: c"));
-
-    assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(context.allIssues()).hasSize(1);
-    Issue issue = context.allIssues().iterator().next();
-    assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo(PARSING_ERROR_KEY);
-  }
-
-  @Test
-  void yaml_file_with_invalid_syntax_should_not_raise_issue_when_sensor_deactivated() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(getActivationSettingKey(), false);
-    context.setSettings(settings);
-
-    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("parserError.json", "\"a'"));
-    assertThat(context.allIssues()).isEmpty();
-  }
 
   @Test
   void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
@@ -77,18 +51,6 @@ class CloudformationSensorTest extends AbstractSensorTest {
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC CloudFormation Sensor");
     assertThat(descriptor.languages()).containsExactly("json", "yaml");
-  }
-
-  @Test
-  void empty_file_should_raise_no_issue() {
-    analyse(sensor("S2260"), inputFile("empty.json", ""));
-    assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
-  }
-
-  @Test
-  void yaml_only_comment_should_raise_no_issue() {
-    analyse(sensor("S2260"), inputFile("comment.yaml", "# Some Comment"));
-    assertThat(context.allIssues()).as("No issue must be raised").isEmpty();
   }
 
   @Test
@@ -135,5 +97,20 @@ class CloudformationSensorTest extends AbstractSensorTest {
   @Override
   protected String fileLanguageKey() {
     return "json";
+  }
+
+  @Override
+  protected InputFile emptyFile() {
+    return inputFile("empty.json", "");
+  }
+
+  @Override
+  protected InputFile fileWithParsingError() {
+    return inputFile("error.json", "\"a'");
+  }
+
+  @Override
+  protected InputFile validFile() {
+    return inputFile("comment.yaml", "# Some Comment");
   }
 }
