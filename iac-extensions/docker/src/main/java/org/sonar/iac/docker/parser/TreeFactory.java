@@ -22,6 +22,7 @@ package org.sonar.iac.docker.parser;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
@@ -33,6 +34,7 @@ import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
+import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
@@ -83,6 +85,10 @@ public class TreeFactory {
 
   public LabelTree label(SyntaxToken token, List<KeyValuePairTree> keyValuePairs) {
     return new LabelTreeImpl(token, keyValuePairs);
+  }
+
+  public EnvTree env(SyntaxToken token, List<KeyValuePairTree> keyValuePairs) {
+    return new EnvTreeImpl(token, keyValuePairs);
   }
 
   public KeyValuePairTree keyValuePair(SyntaxToken key, SyntaxToken value) {

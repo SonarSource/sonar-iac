@@ -21,6 +21,7 @@ package org.sonar.iac.docker.parser.grammar;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
 import java.util.List;
+import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
@@ -67,7 +68,8 @@ public class DockerGrammar {
         STOPSIGNAL(),
         WORKDIR(),
         EXPOSE(),
-        LABEL()
+        LABEL(),
+        ENV()
       )
     );
   }
@@ -128,6 +130,16 @@ public class DockerGrammar {
   public LabelTree LABEL () {
     return b.<LabelTree>nonterminal(DockerLexicalGrammar.LABEL).is(
       f.label(b.token(DockerKeyword.LABEL),
+        b.oneOrMore(
+          b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
+        )
+      )
+    );
+  }
+
+  public EnvTree ENV () {
+    return b.<EnvTree>nonterminal(DockerLexicalGrammar.ENV).is(
+      f.env(b.token(DockerKeyword.ENV),
         b.oneOrMore(
           b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
         )
