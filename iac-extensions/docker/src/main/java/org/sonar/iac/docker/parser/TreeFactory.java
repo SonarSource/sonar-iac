@@ -26,6 +26,8 @@ import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.KeyValuePairTree;
+import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
@@ -34,6 +36,8 @@ import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
+import org.sonar.iac.docker.tree.impl.KeyValuePairTreeImpl;
+import org.sonar.iac.docker.tree.impl.LabelTreeImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
@@ -75,5 +79,17 @@ public class TreeFactory {
 
   public PortTree port(SyntaxToken portToken) {
     return new PortTreeImpl(portToken, null, null);
+  }
+
+  public LabelTree label(SyntaxToken token, List<KeyValuePairTree> keyValuePairs) {
+    return new LabelTreeImpl(token, keyValuePairs);
+  }
+
+  public KeyValuePairTree keyValuePair(SyntaxToken key, SyntaxToken value) {
+    return new KeyValuePairTreeImpl(key, value);
+  }
+
+  public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, SyntaxToken value) {
+    return new KeyValuePairTreeImpl(key, equals, value);
   }
 }

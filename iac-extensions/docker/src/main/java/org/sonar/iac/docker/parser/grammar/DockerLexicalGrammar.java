@@ -38,6 +38,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   STRING_LITERAL_WITHOUT_SPACE,
   NUMERIC_LITERAL,
   SEPARATOR_PORT,
+  STRING_UNTIL_EOL,
+  EQUALS_OPERATOR,
   EOF,
 
   /**
@@ -53,12 +55,15 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   STOPSIGNAL,
   WORKDIR,
   EXPOSE,
+  LABEL,
 
   /**
    * EXPRESSIONS
    */
   ARGUMENTS,
-  PORT;
+  PORT,
+  KEY_VALUE_PAIR_EQUALS,
+  KEY_VALUE_PAIR_SINGLE;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -90,6 +95,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
     b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(STRING_LITERAL_WITHOUT_SPACE).is(b.regexp(DockerLexicalConstant.STRING_LITERAL));
+    b.rule(STRING_UNTIL_EOL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
+    b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

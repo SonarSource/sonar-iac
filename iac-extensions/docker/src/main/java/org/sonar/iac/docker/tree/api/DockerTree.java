@@ -35,6 +35,8 @@ public interface DockerTree extends Tree {
     WORKDIR(WorkdirTree.class),
     EXPOSE(ExposeTree.class),
     PORT(PortTree.class),
+    LABEL(LabelTree.class),
+    KEYVALUEPAIR(KeyValuePairTree.class),
 
     TOKEN(SyntaxToken.class);
 
