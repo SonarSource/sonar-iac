@@ -51,7 +51,7 @@ class StopSignalTreeImplTest {
   void test2() {
     StopSignalTree tree = DockerTestUtils.parse("STOPSIGNAL SIGKILL", DockerLexicalGrammar.STOPSIGNAL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
-    assertThat(tree.instructionKeyword().value()).isEqualTo("STOPSIGNAL");
+    assertThat(tree.keyword().value()).isEqualTo("STOPSIGNAL");
     assertThat(tree.signal().value()).isEqualTo("SIGKILL");
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("STOPSIGNAL");
     assertThat(((SyntaxToken)tree.children().get(1)).value()).isEqualTo("SIGKILL");

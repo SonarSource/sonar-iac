@@ -22,6 +22,7 @@ package org.sonar.iac.docker.parser;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
@@ -34,6 +35,7 @@ import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
+import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
@@ -51,28 +53,32 @@ public class TreeFactory {
     return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
   }
 
-  public FromTree from(SyntaxToken token) {
-    return new FromTreeImpl();
+  public FromTree from(SyntaxToken keyword, Optional<KeyValuePairTree> platform, SyntaxToken image, Optional<AliasTree> alias) {
+    return new FromTreeImpl(keyword, platform.orNull(), image, alias.orNull());
   }
 
-  public MaintainerTree maintainer(SyntaxToken maintainerToken, List<SyntaxToken> authorsToken) {
-    return new MaintainerTreeImpl(maintainerToken, authorsToken);
+  public AliasTree alias(SyntaxToken keyword, SyntaxToken alias) {
+    return new AliasTreeImpl(keyword, alias);
+  }
+
+  public MaintainerTree maintainer(SyntaxToken keyword, List<SyntaxToken> authorsToken) {
+    return new MaintainerTreeImpl(keyword, authorsToken);
   }
 
   public SyntaxToken argument(SyntaxToken token) {
     return token;
   }
 
-  public StopSignalTree stopSignal(SyntaxToken token, SyntaxToken tokenValue) {
-    return new StopSignalTreeImpl(token, tokenValue);
+  public StopSignalTree stopSignal(SyntaxToken keyword, SyntaxToken tokenValue) {
+    return new StopSignalTreeImpl(keyword, tokenValue);
   }
 
-  public WorkdirTree workdir(SyntaxToken token, List<SyntaxToken> values) {
-    return new WorkdirTreeImpl(token, values);
+  public WorkdirTree workdir(SyntaxToken keyword, List<SyntaxToken> values) {
+    return new WorkdirTreeImpl(keyword, values);
   }
 
-  public ExposeTree expose(SyntaxToken exposeToken, List<PortTree> ports) {
-    return new ExposeTreeImpl(exposeToken, ports);
+  public ExposeTree expose(SyntaxToken keyword, List<PortTree> ports) {
+    return new ExposeTreeImpl(keyword, ports);
   }
 
   public PortTree port(SyntaxToken portToken, SyntaxToken separatorToken, Optional<SyntaxToken> protocolToken) {
@@ -87,8 +93,8 @@ public class TreeFactory {
     return new LabelTreeImpl(token, keyValuePairs);
   }
 
-  public EnvTree env(SyntaxToken token, List<KeyValuePairTree> keyValuePairs) {
-    return new EnvTreeImpl(token, keyValuePairs);
+  public EnvTree env(SyntaxToken keyword, List<KeyValuePairTree> keyValuePairs) {
+    return new EnvTreeImpl(keyword, keyValuePairs);
   }
 
   public KeyValuePairTree keyValuePair(SyntaxToken key, SyntaxToken value) {

@@ -17,17 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
-import javax.annotation.CheckForNull;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.AliasTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public interface FromTree extends InstructionTree {
+public class AliasTreeImpl extends DockerTreeImpl implements AliasTree {
 
-  @CheckForNull
-  KeyValuePairTree platform();
+  private final SyntaxToken keyword;
+  private final SyntaxToken alias;
 
-  SyntaxToken image();
+  public AliasTreeImpl(SyntaxToken keyword, SyntaxToken alias) {
+    this.keyword = keyword;
+    this.alias = alias;
+  }
 
-  @CheckForNull
-  AliasTree alias();
+  @Override
+  public SyntaxToken alias() {
+    return alias;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return List.of(keyword, alias);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.ALIAS;
+  }
 }

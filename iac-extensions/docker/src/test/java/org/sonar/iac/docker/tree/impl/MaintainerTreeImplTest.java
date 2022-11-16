@@ -49,7 +49,7 @@ class MaintainerTreeImplTest {
   void maintainerInstructionWithAuthorValue() {
     MaintainerTree tree = parse("MAINTAINER \"bob\"", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
-    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(1);
     assertThat(tree.authors().get(0).value()).isEqualTo("\"bob\"");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
@@ -63,7 +63,7 @@ class MaintainerTreeImplTest {
   void simpleStringWithoutQuotes() {
     MaintainerTree tree = parse("MAINTAINER bob", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
-    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(1);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");
   }
@@ -72,7 +72,7 @@ class MaintainerTreeImplTest {
   void stringWithoutQuotesAndWithSpaces() {
     MaintainerTree tree = parse("MAINTAINER bob boberman bob@bob.bob", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
-    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(3);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");
     assertThat(tree.authors().get(1).value()).isEqualTo("boberman");
@@ -83,7 +83,7 @@ class MaintainerTreeImplTest {
   void mixOfBoth() {
     MaintainerTree tree = parse("MAINTAINER bob \"boberman bob@bob.bob\"", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
-    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(2);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");
     assertThat(tree.authors().get(1).value()).isEqualTo("\"boberman bob@bob.bob\"");
@@ -93,7 +93,7 @@ class MaintainerTreeImplTest {
   void multiline() {
     MaintainerTree tree = parse("MAINTAINER bob / boberman", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
-    assertThat(tree.maintainer().value()).isEqualTo("MAINTAINER");
+    assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     // TODO : SONARIAC-481 support multiline and fix below tests
     assertThat(tree.authors()).hasSize(3);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");

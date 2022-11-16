@@ -52,7 +52,7 @@ class LabelTreeImplTest {
   void labelInstructionWithoutEqualsOperator() {
     LabelTree tree = parse("LABEL key1 value1", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
-    assertThat(tree.label().value()).isEqualTo("LABEL");
+    assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
@@ -71,7 +71,7 @@ class LabelTreeImplTest {
   void labelInstructionWithoutEqualsOperatorLong() {
     LabelTree tree = parse("LABEL key1 value1 still_value1 again_value1", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
-    assertThat(tree.label().value()).isEqualTo("LABEL");
+    assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(1);
     KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
     assertThat(keyValuePair.key().value()).isEqualTo("key1");
@@ -83,7 +83,7 @@ class LabelTreeImplTest {
   void labelInstructionWithEqualsOperator() {
     LabelTree tree = parse("LABEL key1=value1", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
-    assertThat(tree.label().value()).isEqualTo("LABEL");
+    assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(1);
     KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
     assertThat(keyValuePair.key().value()).isEqualTo("key1");
@@ -100,7 +100,7 @@ class LabelTreeImplTest {
   void labelInstructionWithEqualsOperatorMultipleValues() {
     LabelTree tree = parse("LABEL key1=value1 key2=value2", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
-    assertThat(tree.label().value()).isEqualTo("LABEL");
+    assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(2);
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
@@ -122,7 +122,7 @@ class LabelTreeImplTest {
   void labelInstructionWithEqualsOperatorMultipleValuesQuotes() {
     LabelTree tree = parse("LABEL \"key1\"=\"value1\" \"key2\"=value2 key3=\"value3\"", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
-    assertThat(tree.label().value()).isEqualTo("LABEL");
+    assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(3);
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();

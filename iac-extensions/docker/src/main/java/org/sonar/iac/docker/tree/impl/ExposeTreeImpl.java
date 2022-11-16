@@ -26,30 +26,24 @@ import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class ExposeTreeImpl extends DockerTreeImpl implements ExposeTree {
-  private final SyntaxToken exposeToken;
+public class ExposeTreeImpl extends InstructionTreeImpl implements ExposeTree {
   private final List<PortTree> ports;
 
-  public ExposeTreeImpl(SyntaxToken exposeToken, List<PortTree> ports) {
-    this.exposeToken = exposeToken;
+  public ExposeTreeImpl(SyntaxToken keyword, List<PortTree> ports) {
+    super(keyword);
     this.ports = ports;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(exposeToken);
+    children.add(keyword);
     children.addAll(ports);
     return children;
   }
   @Override
   public Kind getKind() {
     return Kind.EXPOSE;
-  }
-
-  @Override
-  public SyntaxToken exposeToken() {
-    return exposeToken;
   }
 
   @Override

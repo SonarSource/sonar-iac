@@ -21,6 +21,10 @@ package org.sonar.iac.docker.parser.grammar;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
 import java.util.List;
+import org.sonar.iac.common.parser.grammar.Punctuator;
+import org.sonar.iac.docker.parser.TreeFactory;
+import org.sonar.iac.docker.tree.api.AliasTree;
+import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
@@ -28,14 +32,11 @@ import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
-import org.sonar.iac.docker.tree.api.StopSignalTree;
-import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.PortTree;
+import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.parser.TreeFactory;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.EQUALS_OPERATOR;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
@@ -76,7 +77,30 @@ public class DockerGrammar {
 
   public FromTree FROM() {
     return b.<FromTree>nonterminal(DockerLexicalGrammar.FROM).is(
-      f.from(b.token(DockerKeyword.FROM))
+      f.from(
+        b.token(DockerKeyword.FROM),
+        b.optional(PLATFORM_OPTION()),
+        b.token(STRING_LITERAL), b.optional(ALIAS())
+      )
+    );
+  }
+
+  public KeyValuePairTree PLATFORM_OPTION() {
+    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.PLATFORM_OPTION).is(
+      f.keyValuePairEquals(
+        b.token(DockerLexicalGrammar.PLATFORM),
+        b.token(Punctuator.EQU),
+        b.token(DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE)
+      )
+    );
+  }
+
+  public AliasTree ALIAS() {
+    return b.<AliasTree>nonterminal(DockerLexicalGrammar.ALIAS).is(
+      f.alias(
+        b.token(DockerKeyword.AS),
+        b.token(STRING_LITERAL)
+      )
     );
   }
 
@@ -161,7 +185,7 @@ public class DockerGrammar {
    */
   public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
     return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
-      f.keyValuePairEquals(b.token(STRING_LITERAL), b.token(EQUALS_OPERATOR), b.token(STRING_LITERAL))
+      f.keyValuePairEquals(b.token(STRING_LITERAL), b.token(Punctuator.EQU), b.token(STRING_LITERAL))
     );
   }
 }

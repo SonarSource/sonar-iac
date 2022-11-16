@@ -19,22 +19,57 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.KeyValuePairTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class FromTreeImpl extends DockerTreeImpl implements FromTree {
+public class FromTreeImpl extends InstructionTreeImpl implements FromTree {
+
+  private final KeyValuePairTree platform;
+  private final SyntaxToken image;
+  private final AliasTree alias;
+
+  public FromTreeImpl(SyntaxToken keyword, @Nullable KeyValuePairTree platform, SyntaxToken image, @Nullable AliasTree alias) {
+    super(keyword);
+    this.platform = platform;
+    this.image = image;
+    this.alias = alias;
+  }
+
+  @Nullable
+  @Override
+  public KeyValuePairTree platform() {
+    return platform;
+  }
 
   @Override
-  public TextRange textRange() {
-    return null;
+  public SyntaxToken image() {
+    return image;
+  }
+
+  @Nullable
+  @Override
+  public AliasTree alias() {
+    return alias;
   }
 
   @Override
   public List<Tree> children() {
-    return Collections.emptyList();
+    List<Tree> children = new ArrayList<>();
+    children.add(keyword);
+    if (platform != null) {
+      children.add(platform);
+    }
+    children.add(image);
+    if (alias != null) {
+      children.add(alias);
+    }
+    return children;
   }
   @Override
   public Kind getKind() {
