@@ -73,6 +73,7 @@ class FromTreeImplTest {
     assertThat(from.platform()).isNull();
     AliasTree alias = from.alias();
     assertThat(alias).isNotNull();
+    assertThat(alias.getKind()).isEqualTo(DockerTree.Kind.ALIAS);
     assertThat(alias.alias().value()).isEqualTo("fb");
     assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, SyntaxTokenImpl.class, AliasTreeImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 17);
@@ -84,6 +85,7 @@ class FromTreeImplTest {
     assertThat(from.alias()).isNull();
     KeyValuePairTree platform = from.platform();
     assertThat(platform).isNotNull();
+    assertThat(platform.getKind()).isEqualTo(DockerTree.Kind.KEYVALUEPAIR);
     assertThat(platform.value().value()).isEqualTo("foo");
     assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, KeyValuePairTreeImpl.class, SyntaxTokenImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 23);
