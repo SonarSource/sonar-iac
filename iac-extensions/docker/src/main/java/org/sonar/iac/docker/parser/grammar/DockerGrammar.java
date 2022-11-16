@@ -115,8 +115,7 @@ public class DockerGrammar {
     return b.<PortTree>nonterminal(DockerLexicalGrammar.PORT).is(
       b.firstOf(
         f.port(b.token(DockerLexicalGrammar.NUMERIC_LITERAL), b.token(DockerLexicalGrammar.SEPARATOR_PORT), b.optional(b.token(DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE))),
-        f.port(b.token(DockerLexicalGrammar.NUMERIC_LITERAL)),
-        f.portKey(b.token(DockerLexicalGrammar.STRING_LITERAL))
+        f.port(b.token(DockerLexicalGrammar.STRING_LITERAL))
       )
     );
   }

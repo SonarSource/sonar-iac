@@ -27,32 +27,25 @@ import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class PortTreeImpl extends DockerTreeImpl implements PortTree {
-  private final SyntaxToken portAndProtocolKey;
   private final SyntaxToken port;
   private final SyntaxToken separator;
   private final SyntaxToken protocol;
 
-  public PortTreeImpl(@Nullable SyntaxToken port, @Nullable SyntaxToken separator, @Nullable SyntaxToken protocol, @Nullable SyntaxToken portAndProtocolKey) {
+  public PortTreeImpl(SyntaxToken port, @Nullable SyntaxToken separator, @Nullable SyntaxToken protocol) {
     this.port = port;
     this.separator = separator;
     this.protocol = protocol;
-    this.portAndProtocolKey = portAndProtocolKey;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    if (this.port != null) {
-      children.add(this.port);
-    }
+    children.add(this.port);
     if (this.separator != null) {
       children.add(this.separator);
     }
     if (this.protocol != null) {
       children.add(this.protocol);
-    }
-    if (this.portAndProtocolKey != null) {
-      children.add(this.portAndProtocolKey);
     }
     return children;
   }
@@ -60,11 +53,6 @@ public class PortTreeImpl extends DockerTreeImpl implements PortTree {
   @Override
   public Kind getKind() {
     return Kind.PORT;
-  }
-
-  @Override
-  public SyntaxToken portAndProtocolKey() {
-    return portAndProtocolKey;
   }
 
   @Override

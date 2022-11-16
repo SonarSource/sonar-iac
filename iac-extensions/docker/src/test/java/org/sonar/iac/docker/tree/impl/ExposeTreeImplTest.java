@@ -24,6 +24,7 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
+import org.sonar.iac.docker.tree.api.PortTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
@@ -33,6 +34,7 @@ class ExposeTreeImplTest {
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.EXPOSE)
       .matches("EXPOSE 80")
+      .matches("EXPOSE 80-88")
       .matches("    EXPOSE 80")
       .notMatches("expose 80") // should match
       .matches("EXPOSE \"80\"")
@@ -52,11 +54,12 @@ class ExposeTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.exposeToken().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
-    assertThat(tree.ports().get(0).getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(tree.ports().get(0).portAndProtocolKey()).isNull();
-    assertThat(tree.ports().get(0).port().value()).isEqualTo("80");
-    assertThat(tree.ports().get(0).separator()).isNull();
-    assertThat(tree.ports().get(0).protocol()).isNull();
+
+    PortTree port1 = tree.ports().get(0);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
+    assertThat(port1.port().value()).isEqualTo("80");
+    assertThat(port1.separator()).isNull();
+    assertThat(port1.protocol()).isNull();
   }
 
   @Test
@@ -65,11 +68,12 @@ class ExposeTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.exposeToken().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
-    assertThat(tree.ports().get(0).getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(tree.ports().get(0).portAndProtocolKey()).isNull();
-    assertThat(tree.ports().get(0).port().value()).isEqualTo("80");
-    assertThat(tree.ports().get(0).separator().value()).isEqualTo("/");
-    assertThat(tree.ports().get(0).protocol()).isNull();
+
+    PortTree port1 = tree.ports().get(0);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
+    assertThat(port1.port().value()).isEqualTo("80");
+    assertThat(port1.separator().value()).isEqualTo("/");
+    assertThat(port1.protocol()).isNull();
   }
 
   @Test
@@ -78,11 +82,12 @@ class ExposeTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.exposeToken().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
-    assertThat(tree.ports().get(0).getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(tree.ports().get(0).portAndProtocolKey()).isNull();
-    assertThat(tree.ports().get(0).port().value()).isEqualTo("80");
-    assertThat(tree.ports().get(0).separator().value()).isEqualTo("/");
-    assertThat(tree.ports().get(0).protocol().value()).isEqualTo("tcp");
+
+    PortTree port1 = tree.ports().get(0);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
+    assertThat(port1.port().value()).isEqualTo("80");
+    assertThat(port1.separator().value()).isEqualTo("/");
+    assertThat(port1.protocol().value()).isEqualTo("tcp");
   }
 
   @Test
@@ -91,16 +96,18 @@ class ExposeTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.exposeToken().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(2);
-    assertThat(tree.ports().get(0).getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(tree.ports().get(0).portAndProtocolKey()).isNull();
-    assertThat(tree.ports().get(0).port().value()).isEqualTo("80");
-    assertThat(tree.ports().get(0).separator().value()).isEqualTo("/");
-    assertThat(tree.ports().get(0).protocol().value()).isEqualTo("tcp");
-    assertThat(tree.ports().get(1).getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(tree.ports().get(1).portAndProtocolKey()).isNull();
-    assertThat(tree.ports().get(1).port().value()).isEqualTo("443");
-    assertThat(tree.ports().get(1).separator()).isNull();
-    assertThat(tree.ports().get(1).protocol()).isNull();
+
+    PortTree port1 = tree.ports().get(0);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
+    assertThat(port1.port().value()).isEqualTo("80");
+    assertThat(port1.separator().value()).isEqualTo("/");
+    assertThat(port1.protocol().value()).isEqualTo("tcp");
+
+    PortTree port2 = tree.ports().get(1);
+    assertThat(port2.getKind()).isEqualTo(DockerTree.Kind.PORT);
+    assertThat(port2.port().value()).isEqualTo("443");
+    assertThat(port2.separator()).isNull();
+    assertThat(port2.protocol()).isNull();
   }
 
   @Test
@@ -109,11 +116,12 @@ class ExposeTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.exposeToken().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
-    assertThat(tree.ports().get(0).getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(tree.ports().get(0).portAndProtocolKey().value()).isEqualTo("${my_port}");
-    assertThat(tree.ports().get(0).port()).isNull();
-    assertThat(tree.ports().get(0).separator()).isNull();
-    assertThat(tree.ports().get(0).protocol()).isNull();
+
+    PortTree port1 = tree.ports().get(0);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
+    assertThat(port1.port().value()).isEqualTo("${my_port}");
+    assertThat(port1.separator()).isNull();
+    assertThat(port1.protocol()).isNull();
   }
 
   @Test
@@ -122,11 +130,26 @@ class ExposeTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.exposeToken().value()).isEqualTo("EXPOSE");
     // TODO : should be parsed differently : usual splitting port/separator/protocol
-    assertThat(tree.ports()).hasSize(3);
-    assertThat(tree.ports().get(0).getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(tree.ports().get(0).portAndProtocolKey()).isNull();
-    assertThat(tree.ports().get(0).port().value()).isEqualTo("8");
-    assertThat(tree.ports().get(0).separator()).isNull();
-    assertThat(tree.ports().get(0).protocol()).isNull();
+    assertThat(tree.ports()).hasSize(1);
+
+    PortTree port1 = tree.ports().get(0);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
+    assertThat(port1.port().value()).isEqualTo("8\"0/t\"cp");
+    assertThat(port1.separator()).isNull();
+    assertThat(port1.protocol()).isNull();
+  }
+
+  @Test
+  void exposeInstructionPortRange() {
+    ExposeTree tree = parse("EXPOSE 80-89", DockerLexicalGrammar.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
+    assertThat(tree.exposeToken().value()).isEqualTo("EXPOSE");
+    assertThat(tree.ports()).hasSize(1);
+
+    PortTree port1 = tree.ports().get(0);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
+    assertThat(port1.port().value()).isEqualTo("80-89");
+    assertThat(port1.separator()).isNull();
+    assertThat(port1.protocol()).isNull();
   }
 }

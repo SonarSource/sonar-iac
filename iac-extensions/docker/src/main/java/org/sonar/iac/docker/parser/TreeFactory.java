@@ -70,14 +70,10 @@ public class TreeFactory {
   }
 
   public PortTree port(SyntaxToken portToken, SyntaxToken separatorToken, Optional<SyntaxToken> protocolToken) {
-    return new PortTreeImpl(portToken, separatorToken, protocolToken.orNull(), null);
+    return new PortTreeImpl(portToken, separatorToken, protocolToken.orNull());
   }
 
   public PortTree port(SyntaxToken portToken) {
-    return new PortTreeImpl(portToken, null, null, null);
-  }
-
-  public PortTree portKey(SyntaxToken portKeyToken) {
-    return new PortTreeImpl(null, null, null, portKeyToken);
+    return new PortTreeImpl(portToken, null, null);
   }
 }
