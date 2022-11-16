@@ -28,10 +28,12 @@ import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
+import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 
 public class TreeFactory {
 
@@ -53,5 +55,9 @@ public class TreeFactory {
 
   public StopSignalTree stopSignal(SyntaxToken token, SyntaxToken tokenValue) {
     return new StopSignalTreeImpl(token, tokenValue);
+  }
+
+  public WorkdirTree workdir(SyntaxToken token, List<SyntaxToken> values) {
+    return new WorkdirTreeImpl(token, values);
   }
 }

@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.impl;
+package org.sonar.iac.docker.parser.grammar;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 
-class StringLiteralTest {
+class DockerLexicalGrammarTest {
 
   @Test
-  void test() {
+  void shouldVerifyStringLiteral() {
     Assertions.assertThat(DockerLexicalGrammar.STRING_LITERAL)
       .matches("f")
       .matches("foo")
@@ -41,6 +40,6 @@ class StringLiteralTest {
       .notMatches("   ")
       .notMatches("foo\nbar")
       .notMatches("foo\rbar")
-      ;
+    ;
   }
 }
