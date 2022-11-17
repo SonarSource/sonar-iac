@@ -19,15 +19,12 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -36,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CmdTreeImplTest {
 
   @Test
-  void shouldParseWorkdir() {
+  void shouldParseCmd() {
     Assertions.assertThat(DockerLexicalGrammar.CMD)
       .matches("CMD")
       .matches("CMD []")
@@ -57,7 +54,7 @@ class CmdTreeImplTest {
   }
 
   @Test
-  void shouldCheckParseTree() {
+  void shouldCheckParseCmdTree() {
     CmdTree tree = DockerTestUtils.parse("CMD [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
@@ -67,24 +64,14 @@ class CmdTreeImplTest {
 
     ExecFormTree execForm = (ExecFormTree) tree.children().get(1);
     assertThat(execForm).isSameAs(tree.execFormTree());
-    assertThat(execForm.leftBracket().value()).isEqualTo("[");
-    assertThat(execForm.rightBracket().value()).isEqualTo("]");
-    List<String> elementsAndSeparatorsAsText = execForm.literals().elementsAndSeparators().stream()
-      .map(t -> {
-        if (t instanceof SyntaxToken) {
-          return ((SyntaxToken) t).value();
-        } else if (t instanceof ExecFormLiteralTree) {
-          return ((ExecFormLiteralTree) t).value().value();
-        } else {
-          throw new RuntimeException("Invalid cast from " + t.getClass());
-        }
-      })
-      .collect(Collectors.toList());
-    assertThat(elementsAndSeparatorsAsText).containsExactly("\"executable\"", "\"param1\"", "\"param2\"", ",", ",");
+  }
 
-    List<ExecFormLiteralTree> elements = execForm.literals().elements();
-    assertThat(elements.stream().map(t -> t.value().value())).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
+  @Test
+  void shouldCheckParseEmptyCmdTree() {
+    CmdTree tree = DockerTestUtils.parse("CMD []", DockerLexicalGrammar.CMD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
+    assertThat(tree.keyword().value()).isEqualTo("CMD");
 
-    assertThat(execForm.literals().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
+    assertThat(tree.cmdArguments()).isEmpty();
   }
 }

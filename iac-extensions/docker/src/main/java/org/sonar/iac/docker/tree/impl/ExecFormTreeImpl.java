@@ -50,7 +50,7 @@ public class ExecFormTreeImpl extends DockerTreeImpl implements ExecFormTree {
 
   @Override
   public Kind getKind() {
-    return Kind.TOKEN;
+    return Kind.EXEC_FORM;
   }
 
   @Override
