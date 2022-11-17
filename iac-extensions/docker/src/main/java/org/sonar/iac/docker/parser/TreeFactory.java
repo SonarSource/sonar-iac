@@ -30,6 +30,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
+import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
@@ -40,6 +41,8 @@ import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.OptionTree;
+import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
@@ -52,6 +55,7 @@ import org.sonar.iac.docker.tree.impl.CmdTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormLiteralTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormTreeImpl;
+import org.sonar.iac.docker.tree.impl.AddTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
@@ -64,6 +68,7 @@ import org.sonar.iac.docker.tree.impl.ParamTreeImpl;
 import org.sonar.iac.docker.tree.impl.PortTreeImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormTreeImpl;
+import org.sonar.iac.docker.tree.impl.OptionTreeImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 
@@ -130,6 +135,11 @@ public class TreeFactory {
 
   public KeyValuePairTree key(SyntaxToken key) {
     return new KeyValuePairTreeImpl(key, null, null);
+  }
+
+  public AddTree add(SyntaxToken add, Optional<List<OptionTree>> options, List<SyntaxToken> srcsAndDest) {
+    SyntaxToken dest = srcsAndDest.remove(srcsAndDest.size()-1);
+    return new AddTreeImpl(add, options.or(Collections.emptyList()), srcsAndDest, dest);
   }
 
   public KeyValuePairTree keyValuePair(SyntaxToken key, SyntaxToken value) {
@@ -210,5 +220,13 @@ public class TreeFactory {
     public U second() {
       return second;
     }
+  }
+
+  public OptionTree option(SyntaxToken dashes, SyntaxToken name, SyntaxToken equals, SyntaxToken value) {
+    return new OptionTreeImpl(dashes, name, equals, value);
+  }
+
+  public OptionTree option(SyntaxToken dashes, SyntaxToken name) {
+    return new OptionTreeImpl(dashes, name, null, null);
   }
 }
