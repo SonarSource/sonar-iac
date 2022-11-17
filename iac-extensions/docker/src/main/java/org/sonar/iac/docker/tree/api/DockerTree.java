@@ -49,8 +49,6 @@ public interface DockerTree extends Tree {
     EXEC_FORM(ExecFormTree.class),
     EXEC_FORM_LITERAL(ExecFormLiteralTree.class),
     ADD(AddTree.class),
-    KEYVALUEPAIR(KeyValuePairTree.class),
-    OPTION(OptionTree.class),
 
     TOKEN(SyntaxToken.class);
 

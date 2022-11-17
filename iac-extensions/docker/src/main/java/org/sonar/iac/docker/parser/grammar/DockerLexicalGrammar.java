@@ -42,6 +42,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   SEPARATOR_PORT,
   EQUALS_OPERATOR,
   DASHES_OPERATOR,
+  KEY_VALUE_PAIR_PREFIX,
   EOF,
 
   /**
@@ -87,8 +88,12 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   IMAGE_ALIAS,
   IMAGE_NAME,
   IMAGE_TAG,
-  IMAGE_DIGEST
-  ;
+  IMAGE_DIGEST,
+
+  PLATFORM_OPTION,
+  PLATFORM,
+  KEY_VALUE_PAIR_EQUALS_PREFIXED,
+  KEY_ONLY_PREFIXED;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -135,7 +140,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
 
     b.rule(PLATFORM).is(Punctuator.MINUS, Punctuator.MINUS, b.regexp("platform"));
-    b.rule(DASHES_OPERATOR).is(SPACING, b.regexp(DockerLexicalConstant.DASHES_OPERATOR));
+    b.rule(KEY_VALUE_PAIR_PREFIX).is(SPACING, b.regexp(DockerLexicalConstant.KEY_VALUE_PAIR_PREFIX));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

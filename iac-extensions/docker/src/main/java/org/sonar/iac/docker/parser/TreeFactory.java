@@ -41,7 +41,6 @@ import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
-import org.sonar.iac.docker.tree.api.OptionTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SeparatedList;
@@ -134,20 +133,28 @@ public class TreeFactory {
   }
 
   public KeyValuePairTree key(SyntaxToken key) {
-    return new KeyValuePairTreeImpl(key, null, null);
+    return new KeyValuePairTreeImpl(null, key, null, null);
   }
 
-  public AddTree add(SyntaxToken add, Optional<List<OptionTree>> options, List<SyntaxToken> srcsAndDest) {
+  public AddTree add(SyntaxToken add, Optional<List<KeyValuePairTree>> options, List<SyntaxToken> srcsAndDest) {
     SyntaxToken dest = srcsAndDest.remove(srcsAndDest.size()-1);
     return new AddTreeImpl(add, options.or(Collections.emptyList()), srcsAndDest, dest);
   }
 
+  public KeyValuePairTree key(SyntaxToken prefix, SyntaxToken key) {
+    return new KeyValuePairTreeImpl(prefix, key, null, null);
+  }
+
   public KeyValuePairTree keyValuePair(SyntaxToken key, SyntaxToken value) {
-    return new KeyValuePairTreeImpl(key, null, value);
+    return new KeyValuePairTreeImpl(null, key, null, value);
   }
 
   public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, SyntaxToken value) {
-    return new KeyValuePairTreeImpl(key, equals, value);
+    return new KeyValuePairTreeImpl(null, key, equals, value);
+  }
+
+  public KeyValuePairTree keyValuePairEquals(SyntaxToken prefix, SyntaxToken key, SyntaxToken equals, SyntaxToken value) {
+    return new KeyValuePairTreeImpl(prefix, key, equals, value);
   }
 
   public ParamTree param(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, SyntaxToken value) {
@@ -222,11 +229,4 @@ public class TreeFactory {
     }
   }
 
-  public OptionTree option(SyntaxToken dashes, SyntaxToken name, SyntaxToken equals, SyntaxToken value) {
-    return new OptionTreeImpl(dashes, name, equals, value);
-  }
-
-  public OptionTree option(SyntaxToken dashes, SyntaxToken name) {
-    return new OptionTreeImpl(dashes, name, null, null);
-  }
 }

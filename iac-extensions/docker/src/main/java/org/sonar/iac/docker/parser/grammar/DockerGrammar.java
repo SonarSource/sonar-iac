@@ -39,9 +39,7 @@ import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
-import org.sonar.iac.docker.tree.api.OptionTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
-import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
@@ -53,6 +51,7 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAM
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.DASHES_OPERATOR;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.EQUALS_OPERATOR;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.KEY_VALUE_PAIR_PREFIX;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
@@ -233,7 +232,7 @@ public class DockerGrammar {
   }
 
   /**
-   * To match such element : key1=value1 key2=value2
+   * To match such element : key1=value1
    */
   public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
     return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
@@ -254,12 +253,35 @@ public class DockerGrammar {
     );
   }
 
+  /**
+   * To match such element : --key
+   * Prefix defined by regex {@link org.sonar.iac.common.parser.grammar.DockerLexicalConstant.KEY_VALUE_PAIR_PREFIX}
+   */
+  public KeyValuePairTree KEY_ONLY_PREFIXED() {
+    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_ONLY_PREFIXED).is(
+      f.key(b.token(KEY_VALUE_PAIR_PREFIX), b.token(STRING_LITERAL_WITHOUT_SPACE))
+    );
+  }
+
+  /**
+   * To match such element : --key=value
+   * Prefix defined by regex {@link org.sonar.iac.common.parser.grammar.DockerLexicalConstant.KEY_VALUE_PAIR_PREFIX}
+   */
+  public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS_PREFIXED() {
+    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS_PREFIXED).is(
+      f.keyValuePairEquals(b.token(KEY_VALUE_PAIR_PREFIX), b.token(STRING_LITERAL_WITHOUT_SPACE), b.token(Punctuator.EQU), b.token(STRING_LITERAL_WITHOUT_SPACE))
+    );
+  }
+
   public AddTree ADD() {
     return b.<AddTree>nonterminal(DockerLexicalGrammar.ADD).is(
       f.add(
         b.token(DockerKeyword.ADD),
         b.zeroOrMore(
-          OPTION()
+          b.firstOf(
+            KEY_VALUE_PAIR_WITH_EQUALS_PREFIXED(),
+            KEY_ONLY_PREFIXED()
+          )
         ),
         b.oneOrMore(
           b.token(STRING_LITERAL)

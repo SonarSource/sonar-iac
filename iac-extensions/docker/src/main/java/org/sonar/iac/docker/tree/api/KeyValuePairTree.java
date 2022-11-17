@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.tree.api;
 
 public interface KeyValuePairTree extends DockerTree {
+  SyntaxToken prefix();
   SyntaxToken key();
   SyntaxToken equals();
   SyntaxToken value();

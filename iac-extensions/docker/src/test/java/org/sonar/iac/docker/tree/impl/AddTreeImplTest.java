@@ -24,9 +24,10 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.OptionTree;
+import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class AddTreeImplTest {
@@ -55,6 +56,7 @@ class AddTreeImplTest {
     AddTree tree = parse("ADD src dest", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 12);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
     assertThat(tree.srcs().get(0).value()).isEqualTo("src");
@@ -66,6 +68,7 @@ class AddTreeImplTest {
     AddTree tree = parse("ADD \"src\" \"dest\"", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
     assertThat(tree.srcs().get(0).value()).isEqualTo("\"src\"");
@@ -77,6 +80,7 @@ class AddTreeImplTest {
     AddTree tree = parse("ADD dest", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).isEmpty();
     assertThat(tree.dest().value()).isEqualTo("dest");
@@ -87,6 +91,7 @@ class AddTreeImplTest {
     AddTree tree = parse("ADD src1 src2 dest", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 18);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(2);
     assertThat(tree.srcs().get(0).value()).isEqualTo("src1");
@@ -99,11 +104,12 @@ class AddTreeImplTest {
     AddTree tree = parse("ADD --link /foo /bar", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 20);
     assertThat(tree.options()).hasSize(1);
-    OptionTree option = tree.options().get(0);
-    assertThat(option.getKind()).isEqualTo(DockerTree.Kind.OPTION);
-    assertThat(option.dashes().value()).isEqualTo("--");
-    assertThat(option.name().value()).isEqualTo("link");
+    KeyValuePairTree option = tree.options().get(0);
+    assertThat(option.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(option.prefix().value()).isEqualTo("--");
+    assertThat(option.key().value()).isEqualTo("link");
     assertThat(option.equals()).isNull();
     assertThat(option.value()).isNull();
     assertThat(tree.srcs()).hasSize(1);
@@ -117,10 +123,11 @@ class AddTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
     assertThat(tree.options()).hasSize(1);
-    OptionTree option = tree.options().get(0);
-    assertThat(option.getKind()).isEqualTo(DockerTree.Kind.OPTION);
-    assertThat(option.dashes().value()).isEqualTo("--");
-    assertThat(option.name().value()).isEqualTo("chown");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 39);
+    KeyValuePairTree option = tree.options().get(0);
+    assertThat(option.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(option.prefix().value()).isEqualTo("--");
+    assertThat(option.key().value()).isEqualTo("chown");
     assertThat(option.equals().value()).isEqualTo("=");
     assertThat(option.value().value()).isEqualTo("55:mygroup");
     assertThat(tree.srcs()).hasSize(1);
@@ -133,18 +140,19 @@ class AddTreeImplTest {
     AddTree tree = parse("ADD --option1=value1 --option2=value2 src dest", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 46);
     assertThat(tree.options()).hasSize(2);
 
-    OptionTree option1 = tree.options().get(0);
-    assertThat(option1.getKind()).isEqualTo(DockerTree.Kind.OPTION);
-    assertThat(option1.dashes().value()).isEqualTo("--");
-    assertThat(option1.name().value()).isEqualTo("option1");
+    KeyValuePairTree option1 = tree.options().get(0);
+    assertThat(option1.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(option1.prefix().value()).isEqualTo("--");
+    assertThat(option1.key().value()).isEqualTo("option1");
     assertThat(option1.equals().value()).isEqualTo("=");
     assertThat(option1.value().value()).isEqualTo("value1");
-    OptionTree option2 = tree.options().get(1);
-    assertThat(option2.getKind()).isEqualTo(DockerTree.Kind.OPTION);
-    assertThat(option2.dashes().value()).isEqualTo("--");
-    assertThat(option2.name().value()).isEqualTo("option2");
+    KeyValuePairTree option2 = tree.options().get(1);
+    assertThat(option2.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(option2.prefix().value()).isEqualTo("--");
+    assertThat(option2.key().value()).isEqualTo("option2");
     assertThat(option2.equals().value()).isEqualTo("=");
     assertThat(option2.value().value()).isEqualTo("value2");
 
