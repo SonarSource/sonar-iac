@@ -61,7 +61,7 @@ class LabelTreeImplTest {
     assertThat(tree.keyValuePairs()).hasSize(1);
 
     KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
-    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEYVALUEPAIR);
+    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
     assertThat(keyValuePair.key().value()).isEqualTo("key1");
     assertThat(keyValuePair.equals()).isNull();
     assertThat(keyValuePair.value().value()).isEqualTo("value1");

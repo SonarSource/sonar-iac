@@ -38,6 +38,7 @@ class FromTreeImplTest {
     Assertions.assertThat(DockerLexicalGrammar.FROM)
       .matches("FROM foobar")
       .matches("FROM foobar:latest")
+      .matches("FROM foobar@12313423")
       .matches("FROM --platform=foo bar")
       .matches("FROM foobar AS fb")
       .matches("FROM --platform=foo bar AS fb")
@@ -85,7 +86,7 @@ class FromTreeImplTest {
     assertThat(from.alias()).isNull();
     KeyValuePairTree platform = from.platform();
     assertThat(platform).isNotNull();
-    assertThat(platform.getKind()).isEqualTo(DockerTree.Kind.KEYVALUEPAIR);
+    assertThat(platform.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
     assertThat(platform.value().value()).isEqualTo("foo");
     assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, KeyValuePairTreeImpl.class, SyntaxTokenImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 23);

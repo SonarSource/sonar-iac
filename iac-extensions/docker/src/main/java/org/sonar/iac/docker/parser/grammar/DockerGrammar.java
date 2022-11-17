@@ -80,7 +80,8 @@ public class DockerGrammar {
       f.from(
         b.token(DockerKeyword.FROM),
         b.optional(PLATFORM_OPTION()),
-        b.token(STRING_LITERAL), b.optional(ALIAS())
+        b.token(STRING_LITERAL),
+        b.optional(ALIAS())
       )
     );
   }
