@@ -43,6 +43,7 @@ import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.UserTree;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
@@ -52,6 +53,7 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_NO_COLON;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
 @SuppressWarnings("java:S100")
@@ -87,7 +89,8 @@ public class DockerGrammar {
         ENV(),
         ARG(),
         CMD(),
-        ADD()
+        ADD(),
+        USER()
       )
     );
   }
@@ -214,6 +217,15 @@ public class DockerGrammar {
         b.oneOrMore(
           b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
         )
+      )
+    );
+  }
+
+  public UserTree USER() {
+    return b.<UserTree>nonterminal(DockerLexicalGrammar.USER).is(
+      b.firstOf(
+        f.user(b.token(DockerKeyword.USER), b.token(STRING_LITERAL_NO_COLON), b.token(Punctuator.COLON), b.token(STRING_UNTIL_EOL)),
+        f.user(b.token(DockerKeyword.USER), b.token(STRING_UNTIL_EOL))
       )
     );
   }

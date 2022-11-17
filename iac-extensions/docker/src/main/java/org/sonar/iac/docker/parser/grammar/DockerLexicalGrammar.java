@@ -35,6 +35,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * Lexical
    */
   STRING_LITERAL,
+  STRING_LITERAL_NO_COLON,
   STRING_LITERAL_WITHOUT_SPACE,
   STRING_UNTIL_EOL,
   STRING_LITERAL_WITH_QUOTES,
@@ -62,6 +63,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   ARG,
   CMD,
   ADD,
+  USER,
 
   /**
    * EXPRESSIONS
@@ -116,12 +118,13 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
+    b.rule(STRING_LITERAL_NO_COLON).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_NO_COLON));
+    b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
+    b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(STRING_LITERAL_WITHOUT_SPACE).is(b.regexp(DockerLexicalConstant.STRING_LITERAL));
     b.rule(STRING_UNTIL_EOL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
     b.rule(STRING_LITERAL_WITH_QUOTES).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
 
-    b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
-    b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
 
     b.rule(IMAGE_NAME).is(SPACING, b.regexp("[^@:\\s\\$-][^@:\\s\\$]+"));
