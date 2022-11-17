@@ -37,15 +37,15 @@ class EnvTreeImplTest {
       .matches("ENV key1 value1")
       .matches("ENV key1 value1 still_value1 again_value1")
       .matches("ENV key1 \"value1\" still_value1 again_value1")
-      .notMatches("ENV \"key1 value1 still_value1 again_value1\"")
       .matches("    ENV key1=value1")
-      .notMatches("env key1=value1")
+      .matches("env key1=value1")
       .matches("ENV key1=value1 key2=value2")
       .matches("ENV \"key1\"=\"value1\" \"key2\"=\"value2\"")
       .matches("ENV \"key1\"=value1 key2=\"value2\"")
       .notMatches("ENV")
       .notMatches("ENV key1")
-      .notMatches("ENV ");
+      .notMatches("ENV ")
+      .notMatches("ENV \"key1 value1 still_value1 again_value1\"");
   }
 
   @Test

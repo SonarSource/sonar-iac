@@ -137,7 +137,7 @@ public class DockerGrammar {
     );
   }
 
-  public EnvTree ENV () {
+  public EnvTree ENV() {
     return b.<EnvTree>nonterminal(DockerLexicalGrammar.ENV).is(
       f.env(b.token(DockerKeyword.ENV),
         b.oneOrMore(
