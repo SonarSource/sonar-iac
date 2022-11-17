@@ -56,6 +56,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   WORKDIR,
   EXPOSE,
   LABEL,
+  ENV,
 
   /**
    * EXPRESSIONS
