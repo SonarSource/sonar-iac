@@ -30,6 +30,7 @@ public interface DockerTree extends Tree {
   enum Kind implements GrammarRuleKey {
     FILE(FileTree.class),
     FROM(FromTree.class),
+    ALIAS(AliasTree.class),
     MAINTAINER(MaintainerTree.class),
     STOPSIGNAL(StopSignalTree.class),
     WORKDIR(WorkdirTree.class),
@@ -37,7 +38,7 @@ public interface DockerTree extends Tree {
     PORT(PortTree.class),
     LABEL(LabelTree.class),
     ENV(EnvTree.class),
-    KEYVALUEPAIR(KeyValuePairTree.class),
+    KEY_VALUE_PAIR(KeyValuePairTree.class),
 
     TOKEN(SyntaxToken.class);
 

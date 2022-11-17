@@ -24,29 +24,23 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class StopSignalTreeImpl extends DockerTreeImpl implements StopSignalTree {
+public class StopSignalTreeImpl extends InstructionTreeImpl implements StopSignalTree {
 
-  private final SyntaxToken instructionKeyword;
   private final SyntaxToken signal;
 
-  public StopSignalTreeImpl(SyntaxToken instructionKeyword, SyntaxToken signal) {
-    this.instructionKeyword = instructionKeyword;
+  public StopSignalTreeImpl(SyntaxToken keyword, SyntaxToken signal) {
+    super(keyword);
     this.signal = signal;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(instructionKeyword, signal);
+    return List.of(keyword(), signal);
   }
 
   @Override
   public Kind getKind() {
     return Kind.STOPSIGNAL;
-  }
-
-  @Override
-  public SyntaxToken instructionKeyword() {
-    return instructionKeyword;
   }
 
   @Override

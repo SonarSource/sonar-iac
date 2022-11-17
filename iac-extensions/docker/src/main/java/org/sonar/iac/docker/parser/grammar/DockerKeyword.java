@@ -29,6 +29,7 @@ public enum DockerKeyword implements GrammarRuleKey {
   WORKDIR("WORKDIR"),
   EXPOSE("EXPOSE"),
   LABEL("LABEL"),
+  AS("AS"),
   ENV("ENV");
 
   private final String value;

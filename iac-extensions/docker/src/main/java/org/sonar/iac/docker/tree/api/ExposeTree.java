@@ -22,6 +22,5 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface ExposeTree extends InstructionTree {
-  SyntaxToken exposeToken();
   List<PortTree> ports();
 }

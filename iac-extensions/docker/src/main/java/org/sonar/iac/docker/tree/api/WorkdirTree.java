@@ -22,6 +22,5 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface WorkdirTree extends InstructionTree {
-  SyntaxToken instructionKeyword();
   List<SyntaxToken> workdirList();
 }

@@ -22,6 +22,5 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface MaintainerTree extends InstructionTree {
-  SyntaxToken maintainer();
   List<SyntaxToken> authors();
 }

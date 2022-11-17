@@ -20,4 +20,5 @@
 package org.sonar.iac.docker.tree.api;
 
 public interface InstructionTree extends DockerTree {
+  SyntaxToken keyword();
 }

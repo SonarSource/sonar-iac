@@ -25,20 +25,19 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
-public class WorkdirTreeImpl extends DockerTreeImpl implements WorkdirTree {
+public class WorkdirTreeImpl extends InstructionTreeImpl implements WorkdirTree {
 
-  private final SyntaxToken instructionKeyword;
   private final List<SyntaxToken> workdirList;
 
-  public WorkdirTreeImpl(SyntaxToken instructionKeyword, List<SyntaxToken> workdirList) {
-    this.instructionKeyword = instructionKeyword;
+  public WorkdirTreeImpl(SyntaxToken keyword, List<SyntaxToken> workdirList) {
+    super(keyword);
     this.workdirList = workdirList;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
-    result.add(instructionKeyword);
+    result.add(keyword);
     result.addAll(workdirList);
     return result;
   }
@@ -46,11 +45,6 @@ public class WorkdirTreeImpl extends DockerTreeImpl implements WorkdirTree {
   @Override
   public Kind getKind() {
     return Kind.WORKDIR;
-  }
-
-  @Override
-  public SyntaxToken instructionKeyword() {
-    return instructionKeyword;
   }
 
   @Override

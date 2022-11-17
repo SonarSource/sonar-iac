@@ -20,20 +20,84 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class FromTreeImplTest {
 
-
-  // TODO Remove with SONARIAC-443
   @Test
-  void shouldParseEmptyFromInstruction() {
-    FromTree tree = parse("FROM", DockerLexicalGrammar.FROM);
-    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FROM);
+  void test() {
+    Assertions.assertThat(DockerLexicalGrammar.FROM)
+      .matches("FROM foobar")
+      .matches("FROM foobar:latest")
+      .matches("FROM foobar@12313423")
+      .matches("FROM --platform=foo bar")
+      .matches("FROM foobar AS fb")
+      .matches("FROM --platform=foo bar AS fb")
+      .matches("FROM foobar:latest AS fb")
+      .matches("FROM --platform=foo bar:latest")
+      .matches("FROM --platform=foo bar:latest AS fb")
+      .matches("FROM foobar:latest as fb")
+      .matches("from foobar")
+
+      .notMatches("FROM foobar AS")
+      .notMatches("FROM")
+      .notMatches("FROM foobar foobar")
+      .notMatches("FROM --platform=foo")
+      .notMatches("FROM --foo=bar foobar")
+    ;
+  }
+
+  @Test
+  void simpleImage() {
+    FromTree from = parse("FROM foobar", DockerLexicalGrammar.FROM);
+    assertThat(from.getKind()).isEqualTo(DockerTree.Kind.FROM);
+    assertThat(from.keyword().value()).isEqualTo("FROM");
+    assertThat(from.image().value()).isEqualTo("foobar");
+    assertThat(from.alias()).isNull();
+    assertThat(from.platform()).isNull();
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, SyntaxTokenImpl.class);
+    assertTextRange(from.textRange()).hasRange(1, 0, 1, 11);
+  }
+
+  @Test
+  void imageWithAlias() {
+    FromTree from = parse("FROM foobar AS fb", DockerLexicalGrammar.FROM);
+    assertThat(from.platform()).isNull();
+    AliasTree alias = from.alias();
+    assertThat(alias).isNotNull();
+    assertThat(alias.getKind()).isEqualTo(DockerTree.Kind.ALIAS);
+    assertThat(alias.alias().value()).isEqualTo("fb");
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, SyntaxTokenImpl.class, AliasTreeImpl.class);
+    assertTextRange(from.textRange()).hasRange(1, 0, 1, 17);
+  }
+
+  @Test
+  void imageWithPlatform() {
+    FromTree from = parse("FROM --platform=foo bar", DockerLexicalGrammar.FROM);
+    assertThat(from.alias()).isNull();
+    KeyValuePairTree platform = from.platform();
+    assertThat(platform).isNotNull();
+    assertThat(platform.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(platform.value().value()).isEqualTo("foo");
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, KeyValuePairTreeImpl.class, SyntaxTokenImpl.class);
+    assertTextRange(from.textRange()).hasRange(1, 0, 1, 23);
+  }
+
+  @Test
+  void imageWithPlatformAndAlias() {
+    FromTree from = parse("FROM --platform=foo bar:latest AS fb", DockerLexicalGrammar.FROM);
+    assertThat(from.alias()).isNotNull();
+    assertThat(from.platform()).isNotNull();
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, KeyValuePairTreeImpl.class, SyntaxTokenImpl.class, AliasTreeImpl.class);
+    assertTextRange(from.textRange()).hasRange(1, 0, 1, 36);
   }
 }

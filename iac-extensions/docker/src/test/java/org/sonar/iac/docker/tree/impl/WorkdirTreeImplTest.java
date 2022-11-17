@@ -62,7 +62,7 @@ class WorkdirTreeImplTest {
   void shouldCheckParseTree() {
     WorkdirTree tree = DockerTestUtils.parse("WORKDIR /foo bar /baz", DockerLexicalGrammar.WORKDIR);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.WORKDIR);
-    assertThat(tree.instructionKeyword().value()).isEqualTo("WORKDIR");
+    assertThat(tree.keyword().value()).isEqualTo("WORKDIR");
     assertThat(tree.workdirList().stream().map(TextTree::value)).containsExactly("/foo", "bar", "/baz");
     List<SyntaxToken> children = tree.children().stream()
       .map(c -> (SyntaxToken) c)

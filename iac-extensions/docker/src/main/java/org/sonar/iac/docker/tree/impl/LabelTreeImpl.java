@@ -26,18 +26,12 @@ import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class LabelTreeImpl extends DockerTreeImpl implements LabelTree {
-  private final SyntaxToken label;
+public class LabelTreeImpl extends InstructionTreeImpl implements LabelTree {
   private final List<KeyValuePairTree> keyValuePairs;
 
-  public LabelTreeImpl(SyntaxToken label, List<KeyValuePairTree> keyValuePairs) {
-    this.label = label;
+  public LabelTreeImpl(SyntaxToken keyword, List<KeyValuePairTree> keyValuePairs) {
+    super(keyword);
     this.keyValuePairs = keyValuePairs;
-  }
-
-  @Override
-  public SyntaxToken label() {
-    return label;
   }
 
   @Override
@@ -48,7 +42,7 @@ public class LabelTreeImpl extends DockerTreeImpl implements LabelTree {
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(label);
+    children.add(keyword);
     for (KeyValuePairTree keyValuePair : keyValuePairs) {
       children.addAll(keyValuePair.children());
     }

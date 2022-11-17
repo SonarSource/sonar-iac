@@ -52,7 +52,7 @@ public class KeyValuePairTreeImpl extends DockerTreeImpl implements KeyValuePair
 
   @Override
   public Kind getKind() {
-    return Kind.KEYVALUEPAIR;
+    return Kind.KEY_VALUE_PAIR;
   }
 
   @Override

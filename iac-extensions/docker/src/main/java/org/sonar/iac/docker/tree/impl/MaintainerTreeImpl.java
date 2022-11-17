@@ -25,19 +25,18 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class MaintainerTreeImpl extends DockerTreeImpl implements MaintainerTree {
-  private final SyntaxToken maintainer;
+public class MaintainerTreeImpl extends InstructionTreeImpl implements MaintainerTree {
   private final List<SyntaxToken> authors;
 
-  public MaintainerTreeImpl(SyntaxToken maintainerToken, List<SyntaxToken> authorsToken) {
-    this.maintainer = maintainerToken;
+  public MaintainerTreeImpl(SyntaxToken keyword, List<SyntaxToken> authorsToken) {
+    super(keyword);
     this.authors = authorsToken;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(maintainer);
+    children.add(keyword);
     children.addAll(authors);
     return children;
   }
@@ -45,11 +44,6 @@ public class MaintainerTreeImpl extends DockerTreeImpl implements MaintainerTree
   @Override
   public Kind getKind() {
     return Kind.MAINTAINER;
-  }
-
-  @Override
-  public SyntaxToken maintainer() {
-    return maintainer;
   }
 
   @Override
