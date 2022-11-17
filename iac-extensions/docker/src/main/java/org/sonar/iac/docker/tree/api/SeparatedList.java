@@ -17,32 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser.grammar;
+package org.sonar.iac.docker.tree.api;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
 
-public enum DockerKeyword implements GrammarRuleKey {
-
-  ONBUILD("ONBUILD"),
-  FROM("FROM"),
-  MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL"),
-  WORKDIR("WORKDIR"),
-  EXPOSE("EXPOSE"),
-  LABEL("LABEL"),
-  AS("AS"),
-  ENV("ENV"),
-  ARG("ARG"),
-  CMD("CMD")
-  ;
-
-  private final String value;
-
-  DockerKeyword(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
+public interface SeparatedList<T extends Tree> {
+  List<T> elements();
+  List<SyntaxToken> separators();
+  List<Tree> elementsAndSeparators();
 }

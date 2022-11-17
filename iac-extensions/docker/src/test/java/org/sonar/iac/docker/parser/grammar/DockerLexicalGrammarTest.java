@@ -67,4 +67,17 @@ class DockerLexicalGrammarTest {
       .matches("foo=bar")
     ;
   }
+
+  @Test
+  void shouldVerifyExecForm() {
+    Assertions.assertThat(DockerLexicalGrammar.EXEC_FORM)
+      .matches("[]")
+      .matches("[\"foo\"]")
+      .matches("[\"foo\", \"bar\"]")
+      .matches("[\"foo\",\"bar\"]")
+      .matches("[\"foo\" , \"bar\"]")
+      .notMatches("[\"foo\" \"bar\"]")
+      .notMatches("[\"foo\", \"bar\",]")
+      .notMatches("");
+  }
 }

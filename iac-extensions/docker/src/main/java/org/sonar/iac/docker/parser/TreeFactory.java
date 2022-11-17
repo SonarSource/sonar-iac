@@ -20,12 +20,16 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
+import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
+import org.sonar.iac.docker.tree.api.CmdTree;
+import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
@@ -33,6 +37,7 @@ import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
+import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -40,19 +45,24 @@ import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
 import org.sonar.iac.docker.tree.impl.ArgTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
+import org.sonar.iac.docker.tree.impl.ExecFormLiteralTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
+import org.sonar.iac.docker.tree.impl.CmdTreeImpl;
+import org.sonar.iac.docker.tree.impl.ExecFormTreeImpl;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
 import org.sonar.iac.docker.tree.impl.KeyValuePairTreeImpl;
 import org.sonar.iac.docker.tree.impl.LabelTreeImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildTreeImpl;
+import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 import org.sonar.iac.docker.tree.impl.PortTreeImpl;
 
 public class TreeFactory {
 
+  @SuppressWarnings("java:S1172")
   public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
   }
@@ -119,5 +129,57 @@ public class TreeFactory {
 
   public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, SyntaxToken value) {
     return new KeyValuePairTreeImpl(key, equals, value);
+  }
+
+  public CmdTree cmd(SyntaxToken token, Optional<ExecFormTree> execFormTree) {
+    return new CmdTreeImpl(token, execFormTree.orNull());
+  }
+
+  public ExecFormTree execForm(SyntaxToken leftBracket,
+    Optional<Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>>> literals,
+    SyntaxToken rightBracket) {
+
+    List<ExecFormLiteralTree> elements = new ArrayList<>();
+    List<SyntaxToken> separators = new ArrayList<>();
+    SeparatedList<ExecFormLiteralTree> separatedList = new SeparatedListImpl<>(elements, separators);
+    if (literals.isPresent()) {
+      Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>> tuple = literals.get();
+        elements.add(new ExecFormLiteralTreeImpl(tuple.first()));
+        Optional<List<Tuple<SyntaxToken, SyntaxToken>>> second = tuple.second();
+        if(second.isPresent()) {
+          List<Tuple<SyntaxToken, SyntaxToken>> comaAndLiterals = second.get();
+          for (Tuple<SyntaxToken, SyntaxToken> comaAndLiteral : comaAndLiterals) {
+            separators.add(comaAndLiteral.first());
+            elements.add(new ExecFormLiteralTreeImpl(comaAndLiteral.second()));
+          }
+        }
+    }
+
+    return new ExecFormTreeImpl(leftBracket, separatedList, rightBracket);
+  }
+
+  public <T, U> Tuple<T, U> newTuple(T first, U second) {
+    return new Tuple<>(first, second);
+  }
+
+  public static class Tuple<T, U> {
+
+    private final T first;
+    private final U second;
+
+    public Tuple(T first, U second) {
+      super();
+
+      this.first = first;
+      this.second = second;
+    }
+
+    public T first() {
+      return first;
+    }
+
+    public U second() {
+      return second;
+    }
   }
 }
