@@ -36,7 +36,7 @@ class ExposeTreeImplTest {
       .matches("EXPOSE 80")
       .matches("EXPOSE 80-88")
       .matches("    EXPOSE 80")
-      .notMatches("expose 80") // should match
+      .matches("expose 80")
       .matches("EXPOSE \"80\"")
       .matches("EXPOSE      80")
       .matches("EXPOSE 80/")
