@@ -51,9 +51,10 @@ class WorkdirTreeImplTest {
       .matches("WORKDIR /foo /bar /biz")
       .matches("WORKDIR foo bar biz")
       .matches("   WORKDIR 1")
+      .matches("workdir 9")
+      .matches("wOrKdir 9")
       .notMatches("WORKDIRfooo")
       .notMatches("WORKDIR")
-      .notMatches("workdir 9")
       .notMatches("WORKDIRR");
   }
 

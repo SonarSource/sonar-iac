@@ -34,7 +34,7 @@ class MaintainerTreeImplTest {
     Assertions.assertThat(DockerLexicalGrammar.MAINTAINER)
       .matches("MAINTAINER bob")
       .matches("    MAINTAINER bob")
-      .notMatches("maintainer bob") // should match
+      .matches("maintainer bob")
       .matches("MAINTAINER \"bob\"")
       .matches("MAINTAINER \"bob")
       .matches("MAINTAINER bob boberman bob@bob.com")

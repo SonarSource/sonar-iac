@@ -40,9 +40,9 @@ class StopSignalTreeImplTest {
       .matches("STOPSIGNAL 9")
       .matches("STOPSIGNAL 1")
       .matches("   STOPSIGNAL 1")
+      .matches("stopsignal 9")
       .notMatches("STOPSIGNALfooo")
       .notMatches("stopsignal")
-      .notMatches("stopsignal 9")
       .notMatches("STOPSIGNAL foo bar")
       .notMatches("STOPSIGNALL");
   }

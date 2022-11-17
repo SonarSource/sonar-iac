@@ -103,7 +103,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     Arrays.stream(DockerKeyword.values()).forEach(tokenType ->
       b.rule(tokenType).is(
         SPACING,
-        b.regexp(tokenType.getValue()),
+        b.regexp("(?i)" + tokenType.getValue()),
         b.nextNot(b.regexp(LexicalConstant.IDENTIFIER))
       ).skip()
     );
