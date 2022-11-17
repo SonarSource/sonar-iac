@@ -17,38 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.iac.docker.tree.api.ArgNameTree;
+import org.sonar.iac.docker.tree.api.ArgTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public interface DockerTree extends Tree {
+public class ArgTreeImpl extends InstructionTreeImpl implements ArgTree {
+  private final List<ArgNameTree> argNames;
 
-  boolean is(Kind... kind);
-  Kind getKind();
+  public ArgTreeImpl(SyntaxToken arg, List<ArgNameTree> argNames) {
+    super(arg);
+    this.argNames = argNames;
+  }
 
-  enum Kind implements GrammarRuleKey {
-    FILE(FileTree.class),
-    FROM(FromTree.class),
-    ALIAS(AliasTree.class),
-    MAINTAINER(MaintainerTree.class),
-    STOPSIGNAL(StopSignalTree.class),
-    WORKDIR(WorkdirTree.class),
-    EXPOSE(ExposeTree.class),
-    PORT(PortTree.class),
-    LABEL(LabelTree.class),
-    ENV(EnvTree.class),
-    KEY_VALUE_PAIR(KeyValuePairTree.class),
-    ARG(ArgTree.class),
-    ARGNAME(ArgNameTree.class),
+  @Override
+  public List<ArgNameTree> argNames() {
+    return argNames;
+  }
 
-    TOKEN(SyntaxToken.class);
-
-
-    private final Class<? extends DockerTree> associatedInterface;
-
-    Kind(Class<? extends DockerTree> associatedInterface) {
-      this.associatedInterface = associatedInterface;
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>();
+    children.add(keyword);
+    for (ArgNameTree argName : argNames) {
+      children.addAll(argName.children());
     }
+    return children;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.ARG;
   }
 }

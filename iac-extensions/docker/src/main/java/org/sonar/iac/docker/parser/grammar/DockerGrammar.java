@@ -25,6 +25,8 @@ import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.iac.docker.parser.TreeFactory;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
+import org.sonar.iac.docker.tree.api.ArgNameTree;
+import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
@@ -39,6 +41,7 @@ import org.sonar.iac.docker.tree.api.WorkdirTree;
 
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
 @SuppressWarnings("java:S100")
@@ -70,7 +73,8 @@ public class DockerGrammar {
         WORKDIR(),
         EXPOSE(),
         LABEL(),
-        ENV()
+        ENV(),
+        ARG()
       )
     );
   }
@@ -146,7 +150,7 @@ public class DockerGrammar {
   public PortTree PORT() {
     return b.<PortTree>nonterminal(DockerLexicalGrammar.PORT).is(
       b.firstOf(
-        f.port(b.token(DockerLexicalGrammar.NUMERIC_LITERAL), b.token(DockerLexicalGrammar.SEPARATOR_PORT), b.optional(b.token(DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE))),
+        f.port(b.token(DockerLexicalGrammar.NUMERIC_LITERAL), b.token(DockerLexicalGrammar.SEPARATOR_PORT), b.optional(b.token(STRING_LITERAL_WITHOUT_SPACE))),
         f.port(b.token(DockerLexicalGrammar.STRING_LITERAL))
       )
     );
@@ -187,6 +191,23 @@ public class DockerGrammar {
   public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
     return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
       f.keyValuePairEquals(b.token(STRING_LITERAL), b.token(Punctuator.EQU), b.token(STRING_LITERAL))
+    );
+  }
+
+  public ArgTree ARG() {
+    return b.<ArgTree>nonterminal(DockerLexicalGrammar.ARG).is(
+      f.arg(b.token(DockerKeyword.ARG),
+        b.oneOrMore(ARG_NAME())
+      )
+    );
+  }
+
+  public ArgNameTree ARG_NAME() {
+    return b.<ArgNameTree>nonterminal(DockerLexicalGrammar.ARG_NAME).is(
+      b.firstOf(
+        f.argName(b.token(STRING_LITERAL), b.token(Punctuator.EQU), b.token(STRING_LITERAL_WITHOUT_SPACE)),
+        f.argName(b.token(STRING_LITERAL))
+      )
     );
   }
 }
