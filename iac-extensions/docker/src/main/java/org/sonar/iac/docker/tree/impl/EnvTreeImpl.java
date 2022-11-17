@@ -1,3 +1,4 @@
+
 /*
  * SonarQube IaC Plugin
  * Copyright (C) 2021-2022 SonarSource SA
@@ -26,18 +27,12 @@ import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class EnvTreeImpl extends DockerTreeImpl implements EnvTree {
-  private final SyntaxToken env;
+public class EnvTreeImpl extends InstructionTreeImpl implements EnvTree {
   private final List<KeyValuePairTree> keyValuePairs;
 
-  public EnvTreeImpl(SyntaxToken env, List<KeyValuePairTree> keyValuePairs) {
-    this.env = env;
+  public EnvTreeImpl(SyntaxToken keyword, List<KeyValuePairTree> keyValuePairs) {
+    super(keyword);
     this.keyValuePairs = keyValuePairs;
-  }
-
-  @Override
-  public SyntaxToken env() {
-    return env;
   }
 
   @Override
@@ -48,7 +43,7 @@ public class EnvTreeImpl extends DockerTreeImpl implements EnvTree {
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(env);
+    children.add(keyword);
     for (KeyValuePairTree keyValuePair : keyValuePairs) {
       children.addAll(keyValuePair.children());
     }

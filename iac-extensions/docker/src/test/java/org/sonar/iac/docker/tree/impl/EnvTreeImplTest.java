@@ -52,7 +52,7 @@ class EnvTreeImplTest {
   void envInstructionWithoutEqualsOperator() {
     EnvTree tree = parse("ENV key1 value1", DockerLexicalGrammar.ENV);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
-    assertThat(tree.env().value()).isEqualTo("ENV");
+    assertThat(tree.keyword().value()).isEqualTo("ENV");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
@@ -61,7 +61,7 @@ class EnvTreeImplTest {
     assertThat(tree.keyValuePairs()).hasSize(1);
 
     KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
-    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEYVALUEPAIR);
+    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
     assertThat(keyValuePair.key().value()).isEqualTo("key1");
     assertThat(keyValuePair.equals()).isNull();
     assertThat(keyValuePair.value().value()).isEqualTo("value1");
@@ -71,7 +71,7 @@ class EnvTreeImplTest {
   void envInstructionWithoutEqualsOperatorLong() {
     EnvTree tree = parse("ENV key1 value1 still_value1 again_value1", DockerLexicalGrammar.ENV);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
-    assertThat(tree.env().value()).isEqualTo("ENV");
+    assertThat(tree.keyword().value()).isEqualTo("ENV");
     assertThat(tree.keyValuePairs()).hasSize(1);
     KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
     assertThat(keyValuePair.key().value()).isEqualTo("key1");

@@ -45,12 +45,12 @@ class FromTreeImplTest {
       .matches("FROM foobar:latest AS fb")
       .matches("FROM --platform=foo bar:latest")
       .matches("FROM --platform=foo bar:latest AS fb")
+      .matches("FROM foobar:latest as fb")
+      .matches("from foobar")
 
       .notMatches("FROM foobar AS")
-      .notMatches("FROM foobar:latest as fb")
       .notMatches("FROM")
       .notMatches("FROM foobar foobar")
-      .notMatches("from foobar")
       .notMatches("FROM --platform=foo")
       .notMatches("FROM --foo=bar foobar")
     ;

@@ -22,6 +22,5 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface EnvTree extends InstructionTree {
-  SyntaxToken env();
   List<KeyValuePairTree> keyValuePairs();
 }
