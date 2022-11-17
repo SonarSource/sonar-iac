@@ -25,7 +25,6 @@ import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.iac.docker.parser.TreeFactory;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
-import org.sonar.iac.docker.tree.api.ArgNameTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.FileTree;
@@ -177,6 +176,15 @@ public class DockerGrammar {
   }
 
   /**
+   * To match such element as KeyValuePairTree : key
+   */
+  public KeyValuePairTree KEY_ONLY() {
+    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_ONLY).is(
+      f.key(b.token(STRING_LITERAL))
+    );
+  }
+
+  /**
    * To match such element : key1 value1 value1bis value1tris
    */
   public KeyValuePairTree KEY_VALUE_PAIR() {
@@ -197,16 +205,12 @@ public class DockerGrammar {
   public ArgTree ARG() {
     return b.<ArgTree>nonterminal(DockerLexicalGrammar.ARG).is(
       f.arg(b.token(DockerKeyword.ARG),
-        b.oneOrMore(ARG_NAME())
-      )
-    );
-  }
-
-  public ArgNameTree ARG_NAME() {
-    return b.<ArgNameTree>nonterminal(DockerLexicalGrammar.ARG_NAME).is(
-      b.firstOf(
-        f.argName(b.token(STRING_LITERAL), b.token(Punctuator.EQU), b.token(STRING_LITERAL_WITHOUT_SPACE)),
-        f.argName(b.token(STRING_LITERAL))
+        b.oneOrMore(
+          b.firstOf(
+            KEY_VALUE_PAIR_WITH_EQUALS(),
+            KEY_ONLY()
+          )
+        )
       )
     );
   }

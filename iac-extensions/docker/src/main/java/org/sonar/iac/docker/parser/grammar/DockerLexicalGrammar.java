@@ -64,6 +64,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    */
   ARGUMENTS,
   PORT,
+  KEY_ONLY,
   KEY_VALUE_PAIR_EQUALS,
   KEY_VALUE_PAIR_SINGLE,
   PLATFORM_OPTION,

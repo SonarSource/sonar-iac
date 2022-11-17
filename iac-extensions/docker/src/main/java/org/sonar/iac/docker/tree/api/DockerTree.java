@@ -40,7 +40,6 @@ public interface DockerTree extends Tree {
     ENV(EnvTree.class),
     KEY_VALUE_PAIR(KeyValuePairTree.class),
     ARG(ArgTree.class),
-    ARGNAME(ArgNameTree.class),
 
     TOKEN(SyntaxToken.class);
 

@@ -22,30 +22,28 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.ArgNameTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
+import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class ArgTreeImpl extends InstructionTreeImpl implements ArgTree {
-  private final List<ArgNameTree> argNames;
+  private final List<KeyValuePairTree> keyValuePairs;
 
-  public ArgTreeImpl(SyntaxToken arg, List<ArgNameTree> argNames) {
+  public ArgTreeImpl(SyntaxToken arg, List<KeyValuePairTree> argNames) {
     super(arg);
-    this.argNames = argNames;
+    this.keyValuePairs = argNames;
   }
 
   @Override
-  public List<ArgNameTree> argNames() {
-    return argNames;
+  public List<KeyValuePairTree> keyValuePairs() {
+    return keyValuePairs;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    for (ArgNameTree argName : argNames) {
-      children.addAll(argName.children());
-    }
+    keyValuePairs.forEach(keyValuePair -> children.addAll(keyValuePair.children()));
     return children;
   }
 

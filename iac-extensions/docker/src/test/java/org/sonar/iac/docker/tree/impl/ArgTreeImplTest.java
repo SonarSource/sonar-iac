@@ -22,11 +22,12 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.ArgNameTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class ArgTreeImplTest {
@@ -52,18 +53,15 @@ class ArgTreeImplTest {
     ArgTree tree = parse("ARG key1", DockerLexicalGrammar.ARG);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
-    assertThat(tree.textRange().start().line()).isEqualTo(1);
-    assertThat(tree.textRange().start().lineOffset()).isZero();
-    assertThat(tree.textRange().end().line()).isEqualTo(1);
-    assertThat(tree.textRange().end().lineOffset()).isEqualTo(8);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.children()).hasSize(2);
-    assertThat(tree.argNames()).hasSize(1);
+    assertThat(tree.keyValuePairs()).hasSize(1);
 
-    ArgNameTree argName = tree.argNames().get(0);
-    assertThat(argName.getKind()).isEqualTo(DockerTree.Kind.ARGNAME);
-    assertThat(argName.name().value()).isEqualTo("key1");
-    assertThat(argName.equals()).isNull();
-    assertThat(argName.value()).isNull();
+    KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
+    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(keyValuePair.key().value()).isEqualTo("key1");
+    assertThat(keyValuePair.equals()).isNull();
+    assertThat(keyValuePair.value()).isNull();
   }
 
   @Test
@@ -71,14 +69,15 @@ class ArgTreeImplTest {
     ArgTree tree = parse("ARG key1=value1", DockerLexicalGrammar.ARG);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 15);
     assertThat(tree.children()).hasSize(4);
-    assertThat(tree.argNames()).hasSize(1);
+    assertThat(tree.keyValuePairs()).hasSize(1);
 
-    ArgNameTree argName = tree.argNames().get(0);
-    assertThat(argName.getKind()).isEqualTo(DockerTree.Kind.ARGNAME);
-    assertThat(argName.name().value()).isEqualTo("key1");
-    assertThat(argName.equals().value()).isEqualTo("=");
-    assertThat(argName.value().value()).isEqualTo("value1");
+    KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
+    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(keyValuePair.key().value()).isEqualTo("key1");
+    assertThat(keyValuePair.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair.value().value()).isEqualTo("value1");
   }
 
   @Test
@@ -86,19 +85,42 @@ class ArgTreeImplTest {
     ArgTree tree = parse("ARG key1=value1 key2", DockerLexicalGrammar.ARG);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 20);
     assertThat(tree.children()).hasSize(5);
-    assertThat(tree.argNames()).hasSize(2);
+    assertThat(tree.keyValuePairs()).hasSize(2);
 
-    ArgNameTree argName1 = tree.argNames().get(0);
-    assertThat(argName1.getKind()).isEqualTo(DockerTree.Kind.ARGNAME);
-    assertThat(argName1.name().value()).isEqualTo("key1");
-    assertThat(argName1.equals().value()).isEqualTo("=");
-    assertThat(argName1.value().value()).isEqualTo("value1");
+    KeyValuePairTree keyValuePair1 = tree.keyValuePairs().get(0);
+    assertThat(keyValuePair1.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(keyValuePair1.key().value()).isEqualTo("key1");
+    assertThat(keyValuePair1.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair1.value().value()).isEqualTo("value1");
 
-    ArgNameTree argName2 = tree.argNames().get(1);
-    assertThat(argName2.getKind()).isEqualTo(DockerTree.Kind.ARGNAME);
-    assertThat(argName2.name().value()).isEqualTo("key2");
-    assertThat(argName2.equals()).isNull();
-    assertThat(argName2.value()).isNull();
+    KeyValuePairTree keyValuePair2 = tree.keyValuePairs().get(1);
+    assertThat(keyValuePair2.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(keyValuePair2.key().value()).isEqualTo("key2");
+    assertThat(keyValuePair2.equals()).isNull();
+    assertThat(keyValuePair2.value()).isNull();
+  }
+
+  @Test
+  void argInstructionMultipleValuesWithEquals() {
+    ArgTree tree = parse("ARG key1=value1 key2=value2", DockerLexicalGrammar.ARG);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
+    assertThat(tree.keyword().value()).isEqualTo("ARG");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 27);
+    assertThat(tree.children()).hasSize(7);
+    assertThat(tree.keyValuePairs()).hasSize(2);
+
+    KeyValuePairTree keyValuePair1 = tree.keyValuePairs().get(0);
+    assertThat(keyValuePair1.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(keyValuePair1.key().value()).isEqualTo("key1");
+    assertThat(keyValuePair1.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair1.value().value()).isEqualTo("value1");
+
+    KeyValuePairTree keyValuePair2 = tree.keyValuePairs().get(1);
+    assertThat(keyValuePair2.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(keyValuePair2.key().value()).isEqualTo("key2");
+    assertThat(keyValuePair2.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair2.value().value()).isEqualTo("value2");
   }
 }

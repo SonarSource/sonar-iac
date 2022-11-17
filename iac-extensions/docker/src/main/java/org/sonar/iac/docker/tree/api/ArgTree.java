@@ -22,5 +22,5 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface ArgTree extends InstructionTree {
-  List<ArgNameTree> argNames();
+  List<KeyValuePairTree> keyValuePairs();
 }
