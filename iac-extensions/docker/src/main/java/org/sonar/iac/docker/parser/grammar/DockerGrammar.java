@@ -121,7 +121,7 @@ public class DockerGrammar {
     return b.<AliasTree>nonterminal(DockerLexicalGrammar.ALIAS).is(
       f.alias(
         b.token(DockerKeyword.AS),
-        b.token(STRING_LITERAL)
+        b.token(DockerLexicalGrammar.IMAGE_ALIAS)
       )
     );
   }

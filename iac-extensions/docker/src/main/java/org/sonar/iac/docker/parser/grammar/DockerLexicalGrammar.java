@@ -77,7 +77,10 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   PARAM_VALUE,
   ALIAS,
   ARG_NAME,
-  EXEC_FORM
+  EXEC_FORM,
+
+  IMAGE,
+  IMAGE_ALIAS
   ;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
@@ -114,6 +117,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
     b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
+
+    b.rule(IMAGE_ALIAS).is(SPACING, b.regexp("[-a-zA-Z0-9_]+"));
 
     b.rule(PARAM_PREFIX).is(Punctuator.MINUS, Punctuator.MINUS);
     b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
