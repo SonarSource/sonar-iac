@@ -47,14 +47,14 @@ public class ImageTreeImpl extends DockerTreeImpl implements ImageTree {
 
   @Nullable
   @Override
-  public SyntaxToken tag() {
-    return tag;
+  public String tag() {
+    return tag != null ? tag.value().substring(1) : null;
   }
 
   @Nullable
   @Override
-  public SyntaxToken digest() {
-    return digest;
+  public String digest() {
+    return digest != null ? digest.value().substring(1) : null;
   }
 
   @Override

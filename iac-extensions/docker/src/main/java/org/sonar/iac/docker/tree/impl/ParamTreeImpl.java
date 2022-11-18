@@ -39,8 +39,8 @@ public class ParamTreeImpl extends DockerTreeImpl implements ParamTree {
   }
 
   @Override
-  public SyntaxToken name() {
-    return name;
+  public String name() {
+    return name.value();
   }
 
   @Override

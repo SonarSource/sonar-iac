@@ -20,6 +20,6 @@
 package org.sonar.iac.docker.tree.api;
 
 public interface ParamTree extends DockerTree {
-  SyntaxToken name();
+  String name();
   SyntaxToken value();
 }

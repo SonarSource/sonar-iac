@@ -56,7 +56,7 @@ class ParamTreeImplTest {
   void test() {
     ParamTree param = parse("--platform=foo", DockerLexicalGrammar.PARAM);
     assertThat(param.getKind()).isEqualTo(DockerTree.Kind.PARAM);
-    assertThat(param.name().value()).isEqualTo("platform");
+    assertThat(param.name()).isEqualTo("platform");
     assertThat(param.value().value()).isEqualTo("foo");
     assertTextRange(param.textRange()).hasRange(1, 0, 1, 14);
   }

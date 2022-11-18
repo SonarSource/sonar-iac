@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 public interface ImageTree extends DockerTree {
   SyntaxToken name();
   @Nullable
-  SyntaxToken tag();
+  String tag();
   @Nullable
-  SyntaxToken digest();
+  String digest();
 }

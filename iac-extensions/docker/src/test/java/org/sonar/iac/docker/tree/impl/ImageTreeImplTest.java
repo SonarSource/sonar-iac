@@ -24,7 +24,6 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -54,14 +53,8 @@ class ImageTreeImplTest {
     ImageTree image = parse("foo:bar@boo", DockerLexicalGrammar.IMAGE);
     assertThat(image.getKind()).isEqualTo(DockerTree.Kind.IMAGE);
     assertThat(image.name().value()).isEqualTo("foo");
-
-    SyntaxToken tag = image.tag();
-    assertThat(tag).isNotNull();
-    assertThat(tag.value()).isEqualTo(":bar");
-
-    SyntaxToken digest = image.digest();
-    assertThat(digest).isNotNull();
-    assertThat(digest.value()).isEqualTo("@boo");
+    assertThat(image.tag()).isEqualTo("bar");
+    assertThat(image.digest()).isEqualTo("boo");
 
     assertTextRange(image.textRange()).hasRange(1, 0, 1, 11);
   }
