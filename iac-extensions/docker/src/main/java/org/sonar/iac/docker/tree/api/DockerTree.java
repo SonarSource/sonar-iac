@@ -32,7 +32,7 @@ public interface DockerTree extends Tree {
     INSTRUCTION(InstructionTree.class),
     ONBUILD(OnBuildTree.class),
     FROM(FromTree.class),
-
+    IMAGE(ImageTree.class),
     PARAM(ParamTree.class),
     ALIAS(AliasTree.class),
     MAINTAINER(MaintainerTree.class),

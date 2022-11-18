@@ -25,6 +25,7 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,10 +62,15 @@ class FromTreeImplTest {
     FromTree from = parse("FROM foobar", DockerLexicalGrammar.FROM);
     assertThat(from.getKind()).isEqualTo(DockerTree.Kind.FROM);
     assertThat(from.keyword().value()).isEqualTo("FROM");
-    assertThat(from.image().value()).isEqualTo("foobar");
+
+    ImageTree image = from.image();
+    assertThat(image.name().value()).isEqualTo("foobar");
+    assertThat(image.tag()).isNull();
+    assertThat(image.digest()).isNull();
+
     assertThat(from.alias()).isNull();
     assertThat(from.platform()).isNull();
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, SyntaxTokenImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ImageTreeImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 11);
   }
 
@@ -76,7 +82,7 @@ class FromTreeImplTest {
     assertThat(alias).isNotNull();
     assertThat(alias.getKind()).isEqualTo(DockerTree.Kind.ALIAS);
     assertThat(alias.alias().value()).isEqualTo("fb");
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, SyntaxTokenImpl.class, AliasTreeImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ImageTreeImpl.class, AliasTreeImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 17);
   }
 
@@ -88,7 +94,7 @@ class FromTreeImplTest {
     assertThat(platform).isNotNull();
     assertThat(platform.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(platform.value().value()).isEqualTo("foo");
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, SyntaxTokenImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, ImageTreeImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 23);
   }
 
@@ -97,7 +103,7 @@ class FromTreeImplTest {
     FromTree from = parse("FROM --platform=foo bar:latest AS fb", DockerLexicalGrammar.FROM);
     assertThat(from.alias()).isNotNull();
     assertThat(from.platform()).isNotNull();
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, SyntaxTokenImpl.class, AliasTreeImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, ImageTreeImpl.class, AliasTreeImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 36);
   }
 }

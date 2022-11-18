@@ -33,6 +33,7 @@ import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
@@ -45,6 +46,9 @@ import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAME;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
@@ -100,7 +104,7 @@ public class DockerGrammar {
       f.from(
         b.token(DockerKeyword.FROM),
         b.optional(PARAM()),
-        b.token(STRING_LITERAL),
+        IMAGE(),
         b.optional(ALIAS())
       )
     );
@@ -113,6 +117,16 @@ public class DockerGrammar {
         b.token(DockerLexicalGrammar.PARAM_NAME),
         b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
         b.token(DockerLexicalGrammar.PARAM_VALUE)
+      )
+    );
+  }
+
+  public ImageTree IMAGE() {
+    return b.<ImageTree>nonterminal(DockerLexicalGrammar.IMAGE).is(
+      f.image(
+        b.token(IMAGE_NAME),
+        b.optional(b.token(IMAGE_TAG)),
+        b.optional(b.token(IMAGE_DIGEST))
       )
     );
   }

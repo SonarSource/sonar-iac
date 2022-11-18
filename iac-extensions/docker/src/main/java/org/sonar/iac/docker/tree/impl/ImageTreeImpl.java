@@ -23,57 +23,55 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.AliasTree;
-import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
-import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class FromTreeImpl extends InstructionTreeImpl implements FromTree {
+public class ImageTreeImpl extends DockerTreeImpl implements ImageTree {
 
-  private final ParamTree platform;
-  private final ImageTree image;
-  private final AliasTree alias;
+  private final SyntaxToken name;
+  @Nullable
+  private final SyntaxToken tag;
+  @Nullable
+  private final SyntaxToken digest;
 
-  public FromTreeImpl(SyntaxToken keyword, @Nullable ParamTree platform, ImageTree image, @Nullable AliasTree alias) {
-    super(keyword);
-    this.platform = platform;
-    this.image = image;
-    this.alias = alias;
+  public ImageTreeImpl(SyntaxToken name, @Nullable SyntaxToken tag, @Nullable SyntaxToken digest) {
+    this.name = name;
+    this.tag = tag;
+    this.digest = digest;
+  }
+
+  @Override
+  public SyntaxToken name() {
+    return name;
   }
 
   @Nullable
   @Override
-  public ParamTree platform() {
-    return platform;
-  }
-
-  @Override
-  public ImageTree image() {
-    return image;
+  public SyntaxToken tag() {
+    return tag;
   }
 
   @Nullable
   @Override
-  public AliasTree alias() {
-    return alias;
+  public SyntaxToken digest() {
+    return digest;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(keyword);
-    if (platform != null) {
-      children.add(platform);
+    children.add(name);
+    if (tag != null) {
+      children.add(tag);
     }
-    children.add(image);
-    if (alias != null) {
-      children.add(alias);
+    if (digest != null) {
+      children.add(digest);
     }
     return children;
   }
+
   @Override
   public Kind getKind() {
-    return Kind.FROM;
+    return Kind.IMAGE;
   }
 }
