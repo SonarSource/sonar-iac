@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CmdTreeImplTest {
 
   @Test
-  void shouldParseCmd() {
+  void shouldParseCmdExecForm() {
     Assertions.assertThat(DockerLexicalGrammar.CMD)
       .matches("CMD")
       .matches("CMD []")
@@ -46,15 +46,34 @@ class CmdTreeImplTest {
       .matches("cmd")
 
       .notMatches("CMDD")
-      .notMatches("CMD [\"la\" \"-bb\"")
       // not exec form
-      .notMatches("CMD [\"la\", \"-bb\"")
-      .notMatches("CMD [\"la\", \"-bb]")
-      .notMatches("CMD \"la\", \"-bb\"]");
+      .notMatches("");
   }
 
   @Test
-  void shouldCheckParseCmdTree() {
+  void shouldParseCmdShellForm() {
+    Assertions.assertThat(DockerLexicalGrammar.CMD)
+      .matches("CMD")
+      .matches("CMD ls")
+      .matches("CMD \"ls\"")
+      .matches("CMD command param1 param2")
+      .matches("CMD echo \"This is a test.\" | wc -")
+      .matches("CMD /bin/sh /deploy.sh")
+      .matches("CMD mkdir -p /output && zip -FS -r /output/lambda.zip ./")
+      .matches("CMD \"/usr/bin/run.sh\"")
+      .matches("    CMD \"/usr/bin/run.sh\"")
+      .matches("CMD     \"/usr/bin/run.sh\"")
+      .matches("cmd")
+      // not exec form
+      .matches("CMD [\"la\", \"-bb\"")
+      .matches("CMD [\"la\", \"-bb]")
+      .matches("CMD \"la\", \"-bb\"]")
+
+      .notMatches("/bin/sh /deploy.sh");
+  }
+
+  @Test
+  void shouldCheckParseCmdExecFormTree() {
     CmdTree tree = DockerTestUtils.parse("CMD [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
@@ -67,7 +86,7 @@ class CmdTreeImplTest {
   }
 
   @Test
-  void shouldCheckParseEmptyCmdTree() {
+  void shouldCheckParseEmptyCmdExecFormTree() {
     CmdTree tree = DockerTestUtils.parse("CMD []", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");

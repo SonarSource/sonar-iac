@@ -26,6 +26,7 @@ import java.util.List;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
@@ -41,6 +42,7 @@ import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SeparatedList;
+import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
@@ -61,6 +63,7 @@ import org.sonar.iac.docker.tree.impl.OnBuildTreeImpl;
 import org.sonar.iac.docker.tree.impl.ParamTreeImpl;
 import org.sonar.iac.docker.tree.impl.PortTreeImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
+import org.sonar.iac.docker.tree.impl.ShellFormTreeImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 
@@ -145,8 +148,16 @@ public class TreeFactory {
     return new ImageTreeImpl(name, tag.orNull(), digest.orNull());
   }
 
-  public CmdTree cmd(SyntaxToken token, Optional<ExecFormTree> execFormTree) {
-    return new CmdTreeImpl(token, execFormTree.orNull());
+  public CmdTree cmd(SyntaxToken token, Optional<DockerTree> execFormOrShellForm) {
+    if (execFormOrShellForm.isPresent()) {
+      DockerTree dockerTree = execFormOrShellForm.get();
+      if (dockerTree instanceof ExecFormTree) {
+        return new CmdTreeImpl(token, (ExecFormTree) dockerTree, null);
+      } else {
+        return new CmdTreeImpl(token, null, (ShellFormTree) dockerTree);
+      }
+    }
+    return new CmdTreeImpl(token, null, null);
   }
 
   public ExecFormTree execForm(SyntaxToken leftBracket,
@@ -170,6 +181,10 @@ public class TreeFactory {
     }
 
     return new ExecFormTreeImpl(leftBracket, separatedList, rightBracket);
+  }
+
+  public ShellFormTree shellForm(List<SyntaxToken> tokens) {
+    return new ShellFormTreeImpl(tokens);
   }
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {

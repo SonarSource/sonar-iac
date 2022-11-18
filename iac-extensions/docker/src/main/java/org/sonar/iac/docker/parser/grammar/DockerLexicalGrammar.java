@@ -77,6 +77,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   PARAM_VALUE,
   ARG_NAME,
   EXEC_FORM,
+  SHELL_FORM,
 
   IMAGE,
   ALIAS,
