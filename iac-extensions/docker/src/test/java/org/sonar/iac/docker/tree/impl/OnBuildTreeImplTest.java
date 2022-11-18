@@ -58,7 +58,7 @@ class OnBuildTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ONBUILD);
     assertThat(tree.keyword().value()).isEqualTo("ONBUILD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 26);
-    assertThat(tree.children()).hasSize(3);
+    assertThat(tree.children()).hasSize(2);
     assertThat(tree.instruction()).isInstanceOf(StopSignalTree.class);
 
     StopSignalTree stopSignal = (StopSignalTree) tree.instruction();
@@ -75,7 +75,7 @@ class OnBuildTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ONBUILD);
     assertThat(tree.keyword().value()).isEqualTo("ONBUILD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 37);
-    assertThat(tree.children()).hasSize(8);
+    assertThat(tree.children()).hasSize(2);
     assertThat(tree.instruction()).isInstanceOf(LabelTree.class);
 
     LabelTree label = (LabelTree) tree.instruction();
@@ -101,14 +101,14 @@ class OnBuildTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ONBUILD);
     assertThat(tree.keyword().value()).isEqualTo("ONBUILD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 34);
-    assertThat(tree.children()).hasSize(4);
+    assertThat(tree.children()).hasSize(2);
     assertThat(tree.instruction()).isInstanceOf(OnBuildTree.class);
 
     OnBuildTree onBuild = (OnBuildTree) tree.instruction();
     assertThat(onBuild.getKind()).isEqualTo(DockerTree.Kind.ONBUILD);
     assertThat(onBuild.keyword().value()).isEqualTo("ONBUILD");
     assertTextRange(onBuild.textRange()).hasRange(1, 8, 1, 34);
-    assertThat(onBuild.children()).hasSize(3);
+    assertThat(onBuild.children()).hasSize(2);
     assertThat(onBuild.instruction()).isInstanceOf(StopSignalTree.class);
 
     StopSignalTree stopSignal = (StopSignalTree) onBuild.instruction();

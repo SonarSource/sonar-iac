@@ -43,7 +43,7 @@ public class OnBuildTreeImpl extends InstructionTreeImpl implements OnBuildTree 
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    children.addAll(instruction.children());
+    children.add(instruction);
     return children;
   }
 
