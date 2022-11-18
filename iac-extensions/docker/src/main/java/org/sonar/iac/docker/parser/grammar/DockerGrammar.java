@@ -40,7 +40,6 @@ import org.sonar.iac.docker.tree.api.WorkdirTree;
 
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
 @SuppressWarnings("java:S100")
@@ -149,7 +148,7 @@ public class DockerGrammar {
   public PortTree PORT() {
     return b.<PortTree>nonterminal(DockerLexicalGrammar.PORT).is(
       b.firstOf(
-        f.port(b.token(DockerLexicalGrammar.NUMERIC_LITERAL), b.token(DockerLexicalGrammar.SEPARATOR_PORT), b.optional(b.token(STRING_LITERAL_WITHOUT_SPACE))),
+        f.port(b.token(DockerLexicalGrammar.NUMERIC_LITERAL), b.token(DockerLexicalGrammar.SEPARATOR_PORT), b.optional(b.token(DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE))),
         f.port(b.token(DockerLexicalGrammar.STRING_LITERAL))
       )
     );

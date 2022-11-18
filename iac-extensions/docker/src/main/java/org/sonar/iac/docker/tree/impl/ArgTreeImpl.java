@@ -43,7 +43,7 @@ public class ArgTreeImpl extends InstructionTreeImpl implements ArgTree {
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    keyValuePairs.forEach(keyValuePair -> children.addAll(keyValuePair.children()));
+    children.addAll(keyValuePairs);
     return children;
   }
 

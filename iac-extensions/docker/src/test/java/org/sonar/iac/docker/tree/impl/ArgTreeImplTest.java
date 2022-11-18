@@ -70,7 +70,7 @@ class ArgTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 15);
-    assertThat(tree.children()).hasSize(4);
+    assertThat(tree.children()).hasSize(2);
     assertThat(tree.keyValuePairs()).hasSize(1);
 
     KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
@@ -86,7 +86,7 @@ class ArgTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 20);
-    assertThat(tree.children()).hasSize(5);
+    assertThat(tree.children()).hasSize(3);
     assertThat(tree.keyValuePairs()).hasSize(2);
 
     KeyValuePairTree keyValuePair1 = tree.keyValuePairs().get(0);
@@ -108,7 +108,7 @@ class ArgTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 27);
-    assertThat(tree.children()).hasSize(7);
+    assertThat(tree.children()).hasSize(3);
     assertThat(tree.keyValuePairs()).hasSize(2);
 
     KeyValuePairTree keyValuePair1 = tree.keyValuePairs().get(0);
