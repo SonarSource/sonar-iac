@@ -33,6 +33,7 @@ import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
+import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -65,6 +66,7 @@ public class DockerGrammar {
   public InstructionTree INSTRUCTION() {
     return b.<InstructionTree>nonterminal(DockerLexicalGrammar.INSTRUCTION).is(
       b.firstOf(
+        ONBUILD(),
         FROM(),
         MAINTAINER(),
         STOPSIGNAL(),
@@ -73,6 +75,15 @@ public class DockerGrammar {
         LABEL(),
         ENV(),
         ARG()
+      )
+    );
+  }
+
+  public OnBuildTree ONBUILD() {
+    return b.<OnBuildTree>nonterminal(DockerLexicalGrammar.ONBUILD).is(
+      f.onbuild(
+        b.token(DockerKeyword.ONBUILD),
+        INSTRUCTION()
       )
     );
   }

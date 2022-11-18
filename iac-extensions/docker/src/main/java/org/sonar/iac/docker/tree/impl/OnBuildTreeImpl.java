@@ -17,39 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.OnBuildTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public interface DockerTree extends Tree {
+public class OnBuildTreeImpl extends InstructionTreeImpl implements OnBuildTree {
+  private final InstructionTree instruction;
 
-  boolean is(Kind... kind);
-  Kind getKind();
+  public OnBuildTreeImpl(SyntaxToken keyword, InstructionTree instruction) {
+    super(keyword);
+    this.instruction = instruction;
+  }
 
-  enum Kind implements GrammarRuleKey {
-    FILE(FileTree.class),
-    INSTRUCTION(InstructionTree.class),
-    ONBUILD(OnBuildTree.class),
-    FROM(FromTree.class),
-    ALIAS(AliasTree.class),
-    MAINTAINER(MaintainerTree.class),
-    STOPSIGNAL(StopSignalTree.class),
-    WORKDIR(WorkdirTree.class),
-    EXPOSE(ExposeTree.class),
-    PORT(PortTree.class),
-    LABEL(LabelTree.class),
-    ENV(EnvTree.class),
-    KEY_VALUE_PAIR(KeyValuePairTree.class),
-    ARG(ArgTree.class),
+  @Override
+  public InstructionTree instruction() {
+    return instruction;
+  }
 
-    TOKEN(SyntaxToken.class);
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>();
+    children.add(keyword);
+    children.add(instruction);
+    return children;
+  }
 
-
-    private final Class<? extends DockerTree> associatedInterface;
-
-    Kind(Class<? extends DockerTree> associatedInterface) {
-      this.associatedInterface = associatedInterface;
-    }
+  @Override
+  public Kind getKind() {
+    return Kind.ONBUILD;
   }
 }

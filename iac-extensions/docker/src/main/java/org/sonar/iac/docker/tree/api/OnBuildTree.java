@@ -19,37 +19,6 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.sslr.grammar.GrammarRuleKey;
-
-public interface DockerTree extends Tree {
-
-  boolean is(Kind... kind);
-  Kind getKind();
-
-  enum Kind implements GrammarRuleKey {
-    FILE(FileTree.class),
-    INSTRUCTION(InstructionTree.class),
-    ONBUILD(OnBuildTree.class),
-    FROM(FromTree.class),
-    ALIAS(AliasTree.class),
-    MAINTAINER(MaintainerTree.class),
-    STOPSIGNAL(StopSignalTree.class),
-    WORKDIR(WorkdirTree.class),
-    EXPOSE(ExposeTree.class),
-    PORT(PortTree.class),
-    LABEL(LabelTree.class),
-    ENV(EnvTree.class),
-    KEY_VALUE_PAIR(KeyValuePairTree.class),
-    ARG(ArgTree.class),
-
-    TOKEN(SyntaxToken.class);
-
-
-    private final Class<? extends DockerTree> associatedInterface;
-
-    Kind(Class<? extends DockerTree> associatedInterface) {
-      this.associatedInterface = associatedInterface;
-    }
-  }
+public interface OnBuildTree extends InstructionTree {
+  InstructionTree instruction();
 }

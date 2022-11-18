@@ -50,6 +50,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   /**
    * INSTRUCTIONS
    */
+  ONBUILD,
   FROM,
   MAINTAINER,
   STOPSIGNAL,

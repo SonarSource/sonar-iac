@@ -32,6 +32,7 @@ import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
+import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -45,6 +46,7 @@ import org.sonar.iac.docker.tree.impl.FromTreeImpl;
 import org.sonar.iac.docker.tree.impl.KeyValuePairTreeImpl;
 import org.sonar.iac.docker.tree.impl.LabelTreeImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
+import org.sonar.iac.docker.tree.impl.OnBuildTreeImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 import org.sonar.iac.docker.tree.impl.PortTreeImpl;
@@ -53,6 +55,10 @@ public class TreeFactory {
 
   public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
+  }
+
+  public OnBuildTree onbuild(SyntaxToken keyword, InstructionTree instruction) {
+    return new OnBuildTreeImpl(keyword, instruction);
   }
 
   public FromTree from(SyntaxToken keyword, Optional<KeyValuePairTree> platform, SyntaxToken image, Optional<AliasTree> alias) {
