@@ -23,6 +23,7 @@ import com.sonar.sslr.api.typed.Optional;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.docker.tree.api.AliasTree;
+import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
@@ -36,6 +37,7 @@ import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
+import org.sonar.iac.docker.tree.impl.ArgTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
@@ -97,8 +99,16 @@ public class TreeFactory {
     return new EnvTreeImpl(keyword, keyValuePairs);
   }
 
+  public ArgTree arg(SyntaxToken token, List<KeyValuePairTree> argNames) {
+    return new ArgTreeImpl(token, argNames);
+  }
+
+  public KeyValuePairTree key(SyntaxToken key) {
+    return new KeyValuePairTreeImpl(key, null, null);
+  }
+
   public KeyValuePairTree keyValuePair(SyntaxToken key, SyntaxToken value) {
-    return new KeyValuePairTreeImpl(key, value);
+    return new KeyValuePairTreeImpl(key, null, value);
   }
 
   public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, SyntaxToken value) {

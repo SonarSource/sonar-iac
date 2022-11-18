@@ -19,7 +19,9 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -29,13 +31,7 @@ public class KeyValuePairTreeImpl extends DockerTreeImpl implements KeyValuePair
   private final SyntaxToken value;
   private final SyntaxToken equals;
 
-  public KeyValuePairTreeImpl(SyntaxToken key, SyntaxToken value) {
-    this.key = key;
-    this.equals = null;
-    this.value = value;
-  }
-
-  public KeyValuePairTreeImpl(SyntaxToken key, SyntaxToken equals, SyntaxToken value) {
+  public KeyValuePairTreeImpl(SyntaxToken key, @Nullable SyntaxToken equals, @Nullable SyntaxToken value) {
     this.key = key;
     this.equals = equals;
     this.value = value;
@@ -43,11 +39,15 @@ public class KeyValuePairTreeImpl extends DockerTreeImpl implements KeyValuePair
 
   @Override
   public List<Tree> children() {
+    List<Tree> children = new ArrayList<>();
+    children.add(key);
     if (equals != null) {
-      return List.of(key, equals, value);
-    } else {
-      return List.of(key, value);
+      children.add(equals);
     }
+    if (value != null) {
+      children.add(value);
+    }
+    return children;
   }
 
   @Override

@@ -57,17 +57,20 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   EXPOSE,
   LABEL,
   ENV,
+  ARG,
 
   /**
    * EXPRESSIONS
    */
   ARGUMENTS,
   PORT,
+  KEY_ONLY,
   KEY_VALUE_PAIR_EQUALS,
   KEY_VALUE_PAIR_SINGLE,
   PLATFORM_OPTION,
   PLATFORM,
-  ALIAS;
+  ALIAS,
+  ARG_NAME;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();

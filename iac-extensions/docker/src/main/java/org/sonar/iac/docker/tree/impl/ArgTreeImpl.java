@@ -17,29 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser.grammar;
+package org.sonar.iac.docker.tree.impl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.ArgTree;
+import org.sonar.iac.docker.tree.api.KeyValuePairTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public enum DockerKeyword implements GrammarRuleKey {
+public class ArgTreeImpl extends InstructionTreeImpl implements ArgTree {
+  private final List<KeyValuePairTree> keyValuePairs;
 
-  FROM("FROM"),
-  MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL"),
-  WORKDIR("WORKDIR"),
-  EXPOSE("EXPOSE"),
-  LABEL("LABEL"),
-  AS("AS"),
-  ENV("ENV"),
-  ARG("ARG");
-
-  private final String value;
-
-  DockerKeyword(String value) {
-    this.value = value;
+  public ArgTreeImpl(SyntaxToken arg, List<KeyValuePairTree> argNames) {
+    super(arg);
+    this.keyValuePairs = argNames;
   }
 
-  public String getValue() {
-    return value;
+  @Override
+  public List<KeyValuePairTree> keyValuePairs() {
+    return keyValuePairs;
+  }
+
+  @Override
+  public List<Tree> children() {
+    List<Tree> children = new ArrayList<>();
+    children.add(keyword);
+    children.addAll(keyValuePairs);
+    return children;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.ARG;
   }
 }
