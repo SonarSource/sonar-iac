@@ -75,11 +75,11 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   PARAM_PREFIX,
   PARAM_NAME,
   PARAM_VALUE,
-  ALIAS,
   ARG_NAME,
   EXEC_FORM,
 
   IMAGE,
+  ALIAS,
   IMAGE_ALIAS,
   IMAGE_NAME,
   IMAGE_TAG,
