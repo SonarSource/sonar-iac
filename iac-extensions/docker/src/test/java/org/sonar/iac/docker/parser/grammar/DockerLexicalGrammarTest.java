@@ -70,29 +70,4 @@ class DockerLexicalGrammarTest {
       .matches("foo=bar")
     ;
   }
-
-  @Test
-  void testStringNoColon() {
-    Assertions.assertThat(DockerLexicalGrammar.STRING_LITERAL_NO_COLON)
-      .matches("f")
-      .matches("foo")
-      .matches("   foo")
-      .matches("1")
-      .matches("123")
-      .matches("SIGKILL")
-      .matches("\"mystring\"")
-      .matches("\"partial_quotes_1")
-      .matches("partial_quotes_2\"")
-      .matches("foo=bar")
-      .matches("\"foo=bar\"")
-      .matches("\"foo:bar\"")
-      .matches("foo/bar")
-      .matches("foo\\bar")
-      .notMatches("")
-      .notMatches("   ")
-      .notMatches("foo\nbar")
-      .notMatches("foo\rbar")
-      .notMatches("foo:bar")
-    ;
-  }
 }

@@ -35,7 +35,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * Lexical
    */
   STRING_LITERAL,
-  STRING_LITERAL_NO_COLON,
   STRING_LITERAL_WITHOUT_SPACE,
   STRING_UNTIL_EOL,
   STRING_LITERAL_WITH_QUOTES,
@@ -88,7 +87,12 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   IMAGE_ALIAS,
   IMAGE_NAME,
   IMAGE_TAG,
-  IMAGE_DIGEST
+  IMAGE_DIGEST,
+
+  USER_STRING,
+  USER_VARIABLE,
+  USER_NAME,
+  USER_GROUP
   ;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
@@ -118,7 +122,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
-    b.rule(STRING_LITERAL_NO_COLON).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_NO_COLON));
     b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
     b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(STRING_LITERAL_WITHOUT_SPACE).is(b.regexp(DockerLexicalConstant.STRING_LITERAL));
@@ -135,6 +138,11 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(PARAM_PREFIX).is(SPACING, b.regexp("--"));
     b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
     b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
+
+    b.rule(USER_STRING).is(b.regexp("(?:[a-z][-a-z0-9_]*|[0-9]+)"));
+    b.rule(USER_VARIABLE).is(b.regexp("\\$(?:[a-zA-Z_][a-zA-Z0-9_]*|\\{[^}]+\\})"));
+    b.rule(USER_NAME).is(SPACING, b.firstOf(USER_STRING, USER_VARIABLE));
+    b.rule(USER_GROUP).is(b.firstOf(USER_STRING, USER_VARIABLE));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

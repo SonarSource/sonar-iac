@@ -19,8 +19,12 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import javax.annotation.Nullable;
+
 public interface UserTree extends InstructionTree {
   SyntaxToken user();
+  @Nullable
   SyntaxToken colon();
+  @Nullable
   SyntaxToken group();
 }

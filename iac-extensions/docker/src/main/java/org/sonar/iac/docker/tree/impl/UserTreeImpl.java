@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserTree;
@@ -30,18 +31,11 @@ public class UserTreeImpl extends InstructionTreeImpl implements UserTree {
   private final SyntaxToken colon;
   private final SyntaxToken group;
 
-  public UserTreeImpl(SyntaxToken keyword, SyntaxToken user, SyntaxToken colon, SyntaxToken group) {
+  public UserTreeImpl(SyntaxToken keyword, SyntaxToken user, @Nullable SyntaxToken colon, @Nullable SyntaxToken group) {
     super(keyword);
     this.user = user;
     this.colon = colon;
     this.group = group;
-  }
-
-  public UserTreeImpl(SyntaxToken keyword, SyntaxToken user) {
-    super(keyword);
-    this.user = user;
-    this.colon = null;
-    this.group = null;
   }
 
   @Override
@@ -50,11 +44,13 @@ public class UserTreeImpl extends InstructionTreeImpl implements UserTree {
   }
 
   @Override
+  @Nullable
   public SyntaxToken colon() {
     return colon;
   }
 
   @Override
+  @Nullable
   public SyntaxToken group() {
     return group;
   }

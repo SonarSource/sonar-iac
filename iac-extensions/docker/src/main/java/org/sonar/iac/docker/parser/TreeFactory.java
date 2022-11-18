@@ -181,6 +181,10 @@ public class TreeFactory {
     return new UserTreeImpl(keyword, user, colon, group);
   }
 
+  public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<SyntaxToken> colon, Optional<SyntaxToken> group) {
+    return new UserTreeImpl(keyword, user, colon.orNull(), group.orNull());
+  }
+
   public CmdTree cmd(SyntaxToken token, Optional<ExecFormTree> execFormTree) {
     return new CmdTreeImpl(token, execFormTree.orNull());
   }

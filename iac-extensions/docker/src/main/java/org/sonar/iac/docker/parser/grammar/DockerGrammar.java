@@ -53,7 +53,6 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_NO_COLON;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
 @SuppressWarnings("java:S100")
@@ -223,10 +222,8 @@ public class DockerGrammar {
 
   public UserTree USER() {
     return b.<UserTree>nonterminal(DockerLexicalGrammar.USER).is(
-      b.firstOf(
-        f.user(b.token(DockerKeyword.USER), b.token(STRING_LITERAL_NO_COLON), b.token(Punctuator.COLON), b.token(STRING_UNTIL_EOL)),
-        f.user(b.token(DockerKeyword.USER), b.token(STRING_UNTIL_EOL))
-      )
+      f.user(b.token(DockerKeyword.USER), b.token(DockerLexicalGrammar.USER_NAME),
+        b.optional(b.token(Punctuator.COLON)), b.optional(b.token(DockerLexicalGrammar.USER_GROUP)))
     );
   }
 
