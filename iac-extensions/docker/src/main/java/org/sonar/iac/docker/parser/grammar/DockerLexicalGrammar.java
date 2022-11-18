@@ -70,8 +70,11 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   KEY_ONLY,
   KEY_VALUE_PAIR_EQUALS,
   KEY_VALUE_PAIR_SINGLE,
-  PLATFORM_OPTION,
-  PLATFORM,
+
+  PARAM,
+  PARAM_PREFIX,
+  PARAM_NAME,
+  PARAM_VALUE,
   ALIAS,
   ARG_NAME,
   EXEC_FORM
@@ -111,7 +114,10 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
     b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
-    b.rule(PLATFORM).is(Punctuator.MINUS, Punctuator.MINUS, b.regexp("platform"));
+
+    b.rule(PARAM_PREFIX).is(Punctuator.MINUS, Punctuator.MINUS);
+    b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
+    b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

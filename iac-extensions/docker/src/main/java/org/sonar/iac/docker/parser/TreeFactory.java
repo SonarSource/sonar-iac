@@ -36,6 +36,7 @@ import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
+import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
@@ -56,6 +57,7 @@ import org.sonar.iac.docker.tree.impl.LabelTreeImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildTreeImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
+import org.sonar.iac.docker.tree.impl.ParamTreeImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 import org.sonar.iac.docker.tree.impl.PortTreeImpl;
@@ -73,7 +75,7 @@ public class TreeFactory {
     return new OnBuildTreeImpl(keyword, instruction);
   }
 
-  public FromTree from(SyntaxToken keyword, Optional<KeyValuePairTree> platform, SyntaxToken image, Optional<AliasTree> alias) {
+  public FromTree from(SyntaxToken keyword, Optional<ParamTree> platform, SyntaxToken image, Optional<AliasTree> alias) {
     return new FromTreeImpl(keyword, platform.orNull(), image, alias.orNull());
   }
 
@@ -131,6 +133,10 @@ public class TreeFactory {
 
   public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, SyntaxToken value) {
     return new KeyValuePairTreeImpl(key, equals, value);
+  }
+
+  public ParamTree param(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, SyntaxToken value) {
+    return new ParamTreeImpl(prefix, name, equals, value);
   }
 
   public CmdTree cmd(SyntaxToken token, Optional<ExecFormTree> execFormTree) {

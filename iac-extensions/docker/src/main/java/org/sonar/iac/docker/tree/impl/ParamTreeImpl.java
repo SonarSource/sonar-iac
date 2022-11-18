@@ -19,60 +19,42 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.AliasTree;
-import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class FromTreeImpl extends InstructionTreeImpl implements FromTree {
+public class ParamTreeImpl extends DockerTreeImpl implements ParamTree {
 
-  private final ParamTree platform;
-  private final SyntaxToken image;
-  private final AliasTree alias;
+  private final SyntaxToken prefix;
+  private final SyntaxToken name;
+  private final SyntaxToken equals;
+  private final SyntaxToken value;
 
-  public FromTreeImpl(SyntaxToken keyword, @Nullable ParamTree platform, SyntaxToken image, @Nullable AliasTree alias) {
-    super(keyword);
-    this.platform = platform;
-    this.image = image;
-    this.alias = alias;
-  }
-
-  @Nullable
-  @Override
-  public ParamTree platform() {
-    return platform;
+  public ParamTreeImpl(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, SyntaxToken value) {
+    this.prefix = prefix;
+    this.name = name;
+    this.equals = equals;
+    this.value = value;
   }
 
   @Override
-  public SyntaxToken image() {
-    return image;
+  public SyntaxToken name() {
+    return name;
   }
 
-  @Nullable
   @Override
-  public AliasTree alias() {
-    return alias;
+  public SyntaxToken value() {
+    return value;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    children.add(keyword);
-    if (platform != null) {
-      children.add(platform);
-    }
-    children.add(image);
-    if (alias != null) {
-      children.add(alias);
-    }
-    return children;
+    return List.of(prefix, name, equals, value);
   }
+
   @Override
   public Kind getKind() {
-    return Kind.FROM;
+    return Kind.PARAM;
   }
 }

@@ -25,7 +25,7 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.tree.api.KeyValuePairTree;
+import org.sonar.iac.docker.tree.api.ParamTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -47,12 +47,12 @@ class FromTreeImplTest {
       .matches("FROM --platform=foo bar:latest AS fb")
       .matches("FROM foobar:latest as fb")
       .matches("from foobar")
+      .matches("FROM --foo=bar foobar") // No valid instruction but valid syntax -> will lead to build failure
 
       .notMatches("FROM foobar AS")
       .notMatches("FROM")
       .notMatches("FROM foobar foobar")
       .notMatches("FROM --platform=foo")
-      .notMatches("FROM --foo=bar foobar")
     ;
   }
 
@@ -84,11 +84,11 @@ class FromTreeImplTest {
   void imageWithPlatform() {
     FromTree from = parse("FROM --platform=foo bar", DockerLexicalGrammar.FROM);
     assertThat(from.alias()).isNull();
-    KeyValuePairTree platform = from.platform();
+    ParamTree platform = from.platform();
     assertThat(platform).isNotNull();
-    assertThat(platform.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(platform.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(platform.value().value()).isEqualTo("foo");
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, KeyValuePairTreeImpl.class, SyntaxTokenImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, SyntaxTokenImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 23);
   }
 
@@ -97,7 +97,7 @@ class FromTreeImplTest {
     FromTree from = parse("FROM --platform=foo bar:latest AS fb", DockerLexicalGrammar.FROM);
     assertThat(from.alias()).isNotNull();
     assertThat(from.platform()).isNotNull();
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, KeyValuePairTreeImpl.class, SyntaxTokenImpl.class, AliasTreeImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, SyntaxTokenImpl.class, AliasTreeImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 36);
   }
 }
