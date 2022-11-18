@@ -17,32 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser.grammar;
+package org.sonar.iac.docker.tree.impl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public enum DockerKeyword implements GrammarRuleKey {
+public class ExecFormLiteralTreeImpl extends DockerTreeImpl implements ExecFormLiteralTree {
 
-  ONBUILD("ONBUILD"),
-  FROM("FROM"),
-  MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL"),
-  WORKDIR("WORKDIR"),
-  EXPOSE("EXPOSE"),
-  LABEL("LABEL"),
-  AS("AS"),
-  ENV("ENV"),
-  ARG("ARG"),
-  CMD("CMD")
-  ;
+  private final SyntaxToken value;
 
-  private final String value;
-
-  DockerKeyword(String value) {
+  public ExecFormLiteralTreeImpl(SyntaxToken value) {
     this.value = value;
   }
 
-  public String getValue() {
+  @Override
+  public List<Tree> children() {
+    return List.of(value);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.EXEC_FORM_LITERAL;
+  }
+
+  @Override
+  public SyntaxToken value() {
     return value;
   }
 }

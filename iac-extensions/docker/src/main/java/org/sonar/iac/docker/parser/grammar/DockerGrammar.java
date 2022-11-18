@@ -26,7 +26,10 @@ import org.sonar.iac.docker.parser.TreeFactory;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
+import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
+import org.sonar.iac.docker.tree.api.ExecFormTree;
+import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
@@ -36,6 +39,7 @@ import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
+import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
@@ -74,7 +78,8 @@ public class DockerGrammar {
         EXPOSE(),
         LABEL(),
         ENV(),
-        ARG()
+        ARG(),
+        CMD()
       )
     );
   }
@@ -165,7 +170,7 @@ public class DockerGrammar {
     );
   }
 
-  public LabelTree LABEL () {
+  public LabelTree LABEL() {
     return b.<LabelTree>nonterminal(DockerLexicalGrammar.LABEL).is(
       f.label(b.token(DockerKeyword.LABEL),
         b.oneOrMore(
@@ -224,4 +229,38 @@ public class DockerGrammar {
       )
     );
   }
+
+  public CmdTree CMD() {
+    return b.<CmdTree>nonterminal(DockerLexicalGrammar.CMD).is(
+      f.cmd(
+        b.token(DockerKeyword.CMD),
+        b.optional(EXEC_FORM())
+      )
+    );
+  }
+
+  /**
+   * Exec Form is something like this:
+   * {@code ["executable","param1","param2"]}
+   * what is used by different instructions like CMD, ENTRYPOINT, RUN, SHELL
+   */
+  public ExecFormTree EXEC_FORM() {
+    return b.<ExecFormTree>nonterminal(DockerLexicalGrammar.EXEC_FORM).is(
+      f.execForm(
+        b.token(Punctuator.LBRACKET),
+        b.optional(
+          f.tuple(
+            f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES)),
+            b.zeroOrMore(
+              f.tuple(
+                b.token(Punctuator.COMMA),
+                f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES)))
+            )
+          )
+        ),
+        b.token(Punctuator.RBRACKET)
+      )
+    );
+  }
+
 }

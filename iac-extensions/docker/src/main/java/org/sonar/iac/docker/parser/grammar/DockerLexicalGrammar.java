@@ -36,9 +36,10 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    */
   STRING_LITERAL,
   STRING_LITERAL_WITHOUT_SPACE,
+  STRING_UNTIL_EOL,
+  STRING_LITERAL_WITH_QUOTES,
   NUMERIC_LITERAL,
   SEPARATOR_PORT,
-  STRING_UNTIL_EOL,
   EQUALS_OPERATOR,
   EOF,
 
@@ -59,6 +60,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   LABEL,
   ENV,
   ARG,
+  CMD,
 
   /**
    * EXPRESSIONS
@@ -71,7 +73,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   PLATFORM_OPTION,
   PLATFORM,
   ALIAS,
-  ARG_NAME;
+  ARG_NAME,
+  EXEC_FORM
+  ;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -100,10 +104,12 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
-    b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
-    b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(STRING_LITERAL_WITHOUT_SPACE).is(b.regexp(DockerLexicalConstant.STRING_LITERAL));
     b.rule(STRING_UNTIL_EOL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
+    b.rule(STRING_LITERAL_WITH_QUOTES).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
+
+    b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
+    b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
     b.rule(PLATFORM).is(Punctuator.MINUS, Punctuator.MINUS, b.regexp("platform"));
   }
