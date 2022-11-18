@@ -31,19 +31,19 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class CmdTreeImpl extends InstructionTreeImpl implements CmdTree {
 
-  private final ExecFormTree execFormTree;
+  private final ExecFormTree execForm;
 
-  public CmdTreeImpl(SyntaxToken keyword, @Nullable ExecFormTree execFormTree) {
+  public CmdTreeImpl(SyntaxToken keyword, @Nullable ExecFormTree execForm) {
     super(keyword);
-    this.execFormTree = execFormTree;
+    this.execForm = execForm;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
     result.add(keyword);
-    if (execFormTree != null) {
-      result.add(execFormTree);
+    if (execForm != null) {
+      result.add(execForm);
     }
     return result;
   }
@@ -54,14 +54,14 @@ public class CmdTreeImpl extends InstructionTreeImpl implements CmdTree {
   }
 
   @Override
-  public ExecFormTree execFormTree() {
-    return execFormTree;
+  public ExecFormTree execForm() {
+    return execForm;
   }
 
   @Override
   public List<SyntaxToken> cmdArguments() {
     List<SyntaxToken> result = new ArrayList<>();
-    SeparatedList<ExecFormLiteralTree> literals = execFormTree.literals();
+    SeparatedList<ExecFormLiteralTree> literals = execForm.literals();
     if (literals != null) {
       for (ExecFormLiteralTree element : literals.elements()) {
         result.add(element.value());

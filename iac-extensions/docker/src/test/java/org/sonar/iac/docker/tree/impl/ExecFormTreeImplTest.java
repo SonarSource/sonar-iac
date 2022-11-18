@@ -41,12 +41,30 @@ class ExecFormTreeImplTest {
       .matches("[\"executable\",\"param1\",\"param2\"]")
       .matches("[\"/usr/bin/wc\",\"--help\"]")
       .matches("    [\"/usr/bin/wc\",\"--help\"]")
+      .matches("[\"foo\" , \"bar\"]")
+      .matches("[ \"foo\", \"bar\" ]")
 
       .notMatches("[abc]")
       .notMatches("[\"la\" \"-bb\"")
       .notMatches("[\"la\", \"-bb\"")
       .notMatches("[\"la\", \"-bb]")
-      .notMatches("\"la\", \"-bb\"]");
+      .notMatches("\"la\", \"-bb\"]")
+      .notMatches("[\"la\", \"-bb\",]")
+      .notMatches("");
+  }
+
+
+  @Test
+  void shouldVerifyExecForm() {
+    Assertions.assertThat(DockerLexicalGrammar.EXEC_FORM)
+      .matches("[]")
+      .matches("[\"foo\"]")
+      .matches("[\"foo\", \"bar\"]")
+      .matches("[\"foo\",\"bar\"]")
+      .matches("[\"foo\" , \"bar\"]")
+      .notMatches("[\"foo\" \"bar\"]")
+      .notMatches("[\"foo\", \"bar\",]")
+      .notMatches("");
   }
 
   @Test

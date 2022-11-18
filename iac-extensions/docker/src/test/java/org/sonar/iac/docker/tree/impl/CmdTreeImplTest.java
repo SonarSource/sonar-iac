@@ -63,7 +63,7 @@ class CmdTreeImplTest {
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
 
     ExecFormTree execForm = (ExecFormTree) tree.children().get(1);
-    assertThat(execForm).isSameAs(tree.execFormTree());
+    assertThat(execForm).isSameAs(tree.execForm());
   }
 
   @Test

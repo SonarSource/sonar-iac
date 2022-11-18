@@ -62,6 +62,8 @@ import org.sonar.iac.docker.tree.impl.PortTreeImpl;
 
 public class TreeFactory {
 
+  // S1172 - Unused function parameters should be removed - the spacing argument is ignored, but it's needed from grammar perspective
+  // to have EOF without space prefix
   @SuppressWarnings("java:S1172")
   public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
@@ -158,7 +160,7 @@ public class TreeFactory {
     return new ExecFormTreeImpl(leftBracket, separatedList, rightBracket);
   }
 
-  public <T, U> Tuple<T, U> newTuple(T first, U second) {
+  public <T, U> Tuple<T, U> tuple(T first, U second) {
     return new Tuple<>(first, second);
   }
 

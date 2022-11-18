@@ -249,10 +249,10 @@ public class DockerGrammar {
       f.execForm(
         b.token(Punctuator.LBRACKET),
         b.optional(
-          f.newTuple(
+          f.tuple(
             f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES)),
             b.zeroOrMore(
-              f.newTuple(
+              f.tuple(
                 b.token(Punctuator.COMMA),
                 f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES)))
             )

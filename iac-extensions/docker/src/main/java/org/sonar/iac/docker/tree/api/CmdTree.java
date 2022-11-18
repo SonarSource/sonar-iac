@@ -24,7 +24,7 @@ import java.util.List;
 
 public interface CmdTree extends InstructionTree {
 
-  ExecFormTree execFormTree();
+  ExecFormTree execForm();
 
   /**
    * This method always returns arguments passed to the CMD instruction irrespective of the form (shell or exec)
