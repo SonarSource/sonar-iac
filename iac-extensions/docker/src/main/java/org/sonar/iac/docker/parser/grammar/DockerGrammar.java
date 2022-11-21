@@ -39,6 +39,7 @@ import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.PortTree;
+import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
@@ -48,6 +49,7 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAM
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
 @SuppressWarnings("java:S100")
@@ -248,7 +250,12 @@ public class DockerGrammar {
     return b.<CmdTree>nonterminal(DockerLexicalGrammar.CMD).is(
       f.cmd(
         b.token(DockerKeyword.CMD),
-        b.optional(EXEC_FORM())
+        b.optional(
+          b.firstOf(
+            EXEC_FORM(),
+            SHELL_FORM()
+          )
+        )
       )
     );
   }
@@ -264,11 +271,11 @@ public class DockerGrammar {
         b.token(Punctuator.LBRACKET),
         b.optional(
           f.tuple(
-            f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES)),
+            f.argument(b.token(STRING_LITERAL_WITH_QUOTES)),
             b.zeroOrMore(
               f.tuple(
                 b.token(Punctuator.COMMA),
-                f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES)))
+                f.argument(b.token(STRING_LITERAL_WITH_QUOTES)))
             )
           )
         ),
@@ -277,4 +284,16 @@ public class DockerGrammar {
     );
   }
 
+  /**
+   * Shell Form is a way to define some executable command fo different instructions like CMD, ENTRYPOINT, RUN
+   */
+  public ShellFormTree SHELL_FORM() {
+    return b.<ShellFormTree>nonterminal(DockerLexicalGrammar.SHELL_FORM).is(
+      f.shellForm(
+        b.oneOrMore(
+          b.token(STRING_LITERAL)
+        )
+      )
+    );
+  }
 }

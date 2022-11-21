@@ -17,20 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
-
+import java.util.ArrayList;
 import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.ShellFormTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public interface CmdTree extends InstructionTree {
+public class ShellFormTreeImpl extends DockerTreeImpl implements ShellFormTree {
 
-  ExecFormTree execForm();
+  private final List<SyntaxToken> literals;
 
-  ShellFormTree shellForm();
+  public ShellFormTreeImpl(List<SyntaxToken> literals) {
+    this.literals = literals;
+  }
 
+  @Override
+  public List<Tree> children() {
+    return new ArrayList<>(literals);
+  }
 
-  /**
-   * This method always returns arguments passed to the CMD instruction irrespective of the form (shell or exec)
-   */
-  List<SyntaxToken> cmdArguments();
+  @Override
+  public Kind getKind() {
+    return Kind.SHELL_FORM;
+  }
+
+  @Override
+  public List<SyntaxToken> literals() {
+    return literals;
+  }
 }

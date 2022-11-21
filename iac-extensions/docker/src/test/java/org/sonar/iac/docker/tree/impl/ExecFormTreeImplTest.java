@@ -53,20 +53,6 @@ class ExecFormTreeImplTest {
       .notMatches("");
   }
 
-
-  @Test
-  void shouldVerifyExecForm() {
-    Assertions.assertThat(DockerLexicalGrammar.EXEC_FORM)
-      .matches("[]")
-      .matches("[\"foo\"]")
-      .matches("[\"foo\", \"bar\"]")
-      .matches("[\"foo\",\"bar\"]")
-      .matches("[\"foo\" , \"bar\"]")
-      .notMatches("[\"foo\" \"bar\"]")
-      .notMatches("[\"foo\", \"bar\",]")
-      .notMatches("");
-  }
-
   @Test
   void shouldCheckExecFormTree() {
     ExecFormTree execForm = DockerTestUtils.parse("[\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.EXEC_FORM);
