@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.EntrypointTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
@@ -50,6 +51,7 @@ import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
 import org.sonar.iac.docker.tree.impl.ArgTreeImpl;
 import org.sonar.iac.docker.tree.impl.CmdTreeImpl;
+import org.sonar.iac.docker.tree.impl.EntrypointTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormLiteralTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormTreeImpl;
@@ -157,6 +159,18 @@ public class TreeFactory {
 
   public ImageTree image(SyntaxToken name, Optional<SyntaxToken> tag, Optional<SyntaxToken> digest) {
     return new ImageTreeImpl(name, tag.orNull(), digest.orNull());
+  }
+
+  public EntrypointTree entrypoint(SyntaxToken token, Optional<DockerTree> execFormOrShellForm) {
+    if (execFormOrShellForm.isPresent()) {
+      DockerTree dockerTree = execFormOrShellForm.get();
+      if (dockerTree instanceof ExecFormTree) {
+        return new EntrypointTreeImpl(token, (ExecFormTree) dockerTree, null);
+      } else {
+        return new EntrypointTreeImpl(token, null, (ShellFormTree) dockerTree);
+      }
+    }
+    return new EntrypointTreeImpl(token, null, null);
   }
 
   public CmdTree cmd(SyntaxToken token, Optional<DockerTree> execFormOrShellForm) {

@@ -17,33 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser.grammar;
+package org.sonar.iac.docker.tree.api;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public enum DockerKeyword implements GrammarRuleKey {
+import java.util.List;
 
-  ONBUILD("ONBUILD"),
-  FROM("FROM"),
-  MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL"),
-  WORKDIR("WORKDIR"),
-  EXPOSE("EXPOSE"),
-  LABEL("LABEL"),
-  AS("AS"),
-  ENV("ENV"),
-  ARG("ARG"),
-  CMD("CMD"),
-  ADD("ADD"),
-  ENTRYPOINT("ENTRYPOINT");
+public interface EntrypointTree extends InstructionTree {
 
-  private final String value;
+  ExecFormTree execForm();
 
-  DockerKeyword(String value) {
-    this.value = value;
-  }
+  ShellFormTree shellForm();
 
-  public String getValue() {
-    return value;
-  }
+
+  /**
+   * This method always returns arguments passed to the ENTRYPOINT instruction irrespective of the form (shell or exec)
+   */
+  List<SyntaxToken> entrypointArguments();
 }

@@ -60,6 +60,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   LABEL,
   ENV,
   ARG,
+  ENTRYPOINT,
   CMD,
   ADD,
 

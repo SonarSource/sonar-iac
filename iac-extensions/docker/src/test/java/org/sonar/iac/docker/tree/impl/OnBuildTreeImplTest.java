@@ -42,6 +42,8 @@ class OnBuildTreeImplTest {
       .matches("ONBUILD ONBUILD STOPSIGNAL SIGKILL")
       .matches("ONBUILD LABEL key1=value1")
       .matches("      ONBUILD LABEL key1=value1")
+      .matches("ONBUILD ENTRYPOINT command param1 param2")
+      .matches("ONBUILD ENTRYPOINT [\"command\", \"param1\", \"param2\"]")
       .notMatches("ONBUILD \"LABEL key1=value1\"")
       .notMatches("ONBUILDD LABEL key1=value1")
       .notMatches("ONBUILD")
