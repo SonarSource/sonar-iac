@@ -43,6 +43,7 @@ import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.UserTree;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
@@ -87,7 +88,8 @@ public class DockerGrammar {
         ENV(),
         ARG(),
         CMD(),
-        ADD()
+        ADD(),
+        USER()
       )
     );
   }
@@ -213,6 +215,21 @@ public class DockerGrammar {
       f.env(b.token(DockerKeyword.ENV),
         b.oneOrMore(
           b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
+        )
+      )
+    );
+  }
+
+  public UserTree USER() {
+    return b.<UserTree>nonterminal(DockerLexicalGrammar.USER).is(
+      f.user(
+        b.token(DockerKeyword.USER),
+        b.token(DockerLexicalGrammar.USER_NAME),
+        b.optional(
+          f.tuple(
+            b.token(DockerLexicalGrammar.USER_SEPARATOR),
+            b.token(DockerLexicalGrammar.USER_GROUP)
+          )
         )
       )
     );

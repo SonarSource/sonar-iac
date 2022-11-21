@@ -46,6 +46,7 @@ import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.UserTree;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
 import org.sonar.iac.docker.tree.impl.ArgTreeImpl;
@@ -67,6 +68,7 @@ import org.sonar.iac.docker.tree.impl.PortTreeImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormTreeImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
+import org.sonar.iac.docker.tree.impl.UserTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 
 public class TreeFactory {
@@ -169,6 +171,14 @@ public class TreeFactory {
       }
     }
     return new CmdTreeImpl(token, null, null);
+  }
+
+  public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
+    if (colonAndGroup.isPresent()) {
+      return new UserTreeImpl(keyword, user, colonAndGroup.get().first(), colonAndGroup.get().second());
+    } else {
+      return new UserTreeImpl(keyword, user, null, null);
+    }
   }
 
   public ExecFormTree execForm(SyntaxToken leftBracket,
