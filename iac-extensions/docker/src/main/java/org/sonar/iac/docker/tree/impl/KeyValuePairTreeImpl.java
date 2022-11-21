@@ -27,13 +27,11 @@ import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class KeyValuePairTreeImpl extends DockerTreeImpl implements KeyValuePairTree {
-  private final SyntaxToken prefix;
   private final SyntaxToken key;
   private final SyntaxToken value;
   private final SyntaxToken equals;
 
-  public KeyValuePairTreeImpl(@Nullable SyntaxToken prefix, SyntaxToken key, @Nullable SyntaxToken equals, @Nullable SyntaxToken value) {
-    this.prefix = prefix;
+  public KeyValuePairTreeImpl(SyntaxToken key, @Nullable SyntaxToken equals, @Nullable SyntaxToken value) {
     this.key = key;
     this.equals = equals;
     this.value = value;
@@ -42,9 +40,6 @@ public class KeyValuePairTreeImpl extends DockerTreeImpl implements KeyValuePair
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    if (prefix != null) {
-      children.add(prefix);
-    }
     children.add(key);
     if (equals != null) {
       children.add(equals);
@@ -58,11 +53,6 @@ public class KeyValuePairTreeImpl extends DockerTreeImpl implements KeyValuePair
   @Override
   public Kind getKind() {
     return Kind.KEY_VALUE_PAIR;
-  }
-
-  @Override
-  public SyntaxToken prefix() {
-    return prefix;
   }
 
   @Override

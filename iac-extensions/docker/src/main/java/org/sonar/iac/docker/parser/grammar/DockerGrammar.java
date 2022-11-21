@@ -49,9 +49,6 @@ import org.sonar.iac.docker.tree.api.WorkdirTree;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAME;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.DASHES_OPERATOR;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.EQUALS_OPERATOR;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.KEY_VALUE_PAIR_PREFIX;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
@@ -123,6 +120,15 @@ public class DockerGrammar {
         b.token(DockerLexicalGrammar.PARAM_NAME),
         b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
         b.token(DockerLexicalGrammar.PARAM_VALUE)
+      )
+    );
+  }
+
+  public ParamTree PARAM_NO_VALUE() {
+    return b.<ParamTree>nonterminal(DockerLexicalGrammar.PARAM_NO_VALUE).is(
+      f.param(
+        b.token(DockerLexicalGrammar.PARAM_PREFIX),
+        b.token(DockerLexicalGrammar.PARAM_NAME)
       )
     );
   }
@@ -253,34 +259,14 @@ public class DockerGrammar {
     );
   }
 
-  /**
-   * To match such element : --key
-   * Prefix defined by regex {@link org.sonar.iac.common.parser.grammar.DockerLexicalConstant.KEY_VALUE_PAIR_PREFIX}
-   */
-  public KeyValuePairTree KEY_ONLY_PREFIXED() {
-    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_ONLY_PREFIXED).is(
-      f.key(b.token(KEY_VALUE_PAIR_PREFIX), b.token(STRING_LITERAL_WITHOUT_SPACE))
-    );
-  }
-
-  /**
-   * To match such element : --key=value
-   * Prefix defined by regex {@link org.sonar.iac.common.parser.grammar.DockerLexicalConstant.KEY_VALUE_PAIR_PREFIX}
-   */
-  public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS_PREFIXED() {
-    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS_PREFIXED).is(
-      f.keyValuePairEquals(b.token(KEY_VALUE_PAIR_PREFIX), b.token(STRING_LITERAL_WITHOUT_SPACE), b.token(Punctuator.EQU), b.token(STRING_LITERAL_WITHOUT_SPACE))
-    );
-  }
-
   public AddTree ADD() {
     return b.<AddTree>nonterminal(DockerLexicalGrammar.ADD).is(
       f.add(
         b.token(DockerKeyword.ADD),
         b.zeroOrMore(
           b.firstOf(
-            KEY_VALUE_PAIR_WITH_EQUALS_PREFIXED(),
-            KEY_ONLY_PREFIXED()
+            PARAM(),
+            PARAM_NO_VALUE()
           )
         ),
         b.oneOrMore(

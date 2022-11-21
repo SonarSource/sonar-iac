@@ -19,7 +19,9 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -31,7 +33,7 @@ public class ParamTreeImpl extends DockerTreeImpl implements ParamTree {
   private final SyntaxToken equals;
   private final SyntaxToken value;
 
-  public ParamTreeImpl(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, SyntaxToken value) {
+  public ParamTreeImpl(SyntaxToken prefix, SyntaxToken name, @Nullable SyntaxToken equals, @Nullable SyntaxToken value) {
     this.prefix = prefix;
     this.name = name;
     this.equals = equals;
@@ -43,6 +45,7 @@ public class ParamTreeImpl extends DockerTreeImpl implements ParamTree {
     return name.value();
   }
 
+  @Nullable
   @Override
   public SyntaxToken value() {
     return value;
@@ -50,7 +53,16 @@ public class ParamTreeImpl extends DockerTreeImpl implements ParamTree {
 
   @Override
   public List<Tree> children() {
-    return List.of(prefix, name, equals, value);
+    List<Tree> children = new ArrayList<>();
+    children.add(prefix);
+    children.add(name);
+    if (equals != null) {
+      children.add(equals);
+    }
+    if(value != null) {
+      children.add(value);
+    }
+    return children;
   }
 
   @Override

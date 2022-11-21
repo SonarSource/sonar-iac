@@ -23,15 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.AddTree;
-import org.sonar.iac.docker.tree.api.KeyValuePairTree;
+import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class AddTreeImpl extends InstructionTreeImpl implements AddTree {
-  private final List<KeyValuePairTree> options;
+  private final List<ParamTree> options;
   private final List<SyntaxToken> srcs;
   private final SyntaxToken dest;
 
-  public AddTreeImpl(SyntaxToken add, List<KeyValuePairTree> options, List<SyntaxToken> srcs, SyntaxToken dest) {
+  public AddTreeImpl(SyntaxToken add, List<ParamTree> options, List<SyntaxToken> srcs, SyntaxToken dest) {
     super(add);
     this.options = options;
     this.srcs = srcs;
@@ -39,7 +39,7 @@ public class AddTreeImpl extends InstructionTreeImpl implements AddTree {
   }
 
   @Override
-  public List<KeyValuePairTree> options() {
+  public List<ParamTree> options() {
     return options;
   }
 
@@ -57,9 +57,7 @@ public class AddTreeImpl extends InstructionTreeImpl implements AddTree {
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    for (KeyValuePairTree option : options) {
-      children.addAll(option.children());
-    }
+    children.addAll(options);
     children.addAll(srcs);
     children.add(dest);
     return children;

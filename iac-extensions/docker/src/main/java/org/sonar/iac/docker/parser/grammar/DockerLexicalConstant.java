@@ -34,6 +34,5 @@ public class DockerLexicalConstant {
   public static final String SEPARATOR_PORT = "/";
   public static final String STRING_UNTIL_EOL = ".+";
   public static final String EQUALS_OPERATOR = "=";
-  public static final String KEY_VALUE_PAIR_PREFIX = "--";
 
 }

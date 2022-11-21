@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface AddTree extends InstructionTree {
-  List<KeyValuePairTree> options();
+  List<ParamTree> options();
   List<SyntaxToken> srcs();
   SyntaxToken dest();
 }

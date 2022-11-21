@@ -132,33 +132,29 @@ public class TreeFactory {
     return new ArgTreeImpl(token, argNames);
   }
 
-  public KeyValuePairTree key(SyntaxToken key) {
-    return new KeyValuePairTreeImpl(null, key, null, null);
-  }
-
-  public AddTree add(SyntaxToken add, Optional<List<KeyValuePairTree>> options, List<SyntaxToken> srcsAndDest) {
+  public AddTree add(SyntaxToken add, Optional<List<ParamTree>> options, List<SyntaxToken> srcsAndDest) {
     SyntaxToken dest = srcsAndDest.remove(srcsAndDest.size()-1);
     return new AddTreeImpl(add, options.or(Collections.emptyList()), srcsAndDest, dest);
   }
 
-  public KeyValuePairTree key(SyntaxToken prefix, SyntaxToken key) {
-    return new KeyValuePairTreeImpl(prefix, key, null, null);
+  public KeyValuePairTree key(SyntaxToken key) {
+    return new KeyValuePairTreeImpl(key, null, null);
   }
 
   public KeyValuePairTree keyValuePair(SyntaxToken key, SyntaxToken value) {
-    return new KeyValuePairTreeImpl(null, key, null, value);
+    return new KeyValuePairTreeImpl(key, null, value);
   }
 
   public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, SyntaxToken value) {
-    return new KeyValuePairTreeImpl(null, key, equals, value);
-  }
-
-  public KeyValuePairTree keyValuePairEquals(SyntaxToken prefix, SyntaxToken key, SyntaxToken equals, SyntaxToken value) {
-    return new KeyValuePairTreeImpl(prefix, key, equals, value);
+    return new KeyValuePairTreeImpl(key, equals, value);
   }
 
   public ParamTree param(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, SyntaxToken value) {
     return new ParamTreeImpl(prefix, name, equals, value);
+  }
+
+  public ParamTree param(SyntaxToken prefix, SyntaxToken name) {
+    return new ParamTreeImpl(prefix, name, null, null);
   }
 
   public ImageTree image(SyntaxToken name, Optional<SyntaxToken> tag, Optional<SyntaxToken> digest) {
@@ -228,5 +224,4 @@ public class TreeFactory {
       return second;
     }
   }
-
 }
