@@ -77,17 +77,13 @@ public class CmdTreeImpl extends InstructionTreeImpl implements CmdTree {
     List<SyntaxToken> result = new ArrayList<>();
     if (execForm != null) {
       SeparatedList<ExecFormLiteralTree> literals = execForm.literals();
-      if (literals != null) {
-        for (ExecFormLiteralTree element : literals.elements()) {
-          result.add(element.value());
-        }
+      for (ExecFormLiteralTree element : literals.elements()) {
+        result.add(element.value());
       }
     }
     if (shellForm != null) {
       List<SyntaxToken> literals = shellForm.literals();
-      if (literals != null) {
-        result.addAll(literals);
-      }
+      result.addAll(literals);
     }
     return result;
   }
