@@ -30,12 +30,12 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 public class ExecFormTreeImpl extends DockerTreeImpl implements ExecFormTree {
 
   private final SyntaxToken leftBracket;
-  private final SeparatedList<ExecFormLiteralTree> literals;
+  private final SeparatedList<ExecFormLiteralTree> literalsWithSeparators;
   private final SyntaxToken rightBracket;
 
   public ExecFormTreeImpl(SyntaxToken leftBracket, SeparatedList<ExecFormLiteralTree> literals, SyntaxToken rightBracket) {
     this.leftBracket = leftBracket;
-    this.literals = literals;
+    this.literalsWithSeparators = literals;
     this.rightBracket = rightBracket;
   }
 
@@ -43,7 +43,7 @@ public class ExecFormTreeImpl extends DockerTreeImpl implements ExecFormTree {
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
     result.add(leftBracket);
-    result.addAll(literals.elementsAndSeparators());
+    result.addAll(literalsWithSeparators.elementsAndSeparators());
     result.add(rightBracket);
     return result;
   }
@@ -59,8 +59,17 @@ public class ExecFormTreeImpl extends DockerTreeImpl implements ExecFormTree {
   }
 
   @Override
-  public SeparatedList<ExecFormLiteralTree> literals() {
-    return literals;
+  public List<SyntaxToken> literals() {
+    List<SyntaxToken> result = new ArrayList<>();
+    for (ExecFormLiteralTree element : literalsWithSeparators.elements()) {
+      result.add(element.value());
+    }
+    return result;
+  }
+
+  @Override
+  public SeparatedList<ExecFormLiteralTree> literalsWithSeparators() {
+    return literalsWithSeparators;
   }
 
   @Override

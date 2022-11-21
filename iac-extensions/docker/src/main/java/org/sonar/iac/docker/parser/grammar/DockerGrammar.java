@@ -285,8 +285,9 @@ public class DockerGrammar {
             PARAM_NO_VALUE()
           )
         ),
-        b.oneOrMore(
-          b.token(STRING_LITERAL)
+        b.firstOf(
+          EXEC_FORM(),
+          SHELL_FORM()
         )
       )
     );

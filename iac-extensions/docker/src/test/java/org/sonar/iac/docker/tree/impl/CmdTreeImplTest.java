@@ -84,8 +84,7 @@ class CmdTreeImplTest {
     assertThat(tree.cmdArguments().stream().map(TextTree::value)).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
 
-    ExecFormTree execForm = (ExecFormTree) tree.children().get(1);
-    assertThat(execForm).isSameAs(tree.execForm());
+    assertThat(tree.children().get(1)).isInstanceOf(ExecFormTree.class);
   }
 
   @Test
@@ -97,8 +96,8 @@ class CmdTreeImplTest {
     assertThat(tree.cmdArguments().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
-    ShellFormTree shellForm = (ShellFormTree) tree.children().get(1);
-    assertThat(shellForm).isSameAs(tree.shellForm());
+
+    assertThat(tree.children().get(1)).isInstanceOf(ShellFormTree.class);
   }
 
   @Test
@@ -109,8 +108,9 @@ class CmdTreeImplTest {
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertThat(tree.cmdArguments()).isEmpty();
 
-    assertThat(tree.shellForm()).isNull();
-    SeparatedList<ExecFormLiteralTree> literals = tree.execForm().literals();
+    assertThat(tree.children().get(1)).isInstanceOf(ExecFormTree.class);
+    assertThat(tree.literalList()).isNotNull();
+    SeparatedList<ExecFormLiteralTree> literals = ((ExecFormTree) tree.literalList()).literalsWithSeparators();
     assertThat(literals.elementsAndSeparators()).isEmpty();
     assertThat(literals.elements()).isEmpty();
     assertThat(literals.separators()).isEmpty();
@@ -123,7 +123,6 @@ class CmdTreeImplTest {
     assertThat(tree.keyword().value()).isEqualTo("CMD");
 
     assertThat(tree.cmdArguments()).isEmpty();
-    assertThat(tree.shellForm()).isNull();
-    assertThat(tree.execForm()).isNull();
+    assertThat(tree.literalList()).isNull();
   }
 }

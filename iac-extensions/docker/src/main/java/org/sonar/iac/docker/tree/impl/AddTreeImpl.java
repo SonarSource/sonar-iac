@@ -23,19 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.AddTree;
+import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class AddTreeImpl extends InstructionTreeImpl implements AddTree {
   private final List<ParamTree> options;
-  private final List<SyntaxToken> srcs;
-  private final SyntaxToken dest;
+  private final LiteralListTree srcsAndDest;
 
-  public AddTreeImpl(SyntaxToken add, List<ParamTree> options, List<SyntaxToken> srcs, SyntaxToken dest) {
+  public AddTreeImpl(SyntaxToken add, List<ParamTree> options, LiteralListTree srcsAndDest) {
     super(add);
     this.options = options;
-    this.srcs = srcs;
-    this.dest = dest;
+    this.srcsAndDest = srcsAndDest;
   }
 
   @Override
@@ -45,12 +44,14 @@ public class AddTreeImpl extends InstructionTreeImpl implements AddTree {
 
   @Override
   public List<SyntaxToken> srcs() {
-    return srcs;
+    List<SyntaxToken> srcs = srcsAndDest.literals();
+    return srcs.subList(0, srcs.size()-1);
   }
 
   @Override
   public SyntaxToken dest() {
-    return dest;
+    List<SyntaxToken> dest = srcsAndDest.literals();
+    return dest.get(dest.size()-1);
   }
 
   @Override
@@ -58,8 +59,7 @@ public class AddTreeImpl extends InstructionTreeImpl implements AddTree {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
     children.addAll(options);
-    children.addAll(srcs);
-    children.add(dest);
+    children.add(srcsAndDest);
     return children;
   }
 

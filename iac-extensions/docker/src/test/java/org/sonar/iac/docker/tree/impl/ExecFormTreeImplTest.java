@@ -60,7 +60,7 @@ class ExecFormTreeImplTest {
     assertThat(execForm.getKind()).isEqualTo(DockerTree.Kind.EXEC_FORM);
     assertThat(execForm.leftBracket().value()).isEqualTo("[");
     assertThat(execForm.rightBracket().value()).isEqualTo("]");
-    List<String> elementsAndSeparatorsAsText = execForm.literals().elementsAndSeparators().stream()
+    List<String> elementsAndSeparatorsAsText = execForm.literalsWithSeparators().elementsAndSeparators().stream()
       .map(t -> {
         if (t instanceof SyntaxToken) {
           return ((SyntaxToken) t).value();
@@ -73,10 +73,10 @@ class ExecFormTreeImplTest {
       .collect(Collectors.toList());
     assertThat(elementsAndSeparatorsAsText).containsExactly("\"executable\"", "\"param1\"", "\"param2\"", ",", ",");
 
-    List<ExecFormLiteralTree> elements = execForm.literals().elements();
+    List<ExecFormLiteralTree> elements = execForm.literalsWithSeparators().elements();
     assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.EXEC_FORM_LITERAL);
     assertThat(elements.stream().map(t -> t.value().value())).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
 
-    assertThat(execForm.literals().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
+    assertThat(execForm.literalsWithSeparators().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
   }
 }

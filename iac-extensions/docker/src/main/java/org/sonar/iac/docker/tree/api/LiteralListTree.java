@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface ExecFormTree extends LiteralListTree {
-  SyntaxToken leftBracket();
-  SeparatedList<ExecFormLiteralTree> literalsWithSeparators();
-  SyntaxToken rightBracket();
+import java.util.List;
+
+public interface LiteralListTree extends DockerTree {
+  List<SyntaxToken> literals();
 }
