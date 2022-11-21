@@ -21,52 +21,50 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class ParamTreeImpl extends DockerTreeImpl implements ParamTree {
+public class AddTreeImpl extends InstructionTreeImpl implements AddTree {
+  private final List<ParamTree> options;
+  private final List<SyntaxToken> srcs;
+  private final SyntaxToken dest;
 
-  private final SyntaxToken prefix;
-  private final SyntaxToken name;
-  private final SyntaxToken equals;
-  private final SyntaxToken value;
-
-  public ParamTreeImpl(SyntaxToken prefix, SyntaxToken name, @Nullable SyntaxToken equals, @Nullable SyntaxToken value) {
-    this.prefix = prefix;
-    this.name = name;
-    this.equals = equals;
-    this.value = value;
+  public AddTreeImpl(SyntaxToken add, List<ParamTree> options, List<SyntaxToken> srcs, SyntaxToken dest) {
+    super(add);
+    this.options = options;
+    this.srcs = srcs;
+    this.dest = dest;
   }
 
   @Override
-  public String name() {
-    return name.value();
+  public List<ParamTree> options() {
+    return options;
   }
 
-  @Nullable
   @Override
-  public SyntaxToken value() {
-    return value;
+  public List<SyntaxToken> srcs() {
+    return srcs;
+  }
+
+  @Override
+  public SyntaxToken dest() {
+    return dest;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(prefix);
-    children.add(name);
-    if (equals != null) {
-      children.add(equals);
-    }
-    if(value != null) {
-      children.add(value);
-    }
+    children.add(keyword);
+    children.addAll(options);
+    children.addAll(srcs);
+    children.add(dest);
     return children;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.PARAM;
+    return Kind.ADD;
   }
 }

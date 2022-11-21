@@ -33,8 +33,8 @@ public enum DockerKeyword implements GrammarRuleKey {
   AS("AS"),
   ENV("ENV"),
   ARG("ARG"),
-  CMD("CMD")
-  ;
+  CMD("CMD"),
+  ADD("ADD");
 
   private final String value;
 

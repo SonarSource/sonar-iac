@@ -30,6 +30,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
+import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
@@ -40,10 +41,10 @@ import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
-import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
@@ -52,6 +53,7 @@ import org.sonar.iac.docker.tree.impl.CmdTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormLiteralTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormTreeImpl;
+import org.sonar.iac.docker.tree.impl.AddTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
@@ -128,6 +130,11 @@ public class TreeFactory {
     return new ArgTreeImpl(token, argNames);
   }
 
+  public AddTree add(SyntaxToken add, Optional<List<ParamTree>> options, List<SyntaxToken> srcsAndDest) {
+    SyntaxToken dest = srcsAndDest.remove(srcsAndDest.size()-1);
+    return new AddTreeImpl(add, options.or(Collections.emptyList()), srcsAndDest, dest);
+  }
+
   public KeyValuePairTree key(SyntaxToken key) {
     return new KeyValuePairTreeImpl(key, null, null);
   }
@@ -142,6 +149,10 @@ public class TreeFactory {
 
   public ParamTree param(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, SyntaxToken value) {
     return new ParamTreeImpl(prefix, name, equals, value);
+  }
+
+  public ParamTree param(SyntaxToken prefix, SyntaxToken name) {
+    return new ParamTreeImpl(prefix, name, null, null);
   }
 
   public ImageTree image(SyntaxToken name, Optional<SyntaxToken> tag, Optional<SyntaxToken> digest) {

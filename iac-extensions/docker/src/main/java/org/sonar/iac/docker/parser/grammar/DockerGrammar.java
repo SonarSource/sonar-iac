@@ -29,6 +29,7 @@ import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
+import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
@@ -38,9 +39,9 @@ import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
-import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
@@ -50,6 +51,7 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
 @SuppressWarnings("java:S100")
@@ -84,7 +86,8 @@ public class DockerGrammar {
         LABEL(),
         ENV(),
         ARG(),
-        CMD()
+        CMD(),
+        ADD()
       )
     );
   }
@@ -116,6 +119,15 @@ public class DockerGrammar {
         b.token(DockerLexicalGrammar.PARAM_NAME),
         b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
         b.token(DockerLexicalGrammar.PARAM_VALUE)
+      )
+    );
+  }
+
+  public ParamTree PARAM_NO_VALUE() {
+    return b.<ParamTree>nonterminal(DockerLexicalGrammar.PARAM_NO_VALUE).is(
+      f.param(
+        b.token(DockerLexicalGrammar.PARAM_PREFIX),
+        b.token(DockerLexicalGrammar.PARAM_NAME)
       )
     );
   }
@@ -180,7 +192,7 @@ public class DockerGrammar {
   public PortTree PORT() {
     return b.<PortTree>nonterminal(DockerLexicalGrammar.PORT).is(
       b.firstOf(
-        f.port(b.token(DockerLexicalGrammar.NUMERIC_LITERAL), b.token(DockerLexicalGrammar.SEPARATOR_PORT), b.optional(b.token(DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE))),
+        f.port(b.token(DockerLexicalGrammar.NUMERIC_LITERAL), b.token(DockerLexicalGrammar.SEPARATOR_PORT), b.optional(b.token(STRING_LITERAL_WITHOUT_SPACE))),
         f.port(b.token(DockerLexicalGrammar.STRING_LITERAL))
       )
     );
@@ -225,7 +237,7 @@ public class DockerGrammar {
   }
 
   /**
-   * To match such element : key1=value1 key2=value2
+   * To match such element : key1=value1
    */
   public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
     return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
@@ -241,6 +253,23 @@ public class DockerGrammar {
             KEY_VALUE_PAIR_WITH_EQUALS(),
             KEY_ONLY()
           )
+        )
+      )
+    );
+  }
+
+  public AddTree ADD() {
+    return b.<AddTree>nonterminal(DockerLexicalGrammar.ADD).is(
+      f.add(
+        b.token(DockerKeyword.ADD),
+        b.zeroOrMore(
+          b.firstOf(
+            PARAM(),
+            PARAM_NO_VALUE()
+          )
+        ),
+        b.oneOrMore(
+          b.token(STRING_LITERAL)
         )
       )
     );

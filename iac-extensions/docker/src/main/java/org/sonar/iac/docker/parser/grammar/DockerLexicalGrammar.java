@@ -61,6 +61,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   ENV,
   ARG,
   CMD,
+  ADD,
 
   /**
    * EXPRESSIONS
@@ -72,6 +73,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   KEY_VALUE_PAIR_SINGLE,
 
   PARAM,
+  PARAM_NO_VALUE,
   PARAM_PREFIX,
   PARAM_NAME,
   PARAM_VALUE,
@@ -127,7 +129,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(IMAGE_DIGEST).is(b.regexp("@[a-zA-Z0-9:]+"));
     b.rule(IMAGE_ALIAS).is(SPACING, b.regexp("[-a-zA-Z0-9_]+"));
 
-    b.rule(PARAM_PREFIX).is(Punctuator.MINUS, Punctuator.MINUS);
+    b.rule(PARAM_PREFIX).is(SPACING, b.regexp("--"));
     b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
     b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
   }
