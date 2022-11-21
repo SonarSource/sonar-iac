@@ -42,7 +42,6 @@ import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
-import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
@@ -323,18 +322,6 @@ public class DockerGrammar {
         b.oneOrMore(
           b.token(STRING_LITERAL)
         )
-      )
-    );
-  }
-
-  /**
-   * To match such element : --option=value
-   */
-  public OptionTree OPTION() {
-    return b.<OptionTree>nonterminal(DockerLexicalGrammar.OPTION).is(
-      b.firstOf(
-        f.option(b.token(DASHES_OPERATOR), b.token(STRING_LITERAL_WITHOUT_SPACE), b.token(EQUALS_OPERATOR), b.token(STRING_LITERAL_WITHOUT_SPACE)),
-        f.option(b.token(DASHES_OPERATOR), b.token(STRING_LITERAL_WITHOUT_SPACE))
       )
     );
   }
