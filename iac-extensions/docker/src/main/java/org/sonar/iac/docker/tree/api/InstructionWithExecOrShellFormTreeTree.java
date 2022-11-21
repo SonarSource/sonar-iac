@@ -17,22 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.impl;
+package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.Nullable;
-import org.sonar.iac.docker.tree.api.EntrypointTree;
-import org.sonar.iac.docker.tree.api.ExecFormTree;
-import org.sonar.iac.docker.tree.api.ShellFormTree;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class EntrypointTreeImpl extends InstructionWithExecOrShellFormTreeImpl implements EntrypointTree {
+import java.util.List;
 
-  public EntrypointTreeImpl(SyntaxToken keyword, @Nullable ExecFormTree execForm, @Nullable ShellFormTree shellForm) {
-    super(keyword, execForm, shellForm);
-  }
+public interface InstructionWithExecOrShellFormTreeTree extends InstructionTree {
 
-  @Override
-  public Kind getKind() {
-    return Kind.ENTRYPOINT;
-  }
+  ExecFormTree execForm();
+
+  ShellFormTree shellForm();
+
+
+  /**
+   * This method always returns arguments passed to the instruction irrespective of the form (shell or exec)
+   */
+  List<SyntaxToken> arguments();
 }

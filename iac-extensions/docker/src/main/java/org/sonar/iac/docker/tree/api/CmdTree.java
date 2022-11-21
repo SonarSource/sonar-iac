@@ -20,17 +20,6 @@
 package org.sonar.iac.docker.tree.api;
 
 
-import java.util.List;
+public interface CmdTree extends InstructionWithExecOrShellFormTreeTree {
 
-public interface CmdTree extends InstructionTree {
-
-  ExecFormTree execForm();
-
-  ShellFormTree shellForm();
-
-
-  /**
-   * This method always returns arguments passed to the CMD instruction irrespective of the form (shell or exec)
-   */
-  List<SyntaxToken> cmdArguments();
 }

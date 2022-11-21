@@ -81,7 +81,7 @@ class CmdTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
 
-    assertThat(tree.cmdArguments().stream().map(TextTree::value)).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
+    assertThat(tree.arguments().stream().map(TextTree::value)).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
 
     ExecFormTree execForm = (ExecFormTree) tree.children().get(1);
@@ -94,7 +94,7 @@ class CmdTreeImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
-    assertThat(tree.cmdArguments().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
     ShellFormTree shellForm = (ShellFormTree) tree.children().get(1);
@@ -107,7 +107,7 @@ class CmdTreeImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
-    assertThat(tree.cmdArguments()).isEmpty();
+    assertThat(tree.arguments()).isEmpty();
 
     assertThat(tree.shellForm()).isNull();
     SeparatedList<ExecFormLiteralTree> literals = tree.execForm().literals();
@@ -122,7 +122,7 @@ class CmdTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
 
-    assertThat(tree.cmdArguments()).isEmpty();
+    assertThat(tree.arguments()).isEmpty();
     assertThat(tree.shellForm()).isNull();
     assertThat(tree.execForm()).isNull();
   }

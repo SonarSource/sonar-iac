@@ -20,17 +20,6 @@
 package org.sonar.iac.docker.tree.api;
 
 
-import java.util.List;
+public interface EntrypointTree extends InstructionWithExecOrShellFormTreeTree {
 
-public interface EntrypointTree extends InstructionTree {
-
-  ExecFormTree execForm();
-
-  ShellFormTree shellForm();
-
-
-  /**
-   * This method always returns arguments passed to the ENTRYPOINT instruction irrespective of the form (shell or exec)
-   */
-  List<SyntaxToken> entrypointArguments();
 }
