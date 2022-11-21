@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.CmdTree;
@@ -60,17 +61,32 @@ public class CmdTreeImpl extends InstructionTreeImpl implements CmdTree {
   }
 
   @Override
+  @CheckForNull
   public ExecFormTree execForm() {
     return execForm;
   }
 
   @Override
+  @CheckForNull
+  public ShellFormTree shellForm() {
+    return shellForm;
+  }
+
+  @Override
   public List<SyntaxToken> cmdArguments() {
     List<SyntaxToken> result = new ArrayList<>();
-    SeparatedList<ExecFormLiteralTree> literals = execForm.literals();
-    if (literals != null) {
-      for (ExecFormLiteralTree element : literals.elements()) {
-        result.add(element.value());
+    if (execForm != null) {
+      SeparatedList<ExecFormLiteralTree> literals = execForm.literals();
+      if (literals != null) {
+        for (ExecFormLiteralTree element : literals.elements()) {
+          result.add(element.value());
+        }
+      }
+    }
+    if (shellForm != null) {
+      List<SyntaxToken> literals = shellForm.literals();
+      if (literals != null) {
+        result.addAll(literals);
       }
     }
     return result;

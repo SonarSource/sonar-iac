@@ -26,6 +26,9 @@ public interface CmdTree extends InstructionTree {
 
   ExecFormTree execForm();
 
+  ShellFormTree shellForm();
+
+
   /**
    * This method always returns arguments passed to the CMD instruction irrespective of the form (shell or exec)
    */

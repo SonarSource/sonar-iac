@@ -25,7 +25,10 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
+import org.sonar.iac.docker.tree.api.SeparatedList;
+import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,11 +89,41 @@ class CmdTreeImplTest {
   }
 
   @Test
+  void shouldCheckParseCmdShellFormTree() {
+    CmdTree tree = DockerTestUtils.parse("CMD executable param1 param2", DockerLexicalGrammar.CMD);
+
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
+    assertThat(tree.keyword().value()).isEqualTo("CMD");
+    assertThat(tree.cmdArguments().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
+
+    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
+    ShellFormTree shellForm = (ShellFormTree) tree.children().get(1);
+    assertThat(shellForm).isSameAs(tree.shellForm());
+  }
+
+  @Test
   void shouldCheckParseEmptyCmdExecFormTree() {
     CmdTree tree = DockerTestUtils.parse("CMD []", DockerLexicalGrammar.CMD);
+
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
+    assertThat(tree.keyword().value()).isEqualTo("CMD");
+    assertThat(tree.cmdArguments()).isEmpty();
+
+    assertThat(tree.shellForm()).isNull();
+    SeparatedList<ExecFormLiteralTree> literals = tree.execForm().literals();
+    assertThat(literals.elementsAndSeparators()).isEmpty();
+    assertThat(literals.elements()).isEmpty();
+    assertThat(literals.separators()).isEmpty();
+  }
+
+  @Test
+  void shouldCheckParseEmptyCmdTree() {
+    CmdTree tree = DockerTestUtils.parse("CMD", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
 
     assertThat(tree.cmdArguments()).isEmpty();
+    assertThat(tree.shellForm()).isNull();
+    assertThat(tree.execForm()).isNull();
   }
 }
