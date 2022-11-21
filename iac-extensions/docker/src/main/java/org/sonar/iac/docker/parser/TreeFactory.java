@@ -173,20 +173,12 @@ public class TreeFactory {
     return new CmdTreeImpl(token, null, null);
   }
 
-  public UserTree user(SyntaxToken keyword, SyntaxToken user) {
-    return new UserTreeImpl(keyword, user);
-  }
-
-  public UserTree user(SyntaxToken keyword, SyntaxToken user, SyntaxToken colon, SyntaxToken group) {
-    return new UserTreeImpl(keyword, user, colon, group);
-  }
-
-  public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<SyntaxToken> colon, Optional<SyntaxToken> group) {
-    return new UserTreeImpl(keyword, user, colon.orNull(), group.orNull());
-  }
-
-  public CmdTree cmd(SyntaxToken token, Optional<ExecFormTree> execFormTree) {
-    return new CmdTreeImpl(token, execFormTree.orNull());
+  public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
+    if (colonAndGroup.isPresent()) {
+      return new UserTreeImpl(keyword, user, colonAndGroup.get().first(), colonAndGroup.get().second());
+    } else {
+      return new UserTreeImpl(keyword, user, null, null);
+    }
   }
 
   public ExecFormTree execForm(SyntaxToken leftBracket,

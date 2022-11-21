@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserTree;
 
 public class UserTreeImpl extends InstructionTreeImpl implements UserTree {
+
   private final SyntaxToken user;
   private final SyntaxToken colon;
   private final SyntaxToken group;

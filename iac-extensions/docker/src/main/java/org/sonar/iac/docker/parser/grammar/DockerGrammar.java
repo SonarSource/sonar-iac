@@ -222,8 +222,16 @@ public class DockerGrammar {
 
   public UserTree USER() {
     return b.<UserTree>nonterminal(DockerLexicalGrammar.USER).is(
-      f.user(b.token(DockerKeyword.USER), b.token(DockerLexicalGrammar.USER_NAME),
-        b.optional(b.token(Punctuator.COLON)), b.optional(b.token(DockerLexicalGrammar.USER_GROUP)))
+      f.user(
+        b.token(DockerKeyword.USER),
+        b.token(DockerLexicalGrammar.USER_NAME),
+        b.optional(
+          f.tuple(
+            b.token(DockerLexicalGrammar.USER_SEPARATOR),
+            b.token(DockerLexicalGrammar.USER_GROUP)
+          )
+        )
+      )
     );
   }
 
