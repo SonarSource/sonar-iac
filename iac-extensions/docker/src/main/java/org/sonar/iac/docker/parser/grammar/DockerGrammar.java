@@ -24,7 +24,6 @@ import java.util.List;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.iac.docker.parser.TreeFactory;
 import org.sonar.iac.docker.tree.api.AliasTree;
-import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
@@ -32,17 +31,21 @@ import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
+import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
-import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
 
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAME;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
@@ -97,19 +100,30 @@ public class DockerGrammar {
     return b.<FromTree>nonterminal(DockerLexicalGrammar.FROM).is(
       f.from(
         b.token(DockerKeyword.FROM),
-        b.optional(PLATFORM_OPTION()),
-        b.token(STRING_LITERAL),
+        b.optional(PARAM()),
+        IMAGE(),
         b.optional(ALIAS())
       )
     );
   }
 
-  public KeyValuePairTree PLATFORM_OPTION() {
-    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.PLATFORM_OPTION).is(
-      f.keyValuePairEquals(
-        b.token(DockerLexicalGrammar.PLATFORM),
-        b.token(Punctuator.EQU),
-        b.token(DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE)
+  public ParamTree PARAM() {
+    return b.<ParamTree>nonterminal(DockerLexicalGrammar.PARAM).is(
+      f.param(
+        b.token(DockerLexicalGrammar.PARAM_PREFIX),
+        b.token(DockerLexicalGrammar.PARAM_NAME),
+        b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
+        b.token(DockerLexicalGrammar.PARAM_VALUE)
+      )
+    );
+  }
+
+  public ImageTree IMAGE() {
+    return b.<ImageTree>nonterminal(DockerLexicalGrammar.IMAGE).is(
+      f.image(
+        b.token(IMAGE_NAME),
+        b.optional(b.token(IMAGE_TAG)),
+        b.optional(b.token(IMAGE_DIGEST))
       )
     );
   }
@@ -118,7 +132,7 @@ public class DockerGrammar {
     return b.<AliasTree>nonterminal(DockerLexicalGrammar.ALIAS).is(
       f.alias(
         b.token(DockerKeyword.AS),
-        b.token(STRING_LITERAL)
+        b.token(DockerLexicalGrammar.IMAGE_ALIAS)
       )
     );
   }

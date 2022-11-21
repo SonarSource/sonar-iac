@@ -70,11 +70,20 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   KEY_ONLY,
   KEY_VALUE_PAIR_EQUALS,
   KEY_VALUE_PAIR_SINGLE,
-  PLATFORM_OPTION,
-  PLATFORM,
-  ALIAS,
+
+  PARAM,
+  PARAM_PREFIX,
+  PARAM_NAME,
+  PARAM_VALUE,
   ARG_NAME,
-  EXEC_FORM
+  EXEC_FORM,
+
+  IMAGE,
+  ALIAS,
+  IMAGE_ALIAS,
+  IMAGE_NAME,
+  IMAGE_TAG,
+  IMAGE_DIGEST
   ;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
@@ -111,7 +120,15 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
     b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
-    b.rule(PLATFORM).is(Punctuator.MINUS, Punctuator.MINUS, b.regexp("platform"));
+
+    b.rule(IMAGE_NAME).is(SPACING, b.regexp("[^@:\\s\\$-][^@:\\s\\$]+"));
+    b.rule(IMAGE_TAG).is(b.regexp(":[^@\\s\\$]+"));
+    b.rule(IMAGE_DIGEST).is(b.regexp("@[a-zA-Z0-9:]+"));
+    b.rule(IMAGE_ALIAS).is(SPACING, b.regexp("[-a-zA-Z0-9_]+"));
+
+    b.rule(PARAM_PREFIX).is(Punctuator.MINUS, Punctuator.MINUS);
+    b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
+    b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
-import javax.annotation.CheckForNull;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.parser.utils.Assertions;
 
-public interface FromTree extends InstructionTree {
+class AliasTreeImplTest {
 
-  @CheckForNull
-  ParamTree platform();
+  @Test
+  void matchingSimple() {
+    Assertions.assertThat(DockerLexicalGrammar.ALIAS)
+      .matches("AS foo")
+      .matches(" AS foo")
+      .matches("AS foo-bar")
+      .matches("AS 1234")
 
-  ImageTree image();
-
-  @CheckForNull
-  AliasTree alias();
+      .notMatches("AS")
+      .notMatches("AS 12.23")
+      .notMatches("AS foo\n")
+    ;
+  }
 }

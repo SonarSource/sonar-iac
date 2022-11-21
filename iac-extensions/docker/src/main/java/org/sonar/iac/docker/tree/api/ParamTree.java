@@ -19,15 +19,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.CheckForNull;
-
-public interface FromTree extends InstructionTree {
-
-  @CheckForNull
-  ParamTree platform();
-
-  ImageTree image();
-
-  @CheckForNull
-  AliasTree alias();
+public interface ParamTree extends DockerTree {
+  String name();
+  SyntaxToken value();
 }
