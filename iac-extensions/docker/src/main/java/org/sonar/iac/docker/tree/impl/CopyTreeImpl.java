@@ -25,7 +25,7 @@ import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class CopyTreeImpl extends CommandSrcsDestOptionInstructionTreeImpl implements CopyTree {
+public class CopyTreeImpl extends TransferInstructionTreeImpl implements CopyTree {
 
   public CopyTreeImpl(SyntaxToken add, List<ParamTree> options, LiteralListTree srcsAndDest) {
     super(add, options, srcsAndDest);

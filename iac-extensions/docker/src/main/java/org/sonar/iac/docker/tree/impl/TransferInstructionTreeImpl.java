@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.CommandSrcsDestOptionInstructionTree;
+import org.sonar.iac.docker.tree.api.TransferInstructionTree;
 import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -30,14 +30,14 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 /**
  * To be used when we want to implement a command that expect one+ src with one dest (supporting both SHELL and EXEC format) with Params.
  * Examples :
- * MY_CMD --param=value src1 src2 dest
- * MY_CMD --param=value ["src1", "src2", "dest"]
+ * {@code MY_CMD --param=value src1 src2 dest}
+ * {@code MY_CMD --param=value ["src1", "src2", "dest"]}
  */
-public abstract class CommandSrcsDestOptionInstructionTreeImpl extends InstructionTreeImpl implements CommandSrcsDestOptionInstructionTree {
+public abstract class TransferInstructionTreeImpl extends InstructionTreeImpl implements TransferInstructionTree {
   private final List<ParamTree> options;
   private final LiteralListTree srcsAndDest;
 
-  protected CommandSrcsDestOptionInstructionTreeImpl(SyntaxToken add, List<ParamTree> options, LiteralListTree srcsAndDest) {
+  protected TransferInstructionTreeImpl(SyntaxToken add, List<ParamTree> options, LiteralListTree srcsAndDest) {
     super(add);
     this.options = options;
     this.srcsAndDest = srcsAndDest;

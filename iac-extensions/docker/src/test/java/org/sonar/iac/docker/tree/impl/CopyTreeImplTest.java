@@ -37,7 +37,10 @@ class CopyTreeImplTest {
       .matches("COPY src dest")
       .matches("copy src dest")
       .matches("COPY dest")
+      .matches("COPY . /opt/foo")
+      .matches("COPY . .")
       .matches("COPY src1 src2 src3 dest")
+      .matches("COPY [\"src1\", \"src2\", \",src3\", \"dest\"]")
       .matches("COPY --option src dest")
       .matches("COPY --option=value src dest")
       .matches("COPY --chown=55:mygroup files* /somedir/")
@@ -67,7 +70,6 @@ class CopyTreeImplTest {
   @Test
   void copyInstructionExecForm() {
     CopyTree tree = parse("COPY [\"src1\", \"src2\", \"dest\"]", DockerLexicalGrammar.COPY);
-    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.COPY);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 29);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(2);
@@ -79,7 +81,6 @@ class CopyTreeImplTest {
   @Test
   void copyInstructionWithOption() {
     CopyTree tree = parse("COPY --chown=55:mygroup files* /somedir/", DockerLexicalGrammar.COPY);
-    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.COPY);
     assertThat(tree.options()).hasSize(1);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 40);
 

@@ -21,7 +21,7 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
-public interface CommandSrcsDestOptionInstructionTree extends InstructionTree {
+public interface TransferInstructionTree extends InstructionTree {
   List<ParamTree> options();
   List<SyntaxToken> srcs();
   SyntaxToken dest();

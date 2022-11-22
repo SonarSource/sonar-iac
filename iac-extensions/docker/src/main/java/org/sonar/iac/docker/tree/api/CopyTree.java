@@ -19,5 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface CopyTree extends CommandSrcsDestOptionInstructionTree {
+public interface CopyTree extends TransferInstructionTree {
 }
