@@ -23,6 +23,7 @@ import com.sonar.sslr.api.typed.GrammarBuilder;
 import java.util.List;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.iac.docker.parser.TreeFactory;
+import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
@@ -31,7 +32,6 @@ import org.sonar.iac.docker.tree.api.CopyTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
-import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
@@ -45,6 +45,7 @@ import org.sonar.iac.docker.tree.api.ShellTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
+import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserTree;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
@@ -53,8 +54,8 @@ import org.sonar.iac.docker.tree.api.VolumeTree;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAME;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.SPACING;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITHOUT_SPACE;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
@@ -73,30 +74,33 @@ public class DockerGrammar {
     return b.<FileTree>nonterminal(DockerLexicalGrammar.FILE).is(
       f.file(
         b.zeroOrMore(INSTRUCTION()),
-        b.optional(b.token(SPACING)),
+        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_SPACING)),
         b.token(DockerLexicalGrammar.EOF))
     );
   }
 
   public InstructionTree INSTRUCTION() {
     return b.<InstructionTree>nonterminal(DockerLexicalGrammar.INSTRUCTION).is(
-      b.firstOf(
-        ONBUILD(),
-        FROM(),
-        MAINTAINER(),
-        STOPSIGNAL(),
-        WORKDIR(),
-        EXPOSE(),
-        LABEL(),
-        ENV(),
-        ARG(),
-        CMD(),
-        ENTRYPOINT(),
-        ADD(),
-        COPY(),
-        USER(),
-        VOLUME(),
-        SHELL()
+      f.instruction(
+        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_SPACING)),
+        b.firstOf(
+          ONBUILD(),
+          FROM(),
+          MAINTAINER(),
+          STOPSIGNAL(),
+          WORKDIR(),
+          EXPOSE(),
+          LABEL(),
+          ENV(),
+          ARG(),
+          CMD(),
+          ENTRYPOINT(),
+          ADD(),
+          COPY(),
+          USER(),
+          VOLUME(),
+          SHELL()
+        )
       )
     );
   }

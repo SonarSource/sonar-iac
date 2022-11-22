@@ -26,47 +26,70 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class FileTreeImplTest {
 
   @Test
   void shouldParseEmptyFile() {
-    FileTree tree = parse("", DockerLexicalGrammar.FILE);
-    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FILE);
+    FileTree file = parseFile("");
+    assertThat(file.getKind()).isEqualTo(DockerTree.Kind.FILE);
+    assertTextRange(file.textRange()).hasRange(1,0,1,0);
+    assertThat(file.instructions()).isEmpty();
   }
 
   @Test
   void shouldParseFileWithSpace() {
-    FileTree tree = parse(" ", DockerLexicalGrammar.FILE);
-    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FILE);
+    FileTree file = parseFile(" ");
+    assertTextRange(file.textRange()).hasRange(1,1,1,1);
+    assertThat(file.instructions()).isEmpty();
   }
 
   @Test
   void shouldParseFileWithMultipleEmptyLines() {
-    FileTree tree = parse("\n\n\n", DockerLexicalGrammar.FILE);
-    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.FILE);
+    FileTree file = parseFile("\n\n\n");
+    assertTextRange(file.textRange()).hasRange(4,0,4,0);
+    assertThat(file.instructions()).isEmpty();
   }
 
   @Test
+  void shouldParseFileWithInstruction() {
+    FileTree file = parseFile("FROM foobar");
+    assertThat(file.instructions()).hasSize(1);
+  }
+
+  @Test
+  void shouldParseFileWithMultipleEmptyLinesAndInstruction() {
+    FileTree file = parseFile("\n\n\nFROM foobar");
+    assertThat(file.instructions()).hasSize(1);
+  }
+
+
+
+  @Test
   void checkIsKindMethod() {
-    FileTree tree = parse("", DockerLexicalGrammar.FILE);
-    assertThat(tree.is(DockerTree.Kind.FILE)).isTrue();
-    assertThat(tree.is(DockerTree.Kind.FILE, DockerTree.Kind.FROM)).isTrue();
-    assertThat(tree.is(DockerTree.Kind.FROM)).isFalse();
+    FileTree file = parseFile("");
+    assertThat(file.is(DockerTree.Kind.FILE)).isTrue();
+    assertThat(file.is(DockerTree.Kind.FILE, DockerTree.Kind.FROM)).isTrue();
+    assertThat(file.is(DockerTree.Kind.FROM)).isFalse();
   }
 
   @Test
   void checkTextRange() {
-    FileTree tree = parse("", DockerLexicalGrammar.FILE);
-    assertThat(tree.textRange()).isEqualTo(TextRanges.range(1, 0, ""));
+    FileTree file = parseFile("");
+    assertThat(file.textRange()).isEqualTo(TextRanges.range(1, 0, ""));
   }
 
   @Test
   void checkChildren() {
-    FileTree tree = parse("", DockerLexicalGrammar.FILE);
-    assertThat(tree.children()).hasSize(1);
-    DockerTree child = (DockerTree) tree.children().get(0);
+    FileTree file = parseFile("");
+    assertThat(file.children()).hasSize(1);
+    DockerTree child = (DockerTree) file.children().get(0);
     assertThat(child.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
+  }
+
+  private FileTree parseFile(String input) {
+    return parse(input, DockerLexicalGrammar.FILE);
   }
 }
