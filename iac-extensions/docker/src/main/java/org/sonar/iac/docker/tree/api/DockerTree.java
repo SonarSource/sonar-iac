@@ -51,6 +51,7 @@ public interface DockerTree extends Tree {
     EXEC_FORM_LITERAL(ExecFormLiteralTree.class),
     ADD(AddTree.class),
     COPY(CopyTree.class),
+    VOLUME(VolumeTree.class),
 
     TOKEN(SyntaxToken.class),
     USER(UserTree.class);

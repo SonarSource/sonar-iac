@@ -62,6 +62,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   ADD,
   COPY,
   USER,
+  VOLUME,
 
   /**
    * EXPRESSIONS

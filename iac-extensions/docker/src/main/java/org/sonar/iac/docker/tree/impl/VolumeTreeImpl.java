@@ -17,37 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser.grammar;
+package org.sonar.iac.docker.tree.impl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.LiteralListTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.VolumeTree;
 
-public enum DockerKeyword implements GrammarRuleKey {
+public class VolumeTreeImpl extends InstructionTreeImpl implements VolumeTree {
 
-  ONBUILD("ONBUILD"),
-  FROM("FROM"),
-  MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL"),
-  WORKDIR("WORKDIR"),
-  EXPOSE("EXPOSE"),
-  LABEL("LABEL"),
-  AS("AS"),
-  ENV("ENV"),
-  ARG("ARG"),
-  CMD("CMD"),
-  ENTRYPOINT("ENTRYPOINT"),
-  ADD("ADD"),
-  COPY("COPY"),
-  USER("USER"),
-  VOLUME("VOLUME")
-  ;
+  private final LiteralListTree arguments;
 
-  private final String value;
-
-  DockerKeyword(String value) {
-    this.value = value;
+  public VolumeTreeImpl(SyntaxToken volume, LiteralListTree arguments) {
+    super(volume);
+    this.arguments = arguments;
   }
 
-  public String getValue() {
-    return value;
+  @Override
+  public List<Tree> children() {
+    return List.of(keyword, arguments);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.VOLUME;
+  }
+
+  @Override
+  public LiteralListTree arguments() {
+    return arguments;
   }
 }

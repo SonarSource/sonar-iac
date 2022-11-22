@@ -60,6 +60,7 @@ import org.sonar.iac.docker.tree.impl.ExecFormLiteralTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormTreeImpl;
 import org.sonar.iac.docker.tree.impl.AddTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
+import org.sonar.iac.docker.tree.api.VolumeTree;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
 import org.sonar.iac.docker.tree.impl.ImageTreeImpl;
@@ -73,6 +74,7 @@ import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormTreeImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
 import org.sonar.iac.docker.tree.impl.UserTreeImpl;
+import org.sonar.iac.docker.tree.impl.VolumeTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 
 public class TreeFactory {
@@ -186,6 +188,10 @@ public class TreeFactory {
     } else {
       return new UserTreeImpl(keyword, user, null, null);
     }
+  }
+
+  public VolumeTree volume(SyntaxToken token, LiteralListTree execFormOrShellForm) {
+    return new VolumeTreeImpl(token, execFormOrShellForm);
   }
 
   public ExecFormTree execForm(SyntaxToken leftBracket,
