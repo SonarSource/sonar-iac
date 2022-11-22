@@ -17,41 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser.grammar;
+package org.sonar.iac.docker.tree.api;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import java.util.List;
+import javax.annotation.CheckForNull;
 
-public enum DockerKeyword implements GrammarRuleKey {
+public interface HealthCheckTree extends InstructionTree {
 
-  ONBUILD("ONBUILD"),
-  FROM("FROM"),
-  MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL"),
-  WORKDIR("WORKDIR"),
-  EXPOSE("EXPOSE"),
-  LABEL("LABEL"),
-  AS("AS"),
-  ENV("ENV"),
-  ARG("ARG"),
-  CMD("CMD"),
-  ENTRYPOINT("ENTRYPOINT"),
-  RUN("RUN"),
-  ADD("ADD"),
-  COPY("COPY"),
-  USER("USER"),
-  VOLUME("VOLUME"),
-  SHELL("SHELL"),
-  HEALTHCHECK("HEALTHCHECK"),
-  NONE("NONE")
-  ;
-
-  private final String value;
-
-  DockerKeyword(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
+  boolean isNone();
+  @CheckForNull
+  List<ParamTree> options();
+  @CheckForNull
+  CmdTree cmd();
 }

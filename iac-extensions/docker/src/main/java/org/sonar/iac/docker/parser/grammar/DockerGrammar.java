@@ -34,6 +34,7 @@ import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.HealthCheckTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
@@ -46,7 +47,6 @@ import org.sonar.iac.docker.tree.api.ShellTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
-import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserTree;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
@@ -100,7 +100,8 @@ public class DockerGrammar {
           COPY(),
           USER(),
           VOLUME(),
-          SHELL()
+          SHELL(),
+          HEALTHCHECK()
         )
       )
     );
@@ -361,6 +362,22 @@ public class DockerGrammar {
             EXEC_FORM(),
             SHELL_FORM()
           )
+        )
+      )
+    );
+  }
+
+  public HealthCheckTree HEALTHCHECK() {
+    return b.<HealthCheckTree>nonterminal(DockerLexicalGrammar.HEALTHCHECK).is(
+      b.firstOf(
+        f.healthcheck(
+          b.token(DockerKeyword.HEALTHCHECK),
+          b.token(DockerKeyword.NONE)
+        ),
+        f.healthcheck(
+          b.token(DockerKeyword.HEALTHCHECK),
+          b.zeroOrMore(PARAM()),
+          CMD()
         )
       )
     );
