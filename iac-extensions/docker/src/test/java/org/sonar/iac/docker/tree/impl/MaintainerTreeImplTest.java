@@ -102,7 +102,7 @@ class MaintainerTreeImplTest {
 
   @Test
   void multiline() {
-    MaintainerTree tree = parse("MAINTAINER bob \\ boberman", DockerLexicalGrammar.MAINTAINER);
+    MaintainerTree tree = parse("MAINTAINER bob \\\n boberman", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     // TODO : SONARIAC-481 support multiline and fix below tests
