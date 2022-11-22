@@ -47,4 +47,9 @@ public class ShellFormTreeImpl extends DockerTreeImpl implements ShellFormTree {
   public List<SyntaxToken> literals() {
     return literals;
   }
+
+  @Override
+  public LiteralListType type() {
+    return LiteralListType.SHELL;
+  }
 }

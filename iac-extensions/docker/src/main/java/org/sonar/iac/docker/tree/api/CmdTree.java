@@ -19,16 +19,13 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
 public interface CmdTree extends InstructionTree {
-
-  @Nullable
-  LiteralListTree literalList();
 
   /**
    * This method always returns arguments passed to the CMD instruction irrespective of the form (shell or exec)
    */
-  List<SyntaxToken> cmdArguments();
+  @CheckForNull
+  LiteralListTree cmdArguments();
 }

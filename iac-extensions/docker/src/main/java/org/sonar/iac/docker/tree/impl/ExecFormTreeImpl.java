@@ -68,6 +68,11 @@ public class ExecFormTreeImpl extends DockerTreeImpl implements ExecFormTree {
   }
 
   @Override
+  public LiteralListType type() {
+    return LiteralListType.EXEC;
+  }
+
+  @Override
   public SeparatedList<ExecFormLiteralTree> literalsWithSeparators() {
     return literalsWithSeparators;
   }

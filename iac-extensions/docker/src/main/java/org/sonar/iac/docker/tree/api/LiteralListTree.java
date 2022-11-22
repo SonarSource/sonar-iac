@@ -22,5 +22,13 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface LiteralListTree extends DockerTree {
+
+  enum LiteralListType {
+    EXEC,
+    SHELL
+  }
+
   List<SyntaxToken> literals();
+
+  LiteralListType type();
 }

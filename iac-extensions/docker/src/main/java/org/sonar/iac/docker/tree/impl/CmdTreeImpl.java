@@ -20,8 +20,8 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.CmdTree;
@@ -30,19 +30,19 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class CmdTreeImpl extends InstructionTreeImpl implements CmdTree {
 
-  private final LiteralListTree literalList;
+  private final LiteralListTree argumentList;
 
-  public CmdTreeImpl(SyntaxToken keyword, @Nullable LiteralListTree literalList) {
+  public CmdTreeImpl(SyntaxToken keyword, @Nullable LiteralListTree argumentList) {
     super(keyword);
-    this.literalList = literalList;
+    this.argumentList = argumentList;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
     result.add(keyword);
-    if (literalList != null) {
-      result.add(literalList);
+    if (argumentList != null) {
+      result.add(argumentList);
     }
     return result;
   }
@@ -53,17 +53,9 @@ public class CmdTreeImpl extends InstructionTreeImpl implements CmdTree {
   }
 
   @Override
-  public LiteralListTree literalList() {
-    return literalList;
-  }
-
-  @Override
-  public List<SyntaxToken> cmdArguments() {
-    if (literalList != null) {
-      return literalList.literals();
-    } else {
-      return Collections.emptyList();
-    }
+  @CheckForNull
+  public LiteralListTree cmdArguments() {
+    return argumentList;
   }
 
   @Override
