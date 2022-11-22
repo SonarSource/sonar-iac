@@ -19,12 +19,14 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -61,6 +63,33 @@ class AddTreeImplTest {
     assertThat(tree.srcs()).hasSize(1);
     assertThat(tree.srcs().get(0).value()).isEqualTo("src");
     assertThat(tree.dest().value()).isEqualTo("dest");
+  }
+
+  @Test
+  void addInstructionExecForm() {
+    AddTree tree = parse("ADD [\"src\", \"dest\"]", DockerLexicalGrammar.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
+    assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
+    assertThat(tree.options()).isEmpty();
+    assertThat(tree.srcs()).hasSize(1);
+    assertThat(tree.srcs().get(0).value()).isEqualTo("\"src\"");
+    assertThat(tree.dest().value()).isEqualTo("\"dest\"");
+  }
+
+  @Test
+  void addInstructionExecFormMultipleSrc() {
+    AddTree tree = parse("ADD [\"src1\", \"src2\", \"src3\", \"dest\"]", DockerLexicalGrammar.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
+    assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 36);
+    assertThat(tree.options()).isEmpty();
+    List<SyntaxToken> srcs = tree.srcs();
+    assertThat(srcs).hasSize(3);
+    assertThat(srcs.get(0).value()).isEqualTo("\"src1\"");
+    assertThat(srcs.get(1).value()).isEqualTo("\"src2\"");
+    assertThat(srcs.get(2).value()).isEqualTo("\"src3\"");
+    assertThat(tree.dest().value()).isEqualTo("\"dest\"");
   }
 
   @Test

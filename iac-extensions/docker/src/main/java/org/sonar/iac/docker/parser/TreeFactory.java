@@ -26,7 +26,6 @@ import java.util.List;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
-import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
@@ -38,6 +37,7 @@ import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
+import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
@@ -132,9 +132,8 @@ public class TreeFactory {
     return new ArgTreeImpl(token, argNames);
   }
 
-  public AddTree add(SyntaxToken add, Optional<List<ParamTree>> options, List<SyntaxToken> srcsAndDest) {
-    SyntaxToken dest = srcsAndDest.remove(srcsAndDest.size()-1);
-    return new AddTreeImpl(add, options.or(Collections.emptyList()), srcsAndDest, dest);
+  public AddTree add(SyntaxToken add, Optional<List<ParamTree>> options, LiteralListTree srcsAndDest) {
+    return new AddTreeImpl(add, options.or(Collections.emptyList()), srcsAndDest);
   }
 
   public KeyValuePairTree key(SyntaxToken key) {
@@ -161,16 +160,8 @@ public class TreeFactory {
     return new ImageTreeImpl(name, tag.orNull(), digest.orNull());
   }
 
-  public CmdTree cmd(SyntaxToken token, Optional<DockerTree> execFormOrShellForm) {
-    if (execFormOrShellForm.isPresent()) {
-      DockerTree dockerTree = execFormOrShellForm.get();
-      if (dockerTree instanceof ExecFormTree) {
-        return new CmdTreeImpl(token, (ExecFormTree) dockerTree, null);
-      } else {
-        return new CmdTreeImpl(token, null, (ShellFormTree) dockerTree);
-      }
-    }
-    return new CmdTreeImpl(token, null, null);
+  public CmdTree cmd(SyntaxToken token, Optional<LiteralListTree> execFormOrShellForm) {
+    return new CmdTreeImpl(token, execFormOrShellForm.orNull());
   }
 
   public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {

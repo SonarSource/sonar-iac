@@ -25,32 +25,24 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.CmdTree;
-import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
-import org.sonar.iac.docker.tree.api.ExecFormTree;
-import org.sonar.iac.docker.tree.api.SeparatedList;
-import org.sonar.iac.docker.tree.api.ShellFormTree;
+import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class CmdTreeImpl extends InstructionTreeImpl implements CmdTree {
 
-  private final ExecFormTree execForm;
-  private final ShellFormTree shellForm;
+  private final LiteralListTree argumentList;
 
-  public CmdTreeImpl(SyntaxToken keyword, @Nullable ExecFormTree execForm, @Nullable ShellFormTree shellForm) {
+  public CmdTreeImpl(SyntaxToken keyword, @Nullable LiteralListTree argumentList) {
     super(keyword);
-    this.execForm = execForm;
-    this.shellForm = shellForm;
+    this.argumentList = argumentList;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
     result.add(keyword);
-    if (execForm != null) {
-      result.add(execForm);
-    }
-    if (shellForm != null) {
-      result.add(shellForm);
+    if (argumentList != null) {
+      result.add(argumentList);
     }
     return result;
   }
@@ -62,30 +54,8 @@ public class CmdTreeImpl extends InstructionTreeImpl implements CmdTree {
 
   @Override
   @CheckForNull
-  public ExecFormTree execForm() {
-    return execForm;
-  }
-
-  @Override
-  @CheckForNull
-  public ShellFormTree shellForm() {
-    return shellForm;
-  }
-
-  @Override
-  public List<SyntaxToken> cmdArguments() {
-    List<SyntaxToken> result = new ArrayList<>();
-    if (execForm != null) {
-      SeparatedList<ExecFormLiteralTree> literals = execForm.literals();
-      for (ExecFormLiteralTree element : literals.elements()) {
-        result.add(element.value());
-      }
-    }
-    if (shellForm != null) {
-      List<SyntaxToken> literals = shellForm.literals();
-      result.addAll(literals);
-    }
-    return result;
+  public LiteralListTree cmdArguments() {
+    return argumentList;
   }
 
   @Override
