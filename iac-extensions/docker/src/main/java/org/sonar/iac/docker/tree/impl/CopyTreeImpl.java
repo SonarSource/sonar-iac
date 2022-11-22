@@ -20,19 +20,19 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
-import org.sonar.iac.docker.tree.api.AddTree;
+import org.sonar.iac.docker.tree.api.CopyTree;
 import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class AddTreeImpl extends CommandSrcsDestOptionInstructionTreeImpl implements AddTree {
+public class CopyTreeImpl extends CommandSrcsDestOptionInstructionTreeImpl implements CopyTree {
 
-  public AddTreeImpl(SyntaxToken add, List<ParamTree> options, LiteralListTree srcsAndDest) {
+  public CopyTreeImpl(SyntaxToken add, List<ParamTree> options, LiteralListTree srcsAndDest) {
     super(add, options, srcsAndDest);
   }
 
   @Override
   public Kind getKind() {
-    return Kind.ADD;
+    return Kind.COPY;
   }
 }

@@ -17,22 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.impl;
+package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-import org.sonar.iac.docker.tree.api.AddTree;
-import org.sonar.iac.docker.tree.api.LiteralListTree;
-import org.sonar.iac.docker.tree.api.ParamTree;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
-
-public class AddTreeImpl extends CommandSrcsDestOptionInstructionTreeImpl implements AddTree {
-
-  public AddTreeImpl(SyntaxToken add, List<ParamTree> options, LiteralListTree srcsAndDest) {
-    super(add, options, srcsAndDest);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.ADD;
-  }
+public interface CopyTree extends CommandSrcsDestOptionInstructionTree {
 }

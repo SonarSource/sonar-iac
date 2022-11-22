@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.EntrypointTree;
+import org.sonar.iac.docker.tree.api.CopyTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
@@ -53,6 +54,7 @@ import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
 import org.sonar.iac.docker.tree.impl.ArgTreeImpl;
 import org.sonar.iac.docker.tree.impl.CmdTreeImpl;
 import org.sonar.iac.docker.tree.impl.EntrypointTreeImpl;
+import org.sonar.iac.docker.tree.impl.CopyTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormLiteralTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormTreeImpl;
@@ -140,6 +142,10 @@ public class TreeFactory {
 
   public AddTree add(SyntaxToken add, Optional<List<ParamTree>> options, LiteralListTree srcsAndDest) {
     return new AddTreeImpl(add, options.or(Collections.emptyList()), srcsAndDest);
+  }
+
+  public CopyTree copy(SyntaxToken copy, Optional<List<ParamTree>> options, LiteralListTree srcsAndDest) {
+    return new CopyTreeImpl(copy, options.or(Collections.emptyList()), srcsAndDest);
   }
 
   public KeyValuePairTree key(SyntaxToken key) {
