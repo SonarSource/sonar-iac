@@ -41,6 +41,7 @@ import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.ShellTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
@@ -94,7 +95,8 @@ public class DockerGrammar {
         ADD(),
         COPY(),
         USER(),
-        VOLUME()
+        VOLUME(),
+        SHELL()
       )
     );
   }
@@ -341,6 +343,15 @@ public class DockerGrammar {
             SHELL_FORM()
           )
         )
+      )
+    );
+  }
+
+  public ShellTree SHELL() {
+    return b.<ShellTree>nonterminal(DockerLexicalGrammar.SHELL).is(
+      f.shell(
+        b.token(DockerKeyword.SHELL),
+        EXEC_FORM()
       )
     );
   }

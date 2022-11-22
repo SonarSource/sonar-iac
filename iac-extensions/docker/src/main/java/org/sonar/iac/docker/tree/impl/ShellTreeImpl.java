@@ -17,38 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser.grammar;
+package org.sonar.iac.docker.tree.impl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.ExecFormTree;
+import org.sonar.iac.docker.tree.api.ShellTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public enum DockerKeyword implements GrammarRuleKey {
+public class ShellTreeImpl extends InstructionTreeImpl implements ShellTree {
 
-  ONBUILD("ONBUILD"),
-  FROM("FROM"),
-  MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL"),
-  WORKDIR("WORKDIR"),
-  EXPOSE("EXPOSE"),
-  LABEL("LABEL"),
-  AS("AS"),
-  ENV("ENV"),
-  ARG("ARG"),
-  CMD("CMD"),
-  ENTRYPOINT("ENTRYPOINT"),
-  ADD("ADD"),
-  COPY("COPY"),
-  USER("USER"),
-  VOLUME("VOLUME"),
-  SHELL("SHELL")
-  ;
+  private final ExecFormTree arguments;
 
-  private final String value;
-
-  DockerKeyword(String value) {
-    this.value = value;
+  public ShellTreeImpl(SyntaxToken keyword, ExecFormTree shellForm) {
+    super(keyword);
+    this.arguments = shellForm;
   }
 
-  public String getValue() {
-    return value;
+  @Override
+  @CheckForNull
+  public ExecFormTree arguments() {
+    return arguments;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return List.of(keyword, arguments);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.SHELL;
   }
 }

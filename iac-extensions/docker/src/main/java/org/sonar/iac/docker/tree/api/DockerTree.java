@@ -52,9 +52,10 @@ public interface DockerTree extends Tree {
     ADD(AddTree.class),
     COPY(CopyTree.class),
     VOLUME(VolumeTree.class),
+    USER(UserTree.class),
+    SHELL(ShellTree.class),
 
-    TOKEN(SyntaxToken.class),
-    USER(UserTree.class);
+    TOKEN(SyntaxToken.class);
 
 
     private final Class<? extends DockerTree> associatedInterface;
