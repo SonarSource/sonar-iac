@@ -17,39 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser.grammar;
+package org.sonar.iac.docker.tree.impl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import javax.annotation.Nullable;
+import org.sonar.iac.docker.tree.api.LiteralListTree;
+import org.sonar.iac.docker.tree.api.RunTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public enum DockerKeyword implements GrammarRuleKey {
+public class RunTreeImpl extends CommandInstructionTreeImpl implements RunTree {
 
-  ONBUILD("ONBUILD"),
-  FROM("FROM"),
-  MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL"),
-  WORKDIR("WORKDIR"),
-  EXPOSE("EXPOSE"),
-  LABEL("LABEL"),
-  AS("AS"),
-  ENV("ENV"),
-  ARG("ARG"),
-  CMD("CMD"),
-  ENTRYPOINT("ENTRYPOINT"),
-  RUN("RUN"),
-  ADD("ADD"),
-  COPY("COPY"),
-  USER("USER"),
-  VOLUME("VOLUME"),
-  SHELL("SHELL")
-  ;
-
-  private final String value;
-
-  DockerKeyword(String value) {
-    this.value = value;
+  public RunTreeImpl(SyntaxToken keyword, @Nullable LiteralListTree arguments) {
+    super(keyword, arguments);
   }
 
-  public String getValue() {
-    return value;
+  @Override
+  public Kind getKind() {
+    return Kind.RUN;
   }
 }

@@ -41,6 +41,7 @@ import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.RunTree;
 import org.sonar.iac.docker.tree.api.ShellTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
@@ -94,6 +95,7 @@ public class DockerGrammar {
           ARG(),
           CMD(),
           ENTRYPOINT(),
+          RUN(),
           ADD(),
           COPY(),
           USER(),
@@ -340,6 +342,20 @@ public class DockerGrammar {
     return b.<EntrypointTree>nonterminal(DockerLexicalGrammar.ENTRYPOINT).is(
       f.entrypoint(
         b.token(DockerKeyword.ENTRYPOINT),
+        b.optional(
+          b.firstOf(
+            EXEC_FORM(),
+            SHELL_FORM()
+          )
+        )
+      )
+    );
+  }
+
+  public RunTree RUN() {
+    return b.<RunTree>nonterminal(DockerLexicalGrammar.RUN).is(
+      f.run(
+        b.token(DockerKeyword.RUN),
         b.optional(
           b.firstOf(
             EXEC_FORM(),
