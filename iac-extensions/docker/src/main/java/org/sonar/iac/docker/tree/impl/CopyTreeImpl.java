@@ -17,7 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
-public interface AddTree extends TransferInstructionTree {
+import java.util.List;
+import org.sonar.iac.docker.tree.api.CopyTree;
+import org.sonar.iac.docker.tree.api.LiteralListTree;
+import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
+
+public class CopyTreeImpl extends TransferInstructionTreeImpl implements CopyTree {
+
+  public CopyTreeImpl(SyntaxToken add, List<ParamTree> options, LiteralListTree srcsAndDest) {
+    super(add, options, srcsAndDest);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.COPY;
+  }
 }

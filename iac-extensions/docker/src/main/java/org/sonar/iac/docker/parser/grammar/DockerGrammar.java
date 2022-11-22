@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.EntrypointTree;
+import org.sonar.iac.docker.tree.api.CopyTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
@@ -90,6 +91,7 @@ public class DockerGrammar {
         CMD(),
         ENTRYPOINT(),
         ADD(),
+        COPY(),
         USER()
       )
     );
@@ -281,6 +283,24 @@ public class DockerGrammar {
     return b.<AddTree>nonterminal(DockerLexicalGrammar.ADD).is(
       f.add(
         b.token(DockerKeyword.ADD),
+        b.zeroOrMore(
+          b.firstOf(
+            PARAM(),
+            PARAM_NO_VALUE()
+          )
+        ),
+        b.firstOf(
+          EXEC_FORM(),
+          SHELL_FORM()
+        )
+      )
+    );
+  }
+
+  public CopyTree COPY() {
+    return b.<CopyTree>nonterminal(DockerLexicalGrammar.COPY).is(
+      f.copy(
+        b.token(DockerKeyword.COPY),
         b.zeroOrMore(
           b.firstOf(
             PARAM(),
