@@ -61,10 +61,6 @@ class VolumeTreeImplTest {
     assertThat(literalListTree).hasSize(2);
     assertThat(literalListTree.get(0).value()).isEqualTo("/var/log");
     assertThat(literalListTree.get(1).value()).isEqualTo("/var/db");
-
-    assertThat(tree.children()).hasSize(2);
-    assertThat(tree.children().get(0)).isSameAs(tree.keyword());
-    assertThat(tree.children().get(1)).isSameAs(tree.arguments());
   }
 
   @Test
@@ -76,10 +72,6 @@ class VolumeTreeImplTest {
     assertThat(literalListTree).hasSize(2);
     assertThat(literalListTree.get(0).value()).isEqualTo("\"/var/log\"");
     assertThat(literalListTree.get(1).value()).isEqualTo("\"/var/db\"");
-
-    assertThat(tree.children()).hasSize(2);
-    assertThat(tree.children().get(0)).isSameAs(tree.keyword());
-    assertThat(tree.children().get(1)).isSameAs(tree.arguments());
   }
 
   @Test
@@ -89,9 +81,5 @@ class VolumeTreeImplTest {
 
     List<SyntaxToken> literalListTree = tree.arguments().literals();
     assertThat(literalListTree).isEmpty();
-
-    assertThat(tree.children()).hasSize(2);
-    assertThat(tree.children().get(0)).isSameAs(tree.keyword());
-    assertThat(tree.children().get(1)).isSameAs(tree.arguments());
   }
 }
