@@ -25,6 +25,7 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.PortTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
@@ -57,8 +58,8 @@ class ExposeTreeImplTest {
 
     PortTree port1 = tree.ports().get(0);
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(port1.port().value()).isEqualTo("80");
-    assertThat(port1.separator()).isNull();
+    assertThat(port1.portMin().value()).isEqualTo("80");
+    assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
   }
 
@@ -71,8 +72,9 @@ class ExposeTreeImplTest {
 
     PortTree port1 = tree.ports().get(0);
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(port1.port().value()).isEqualTo("80");
-    assertThat(port1.separator().value()).isEqualTo("/");
+    assertThat(port1.portMin().value()).isEqualTo("80");
+    assertThat(port1.portMin()).isEqualTo(port1.portMax());
+    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("/");
     assertThat(port1.protocol()).isNull();
   }
 
@@ -85,8 +87,9 @@ class ExposeTreeImplTest {
 
     PortTree port1 = tree.ports().get(0);
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(port1.port().value()).isEqualTo("80");
-    assertThat(port1.separator().value()).isEqualTo("/");
+    assertThat(port1.portMin().value()).isEqualTo("80");
+    assertThat(port1.portMin()).isEqualTo(port1.portMax());
+    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("/");
     assertThat(port1.protocol().value()).isEqualTo("tcp");
   }
 
@@ -99,14 +102,14 @@ class ExposeTreeImplTest {
 
     PortTree port1 = tree.ports().get(0);
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(port1.port().value()).isEqualTo("80");
-    assertThat(port1.separator().value()).isEqualTo("/");
+    assertThat(port1.portMin().value()).isEqualTo("80");
+    assertThat(port1.portMin()).isEqualTo(port1.portMax());
+    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("/");
     assertThat(port1.protocol().value()).isEqualTo("tcp");
 
     PortTree port2 = tree.ports().get(1);
     assertThat(port2.getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(port2.port().value()).isEqualTo("443");
-    assertThat(port2.separator()).isNull();
+    assertThat(port2.portMin().value()).isEqualTo("443");
     assertThat(port2.protocol()).isNull();
   }
 
@@ -119,8 +122,8 @@ class ExposeTreeImplTest {
 
     PortTree port1 = tree.ports().get(0);
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(port1.port().value()).isEqualTo("${my_port}");
-    assertThat(port1.separator()).isNull();
+    assertThat(port1.portMin().value()).isEqualTo("${my_port}");
+    assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
   }
 
@@ -134,8 +137,8 @@ class ExposeTreeImplTest {
 
     PortTree port1 = tree.ports().get(0);
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(port1.port().value()).isEqualTo("8\"0/t\"cp");
-    assertThat(port1.separator()).isNull();
+    assertThat(port1.portMin().value()).isEqualTo("8\"0/t\"cp");
+    assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
   }
 
@@ -148,8 +151,9 @@ class ExposeTreeImplTest {
 
     PortTree port1 = tree.ports().get(0);
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(port1.port().value()).isEqualTo("80-89");
-    assertThat(port1.separator()).isNull();
+    assertThat(port1.portMin().value()).isEqualTo("80");
+    assertThat(port1.portMax().value()).isEqualTo("89");
+    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("-");
     assertThat(port1.protocol()).isNull();
   }
 }

@@ -20,7 +20,7 @@
 package org.sonar.iac.docker.tree.api;
 
 public interface PortTree extends DockerTree {
-  SyntaxToken port();
-  SyntaxToken separator();
+  SyntaxToken portMin();
+  SyntaxToken portMax();
   SyntaxToken protocol();
 }
