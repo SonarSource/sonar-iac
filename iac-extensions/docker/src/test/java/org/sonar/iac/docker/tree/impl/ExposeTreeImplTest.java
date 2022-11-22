@@ -35,6 +35,7 @@ class ExposeTreeImplTest {
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.EXPOSE)
       .matches("EXPOSE 80")
+      .matches("EXPOSE bob")
       .matches("EXPOSE 80-88")
       .matches("    EXPOSE 80")
       .matches("expose 80")
@@ -46,7 +47,12 @@ class ExposeTreeImplTest {
       .matches("EXPOSE 80 /tcp")
       .matches("EXPOSE \"80/tcp\"")
       .matches("EXPOSE 8\"0/t\"cp")
-      .matches("EXPOSE $myport");
+      .matches("EXPOSE $myport")
+      .matches("EXPOSE80") // TODO : Should not match SONARIAC-489
+      .notMatches("EXPOSE")
+      .notMatches("EXPOSE ")
+      .notMatches("EXPOSEE")
+    ;
   }
 
   @Test
@@ -74,8 +80,11 @@ class ExposeTreeImplTest {
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
-    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("/");
     assertThat(port1.protocol()).isNull();
+
+    assertThat(port1.children()).hasSize(2);
+    assertThat(port1.children().get(0)).isSameAs(port1.portMin());
+    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("/");
   }
 
   @Test
@@ -89,8 +98,12 @@ class ExposeTreeImplTest {
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
-    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("/");
     assertThat(port1.protocol().value()).isEqualTo("tcp");
+
+    assertThat(port1.children()).hasSize(3);
+    assertThat(port1.children().get(0)).isSameAs(port1.portMin());
+    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("/");
+    assertThat(port1.children().get(2)).isSameAs(port1.protocol());
   }
 
   @Test
@@ -104,13 +117,18 @@ class ExposeTreeImplTest {
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
-    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("/");
     assertThat(port1.protocol().value()).isEqualTo("tcp");
+    assertThat(port1.children()).hasSize(3);
+    assertThat(port1.children().get(0)).isSameAs(port1.portMin());
+    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("/");
+    assertThat(port1.children().get(2)).isSameAs(port1.protocol());
 
     PortTree port2 = tree.ports().get(1);
     assertThat(port2.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port2.portMin().value()).isEqualTo("443");
     assertThat(port2.protocol()).isNull();
+    assertThat(port2.children()).hasSize(1);
+    assertThat(port2.children().get(0)).isSameAs(port2.portMin());
   }
 
   @Test
@@ -125,6 +143,8 @@ class ExposeTreeImplTest {
     assertThat(port1.portMin().value()).isEqualTo("${my_port}");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
+    assertThat(port1.children()).hasSize(1);
+    assertThat(port1.children().get(0)).isSameAs(port1.portMin());
   }
 
   @Test
@@ -140,6 +160,8 @@ class ExposeTreeImplTest {
     assertThat(port1.portMin().value()).isEqualTo("8\"0/t\"cp");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
+    assertThat(port1.children()).hasSize(1);
+    assertThat(port1.children().get(0)).isSameAs(port1.portMin());
   }
 
   @Test
@@ -153,7 +175,11 @@ class ExposeTreeImplTest {
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMax().value()).isEqualTo("89");
-    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("-");
     assertThat(port1.protocol()).isNull();
+
+    assertThat(port1.children()).hasSize(3);
+    assertThat(port1.children().get(0)).isSameAs(port1.portMin());
+    assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("-");
+    assertThat(port1.children().get(2)).isSameAs(port1.portMax());
   }
 }

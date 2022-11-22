@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.PortTree;
@@ -75,6 +76,7 @@ public class PortTreeImpl extends DockerTreeImpl implements PortTree {
   }
 
   @Override
+  @CheckForNull
   public SyntaxToken protocol() {
     return protocol;
   }
