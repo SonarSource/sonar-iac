@@ -35,11 +35,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * Lexical
    */
   STRING_LITERAL,
-  STRING_LITERAL_WITHOUT_SPACE,
   STRING_UNTIL_EOL,
   STRING_LITERAL_WITH_QUOTES,
-  NUMERIC_LITERAL,
-  SEPARATOR_PORT,
   EQUALS_OPERATOR,
   EOF,
 
@@ -94,7 +91,13 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   USER_VARIABLE,
   USER_NAME,
   USER_SEPARATOR,
-  USER_GROUP;
+  USER_GROUP,
+
+  EXPOSE_PORT,
+  EXPOSE_SEPARATOR_PORT,
+  EXPOSE_SEPARATOR_PROTOCOL,
+  EXPOSE_PROTOCOL
+  ;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -123,13 +126,15 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
-    b.rule(STRING_LITERAL_WITHOUT_SPACE).is(b.regexp(DockerLexicalConstant.STRING_LITERAL));
     b.rule(STRING_UNTIL_EOL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
     b.rule(STRING_LITERAL_WITH_QUOTES).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
 
-    b.rule(NUMERIC_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.NUMERIC_LITERAL));
-    b.rule(SEPARATOR_PORT).is(b.regexp(DockerLexicalConstant.SEPARATOR_PORT));
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
+
+    b.rule(EXPOSE_PORT).is(SPACING, b.regexp("[0-9]+"));
+    b.rule(EXPOSE_SEPARATOR_PORT).is(b.regexp("-"));
+    b.rule(EXPOSE_SEPARATOR_PROTOCOL).is(b.regexp("/"));
+    b.rule(EXPOSE_PROTOCOL).is(b.regexp("[a-zA-Z]+"));
 
     b.rule(IMAGE_NAME).is(SPACING, b.regexp("[^@:\\s\\$-][^@:\\s\\$]+"));
     b.rule(IMAGE_TAG).is(b.regexp(":[^@\\s\\$]+"));

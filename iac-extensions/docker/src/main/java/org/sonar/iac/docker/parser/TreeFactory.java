@@ -115,11 +115,15 @@ public class TreeFactory {
   }
 
   public PortTree port(SyntaxToken portToken, SyntaxToken separatorToken, Optional<SyntaxToken> protocolToken) {
-    return new PortTreeImpl(portToken, separatorToken, protocolToken.orNull());
+    return new PortTreeImpl(portToken, portToken, separatorToken, protocolToken.orNull());
+  }
+
+  public PortTree port(SyntaxToken portMin, SyntaxToken separatorToken, SyntaxToken portMax) {
+    return new PortTreeImpl(portMin, portMax, separatorToken, null);
   }
 
   public PortTree port(SyntaxToken portToken) {
-    return new PortTreeImpl(portToken, null, null);
+    return new PortTreeImpl(portToken, portToken, null, null);
   }
 
   public LabelTree label(SyntaxToken token, List<KeyValuePairTree> keyValuePairs) {

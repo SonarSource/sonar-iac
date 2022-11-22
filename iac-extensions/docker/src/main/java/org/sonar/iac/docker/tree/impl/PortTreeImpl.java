@@ -21,18 +21,21 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class PortTreeImpl extends DockerTreeImpl implements PortTree {
-  private final SyntaxToken port;
+  private final SyntaxToken portMin;
+  private final SyntaxToken portMax;
   private final SyntaxToken separator;
   private final SyntaxToken protocol;
 
-  public PortTreeImpl(SyntaxToken port, @Nullable SyntaxToken separator, @Nullable SyntaxToken protocol) {
-    this.port = port;
+  public PortTreeImpl(SyntaxToken portMin, SyntaxToken portMax, @Nullable SyntaxToken separator, @Nullable SyntaxToken protocol) {
+    this.portMin = portMin;
+    this.portMax = portMax;
     this.separator = separator;
     this.protocol = protocol;
   }
@@ -40,12 +43,19 @@ public class PortTreeImpl extends DockerTreeImpl implements PortTree {
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(this.port);
-    if (this.separator != null) {
+    children.add(this.portMin);
+    // range format : 'portmin-portmax'
+    if (this.portMin != this.portMax) {
       children.add(this.separator);
-    }
-    if (this.protocol != null) {
-      children.add(this.protocol);
+      children.add(this.portMax);
+    } else {
+      // one port format : 'port' or 'port/protocol'
+      if (this.separator != null) {
+        children.add(this.separator);
+      }
+      if (this.protocol != null) {
+        children.add(this.protocol);
+      }
     }
     return children;
   }
@@ -56,16 +66,17 @@ public class PortTreeImpl extends DockerTreeImpl implements PortTree {
   }
 
   @Override
-  public SyntaxToken port() {
-    return port;
+  public SyntaxToken portMin() {
+    return portMin;
   }
 
   @Override
-  public SyntaxToken separator() {
-    return separator;
+  public SyntaxToken portMax() {
+    return portMax;
   }
 
   @Override
+  @CheckForNull
   public SyntaxToken protocol() {
     return protocol;
   }

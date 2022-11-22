@@ -30,8 +30,6 @@ public class DockerLexicalConstant {
   public static final String STRING_LITERAL_WITH_QUOTES = "\"(?:[^\"\\\\]*+(?:\\\\[\\s\\S])?+)*+\"";
   public static final String STRING_LITERAL_WITHOUT_QUOTES = "[^\\s=]+";
   public static final String STRING_LITERAL = "(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES + ")";
-  public static final String NUMERIC_LITERAL = "[0-9]+";
-  public static final String SEPARATOR_PORT = "/";
   public static final String STRING_UNTIL_EOL = ".+";
   public static final String EQUALS_OPERATOR = "=";
 

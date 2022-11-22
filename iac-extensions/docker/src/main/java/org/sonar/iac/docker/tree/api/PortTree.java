@@ -19,8 +19,11 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import javax.annotation.CheckForNull;
+
 public interface PortTree extends DockerTree {
-  SyntaxToken port();
-  SyntaxToken separator();
+  SyntaxToken portMin();
+  SyntaxToken portMax();
+  @CheckForNull
   SyntaxToken protocol();
 }
