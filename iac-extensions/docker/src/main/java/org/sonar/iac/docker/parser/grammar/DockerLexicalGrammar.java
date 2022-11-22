@@ -61,6 +61,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   ENV,
   ARG,
   CMD,
+  ENTRYPOINT,
   ADD,
   USER,
 
@@ -93,8 +94,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   USER_VARIABLE,
   USER_NAME,
   USER_SEPARATOR,
-  USER_GROUP
-  ;
+  USER_GROUP;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();

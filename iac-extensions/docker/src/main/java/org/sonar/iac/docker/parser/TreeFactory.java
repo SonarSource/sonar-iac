@@ -26,6 +26,7 @@ import java.util.List;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
+import org.sonar.iac.docker.tree.api.EntrypointTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
@@ -51,6 +52,7 @@ import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
 import org.sonar.iac.docker.tree.impl.ArgTreeImpl;
 import org.sonar.iac.docker.tree.impl.CmdTreeImpl;
+import org.sonar.iac.docker.tree.impl.EntrypointTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormLiteralTreeImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormTreeImpl;
@@ -162,6 +164,10 @@ public class TreeFactory {
 
   public CmdTree cmd(SyntaxToken token, Optional<LiteralListTree> execFormOrShellForm) {
     return new CmdTreeImpl(token, execFormOrShellForm.orNull());
+  }
+
+  public EntrypointTree entrypoint(SyntaxToken token, Optional<LiteralListTree> execFormOrShellForm) {
+    return new EntrypointTreeImpl(token, execFormOrShellForm.orNull());
   }
 
   public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {

@@ -45,6 +45,7 @@ public interface DockerTree extends Tree {
     KEY_VALUE_PAIR(KeyValuePairTree.class),
     ARG(ArgTree.class),
     CMD(CmdTree.class),
+    ENTRYPOINT(EntrypointTree.class),
     SHELL_FORM(ShellFormTree.class),
     EXEC_FORM(ExecFormTree.class),
     EXEC_FORM_LITERAL(ExecFormLiteralTree.class),
