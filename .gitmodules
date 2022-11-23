@@ -22,3 +22,18 @@
 [submodule "its/sources/docker/docker-containers"]
 	path = its/sources/docker/docker-containers
 	url = https://github.com/sudeepgupta90/DockerContainers.git
+[submodule "its/sources/docker/compose-dev-env"]
+	path = its/sources/docker/compose-dev-env
+	url = https://github.com/dockersamples/compose-dev-env
+[submodule "its/sources/docker/awesome-compose"]
+	path = its/sources/docker/awesome-compose
+	url = https://github.com/docker/awesome-compose.git
+[submodule "its/sources/docker/k8s-wordsmith-demo"]
+	path = its/sources/docker/k8s-wordsmith-demo
+	url = https://github.com/dockersamples/k8s-wordsmith-demo.git
+[submodule "its/sources/docker/dockercoins"]
+	path = its/sources/docker/dockercoins
+	url = https://github.com/dockersamples/dockercoins.git
+[submodule "its/sources/docker/aspnet-monitoring"]
+	path = its/sources/docker/aspnet-monitoring
+	url = https://github.com/dockersamples/aspnet-monitoring.git
