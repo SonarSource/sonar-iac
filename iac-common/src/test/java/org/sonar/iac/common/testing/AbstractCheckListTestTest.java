@@ -21,7 +21,6 @@ package org.sonar.iac.common.testing;
 
 import java.io.File;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
 
 public class AbstractCheckListTestTest extends AbstractCheckListTest {
@@ -40,9 +39,8 @@ public class AbstractCheckListTestTest extends AbstractCheckListTest {
   }
 
   @Override
-  @Disabled
   void test() {
-    // not implemented
+    // overridden for test purpose
   }
 
   static class TestCheck {}

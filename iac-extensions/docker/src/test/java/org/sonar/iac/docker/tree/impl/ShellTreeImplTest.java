@@ -43,8 +43,8 @@ class ShellTreeImplTest {
       .matches("SHELL [\"/usr/bin/wc\",\"--help\"]")
       .matches("    SHELL []")
       .matches("SHELL [\"c:\\\\Program Files\\\\foo.exe\"]")
-      .matches("SHELL[]") // TODO : should not match (SONARIAC-489)
 
+      .notMatches("SHELL[]")
       .notMatches("SHELL")
       .notMatches("SHELLL []")
       .notMatches("");

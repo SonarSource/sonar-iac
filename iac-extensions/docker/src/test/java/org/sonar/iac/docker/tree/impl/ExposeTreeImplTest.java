@@ -48,7 +48,8 @@ class ExposeTreeImplTest {
       .matches("EXPOSE \"80/tcp\"")
       .matches("EXPOSE 8\"0/t\"cp")
       .matches("EXPOSE $myport")
-      .matches("EXPOSE80") // TODO : Should not match SONARIAC-489
+
+      .notMatches("EXPOSE80")
       .notMatches("EXPOSE")
       .notMatches("EXPOSE ")
       .notMatches("EXPOSEE")

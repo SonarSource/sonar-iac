@@ -230,15 +230,15 @@ public class TreeFactory {
     SeparatedList<ExecFormLiteralTree> separatedList = new SeparatedListImpl<>(elements, separators);
     if (literals.isPresent()) {
       Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>> tuple = literals.get();
-        elements.add(new ExecFormLiteralTreeImpl(tuple.first()));
-        Optional<List<Tuple<SyntaxToken, SyntaxToken>>> second = tuple.second();
-        if(second.isPresent()) {
-          List<Tuple<SyntaxToken, SyntaxToken>> comaAndLiterals = second.get();
-          for (Tuple<SyntaxToken, SyntaxToken> comaAndLiteral : comaAndLiterals) {
-            separators.add(comaAndLiteral.first());
-            elements.add(new ExecFormLiteralTreeImpl(comaAndLiteral.second()));
-          }
+      elements.add(new ExecFormLiteralTreeImpl(tuple.first()));
+      Optional<List<Tuple<SyntaxToken, SyntaxToken>>> second = tuple.second();
+      if(second.isPresent()) {
+        List<Tuple<SyntaxToken, SyntaxToken>> comaAndLiterals = second.get();
+        for (Tuple<SyntaxToken, SyntaxToken> comaAndLiteral : comaAndLiterals) {
+          separators.add(comaAndLiteral.first());
+          elements.add(new ExecFormLiteralTreeImpl(comaAndLiteral.second()));
         }
+      }
     }
 
     return new ExecFormTreeImpl(leftBracket, separatedList, rightBracket);
