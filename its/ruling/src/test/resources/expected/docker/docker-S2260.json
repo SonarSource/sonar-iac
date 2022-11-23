@@ -1,5 +1,5 @@
 {
-'docker-project:ruling/src/test/resources/sources/docker/parseError/Dockerfile':[
+'docker-project:ruling/src/test/resources/sources/docker/parsingError/Dockerfile':[
 1,
 ],
 'docker-project:sources/docker/aspnet-monitoring/exporter/Dockerfile':[

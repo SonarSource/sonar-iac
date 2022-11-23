@@ -79,10 +79,13 @@ class FromTreeImplTest {
   void imageWithAlias() {
     FromTree from = parse("FROM foobar AS fb", DockerLexicalGrammar.FROM);
     assertThat(from.platform()).isNull();
+
     AliasTree alias = from.alias();
     assertThat(alias).isNotNull();
     assertThat(alias.getKind()).isEqualTo(DockerTree.Kind.ALIAS);
+    assertThat(alias.keyword().value()).isEqualTo("AS");
     assertThat(alias.alias().value()).isEqualTo("fb");
+
     assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ImageTreeImpl.class, AliasTreeImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 17);
   }
