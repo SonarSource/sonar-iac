@@ -1,0 +1,17 @@
+{
+  "title": "Instructions should be upper case",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "convention"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6476",
+  "sqKey": "S6476",
+  "scope": "All",
+  "quickfix": "unknown"
+}

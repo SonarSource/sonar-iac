@@ -17,40 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.impl;
+package org.sonar.iac.docker.checks;
 
-import java.util.List;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.AliasTree;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.testing.Verifier;
+import org.sonar.iac.docker.parser.DockerParser;
 
-public class AliasTreeImpl extends DockerTreeImpl implements AliasTree {
+public class DockerVerifier {
 
-  private final SyntaxToken keyword;
-  private final SyntaxToken alias;
+  private DockerVerifier() {
 
-  public AliasTreeImpl(SyntaxToken keyword, SyntaxToken alias) {
-    this.keyword = keyword;
-    this.alias = alias;
   }
 
-  @Override
-  public SyntaxToken keyword() {
-    return keyword;
-  }
+  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  private static final DockerParser PARSER = new DockerParser();
 
-  @Override
-  public SyntaxToken alias() {
-    return alias;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return List.of(keyword, alias);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.ALIAS;
+  public static void verify(String fileName, IacCheck check) {
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, Verifier.TestContext::new);
   }
 }
