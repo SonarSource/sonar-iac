@@ -17,41 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.parser.grammar;
+package org.sonar.iac.docker.tree.impl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.NoneTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public enum DockerKeyword implements GrammarRuleKey {
+public class NoneTreeImpl extends InstructionTreeImpl implements NoneTree {
 
-  ONBUILD("ONBUILD"),
-  FROM("FROM"),
-  MAINTAINER("MAINTAINER"),
-  STOPSIGNAL("STOPSIGNAL"),
-  WORKDIR("WORKDIR"),
-  EXPOSE("EXPOSE"),
-  LABEL("LABEL"),
-  AS("AS"),
-  ENV("ENV"),
-  ARG("ARG"),
-  CMD("CMD"),
-  ENTRYPOINT("ENTRYPOINT"),
-  RUN("RUN"),
-  ADD("ADD"),
-  COPY("COPY"),
-  USER("USER"),
-  VOLUME("VOLUME"),
-  SHELL("SHELL"),
-  HEALTHCHECK("HEALTHCHECK"),
-  NONE("NONE")
-  ;
-
-  private final String value;
-
-  DockerKeyword(String value) {
-    this.value = value;
+  public NoneTreeImpl(SyntaxToken none) {
+    super(none);
   }
 
-  public String getValue() {
-    return value;
+  @Override
+  public List<Tree> children() {
+    return List.of(keyword);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.NONE;
   }
 }

@@ -34,11 +34,13 @@ import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.HealthCheckTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
+import org.sonar.iac.docker.tree.api.NoneTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.RunTree;
@@ -46,7 +48,6 @@ import org.sonar.iac.docker.tree.api.ShellTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
-import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserTree;
 import org.sonar.iac.docker.tree.api.WorkdirTree;
@@ -100,7 +101,8 @@ public class DockerGrammar {
           COPY(),
           USER(),
           VOLUME(),
-          SHELL()
+          SHELL(),
+          HEALTHCHECK()
         )
       )
     );
@@ -366,12 +368,28 @@ public class DockerGrammar {
     );
   }
 
+  public HealthCheckTree HEALTHCHECK() {
+    return b.<HealthCheckTree>nonterminal(DockerLexicalGrammar.HEALTHCHECK).is(
+      f.healthcheck(
+        b.token(DockerKeyword.HEALTHCHECK),
+        b.zeroOrMore(PARAM()),
+        b.firstOf(NONE(), CMD())
+      )
+    );
+  }
+
   public ShellTree SHELL() {
     return b.<ShellTree>nonterminal(DockerLexicalGrammar.SHELL).is(
       f.shell(
         b.token(DockerKeyword.SHELL),
         EXEC_FORM()
       )
+    );
+  }
+
+  public NoneTree NONE() {
+    return b.<NoneTree>nonterminal(DockerLexicalGrammar.NONE).is(
+      f.none(b.token(DockerKeyword.NONE))
     );
   }
 

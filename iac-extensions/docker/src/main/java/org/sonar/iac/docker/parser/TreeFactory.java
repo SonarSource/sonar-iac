@@ -35,12 +35,14 @@ import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.HealthCheckTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
+import org.sonar.iac.docker.tree.api.NoneTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.RunTree;
@@ -65,10 +67,12 @@ import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
 import org.sonar.iac.docker.tree.api.VolumeTree;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
+import org.sonar.iac.docker.tree.impl.HealthCheckTreeImpl;
 import org.sonar.iac.docker.tree.impl.ImageTreeImpl;
 import org.sonar.iac.docker.tree.impl.KeyValuePairTreeImpl;
 import org.sonar.iac.docker.tree.impl.LabelTreeImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
+import org.sonar.iac.docker.tree.impl.NoneTreeImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildTreeImpl;
 import org.sonar.iac.docker.tree.impl.ParamTreeImpl;
 import org.sonar.iac.docker.tree.impl.PortTreeImpl;
@@ -207,6 +211,14 @@ public class TreeFactory {
 
   public ShellTree shell(SyntaxToken token, ExecFormTree execForm) {
     return new ShellTreeImpl(token, execForm);
+  }
+
+  public HealthCheckTree healthcheck(SyntaxToken healthcheck, Optional<List<ParamTree>> options, InstructionTree instruction) {
+    return new HealthCheckTreeImpl(healthcheck, options.or(Collections.emptyList()), instruction);
+  }
+
+  public NoneTree none(SyntaxToken none) {
+    return new NoneTreeImpl(none);
   }
 
   public ExecFormTree execForm(SyntaxToken leftBracket,
