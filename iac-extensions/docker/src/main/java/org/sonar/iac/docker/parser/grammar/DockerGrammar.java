@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
+import org.sonar.iac.docker.tree.api.CommentTree;
 import org.sonar.iac.docker.tree.api.EntrypointTree;
 import org.sonar.iac.docker.tree.api.CopyTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
@@ -102,7 +103,8 @@ public class DockerGrammar {
           USER(),
           VOLUME(),
           SHELL(),
-          HEALTHCHECK()
+          HEALTHCHECK(),
+          COMMENT()
         )
       )
     );
@@ -374,6 +376,15 @@ public class DockerGrammar {
         b.token(DockerKeyword.HEALTHCHECK),
         b.zeroOrMore(PARAM()),
         b.firstOf(NONE(), CMD())
+      )
+    );
+  }
+
+  public CommentTree COMMENT() {
+    return b.<CommentTree>nonterminal(DockerLexicalGrammar.COMMENT).is(
+      f.comment(
+        b.token(DockerLexicalGrammar.COMMENT_TOKEN),
+        b.token(DockerLexicalGrammar.COMMENT_CONTENT)
       )
     );
   }

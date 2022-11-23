@@ -44,6 +44,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * SPACING
    */
   SPACING,
+  OPTIONAL_SPACING,
   INSTRUCTION_SPACING,
 
   /**
@@ -67,6 +68,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   VOLUME,
   SHELL,
   HEALTHCHECK,
+  COMMENT,
   NONE,
 
   /**
@@ -103,7 +105,10 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   EXPOSE_PORT,
   EXPOSE_SEPARATOR_PORT,
   EXPOSE_SEPARATOR_PROTOCOL,
-  EXPOSE_PROTOCOL;
+  EXPOSE_PROTOCOL,
+
+  COMMENT_TOKEN,
+  COMMENT_CONTENT;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -136,6 +141,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
         b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")))
     ).skip();
 
+    b.rule(OPTIONAL_SPACING).is(b.skippedTrivia(b.regexp("[" + LexicalConstant.WHITESPACE + "]*+"))).skip();
+
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
@@ -163,6 +170,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(USER_NAME).is(SPACING, b.firstOf(USER_STRING, USER_VARIABLE));
     b.rule(USER_SEPARATOR).is(b.regexp(":"));
     b.rule(USER_GROUP).is(b.firstOf(USER_STRING, USER_VARIABLE));
+
+    b.rule(COMMENT_TOKEN).is(OPTIONAL_SPACING, b.regexp("#"));
+    b.rule(COMMENT_CONTENT).is(b.regexp("[^\\n\\r]*"));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

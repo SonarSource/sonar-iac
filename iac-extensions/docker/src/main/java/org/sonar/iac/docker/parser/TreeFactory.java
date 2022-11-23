@@ -26,6 +26,7 @@ import java.util.List;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
+import org.sonar.iac.docker.tree.api.CommentTree;
 import org.sonar.iac.docker.tree.api.EntrypointTree;
 import org.sonar.iac.docker.tree.api.CopyTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
@@ -57,6 +58,7 @@ import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
 import org.sonar.iac.docker.tree.impl.ArgTreeImpl;
 import org.sonar.iac.docker.tree.impl.CmdTreeImpl;
+import org.sonar.iac.docker.tree.impl.CommentTreeImpl;
 import org.sonar.iac.docker.tree.impl.EntrypointTreeImpl;
 import org.sonar.iac.docker.tree.impl.CopyTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
@@ -215,6 +217,10 @@ public class TreeFactory {
 
   public HealthCheckTree healthcheck(SyntaxToken healthcheck, Optional<List<ParamTree>> options, InstructionTree instruction) {
     return new HealthCheckTreeImpl(healthcheck, options.or(Collections.emptyList()), instruction);
+  }
+
+  public CommentTree comment(SyntaxToken keyword, SyntaxToken comment) {
+    return new CommentTreeImpl(keyword, comment);
   }
 
   public NoneTree none(SyntaxToken none) {
