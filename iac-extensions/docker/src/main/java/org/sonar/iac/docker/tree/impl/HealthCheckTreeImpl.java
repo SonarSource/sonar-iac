@@ -19,63 +19,43 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.HealthCheckTree;
+import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.NoneTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class HealthCheckTreeImpl extends InstructionTreeImpl implements HealthCheckTree {
 
-  private final SyntaxToken none;
   private final List<ParamTree> options;
-  private final CmdTree cmd;
+  private final InstructionTree instruction;
 
-  public HealthCheckTreeImpl(SyntaxToken keyword, SyntaxToken none) {
+  public HealthCheckTreeImpl(SyntaxToken keyword, List<ParamTree> options, InstructionTree instruction) {
     super(keyword);
-    this.none = none;
-    this.options = null;
-    this.cmd = null;
-  }
-
-  public HealthCheckTreeImpl(SyntaxToken keyword, List<ParamTree> options, CmdTree cmd) {
-    super(keyword);
-    this.none = null;
     this.options = options;
-    this.cmd = cmd;
+    this.instruction = instruction;
   }
 
   @Override
   public List<Tree> children() {
-    if (isNone()) {
-      return List.of(keyword, none);
-    } else {
-      List<Tree> children = new ArrayList<>();
-      children.add(keyword);
-      children.addAll(options);
-      children.add(cmd);
-      return children;
-    }
+    return List.of(keyword, instruction);
   }
 
   @Override
   public boolean isNone() {
-    return none != null;
+    return instruction instanceof NoneTree;
   }
 
-  @CheckForNull
   @Override
   public List<ParamTree> options() {
     return options;
   }
 
-  @CheckForNull
   @Override
-  public CmdTree cmd() {
-    return cmd;
+  public InstructionTree instruction() {
+    return instruction;
   }
 
   @Override

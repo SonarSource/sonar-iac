@@ -23,12 +23,15 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.CmdTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.HealthCheckTree;
+import org.sonar.iac.docker.tree.api.NoneTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class HealthCheckTreeImplTest {
   @Test
@@ -43,10 +46,11 @@ class HealthCheckTreeImplTest {
       .matches("HEALTHCHECK CMD [\"ls\"]")
       .matches("HEALTHCHECK CMD command param1 param2")
       .matches("HEALTHCHECK --interval=30s CMD")
+      .matches("HEALTHCHECK --interval=30s NONE")
       .notMatches("HEALTHCHECK")
       .notMatches("HEALTHCHECKK NONE")
-      .notMatches("HEALTHCHECK --interval=30s NONE")
       .notMatches("HEALTHCHECK --flag CMD")
+      .notMatches("HEALTHCHECK --interval=30s")
       .notMatches("HEALTHCHECK NONEE")
       .notMatches("HEALTHCHECKNONE")
     ;
@@ -57,24 +61,25 @@ class HealthCheckTreeImplTest {
     HealthCheckTree tree = DockerTestUtils.parse("HEALTHCHECK NONE", DockerLexicalGrammar.HEALTHCHECK);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.HEALTHCHECK);
     assertThat(tree.keyword().value()).isEqualTo("HEALTHCHECK");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
 
     assertThat(tree.isNone()).isTrue();
-    assertThat(tree.cmd()).isNull();
-    assertThat(tree.options()).isNull();
-
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("HEALTHCHECK");
-    assertThat(((SyntaxToken)tree.children().get(1)).value()).isEqualTo("NONE");
+    assertThat(tree.instruction()).isInstanceOf(NoneTree.class);
+    assertThat(tree.instruction().getKind()).isEqualTo(DockerTree.Kind.NONE);
+    assertThat(tree.options()).isEmpty();
   }
 
   @Test
   void healthcheckCmd() {
     HealthCheckTree tree = DockerTestUtils.parse("HEALTHCHECK CMD command param", DockerLexicalGrammar.HEALTHCHECK);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 29);
 
     assertThat(tree.isNone()).isFalse();
-    assertThat(tree.cmd()).isNotNull();
+    assertThat(tree.instruction()).isInstanceOf(CmdTree.class);
+    assertThat(tree.instruction().getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.options()).isEmpty();
 
-    List<SyntaxToken> cmdArguments = tree.cmd().cmdArguments().literals();
+    List<SyntaxToken> cmdArguments = ((CmdTree) tree.instruction()).arguments().literals();
     assertThat(cmdArguments).hasSize(2);
     assertThat(cmdArguments.get(0).value()).isEqualTo("command");
     assertThat(cmdArguments.get(1).value()).isEqualTo("param");
@@ -83,12 +88,13 @@ class HealthCheckTreeImplTest {
   @Test
   void healthcheckCmdWithOption() {
     HealthCheckTree tree = DockerTestUtils.parse("HEALTHCHECK --interval=30s --timeout=5s CMD command", DockerLexicalGrammar.HEALTHCHECK);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 51);
 
     assertThat(tree.isNone()).isFalse();
-    assertThat(tree.cmd()).isNotNull();
+    assertThat(tree.instruction()).isInstanceOf(CmdTree.class);
     assertThat(tree.options()).hasSize(2);
 
-    List<SyntaxToken> cmdArguments = tree.cmd().cmdArguments().literals();
+    List<SyntaxToken> cmdArguments = ((CmdTree) tree.instruction()).arguments().literals();
     assertThat(cmdArguments).hasSize(1);
     assertThat(cmdArguments.get(0).value()).isEqualTo("command");
 

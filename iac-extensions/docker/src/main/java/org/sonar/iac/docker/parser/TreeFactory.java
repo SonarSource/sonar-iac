@@ -42,6 +42,7 @@ import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 import org.sonar.iac.docker.tree.api.LabelTree;
 import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
+import org.sonar.iac.docker.tree.api.NoneTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.RunTree;
@@ -71,6 +72,7 @@ import org.sonar.iac.docker.tree.impl.ImageTreeImpl;
 import org.sonar.iac.docker.tree.impl.KeyValuePairTreeImpl;
 import org.sonar.iac.docker.tree.impl.LabelTreeImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
+import org.sonar.iac.docker.tree.impl.NoneTreeImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildTreeImpl;
 import org.sonar.iac.docker.tree.impl.ParamTreeImpl;
 import org.sonar.iac.docker.tree.impl.PortTreeImpl;
@@ -211,12 +213,12 @@ public class TreeFactory {
     return new ShellTreeImpl(token, execForm);
   }
 
-  public HealthCheckTree healthcheck(SyntaxToken healthcheck, SyntaxToken none) {
-    return new HealthCheckTreeImpl(healthcheck, none);
+  public HealthCheckTree healthcheck(SyntaxToken healthcheck, Optional<List<ParamTree>> options, InstructionTree instruction) {
+    return new HealthCheckTreeImpl(healthcheck, options.or(Collections.emptyList()), instruction);
   }
 
-  public HealthCheckTree healthcheck(SyntaxToken healthcheck, Optional<List<ParamTree>> options, CmdTree cmd) {
-    return new HealthCheckTreeImpl(healthcheck, options.or(Collections.emptyList()), cmd);
+  public NoneTree none(SyntaxToken none) {
+    return new NoneTreeImpl(none);
   }
 
   public ExecFormTree execForm(SyntaxToken leftBracket,

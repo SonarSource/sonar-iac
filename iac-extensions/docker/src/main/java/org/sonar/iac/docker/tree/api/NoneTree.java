@@ -19,11 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-
-public interface HealthCheckTree extends InstructionTree {
-
-  boolean isNone();
-  List<ParamTree> options();
-  InstructionTree instruction();
+public interface NoneTree extends InstructionTree {
 }
