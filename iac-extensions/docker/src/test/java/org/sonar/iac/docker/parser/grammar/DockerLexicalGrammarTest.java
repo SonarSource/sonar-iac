@@ -70,4 +70,21 @@ class DockerLexicalGrammarTest {
       .matches("foo=bar")
     ;
   }
+
+  @Test
+  void testKeyword() {
+    Assertions.assertThat(DockerLexicalGrammar.CMD)
+      .matches("CMD")
+      .matches("CMD foo")
+      .matches("CMD \\\nfoo")
+      .matches("CMD\\\n foo")
+      .matches("CMD [\"foo\"]")
+      .matches("CMD\t[\"foo\"]")
+      .matches("CMD\\\nfoo") // no valid syntax but will be parsed
+      .matches("CMD\\foo") // no valid syntax but will be parsed
+      .notMatches("CMD[\"foo\"]")
+      .notMatches("CMDA foo")
+      .notMatches("CMD8 foo")
+    ;
+  }
 }

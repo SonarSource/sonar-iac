@@ -168,7 +168,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
       b.rule(tokenType).is(
         SPACING,
         b.regexp("(?i)" + tokenType.getValue()),
-        b.nextNot(b.regexp(LexicalConstant.IDENTIFIER))
+        b.nextNot(b.regexp("[^" + LexicalConstant.WHITESPACE + "\\\\]"))
       ).skip()
     );
   }
