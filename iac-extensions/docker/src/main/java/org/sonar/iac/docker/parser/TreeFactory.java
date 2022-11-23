@@ -79,13 +79,16 @@ import org.sonar.iac.docker.tree.impl.UserTreeImpl;
 import org.sonar.iac.docker.tree.impl.VolumeTreeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 
+// S1172 - Unused function parameters should be removed - the spacing argument is ignored, but it's needed from grammar perspective
+@SuppressWarnings("java:S1172")
 public class TreeFactory {
 
-  // S1172 - Unused function parameters should be removed - the spacing argument is ignored, but it's needed from grammar perspective
-  // to have EOF without space prefix
-  @SuppressWarnings("java:S1172")
   public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
+  }
+
+  public InstructionTree instruction(Optional<SyntaxToken> spacing, InstructionTree instruction) {
+    return instruction;
   }
 
   public OnBuildTree onbuild(SyntaxToken keyword, InstructionTree instruction) {

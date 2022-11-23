@@ -37,6 +37,11 @@ public class FileTreeImpl extends DockerTreeImpl implements FileTree {
   }
 
   @Override
+  public List<InstructionTree> instructions() {
+    return instructions;
+  }
+
+  @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>(instructions);
     children.add(eof);

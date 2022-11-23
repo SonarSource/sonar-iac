@@ -33,4 +33,6 @@ public class DockerLexicalConstant {
   public static final String STRING_UNTIL_EOL = ".+";
   public static final String EQUALS_OPERATOR = "=";
 
+  public static final String LINE_BREAK = "(?:\\\\[" + LexicalConstant.WHITESPACE + "]*+[" + LexicalConstant.LINE_TERMINATOR + "])";
+
 }

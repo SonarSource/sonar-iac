@@ -40,9 +40,13 @@ class MaintainerTreeImplTest {
       .matches("MAINTAINER \"bob\"")
       .matches("MAINTAINER \"bob")
       .matches("MAINTAINER bob boberman bob@bob.com")
+      .matches("MAINTAINER bob<bob@bob.com>")
+      .matches("MAINTAINER bob \\\n boberman")
       .matches("MAINTAINER \"bob boberman bob@bob.com\"")
       .matches("MAINTAINER bob /  boberman")
+      .matches("MAINTAINER bob \\ boberman")
       .notMatches("MAINTAINER")
+      .notMatches("MAINTAINER bob \n boberman")
       .notMatches("MAINTAINERbob")
       .notMatches("MAINTAINER ");
   }
@@ -102,13 +106,11 @@ class MaintainerTreeImplTest {
 
   @Test
   void multiline() {
-    MaintainerTree tree = parse("MAINTAINER bob \\\n boberman", DockerLexicalGrammar.MAINTAINER);
+    MaintainerTree tree = parse("MAINTAINER bob \\\nboberman", DockerLexicalGrammar.MAINTAINER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
-    // TODO : SONARIAC-481 support multiline and fix below tests
-    assertThat(tree.authors()).hasSize(3);
+    assertThat(tree.authors()).hasSize(2);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");
-    assertThat(tree.authors().get(1).value()).isEqualTo("\\");
-    assertThat(tree.authors().get(2).value()).isEqualTo("boberman");
+    assertThat(tree.authors().get(1).value()).isEqualTo("boberman");
   }
 }

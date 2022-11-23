@@ -38,6 +38,7 @@ class FromTreeImplTest {
   void test() {
     Assertions.assertThat(DockerLexicalGrammar.FROM)
       .matches("FROM foobar")
+      .matches("FROM \\\n foobar")
       .matches("FROM foobar:latest")
       .matches("FROM foobar@12313423")
       .matches("FROM --platform=foo bar")
@@ -105,5 +106,12 @@ class FromTreeImplTest {
     assertThat(from.platform()).isNotNull();
     assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, ImageTreeImpl.class, AliasTreeImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 36);
+  }
+
+  @Test
+  void multiline() {
+    FromTree from = parse("FROM \\\n --platform=foo \\\n bar:latest \\\n AS fb", DockerLexicalGrammar.FROM);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, ImageTreeImpl.class, AliasTreeImpl.class);
+    assertTextRange(from.textRange()).hasRange(1, 0, 4, 6);
   }
 }

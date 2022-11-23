@@ -44,6 +44,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * SPACING
    */
   SPACING,
+  INSTRUCTION_SPACING,
 
   /**
    * INSTRUCTIONS
@@ -99,8 +100,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   EXPOSE_PORT,
   EXPOSE_SEPARATOR_PORT,
   EXPOSE_SEPARATOR_PROTOCOL,
-  EXPOSE_PROTOCOL
-  ;
+  EXPOSE_PROTOCOL;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -120,6 +120,13 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   private static void lexical(LexerlessGrammarBuilder b) {
     b.rule(SPACING).is(
+      b.skippedTrivia(b.regexp("(?:[" + LexicalConstant.WHITESPACE + "]|" + DockerLexicalConstant.LINE_BREAK + ")*+")),
+      b.zeroOrMore(
+        b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
+        b.skippedTrivia(b.regexp("(?:[" + LexicalConstant.WHITESPACE + "]|" + DockerLexicalConstant.LINE_BREAK + ")*+")))
+    ).skip();
+
+    b.rule(INSTRUCTION_SPACING).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
       b.zeroOrMore(
         b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
