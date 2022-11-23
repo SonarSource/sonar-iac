@@ -10,3 +10,9 @@
   HEALTHCHECK --interval=5m --timeout=3s \
     cmd curl -f http://localhost/ || exit 1
 #   ^^^
+
+  FROM jammy
+
+  MAINTAINER foo<foo@bar.test>
+
+  HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost/ || exit 1
