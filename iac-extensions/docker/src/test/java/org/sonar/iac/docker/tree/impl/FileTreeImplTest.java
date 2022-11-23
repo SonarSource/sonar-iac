@@ -65,6 +65,12 @@ class FileTreeImplTest {
     assertThat(file.instructions()).hasSize(1);
   }
 
+  @Test
+  void shouldParseFileWithMultipleEmptyLinesAndMultilineInstruction() {
+    FileTree file = parseFile("\n\n\nFROM\\\nfoobar");
+    assertThat(file.instructions()).hasSize(1);
+  }
+
 
 
   @Test
