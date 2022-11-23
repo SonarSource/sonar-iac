@@ -19,19 +19,35 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.iac.docker.tree.api.CmdTree;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.CommandInstructionTree;
 import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class CmdTreeImpl extends CommandInstructionTreeImpl implements CmdTree {
+public abstract class CommandInstructionTreeImpl extends InstructionTreeImpl implements CommandInstructionTree {
 
-  public CmdTreeImpl(SyntaxToken keyword, @Nullable LiteralListTree arguments) {
-    super(keyword, arguments);
+  protected final LiteralListTree arguments;
+
+  protected CommandInstructionTreeImpl(SyntaxToken keyword, @Nullable LiteralListTree arguments) {
+    super(keyword);
+    this.arguments = arguments;
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.CMD;
+  public List<Tree> children() {
+    List<Tree> result = new ArrayList<>();
+    result.add(keyword);
+    if (arguments != null) {
+      result.add(arguments);
+    }
+    return result;
+  }
+
+  @Override
+  public LiteralListTree arguments() {
+    return arguments;
   }
 }

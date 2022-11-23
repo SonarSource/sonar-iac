@@ -17,12 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.docker.tree.api.LiteralListTree;
+import org.sonar.iac.docker.tree.api.RunTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public interface EntrypointTree extends CommandInstructionTree {
+public class RunTreeImpl extends CommandInstructionTreeImpl implements RunTree {
 
-  @CheckForNull
-  LiteralListTree arguments();
+  public RunTreeImpl(SyntaxToken keyword, @Nullable LiteralListTree arguments) {
+    super(keyword, arguments);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.RUN;
+  }
 }

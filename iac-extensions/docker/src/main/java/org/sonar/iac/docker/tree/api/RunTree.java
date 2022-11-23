@@ -19,10 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.CheckForNull;
-
-public interface EntrypointTree extends CommandInstructionTree {
-
-  @CheckForNull
-  LiteralListTree arguments();
+public interface RunTree extends CommandInstructionTree {
 }

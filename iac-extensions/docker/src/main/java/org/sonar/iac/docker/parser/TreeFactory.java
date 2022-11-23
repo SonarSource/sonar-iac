@@ -43,6 +43,7 @@ import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.RunTree;
 import org.sonar.iac.docker.tree.api.ShellTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
@@ -71,6 +72,7 @@ import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildTreeImpl;
 import org.sonar.iac.docker.tree.impl.ParamTreeImpl;
 import org.sonar.iac.docker.tree.impl.PortTreeImpl;
+import org.sonar.iac.docker.tree.impl.RunTreeImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormTreeImpl;
 import org.sonar.iac.docker.tree.impl.ShellTreeImpl;
@@ -185,6 +187,10 @@ public class TreeFactory {
 
   public EntrypointTree entrypoint(SyntaxToken token, Optional<LiteralListTree> execFormOrShellForm) {
     return new EntrypointTreeImpl(token, execFormOrShellForm.orNull());
+  }
+
+  public RunTree run(SyntaxToken token, Optional<LiteralListTree> execFormOrShellForm) {
+    return new RunTreeImpl(token, execFormOrShellForm.orNull());
   }
 
   public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {

@@ -77,12 +77,12 @@ class EntrypointTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
-    assertThat(tree.entrypointArguments()).isInstanceOf(ExecFormTreeImpl.class);
-    assertThat(tree.entrypointArguments().literals().stream().map(TextTree::value))
+    assertThat(tree.arguments()).isInstanceOf(ExecFormTreeImpl.class);
+    assertThat(tree.arguments().literals().stream().map(TextTree::value))
       .containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
-    assertThat(tree.entrypointArguments().type()).isEqualTo(LiteralListTree.LiteralListType.EXEC);
+    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.EXEC);
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
-    assertThat(((ExecFormTreeImpl)tree.children().get(1))).isSameAs(tree.entrypointArguments());
+    assertThat(((ExecFormTreeImpl)tree.children().get(1))).isSameAs(tree.arguments());
   }
 
   @Test
@@ -92,12 +92,12 @@ class EntrypointTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
-    assertThat(tree.entrypointArguments()).isInstanceOf(ShellFormTreeImpl.class);
-    assertThat(tree.entrypointArguments().literals().stream().map(TextTree::value))
+    assertThat(tree.arguments()).isInstanceOf(ShellFormTreeImpl.class);
+    assertThat(tree.arguments().literals().stream().map(TextTree::value))
       .containsExactly("executable", "param1", "param2");
-    assertThat(tree.entrypointArguments().type()).isEqualTo(LiteralListTree.LiteralListType.SHELL);
+    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.SHELL);
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
-    assertThat((tree.children().get(1))).isSameAs(tree.entrypointArguments());
+    assertThat((tree.children().get(1))).isSameAs(tree.arguments());
   }
 
   @Test
@@ -107,11 +107,11 @@ class EntrypointTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
-    assertThat(tree.entrypointArguments()).isInstanceOf(ExecFormTreeImpl.class);
-    assertThat(tree.entrypointArguments().literals()).isEmpty();
-    assertThat(tree.entrypointArguments().type()).isEqualTo(LiteralListTree.LiteralListType.EXEC);
+    assertThat(tree.arguments()).isInstanceOf(ExecFormTreeImpl.class);
+    assertThat(tree.arguments().literals()).isEmpty();
+    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.EXEC);
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
-    assertThat((tree.children().get(1))).isSameAs(tree.entrypointArguments());
+    assertThat((tree.children().get(1))).isSameAs(tree.arguments());
   }
 
   @Test
@@ -120,7 +120,7 @@ class EntrypointTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
-    assertThat(tree.entrypointArguments()).isNull();
+    assertThat(tree.arguments()).isNull();
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat(tree.children()).hasSize(1);
   }

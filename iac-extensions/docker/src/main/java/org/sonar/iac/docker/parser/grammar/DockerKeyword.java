@@ -35,6 +35,7 @@ public enum DockerKeyword implements GrammarRuleKey {
   ARG("ARG"),
   CMD("CMD"),
   ENTRYPOINT("ENTRYPOINT"),
+  RUN("RUN"),
   ADD("ADD"),
   COPY("COPY"),
   USER("USER"),

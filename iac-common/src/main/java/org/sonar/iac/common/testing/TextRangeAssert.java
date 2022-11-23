@@ -21,9 +21,8 @@ package org.sonar.iac.common.testing;
 
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.SoftAssertions;
 import org.sonar.api.batch.fs.TextRange;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TextRangeAssert extends AbstractAssert<TextRangeAssert, TextRange> {
 
@@ -33,10 +32,12 @@ public class TextRangeAssert extends AbstractAssert<TextRangeAssert, TextRange> 
 
   public TextRangeAssert hasRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
     isNotNull();
-    assertThat(actual.start().line()).as("startLine mismatch").isEqualTo(startLine);
-    assertThat(actual.start().lineOffset()).as("startLineOffset mismatch").isEqualTo(startLineOffset);
-    assertThat(actual.end().line()).as("endLine mismatch").isEqualTo(endLine);
-    assertThat(actual.end().lineOffset()).as("endLineOffset mismatch").isEqualTo(endLineOffset);
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(actual.start().line()).as("startLine mismatch").isEqualTo(startLine);
+      softly.assertThat(actual.start().lineOffset()).as("startLineOffset mismatch").isEqualTo(startLineOffset);
+      softly.assertThat(actual.end().line()).as("endLine mismatch").isEqualTo(endLine);
+      softly.assertThat(actual.end().lineOffset()).as("endLineOffset mismatch").isEqualTo(endLineOffset);
+    });
     return this;
   }
 
