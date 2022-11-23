@@ -62,9 +62,6 @@ class ShellTreeImplTest {
     assertThat(literals.get(0).value()).isEqualTo("\"executable\"");
     assertThat(literals.get(1).value()).isEqualTo("\"param1\"");
     assertThat(literals.get(2).value()).isEqualTo("\"param2\"");
-
-    assertThat(tree.children().get(0)).isSameAs(tree.keyword());
-    assertThat(tree.children().get(1)).isSameAs(tree.arguments());
   }
 
   @Test
@@ -74,8 +71,5 @@ class ShellTreeImplTest {
 
     List<SyntaxToken> literals = tree.arguments().literals();
     assertThat(literals).isEmpty();
-
-    assertThat(tree.children().get(0)).isSameAs(tree.keyword());
-    assertThat(tree.children().get(1)).isSameAs(tree.arguments());
   }
 }
