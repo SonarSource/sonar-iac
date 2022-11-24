@@ -93,7 +93,8 @@ class RunTreeImplTest {
   void shouldParseRunOptionsExecForm() {
     Assertions.assertThat(DockerLexicalGrammar.RUN)
       .matches("RUN --mount=type=bind")
-      .matches("RUN []")  // failed to marshal LLB definition: arguments are required
+      // Docker throws: "failed to marshal LLB definition: arguments are required"
+      .matches("RUN []")
       .matches("RUN --mount=type=cache [\"ls\"]")
       .matches("RUN --mount=type=secret [\"executable\",\"param1\",\"param2\"]")
       .matches("RUN --mount=type=ssh [\"/usr/bin/wc\",\"--help\"]")
@@ -104,7 +105,6 @@ class RunTreeImplTest {
       .matches("RUN --mount=type=secret [\"c:\\\\Program Files\\\\foo.exe\"]")
 
       .notMatches("RUND")
-      // not exec form
       .notMatches("");
   }
 

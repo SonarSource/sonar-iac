@@ -47,7 +47,7 @@ class CopyTreeImplTest {
       .matches("COPY --link /foo /bar")
       .matches("COPY    --link    /foo     /bar")
       .matches("COPY \"src\" \"dest\"")
-      .matches("COPY --option= src dest") /// ????
+      .matches("COPY --option= src dest")
       .notMatches("COPY--option= src dest")
       .notMatches("COPY___ src dest")
       .notMatches("COPY< src dest")
@@ -76,8 +76,6 @@ class CopyTreeImplTest {
       .notMatches("COPY: src dest")
       .notMatches("COPY; src dest")
       .notMatches("COPY| src dest")
-      // WHY?
-//      .notMatches("COPY\\ src dest")
       .notMatches("COPY/ src dest")
       .notMatches("COPY? src dest")
       .notMatches("COPY. src dest")
@@ -90,10 +88,6 @@ class CopyTreeImplTest {
 
   @Test
   void copyInstructionShellForm() {
-//    CopyTree test = parse("COPY--option= src dest", DockerLexicalGrammar.COPY);
-//    System.out.println(test.getKind());
-//
-
     CopyTree tree = parse("COPY src1 src2 dest", DockerLexicalGrammar.COPY);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.COPY);
     assertThat(tree.keyword().value()).isEqualTo("COPY");
