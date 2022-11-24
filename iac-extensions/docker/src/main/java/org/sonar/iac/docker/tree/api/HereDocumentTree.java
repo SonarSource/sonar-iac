@@ -19,11 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-
-public interface TransferInstructionTree extends InstructionTree {
-  List<ParamTree> options();
-  List<SyntaxToken> srcs();
-  LiteralListTree arguments();
-  SyntaxToken dest();
+public interface HereDocumentTree extends LiteralListTree {
 }

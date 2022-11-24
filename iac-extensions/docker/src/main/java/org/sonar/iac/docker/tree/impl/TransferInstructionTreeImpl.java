@@ -68,4 +68,9 @@ public abstract class TransferInstructionTreeImpl extends InstructionTreeImpl im
     children.add(srcsAndDest);
     return children;
   }
+
+  @Override
+  public LiteralListTree arguments() {
+    return srcsAndDest;
+  }
 }

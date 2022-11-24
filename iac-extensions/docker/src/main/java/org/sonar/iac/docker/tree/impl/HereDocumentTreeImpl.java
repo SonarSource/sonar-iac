@@ -17,13 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.HereDocumentTree;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public interface TransferInstructionTree extends InstructionTree {
-  List<ParamTree> options();
-  List<SyntaxToken> srcs();
-  LiteralListTree arguments();
-  SyntaxToken dest();
+public class HereDocumentTreeImpl extends DockerTreeImpl implements HereDocumentTree {
+
+  private final SyntaxToken content;
+
+  public HereDocumentTreeImpl(SyntaxToken content) {
+    this.content = content;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return List.of(content);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.HEREDOCUMENT;
+  }
+
+  @Override
+  public List<SyntaxToken> literals() {
+    return List.of(content);
+  }
+
+  @Override
+  public LiteralListType type() {
+    return LiteralListType.HEREDOC;
+  }
 }
