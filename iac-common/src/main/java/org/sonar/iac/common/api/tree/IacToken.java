@@ -19,5 +19,5 @@
  */
 package org.sonar.iac.common.api.tree;
 
-public interface IacToken extends HasTextRange, HasComments, TextTree {
+public interface IacToken extends HasComments, TextTree {
 }
