@@ -42,11 +42,15 @@ class MaintainerTreeImplTest {
       .matches("MAINTAINER bob boberman bob@bob.com")
       .matches("MAINTAINER bob<bob@bob.com>")
       .matches("MAINTAINER bob \\\n boberman")
+      .matches("MAINTAINER bob \\\r boberman")
+      .matches("MAINTAINER bob \\\r\n boberman")
       .matches("MAINTAINER \"bob boberman bob@bob.com\"")
       .matches("MAINTAINER bob /  boberman")
       .matches("MAINTAINER bob \\ boberman")
       .notMatches("MAINTAINER")
       .notMatches("MAINTAINER bob \n boberman")
+      .notMatches("MAINTAINER bob \r boberman")
+      .notMatches("MAINTAINER bob \r\n boberman")
       .notMatches("MAINTAINERbob")
       .notMatches("MAINTAINER ");
   }
