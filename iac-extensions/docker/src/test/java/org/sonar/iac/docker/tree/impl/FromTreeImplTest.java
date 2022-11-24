@@ -39,6 +39,8 @@ class FromTreeImplTest {
     Assertions.assertThat(DockerLexicalGrammar.FROM)
       .matches("FROM foobar")
       .matches("FROM \\\n foobar")
+      .matches("FROM \\\r foobar")
+      .matches("FROM \\\r\n foobar")
       .matches("FROM foobar:latest")
       .matches("FROM foobar@12313423")
       .matches("FROM --platform=foo bar")
