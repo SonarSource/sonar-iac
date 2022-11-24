@@ -75,7 +75,7 @@ public class DockerGrammar {
     return b.<FileTree>nonterminal(DockerLexicalGrammar.FILE).is(
       f.file(
         b.zeroOrMore(INSTRUCTION()),
-        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_SPACING)),
+        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.token(DockerLexicalGrammar.EOF))
     );
   }
@@ -83,7 +83,7 @@ public class DockerGrammar {
   public InstructionTree INSTRUCTION() {
     return b.<InstructionTree>nonterminal(DockerLexicalGrammar.INSTRUCTION).is(
       f.instruction(
-        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_SPACING)),
+        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.firstOf(
           ONBUILD(),
           FROM(),
