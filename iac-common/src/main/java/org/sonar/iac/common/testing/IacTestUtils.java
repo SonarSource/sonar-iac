@@ -28,6 +28,6 @@ public class IacTestUtils {
   }
 
   public static String code(String... lines) {
-    return StringUtils.join(lines, '\n');
+    return StringUtils.join(lines, System.getProperty("line.separator"));
   }
 }
