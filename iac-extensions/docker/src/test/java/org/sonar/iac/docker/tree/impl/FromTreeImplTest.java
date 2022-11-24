@@ -119,4 +119,11 @@ class FromTreeImplTest {
     assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, ImageTreeImpl.class, AliasTreeImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 4, 6);
   }
+
+  @Test
+  void multilineWindowsEOL() {
+    FromTree from = parse("FROM \\\r\n --platform=foo \\\r\n bar:latest \\\r\n AS fb", DockerLexicalGrammar.FROM);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, ImageTreeImpl.class, AliasTreeImpl.class);
+    assertTextRange(from.textRange()).hasRange(1, 0, 4, 6);
+  }
 }

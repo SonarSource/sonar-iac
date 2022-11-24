@@ -136,7 +136,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(SPACING).is(
       WHITESPACE_OR_ESCAPED_LINE_BREAK,
       b.zeroOrMore(
-        b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)), b.regexp("[" + LexicalConstant.LINE_TERMINATOR + "]"),
+        b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)), b.regexp(DockerLexicalConstant.EOL),
         WHITESPACE_OR_ESCAPED_LINE_BREAK)
     ).skip();
 
