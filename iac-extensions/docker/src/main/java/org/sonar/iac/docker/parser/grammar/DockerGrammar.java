@@ -27,8 +27,8 @@ import org.sonar.iac.docker.tree.api.AddTree;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
-import org.sonar.iac.docker.tree.api.EntrypointTree;
 import org.sonar.iac.docker.tree.api.CopyTree;
+import org.sonar.iac.docker.tree.api.EntrypointTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.ExecFormTree;
 import org.sonar.iac.docker.tree.api.ExposeTree;
@@ -43,20 +43,23 @@ import org.sonar.iac.docker.tree.api.MaintainerTree;
 import org.sonar.iac.docker.tree.api.NoneTree;
 import org.sonar.iac.docker.tree.api.OnBuildTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.RunTree;
+import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.ShellTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
 import org.sonar.iac.docker.tree.api.PortTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserTree;
-import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.api.VolumeTree;
+import org.sonar.iac.docker.tree.api.WorkdirTree;
 
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAME;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_NO_EQUALS;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
@@ -273,7 +276,7 @@ public class DockerGrammar {
    */
   public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
     return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
-      f.keyValuePairEquals(b.token(STRING_LITERAL), b.token(Punctuator.EQU), b.token(STRING_LITERAL))
+      f.keyValuePairEquals(b.token(STRING_LITERAL_NO_EQUALS), b.token(Punctuator.EQU), b.token(STRING_LITERAL))
     );
   }
 
@@ -358,6 +361,12 @@ public class DockerGrammar {
     return b.<RunTree>nonterminal(DockerLexicalGrammar.RUN).is(
       f.run(
         b.token(DockerKeyword.RUN),
+        b.zeroOrMore(
+          b.firstOf(
+            PARAM(),
+            PARAM_NO_VALUE()
+          )
+        ),
         b.optional(
           b.firstOf(
             EXEC_FORM(),

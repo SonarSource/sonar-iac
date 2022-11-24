@@ -34,6 +34,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * Lexical
    */
   STRING_LITERAL,
+  STRING_LITERAL_NO_EQUALS,
   STRING_UNTIL_EOL,
   STRING_LITERAL_WITH_QUOTES,
   EQUALS_OPERATOR,
@@ -150,6 +151,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
+    b.rule(STRING_LITERAL_NO_EQUALS).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_NO_EQUALS));
     b.rule(STRING_UNTIL_EOL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
     b.rule(STRING_LITERAL_WITH_QUOTES).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
 

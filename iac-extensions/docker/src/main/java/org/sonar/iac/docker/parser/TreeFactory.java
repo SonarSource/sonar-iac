@@ -193,8 +193,8 @@ public class TreeFactory {
     return new EntrypointTreeImpl(token, execFormOrShellForm.orNull());
   }
 
-  public RunTree run(SyntaxToken token, Optional<LiteralListTree> execFormOrShellForm) {
-    return new RunTreeImpl(token, execFormOrShellForm.orNull());
+  public RunTree run(SyntaxToken token, Optional<List<ParamTree>> options, Optional<LiteralListTree> execFormOrShellForm) {
+    return new RunTreeImpl(token, options.orNull(), execFormOrShellForm.orNull());
   }
 
   public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {

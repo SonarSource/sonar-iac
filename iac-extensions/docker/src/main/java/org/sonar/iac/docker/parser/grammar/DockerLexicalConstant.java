@@ -23,17 +23,19 @@ import org.sonar.iac.common.parser.grammar.LexicalConstant;
 
 public class DockerLexicalConstant {
 
-  private DockerLexicalConstant() {
-  }
-
   public static final String COMMENT = "(?:" + LexicalConstant.SINGLE_LINE_COMMENT_HASH + ")";
   public static final String STRING_LITERAL_WITH_QUOTES = "\"(?:[^\"\\\\]*+(?:\\\\[\\s\\S])?+)*+\"";
-  public static final String STRING_LITERAL_WITHOUT_QUOTES = "[^\\s=]+";
+  public static final String STRING_LITERAL_WITHOUT_QUOTES = "[^\\s]+";
+  public static final String STRING_LITERAL_WITHOUT_QUOTES_NO_EQUALS = "[^\\s=]+";
   public static final String STRING_LITERAL = "(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES + ")";
+  public static final String STRING_LITERAL_NO_EQUALS = "(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES_NO_EQUALS + ")";
   public static final String STRING_UNTIL_EOL = ".+";
   public static final String EQUALS_OPERATOR = "=";
 
   public static final String EOL = "(?:\\r\\n|[" + LexicalConstant.LINE_TERMINATOR + "])";
   public static final String LINE_BREAK = "(?:\\\\[" + LexicalConstant.WHITESPACE + "]*+" + EOL + ")";
 
+
+  private DockerLexicalConstant() {
+  }
 }

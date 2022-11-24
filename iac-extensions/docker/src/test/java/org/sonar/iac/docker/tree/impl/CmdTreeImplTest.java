@@ -19,7 +19,10 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
@@ -33,6 +36,7 @@ import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class CmdTreeImplTest {
 
@@ -81,12 +85,17 @@ class CmdTreeImplTest {
     CmdTree tree = DockerTestUtils.parse("CMD [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
+    assertTextRange(tree.textRange()).hasRange(1,0,1,36);
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.EXEC);
     assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
+    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
+    assertTextRange(textRanges.get(0)).hasRange(1,5,1,17);
+    assertTextRange(textRanges.get(1)).hasRange(1,18,1,26);
+    assertTextRange(textRanges.get(2)).hasRange(1,27,1,35);
 
+    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ExecFormTree.class);
   }
 
@@ -96,12 +105,17 @@ class CmdTreeImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
+    assertTextRange(tree.textRange()).hasRange(1,0,1,28);
+
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.SHELL);
     assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
+    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
+    assertTextRange(textRanges.get(0)).hasRange(1,1,3,2);
+    assertTextRange(textRanges.get(1)).hasRange(1,15,1,21);
+    assertTextRange(textRanges.get(2)).hasRange(1,22,1,28);
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
-
     assertThat(tree.children().get(1)).isInstanceOf(ShellFormTree.class);
   }
 
