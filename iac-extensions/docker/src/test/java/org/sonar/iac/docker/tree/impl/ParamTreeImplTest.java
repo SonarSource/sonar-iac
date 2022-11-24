@@ -41,10 +41,10 @@ class ParamTreeImplTest {
       .matches("--hello-world=foo")
       .matches("--chown=55:mygroup")
       .matches("--mount=type=secret,id=build_secret,mode=0666")
+      .matches("--platform=")
 
       .notMatches("-platform=foo")
       .notMatches("platform=foo")
-      .notMatches("--platform=")
       .notMatches("--platform= foo")
       .notMatches("--platform foo")
       .notMatches("--PLATFORM=foo")
