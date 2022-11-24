@@ -22,7 +22,9 @@ package org.sonar.iac.docker.plugin;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -40,6 +42,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.docker.checks.DockerCheckList;
 import org.sonar.iac.docker.parser.DockerParser;
 
+@Phase(name = Phase.Name.POST)
 public class DockerSensor extends IacSensor {
   private final Checks<IacCheck> checks;
 
@@ -60,9 +63,10 @@ public class DockerSensor extends IacSensor {
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
     FileSystem fileSystem = sensorContext.fileSystem();
-    return fileSystem.predicates().and(
-      fileSystem.predicates().matchesPathPattern("**/Dockerfile"),
-      fileSystem.predicates().hasType(InputFile.Type.MAIN));
+    FilePredicates p = fileSystem.predicates();
+    return p.and(
+      p.or(p.matchesPathPattern("**/Dockerfile"), p.matchesPathPattern("**/Dockerfile.*")),
+      p.hasType(InputFile.Type.MAIN));
   }
 
   @Override

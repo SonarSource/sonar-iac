@@ -112,7 +112,7 @@ class IacRulingTest {
   @Test
   void test_local() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/tmp/**/*.tf, sources/tmp/**.yaml");
+    properties.put("sonar.source", "sources/tmp/**/*");
     run_ruling_test("tmp", properties);
   }
 
