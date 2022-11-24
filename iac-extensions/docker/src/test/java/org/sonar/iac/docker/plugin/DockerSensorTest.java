@@ -19,7 +19,9 @@
  */
 package org.sonar.iac.docker.plugin;
 
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
@@ -54,6 +56,25 @@ class DockerSensorTest extends ExtensionSensorTest {
   @Test
   void shouldReturnActivationSettingKey() {
     assertThat(sensor().getActivationSettingKey()).isEqualTo(getActivationSettingKey());
+  }
+
+  @Test
+  void shouldAnalyzeDockerfilesOnly() {
+    DockerSensor sensor = sensor();
+    analyse(sensor,
+      inputFile("Dockerfile", ""),
+      inputFile("Dockerfile.foo", ""),
+      inputFile("FooDockerfile", ""),
+      inputFile("DockerfileFoo", ""),
+      inputFile("Dockerfile.foo.bar", "")
+    );
+
+    FileSystem fileSystem = context.fileSystem();
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context));
+
+    assertThat(inputFiles)
+      .extracting(inputFile -> Path.of(inputFile.uri()).getFileName().toString())
+      .containsExactly("Dockerfile", "Dockerfile.foo.bar", "Dockerfile.foo");
   }
 
   @Test
