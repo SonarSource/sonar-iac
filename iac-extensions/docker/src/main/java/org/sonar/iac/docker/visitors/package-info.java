@@ -17,15 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@javax.annotation.ParametersAreNonnullByDefault
 package org.sonar.iac.docker.visitors;
-
-import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.common.extension.visitors.MetricsVisitor;
-
-public class DockerMetricsVisitor extends MetricsVisitor {
-
-  public DockerMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
-    super(fileLinesContextFactory, noSonarFilter);
-  }
-}

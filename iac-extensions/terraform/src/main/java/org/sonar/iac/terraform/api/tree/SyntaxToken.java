@@ -19,8 +19,7 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-import org.sonar.iac.common.api.tree.HasComments;
-import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.api.tree.IacToken;
 
-public interface SyntaxToken extends TerraformTree, HasComments, TextTree {
+public interface SyntaxToken extends TerraformTree, IacToken {
 }

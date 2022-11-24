@@ -91,4 +91,20 @@ public class MeasuresTest extends TestBase {
     assertThat(getMeasureAsInt(file1, "comment_lines")).isEqualTo(1);
     assertThat(getMeasure(file1, "ncloc_data").getValue()).isEqualTo("1=1;2=1;3=1;4=1;5=1;7=1;8=1;9=1;10=1;11=1");
   }
+
+  @Test
+  public void docker_measures() {
+    final String projectKey = "dockerMeasures";
+    SonarScanner scanner = getSonarScanner(projectKey, BASE_DIRECTORY, "docker");
+
+    ORCHESTRATOR.executeBuild(scanner);
+
+    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(1);
+
+    final String file1 = projectKey + ":Dockerfile";
+
+    assertThat(getMeasureAsInt(file1, "ncloc")).isEqualTo(7);
+    assertThat(getMeasureAsInt(file1, "comment_lines")).isEqualTo(1);
+    assertThat(getMeasure(file1, "ncloc_data").getValue()).isEqualTo("2=1;3=1;4=1;5=1;6=1;7=1;8=1");
+  }
 }

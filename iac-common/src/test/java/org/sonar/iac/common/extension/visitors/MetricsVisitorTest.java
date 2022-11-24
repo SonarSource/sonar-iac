@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.common.api.tree.HasComments;
+import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -47,18 +47,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter) {
-      @Override
-      protected void languageSpecificMetrics() {
-        register(TestTree.class, (ctx, tree) -> {
-          TextRange range = tree.textRange();
-          for (int i = range.start().line(); i <= range.end().line(); i++) {
-            linesOfCode().add(i);
-          }
-          addCommentLines(tree.comments());
-        });
-      }
-    };
+    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter) {};
   }
 
   @Test
@@ -72,7 +61,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
   }
 
-  static class TestTree implements Tree, HasComments {
+  static class TestTree implements IacToken {
 
     @Override
     public List<Comment> comments() {
@@ -91,6 +80,11 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     @Override
     public List<Tree> children() {
       return Collections.emptyList();
+    }
+
+    @Override
+    public String value() {
+      return "dummy value";
     }
   }
 }
