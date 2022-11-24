@@ -28,7 +28,7 @@ public class DockerLexicalConstant {
   public static final String STRING_LITERAL_WITHOUT_QUOTES = "[^\\s]+";
   public static final String STRING_LITERAL_WITHOUT_QUOTES_NO_EQUALS = "[^\\s=]+";
   public static final String STRING_LITERAL = "(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES + ")";
-  public static final String STRING_LITERAL_NO_EQUALS = "(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES_NO_EQUALS + ")";
+  public static final String KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX = "(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES_NO_EQUALS + ")";
   public static final String STRING_UNTIL_EOL = ".+";
   public static final String EQUALS_OPERATOR = "=";
 

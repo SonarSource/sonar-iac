@@ -111,7 +111,7 @@ class CmdTreeImplTest {
     assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.SHELL);
     assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
     List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
-    assertTextRange(textRanges.get(0)).hasRange(1,1,3,2);
+    assertTextRange(textRanges.get(0)).hasRange(1,4,1,14);
     assertTextRange(textRanges.get(1)).hasRange(1,15,1,21);
     assertTextRange(textRanges.get(2)).hasRange(1,22,1,28);
 

@@ -41,12 +41,12 @@ class DockerLexicalGrammarTest {
       .matches("\"foo:bar\"")
       .matches("\"foo=bar\"")
       .matches("foo\\bar")
+      .matches("foo=bar")
+
       .notMatches("")
       .notMatches("   ")
       .notMatches("foo\nbar")
-      .notMatches("foo\rbar")
-      .notMatches("foo=bar")
-      ;
+      .notMatches("foo\rbar");
   }
 
   @Test
@@ -63,12 +63,12 @@ class DockerLexicalGrammarTest {
       .matches("partial_quotes_2\"")
       .matches("foo/bar")
       .matches("foo\\bar")
+      .matches("foo=bar")
+
       .notMatches("")
       .notMatches("   ")
       .notMatches("foo\nbar")
-      .notMatches("foo\rbar")
-      .matches("foo=bar")
-    ;
+      .notMatches("foo\rbar");
   }
 
   @Test
@@ -87,4 +87,46 @@ class DockerLexicalGrammarTest {
       .notMatches("CMD8 foo")
     ;
   }
+
+  //TODO: Marcin merge tests
+
+//  @Test
+//  void shouldVerifyKeywords() {
+//    Assertions.assertKeyword(DockerKeyword.CMD)
+//      .matches("CMD ")
+//      .notMatches("CMD-")
+//      .notMatches("CMD_")
+//      .notMatches("CMD<")
+//      .notMatches("CMD>")
+//      .notMatches("CMD1")
+//      .notMatches("CMDA")
+//      .notMatches("CMD!")
+//      .notMatches("CMD@")
+//      .notMatches("CMD#")
+//      .notMatches("CMD$")
+//      .notMatches("CMD% src dest")
+//      .notMatches("CMD& src dest")
+//      .notMatches("CMD£ src dest")
+//      .notMatches("CMD§ src dest")
+//      .notMatches("CMD` src dest")
+//      .notMatches("CMD~ src dest")
+//      .notMatches("CMD* src dest")
+//      .notMatches("CMD( src dest")
+//      .notMatches("CMD) src dest")
+//      .notMatches("CMD= src dest")
+//      .notMatches("CMD{ src dest")
+//      .notMatches("CMD} src dest")
+//      .notMatches("CMD[ src dest")
+//      .notMatches("CMD] src dest")
+//      .notMatches("CMD\" src dest")
+//      .notMatches("CMD' src dest")
+//      .notMatches("CMD: src dest")
+//      .notMatches("CMD; src dest")
+//      .notMatches("CMD| src dest")
+//      .notMatches("CMD\\ src dest")
+//      .notMatches("CMD/ src dest")
+//      .notMatches("CMD? src dest")
+//      .notMatches("CMD. src dest")
+//      .notMatches("CMD, src dest");
+//  }
 }

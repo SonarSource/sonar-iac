@@ -59,7 +59,7 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIG
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAME;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_NO_EQUALS;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 
@@ -137,7 +137,7 @@ public class DockerGrammar {
         b.token(DockerLexicalGrammar.PARAM_PREFIX),
         b.token(DockerLexicalGrammar.PARAM_NAME),
         b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
-        b.token(DockerLexicalGrammar.PARAM_VALUE)
+        b.optional(b.token(DockerLexicalGrammar.PARAM_VALUE))
       )
     );
   }
@@ -276,7 +276,7 @@ public class DockerGrammar {
    */
   public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
     return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
-      f.keyValuePairEquals(b.token(STRING_LITERAL_NO_EQUALS), b.token(Punctuator.EQU), b.token(STRING_LITERAL))
+      f.keyValuePairEquals(b.token(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX), b.token(Punctuator.EQU), b.token(STRING_LITERAL))
     );
   }
 
