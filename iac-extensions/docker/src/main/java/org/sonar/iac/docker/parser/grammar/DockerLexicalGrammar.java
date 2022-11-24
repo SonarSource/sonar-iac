@@ -29,7 +29,6 @@ import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   FILE,
-  INSTRUCTION,
 
   /**
    * Lexical
@@ -44,11 +43,14 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * SPACING
    */
   SPACING,
-  INSTRUCTION_SPACING,
+  INSTRUCTION_PREFIX,
+  WHITESPACE_OR_ESCAPED_LINE_BREAK,
+  WHITESPACE_OR_LINE_BREAK,
 
   /**
    * INSTRUCTIONS
    */
+  INSTRUCTION,
   ONBUILD,
   FROM,
   MAINTAINER,
@@ -122,18 +124,27 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
+
+    b.rule(WHITESPACE_OR_ESCAPED_LINE_BREAK).is(
+      b.skippedTrivia(b.regexp("(?:[" + LexicalConstant.WHITESPACE + "]|" + DockerLexicalConstant.LINE_BREAK + ")*+"))
+    );
+
+    b.rule(WHITESPACE_OR_LINE_BREAK).is(
+      b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))
+    );
+
     b.rule(SPACING).is(
-      b.skippedTrivia(b.regexp("(?:[" + LexicalConstant.WHITESPACE + "]|" + DockerLexicalConstant.LINE_BREAK + ")*+")),
+      WHITESPACE_OR_ESCAPED_LINE_BREAK,
       b.zeroOrMore(
-        b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
-        b.skippedTrivia(b.regexp("(?:[" + LexicalConstant.WHITESPACE + "]|" + DockerLexicalConstant.LINE_BREAK + ")*+")))
+        b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)), b.regexp("[" + LexicalConstant.LINE_TERMINATOR + "]"),
+        WHITESPACE_OR_ESCAPED_LINE_BREAK)
     ).skip();
 
-    b.rule(INSTRUCTION_SPACING).is(
-      b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
+    b.rule(INSTRUCTION_PREFIX).is(
+      WHITESPACE_OR_LINE_BREAK,
       b.zeroOrMore(
         b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
-        b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")))
+        WHITESPACE_OR_LINE_BREAK)
     ).skip();
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
