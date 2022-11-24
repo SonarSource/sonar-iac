@@ -6,7 +6,7 @@
 17,
 ],
 'docker-project:sources/docker/aspnet-monitoring/exporter/Dockerfile.ltsc2019':[
-9,
+17,
 ],
 'docker-project:sources/docker/aspnet-monitoring/grafana/Dockerfile':[
 11,
@@ -24,7 +24,7 @@
 22,
 ],
 'docker-project:sources/docker/aspnet-monitoring/website/Dockerfile.ltsc2019':[
-9,
+19,
 ],
 'docker-project:sources/docker/awesome-compose/angular/angular/Dockerfile':[
 19,
