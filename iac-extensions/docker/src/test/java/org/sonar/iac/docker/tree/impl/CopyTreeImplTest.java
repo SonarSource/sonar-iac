@@ -60,7 +60,6 @@ class CopyTreeImplTest {
       .matches("COPY <<\"EOT\"\n  mkdir -p foo/bar\nEOT")
       .notMatches("COPY <EOT\n  mkdir -p foo/bar\nEOT")
       .notMatches("COPY <<EOT\n  mkdir -p foo/bar\nEOT5")
-      .notMatches("COPY --option= src dest")
       .notMatches("COPY--option= src dest")
       .notMatches("COPY___ src dest")
       .notMatches("COPY< src dest")

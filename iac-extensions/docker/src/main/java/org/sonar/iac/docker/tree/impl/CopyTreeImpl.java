@@ -35,4 +35,9 @@ public class CopyTreeImpl extends TransferInstructionTreeImpl implements CopyTre
   public Kind getKind() {
     return Kind.COPY;
   }
+
+  @Override
+  public LiteralListTree arguments() {
+    return srcsAndDest;
+  }
 }

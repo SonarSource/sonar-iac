@@ -183,7 +183,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(USER_SEPARATOR).is(b.regexp(":"));
     b.rule(USER_GROUP).is(b.firstOf(USER_STRING, USER_VARIABLE));
 
-    b.rule(HEREDOC_EXPRESSION).is(SPACING, b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?:[\\n\\r]|$)"));
+    b.rule(HEREDOC_EXPRESSION).is(SPACING, b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?:[\\n\\r]|$)"));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

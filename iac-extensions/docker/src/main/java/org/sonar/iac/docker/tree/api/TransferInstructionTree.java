@@ -24,6 +24,5 @@ import java.util.List;
 public interface TransferInstructionTree extends InstructionTree {
   List<ParamTree> options();
   List<SyntaxToken> srcs();
-  LiteralListTree arguments();
   SyntaxToken dest();
 }

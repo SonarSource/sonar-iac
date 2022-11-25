@@ -1,117 +1,12 @@
 {
-'docker-project:ruling/src/test/resources/sources/docker/parsingError/Dockerfile':[
-1,
-],
-'docker-project:sources/docker/aspnet-monitoring/exporter/Dockerfile':[
-17,
-],
-'docker-project:sources/docker/aspnet-monitoring/exporter/Dockerfile.ltsc2019':[
-17,
-],
-'docker-project:sources/docker/aspnet-monitoring/grafana/Dockerfile':[
-11,
-],
-'docker-project:sources/docker/aspnet-monitoring/grafana/Dockerfile.ltsc2019':[
-9,
-],
-'docker-project:sources/docker/aspnet-monitoring/prometheus/Dockerfile':[
-8,
-],
-'docker-project:sources/docker/aspnet-monitoring/prometheus/Dockerfile.ltsc2019':[
-8,
-],
-'docker-project:sources/docker/aspnet-monitoring/website/Dockerfile':[
-22,
-],
-'docker-project:sources/docker/aspnet-monitoring/website/Dockerfile.ltsc2019':[
-19,
-],
-'docker-project:sources/docker/awesome-compose/angular/angular/Dockerfile':[
-19,
-],
-'docker-project:sources/docker/awesome-compose/apache-php/app/Dockerfile':[
-10,
-],
-'docker-project:sources/docker/awesome-compose/django/app/Dockerfile':[
-14,
-],
-'docker-project:sources/docker/awesome-compose/fastapi/Dockerfile':[
-16,
-],
-'docker-project:sources/docker/awesome-compose/flask-redis/Dockerfile':[
-18,
-],
-'docker-project:sources/docker/awesome-compose/flask/app/Dockerfile':[
-18,
-],
-'docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile':[
-19,
-],
-'docker-project:sources/docker/awesome-compose/nginx-flask-mongo/flask/Dockerfile':[
-16,
-],
-'docker-project:sources/docker/awesome-compose/nginx-flask-mysql/backend/Dockerfile':[
-23,
-],
-'docker-project:sources/docker/awesome-compose/nginx-golang-mysql/backend/Dockerfile':[
-25,
-],
-'docker-project:sources/docker/awesome-compose/nginx-golang-postgres/backend/Dockerfile':[
-25,
-],
-'docker-project:sources/docker/awesome-compose/nginx-golang/backend/Dockerfile':[
-25,
-],
-'docker-project:sources/docker/awesome-compose/react-express-mongodb/backend/Dockerfile':[
-20,
-],
-'docker-project:sources/docker/awesome-compose/react-express-mongodb/frontend/Dockerfile':[
-30,
-],
-'docker-project:sources/docker/awesome-compose/react-express-mysql/backend/Dockerfile':[
-37,
-],
-'docker-project:sources/docker/awesome-compose/react-express-mysql/frontend/Dockerfile':[
-22,
-],
-'docker-project:sources/docker/awesome-compose/react-java-mysql/backend/Dockerfile':[
-14,
-],
-'docker-project:sources/docker/awesome-compose/react-java-mysql/frontend/Dockerfile':[
-19,
-],
-'docker-project:sources/docker/awesome-compose/react-nginx/Dockerfile':[
-30,
-],
-'docker-project:sources/docker/awesome-compose/react-rust-postgres/backend/Dockerfile':[
-24,
-],
-'docker-project:sources/docker/awesome-compose/react-rust-postgres/frontend/Dockerfile':[
-17,
-],
-'docker-project:sources/docker/awesome-compose/sparkjava-mysql/backend/Dockerfile':[
-14,
-],
-'docker-project:sources/docker/awesome-compose/sparkjava/sparkjava/Dockerfile':[
-14,
-],
-'docker-project:sources/docker/awesome-compose/spring-postgres/backend/Dockerfile':[
-13,
-],
-'docker-project:sources/docker/awesome-compose/traefik-golang/backend/Dockerfile':[
-12,
-],
-'docker-project:sources/docker/awesome-compose/vuejs/vuejs/Dockerfile':[
-16,
-],
   'docker-project:ruling/src/test/resources/sources/docker/parsingError/Dockerfile':[
     1,
   ],
   'docker-project:sources/docker/aspnet-monitoring/exporter/Dockerfile':[
-    9,
+    17,
   ],
   'docker-project:sources/docker/aspnet-monitoring/exporter/Dockerfile.ltsc2019':[
-    9,
+    17,
   ],
   'docker-project:sources/docker/aspnet-monitoring/grafana/Dockerfile':[
     11,
@@ -126,57 +21,9 @@
     8,
   ],
   'docker-project:sources/docker/aspnet-monitoring/website/Dockerfile':[
-    9,
+    22,
   ],
   'docker-project:sources/docker/aspnet-monitoring/website/Dockerfile.ltsc2019':[
-    9,
-  ],
-  'docker-project:sources/docker/awesome-compose/fastapi/Dockerfile':[
-    8,
-  ],
-  'docker-project:sources/docker/awesome-compose/flask-redis/Dockerfile':[
-    7,
-  ],
-  'docker-project:sources/docker/awesome-compose/flask/app/Dockerfile':[
-    7,
-  ],
-  'docker-project:sources/docker/awesome-compose/nginx-flask-mongo/flask/Dockerfile':[
-    6,
-  ],
-  'docker-project:sources/docker/awesome-compose/nginx-flask-mysql/backend/Dockerfile':[
-    6,
-  ],
-  'docker-project:sources/docker/awesome-compose/nginx-golang-mysql/backend/Dockerfile':[
-    11,
-  ],
-  'docker-project:sources/docker/awesome-compose/nginx-golang-postgres/backend/Dockerfile':[
-    11,
-  ],
-  'docker-project:sources/docker/awesome-compose/nginx-golang/backend/Dockerfile':[
-    11,
-  ],
-  'docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/flask/Dockerfile':[
-    26,
-  ],
-  'docker-project:sources/docker/awesome-compose/traefik-golang/backend/Dockerfile':[
-    7,
-  ],
-  'docker-project:sources/docker/docker-containers/alpine3.7_py3.5.5_analytics/Dockerfile':[
-    26,
-  ],
-  'docker-project:sources/docker/docker-containers/dockeransible/Dockerfile':[
-    28,
-  ],
-  'docker-project:sources/docker/docker-containers/pyalp/alpine3.7_py3.5.5/Dockerfile':[
-    26,
-  ],
-  'docker-project:sources/docker/docker-containers/pyalp/alpine3.8_py3.5.5/Dockerfile':[
-    26,
-  ],
-  'docker-project:sources/docker/dockerfile-examples/mongodb/Dockerfile':[
-    12,
-  ],
-  'docker-project:sources/docker/dockerfile-examples/ruby/Dockerfile':[
-    9,
+    19,
   ],
 }
