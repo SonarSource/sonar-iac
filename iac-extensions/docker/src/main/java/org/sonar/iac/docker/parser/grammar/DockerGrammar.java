@@ -35,6 +35,7 @@ import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.HealthCheckTree;
+import org.sonar.iac.docker.tree.api.HereDocumentTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
@@ -322,6 +323,7 @@ public class DockerGrammar {
           )
         ),
         b.firstOf(
+          HEREDOC_FORM(),
           EXEC_FORM(),
           SHELL_FORM()
         )
@@ -369,6 +371,7 @@ public class DockerGrammar {
         ),
         b.optional(
           b.firstOf(
+            HEREDOC_FORM(),
             EXEC_FORM(),
             SHELL_FORM()
           )
@@ -435,6 +438,14 @@ public class DockerGrammar {
         b.oneOrMore(
           b.token(STRING_LITERAL)
         )
+      )
+    );
+  }
+
+  public HereDocumentTree HEREDOC_FORM() {
+    return b.<HereDocumentTree>nonterminal(DockerLexicalGrammar.HEREDOC_FORM).is(
+      f.hereDocument(
+        b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)
       )
     );
   }

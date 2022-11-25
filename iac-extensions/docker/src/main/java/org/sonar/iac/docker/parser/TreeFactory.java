@@ -36,6 +36,7 @@ import org.sonar.iac.docker.tree.api.ExposeTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.HealthCheckTree;
+import org.sonar.iac.docker.tree.api.HereDocumentTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
@@ -68,6 +69,7 @@ import org.sonar.iac.docker.tree.api.VolumeTree;
 import org.sonar.iac.docker.tree.impl.FileTreeImpl;
 import org.sonar.iac.docker.tree.impl.FromTreeImpl;
 import org.sonar.iac.docker.tree.impl.HealthCheckTreeImpl;
+import org.sonar.iac.docker.tree.impl.HereDocumentTreeImpl;
 import org.sonar.iac.docker.tree.impl.ImageTreeImpl;
 import org.sonar.iac.docker.tree.impl.KeyValuePairTreeImpl;
 import org.sonar.iac.docker.tree.impl.LabelTreeImpl;
@@ -219,6 +221,10 @@ public class TreeFactory {
 
   public NoneTree none(SyntaxToken none) {
     return new NoneTreeImpl(none);
+  }
+
+  public HereDocumentTree hereDocument(SyntaxToken content) {
+    return new HereDocumentTreeImpl(content);
   }
 
   public ExecFormTree execForm(SyntaxToken leftBracket,

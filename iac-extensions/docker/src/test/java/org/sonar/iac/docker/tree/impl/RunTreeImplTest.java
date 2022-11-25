@@ -70,11 +70,10 @@ class RunTreeImplTest {
       .matches("RUN /bin/sh /deploy.sh")
       .matches("RUN mkdir -p /output && zip -FS -r /output/lambda.zip ./")
       .matches("RUN CGO_ENABLED=0 go build -o backend main.go")
-      // TODO to implement in scope of SONARIAC-472
-//      .matches("RUN <<EOF\n" +
-//        "apk update\n" +
-//        "apk add git\n" +
-//        "EOF")
+      .matches("RUN <<EOF\n" +
+        "apk update\n" +
+        "apk add git\n" +
+        "EOF")
       .matches("RUN export FLASK_APP=app.py")
       .matches("RUN export FLASK_APP=app.py")
       .matches("RUN \"/usr/bin/run.sh\"")
@@ -132,6 +131,21 @@ class RunTreeImplTest {
       .matches("RUN \"la\", \"-bb\"]")
 
       .notMatches("--mount=target=. /bin/sh /deploy.sh");
+  }
+
+  void shouldParseRunHereDocument() {
+    Assertions.assertThat(DockerLexicalGrammar.RUN)
+      .matches("RUN <<EOT\n  mkdir -p foo/bar\nEOT")
+      .matches("RUN <<EOT early code\n  mkdir -p foo/bar\nEOT")
+      .matches("   RUN       <<EOT\n  mkdir -p foo/bar\nEOT")
+      .matches("RUN <<eot\n  mkdir -p foo/bar\neot")
+      .matches("RUN <<EOT\n\n  mkdir -p foo/bar\n\n\nEOT")
+      .matches("RUN <<EOT\r\n  mkdir -p foo/bar\r\nEOT")
+      .matches("RUN <<EOT1 <<EOT2\n  mkdir -p foo/bar\nEOT1\n  mkdir -p foo/bar\nEOT2")
+      .matches("RUN <<-EOT\n  mkdir -p foo/bar\nEOT")
+      .matches("RUN <<\"EOT\"\n  mkdir -p foo/bar\nEOT")
+      .notMatches("RUN <EOT\n  mkdir -p foo/bar\nEOT")
+      .notMatches("RUN <<EOT\n  mkdir -p foo/bar\nEOT5");
   }
 
   @Test
@@ -249,5 +263,55 @@ class RunTreeImplTest {
     assertThat(tree.keyword().value()).isEqualTo("RUN");
 
     assertThat(tree.arguments()).isNull();
+  }
+
+  @Test
+  void shouldCheckParseRunMultiLineFileEnding() {
+    String toParse = "RUN <<FILE1\n" +
+      "line 1\n" +
+      "line 2\n" +
+      "FILE1";
+    RunTree tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
+    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.HEREDOC);
+    assertThat(tree.arguments().getKind()).isEqualTo(DockerTree.Kind.HEREDOCUMENT);
+    assertTextRange(tree.textRange()).hasRange(1,0,4,5);
+
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.arguments().literals()).hasSize(1);
+    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<FILE1\nline 1\nline 2\nFILE1");
+  }
+
+  @Test
+  void shouldCheckParseRunMultiLineFollowedByOtherInstructionAndDash() {
+    String toParse = "RUN <<-FILE1 line 0\n" +
+      "line 1\n" +
+      "line 2\n" +
+      "FILE1\n" +
+      "HEALTHCHECK NONE";
+    RunTree tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
+    assertTextRange(tree.textRange()).hasRange(1,0,5,0);
+
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.arguments().literals()).hasSize(1);
+    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<-FILE1 line 0\nline 1\nline 2\nFILE1\n");
+  }
+
+  @Test
+  void shouldCheckParseRunMultiLineMultipleRedirect() {
+    String toParse = "RUN <<FILE1 <<FILE2\n" +
+      "line file 1\n" +
+      "FILE1\n" +
+      "line file 2\n" +
+      "FILE2\n" +
+      "HEALTHCHECK NONE";
+    RunTree tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
+    assertTextRange(tree.textRange()).hasRange(1,0,6,0);
+
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.arguments().literals()).hasSize(1);
+    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2\n");
   }
 }

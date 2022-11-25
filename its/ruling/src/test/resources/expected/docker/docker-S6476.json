@@ -1,18 +1,82 @@
 {
-'docker-project:ruling/src/test/resources/sources/docker/S6476/Dockerfile':[
-1,
-1,
-2,
-3,
-5,
-],
-'docker-project:sources/docker/awesome-compose/aspnet-mssql/app/aspnetapp/Dockerfile':[
-2,
-],
-'docker-project:sources/docker/k8s-wordsmith-demo/web/Dockerfile':[
-2,
-],
-'docker-project:sources/docker/k8s-wordsmith-demo/words/Dockerfile':[
-2,
-],
+  'docker-project:ruling/src/test/resources/sources/docker/S6476/Dockerfile':[
+    1,
+    1,
+    2,
+    3,
+    5,
+  ],
+  'docker-project:sources/docker/awesome-compose/angular/angular/Dockerfile':[
+    3,
+    16,
+  ],
+  'docker-project:sources/docker/awesome-compose/apache-php/app/Dockerfile':[
+    3,
+    7,
+  ],
+  'docker-project:sources/docker/awesome-compose/aspnet-mssql/app/aspnetapp/Dockerfile':[
+    2,
+  ],
+  'docker-project:sources/docker/awesome-compose/django/app/Dockerfile':[
+    12,
+  ],
+  'docker-project:sources/docker/awesome-compose/fastapi/Dockerfile':[
+    13,
+  ],
+  'docker-project:sources/docker/awesome-compose/flask-redis/Dockerfile':[
+    15,
+  ],
+  'docker-project:sources/docker/awesome-compose/flask/app/Dockerfile':[
+    15,
+  ],
+  'docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile':[
+    10,
+    16,
+  ],
+  'docker-project:sources/docker/awesome-compose/nginx-flask-mongo/flask/Dockerfile':[
+    13,
+  ],
+  'docker-project:sources/docker/awesome-compose/nginx-golang-postgres/backend/Dockerfile':[
+    22,
+  ],
+  'docker-project:sources/docker/awesome-compose/nginx-golang/backend/Dockerfile':[
+    22,
+  ],
+  'docker-project:sources/docker/awesome-compose/react-express-mongodb/backend/Dockerfile':[
+    18,
+  ],
+  'docker-project:sources/docker/awesome-compose/react-express-mongodb/frontend/Dockerfile':[
+    28,
+  ],
+  'docker-project:sources/docker/awesome-compose/react-express-mysql/backend/Dockerfile':[
+    35,
+  ],
+  'docker-project:sources/docker/awesome-compose/react-express-mysql/frontend/Dockerfile':[
+    20,
+  ],
+  'docker-project:sources/docker/awesome-compose/react-java-mysql/backend/Dockerfile':[
+    11,
+    27,
+  ],
+  'docker-project:sources/docker/awesome-compose/react-nginx/Dockerfile':[
+    28,
+  ],
+  'docker-project:sources/docker/awesome-compose/react-rust-postgres/frontend/Dockerfile':[
+    15,
+  ],
+  'docker-project:sources/docker/awesome-compose/spring-postgres/backend/Dockerfile':[
+    26,
+  ],
+  'docker-project:sources/docker/awesome-compose/traefik-golang/backend/Dockerfile':[
+    9,
+  ],
+  'docker-project:sources/docker/awesome-compose/vuejs/vuejs/Dockerfile':[
+    14,
+  ],
+  'docker-project:sources/docker/k8s-wordsmith-demo/web/Dockerfile':[
+    2,
+  ],
+  'docker-project:sources/docker/k8s-wordsmith-demo/words/Dockerfile':[
+    2,
+  ],
 }

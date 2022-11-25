@@ -92,6 +92,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   ARG_NAME,
   EXEC_FORM,
   SHELL_FORM,
+  HEREDOC_FORM,
 
   IMAGE,
   ALIAS,
@@ -109,7 +110,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   EXPOSE_PORT,
   EXPOSE_SEPARATOR_PORT,
   EXPOSE_SEPARATOR_PROTOCOL,
-  EXPOSE_PROTOCOL;
+  EXPOSE_PROTOCOL,
+
+  HEREDOC_EXPRESSION;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -179,6 +182,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(USER_NAME).is(SPACING, b.firstOf(USER_STRING, USER_VARIABLE));
     b.rule(USER_SEPARATOR).is(b.regexp(":"));
     b.rule(USER_GROUP).is(b.firstOf(USER_STRING, USER_VARIABLE));
+
+    b.rule(HEREDOC_EXPRESSION).is(SPACING, b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?:[\\n\\r]|$)"));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

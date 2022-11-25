@@ -25,7 +25,8 @@ public interface LiteralListTree extends DockerTree {
 
   enum LiteralListType {
     EXEC,
-    SHELL
+    SHELL,
+    HEREDOC
   }
 
   List<SyntaxToken> literals();

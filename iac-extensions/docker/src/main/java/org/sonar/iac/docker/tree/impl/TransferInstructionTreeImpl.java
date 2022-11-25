@@ -34,8 +34,8 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
  * {@code MY_CMD --param=value ["src1", "src2", "dest"]}
  */
 public abstract class TransferInstructionTreeImpl extends InstructionTreeImpl implements TransferInstructionTree {
-  private final List<ParamTree> options;
-  private final LiteralListTree srcsAndDest;
+  protected final List<ParamTree> options;
+  protected final LiteralListTree srcsAndDest;
 
   protected TransferInstructionTreeImpl(SyntaxToken add, List<ParamTree> options, LiteralListTree srcsAndDest) {
     super(add);
