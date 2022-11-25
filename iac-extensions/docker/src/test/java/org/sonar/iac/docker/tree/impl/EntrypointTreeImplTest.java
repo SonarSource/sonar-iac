@@ -19,7 +19,10 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
@@ -28,6 +31,7 @@ import org.sonar.iac.docker.tree.api.LiteralListTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class EntrypointTreeImplTest {
 
@@ -76,11 +80,17 @@ class EntrypointTreeImplTest {
     EntrypointTreeImpl tree = DockerTestUtils.parse("ENTRYPOINT [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.ENTRYPOINT);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
+    assertTextRange(tree.textRange()).hasRange(1,0,1,43);
 
     assertThat(tree.arguments()).isInstanceOf(ExecFormTreeImpl.class);
+    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.EXEC);
     assertThat(tree.arguments().literals().stream().map(TextTree::value))
       .containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
-    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.EXEC);
+    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
+    assertTextRange(textRanges.get(0)).hasRange(1,12,1,24);
+    assertTextRange(textRanges.get(1)).hasRange(1,25,1,33);
+    assertTextRange(textRanges.get(2)).hasRange(1,34,1,42);
+
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat(((ExecFormTreeImpl)tree.children().get(1))).isSameAs(tree.arguments());
   }
@@ -91,11 +101,17 @@ class EntrypointTreeImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
+    assertTextRange(tree.textRange()).hasRange(1,0,1,35);
 
     assertThat(tree.arguments()).isInstanceOf(ShellFormTreeImpl.class);
+    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.SHELL);
     assertThat(tree.arguments().literals().stream().map(TextTree::value))
       .containsExactly("executable", "param1", "param2");
-    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.SHELL);
+    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
+    assertTextRange(textRanges.get(0)).hasRange(1,11,1,21);
+    assertTextRange(textRanges.get(1)).hasRange(1,22,1,28);
+    assertTextRange(textRanges.get(2)).hasRange(1,29,1,35);
+
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat((tree.children().get(1))).isSameAs(tree.arguments());
   }

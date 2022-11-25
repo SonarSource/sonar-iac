@@ -45,9 +45,41 @@ class CopyTreeImplTest {
       .matches("COPY --option=value src dest")
       .matches("COPY --chown=55:mygroup files* /somedir/")
       .matches("COPY --link /foo /bar")
+      .matches("COPY    --link    /foo     /bar")
       .matches("COPY \"src\" \"dest\"")
-      .notMatches("COPY --option= src dest")
+      .matches("COPY --option= src dest")
       .notMatches("COPY--option= src dest")
+      .notMatches("COPY___ src dest")
+      .notMatches("COPY< src dest")
+      .notMatches("COPY> src dest")
+      .notMatches("COPY123 src dest")
+      .notMatches("COPY! src dest")
+      .notMatches("COPY@ src dest")
+      .notMatches("COPY# src dest")
+      .notMatches("COPY$ src dest")
+      .notMatches("COPY% src dest")
+      .notMatches("COPY& src dest")
+      .notMatches("COPY£ src dest")
+      .notMatches("COPY§ src dest")
+      .notMatches("COPY` src dest")
+      .notMatches("COPY~ src dest")
+      .notMatches("COPY* src dest")
+      .notMatches("COPY( src dest")
+      .notMatches("COPY) src dest")
+      .notMatches("COPY= src dest")
+      .notMatches("COPY{ src dest")
+      .notMatches("COPY} src dest")
+      .notMatches("COPY[ src dest")
+      .notMatches("COPY] src dest")
+      .notMatches("COPY\" src dest")
+      .notMatches("COPY' src dest")
+      .notMatches("COPY: src dest")
+      .notMatches("COPY; src dest")
+      .notMatches("COPY| src dest")
+      .notMatches("COPY/ src dest")
+      .notMatches("COPY? src dest")
+      .notMatches("COPY. src dest")
+      .notMatches("COPY, src dest")
       .notMatches("COPYY --option= src dest")
       .notMatches("COPY")
       .notMatches("COPY ")
@@ -92,5 +124,22 @@ class CopyTreeImplTest {
     assertThat(tree.srcs()).hasSize(1);
     assertThat(tree.srcs().get(0).value()).isEqualTo("files*");
     assertThat(tree.dest().value()).isEqualTo("/somedir/");
+  }
+
+  @Test
+  void copyInstructionWithOptionWithoutValue() {
+    // This is not valid Docker syntax but should be parsed anyway
+    CopyTree tree = parse("COPY --option= src dest", DockerLexicalGrammar.COPY);
+    assertThat(tree.options()).hasSize(1);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 23);
+
+    ParamTree option = tree.options().get(0);
+    assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
+    assertThat(option.name()).isEqualTo("option");
+    assertThat(option.value()).isNull();
+
+    assertThat(tree.srcs()).hasSize(1);
+    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
+    assertThat(tree.dest().value()).isEqualTo("dest");
   }
 }

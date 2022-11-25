@@ -41,12 +41,12 @@ class DockerLexicalGrammarTest {
       .matches("\"foo:bar\"")
       .matches("\"foo=bar\"")
       .matches("foo\\bar")
+      .matches("foo=bar")
+
       .notMatches("")
       .notMatches("   ")
       .notMatches("foo\nbar")
-      .notMatches("foo\rbar")
-      .notMatches("foo=bar")
-      ;
+      .notMatches("foo\rbar");
   }
 
   @Test
@@ -63,12 +63,12 @@ class DockerLexicalGrammarTest {
       .matches("partial_quotes_2\"")
       .matches("foo/bar")
       .matches("foo\\bar")
+      .matches("foo=bar")
+
       .notMatches("")
       .notMatches("   ")
       .notMatches("foo\nbar")
-      .notMatches("foo\rbar")
-      .matches("foo=bar")
-    ;
+      .notMatches("foo\rbar");
   }
 
   @Test
@@ -83,8 +83,37 @@ class DockerLexicalGrammarTest {
       .matches("CMD\\\nfoo") // no valid syntax but will be parsed
       .matches("CMD\\foo") // no valid syntax but will be parsed
       .notMatches("CMD[\"foo\"]")
+      .notMatches("CMD] src dest")
       .notMatches("CMDA foo")
       .notMatches("CMD8 foo")
-    ;
+      .notMatches("CMD-")
+      .notMatches("CMD_")
+      .notMatches("CMD<")
+      .notMatches("CMD>")
+      .notMatches("CMD!")
+      .notMatches("CMD@")
+      .notMatches("CMD#")
+      .notMatches("CMD$")
+      .notMatches("CMD% src dest")
+      .notMatches("CMD& src dest")
+      .notMatches("CMD£ src dest")
+      .notMatches("CMD§ src dest")
+      .notMatches("CMD` src dest")
+      .notMatches("CMD~ src dest")
+      .notMatches("CMD* src dest")
+      .notMatches("CMD( src dest")
+      .notMatches("CMD) src dest")
+      .notMatches("CMD= src dest")
+      .notMatches("CMD{ src dest")
+      .notMatches("CMD} src dest")
+      .notMatches("CMD\" src dest")
+      .notMatches("CMD' src dest")
+      .notMatches("CMD: src dest")
+      .notMatches("CMD; src dest")
+      .notMatches("CMD| src dest")
+      .notMatches("CMD/ src dest")
+      .notMatches("CMD? src dest")
+      .notMatches("CMD. src dest")
+      .notMatches("CMD, src dest");
   }
 }

@@ -19,5 +19,8 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import java.util.List;
+
 public interface RunTree extends CommandInstructionTree {
+  List<ParamTree> options();
 }

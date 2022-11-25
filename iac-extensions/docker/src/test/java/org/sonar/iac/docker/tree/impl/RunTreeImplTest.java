@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.RunTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
@@ -68,6 +69,14 @@ class RunTreeImplTest {
       .matches("RUN echo \"This is a test.\" | wc -")
       .matches("RUN /bin/sh /deploy.sh")
       .matches("RUN mkdir -p /output && zip -FS -r /output/lambda.zip ./")
+      .matches("RUN CGO_ENABLED=0 go build -o backend main.go")
+      // TODO to implement in scope of SONARIAC-472
+//      .matches("RUN <<EOF\n" +
+//        "apk update\n" +
+//        "apk add git\n" +
+//        "EOF")
+      .matches("RUN export FLASK_APP=app.py")
+      .matches("RUN export FLASK_APP=app.py")
       .matches("RUN \"/usr/bin/run.sh\"")
       .matches("    RUN \"/usr/bin/run.sh\"")
       .matches("RUN     \"/usr/bin/run.sh\"")
@@ -78,6 +87,51 @@ class RunTreeImplTest {
       .matches("RUN \"la\", \"-bb\"]")
 
       .notMatches("/bin/sh /deploy.sh");
+  }
+
+  @Test
+  void shouldParseRunOptionsExecForm() {
+    Assertions.assertThat(DockerLexicalGrammar.RUN)
+      .matches("RUN --mount=type=bind")
+      // Docker throws: "failed to marshal LLB definition: arguments are required"
+      .matches("RUN []")
+      .matches("RUN --mount=type=cache [\"ls\"]")
+      .matches("RUN --mount=type=secret [\"executable\",\"param1\",\"param2\"]")
+      .matches("RUN --mount=type=ssh [\"/usr/bin/wc\",\"--help\"]")
+      .matches("RUN --mount=type=${mount_type} [\"/usr/bin/wc\",\"--help\"]")
+      .matches("RUN --mount=type=${mount_type:-ssh} [\"/usr/bin/wc\",\"--help\"]")
+      .matches("RUN --mount=type=${mount_type:+ssh} [\"/usr/bin/wc\",\"--help\"]")
+      .matches("    RUN --mount=type=${mount_type:+ssh} [\"/usr/bin/wc\",\"--help\"]")
+      .matches("RUN --mount=type=secret [\"c:\\\\Program Files\\\\foo.exe\"]")
+
+      .notMatches("RUND")
+      .notMatches("");
+  }
+
+  @Test
+  void shouldParseRunOptionsShellForm() {
+    Assertions.assertThat(DockerLexicalGrammar.RUN)
+      .matches("RUN --network=default")
+      .matches("RUN --network=default ls")
+      .matches("RUN --network=none \"ls\"")
+      .matches("RUN --network=host command param1 param2")
+      .matches("RUN --security=insecure echo \"This is a test.\" | wc -")
+      .matches("RUN --security=sandbox /bin/sh /deploy.sh")
+      .matches("RUN --mount=target=. mkdir -p /output && zip -FS -r /output/lambda.zip ./")
+      .matches("RUN --mount=target=/ \"/usr/bin/run.sh\"")
+      .matches("RUN --mount=type=cache,target=/go/pkg/mod/cache \\\n" +
+        "    go mod download")
+      .matches("RUN --mount=type=cache,target=/root/.cache/pip \\\n" +
+        "    pip3 install -r requirements.txt")
+      .matches("RUN msbuild .\\DockerSamples.AspNetExporter.App\\DockerSamples.AspNetExporter.App.csproj /p:OutputPath=c:\\out")
+      .matches("    RUN --mount=target=/ \"/usr/bin/run.sh\"")
+      .matches("RUN     --mount=target=/   \"/usr/bin/run.sh\"")
+      // not exec form
+      .matches("RUN [\"la\", \"-bb\"")
+      .matches("RUN [\"la\", \"-bb]")
+      .matches("RUN \"la\", \"-bb\"]")
+
+      .notMatches("--mount=target=. /bin/sh /deploy.sh");
   }
 
   @Test
@@ -117,6 +171,59 @@ class RunTreeImplTest {
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(ShellFormTree.class);
+  }
+
+  @Test
+  void shouldCheckParseRunOptionExecFormTree() {
+    RunTree tree = DockerTestUtils.parse("RUN --mount=type=cache,target=/root/.cache/pip [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.RUN);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertTextRange(tree.textRange()).hasRange(1,0,1,79);
+
+    ParamTree option = tree.options().get(0);
+    assertThat(((SyntaxToken)option.children().get(0)).value()).isEqualTo("--");
+    assertThat(option.name()).isEqualTo("mount");
+    assertThat(option.value().value()).isEqualTo("type=cache,target=/root/.cache/pip");
+    assertTextRange(option.textRange()).hasRange(1,4,1,46);
+
+    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.EXEC);
+    assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
+    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
+    assertTextRange(textRanges.get(0)).hasRange(1,48,1,60);
+    assertTextRange(textRanges.get(1)).hasRange(1,61,1,69);
+    assertTextRange(textRanges.get(2)).hasRange(1,70,1,78);
+
+    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
+    assertThat(tree.children().get(1)).isInstanceOf(ParamTree.class);
+    assertThat(tree.children().get(2)).isInstanceOf(ExecFormTree.class);
+  }
+
+  @Test
+  void shouldCheckParseRunOptionShellFormTree() {
+    RunTree tree = DockerTestUtils.parse("RUN --mount=type=${mount_type:+ssh} executable param1 param2", DockerLexicalGrammar.RUN);
+
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertTextRange(tree.textRange()).hasRange(1,0,1,60);
+
+    ParamTree option = tree.options().get(0);
+    assertThat(((SyntaxToken)option.children().get(0)).value()).isEqualTo("--");
+    assertThat(option.name()).isEqualTo("mount");
+    assertThat(option.value().value()).isEqualTo("type=${mount_type:+ssh}");
+    assertTextRange(option.textRange()).hasRange(1,4,1,35);
+
+    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.SHELL);
+    assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
+    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
+    assertTextRange(textRanges.get(0)).hasRange(1,36,1,46);
+    assertTextRange(textRanges.get(1)).hasRange(1,47,1,53);
+    assertTextRange(textRanges.get(2)).hasRange(1,54,1,60);
+
+    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
+    assertThat(tree.children().get(1)).isInstanceOf(ParamTree.class);
+    assertThat(tree.children().get(2)).isInstanceOf(ShellFormTree.class);
   }
 
   @Test

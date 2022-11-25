@@ -41,7 +41,8 @@ class ArgTreeImplTest {
       .matches("ARG key1=value1 key2=value2")
       .matches("ARG key1 key2")
       .matches("ARG key1 key2=value2")
-      .notMatches("ARG key1= key2=value2")
+      .matches("ARG key1= key2=value2")
+
       .notMatches("ARGkey1")
       .notMatches("ARG")
       .notMatches("ARG ")

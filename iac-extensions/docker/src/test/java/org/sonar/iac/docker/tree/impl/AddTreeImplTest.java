@@ -45,7 +45,8 @@ class AddTreeImplTest {
       .matches("ADD --chown=55:mygroup files* /somedir/")
       .matches("ADD --link /foo /bar")
       .matches("ADD \"src\" \"dest\"")
-      .notMatches("ADD --option= src dest")
+      .matches("ADD --option= src dest")
+
       .notMatches("ADD--option= src dest")
       .notMatches("ADDD --option= src dest")
       .notMatches("ADD")
