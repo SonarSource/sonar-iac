@@ -29,12 +29,13 @@ import org.sonar.iac.docker.tree.api.ParamTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammarTest.FORBIDDEN_CHARACTERS_AFTER_KEYWORD;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class CopyTreeImplTest {
   @Test
   void matchingSimple() {
-    Assertions.assertThat(DockerLexicalGrammar.COPY)
+    Assertions.ParserAssert copy = Assertions.assertThat(DockerLexicalGrammar.COPY)
       .matches("COPY src dest")
       .matches("copy src dest")
       .matches("COPY dest")
@@ -61,41 +62,14 @@ class CopyTreeImplTest {
       .notMatches("COPY <EOT\n  mkdir -p foo/bar\nEOT")
       .notMatches("COPY <<EOT\n  mkdir -p foo/bar\nEOT5")
       .notMatches("COPY--option= src dest")
-      .notMatches("COPY___ src dest")
-      .notMatches("COPY< src dest")
-      .notMatches("COPY> src dest")
-      .notMatches("COPY123 src dest")
-      .notMatches("COPY! src dest")
-      .notMatches("COPY@ src dest")
-      .notMatches("COPY# src dest")
-      .notMatches("COPY$ src dest")
-      .notMatches("COPY% src dest")
-      .notMatches("COPY& src dest")
-      .notMatches("COPY£ src dest")
-      .notMatches("COPY§ src dest")
-      .notMatches("COPY` src dest")
-      .notMatches("COPY~ src dest")
-      .notMatches("COPY* src dest")
-      .notMatches("COPY( src dest")
-      .notMatches("COPY) src dest")
-      .notMatches("COPY= src dest")
-      .notMatches("COPY{ src dest")
-      .notMatches("COPY} src dest")
-      .notMatches("COPY[ src dest")
-      .notMatches("COPY] src dest")
-      .notMatches("COPY\" src dest")
-      .notMatches("COPY' src dest")
-      .notMatches("COPY: src dest")
-      .notMatches("COPY; src dest")
-      .notMatches("COPY| src dest")
-      .notMatches("COPY/ src dest")
-      .notMatches("COPY? src dest")
-      .notMatches("COPY. src dest")
-      .notMatches("COPY, src dest")
       .notMatches("COPYY --option= src dest")
       .notMatches("COPY")
       .notMatches("COPY ")
       .notMatches("COPY --option=value");
+
+    for (char c : FORBIDDEN_CHARACTERS_AFTER_KEYWORD) {
+      copy.notMatches("COPY" + c + " src dest");
+    }
   }
 
   @Test

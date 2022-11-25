@@ -19,11 +19,16 @@
  */
 package org.sonar.iac.docker.parser.grammar;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.utils.Assertions;
 
-class DockerLexicalGrammarTest {
+// This class needs to be public to reuse a field, it's FP in sonar-java
+@SuppressWarnings("java:S5786")
+public class DockerLexicalGrammarTest {
 
+  public static final List<Character> FORBIDDEN_CHARACTERS_AFTER_KEYWORD = List.of('[', ']', 'A', '2', '-', '_', '<', '>', '!', '@', '#', '$', '%',
+    '&', '£', '§', '`', '~', '*', '(', ')', '=', '{', '}', '\'', ':', ';', '|', '/', '?', '.', ',', '"');
   @Test
   void shouldVerifyStringLiteral() {
     Assertions.assertThat(DockerLexicalGrammar.STRING_LITERAL)
@@ -73,7 +78,7 @@ class DockerLexicalGrammarTest {
 
   @Test
   void testKeyword() {
-    Assertions.assertThat(DockerLexicalGrammar.CMD)
+    Assertions.ParserAssert cmd = Assertions.assertThat(DockerLexicalGrammar.CMD)
       .matches("CMD")
       .matches("CMD foo")
       .matches("CMD \\\nfoo")
@@ -81,39 +86,10 @@ class DockerLexicalGrammarTest {
       .matches("CMD [\"foo\"]")
       .matches("CMD\t[\"foo\"]")
       .matches("CMD\\\nfoo") // no valid syntax but will be parsed
-      .matches("CMD\\foo") // no valid syntax but will be parsed
-      .notMatches("CMD[\"foo\"]")
-      .notMatches("CMD] src dest")
-      .notMatches("CMDA foo")
-      .notMatches("CMD8 foo")
-      .notMatches("CMD-")
-      .notMatches("CMD_")
-      .notMatches("CMD<")
-      .notMatches("CMD>")
-      .notMatches("CMD!")
-      .notMatches("CMD@")
-      .notMatches("CMD#")
-      .notMatches("CMD$")
-      .notMatches("CMD% src dest")
-      .notMatches("CMD& src dest")
-      .notMatches("CMD£ src dest")
-      .notMatches("CMD§ src dest")
-      .notMatches("CMD` src dest")
-      .notMatches("CMD~ src dest")
-      .notMatches("CMD* src dest")
-      .notMatches("CMD( src dest")
-      .notMatches("CMD) src dest")
-      .notMatches("CMD= src dest")
-      .notMatches("CMD{ src dest")
-      .notMatches("CMD} src dest")
-      .notMatches("CMD\" src dest")
-      .notMatches("CMD' src dest")
-      .notMatches("CMD: src dest")
-      .notMatches("CMD; src dest")
-      .notMatches("CMD| src dest")
-      .notMatches("CMD/ src dest")
-      .notMatches("CMD? src dest")
-      .notMatches("CMD. src dest")
-      .notMatches("CMD, src dest");
+      .matches("CMD\\foo");// no valid syntax but will be parsed
+
+    for (Character specialCharacter : FORBIDDEN_CHARACTERS_AFTER_KEYWORD) {
+      cmd.notMatches("CMD" + specialCharacter);
+    }
   }
 }
