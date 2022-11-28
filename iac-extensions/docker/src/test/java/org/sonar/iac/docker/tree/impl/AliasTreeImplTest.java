@@ -34,7 +34,6 @@ class AliasTreeImplTest {
       .matches("AS 1234")
 
       .notMatches("AS")
-      .notMatches("AS 12.23")
       .notMatches("AS foo\n")
     ;
   }
