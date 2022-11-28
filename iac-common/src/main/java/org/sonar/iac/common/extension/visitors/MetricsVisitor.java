@@ -22,12 +22,14 @@ package org.sonar.iac.common.extension.visitors;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.Tree;
 
 public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
@@ -46,7 +48,17 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
     languageSpecificMetrics();
   }
 
-  protected abstract void languageSpecificMetrics();
+  protected void languageSpecificMetrics() {
+    register(IacToken.class, (ctx, token) -> {
+      if (!(token.value().trim().isEmpty())) {
+        TextRange range = token.textRange();
+        for (int i = range.start().line(); i <= range.end().line(); i++) {
+          linesOfCode().add(i);
+        }
+      }
+      addCommentLines(token.comments());
+    });
+  }
 
   @Override
   protected void before(InputFileContext ctx, Tree root) {

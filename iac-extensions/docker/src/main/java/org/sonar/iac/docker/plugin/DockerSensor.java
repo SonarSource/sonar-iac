@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.Phase;
@@ -41,6 +40,8 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.docker.checks.DockerCheckList;
 import org.sonar.iac.docker.parser.DockerParser;
+import org.sonar.iac.docker.visitors.DockerHighlightingVisitor;
+import org.sonar.iac.docker.visitors.DockerMetricsVisitor;
 
 @Phase(name = Phase.Name.POST)
 public class DockerSensor extends IacSensor {
@@ -81,9 +82,11 @@ public class DockerSensor extends IacSensor {
 
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
-    List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    visitors.add(new ChecksVisitor(checks, statistics));
-    return visitors;
+    return List.of(
+      new ChecksVisitor(checks, statistics),
+      new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter),
+      new DockerHighlightingVisitor()
+    );
   }
 
   @Override

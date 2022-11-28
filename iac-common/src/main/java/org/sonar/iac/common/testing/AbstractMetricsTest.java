@@ -65,11 +65,12 @@ public abstract class AbstractMetricsTest {
 
   protected abstract MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory);
 
-  protected void scan(String code) {
+  protected MetricsVisitor scan(String code) {
     inputFile = new TestInputFileBuilder("moduleKey", new File(tempFolder, "file").getName())
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata(code).build();
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
     visitor.scan(ctx, parser.parse(code, null));
+    return visitor;
   }
 }

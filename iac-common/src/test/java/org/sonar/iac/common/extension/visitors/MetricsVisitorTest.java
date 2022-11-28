@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.common.api.tree.HasComments;
+import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -42,28 +42,17 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return (source, inputFileContext) -> new TestTree();
+    return (source, inputFileContext) -> new TestToken("dummy value");
   }
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter) {
-      @Override
-      protected void languageSpecificMetrics() {
-        register(TestTree.class, (ctx, tree) -> {
-          TextRange range = tree.textRange();
-          for (int i = range.start().line(); i <= range.end().line(); i++) {
-            linesOfCode().add(i);
-          }
-          addCommentLines(tree.comments());
-        });
-      }
-    };
+    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter) {};
   }
 
   @Test
   void test_metrics() {
-    scan("#comment\nfoo\n#NOSONAR\n#");
+    MetricsVisitor visitor = scan("#comment\nfoo\n \n#NOSONAR\n#");
     assertThat(visitor.commentLines()).containsExactly(1);
     assertThat(visitor.linesOfCode()).containsExactly(2);
     assertThat(visitor.noSonarLines()).containsExactly(3);
@@ -72,7 +61,27 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
   }
 
-  static class TestTree implements Tree, HasComments {
+  @Test
+  void  test_empty_token() {
+    parser = (source, inputFileContext) -> new TestToken("");
+    MetricsVisitor visitor = scan("");
+    assertThat(visitor.linesOfCode()).isEmpty();
+  }
+
+  @Test
+  void  test_whitespace_token() {
+    parser = (source, inputFileContext) -> new TestToken(" ");
+    MetricsVisitor visitor = scan(" ");
+    assertThat(visitor.linesOfCode()).isEmpty();
+  }
+
+  static class TestToken implements IacToken {
+
+    private final String value;
+
+    public TestToken(String value) {
+      this.value = value;
+    }
 
     @Override
     public List<Comment> comments() {
@@ -91,6 +100,11 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     @Override
     public List<Tree> children() {
       return Collections.emptyList();
+    }
+
+    @Override
+    public String value() {
+      return value;
     }
   }
 }

@@ -17,9 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.api.tree;
+package org.sonar.iac.docker.visitors;
 
-import org.sonar.iac.common.api.tree.IacToken;
+import java.util.Optional;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.InstructionTree;
 
-public interface SyntaxToken extends TerraformTree, IacToken {
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
+
+public class DockerHighlightingVisitor extends SyntaxHighlightingVisitor {
+
+  @Override
+  protected void languageSpecificHighlighting() {
+    register(InstructionTree.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
+    register(FromTree.class, (ctx, tree) -> Optional.ofNullable(tree.alias()).ifPresent(alias -> highlight(alias.keyword(), KEYWORD)));
+  }
+
+
+
 }
