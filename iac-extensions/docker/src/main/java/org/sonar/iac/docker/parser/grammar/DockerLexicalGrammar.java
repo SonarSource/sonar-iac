@@ -168,10 +168,10 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(EXPOSE_SEPARATOR_PROTOCOL).is(b.regexp("/"));
     b.rule(EXPOSE_PROTOCOL).is(b.regexp("[a-zA-Z]+"));
 
-    b.rule(IMAGE_NAME).is(SPACING, b.regexp("[^@:\\s\\$-][^@:\\s\\$]+"));
-    b.rule(IMAGE_TAG).is(b.regexp(":[^@\\s\\$]+"));
+    b.rule(IMAGE_NAME).is(SPACING, b.regexp("[^@:\\s-][^@:\\s\\$]+"));
+    b.rule(IMAGE_TAG).is(b.regexp(":[^@\\s]+"));
     b.rule(IMAGE_DIGEST).is(b.regexp("@[a-zA-Z0-9:]+"));
-    b.rule(IMAGE_ALIAS).is(SPACING, b.regexp("[-a-zA-Z0-9_]+"));
+    b.rule(IMAGE_ALIAS).is(SPACING, b.regexp("[-a-zA-Z0-9_\\.]+"));
 
     b.rule(PARAM_PREFIX).is(SPACING, b.regexp("--"));
     b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
