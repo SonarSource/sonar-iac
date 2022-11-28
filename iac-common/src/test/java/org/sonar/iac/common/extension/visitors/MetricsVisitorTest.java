@@ -42,7 +42,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return (source, inputFileContext) -> new TestTree();
+    return (source, inputFileContext) -> new TestToken("dummy value");
   }
 
   @Override
@@ -52,7 +52,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Test
   void test_metrics() {
-    scan("#comment\nfoo\n#NOSONAR\n#");
+    MetricsVisitor visitor = scan("#comment\nfoo\n \n#NOSONAR\n#");
     assertThat(visitor.commentLines()).containsExactly(1);
     assertThat(visitor.linesOfCode()).containsExactly(2);
     assertThat(visitor.noSonarLines()).containsExactly(3);
@@ -61,7 +61,27 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
   }
 
-  static class TestTree implements IacToken {
+  @Test
+  void  test_empty_token() {
+    parser = (source, inputFileContext) -> new TestToken("");
+    MetricsVisitor visitor = scan("");
+    assertThat(visitor.linesOfCode()).isEmpty();
+  }
+
+  @Test
+  void  test_whitespace_token() {
+    parser = (source, inputFileContext) -> new TestToken(" ");
+    MetricsVisitor visitor = scan(" ");
+    assertThat(visitor.linesOfCode()).isEmpty();
+  }
+
+  static class TestToken implements IacToken {
+
+    private final String value;
+
+    public TestToken(String value) {
+      this.value = value;
+    }
 
     @Override
     public List<Comment> comments() {
@@ -84,7 +104,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
     @Override
     public String value() {
-      return "dummy value";
+      return value;
     }
   }
 }
