@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
+import java.util.Iterator;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
@@ -35,5 +36,10 @@ public class TupleTreeImpl extends AbstractCollectionValueTree<ExpressionTree> i
   @Override
   public Kind getKind() {
     return Kind.TUPLE;
+  }
+
+  @Override
+  public Iterator<ExpressionTree> iterator() {
+    return elements().trees().iterator();
   }
 }

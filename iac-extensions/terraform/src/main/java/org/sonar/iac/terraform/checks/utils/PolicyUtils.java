@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.Policy;
+import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;

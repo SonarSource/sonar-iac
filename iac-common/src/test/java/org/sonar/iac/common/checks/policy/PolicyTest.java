@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.checks;
+package org.sonar.iac.common.checks.policy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,10 +30,10 @@ import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.Policy.Statement;
+import org.sonar.iac.common.checks.policy.Policy.Statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.checks.TextUtilsTest.TestTextTree.text;
+import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
 
 class PolicyTest {
 

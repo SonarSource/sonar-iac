@@ -19,20 +19,18 @@
  */
 package org.sonar.iac.common.checks;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.AbstractTestTree;
-import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.CommonTestUtils.TestAttributeTree;
+import org.sonar.iac.common.checks.CommonTestUtils.TestPropertiesTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.checks.PropertyUtilsTest.TestPropertyTree.attribute;
-import static org.sonar.iac.common.checks.PropertyUtilsTest.TestTree.tree;
-import static org.sonar.iac.common.checks.TextUtilsTest.TestTextTree.text;
+import static org.sonar.iac.common.checks.CommonTestUtils.TestAttributeTree.attribute;
+import static org.sonar.iac.common.checks.CommonTestUtils.TestPropertiesTree.properties;
+import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
 
 class PropertyUtilsTest {
 
@@ -40,7 +38,7 @@ class PropertyUtilsTest {
   TextTree value2 = text("value2");
   TextTree key2 = text("key2");
   PropertyTree attribute2 = attribute(key2, value2);
-  TestTree tree = tree(attribute("key1", value1), attribute2);
+  TestPropertiesTree tree = properties(attribute("key1", value1), attribute2);
 
   @Test
   void has() {
@@ -57,7 +55,7 @@ class PropertyUtilsTest {
     assertThat(PropertyUtils.get(tree, "key2")).isPresent().get().isEqualTo(attribute2);
     assertThat(PropertyUtils.get(tree, "key3")).isNotPresent();
     assertThat(PropertyUtils.get(null, "key3")).isNotPresent();
-    assertThat(PropertyUtils.get(tree, "key2", TestPropertyTree.class)).isPresent();
+    assertThat(PropertyUtils.get(tree, "key2", TestAttributeTree.class)).isPresent();
     assertThat(PropertyUtils.get(tree, "key2", OtherTree.class)).isNotPresent();
   }
 
@@ -102,13 +100,13 @@ class PropertyUtilsTest {
   void getAll() {
     PropertyTree property1 = attribute("key", value1);
     PropertyTree property2 = attribute("key", value2);
-    TestTree testTree = tree(property1, property2);
+    TestPropertiesTree testTree = properties(property1, property2);
     assertThat(PropertyUtils.getAll(testTree, "key")).containsExactly(property1, property2);
 
-    assertThat(PropertyUtils.getAll(testTree, "key", TestPropertyTree.class)).hasSize(2);
+    assertThat(PropertyUtils.getAll(testTree, "key", TestAttributeTree.class)).hasSize(2);
     assertThat(PropertyUtils.getAll(testTree, "key", OtherTree.class)).isEmpty();
 
-    assertThat(PropertyUtils.getAll(testTree, TestPropertyTree.class)).hasSize(2);
+    assertThat(PropertyUtils.getAll(testTree, TestAttributeTree.class)).hasSize(2);
     assertThat(PropertyUtils.getAll(testTree, OtherTree.class)).isEmpty();
   }
 
@@ -120,56 +118,5 @@ class PropertyUtilsTest {
 
   static class OtherTree extends AbstractTestTree {
 
-  }
-
-  static class TestPropertyTree extends AbstractTestTree implements PropertyTree {
-
-    private final Tree key;
-    private final Tree value;
-
-    public TestPropertyTree(Tree key, Tree value) {
-      this.key = key;
-      this.value = value;
-    }
-
-    static PropertyTree attribute(Tree key, Tree value) {
-      return new TestPropertyTree(key, value);
-    }
-
-    static PropertyTree attribute(String key, Tree value) {
-      return attribute(text(key), value);
-    }
-
-    @Override
-    public Tree key() {
-      return key;
-    }
-
-    @Override
-    public Tree value() {
-      return value;
-    }
-  }
-
-  static class TestTree extends AbstractTestTree implements HasProperties {
-
-    private final List<PropertyTree> attributes = new ArrayList<>();
-
-    private TestTree(PropertyTree... attributes) {
-      this.attributes.addAll(Arrays.asList(attributes));
-    }
-
-    static TestTree tree(PropertyTree... attributes) {
-      return new TestTree(attributes);
-    }
-
-    @Override
-    public List<PropertyTree> properties() {
-      return attributes;
-    }
-
-    public void addElement(PropertyTree element) {
-      attributes.add(element);
-    }
   }
 }

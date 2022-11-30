@@ -17,10 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.yaml.tree;
-
-import java.util.List;
-
-public interface SequenceTree extends YamlTree, Iterable<YamlTree> {
-  List<YamlTree> elements();
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.common.checks.policy;

@@ -20,6 +20,7 @@
 package org.sonar.iac.common.yaml.tree;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -39,5 +40,11 @@ public class SequenceTreeImpl extends YamlTreeImpl implements SequenceTree {
   @Override
   public List<YamlTree> elements() {
     return elements;
+  }
+
+
+  @Override
+  public Iterator<YamlTree> iterator() {
+    return elements.iterator();
   }
 }

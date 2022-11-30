@@ -6,6 +6,8 @@ resource "aws_iam_policy" "non_compliant_policy1" {
 #                  ^^^
         Effect = "Allow"
 #                ^^^^^^^< {{Related effect}}
+        Action = "iam:CreatePolicyVersion"
+#                ^^^^^^^^^^^^^^^^^^^^^^^^^< {{Related action}}
       }
     ]
   })
@@ -21,6 +23,8 @@ resource "aws_iam_policy" "non_compliant_policy2" {
         ]
         Effect = "Allow"
 #                ^^^^^^^< {{Related effect}}
+        Action = "iam:CreatePolicyVersion"
+#                ^^^^^^^^^^^^^^^^^^^^^^^^^< {{Related action}}
       }
     ]
   })
@@ -30,10 +34,9 @@ resource "aws_iam_policy" "non_compliant_policy2" {
   policy = jsonencode({
     Statement = [
       {
-        NotResource = "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
-#                     ^^^
+        NotResource = "*" # Noncompliant
         Effect = "Deny"
-#                ^^^^^^< {{Related effect}}
+        Action = "iam:CreatePolicyVersion"
       }
     ]
   })
@@ -44,11 +47,10 @@ resource "aws_iam_policy" "non_compliant_policy3" {
     Statement = [
       {
         NotResource = [
-          "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
-#         ^^^
+          "*" # Noncompliant
         ]
         Effect = "Deny"
-#                ^^^^^^< {{Related effect}}
+        Action = "iam:CreatePolicyVersion"
       }
     ]
   })
@@ -63,6 +65,8 @@ resource "aws_iam_role" "non_compliant_policy4" {
 #                    ^^^
           Effect = "Allow"
 #                  ^^^^^^^< {{Related effect}}
+          Action = "iam:CreatePolicyVersion"
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^^< {{Related action}}
         },
       ]
     })
@@ -75,6 +79,7 @@ resource "aws_iam_policy" "compliant_policy1" {
       {
         Resource = "foo" # Compliant
         Effect = "Allow"
+        Action = "iam:CreatePolicyVersion"
       }
     ]
   })
@@ -86,6 +91,7 @@ resource "aws_iam_policy" "compliant_policy2" {
       {
         Resource = "*"
         Effect = "Deny" # Compliant
+        Action = "iam:CreatePolicyVersion"
       }
     ]
   })
@@ -96,6 +102,7 @@ resource "aws_iam_policy" "compliant_policy3" {
     Statement = [
       {
         Resource = "*" # Compliant
+        Action = "iam:CreatePolicyVersion"
       }
     ]
   })
@@ -106,6 +113,7 @@ resource "aws_iam_policy" "compliant_policy4" {
     Statement = [
       {
         Effect = "Allow" # Compliant
+        Action = "iam:CreatePolicyVersion"
       }
     ]
   })
@@ -116,28 +124,85 @@ resource "aws_iam_policy" "compliant_policy5" {
     Statement = [
       {
         "Resource" = "foo"
+        Action = "iam:CreatePolicyVersion"
       }
     ]
   })
 }
 
-resource "aws_iam_policy" "non_compliant_policy3" {
+resource "aws_iam_policy" "compliant_missing_action" {
+  policy = jsonencode({
+    Statement = [
+      {
+        Resource = "*"
+        Effect = "Allow"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "compliant_unresolved_action" {
+  policy = jsonencode({
+    Statement = [
+      {
+        Resource = "*"
+        Effect = "Allow"
+        Action = "${var.policy_action}"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "compliant_secure_action" {
+  policy = jsonencode({
+    Statement = [
+      {
+        Resource = "*"
+        Effect = "Allow"
+        Action = "foo:bar"
+      }
+    ]
+  })
+}
+
+
+resource "aws_iam_policy" "non_compliant_single_insecure_action" {
+  policy = jsonencode({
+    Statement = [
+      {
+        Resource = "*" # Noncompliant
+#                  ^^^
+        Effect = "Allow"
+#                ^^^^^^^<
+        Action = [
+          "foo:bar",
+          "iam:CreatePolicyVersion"
+#         ^^^^^^^^^^^^^^^^^^^^^^^^^<
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "compliant_policy3" {
   policy = jsonencode({
     Statement = [
       {
         NotResource = "foo" # Compliant
         Effect = "Deny"
+        Action = "iam:CreatePolicyVersion"
       }
     ]
   })
 }
 
-resource "aws_iam_policy" "non_compliant_policy3" {
+resource "aws_iam_policy" "compliant_policy3" {
   policy = jsonencode({
     Statement = [
       {
         NotResource = "*"
         Effect = "Allow" # Compliant
+        Action = "iam:CreatePolicyVersion"
       }
     ]
   })
@@ -150,6 +215,7 @@ resource "aws_iam_role" "compliant_policy4" {
         {
           Resource = "foo" # Compliant
           Effect = "Allow"
+          Action = "iam:CreatePolicyVersion"
         },
       ]
     })

@@ -27,8 +27,8 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.utils.PolicyUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.Policy;
-import org.sonar.iac.common.checks.Policy.Statement;
+import org.sonar.iac.common.checks.policy.Policy;
+import org.sonar.iac.common.checks.policy.Policy.Statement;
 import org.sonar.iac.common.checks.PrivilegeEscalationVector;
 import org.sonar.iac.common.checks.TextUtils;
 

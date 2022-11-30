@@ -25,7 +25,7 @@ import java.util.Optional;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.Policy;
+import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;

@@ -31,7 +31,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.Policy;
+import org.sonar.iac.common.checks.policy.Policy;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.visitors.TreeContext;
