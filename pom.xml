@@ -62,6 +62,7 @@
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <version.sonar>9.3.0.51899</version.sonar>
+    <version.sonar.api>9.13.0.360</version.sonar.api>
     <version.analyzer.commons>1.24.0.965</version.analyzer.commons>
     <version.orchestrator>3.40.0.183</version.orchestrator>
     <version.sslr>1.24.0.633</version.sslr>
@@ -180,9 +181,9 @@
 
       <!-- Provided dependencies -->
       <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
+        <groupId>org.sonarsource.api.plugin</groupId>
         <artifactId>sonar-plugin-api</artifactId>
-        <version>${version.sonar}</version>
+        <version>${version.sonar.api}</version>
         <scope>provided</scope>
       </dependency>
     </dependencies>
