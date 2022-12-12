@@ -43,8 +43,8 @@ class InstructionTreeImplTest {
     );
 
     FileTree file = parse(code, DockerLexicalGrammar.FILE);
-    InstructionTree instruction = file.instructions().get(0);
-    List<Comment> comments = instruction.keyword().comments();
+    FromTree from = file.froms().get(0);
+    List<Comment> comments = from.keyword().comments();
     assertThat(comments).hasSize(1);
     Comment comment = comments.get(0);
     assertThat(comment.contentText()).isEqualTo("instruction comment");
@@ -60,7 +60,7 @@ class InstructionTreeImplTest {
     );
 
     FileTree file = parse(code, DockerLexicalGrammar.FILE);
-    FromTree from = (FromTree) file.instructions().get(0);
+    FromTree from = file.froms().get(0);
     List<Comment> instructionComments = from.keyword().comments();
     assertThat(instructionComments).isEmpty();
     AliasTree alias = from.alias();

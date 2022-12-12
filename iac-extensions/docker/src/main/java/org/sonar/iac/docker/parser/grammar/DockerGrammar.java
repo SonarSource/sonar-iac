@@ -49,8 +49,6 @@ import org.sonar.iac.docker.tree.api.RunTree;
 import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.ShellTree;
 import org.sonar.iac.docker.tree.api.StopSignalTree;
-import org.sonar.iac.docker.tree.api.PortTree;
-import org.sonar.iac.docker.tree.api.ShellFormTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserTree;
 import org.sonar.iac.docker.tree.api.VolumeTree;
@@ -78,7 +76,7 @@ public class DockerGrammar {
   public FileTree FILE() {
     return b.<FileTree>nonterminal(DockerLexicalGrammar.FILE).is(
       f.file(
-        b.zeroOrMore(INSTRUCTION()),
+        b.zeroOrMore(FROM()),
         b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.token(DockerLexicalGrammar.EOF))
     );
@@ -90,7 +88,6 @@ public class DockerGrammar {
         b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.firstOf(
           ONBUILD(),
-          FROM(),
           MAINTAINER(),
           STOPSIGNAL(),
           WORKDIR(),
@@ -124,10 +121,12 @@ public class DockerGrammar {
   public FromTree FROM() {
     return b.<FromTree>nonterminal(DockerLexicalGrammar.FROM).is(
       f.from(
+        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.token(DockerKeyword.FROM),
         b.optional(PARAM()),
         IMAGE(),
-        b.optional(ALIAS())
+        b.optional(ALIAS()),
+        b.zeroOrMore(INSTRUCTION())
       )
     );
   }

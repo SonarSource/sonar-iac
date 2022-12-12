@@ -23,27 +23,27 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.FileTree;
-import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class FileTreeImpl extends DockerTreeImpl implements FileTree {
 
-  private final List<InstructionTree> instructions;
+  private final List<FromTree> froms;
   private final SyntaxToken eof;
 
-  public FileTreeImpl(List<InstructionTree> instructions, SyntaxToken eof) {
-    this.instructions = instructions;
+  public FileTreeImpl(List<FromTree> froms, SyntaxToken eof) {
+    this.froms = froms;
     this.eof = eof;
   }
 
   @Override
-  public List<InstructionTree> instructions() {
-    return instructions;
+  public List<FromTree> froms() {
+    return froms;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(instructions);
+    List<Tree> children = new ArrayList<>(froms);
     children.add(eof);
     return children;
   }

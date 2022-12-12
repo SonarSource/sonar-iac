@@ -26,6 +26,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
+import org.sonar.iac.docker.tree.api.InstructionTree;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -34,12 +35,14 @@ public class FromTreeImpl extends InstructionTreeImpl implements FromTree {
   private final ParamTree platform;
   private final ImageTree image;
   private final AliasTree alias;
+  private final List<InstructionTree> instructions;
 
-  public FromTreeImpl(SyntaxToken keyword, @Nullable ParamTree platform, ImageTree image, @Nullable AliasTree alias) {
+  public FromTreeImpl(SyntaxToken keyword, @Nullable ParamTree platform, ImageTree image, @Nullable AliasTree alias, List<InstructionTree> instructions) {
     super(keyword);
     this.platform = platform;
     this.image = image;
     this.alias = alias;
+    this.instructions = instructions;
   }
 
   @Nullable
@@ -60,6 +63,11 @@ public class FromTreeImpl extends InstructionTreeImpl implements FromTree {
   }
 
   @Override
+  public List<InstructionTree> instructions() {
+    return instructions;
+  }
+
+  @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
@@ -70,6 +78,7 @@ public class FromTreeImpl extends InstructionTreeImpl implements FromTree {
     if (alias != null) {
       children.add(alias);
     }
+    children.addAll(instructions);
     return children;
   }
   @Override

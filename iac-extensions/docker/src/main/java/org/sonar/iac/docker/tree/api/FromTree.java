@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
 
 public interface FromTree extends InstructionTree {
@@ -30,4 +31,6 @@ public interface FromTree extends InstructionTree {
 
   @CheckForNull
   AliasTree alias();
+
+  List<InstructionTree> instructions();
 }
