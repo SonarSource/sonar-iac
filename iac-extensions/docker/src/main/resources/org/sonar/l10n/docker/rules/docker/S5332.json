@@ -1,0 +1,45 @@
+{
+  "title": "Using clear-text protocols is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a3",
+    "owasp-m3"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5332",
+  "sqKey": "S5332",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      200,
+      319
+    ],
+    "OWASP": [
+      "A3"
+    ],
+    "OWASP Mobile": [
+      "M3"
+    ],
+    "MASVS": [
+      "MSTG-NETWORK-1"
+    ],
+    "OWASP Top 10 2021": [
+      "A2"
+    ],
+    "PCI DSS 3.2": [
+      "4.1",
+      "6.5.4"
+    ],
+    "PCI DSS 4.0": [
+      "4.2.1",
+      "6.2.4"
+    ],
+    "ASVS 4.0": [
+      "1.9.1",
+      "9.1.1",
+      "9.2.2"
+    ]
+  }
+}

@@ -19,21 +19,13 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+class UnencryptedProtocolCheckTest {
 
+  @Test
+  void test() {
+    DockerVerifier.verify("UnencryptedProtocolCheck/Dockerfile", new UnencryptedProtocolCheck());
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      InstructionFormatCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegedUserCheck.class,
-      UnencryptedProtocolCheck.class
-    );
-  }
 }
