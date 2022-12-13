@@ -22,28 +22,28 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.DockerImageTree;
 import org.sonar.iac.docker.tree.api.FileTree;
-import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class FileTreeImpl extends DockerTreeImpl implements FileTree {
 
-  private final List<FromTree> froms;
+  private final List<DockerImageTree> dockerImages;
   private final SyntaxToken eof;
 
-  public FileTreeImpl(List<FromTree> froms, SyntaxToken eof) {
-    this.froms = froms;
+  public FileTreeImpl(List<DockerImageTree> dockerImages, SyntaxToken eof) {
+    this.dockerImages = dockerImages;
     this.eof = eof;
   }
 
   @Override
-  public List<FromTree> froms() {
-    return froms;
+  public List<DockerImageTree> dockerImages() {
+    return dockerImages;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(froms);
+    List<Tree> children = new ArrayList<>(dockerImages);
     children.add(eof);
     return children;
   }

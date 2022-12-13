@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.AliasTree;
+import org.sonar.iac.docker.tree.api.DockerImageTree;
 import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
@@ -43,7 +44,8 @@ class InstructionTreeImplTest {
     );
 
     FileTree file = parse(code, DockerLexicalGrammar.FILE);
-    FromTree from = file.froms().get(0);
+    DockerImageTree dockerImage = file.dockerImages().get(0);
+    FromTree from = dockerImage.from();
     List<Comment> comments = from.keyword().comments();
     assertThat(comments).hasSize(1);
     Comment comment = comments.get(0);
@@ -60,7 +62,8 @@ class InstructionTreeImplTest {
     );
 
     FileTree file = parse(code, DockerLexicalGrammar.FILE);
-    FromTree from = file.froms().get(0);
+    DockerImageTree dockerImage = file.dockerImages().get(0);
+    FromTree from = dockerImage.from();
     List<Comment> instructionComments = from.keyword().comments();
     assertThat(instructionComments).isEmpty();
     AliasTree alias = from.alias();

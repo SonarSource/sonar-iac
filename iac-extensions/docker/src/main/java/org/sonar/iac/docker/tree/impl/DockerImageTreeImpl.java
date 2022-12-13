@@ -21,59 +21,41 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.AliasTree;
+import org.sonar.iac.docker.tree.api.DockerImageTree;
 import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.tree.api.ImageTree;
-import org.sonar.iac.docker.tree.api.ParamTree;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.InstructionTree;
 
-public class FromTreeImpl extends InstructionTreeImpl implements FromTree {
+public class DockerImageTreeImpl extends DockerTreeImpl implements DockerImageTree {
 
-  private final ParamTree platform;
-  private final ImageTree image;
-  private final AliasTree alias;
+  private final FromTree from;
+  private final List<InstructionTree> instructions;
 
-  public FromTreeImpl(SyntaxToken keyword, @Nullable ParamTree platform, ImageTree image, @Nullable AliasTree alias) {
-    super(keyword);
-    this.platform = platform;
-    this.image = image;
-    this.alias = alias;
-  }
-
-  @Nullable
-  @Override
-  public ParamTree platform() {
-    return platform;
+  public DockerImageTreeImpl(FromTree from, List<InstructionTree> instructions) {
+    this.from = from;
+    this.instructions = instructions;
   }
 
   @Override
-  public ImageTree image() {
-    return image;
+  public FromTree from() {
+    return from;
   }
 
-  @Nullable
   @Override
-  public AliasTree alias() {
-    return alias;
+  public List<InstructionTree> instructions() {
+    return instructions;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    children.add(keyword);
-    if (platform != null) {
-      children.add(platform);
-    }
-    children.add(image);
-    if (alias != null) {
-      children.add(alias);
-    }
-    return children;
+    List<Tree> result = new ArrayList<>();
+    result.add(from);
+    result.addAll(instructions);
+    return result;
   }
+
   @Override
   public Kind getKind() {
-    return Kind.FROM;
+    return Kind.DOCKERIMAGE;
   }
 }
