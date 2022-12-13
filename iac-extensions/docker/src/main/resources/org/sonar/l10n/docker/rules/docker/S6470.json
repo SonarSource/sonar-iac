@@ -1,0 +1,23 @@
+{
+  "title": "Recursively copying context directories is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "dockerfile"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6470",
+  "sqKey": "S6470",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      668,
+      497
+    ]
+  },
+  "quickfix": "unknown"
+}

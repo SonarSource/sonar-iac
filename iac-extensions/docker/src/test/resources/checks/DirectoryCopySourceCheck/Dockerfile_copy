@@ -1,0 +1,109 @@
+FROM ubuntu:22.04
+
+# Noncompliant@+1 {{Make sure that recursively copying directories is safe here.}}
+COPY . /example
+#    ^
+
+# Noncompliant@+1
+COPY ./ /example
+
+# Noncompliant@+1
+COPY ./. /example
+
+# Noncompliant@+1
+COPY .//. /example
+
+# Noncompliant@+1
+COPY ./test/.. /example
+
+# Noncompliant@+1
+COPY ./test/./.. /example
+
+# Noncompliant@+1
+COPY / /example
+
+# Noncompliant@+1
+COPY /. /example
+
+# Noncompliant@+1
+COPY /./test/.. /example
+
+# Noncompliant@+1
+COPY /.. /example
+
+# Noncompliant@+1
+COPY /../test/.. /example
+
+# Noncompliant@+1
+COPY /./ /example
+
+# Noncompliant@+1
+COPY /.// /example
+
+# Noncompliant@+1
+COPY c:/ /example
+#    ^^^
+
+# Noncompliant@+1
+COPY c:/test/.. /example
+
+# Noncompliant@+1
+COPY c:/. /example
+
+# Noncompliant@+1
+COPY c:/.. /example
+
+# Noncompliant@+1
+COPY / /source2 /example
+#    ^
+
+# Noncompliant@+1
+COPY /source1 / /example
+#             ^
+
+# Noncompliant@+1
+COPY "/" /example
+
+# Noncompliant@+1
+COPY /a* /example
+
+# Noncompliant@+1
+COPY a* /example
+
+# Noncompliant@+1
+COPY ./a*/ /example
+
+# Noncompliant@+1
+COPY /test/../a* /example
+
+# Noncompliant@+1
+COPY ./a*/.. /example
+
+# FN
+# Noncompliant@+1
+COPY ./a*/../test /example
+
+
+COPY ./example /example
+COPY "./example" /example
+# FN
+COPY ./test/../test /example
+COPY ./../test /example
+COPY /test
+COPY /test/../test
+COPY ..
+COPY ../test
+COPY c:/temp /example
+COPY c:/./temp /example
+COPY c:/../temp /example
+COPY /source1 /source2 /example
+COPY ./c:/ /example
+COPY ./a*/test /example
+COPY ./test/a* /example
+COPY ./*.py /example
+COPY ./*a /example
+COPY *a /example
+
+# Specific COPY use case
+COPY --from . /example
+COPY --from=bob "/" /example

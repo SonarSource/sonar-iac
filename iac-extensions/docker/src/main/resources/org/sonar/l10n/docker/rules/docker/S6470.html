@@ -1,0 +1,58 @@
+<p>When building a Docker image from a Dockerfile, a context directory is used and sent to the Docker daemon before the actual build starts. This
+context directory usually contains the Dockerfile itself, along with all the files that will be necessary for the build to succeed. This generally
+includes:</p>
+<ul>
+  <li> the source code of applications to set up in the container. </li>
+  <li> configuration files for other software components. </li>
+  <li> other necessary packages or components. </li>
+</ul>
+<p>The <code>COPY</code> and <code>ADD</code> directives in the Dockerfiles are then used to actually copy content from the context directory to the
+image file system.</p>
+<p>When <code>COPY</code> or <code>ADD</code> are used to recursively copy entire top-level directories or multiple items whose names are determined
+at build-time, unexpected files might get copied to the image filesystem. It could affect their confidentiality.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The copied files and directories might contain sensitive data that should be kept confidential. </li>
+  <li> The context directory contains files and directories that have no functional purpose for the final container image. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<p>Keep in mind that the content of the context directory might change depending on the build environment and over time.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Limit the usage of globbing in the <code>COPY</code> and <code>ADD</code> sources definition. </li>
+  <li> Avoid copying the entire context directory to the image filesystem. </li>
+  <li> Prefer providing an explicit list of files and directories that are required for the image to properly run. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<p>Copying the complete context directory:</p>
+<pre>
+FROM ubuntu:22.04
+# Sensitive
+COPY . .
+CMD /run.sh
+</pre>
+<p>Copying multiple files and directories whose names are expanded at build time:</p>
+<pre>
+FROM ubuntu:22.04
+# Sensitive
+COPY ./example* /
+COPY ./run.sh /
+CMD /run.sh
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+FROM ubuntu:22.04
+COPY ./example1 /example1
+COPY ./example2 /example2
+COPY ./run.sh /
+CMD /run.sh
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#copy">Dockerfile reference</a> - COPY directive </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#add">Dockerfile reference</a> - ADD directive </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668.html">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/497.html">MITRE, CWE-497</a> - Exposure of Sensitive System Information to an Unauthorized
+  Control Sphere </li>
+</ul>
+
