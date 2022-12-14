@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.checks;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
+import org.junit.jupiter.api.Test;
 
-public interface RunTree extends CommandInstructionTree {
-  @CheckForNull
-  List<ParamTree> options();
+class MountWorldPermissionCheckTest {
+
+  @Test
+  void test() {
+    DockerVerifier.verify("MountWorldPermissionCheck/Dockerfile", new MountWorldPermissionCheck());
+  }
 }

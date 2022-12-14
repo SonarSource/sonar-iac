@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.LiteralListTree;
@@ -56,6 +57,7 @@ public class RunTreeImpl extends CommandInstructionTreeImpl implements RunTree {
   }
 
   @Override
+  @CheckForNull
   public List<ParamTree> options() {
     return options;
   }

@@ -32,6 +32,7 @@ public class DockerCheckList {
     return Arrays.asList(
       DirectoryCopySourceCheck.class,
       InstructionFormatCheck.class,
+      MountWorldPermissionCheck.class,
       ParsingErrorCheck.class,
       PrivilegedUserCheck.class,
       UnencryptedProtocolCheck.class
