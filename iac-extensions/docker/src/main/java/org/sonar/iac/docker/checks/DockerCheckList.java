@@ -31,7 +31,8 @@ public class DockerCheckList {
   public static List<Class<?>> checks() {
     return Arrays.asList(
       InstructionFormatCheck.class,
-      ParsingErrorCheck.class
+      ParsingErrorCheck.class,
+      PrivilegedUserCheck.class
     );
   }
 }

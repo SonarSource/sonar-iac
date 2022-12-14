@@ -17,30 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree;
+package org.sonar.iac.docker.checks;
 
-import java.util.function.Predicate;
-import javax.annotation.CheckForNull;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.DockerTree;
+import org.junit.jupiter.api.Test;
 
-public class TreeUtils {
+class PrivilegedUserCheckTest {
 
-  private TreeUtils() {}
+  private final PrivilegedUserCheck check = new PrivilegedUserCheck();
 
-  @CheckForNull
-  public static DockerTree getLastDescendant(Tree tree, Predicate<Tree> predicate) {
-    DockerTree last = null;
-    for (Tree child : tree.children()) {
-      DockerTree dockerChild = (DockerTree) child;
-      if (predicate.test(dockerChild)) {
-        last = dockerChild;
-      }
-      DockerTree result = getLastDescendant(dockerChild, predicate);
-      if (result != null) {
-        last = result;
-      }
-    }
-    return last;
+  @Test
+  void test() {
+    DockerVerifier.verify("PrivilegedUserCheck/Dockerfile", check);
+  }
+
+  @Test
+  void test_customSafeList() {
+    check.safeImages = "custom_image1, custom_image2";
+    DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_customSafeImages", check);
   }
 }

@@ -17,30 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@javax.annotation.ParametersAreNonnullByDefault
 package org.sonar.iac.docker.tree;
-
-import java.util.function.Predicate;
-import javax.annotation.CheckForNull;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.DockerTree;
-
-public class TreeUtils {
-
-  private TreeUtils() {}
-
-  @CheckForNull
-  public static DockerTree getLastDescendant(Tree tree, Predicate<Tree> predicate) {
-    DockerTree last = null;
-    for (Tree child : tree.children()) {
-      DockerTree dockerChild = (DockerTree) child;
-      if (predicate.test(dockerChild)) {
-        last = dockerChild;
-      }
-      DockerTree result = getLastDescendant(dockerChild, predicate);
-      if (result != null) {
-        last = result;
-      }
-    }
-    return last;
-  }
-}

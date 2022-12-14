@@ -1,0 +1,35 @@
+# Noncompliant@+1
+  FROM scratch
+# ^^^^^^^^^^^^
+  MAINTAINER bob
+
+# Noncompliant@+1
+  FROM golang
+  MAINTAINER bob
+
+# Noncompliant@+1
+  FROM mcr.microsoft.com/test
+  MAINTAINER bob
+
+# Noncompliant@+1
+  FROM unknown_image
+  MAINTAINER bob
+
+# Noncompliant@+1
+  FROM haproxy
+  MAINTAINER bob
+
+  FROM bitnami/test
+  MAINTAINER bobbob
+
+  FROM bitnami/
+  MAINTAINER bob
+
+  FROM haproxy
+  USER test
+
+  FROM custom_image1
+  MAINTAINER bob
+
+  FROM custom_image2
+  MAINTAINER bob

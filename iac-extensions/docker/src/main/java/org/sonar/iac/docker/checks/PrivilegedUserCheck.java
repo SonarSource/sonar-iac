@@ -1,0 +1,118 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2022 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.iac.docker.checks;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.tree.TreeUtils;
+import org.sonar.iac.docker.tree.api.DockerImageTree;
+import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.UserTree;
+
+@Rule(key = "S6471")
+public class PrivilegedUserCheck implements IacCheck {
+
+  private static final Set<String> UNSAFE_IMAGES = Set.of("aerospike", "almalinux", "alpine", "alt", "amazoncorretto",
+    "amazonlinux", "arangodb", "archlinux", "backdrop", "bash", "buildpack-deps", "busybox", "caddy", "cirros", "clearlinux", "clefos",
+    "clojure", "composer", "consul", "couchdb", "crate", "dart", "debian", "drupal", "eclipse-temurin", "elixir", "erlang", "express-gateway",
+    "fedora", "friendica", "gazebo", "gcc", "golang", "haskell", "haxe", "hitch", "httpd", "hylang", "ibmjava", "influxdb", "joomla", "jruby",
+    "julia", "kapacitor", "mageia", "matomo", "maven", "mediawiki", "monica", "mono", "nats", "nats-streaming", "neurodebian", "nextcloud",
+    "nginx", "notary", "openjdk", "oraclelinux", "orientdb", "perl", "photon", "php", "phpmyadmin", "php-zendserver", "plone", "postfixadmin",
+    "pypy", "python", "redmine", "registry", "rethinkdb", "rockylinux", "ros", "ruby", "rust", "r-base", "sapmachine", "satosa", "silverpeas",
+    "sl", "spiped", "swipl", "telegraf", "tomcat", "tomee", "traefik", "ubuntu", "xwiki", "yourls", "bonita", "cassandra", "centos", "chronograf",
+    "convertigo", "couchbase", "docker", "eclipse-mosquitto", "eggdrop", "ghost", "gradle", "mariadb", "mongo", "mongo-express", "mysql", "node",
+    "postgres", "rabbitmq", "rakudo-star", "redis", "sonarqube", "storm", "swift", "teamspeak", "zookeeper");
+  private static final Set<String> UNSAFE_USERS = Set.of("root", "containerAdministrator");
+  private static final String DEFAULT_SAFE_IMAGES = "adminer, api-firewall, elasticsearch, emqx, flink, fluentd, geonetwork, groovy, haproxy,"+
+    " ibm-semeru-runtimes, irssi, jetty, jobber, kibana, kong, lightstreamer, logstash, memcached, neo4j, odoo, open-liberty, percona, "+
+    "rocket.chat, solr, swift, varnish, vault, websphere-liberty, znc, nginxinc/nginx-unprivileged";
+  @RuleProperty(
+    key = "safeImages",
+    description = "Comma separated list of safe images (no default root user).",
+    defaultValue = DEFAULT_SAFE_IMAGES)
+  public String safeImages = DEFAULT_SAFE_IMAGES;
+
+  private Set<String> safeImagesSet;
+  private Set<String> safeImages() {
+    if (safeImagesSet == null) {
+      safeImagesSet = Stream.of(safeImages.split(","))
+        .map(String::trim).collect(Collectors.toSet());
+    }
+    return safeImagesSet;
+  }
+
+  private static final String MESSAGE_SCRATCH = "Scratch images run as root by default. Make sure it is safe here.";
+  private static final String MESSAGE_UNSAFE_DEFAULT_ROOT = "The %s image runs with root as the default user. Make sure it is safe here.";
+  private static final String MESSAGE_MICROSOFT_DEFAULT_ROOT = "This image runs with root or containerAdministrator as the default user. Make sure it is safe here.";
+  private static final String MESSAGE_OTHER_IMAGE = "This image might run with root as the default user. Make sure it is safe here.";
+  private static final String MESSAGE_ROOT_USER = "Setting the default user as %s might unnecessarily make the application unsafe. Make sure it is safe here.";
+
+  @Override
+  public void initialize(InitContext init) {
+    init.register(DockerImageTree.class, (ctx, dockerImage) -> {
+      String imageName = dockerImage.from().image().name().value();
+      Optional<UserTree> lastUser = getLastUser(dockerImage);
+
+      if (lastUser.isEmpty()) {
+        if (isScratchImage(imageName)) {
+          ctx.reportIssue(dockerImage.from(), MESSAGE_SCRATCH);
+        } else if (isUnsafeImage(imageName)) {
+          ctx.reportIssue(dockerImage.from(), String.format(MESSAGE_UNSAFE_DEFAULT_ROOT, imageName));
+        } else if (isMicrosoftUnsafeImage(imageName)) {
+          ctx.reportIssue(dockerImage.from(), MESSAGE_MICROSOFT_DEFAULT_ROOT);
+        } else if (!isSafeImage(imageName)) {
+          ctx.reportIssue(dockerImage.from(), MESSAGE_OTHER_IMAGE);
+        }
+      } else {
+        String user = lastUser.get().user().value();
+        if(UNSAFE_USERS.contains(user)) {
+          ctx.reportIssue(lastUser.get(), String.format(MESSAGE_ROOT_USER, user));
+        }
+      }
+    });
+  }
+
+  private static Optional<UserTree> getLastUser(DockerImageTree dockerImage) {
+    return Optional.ofNullable(TreeUtils.getLastDescendant(dockerImage, tree -> ((DockerTree) tree).is(DockerTree.Kind.USER))).map(UserTree.class::cast);
+  }
+
+  // All possible image use cases
+  private static boolean isScratchImage(String imageName) {
+    return imageName.equals("scratch");
+  }
+
+  private static boolean isUnsafeImage(String imageName) {
+    return UNSAFE_IMAGES.contains(imageName);
+  }
+
+  private boolean isSafeImage(String imageName) {
+    return safeImages().contains(imageName) || imageName.startsWith("bitnami/");
+  }
+
+  private static boolean isMicrosoftUnsafeImage(String imageName) {
+    return imageName.startsWith("mcr.microsoft.com/");
+  }
+}
