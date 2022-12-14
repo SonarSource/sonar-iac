@@ -36,39 +36,39 @@ class FileTreeImplTest {
     FileTree file = parseFile("");
     assertThat(file.getKind()).isEqualTo(DockerTree.Kind.FILE);
     assertTextRange(file.textRange()).hasRange(1,0,1,0);
-    assertThat(file.instructions()).isEmpty();
+    assertThat(file.dockerImages()).isEmpty();
   }
 
   @Test
   void shouldParseFileWithSpace() {
     FileTree file = parseFile(" ");
     assertTextRange(file.textRange()).hasRange(1,1,1,1);
-    assertThat(file.instructions()).isEmpty();
+    assertThat(file.dockerImages()).isEmpty();
   }
 
   @Test
   void shouldParseFileWithMultipleEmptyLines() {
     FileTree file = parseFile("\n\n\n");
     assertTextRange(file.textRange()).hasRange(4,0,4,0);
-    assertThat(file.instructions()).isEmpty();
+    assertThat(file.dockerImages()).isEmpty();
   }
 
   @Test
   void shouldParseFileWithInstruction() {
     FileTree file = parseFile("FROM foobar");
-    assertThat(file.instructions()).hasSize(1);
+    assertThat(file.dockerImages()).hasSize(1);
   }
 
   @Test
   void shouldParseFileWithMultipleEmptyLinesAndInstruction() {
     FileTree file = parseFile("\n\n\nFROM foobar");
-    assertThat(file.instructions()).hasSize(1);
+    assertThat(file.dockerImages()).hasSize(1);
   }
 
   @Test
   void shouldParseFileWithMultipleEmptyLinesAndMultilineInstruction() {
     FileTree file = parseFile("\n\n\nFROM\\\nfoobar");
-    assertThat(file.instructions()).hasSize(1);
+    assertThat(file.dockerImages()).hasSize(1);
   }
 
 

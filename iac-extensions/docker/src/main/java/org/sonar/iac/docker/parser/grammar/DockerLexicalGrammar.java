@@ -29,6 +29,7 @@ import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   FILE,
+  DOCKERIMAGE,
 
   /**
    * Lexical

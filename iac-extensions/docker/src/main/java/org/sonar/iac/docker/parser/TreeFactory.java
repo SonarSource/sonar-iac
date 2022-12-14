@@ -26,6 +26,7 @@ import java.util.List;
 import org.sonar.iac.docker.tree.api.AliasTree;
 import org.sonar.iac.docker.tree.api.ArgTree;
 import org.sonar.iac.docker.tree.api.CmdTree;
+import org.sonar.iac.docker.tree.api.DockerImageTree;
 import org.sonar.iac.docker.tree.api.EntrypointTree;
 import org.sonar.iac.docker.tree.api.CopyTree;
 import org.sonar.iac.docker.tree.api.EnvTree;
@@ -58,6 +59,7 @@ import org.sonar.iac.docker.tree.api.WorkdirTree;
 import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
 import org.sonar.iac.docker.tree.impl.ArgTreeImpl;
 import org.sonar.iac.docker.tree.impl.CmdTreeImpl;
+import org.sonar.iac.docker.tree.impl.DockerImageTreeImpl;
 import org.sonar.iac.docker.tree.impl.EntrypointTreeImpl;
 import org.sonar.iac.docker.tree.impl.CopyTreeImpl;
 import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
@@ -91,8 +93,12 @@ import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 @SuppressWarnings("java:S1172")
 public class TreeFactory {
 
-  public FileTree file(Optional<List<InstructionTree>> instructions, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileTreeImpl(instructions.or(Collections.emptyList()), eof);
+  public FileTree file(Optional<List<DockerImageTree>> dockerImages, Optional<SyntaxToken> spacing, SyntaxToken eof) {
+    return new FileTreeImpl(dockerImages.or(Collections.emptyList()), eof);
+  }
+
+  public DockerImageTree dockerImage(FromTree from, Optional<List<InstructionTree>> instructions) {
+    return new DockerImageTreeImpl(from, instructions.or(Collections.emptyList()));
   }
 
   public InstructionTree instruction(Optional<SyntaxToken> spacing, InstructionTree instruction) {
@@ -103,7 +109,7 @@ public class TreeFactory {
     return new OnBuildTreeImpl(keyword, instruction);
   }
 
-  public FromTree from(SyntaxToken keyword, Optional<ParamTree> platform, ImageTree image, Optional<AliasTree> alias) {
+  public FromTree from(Optional<SyntaxToken> spacing, SyntaxToken keyword, Optional<ParamTree> platform, ImageTree image, Optional<AliasTree> alias) {
     return new FromTreeImpl(keyword, platform.orNull(), image, alias.orNull());
   }
 

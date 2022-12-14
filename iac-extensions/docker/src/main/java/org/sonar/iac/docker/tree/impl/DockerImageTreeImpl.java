@@ -23,33 +23,50 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.DockerImageTree;
-import org.sonar.iac.docker.tree.api.FileTree;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.FromTree;
+import org.sonar.iac.docker.tree.api.InstructionTree;
 
-public class FileTreeImpl extends DockerTreeImpl implements FileTree {
+/**
+ * Represent a Docker image and it's related instructions.
+ * A docker image is constitued first of a FROM instruction.
+ * Every following instructions until the next FROM instruction are associated to this image.
+ * A Dockerfile can contain zero (empty file) to any amount of images.
+ * Example of a Dockerfile with two DockerImage defined in it (one instruction for each) :
+ *   FROM ubuntu:latest
+ *   MAINTAINER bob
+ *   FROM ubuntu:14.04
+ *   EXPOSE 80/tcp
+ */
+public class DockerImageTreeImpl extends DockerTreeImpl implements DockerImageTree {
 
-  private final List<DockerImageTree> dockerImages;
-  private final SyntaxToken eof;
+  private final FromTree from;
+  private final List<InstructionTree> instructions;
 
-  public FileTreeImpl(List<DockerImageTree> dockerImages, SyntaxToken eof) {
-    this.dockerImages = dockerImages;
-    this.eof = eof;
+  public DockerImageTreeImpl(FromTree from, List<InstructionTree> instructions) {
+    this.from = from;
+    this.instructions = instructions;
   }
 
   @Override
-  public List<DockerImageTree> dockerImages() {
-    return dockerImages;
+  public FromTree from() {
+    return from;
+  }
+
+  @Override
+  public List<InstructionTree> instructions() {
+    return instructions;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(dockerImages);
-    children.add(eof);
-    return children;
+    List<Tree> result = new ArrayList<>();
+    result.add(from);
+    result.addAll(instructions);
+    return result;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.FILE;
+    return Kind.DOCKERIMAGE;
   }
 }
