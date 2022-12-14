@@ -26,6 +26,8 @@ public interface DockerTree extends Tree {
 
   boolean is(Kind... kind);
   Kind getKind();
+  DockerTree parent();
+  void setParent(DockerTree parent);
 
   enum Kind implements GrammarRuleKey {
     FILE(FileTree.class),
