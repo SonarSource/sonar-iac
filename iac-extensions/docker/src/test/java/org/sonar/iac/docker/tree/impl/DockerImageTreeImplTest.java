@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerImageTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -28,8 +29,10 @@ import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.ImageTree;
 import org.sonar.iac.docker.tree.api.MaintainerTree;
+import org.sonar.iac.docker.tree.api.PortTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
@@ -55,23 +58,31 @@ class DockerImageTreeImplTest {
 
   @Test
   void imageWithInstructions() {
-    DockerImageTree dockerImage = parse("FROM foobar\nMAINTAINER bob\nEXPOSE 80", DockerLexicalGrammar.DOCKERIMAGE);
+    DockerImageTree dockerImage = parse(code(
+      "FROM foobar",
+      "MAINTAINER bob",
+      "EXPOSE 80"
+    ), DockerLexicalGrammar.DOCKERIMAGE);
     assertThat(dockerImage.getKind()).isEqualTo(DockerTree.Kind.DOCKERIMAGE);
     assertTextRange(dockerImage.textRange()).hasRange(1, 0, 3, 9);
 
     assertThat(dockerImage.children()).hasExactlyElementsOfTypes(FromTreeImpl.class, MaintainerTreeImpl.class, ExposeTreeImpl.class);
     assertThat(dockerImage.instructions()).hasSize(2);
     MaintainerTree maintainer = (MaintainerTree) dockerImage.instructions().get(0);
-    assertThat(maintainer.authors()).hasSize(1);
-    assertThat(maintainer.authors().get(0).value()).isEqualTo("bob");
+    assertThat(maintainer.authors()).extracting(TextTree::value).containsExactly("bob");
     ExposeTree expose = (ExposeTree) dockerImage.instructions().get(1);
-    assertThat(expose.ports()).hasSize(1);
-    assertThat(expose.ports().get(0).portMin().value()).isEqualTo("80");
+    assertThat(expose.ports()).extracting(PortTree::portMin).extracting(TextTree::value).containsExactly("80");
   }
 
   @Test
   void multipleImagesWithInstructions() {
-    FileTree fileTree = parse("FROM foo\nMAINTAINER bob\nEXPOSE 80\nFROM bar\nUSER bob\nLABEL key1=value1", DockerLexicalGrammar.FILE);
+    FileTree fileTree = parse(code(
+      "FROM foo",
+      "MAINTAINER bob",
+      "EXPOSE 80",
+      "FROM bar",
+      "USER bob",
+      "LABEL key1=value1"), DockerLexicalGrammar.FILE);
     assertThat(fileTree.dockerImages()).hasSize(2);
 
     DockerImageTree dockerImage1 = fileTree.dockerImages().get(0);

@@ -26,6 +26,17 @@ import org.sonar.iac.docker.tree.api.DockerImageTree;
 import org.sonar.iac.docker.tree.api.FromTree;
 import org.sonar.iac.docker.tree.api.InstructionTree;
 
+/**
+ * Represent a Docker image and it's related instructions.
+ * A docker image is constitued first of a FROM instruction.
+ * Every following instructions until the next FROM instruction are associated to this image.
+ * A Dockerfile can contain zero (empty file) to any amount of images.
+ * Example of a Dockerfile with two DockerImage defined in it (one instruction for each) :
+ *   FROM ubuntu:latest
+ *   MAINTAINER bob
+ *   FROM ubuntu:14.04
+ *   EXPOSE 80/tcp
+ */
 public class DockerImageTreeImpl extends DockerTreeImpl implements DockerImageTree {
 
   private final FromTree from;
