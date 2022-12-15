@@ -44,7 +44,7 @@ public class DirectoryCopySourceCheck implements IacCheck {
 
   private static void checkAdd(CheckContext ctx, AddTree add) {
     for (SyntaxToken src : add.srcs()) {
-      String path = SyntaxTokenUtils.sanitize(src);
+      String path = SyntaxTokenUtils.trimmedQuotesValues(src);
       if (!path.startsWith("http://") && !path.startsWith("https://")) {
         reportIfSensitive(ctx, src, isSensitivePath(path), "ADD");
       }
@@ -55,7 +55,7 @@ public class DirectoryCopySourceCheck implements IacCheck {
     if (hasOption(copy.options(), "from")) return;
 
     for (SyntaxToken src : copy.srcs()) {
-      reportIfSensitive(ctx, src, isSensitivePath(SyntaxTokenUtils.sanitize(src)), "COPY");
+      reportIfSensitive(ctx, src, isSensitivePath(SyntaxTokenUtils.trimmedQuotesValues(src)), "COPY");
     }
   }
 
@@ -71,14 +71,16 @@ public class DirectoryCopySourceCheck implements IacCheck {
     }
   }
 
-  enum PathSensitivity {
+  private enum PathSensitivity {
     SAFE, ROOT_OR_CURRENT, TOP_LEVEL_GLOBBING
   }
 
   /**
    * Indicate if a path is sensitive. A path is sensitive if any of the current condition is true :
-   * - if the provided path resolve to a root level or to the current directory
-   * - if there is any top level entry (level <= 1) ending with a wildcard *
+   * <ul>
+   * <li>if the provided path resolve to a root level or to the current directory</li>
+   * <li>if there is any top level entry (level <= 1) ending with a wildcard</li>
+   * </ul>
    * Examples of root level : '/' ; '/test/..' ; 'c:/' ; 'c:/test/..'
    * Examples of current level : '.' ; './test/..'
    * Examples of top level entry ending with wildcard : 'a*' ; './a*' ; '/a*' ; './test/../a*'

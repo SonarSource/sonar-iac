@@ -26,11 +26,12 @@ public class SyntaxTokenUtils {
   private SyntaxTokenUtils() {}
 
   /**
-   * Sanitize a SyntaxToken value to be usable by rules.
-   * Currently supported features :
-   * - remove starting and ending quotes if they exist : "test" -> test
+   * Remove the external quotes from a SyntaxToken value to be usable by rules.
+   * Exemples :
+   * "test" -> test
+   * test -> test
    */
-  public static String sanitize(SyntaxToken token) {
+  public static String trimmedQuotesValues(SyntaxToken token) {
     String str = token.value();
     if (str.matches("^\"[^\"]+\"$")) {
       return str.substring(1, str.length()-1);
