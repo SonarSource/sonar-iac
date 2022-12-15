@@ -20,6 +20,9 @@ RUN curl http://0:0:0:0:0:0:0:1
 # Noncompliant@+1
 RUN curl http://0:0:0:0:0:0:0:42
 RUN curl http://::1
+RUN curl http://1:1:1:1:1:1:1:1
+# Noncompliant@+1
+RUN curl http://10:20:30:40:50:60:70:80
 
 # Noncompliant@+1
 ENTRYPOINT command http://www.httpvshttps.com/
@@ -31,3 +34,5 @@ ADD hom* "http://www.httpvshttps.com/"
 ADD "http://www.httpvshttps.com/" /foo/
 # Noncompliant@+1 2
 ADD "http://www.httpvshttps.com/" "http://www.other.com/" /bar/
+
+COPY "http://www.httpvshttps.com/" /bar/
