@@ -19,20 +19,20 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+class PrivilegedUserCheckTest {
 
+  private final PrivilegedUserCheck check = new PrivilegedUserCheck();
+
+  @Test
+  void test() {
+    DockerVerifier.verify("PrivilegedUserCheck/Dockerfile", check);
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      InstructionFormatCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegedUserCheck.class
-    );
+  @Test
+  void test_customSafeList() {
+    check.safeImages = "custom_image1, custom_image2, golang";
+    DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_customSafeImages", check);
   }
 }

@@ -1,0 +1,124 @@
+<p>Running containers as a privileged user weakens their runtime security, allowing any user whose code runs on the container to perform
+administrative actions.<br> In Linux containers, the privileged user is usually named <code>root</code>. In Windows containers, the equivalent is
+<code>ContainerAdministrator</code>.</p>
+<p>A malicious user can run code on a system either thanks to actions that could be deemed legitimate - depending on internal business logic or
+operational management shells - or thanks to malicious actions. For example, with arbitrary code execution after exploiting a service that the
+container hosts.</p>
+<p>Suppose the container is not hardened to prevent using a shell, interpreter, or <a
+href="https://man7.org/linux/man-pages/man7/capabilities.7.html">Linux capabilities</a>. In this case, the malicious user can read and exfiltrate any
+file (including from Docker volumes), open new network connections, install malicious software, or, worse, break out of the container’s isolation
+context by exploiting other components.</p>
+<p>Depending on the infrastructure’s resilience, attackers may then extend their attack to other services, such as Kubernetes clusters or cloud
+providers, in order to maximize their reach.</p>
+<h2>Ask Yourself Whether</h2>
+<p>This container:</p>
+<ul>
+  <li> Serves internet-facing services. </li>
+  <li> Does not require a privileged user to run. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>In the Dockerfile:</p>
+<ul>
+  <li> Create a new default user and use it with the <code>USER</code> statement.
+    <ul>
+      <li> Some container maintainers create a specific user to be used without explicitly setting it as default, such as <code>postgresql</code> or
+      <code>zookeeper</code>. It is recommended to use these users instead of root. </li>
+      <li> On Windows containers, the <code>ContainerUser</code> is available for this purpose. </li>
+    </ul>  </li>
+</ul>
+<p>Or, at launch time:</p>
+<ul>
+  <li> Use the <code>user</code> argument when calling Docker or in the docker-compose file. </li>
+  <li> Add fine-grained Linux capabilities to perform specific actions that require root privileges. </li>
+</ul>
+<p>If this image is already explicitly set to launch with a non-privileged user, you can add it to the safe images list rule property of your
+SonarQube instance, without the tag.</p>
+<h2>Sensitive Code Example</h2>
+<p>For any image that does not provide a user by default, regardless of their underlying operating system:</p>
+<pre>
+# Sensitive
+FROM alpine
+
+ENTRYPOINT ["id"]
+</pre>
+<p>For multi-stage builds, the last stage is non-compliant if it does not contain the <code>USER</code> instruction with a non-root user:</p>
+<pre>
+FROM alpine as builder
+COPY Makefile ./src /
+RUN make build
+USER nonroot
+
+# Sensitive, previous user settings are dropped
+FROM alpine as runtime
+COPY --from=builder bin/production /app
+ENTRYPOINT ["/app/production"]
+</pre>
+<h2>Compliant Solution</h2>
+<p>For Linux-based images:</p>
+<pre>
+FROM alpine
+
+RUN addgroup -S nonroot \
+    &amp;&amp; adduser -S nonroot -G nonroot
+
+USER nonroot
+
+ENTRYPOINT ["id"]
+</pre>
+<p>For Windows-based images, you can use <code>ContainerUser</code> or create a new user:</p>
+<pre>
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+RUN net user /add nonroot
+
+USER nonroot
+</pre>
+<p>If the <code>scratch</code> Dockerfile untars a Linux distribution, the "Linux image" solution should be applied. Else, you have a choice between
+using a pre-written <code>/etc/passwd</code> file (regardless of the host operating system) or using a multi-stage build.</p>
+<pre>
+FROM scratch
+
+COPY etc_passwd /etc/passwd
+# contains "nonroot:x:1337:1337:nonroot:/nonroot:/usr/sbin/nologin"
+
+USER nonroot
+
+COPY production_binary /app
+
+ENTRYPOINT ["/app/production_binary"]
+</pre>
+<p>or you can use a multi-stage build:</p>
+<pre>
+FROM alpine:latest as security_provider
+RUN addgroup -S nonroot \
+    &amp;&amp; adduser -S nonroot -G nonroot
+
+FROM scratch as production
+COPY --from=security_provider /etc/passwd /etc/passwd
+USER nonroot
+COPY production_binary /app
+ENTRYPOINT ["/app/production_binary"]
+</pre>
+<p>For multi-stage builds:</p>
+<pre>
+FROM alpine as builder
+COPY Makefile ./src /
+RUN make build
+
+FROM alpine as runtime
+RUN addgroup -S nonroot \
+    &amp;&amp; adduser -S nonroot -G nonroot
+COPY --from=builder bin/production /app
+USER nonroot
+ENTRYPOINT ["/app/production"]
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284.html">MITRE, CWE-284</a> - Improper Access Control </li>
+  <li> <a href="https://hub.docker.com/r/nginxinc/nginx-unprivileged">nginxinc/nginx-unprivileged: Example of a non-root container by default</a>
+  </li>
+  <li> <a
+  href="https://learn.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-security#when-to-use-containeradmin-and-containeruser-user-accounts">Microsoft docs, When to use ContainerAdmin and ContainerUser user accounts</a> </li>
+</ul>
+

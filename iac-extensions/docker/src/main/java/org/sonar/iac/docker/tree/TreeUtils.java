@@ -17,22 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
+package org.sonar.iac.docker.tree;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import java.util.Optional;
+import java.util.function.Predicate;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.DockerTree;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+public class TreeUtils {
 
-  }
+  private TreeUtils() {}
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      InstructionFormatCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegedUserCheck.class
-    );
+  public static Optional<Tree> getLastDescendant(Tree tree, Predicate<Tree> predicate) {
+    Tree last = null;
+    for (Tree child : tree.children()) {
+      DockerTree dockerChild = (DockerTree) child;
+      if (predicate.test(dockerChild)) {
+        last = dockerChild;
+      }
+      Optional<Tree> result = getLastDescendant(dockerChild, predicate);
+      if (result.isPresent()) {
+        last = result.get();
+      }
+    }
+    return Optional.ofNullable(last);
   }
 }

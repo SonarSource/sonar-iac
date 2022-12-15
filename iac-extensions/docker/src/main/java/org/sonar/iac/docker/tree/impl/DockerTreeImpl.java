@@ -29,6 +29,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 public abstract class DockerTreeImpl implements DockerTree {
 
   protected TextRange textRange;
+  protected DockerTree parent;
 
   @Override
   public final boolean is(Kind... kind) {
@@ -47,5 +48,15 @@ public abstract class DockerTreeImpl implements DockerTree {
       textRange = TextRanges.merge(childRanges);
     }
     return textRange;
+  }
+
+  @Override
+  public DockerTree parent() {
+    return parent;
+  }
+
+  @Override
+  public void setParent(DockerTree parent) {
+    this.parent = parent;
   }
 }

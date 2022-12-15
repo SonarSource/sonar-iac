@@ -46,7 +46,22 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
   }
 
   @Override
+  public DockerTree parse(String source) {
+    DockerTree tree = super.parse(source);
+    setParents(tree);
+    return tree;
+  }
+
+  @Override
   public Tree parse(String source, @Nullable InputFileContext inputFileContext) {
     return parse(source);
+  }
+
+  private static void setParents(DockerTree tree) {
+    for (Tree children : tree.children()) {
+      DockerTree child = (DockerTree) children;
+      child.setParent(tree);
+      setParents(child);
+    }
   }
 }
