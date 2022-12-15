@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.docker.tree;
 
+import java.util.Optional;
 import java.util.function.Predicate;
-import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.DockerTree;
 
@@ -28,19 +28,18 @@ public class TreeUtils {
 
   private TreeUtils() {}
 
-  @CheckForNull
-  public static DockerTree getLastDescendant(Tree tree, Predicate<Tree> predicate) {
-    DockerTree last = null;
+  public static Optional<Tree> getLastDescendant(Tree tree, Predicate<Tree> predicate) {
+    Tree last = null;
     for (Tree child : tree.children()) {
       DockerTree dockerChild = (DockerTree) child;
       if (predicate.test(dockerChild)) {
         last = dockerChild;
       }
-      DockerTree result = getLastDescendant(dockerChild, predicate);
-      if (result != null) {
-        last = result;
+      Optional<Tree> result = getLastDescendant(dockerChild, predicate);
+      if (result.isPresent()) {
+        last = result.get();
       }
     }
-    return last;
+    return Optional.ofNullable(last);
   }
 }

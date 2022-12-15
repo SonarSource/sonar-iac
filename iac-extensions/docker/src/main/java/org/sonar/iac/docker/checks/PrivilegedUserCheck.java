@@ -46,17 +46,17 @@ public class PrivilegedUserCheck implements IacCheck {
     "convertigo", "couchbase", "docker", "eclipse-mosquitto", "eggdrop", "ghost", "gradle", "mariadb", "mongo", "mongo-express", "mysql", "node",
     "postgres", "rabbitmq", "rakudo-star", "redis", "sonarqube", "storm", "swift", "teamspeak", "zookeeper");
   private static final Set<String> UNSAFE_USERS = Set.of("root", "containerAdministrator");
-  private static final String DEFAULT_SAFE_IMAGES = "adminer, api-firewall, elasticsearch, emqx, flink, fluentd, geonetwork, groovy, haproxy,"+
+  private static final String SAFE_IMAGES = "adminer, api-firewall, elasticsearch, emqx, flink, fluentd, geonetwork, groovy, haproxy,"+
     " ibm-semeru-runtimes, irssi, jetty, jobber, kibana, kong, lightstreamer, logstash, memcached, neo4j, odoo, open-liberty, percona, "+
     "rocket.chat, solr, swift, varnish, vault, websphere-liberty, znc, nginxinc/nginx-unprivileged";
   @RuleProperty(
     key = "safeImages",
     description = "Comma separated list of safe images (no default root user).",
-    defaultValue = DEFAULT_SAFE_IMAGES)
-  public String safeImages = DEFAULT_SAFE_IMAGES;
+    defaultValue = "")
+  public String safeImages = "";
 
   private Set<String> safeImagesSet;
-  private Set<String> safeImages() {
+  private Set<String> userSafeImages() {
     if (safeImagesSet == null) {
       safeImagesSet = Stream.of(safeImages.split(","))
         .map(String::trim).collect(Collectors.toSet());
@@ -79,7 +79,7 @@ public class PrivilegedUserCheck implements IacCheck {
       if (lastUser.isEmpty()) {
         if (isScratchImage(imageName)) {
           ctx.reportIssue(dockerImage.from(), MESSAGE_SCRATCH);
-        } else if (isUnsafeImage(imageName)) {
+        } else if (isUnsafeImage(imageName) && !isUserSafeImage(imageName)) {
           ctx.reportIssue(dockerImage.from(), String.format(MESSAGE_UNSAFE_DEFAULT_ROOT, imageName));
         } else if (isMicrosoftUnsafeImage(imageName)) {
           ctx.reportIssue(dockerImage.from(), MESSAGE_MICROSOFT_DEFAULT_ROOT);
@@ -96,7 +96,7 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private static Optional<UserTree> getLastUser(DockerImageTree dockerImage) {
-    return Optional.ofNullable(TreeUtils.getLastDescendant(dockerImage, tree -> ((DockerTree) tree).is(DockerTree.Kind.USER))).map(UserTree.class::cast);
+    return TreeUtils.getLastDescendant(dockerImage, tree -> ((DockerTree) tree).is(DockerTree.Kind.USER)).map(UserTree.class::cast);
   }
 
   // All possible image use cases
@@ -109,7 +109,11 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private boolean isSafeImage(String imageName) {
-    return safeImages().contains(imageName) || imageName.startsWith("bitnami/");
+    return SAFE_IMAGES.contains(imageName) || imageName.startsWith("bitnami/") || isUserSafeImage(imageName);
+  }
+
+  private boolean isUserSafeImage(String imageName) {
+    return userSafeImages().contains(imageName);
   }
 
   private static boolean isMicrosoftUnsafeImage(String imageName) {

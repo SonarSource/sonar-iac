@@ -3,7 +3,6 @@
 # ^^^^^^^^^^^^
   MAINTAINER bob
 
-# Noncompliant@+1
   FROM golang
   MAINTAINER bob
 
@@ -15,7 +14,6 @@
   FROM unknown_image
   MAINTAINER bob
 
-# Noncompliant@+1
   FROM haproxy
   MAINTAINER bob
 

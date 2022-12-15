@@ -32,7 +32,7 @@ class PrivilegedUserCheckTest {
 
   @Test
   void test_customSafeList() {
-    check.safeImages = "custom_image1, custom_image2";
+    check.safeImages = "custom_image1, custom_image2, golang";
     DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_customSafeImages", check);
   }
 }
