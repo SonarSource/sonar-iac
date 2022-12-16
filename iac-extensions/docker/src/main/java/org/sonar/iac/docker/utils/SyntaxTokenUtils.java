@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
+package org.sonar.iac.docker.utils;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+public class SyntaxTokenUtils {
 
-  }
+  private SyntaxTokenUtils() {}
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      DirectoryCopySourceCheck.class,
-      InstructionFormatCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegedUserCheck.class,
-      UnencryptedProtocolCheck.class
-    );
+  /**
+   * Remove the external quotes from a SyntaxToken value to be usable by rules.
+   * Exemples :
+   * "test" -> test
+   * test -> test
+   */
+  public static String trimmedQuotesValues(SyntaxToken token) {
+    String str = token.value();
+    if (str.matches("^\"[^\"]+\"$")) {
+      return str.substring(1, str.length()-1);
+    }
+    return str;
   }
 }

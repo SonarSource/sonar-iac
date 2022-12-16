@@ -1,0 +1,120 @@
+FROM ubuntu:22.04
+
+# Noncompliant@+1 {{Make sure that recursively copying directories is safe here.}}
+ADD . /example
+#   ^
+
+# Noncompliant@+1
+ADD ./ /example
+
+# Noncompliant@+1
+ADD ./. /example
+
+# Noncompliant@+1
+ADD .//. /example
+
+# Noncompliant@+1
+ADD ./test/.. /example
+
+# Noncompliant@+1
+ADD ./test/./.. /example
+
+# Noncompliant@+1
+ADD / /example
+
+# Noncompliant@+1
+ADD /. /example
+
+# Noncompliant@+1
+ADD /./test/.. /example
+
+# Noncompliant@+1
+ADD /.. /example
+
+# Noncompliant@+1
+ADD /../test/.. /example
+
+# Noncompliant@+1
+ADD /./ /example
+
+# Noncompliant@+1
+ADD /.// /example
+
+# Noncompliant@+1
+ADD c:/ /example
+#   ^^^
+
+# Noncompliant@+1
+ADD c:/test/.. /example
+
+# Noncompliant@+1
+ADD c:/. /example
+
+# Noncompliant@+1
+ADD c:/.. /example
+
+# Noncompliant@+1
+ADD / /source2 /example
+#   ^
+
+# Noncompliant@+1
+ADD /source1 / /example
+#            ^
+
+# Noncompliant@+1
+ADD "/" /example
+
+# Unlike COPY, the --from option does not prevent raisin issue
+# Noncompliant@+1
+ADD --from . /example
+
+# Noncompliant@+1
+ADD /a* /example
+
+# Noncompliant@+1
+ADD a* /example
+
+# Noncompliant@+1
+ADD ./a*/ /example
+
+# Noncompliant@+1
+ADD /test/../a* /example
+
+# Noncompliant@+1
+ADD c:/../a* /example
+
+# Noncompliant@+1
+ADD /../a* /example
+
+# Noncompliant@+1
+ADD http:/.. /example
+
+# Noncompliant@+1
+ADD ./a*/test /example
+
+# Noncompliant@+1
+ADD ./a*/.. /example
+
+ADD ./example /example
+ADD "./example" /example
+ADD ./test/../test /example
+ADD ./../test /example
+ADD /test
+ADD /test/../test
+ADD ..
+ADD ../test
+ADD c:/temp /example
+ADD c:/./temp /example
+ADD c:/../temp /example
+ADD /source1 /source2 /example
+ADD ./c:/ /example
+ADD ./test/a* /example
+ADD ./*.py /example
+ADD ./*a /example
+ADD *a /example
+ADD ./a*/../test /example
+
+# specific ADD use case
+ADD http://.. /example
+ADD https://.. /example
+ADD "http://.." /example
