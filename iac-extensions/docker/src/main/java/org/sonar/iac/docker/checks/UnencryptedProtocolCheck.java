@@ -42,7 +42,7 @@ public class UnencryptedProtocolCheck implements IacCheck {
   private static final Pattern UNENCRYPTED_PROTOCOLS = Pattern.compile("(http|ftp)://(?<rest>.+)", Pattern.CASE_INSENSITIVE);
 
   private static final String LOOPBACK_IPV4 = "^127(?:\\.\\d+){2}\\.\\d+";
-  private static final String LOOPBACK_IPV6 = "^(?:0*:){7}:?0*1|^::1|^1:1:1:1:1:1:1:1";
+  private static final String LOOPBACK_IPV6 = "^(?:0*:){7}:?0*1|^::1";
   private static final Pattern LOOPBACK = Pattern.compile("^localhost|" + LOOPBACK_IPV4 + "|" + LOOPBACK_IPV6, Pattern.CASE_INSENSITIVE);
   private static final String MESSAGE = "Make sure that using clear-text protocols is safe here.";
 

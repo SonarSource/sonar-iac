@@ -20,6 +20,7 @@ RUN curl http://0:0:0:0:0:0:0:1
 # Noncompliant@+1
 RUN curl http://0:0:0:0:0:0:0:42
 RUN curl http://::1
+# Noncompliant@+1
 RUN curl http://1:1:1:1:1:1:1:1
 # Noncompliant@+1
 RUN curl http://10:20:30:40:50:60:70:80
