@@ -19,7 +19,11 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -35,6 +39,7 @@ public class DirectoryCopySourceCheck implements IacCheck {
 
   private static final String MESSAGE_CURRENT_OR_ROOT = "Make sure that recursively copying directories is safe here.";
   private static final String MESSAGE_GLOBING = "Make sure that using globbing in a %s source is safe here.";
+  private static final Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[a-zA-Z]:$");
 
   @Override
   public void initialize(InitContext init) {
@@ -86,36 +91,32 @@ public class DirectoryCopySourceCheck implements IacCheck {
    * Examples of top level entry ending with wildcard : 'a*' ; './a*' ; '/a*' ; './test/../a*'
    */
   private static PathSensitivity isSensitivePath(String path) {
-    String[] splitted = path.split("/");
-    String regexWindowsDrive = "^[a-zA-Z]:$";
-    boolean isAbsolutePath = splitted.length == 0 || splitted[0].isEmpty() || splitted[0].matches(regexWindowsDrive);
-    int level = 0;
-    boolean hasTopLevelWithWildcard = false;
+    String[] levels = normalize(path);
+    if (levels.length == 0) return PathSensitivity.ROOT_OR_CURRENT;
+    if (levels.length == 1 && (isRootOrCurrent(levels[0]))) return PathSensitivity.ROOT_OR_CURRENT;
+    if (Arrays.stream(levels).limit(2).anyMatch(l -> l.endsWith("*"))) return PathSensitivity.TOP_LEVEL_GLOBBING;
+    return PathSensitivity.SAFE;
+  }
 
-    for (int i = 0; i < splitted.length; i++) {
-      if (splitted[i].equals("..")) {
-        level--;
-      } else if (!splitted[i].equals(".") && !splitted[i].isEmpty() && (i > 0 || !splitted[i].matches(regexWindowsDrive))) {
-        level++;
-      }
+  private static boolean isRootOrCurrent(String level) {
+    return (level.isEmpty() || ".".equals(level) || WINDOWS_DRIVE_PATTERN.matcher(level).find());
+  }
 
-      if (level <= 1 && splitted[i].endsWith("*")) {
-        hasTopLevelWithWildcard = true;
-      }
-
-      if (level < 0) {
-        if (isAbsolutePath) {
-          // in case of absolute path, we can't go above root, so we reset to root
-          level = 0;
-        } else {
-          // in case of relative path, if we go above the current folder, we suppose we lose the track and can't report any issue
-          return PathSensitivity.SAFE;
+  private static String[] normalize(String path) {
+    Deque<String> levels = new ArrayDeque<>();
+    for (String current : path.split("/")) {
+      if ("..".equals(current) && !levels.isEmpty()) {
+        levels.removeLast();
+      } else if (current.isEmpty()) {
+        if (levels.isEmpty()) {
+          levels.add(current);
         }
+      } else if (".".equals(current) && levels.isEmpty()) {
+        levels.add(current);
+      } else if (!".".equals(current)) {
+        levels.add(current);
       }
     }
-
-    if (level == 0) return PathSensitivity.ROOT_OR_CURRENT;
-    if (level == 1 && hasTopLevelWithWildcard) return PathSensitivity.TOP_LEVEL_GLOBBING;
-    return PathSensitivity.SAFE;
+    return levels.toArray(new String[] {});
   }
 }

@@ -81,21 +81,19 @@ ADD ./a*/ /example
 ADD /test/../a* /example
 
 # Noncompliant@+1
-ADD ./a*/.. /example
-
-# Noncompliant@+1
 ADD c:/../a* /example
 
 # Noncompliant@+1
 ADD /../a* /example
 
-# FN
-# Noncompliant@+1
-ADD ./a*/../test /example
-
 # Noncompliant@+1
 ADD http:/.. /example
 
+# Noncompliant@+1
+ADD ./a*/test /example
+
+# Noncompliant@+1
+ADD ./a*/.. /example
 
 ADD ./example /example
 ADD "./example" /example
@@ -110,11 +108,11 @@ ADD c:/./temp /example
 ADD c:/../temp /example
 ADD /source1 /source2 /example
 ADD ./c:/ /example
-ADD ./a*/test /example
 ADD ./test/a* /example
 ADD ./*.py /example
 ADD ./*a /example
 ADD *a /example
+ADD ./a*/../test /example
 
 # specific ADD use case
 ADD http://.. /example

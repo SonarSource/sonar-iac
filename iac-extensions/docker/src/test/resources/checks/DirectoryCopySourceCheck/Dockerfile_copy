@@ -79,10 +79,8 @@ COPY /test/../a* /example
 # Noncompliant@+1
 COPY ./a*/.. /example
 
-# FN
 # Noncompliant@+1
-COPY ./a*/../test /example
-
+COPY ./a*/test /example
 
 COPY ./example /example
 COPY "./example" /example
@@ -98,11 +96,11 @@ COPY c:/./temp /example
 COPY c:/../temp /example
 COPY /source1 /source2 /example
 COPY ./c:/ /example
-COPY ./a*/test /example
 COPY ./test/a* /example
 COPY ./*.py /example
 COPY ./*a /example
 COPY *a /example
+COPY ./a*/../test /example
 
 # Specific COPY use case
 COPY --from . /example
