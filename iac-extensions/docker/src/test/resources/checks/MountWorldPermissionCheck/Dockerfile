@@ -10,11 +10,11 @@
 # Non compliants test cases
 # Noncompliant@+1 {{Remove world permissions for this sensitive file.}}
   RUN --mount=type=secret,id=build_secret,mode=0666 ./installer.sh
-#                                              ^^^^
+#                                         ^^^^^^^^^
 
 # Noncompliant@+1 {{Remove world permissions for this sensitive agent.}}
   RUN --mount=type=ssh,mode=7 ./installer.sh
-#                           ^
+#                      ^^^^^^
 
 # Noncompliant@+1
   RUN --mount=id=build_secret,required,mode=0666,type=secret ./installer.sh

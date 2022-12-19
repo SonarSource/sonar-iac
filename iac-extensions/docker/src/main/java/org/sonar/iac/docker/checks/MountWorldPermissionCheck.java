@@ -19,26 +19,33 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import javax.annotation.Nullable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.tree.api.ParamTree;
 import org.sonar.iac.docker.tree.api.RunTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.CheckUtils;
 
 @Rule(key = "S6469")
 public class MountWorldPermissionCheck implements IacCheck {
 
   private static final String MESSAGE = "Remove world permissions for this sensitive %s.";
-  private static final Map<String, String> SENSITIVE_MOUNT_TYPE_WITH_DENOMINATION = Map.of(
+
+  private static final Pattern MOUNT_TYPE_PATTERN = Pattern.compile("type=(secret|ssh)");
+  private static final Pattern MOUNT_MODE_PATTERN = Pattern.compile("mode=(\\d+)");
+
+
+
+  private static final Map<String, String> DENOMINATION_BY_TYPE = Map.of(
     "secret", "file",
     "ssh", "agent"
   );
@@ -46,49 +53,42 @@ public class MountWorldPermissionCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(RunTree.class, (ctx, run) ->
-      getOptionByName(run.options(), "mount")
-        .map(MountWorldPermissionCheck::parseOption)
-        .ifPresent(mount -> {
-          String type = mount.get("type");
-          String mode = mount.get("mode");
-          if (type != null) {
-            String denomination = SENSITIVE_MOUNT_TYPE_WITH_DENOMINATION.get(type);
-            if (denomination != null && mode != null && isModeSensitive(mode)) {
-              ctx.reportIssue(run, String.format(MESSAGE, denomination));
-            }
-          }
-        })
-    );
+      CheckUtils.getParamByName(run.options(), "mount")
+        .map(ParamTree::value)
+        .ifPresent(mount -> checkMountParam(ctx, mount)));
   }
 
-  private static Optional<ParamTree> getOptionByName(@Nullable List<ParamTree> options, String optionName) {
-    if (options == null) {
-      return Optional.empty();
-    } else {
-      return options.stream().filter(option -> optionName.equals(option.name())).findFirst();
+  private static void checkMountParam(CheckContext ctx, SyntaxToken mountOptions) {
+    String value = mountOptions.value();
+    TextPointer start = mountOptions.textRange().start();
+    MountOption type = MountOption.creatFromMatcher(MOUNT_TYPE_PATTERN.matcher(value), start);
+    MountOption mode = MountOption.creatFromMatcher(MOUNT_MODE_PATTERN.matcher(value), start);
+
+    if (type != null && mode != null && isModeSensitive(mode.value)) {
+      ctx.reportIssue(mode.textRange, String.format(MESSAGE, DENOMINATION_BY_TYPE.get(type.value)));
     }
   }
 
-  /**
-   * Parse a String which contain multiple key=value elements separated by comma : type=secret,id=foo,mode=0600,required
-   * For elements without any '=value', the associated value will be null.
-   */
-  private static Map<String, String> parseOption(ParamTree option) {
-    Map<String, String> result = new HashMap<>();
-    SyntaxToken optionValue = option.value();
-    if (optionValue != null) {
-      TextRange range = optionValue.textRange();
-      new DefaultTextRange(new );
-      for (String value : optionValue.value().split(",")) {
-        String[] values = value.split("=", 2);
-        if (values.length == 2) {
-          result.put(values[0], values[1]);
-        } else {
-          result.put(values[0], null);
-        }
+  static class MountOption {
+    final String value;
+    final TextRange textRange;
+    private MountOption(String value, TextRange textRange) {
+      this.value = value;
+      this.textRange = textRange;
+    }
+
+    @CheckForNull
+    public static MountOption creatFromMatcher(Matcher matcher, TextPointer start) {
+      if (matcher.find()) {
+        int line = start.line();
+        int startColumn = start.lineOffset() + matcher.start();
+        int endColum = start.lineOffset() + matcher.end();
+        String value = matcher.group(1);
+        TextRange range = TextRanges.range(line, startColumn, line, endColum);
+        return new MountOption(value, range);
       }
+      return null;
     }
-    return result;
   }
 
   /**

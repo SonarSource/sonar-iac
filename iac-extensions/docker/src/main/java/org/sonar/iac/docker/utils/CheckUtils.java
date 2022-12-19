@@ -17,10 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.utils;
 
 import java.util.List;
+import java.util.Optional;
+import org.sonar.iac.docker.tree.api.ParamTree;
 
-public interface RunTree extends CommandInstructionTree {
-  List<ParamTree> options();
+public class CheckUtils {
+
+  private CheckUtils() {
+  }
+
+  public static Optional<ParamTree> getParamByName(List<ParamTree> params, String name) {
+    return params.stream().filter(param -> name.equals(param.name())).findFirst();
+  }
 }
