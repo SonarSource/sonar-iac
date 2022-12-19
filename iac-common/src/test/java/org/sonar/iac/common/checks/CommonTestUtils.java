@@ -21,6 +21,7 @@ package org.sonar.iac.common.checks;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.HasProperties;
@@ -113,6 +114,24 @@ public class CommonTestUtils {
 
     public void addElement(PropertyTree element) {
       attributes.add(element);
+    }
+  }
+
+  public static class TestIterable extends AbstractTestTree implements Iterable<Tree> {
+
+    final List<Tree> elements;
+
+    private TestIterable(List<Tree> elements) {
+      this.elements = elements;
+    }
+
+    public static TestIterable list(Tree... element) {
+      return new TestIterable(Arrays.asList(element));
+    }
+
+    @Override
+    public Iterator<Tree> iterator() {
+      return elements.iterator();
     }
   }
 }

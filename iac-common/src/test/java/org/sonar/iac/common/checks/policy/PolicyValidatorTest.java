@@ -19,21 +19,18 @@
  */
 package org.sonar.iac.common.checks.policy;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.checks.CommonTestUtils.TestAttributeTree.attribute;
+import static org.sonar.iac.common.checks.CommonTestUtils.TestIterable.list;
 import static org.sonar.iac.common.checks.CommonTestUtils.TestPropertiesTree.properties;
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTree.tree;
-import static org.sonar.iac.common.checks.policy.PolicyValidatorTest.TestIterable.list;
 
 class PolicyValidatorTest {
 
@@ -85,23 +82,5 @@ class PolicyValidatorTest {
 
     Policy policy = new Policy(null, tree -> statements);
     assertThat(PolicyValidator.findInsecureStatements(policy)).hasSize(2);
-  }
-
-  static class TestIterable extends AbstractTestTree implements Iterable<Tree> {
-
-    final List<Tree> elements;
-
-    private TestIterable(List<Tree> elements) {
-      this.elements = elements;
-    }
-
-    static TestIterable list(Tree... element) {
-      return new TestIterable(Arrays.asList(element));
-    }
-
-    @Override
-    public Iterator<Tree> iterator() {
-      return elements.iterator();
-    }
   }
 }
