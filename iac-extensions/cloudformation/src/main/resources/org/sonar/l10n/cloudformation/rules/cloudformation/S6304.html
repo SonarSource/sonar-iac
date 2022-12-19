@@ -1,16 +1,13 @@
-<p>A policy that allows identities to access all resources in an AWS account may violates <a
+<p>A policy that allows identities to access all resources in an AWS account may violate <a
 href="https://en.wikipedia.org/wiki/Principle_of_least_privilege">the principle of least privilege</a>. Suppose an identity has permission to access
 all resources even though it only requires access to some non-sensitive ones. In this case, unauthorized access and disclosure of sensitive
 information will occur.</p>
 <h2>Ask Yourself Whether</h2>
-<p>The AWS account:</p>
-<ul>
-  <li> has more than one resource with different levels of sensitivity. </li>
-</ul>
-<p>There is a risk if you answered yes to any of this question.</p>
+<p>The AWS account has more than one resource with different levels of sensitivity.</p>
+<p>A risk exists if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to apply the least privilege principle, i.e. by only granting access to necessary resources. A good practice to achieve this is to
-organize or <a
+<p>It’s recommended to apply the least privilege principle, i.e., by only granting access to necessary resources. A good practice to achieve this is
+to organize or <a
 href="https://aws.amazon.com/blogs/security/simplify-granting-access-to-your-aws-resources-by-using-tags-on-aws-iam-users-and-roles/">tag</a>
 resources depending on the sensitivity level of data they store or process. Therefore, managing a secure access control is less prone to errors.</p>
 <h2>Noncompliant Code Example</h2>
@@ -48,7 +45,10 @@ MyPolicy:
             - !Ref MyRole
 </pre>
 <h2>Exceptions</h2>
-<p>No issue is reported when on Key policies in AWS KMS.</p>
+<ul>
+  <li> Should not be raised on key policies (when AWS KMS actions are used.) </li>
+  <li> Should not be raised on policies not using any resources (if and only if all actions in the policy never require resources.) </li>
+</ul>
 <h2>See</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>

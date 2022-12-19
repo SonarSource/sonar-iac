@@ -5,6 +5,7 @@ resource "aws_iam_role_policy" "non_compliant_policy1" {
       {
         Effect   = "Allow"
         Resource = "*" # Noncompliant
+        Action   = "cases:UpdateCase"
       }
     ]
   })
@@ -17,6 +18,7 @@ resource "aws_iam_role_policy" "non_compliant_policy1" {
       {
         Effect      = "Deny"
         NotResource = "*" # Noncompliant
+        Action   = "networkmanager:GetNetworkTelemetry"
       }
     ]
   })
@@ -29,6 +31,7 @@ resource "aws_iam_role_policy" "compliant_policy1" {
       {
         Effect   = "Allow"
         Resource = "foo" # Compliant
+        Action   = "cases:UpdateCase"
       }
     ]
   })
@@ -41,6 +44,7 @@ resource "aws_iam_role_policy" "compliant_policy2" {
       {
         Effect      = "Deny"
         NotResource = "foo" # Compliant
+        Action   = "networkmanager:GetNetworkTelemetry"
       }
     ]
   })

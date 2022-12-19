@@ -21,8 +21,8 @@ package org.sonar.iac.cloudformation.checks.utils;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.cloudformation.checks.CloudformationVerifier;
-import org.sonar.iac.common.checks.Policy;
-import org.sonar.iac.common.checks.Policy.Statement;
+import org.sonar.iac.common.checks.policy.Policy;
+import org.sonar.iac.common.checks.policy.Policy.Statement;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 

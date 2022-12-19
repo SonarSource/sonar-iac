@@ -19,6 +19,6 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-public interface TupleTree extends ExpressionTree {
+public interface TupleTree extends ExpressionTree, Iterable<ExpressionTree> {
   SeparatedTrees<ExpressionTree> elements();
 }

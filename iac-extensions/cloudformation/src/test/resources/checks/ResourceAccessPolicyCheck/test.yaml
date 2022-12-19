@@ -9,16 +9,17 @@ Resources:
   #                 ^^^^^> {{Related effect}}
             Resource: "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
   #                   ^^^
+            Action: "iam:CreatePolicyVersion"
+  #                 ^^^^^^^^^^^^^^^^^^^^^^^^^< {{Related action}}
   NonCompliantPolicyWithResourceAllowAllItem:
     Type: AWS::IAM::Policy
     Properties: 
       PolicyDocument: 
         Statement:
           - Effect: Allow
-  #                 ^^^^^> {{Related effect}}
             Resource:
-              - "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
-  #             ^^^
+              - "*" # Noncompliant
+            Action: "iam:CreatePolicyVersion"
   CompliantPolicyWithResourceDenyAll:
     Type: AWS::IAM::Policy
     Properties: 
@@ -26,6 +27,7 @@ Resources:
         Statement:
           - Effect: Deny
             Resource: "*"
+            Action: "iam:CreatePolicyVersion"
   CompliantPolicyWithResourceAllowSpecifc:
     Type: AWS::IAM::Policy
     Properties: 
@@ -33,27 +35,29 @@ Resources:
         Statement:
           - Effect: Allow
             Resource: "foo"
+            Action: "iam:CreatePolicyVersion"
   CompliantPolicyWitMissingResourceAllow:
     Type: AWS::IAM::Policy
     Properties: 
       PolicyDocument: 
         Statement:
           - Effect: Allow
+            Action: "iam:CreatePolicyVersion"
   CompliantPolicyWitMissingResourceAndEffect:
     Type: AWS::IAM::Policy
     Properties: 
       PolicyDocument: 
         Statement:
           - Resource: "foo"
+            Action: "iam:CreatePolicyVersion"
   NonCompliantPolicyWithNotResourceDenyAll:
     Type: AWS::IAM::Policy
     Properties: 
       PolicyDocument: 
         Statement:
           - Effect: Deny
-  #                 ^^^^> {{Related effect}}
             NotResource: "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
-  #                      ^^^
+            Action: "iam:CreatePolicyVersion"
   CompliantPolicyWithNotResourceDenySpecific:
     Type: AWS::IAM::Policy
     Properties: 
@@ -61,6 +65,7 @@ Resources:
         Statement:
           - Effect: Deny
             NotResource: "foo"
+            Action: "iam:CreatePolicyVersion"
   CompliantPolicyWithNotResourceAllowAll:
     Type: AWS::IAM::Policy
     Properties: 
@@ -68,6 +73,7 @@ Resources:
         Statement:
           - Effect: Allow
             NotResource: "*"
+            Action: "iam:CreatePolicyVersion"
   NonCompliantPolicies:
      Type: AWS::IAM::Role
      Properties: 
@@ -75,10 +81,9 @@ Resources:
          - PolicyDocument:
              Statement:
                - Effect: Allow
-  #                      ^^^^^> {{Related effect}}
                  Resource:
                    - "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
-  #                  ^^^
+                 Action: "iam:CreatePolicyVersion"
   CompliantPolicies:
      Type: AWS::IAM::Role
      Properties: 
@@ -88,8 +93,34 @@ Resources:
                - Effect: Allow
                  Resource:
                    - "foo"
+                 Action: "iam:CreatePolicyVersion"
   Compliant:
-    Type: Some::Empty::Resource
+    Type: Some::Empty::Resource#
+
+  CompliantPolicyWithoutResourceAllow:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Resource:
+              - "*"
+            Action: "foo:bar"
+
+  NonCompliantPolicyWithAtLeastOnResourceAllow:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+  #                 ^^^^^>
+            Resource:
+              - "*" # Noncompliant
+  #             ^^^
+            Action:
+              - "foo:bar"
+              - "iam:CreatePolicyVersion"
+  #             ^^^^^^^^^^^^^^^^^^^^^^^^^<
 
   SafeAWSKeyResource:
     Type: AWS::KMS::Key # The resource type for KMS keys
