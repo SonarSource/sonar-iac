@@ -1,0 +1,8 @@
+FROM foo
+
+
+EXPOSE 22
+
+# Noncompliant@+1 {{Make sure that exposing administration services is safe here.}}
+EXPOSE 100
+#      ^^^
