@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
+package org.sonar.iac.docker.utils;
 
-import java.util.Arrays;
 import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import java.util.Optional;
+import org.sonar.iac.docker.tree.api.ParamTree;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+public class CheckUtils {
 
+  private CheckUtils() {
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      DirectoryCopySourceCheck.class,
-      ExposePortCheck.class,
-      InstructionFormatCheck.class,
-      MountWorldPermissionCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegedUserCheck.class,
-      UnencryptedProtocolCheck.class
-    );
+  public static Optional<ParamTree> getParamByName(List<ParamTree> params, String name) {
+    return params.stream().filter(param -> name.equals(param.name())).findFirst();
   }
 }

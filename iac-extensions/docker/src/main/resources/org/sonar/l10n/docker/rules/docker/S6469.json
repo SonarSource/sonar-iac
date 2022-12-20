@@ -1,0 +1,22 @@
+{
+  "title": "Permissions of sensitive mount points should be restrictive",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "cwe"
+  ],
+  "securityStandards": {
+    "CWE": [
+      732
+    ]
+  },
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6469",
+  "sqKey": "S6469",
+  "scope": "All",
+  "quickfix": "unknown"
+}

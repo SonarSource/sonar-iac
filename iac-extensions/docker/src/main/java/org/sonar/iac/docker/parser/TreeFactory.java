@@ -202,7 +202,7 @@ public class TreeFactory {
   }
 
   public RunTree run(SyntaxToken token, Optional<List<ParamTree>> options, Optional<LiteralListTree> execFormOrShellForm) {
-    return new RunTreeImpl(token, options.orNull(), execFormOrShellForm.orNull());
+    return new RunTreeImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
   }
 
   public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
