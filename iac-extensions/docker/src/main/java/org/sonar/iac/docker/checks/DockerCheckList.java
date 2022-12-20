@@ -31,6 +31,7 @@ public class DockerCheckList {
   public static List<Class<?>> checks() {
     return Arrays.asList(
       DirectoryCopySourceCheck.class,
+      ExposePortCheck.class,
       InstructionFormatCheck.class,
       ParsingErrorCheck.class,
       PrivilegedUserCheck.class,

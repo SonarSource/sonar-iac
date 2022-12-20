@@ -1,0 +1,31 @@
+<p>Exposing administration services can lead to unauthorized access of containers or escalation of privileges inside of containers.</p>
+<p>A port that is commonly used for administration services is marked as being open through the <code>EXPOSE</code> command. Administration services
+like SSH might contain vulnerabilities, hard-coded credentials, or other security issues that increase the attack surface of a Docker deployment.<br>
+Even if the ports of the services do not get forwarded to the host system, by default they are reachable from other containers in the same network. A
+malicious actor that gets access to one container could use such services to escalate access and privileges.</p>
+<p>Removing the <code>EXPOSE</code> command is not sufficient to be secure. The port is still open and the service accessible. To be secure, no
+administration services should be started. Instead, try to access the required information from the host system. For example, if the administration
+service is included to access logs or debug a service, you can do this from the host system instead. Docker allows you to read out any file that is
+inside of a container and to spawn a shell inside of a container if necessary.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The container starts an administration service. </li>
+</ul>
+<p>There is a risk if you answered yes to the question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Do not start SSH, VNC, RDP or similar administration services in containers. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<pre>
+FROM ubuntu:22.04
+# Sensitive
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-f", "/etc/ssh/sshd_config", "-D"]
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-284</a> - Improper Access Control </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#expose">Dockerfile reference</a> - EXPOSE </li>
+</ul>
+
