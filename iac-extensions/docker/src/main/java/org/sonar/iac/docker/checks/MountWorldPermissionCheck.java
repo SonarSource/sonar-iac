@@ -97,6 +97,6 @@ public class MountWorldPermissionCheck implements IacCheck {
    */
   private static boolean isModeSensitive(String mode) {
     char lastChar = mode.charAt(mode.length()-1);
-    return lastChar >= '1' && lastChar <= '9';
+    return lastChar != '0';
   }
 }
