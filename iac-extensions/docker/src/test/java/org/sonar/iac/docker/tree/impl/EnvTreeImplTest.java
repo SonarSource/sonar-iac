@@ -58,9 +58,9 @@ class EnvTreeImplTest {
     assertThat(tree.textRange().end().line()).isEqualTo(1);
     assertThat(tree.textRange().end().lineOffset()).isEqualTo(15);
     assertThat(tree.children()).hasSize(3);
-    assertThat(tree.keyValuePairs()).hasSize(1);
+    assertThat(tree.variableAssignments()).hasSize(1);
 
-    KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
+    KeyValuePairTree keyValuePair = tree.variableAssignments().get(0);
     assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
     assertThat(keyValuePair.key().value()).isEqualTo("key1");
     assertThat(keyValuePair.equals()).isNull();
@@ -72,8 +72,8 @@ class EnvTreeImplTest {
     EnvTree tree = parse("ENV key1 value1 still_value1 again_value1", DockerLexicalGrammar.ENV);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
     assertThat(tree.keyword().value()).isEqualTo("ENV");
-    assertThat(tree.keyValuePairs()).hasSize(1);
-    KeyValuePairTree keyValuePair = tree.keyValuePairs().get(0);
+    assertThat(tree.variableAssignments()).hasSize(1);
+    KeyValuePairTree keyValuePair = tree.variableAssignments().get(0);
     assertThat(keyValuePair.key().value()).isEqualTo("key1");
     assertThat(keyValuePair.value().value()).isEqualTo("value1 still_value1 again_value1");
     assertThat(tree.children()).hasSize(3);
