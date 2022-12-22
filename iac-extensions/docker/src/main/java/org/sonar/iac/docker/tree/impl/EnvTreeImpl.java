@@ -36,7 +36,7 @@ public class EnvTreeImpl extends InstructionTreeImpl implements EnvTree {
   }
 
   @Override
-  public List<KeyValuePairTree> keyValuePairs() {
+  public List<KeyValuePairTree> variableAssignments() {
     return keyValuePairs;
   }
 

@@ -22,5 +22,5 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface EnvTree extends InstructionTree {
-  List<KeyValuePairTree> keyValuePairs();
+  List<KeyValuePairTree> variableAssignments();
 }

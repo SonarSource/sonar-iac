@@ -1,0 +1,23 @@
+{
+  "title": "Using ENV to handle secrets is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "dockerfile",
+    "cwe"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-6472",
+  "sqKey": "S6472",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      522
+    ]
+  },
+  "quickfix": "unknown"
+}
