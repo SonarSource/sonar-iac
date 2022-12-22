@@ -50,8 +50,8 @@ public class EnvSecretCheck implements IacCheck {
   private static final List<String> EXCLUSIONS = List.of("ALLOW", "DIR", "EXPIRE", "EXPIRY", "FILE", "ID",
     "LOCATION", "NAME", "OWNER", "PATH", "URL");
 
-  private static final Pattern UPPERCASE_UNDERSCORE_NAME_PATTERN = Pattern.compile("^[A-Z_]+$");
-  private static final Pattern UPPERCASE_DASH_NAME_PATTERN = Pattern.compile("^[A-Z-]+$");
+  private static final Pattern UPPERCASE_UNDERSCORE_NAME_PATTERN = Pattern.compile("^[A-Z_0-9]+$");
+  private static final Pattern UPPERCASE_DASH_NAME_PATTERN = Pattern.compile("^[A-Z-0-9]+$");
 
   private static final Pattern CAMELCASE_NAME_PATTERN = Pattern.compile("^[A-Za-z]+$");
 
