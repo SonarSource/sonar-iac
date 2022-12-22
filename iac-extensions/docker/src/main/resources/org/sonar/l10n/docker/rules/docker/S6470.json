@@ -7,7 +7,8 @@
     "constantCost": "20min"
   },
   "tags": [
-    "dockerfile"
+    "dockerfile",
+    "cwe"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6470",
