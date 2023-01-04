@@ -45,10 +45,15 @@ public class ShortBackupRetentionCheck extends AbstractResourceCheck {
   protected void checkResource(CheckContext ctx, Resource resource) {
     if ((resource.isType("AWS::RDS::DBInstance")
         && PropertyUtils.isMissing(resource.properties(), "SourceDBInstanceIdentifier")
-        && !PropertyUtils.hasKeyWithValue(resource.properties(), "Engine", ENGINES_EXCEPTION))
+        && isNotEngineException(resource))
       || resource.isType("AWS::RDS::DBCluster")) {
       checkBackupRetentionPeriod(ctx, resource, backupRetentionDuration);
     }
+  }
+
+  private static boolean isNotEngineException(Resource resource) {
+    return PropertyUtils.has(resource.properties(), "Engine").isFalse()
+      || PropertyUtils.valueIs(resource.properties(), "Engine", tree -> TextUtils.getValue(tree).filter(ENGINES_EXCEPTION::contains).isEmpty());
   }
 
   private static void checkBackupRetentionPeriod(CheckContext ctx, Resource resource, int minPeriod) {

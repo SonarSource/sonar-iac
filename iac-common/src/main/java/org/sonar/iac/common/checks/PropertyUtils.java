@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.common.checks;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,11 +48,8 @@ public class PropertyUtils {
     return Trilean.FALSE;
   }
 
-  public static boolean hasKeyWithValue(@Nullable Tree tree, String key, Collection<String> values) {
-    return value(tree, key)
-      .flatMap(TextUtils::getValue)
-      .filter(values::contains)
-      .isPresent();
+  public static boolean valueIs(@Nullable Tree tree, String key, Predicate<Tree> predicate) {
+    return value(tree, key).filter(predicate).isPresent();
   }
 
   // Check whether a particular property can be unambiguously considered absent.

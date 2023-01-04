@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.common.checks;
 
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.PropertyTree;
@@ -52,12 +51,10 @@ class PropertyUtilsTest {
   }
 
   @Test
-  void hasKeyWithValue() {
-    assertThat(PropertyUtils.hasKeyWithValue(tree, "key1", Set.of("value1"))).isTrue();
-    assertThat(PropertyUtils.hasKeyWithValue(tree, "key2", Set.of("value1"))).isFalse();
-    assertThat(PropertyUtils.hasKeyWithValue(tree, "key1", Set.of("value1", "value2"))).isTrue();
-    assertThat(PropertyUtils.hasKeyWithValue(tree, "key2", Set.of("value1", "value3"))).isFalse();
-    assertThat(PropertyUtils.hasKeyWithValue(tree, "key3", Set.of("value3"))).isFalse();
+  void valueIs() {
+    assertThat(PropertyUtils.valueIs(tree, "key2", tree -> tree.equals(attribute2.value()))).isTrue();
+    assertThat(PropertyUtils.valueIs(tree, "key1", tree -> tree.equals(attribute2.value()))).isFalse();
+    assertThat(PropertyUtils.valueIs(tree, "key3", tree -> tree.equals(attribute2.value()))).isFalse();
   }
 
   @Test
