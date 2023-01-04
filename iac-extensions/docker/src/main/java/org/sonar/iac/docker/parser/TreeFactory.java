@@ -93,8 +93,8 @@ import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
 @SuppressWarnings("java:S1172")
 public class TreeFactory {
 
-  public FileTree file(Optional<List<DockerImageTree>> dockerImages, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileTreeImpl(dockerImages.or(Collections.emptyList()), eof);
+  public FileTree file(Optional<List<ArgTree>> globalArgs, Optional<List<DockerImageTree>> dockerImages, Optional<SyntaxToken> spacing, SyntaxToken eof) {
+    return new FileTreeImpl(globalArgs.or(Collections.emptyList()), dockerImages.or(Collections.emptyList()), eof);
   }
 
   public DockerImageTree dockerImage(FromTree from, Optional<List<InstructionTree>> instructions) {
@@ -157,7 +157,7 @@ public class TreeFactory {
     return new EnvTreeImpl(keyword, keyValuePairs);
   }
 
-  public ArgTree arg(SyntaxToken token, List<KeyValuePairTree> argNames) {
+  public ArgTree arg(Optional<SyntaxToken> spacing, SyntaxToken token, List<KeyValuePairTree> argNames) {
     return new ArgTreeImpl(token, argNames);
   }
 

@@ -77,6 +77,7 @@ public class DockerGrammar {
   public FileTree FILE() {
     return b.<FileTree>nonterminal(DockerLexicalGrammar.FILE).is(
       f.file(
+        b.zeroOrMore(ARG()),
         b.zeroOrMore(DOCKERIMAGE()),
         b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.token(DockerLexicalGrammar.EOF))
@@ -291,7 +292,9 @@ public class DockerGrammar {
 
   public ArgTree ARG() {
     return b.<ArgTree>nonterminal(DockerLexicalGrammar.ARG).is(
-      f.arg(b.token(DockerKeyword.ARG),
+      f.arg(
+        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
+        b.token(DockerKeyword.ARG),
         b.oneOrMore(
           b.firstOf(
             KEY_VALUE_PAIR_WITH_EQUALS(),
