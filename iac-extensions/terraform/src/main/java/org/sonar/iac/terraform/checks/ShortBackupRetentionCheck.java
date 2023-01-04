@@ -19,8 +19,10 @@
  */
 package org.sonar.iac.terraform.checks;
 
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
@@ -35,6 +37,7 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
   public static final String MESSAGE = "Make sure that defining a short backup retention duration is safe here.";
   public static final String OMITTING_MESSAGE = "Omitting \"%s\" results in a short backup retention duration. Make sure it is safe here.";
   public static final int DEFAULT = 7;
+  private static final Set<String> ENGINES_EXCEPTION = Set.of("aurora", "aurora-mysql", "aurora-postgresql");
 
   @RuleProperty(
     key = "backup_retention_duration",
@@ -46,7 +49,8 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
   protected void registerResourceConsumer() {
     register("aws_db_instance",
       resource -> {
-        if (resource.attribute("source_db_instance_identifier").isAbsent()) {
+        if (resource.attribute("source_db_instance_identifier").isAbsent()
+        && !resource.attribute("engine").is(expr -> TextUtils.getValue(expr).filter(ENGINES_EXCEPTION::contains).isPresent())) {
           checkAwsRetentionRate(resource);
         }
       });
