@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -31,6 +32,7 @@ public class ShortBackupRetentionCheck extends AbstractResourceCheck {
   private static final String MESSAGE = "Make sure that defining a short backup retention duration is safe here.";
   private static final String OMITTING_MESSAGE = "Omitting \"BackupRetentionPeriod\" sets the backup retention period to 1 day. " + MESSAGE;
   private static final int DEFAULT = 7;
+  private static final Set<String> ENGINES_EXCEPTION = Set.of("aurora", "aurora-mysql", "aurora-postgresql");
 
   @RuleProperty(
     key = "backup_retention_duration",
@@ -41,7 +43,9 @@ public class ShortBackupRetentionCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
-    if ((resource.isType("AWS::RDS::DBInstance") && PropertyUtils.isMissing(resource.properties(), "SourceDBInstanceIdentifier"))
+    if ((resource.isType("AWS::RDS::DBInstance")
+        && PropertyUtils.isMissing(resource.properties(), "SourceDBInstanceIdentifier")
+        && !PropertyUtils.hasKeyWithValue(resource.properties(), "Engine", ENGINES_EXCEPTION))
       || resource.isType("AWS::RDS::DBCluster")) {
       checkBackupRetentionPeriod(ctx, resource, backupRetentionDuration);
     }

@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.PropertyTree;
@@ -48,6 +49,15 @@ class PropertyUtilsTest {
     tree.addElement(attribute((Tree) null, value2));
     assertThat(PropertyUtils.has(tree, "key3")).isEqualTo(Trilean.UNKNOWN);
     assertThat(PropertyUtils.has(null, "key2")).isEqualTo(Trilean.FALSE);
+  }
+
+  @Test
+  void hasKeyWithValue() {
+    assertThat(PropertyUtils.hasKeyWithValue(tree, "key1", Set.of("value1"))).isTrue();
+    assertThat(PropertyUtils.hasKeyWithValue(tree, "key2", Set.of("value1"))).isFalse();
+    assertThat(PropertyUtils.hasKeyWithValue(tree, "key1", Set.of("value1", "value2"))).isTrue();
+    assertThat(PropertyUtils.hasKeyWithValue(tree, "key2", Set.of("value1", "value3"))).isFalse();
+    assertThat(PropertyUtils.hasKeyWithValue(tree, "key3", Set.of("value3"))).isFalse();
   }
 
   @Test
