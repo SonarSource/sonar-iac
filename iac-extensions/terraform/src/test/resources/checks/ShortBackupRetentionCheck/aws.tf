@@ -25,10 +25,30 @@ resource "aws_db_instance" "compliant_var_period" {
   backup_retention_period = var.period
 }
 
+resource "aws_db_instance" "exception_engine" {
+  name                 = "compliant_db"
+  engine               = "aurora"
+  backup_retention_period = 2
+}
+
+resource "aws_db_instance" "not_exception_engine" {
+  name                 = "non_compliant_db"
+  engine               = "not_aurora"
+  backup_retention_period = 2 # Noncompliant
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+
 resource "aws_rds_cluster" "too_low_period" {
   name                 = "non_compliant_db"
   backup_retention_period = 2 # Noncompliant
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}
+
+resource "aws_rds_cluster" "no_engine_exception_on_cluster" {
+  name                 = "non_compliant_db"
+  backup_retention_period = 2 # Noncompliant
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  engine               = "aurora"
 }
 
 resource "aws_rds_cluster" "missing_period" { # Noncompliant
