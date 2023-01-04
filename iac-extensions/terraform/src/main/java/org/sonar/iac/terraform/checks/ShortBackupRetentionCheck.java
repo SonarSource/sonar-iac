@@ -20,9 +20,11 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.Set;
+import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
@@ -50,7 +52,7 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
     register("aws_db_instance",
       resource -> {
         if (resource.attribute("source_db_instance_identifier").isAbsent()
-        && !resource.attribute("engine").is(expr -> TextUtils.getValue(expr).filter(ENGINES_EXCEPTION::contains).isPresent())) {
+        && !resource.attribute("engine").is(isEngineException())) {
           checkAwsRetentionRate(resource);
         }
       });
@@ -82,6 +84,10 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
           }
         }
       });
+  }
+
+  private static Predicate<ExpressionTree> isEngineException() {
+    return expr -> TextUtils.getValue(expr).filter(ENGINES_EXCEPTION::contains).isPresent();
   }
 
   private void checkAwsRetentionRate(ResourceSymbol resource) {
