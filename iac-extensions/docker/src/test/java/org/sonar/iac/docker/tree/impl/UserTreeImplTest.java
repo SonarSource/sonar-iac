@@ -36,17 +36,26 @@ class UserTreeImplTest {
       .matches("USER bob")
       .matches("USER bob:group")
       .matches("user bob")
+      .matches("USER bobAndAlice")
+      .matches("USER BobAndAlicE")
+      .matches("USER _underscore")
+      .matches("USER name-lastname")
+      .matches("USER dollar$")
+      .matches("USER -minus")
+      .matches("USER 123")
+      .matches("USER aa$bb")
       .matches("USER $var")
       .matches("USER ${var}")
-      .matches("USER ${var with space}")
       .matches("USER $var:group")
       .matches("USER $var:$group")
       .matches("USER ${var}:${group}")
+      .matches("USER \"bob\"")
+      .matches("USER $(var)")
       .notMatches("USER bob :group")
       .notMatches("USER bob:")
-      .notMatches("USER \"bob\"")
-      .notMatches("USER $(var)")
       .notMatches("USER $var with space")
+      .notMatches("USER ${var with space}")
+      .notMatches("USER $user:${group with space}")
       .notMatches("USER bob:group bob2")
       .notMatches("USER")
       .notMatches("USERR bob")
@@ -68,6 +77,18 @@ class UserTreeImplTest {
   }
 
   @Test
+  void userInstructionNameWithDollar() {
+    UserTree tree = parse("USER bob$alice", DockerLexicalGrammar.USER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
+    assertThat(tree.keyword().value()).isEqualTo("USER");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 14);
+    assertThat(tree.children()).hasSize(2);
+    assertThat(tree.user().value()).isEqualTo("bob$alice");
+    assertThat(tree.colon()).isNull();
+    assertThat(tree.group()).isNull();
+  }
+
+  @Test
   void userInstructionWithGroup() {
     UserTree tree = parse("USER bob:group", DockerLexicalGrammar.USER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
@@ -81,13 +102,13 @@ class UserTreeImplTest {
 
   @Test
   void userInstructionWithGroupVariable() {
-    UserTree tree = parse("USER $user:${group with space}", DockerLexicalGrammar.USER);
+    UserTree tree = parse("USER $user:${group}", DockerLexicalGrammar.USER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
     assertThat(tree.keyword().value()).isEqualTo("USER");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 30);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.children()).hasSize(4);
     assertThat(tree.user().value()).isEqualTo("$user");
     assertThat(tree.colon().value()).isEqualTo(":");
-    assertThat(tree.group().value()).isEqualTo("${group with space}");
+    assertThat(tree.group().value()).isEqualTo("${group}");
   }
 }
