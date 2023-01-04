@@ -48,6 +48,10 @@ public class PropertyUtils {
     return Trilean.FALSE;
   }
 
+  public static boolean valueIs(@Nullable Tree tree, String key, Predicate<Tree> predicate) {
+    return value(tree, key).filter(predicate).isPresent();
+  }
+
   // Check whether a particular property can be unambiguously considered absent.
   public static boolean isMissing(@Nullable Tree tree, String key) {
     return has(tree, key).isFalse();

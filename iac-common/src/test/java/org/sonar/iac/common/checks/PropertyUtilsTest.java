@@ -51,6 +51,13 @@ class PropertyUtilsTest {
   }
 
   @Test
+  void valueIs() {
+    assertThat(PropertyUtils.valueIs(tree, "key2", tree -> tree.equals(attribute2.value()))).isTrue();
+    assertThat(PropertyUtils.valueIs(tree, "key1", tree -> tree.equals(attribute2.value()))).isFalse();
+    assertThat(PropertyUtils.valueIs(tree, "key3", tree -> tree.equals(attribute2.value()))).isFalse();
+  }
+
+  @Test
   void get() {
     assertThat(PropertyUtils.get(tree, "key2")).isPresent().get().isEqualTo(attribute2);
     assertThat(PropertyUtils.get(tree, "key3")).isNotPresent();

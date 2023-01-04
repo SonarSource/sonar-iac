@@ -30,11 +30,32 @@ Resources:
       DBName: NonCompliantDatabase
       SourceDBInstanceIdentifier: !Ref Source
 
+  DBInstanceEngineException:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: 2
+      Engine: 'aurora'
+
+  DBInstanceNotEngineException:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: 2 # Noncompliant
+      Engine: 'not-aurora'
+
   DBClusterTooLowPeriod:
     Type: AWS::RDS::DBCluster
     Properties:
       DBName: NonCompliantDatabase
       BackupRetentionPeriod: 2 # Noncompliant
+
+  DBClusterTooLowPeriodNoExceptionOnEngine:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DBName: NonCompliantDatabase
+      BackupRetentionPeriod: 2 # Noncompliant
+      Engine: 'aurora'
 
   DBClusterMissingPeriod:
     Type: AWS::RDS::DBCluster # Noncompliant
