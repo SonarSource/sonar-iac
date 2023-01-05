@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.DockerImageTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.UserTree;
 
 @Rule(key = "S6471")
@@ -73,6 +75,9 @@ public class PrivilegedUserCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(DockerImageTree.class, (ctx, dockerImage) -> {
+      if(!isLastDockerImageInFile(dockerImage)) {
+        return;
+      }
       String imageName = dockerImage.from().image().name().value();
       Optional<UserTree> lastUser = getLastUser(dockerImage);
 
@@ -93,6 +98,16 @@ public class PrivilegedUserCheck implements IacCheck {
         }
       }
     });
+  }
+
+  private boolean isLastDockerImageInFile(DockerImageTree dockerImage) {
+    DockerTree parent = dockerImage.parent();
+    if (parent instanceof FileTree) {
+      List<DockerImageTree> dockerImageTrees = ((FileTree) parent).dockerImages();
+      DockerImageTree last = dockerImageTrees.get(dockerImageTrees.size() - 1);
+      return last == dockerImage;
+    }
+    return true;
   }
 
   private static Optional<UserTree> getLastUser(DockerImageTree dockerImage) {

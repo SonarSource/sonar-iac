@@ -35,6 +35,10 @@ public class DockerVerifier {
   private static final DockerParser PARSER = new DockerParser();
 
   public static void verify(String fileName, IacCheck check) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, Verifier.TestContext::new);
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
+  }
+
+  public static void verifyNoIssue(String fileName, IacCheck check) {
+    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
   }
 }

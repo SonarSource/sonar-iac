@@ -100,7 +100,6 @@ public final class Verifier {
   }
 
   private static SingleFileVerifier createVerifier(Path path, Tree root) {
-
     SingleFileVerifier verifier = SingleFileVerifier.create(path, UTF_8);
     Map<Integer, Set<Comment>> commentsByLine = new HashMap<>();
     final Set<TextRange> alreadyAdded = new HashSet<>();

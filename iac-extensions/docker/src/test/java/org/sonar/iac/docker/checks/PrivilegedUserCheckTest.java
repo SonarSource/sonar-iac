@@ -26,13 +26,37 @@ class PrivilegedUserCheckTest {
   private final PrivilegedUserCheck check = new PrivilegedUserCheck();
 
   @Test
-  void test() {
-    DockerVerifier.verify("PrivilegedUserCheck/Dockerfile", check);
+  void testNonCompliant() {
+    for (int i = 0; i < 10; i++) {
+      DockerVerifier.verify("PrivilegedUserCheck/Dockerfile." + i, check);
+    }
   }
 
   @Test
-  void test_customSafeList() {
+  void testCompliant() {
+    for (int i = 0; i < 7; i++) {
+      DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile-Compliant." + i, check);
+    }
+  }
+
+  @Test
+  void testCustomSafeList() {
     check.safeImages = "custom_image1, custom_image2, golang";
-    DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_customSafeImages", check);
+    for (int i = 0; i < 3; i++) {
+      DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_customSafeImages." + i, check);
+    }
+  }
+
+  @Test
+  void testCustomSafeListCompliant() {
+    check.safeImages = "custom_image1, custom_image2, golang";
+    for (int i = 0; i < 7; i++) {
+      DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile_customSafeImages-Compliant." + i, check);
+    }
+  }
+
+  @Test
+  void testMultiStageBuild() {
+    DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_multi_stage_build", check);
   }
 }
