@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
@@ -130,7 +131,9 @@ class RunTreeImplTest {
       .matches("RUN [\"la\", \"-bb]")
       .matches("RUN \"la\", \"-bb\"]")
 
-      .notMatches("--mount=target=. /bin/sh /deploy.sh");
+      .notMatches("--mount=target=. /bin/sh /deploy.sh")
+      // TODO : valid syntax, should be supported
+      .notMatches("RUN TEST=test && \\ ls");
   }
 
   void shouldParseRunHereDocument() {
@@ -313,5 +316,22 @@ class RunTreeImplTest {
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().literals()).hasSize(1);
     assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2\n");
+  }
+
+  @Test
+  void shouldCheckParseRunMultilineWithAndWithoutWhitespaceBefore() {
+    String toParse = "RUN  \\\n" +
+      "  TEST=test && \\\n" +
+      "  ls && \\\n" +
+      "  curl sLO https://google.com &&\\\n" +
+      "  echo ${TEST} | sha256sum --check";
+    RunTree tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
+    assertTextRange(tree.textRange()).hasRange(1,0,5,34);
+
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.arguments()).isNotNull();
+
+    String joinedArgs = StringUtils.join(tree.arguments().literals().stream().map(TextTree::value).collect(Collectors.toList()), " ");
+    assertThat(joinedArgs).isEqualTo("TEST=test && ls && curl sLO https://google.com && echo ${TEST} | sha256sum --check");
   }
 }

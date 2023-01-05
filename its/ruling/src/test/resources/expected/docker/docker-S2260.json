@@ -3,10 +3,10 @@
     1,
   ],
   'docker-project:sources/docker/aspnet-monitoring/exporter/Dockerfile':[
-    17,
+    15,
   ],
   'docker-project:sources/docker/aspnet-monitoring/exporter/Dockerfile.ltsc2019':[
-    17,
+    15,
   ],
   'docker-project:sources/docker/aspnet-monitoring/grafana/Dockerfile':[
     11,
