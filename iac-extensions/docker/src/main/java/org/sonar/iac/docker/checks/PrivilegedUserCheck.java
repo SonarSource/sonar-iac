@@ -78,7 +78,7 @@ public class PrivilegedUserCheck implements IacCheck {
     init.register(DockerImageTree.class, this::handle);
   }
 
-  void handle(CheckContext ctx, DockerImageTree dockerImage) {
+  private void handle(CheckContext ctx, DockerImageTree dockerImage) {
     if(!isLastDockerImageInFile(dockerImage)) {
       return;
     }
@@ -103,14 +103,11 @@ public class PrivilegedUserCheck implements IacCheck {
     }
   }
 
-  private boolean isLastDockerImageInFile(DockerImageTree dockerImage) {
-    DockerTree parent = dockerImage.parent();
-    if (parent instanceof FileTree) {
-      List<DockerImageTree> dockerImageTrees = ((FileTree) parent).dockerImages();
-      DockerImageTree last = dockerImageTrees.get(dockerImageTrees.size() - 1);
-      return last == dockerImage;
-    }
-    return true;
+  private static boolean isLastDockerImageInFile(DockerImageTree dockerImage) {
+    FileTree parent = (FileTree) dockerImage.parent();
+    List<DockerImageTree> dockerImageTrees = parent.dockerImages();
+    DockerImageTree last = dockerImageTrees.get(dockerImageTrees.size() - 1);
+    return last == dockerImage;
   }
 
   private static Optional<UserTree> getLastUser(DockerImageTree dockerImage) {

@@ -19,22 +19,7 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.List;
-import java.util.function.BiConsumer;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.tree.api.DockerImageTree;
-import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.tree.impl.DockerImageTreeImpl;
-import org.sonar.iac.docker.tree.impl.FromTreeImpl;
-import org.sonar.iac.docker.tree.impl.ImageTreeImpl;
-import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 
 class PrivilegedUserCheckTest {
 
@@ -74,17 +59,8 @@ class PrivilegedUserCheckTest {
   void testMultiStageBuild() {
     DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_multi_stage_build", check);
   }
-
   @Test
-  void shouldRiseIssueWhenFileTreeParentIsNull() {
-    CheckContext ctx = Mockito.mock(CheckContext.class);
-    SyntaxToken imageName = new SyntaxTokenImpl("scratch", TextRanges.range(1,5, "scratch"), List.of());
-    SyntaxToken fromToken = new SyntaxTokenImpl("FROM", TextRanges.range(1,0, "FROM"), List.of());
-    FromTree from = new FromTreeImpl(fromToken, null, new ImageTreeImpl(imageName, null, null), null);
-    DockerImageTree tree = new DockerImageTreeImpl(from, List.of());
-
-    check.handle(ctx, tree);
-
-    Mockito.verify(ctx).reportIssue(from, "Scratch images run as root by default. Make sure it is safe here.");
+  void testMultiStageBuildCompliant() {
+    DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile_multi_stage_build-Compliant", check);
   }
 }

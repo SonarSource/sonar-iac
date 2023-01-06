@@ -1,0 +1,3 @@
+FROM scratch as build
+
+FROM jetty
