@@ -8,8 +8,7 @@
   },
   "tags": [
     "aws",
-    "cwe",
-    "owasp-a10"
+    "cwe"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6258",
@@ -18,15 +17,6 @@
   "securityStandards": {
     "CWE": [
       778
-    ],
-    "OWASP": [
-      "A10"
-    ],
-    "CIS": [
-      "3.6"
-    ],
-    "OWASP Top 10 2021": [
-      "A9"
     ],
     "PCI DSS 3.2": [
       "10.1",

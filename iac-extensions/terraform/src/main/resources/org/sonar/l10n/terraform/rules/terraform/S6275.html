@@ -1,7 +1,8 @@
 <p>Amazon Elastic Block Store (EBS) is a block-storage service for Amazon Elastic Compute Cloud (EC2). EBS volumes can be encrypted, ensuring the
 security of both data-at-rest and data-in-transit between an instance and its attached EBS storage. In the case that adversaries gain physical access
 to the storage medium they are not able to access the data. Encryption can be enabled for specific volumes or for <a
-href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html#encryption-by-default">all new volumes and snapshots</a>.</p>
+href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html#encryption-by-default">all new volumes and snapshots</a>. Volumes created
+from snapshots inherit their encryption configuration. A volume created from an encrypted snapshot will also be encrypted by default.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The disk contains sensitive data that could cause harm when leaked. </li>
@@ -10,8 +11,9 @@ href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html#enc
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>It’s recommended to encrypt EBS volumes that contain sensitive information. Encryption and decryption are handled transparently by EC2, so no
-further modifications to the application are necessary. Instead of enabling encryption for every volume it is also possible to enable encryption
-globally for a specific region.</p>
+further modifications to the application are necessary. Instead of enabling encryption for every volume, it is also possible to enable encryption
+globally for a specific region. While creating volumes from encrypted snapshots will result in them being encrypted, explicitly enabling this security
+parameter will prevent any future unexpected security downgrade.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume">aws_ebs_volume</a>:</p>
 <pre>

@@ -2,14 +2,14 @@
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The AWS resource stores or processes sensitive data. </li>
-  <li> The AWS resource is not designed to be public. </li>
+  <li> The AWS resource is designed to be private. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>It’s recommended to implement the least privilege principle, i.e. to grant necessary permissions only to users for their required tasks. In the
 context of resource-based policies, list the principals that need the access and grant to them only the required privileges.</p>
 <h2>Sensitive Code Example</h2>
-<p>This policy allows all users, including anonymous ones, to access an s3 bucket:</p>
+<p>This policy allows all users, including anonymous ones, to access an S3 bucket:</p>
 <pre>
 resource "aws_s3_bucket_policy" "mynoncompliantpolicy" {  # Sensitive
   bucket = aws_s3_bucket.mybucket.id

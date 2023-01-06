@@ -29,21 +29,37 @@ itself.</p>
 <h2>Sensitive Code Example</h2>
 <p>Server-side encryption is not used:</p>
 <pre>
-resource "aws_s3_bucket" "mynoncompliantbucket" {
-  bucket = "mynoncompliantbucket"
+resource "aws_s3_bucket" "example" { # Sensitive
+  bucket = "example"
 }
 </pre>
 <h2>Compliant Solution</h2>
-<p>Server-side encryption with Amazon S3-Managed Keys is used:</p>
+<p>Server-side encryption with Amazon S3-managed keys is used for AWS provider version 3 or below:</p>
 <pre>
-resource "aws_s3_bucket" "mycompliantbucket" {
-  bucket = "mycompliantbucket"
+resource "aws_s3_bucket" "example" {
+  bucket = "example"
 
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
-        sse_algorithm     = "AES256"
+        sse_algorithm = "AES256"
       }
+    }
+  }
+}
+</pre>
+<p>Server-side encryption with Amazon S3-managed keys is used for AWS provider version 4 or above:</p>
+<pre>
+resource "aws_s3_bucket" "example" {
+  bucket = "example"
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
+  bucket = aws_s3_bucket.example.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
 }

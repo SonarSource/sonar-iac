@@ -14,7 +14,7 @@ may occur and therefore result in loss of information.</p>
 with the very minimum set of permissions and to refine the policy over time. In order to fix overly permissive policies already deployed in
 production, a strategy could be to review the monitored activity in order to reduce the set of permissions to those most used.</p>
 <h2>Noncompliant Code Example</h2>
-<p>A customer managed policy that grants all permissions by using the wildcard (*) in the <code>Action</code> property:</p>
+<p>A customer-managed policy that grants all permissions by using the wildcard (*) in the <code>Action</code> property:</p>
 <pre>
 MyPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -31,7 +31,7 @@ MyPolicy:
             - !Ref MyRole
 </pre>
 <h2>Compliant Solution</h2>
-<p>A customer managed policy that lists and grants only the required permissions:</p>
+<p>A customer-managed policy that grants only the required permissions:</p>
 <pre>
 MyPolicy:
     Type: AWS::IAM::ManagedPolicy

@@ -15,7 +15,7 @@ has a valid MFA device and a corresponding valid token.</p>
   <li> The API request, with the <code>x-amz-mfa</code> header, can only be used in HTTPS. </li>
 </ul>
 <h2>Sensitive Code Example</h2>
-<p>A versioned S3 bucket doesn’t have MFA delete enabled:</p>
+<p>A versioned S3 bucket does not have MFA delete enabled for AWS provider version 3 or below:</p>
 <pre>
 resource "aws_s3_bucket" "example" { # Sensitive
   bucket = "example"
@@ -25,17 +25,44 @@ resource "aws_s3_bucket" "example" { # Sensitive
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>MFA delete is enabled (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/629">it’s not possible to set this option</a> to a new
-S3 bucket with Terraform but the Terraform template can be updated that way it reflects the state):</p>
+<p>A versioned S3 bucket does not have MFA delete enabled for AWS provider version 4 or above:</p>
 <pre>
-resource "aws_s3_bucket" "example" { # Compliant
+resource "aws_s3_bucket" "example" {
+  bucket = "example"
+}
+
+resource "aws_s3_bucket_versioning" "example" { # Sensitive
+  bucket = aws_s3_bucket.example.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>MFA delete is enabled for AWS provider version 3 or below:</p>
+<pre>
+resource "aws_s3_bucket" "example" {
   bucket = "example"
 
   versioning {
     enabled = true
     mfa_delete = true
   }
+}
+</pre>
+<p>MFA delete is enabled for AWS provider version 4 or above:</p>
+<pre>
+resource "aws_s3_bucket" "example" {
+  bucket = "example"
+}
+
+resource "aws_s3_bucket_versioning" "example" {
+  bucket = aws_s3_bucket.example.id
+  versioning_configuration {
+    status = "Enabled"
+    mfa_delete = "Enabled"
+  }
+  mfa = "${var.MFA}"
 }
 </pre>
 <h2>See</h2>

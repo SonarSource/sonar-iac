@@ -8,8 +8,7 @@
   },
   "tags": [
     "aws",
-    "cwe",
-    "owasp-a5"
+    "cwe"
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-6333",
@@ -18,12 +17,6 @@
   "securityStandards": {
     "CWE": [
       284
-    ],
-    "OWASP": [
-      "A5"
-    ],
-    "OWASP Top 10 2021": [
-      "A1"
     ],
     "PCI DSS 3.2": [
       "6.5.8"

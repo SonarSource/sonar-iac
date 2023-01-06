@@ -11,7 +11,10 @@ allow investigators to establish a timeline of the actions perpetrated by an att
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Enable the logging capabilities of this component.</p>
+<p>Enable the logging capabilities of this component. Depending on the component, new permissions might be required by the logging storage
+components.<br> You should consult the official documentation to enable logging for the impacted components. For example, AWS Application Load
+Balancer Access Logs <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html">require an additional
+bucket policy</a>.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://aws.amazon.com/s3/">Amazon S3 access requests</a>:</p>
 <pre>

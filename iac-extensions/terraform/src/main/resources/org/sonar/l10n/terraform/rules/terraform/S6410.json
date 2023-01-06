@@ -8,9 +8,7 @@
   },
   "tags": [
     "cwe",
-    "gcp",
-    "owasp-a3",
-    "owasp-a5"
+    "gcp"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6410",
@@ -19,14 +17,6 @@
   "securityStandards": {
     "CWE": [
       327
-    ],
-    "OWASP": [
-      "A3",
-      "A6"
-    ],
-    "OWASP Top 10 2021": [
-      "A2",
-      "A5"
     ],
     "PCI DSS 3.2": [
       "2.2",

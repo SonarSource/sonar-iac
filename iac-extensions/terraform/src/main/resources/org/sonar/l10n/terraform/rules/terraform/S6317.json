@@ -8,18 +8,11 @@
   },
   "tags": [
     "cwe",
-    "owasp-a5",
     "aws"
   ],
   "securityStandards": {
     "CWE": [
       269
-    ],
-    "OWASP": [
-      "A5"
-    ],
-    "OWASP Top 10 2021": [
-      "A1"
     ],
     "PCI DSS 3.2": [
       "6.5.8"

@@ -41,19 +41,6 @@ class TerraformRulesDefinitionTest {
     assertThat(repository.rules()).hasSize(TerraformCheckList.checks().size());
   }
 
-  @Test
-  void owaspSecurityStandard() {
-    RulesDefinition.Repository repository_9_3 = terraformRuleRepository(9, 3);
-    RulesDefinition.Rule s6327_9_3 = repository_9_3.rule("S6327");
-    assertThat(s6327_9_3).isNotNull();
-    assertThat(s6327_9_3.securityStandards()).contains("owaspTop10-2021:a2", "owaspTop10-2021:a4", "owaspTop10-2021:a5");
-
-    RulesDefinition.Repository repository_9_2 = terraformRuleRepository(9, 2);
-    RulesDefinition.Rule s6327_9_2 = repository_9_2.rule("S6327");
-    assertThat(s6327_9_2).isNotNull();
-    assertThat(s6327_9_2.securityStandards()).doesNotContain("owaspTop10-2021:a2", "owaspTop10-2021:a4", "owaspTop10-2021:a5");
-  }
-
   private static RulesDefinition.Repository terraformRuleRepository(int major, int minor) {
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
     TerraformRulesDefinition rulesDefinition = new TerraformRulesDefinition(sonarRuntime);

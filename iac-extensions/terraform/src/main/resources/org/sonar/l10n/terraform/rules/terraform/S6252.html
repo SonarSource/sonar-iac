@@ -15,18 +15,29 @@ bucket.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>It’s recommended to enable S3 versioning and thus to have the possibility to retrieve and restore different versions of an object.</p>
 <h2>Sensitive Code Example</h2>
-<pre>
-Versioning is disabled by default:
-</pre>
+<p>Versioning is disabled by default:</p>
 <pre>
 resource "aws_s3_bucket" "example" { # Sensitive
   bucket = "example"
 }
 </pre>
 <h2>Compliant Solution</h2>
-<p>Versioning is enabled:</p>
+<p>Versioning is enabled for AWS provider version 4 or above:</p>
 <pre>
-resource "aws_s3_bucket" "example" { # Compliant
+resource "aws_s3_bucket" "example" {
+  bucket = "example"
+}
+
+resource "aws_s3_bucket_versioning" "example-versioning" {
+  bucket = aws_s3_bucket.example.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+</pre>
+<p>Versioning is enabled for AWS provider version 3 or below:</p>
+<pre>
+resource "aws_s3_bucket" "example" {
   bucket = "example"
 
   versioning {

@@ -7,8 +7,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "cwe",
-    "owasp-a2"
+    "cwe"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6255",
@@ -17,12 +16,6 @@
   "securityStandards": {
     "CWE": [
       308
-    ],
-    "OWASP": [
-      "A2"
-    ],
-    "OWASP Top 10 2021": [
-      "A7"
     ],
     "PCI DSS 3.2": [
       "6.5.10"

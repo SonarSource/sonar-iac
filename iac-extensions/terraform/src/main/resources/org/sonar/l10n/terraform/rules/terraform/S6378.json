@@ -13,12 +13,5 @@
   "ruleSpecification": "RSPEC-6378",
   "sqKey": "S6378",
   "scope": "Main",
-  "securityStandards": {
-    "OWASP": [
-      "A5"
-    ],
-    "OWASP Top 10 2021": [
-      "A6"
-    ]
-  }
+  "securityStandards": {}
 }

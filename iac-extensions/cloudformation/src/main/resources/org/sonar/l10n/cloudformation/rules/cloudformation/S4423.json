@@ -9,11 +9,7 @@
   "tags": [
     "aws",
     "cwe",
-    "privacy",
-    "owasp-a6",
-    "sans-top25-porous",
-    "owasp-a3",
-    "owasp-m3"
+    "privacy"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4423",
@@ -25,20 +21,10 @@
       326,
       295
     ],
-    "OWASP": [
-      "A3",
-      "A6"
-    ],
-    "OWASP Mobile": [
-      "M3"
-    ],
-    "MASVS": [
-      "MSTG-NETWORK-2"
-    ],
-    "OWASP Top 10 2021": [
-      "A2",
-      "A7"
-    ],
+    "OWASP": [],
+    "OWASP Mobile": [],
+    "MASVS": [],
+    "OWASP Top 10 2021": [],
     "PCI DSS 3.2": [
       "4.1",
       "6.5.4"
@@ -46,7 +32,8 @@
     "PCI DSS 4.0": [
       "4.2.1",
       "6.2.4"
-    ]
+    ],
+    "ASVS 4.0": []
   },
   "quickfix": "unknown"
 }
