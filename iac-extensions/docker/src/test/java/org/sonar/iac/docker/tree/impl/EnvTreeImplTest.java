@@ -78,4 +78,18 @@ class EnvTreeImplTest {
     assertThat(keyValuePair.value().value()).isEqualTo("value1 still_value1 again_value1");
     assertThat(tree.children()).hasSize(3);
   }
+
+  // SONARIAC-503
+  @Test
+  void shouldParseMultiline() {
+    EnvTree tree = parse("ENV JAVA_OPTS -Duser.timezone=\\$TIMEZONE -XX:+UseParallelGC\\\n" +
+        "    -Dlog4j.configuration=config.properties -Xms\\$XMS -Xmx\\$XMX \\\n" +
+        "    -XX:MaxPermSize=\\$MAXPERMSIZE -Dbanproxy.jdbc.url=\\$BANPROXY_JDBC_URL \\\n" +
+        "    -DlogFileDir=\\$LOGFILEDIR \\\n" +
+        "    -Dscheme=\\$SCHEME \\\n" +
+        "    -Dproxy.port=\\$PROXY_PORT \\\n" +
+        "    -Dproxy.name=\\$PROXY_NAME",
+      DockerLexicalGrammar.ENV);
+    assertThat(tree.variableAssignments()).hasSize(1);
+  }
 }

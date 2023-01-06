@@ -133,6 +133,7 @@ class RunTreeImplTest {
       .notMatches("--mount=target=. /bin/sh /deploy.sh");
   }
 
+  @Test
   void shouldParseRunHereDocument() {
     Assertions.assertThat(DockerLexicalGrammar.RUN)
       .matches("RUN <<EOT\n  mkdir -p foo/bar\nEOT")
@@ -146,6 +147,22 @@ class RunTreeImplTest {
       .matches("RUN <<\"EOT\"\n  mkdir -p foo/bar\nEOT")
       .notMatches("RUN <EOT\n  mkdir -p foo/bar\nEOT")
       .notMatches("RUN <<EOT\n  mkdir -p foo/bar\nEOT5");
+  }
+
+  // SONARIAC-504
+  @Test
+  void shouldParseMultiline() {
+    RunTree tree = DockerTestUtils.parse("RUN  \\\n" +
+        "        TEST=test && \\\n" +
+        "        ls && \\\n" +
+        "        curl sLO https://google.com &&\\\n" +
+        "        echo ${TEST} | sha256sum --check",
+      DockerLexicalGrammar.RUN);
+
+    assertThat(tree.options()).isEmpty();
+    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.SHELL);
+    assertThat(tree.arguments().literals()).hasSize(13);
   }
 
   @Test
