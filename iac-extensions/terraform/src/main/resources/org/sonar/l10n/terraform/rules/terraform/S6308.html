@@ -1,11 +1,12 @@
-<p>Amazon Elasticsearch Service (ES) is a managed service to host Elasticsearch instances. To harden domain (cluster) data in case of unauthorized
-access, ES provides data-at-rest encryption if the Elasticsearch version is 5.1 or above. Enabling encryption at rest will help protect:</p>
+<p>Amazon Elasticsearch Service (ES) is a managed service to host Elasticsearch instances.</p>
+<p>To harden domain (cluster) data in case of unauthorized access, ES provides data-at-rest encryption if the Elasticsearch version is 5.1 or above.
+Enabling encryption at rest will help protect:</p>
 <ul>
-  <li> Indices </li>
-  <li> Logs </li>
-  <li> Swap files </li>
-  <li> Data in the application directory </li>
-  <li> Automated snapshots </li>
+  <li> indices </li>
+  <li> logs </li>
+  <li> swap files </li>
+  <li> data in the application directory </li>
+  <li> automated snapshots </li>
 </ul>
 <p>Thus, if adversaries gain physical access to the storage medium, they cannot access the data.</p>
 <h2>Ask Yourself Whether</h2>
@@ -15,8 +16,8 @@ access, ES provides data-at-rest encryption if the Elasticsearch version is 5.1 
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to encrypt Elasticsearch domains that contain sensitive information. Encryption and decryption are handled transparently by ES, so
-no further modifications to the application are necessary.</p>
+<p>It is recommended to encrypt Elasticsearch domains that contain sensitive information.</p>
+<p>Encryption and decryption are handled transparently by ES, so no further modifications to the application are necessary.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticsearch_domain">aws_elasticsearch_domain</a>:</p>
 <pre>
@@ -40,8 +41,8 @@ resource "aws_elasticsearch_domain" "elasticsearch" {
   <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
   <li> <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
   <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
-  <li> <a href="https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/encryption-at-rest.html">Encryption of data at rest for Amazon
-  Elasticsearch Service</a> </li>
+  <li> <a href="https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/encryption-at-rest.html">AWS Documentation</a> - Encryption of
+  data at rest for Amazon Elasticsearch Service </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
   Exposure </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security

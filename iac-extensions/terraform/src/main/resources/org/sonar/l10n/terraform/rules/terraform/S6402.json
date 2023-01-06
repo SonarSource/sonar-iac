@@ -17,12 +17,6 @@
     "CWE": [
       345,
       353
-    ],
-    "OWASP": [
-      "A6"
-    ],
-    "OWASP Top 10 2021": [
-      "A8"
     ]
   },
   "quickfix": "unknown"

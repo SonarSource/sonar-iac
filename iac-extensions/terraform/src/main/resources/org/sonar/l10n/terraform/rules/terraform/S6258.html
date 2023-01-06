@@ -11,7 +11,10 @@ allow investigators to establish a timeline of the actions perpetrated by an att
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Enable the logging capabilities of this component.</p>
+<p>Enable the logging capabilities of this component. Depending on the component, new permissions might be required by the logging storage
+components.<br> You should consult the official documentation to enable logging for the impacted components. For example, AWS Application Load
+Balancer Access Logs <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html">require an additional
+bucket policy</a>.</p>
 <h2>Sensitive Code Example</h2>
 <p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket">S3 access requests</a>:</p>
 <pre>
@@ -72,18 +75,6 @@ resource "azurerm_app_service" "example" {
   }
 }
 </pre>
-<p>For Azure <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account">Storage Accounts</a>:</p>
-<pre>
-resource "azurerm_storage_account" "example" {
-  queue_properties {
-    logging { # Sensitive
-      delete = false
-      read   = false
-      write  = false
-    }
-  }
-}
-</pre>
 <p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork/">VPC Subnetwork</a>:</p>
 <pre>
 resource "google_compute_subnetwork" "example" { # Sensitive
@@ -119,7 +110,7 @@ resource "google_container_cluster" "example" {
 <h2>Compliant Solution</h2>
 <p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket">S3 access requests</a>:</p>
 <pre>
-resource "aws_s3_bucket" "example" {
+resource "aws_s3_bucket" "example-logs" {
   bucket = "example_logstorage"
   acl    = "log-delivery-write"
 }
@@ -127,10 +118,17 @@ resource "aws_s3_bucket" "example" {
 resource "aws_s3_bucket" "example" {
   bucket = "example"
 
-  logging {
-      target_bucket = "example_logstorage"
+  logging { # AWS provider &lt;= 3
+      target_bucket = aws_s3_bucket.example-logs.id
       target_prefix = "log/example"
   }
+}
+
+resource "aws_s3_bucket_logging" "example" { # AWS provider &gt;= 4
+  bucket = aws_s3_bucket.example.id
+
+  target_bucket = aws_s3_bucket.example-logs.id
+  target_prefix = "log/example"
 }
 </pre>
 <p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage">API Gateway stages</a>:</p>
@@ -199,18 +197,6 @@ resource "azurerm_app_service" "example" {
         retention_in_days = 90
         level             = "Error"
       }
-    }
-  }
-}
-</pre>
-<p>For Azure <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account">Storage Accounts</a>:</p>
-<pre>
-resource "azurerm_storage_account" "example" {
-  queue_properties {
-    logging {
-      delete = true
-      read   = true
-      write  = true
     }
   }
 }

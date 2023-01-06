@@ -14,12 +14,6 @@
   "sqKey": "S6401",
   "scope": "All",
   "securityStandards": {
-    "OWASP": [
-      "A6"
-    ],
-    "OWASP Top 10 2021": [
-      "A2"
-    ],
     "PCI DSS 3.2": [
       "3.6.4"
     ],

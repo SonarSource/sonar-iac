@@ -20,9 +20,9 @@ called identity-based policies. They add the ability to an identity to perform a
     ]
 }
 </pre>
-<p>Privilege escalation generally happens when an identity policy gives to an identity the ability to grant more privileges than the ones it already
-has. Here is another example of a policy document that hides a privilege escalation. It allows an identity to generate a new access key for any user
-from the account, including users with high privileges.</p>
+<p>Privilege escalation generally happens when an identity policy gives an identity the ability to grant more privileges than the ones it already has.
+Here is another example of a policy document that hides a privilege escalation. It allows an identity to generate a new access key for any user from
+the account, including users with high privileges.</p>
 <pre>
 {
     "Version": "2012-10-17",
@@ -60,7 +60,7 @@ it took control of.</p>
   <tbody>
     <tr>
       <td><p>Create Policy Version</p></td>
-      <td><p>Create new IAM policy and set it as default</p></td>
+      <td><p>Create a new IAM policy and set it as default</p></td>
     </tr>
     <tr>
       <td><p>Set Default Policy Version</p></td>
@@ -72,11 +72,11 @@ it took control of.</p>
     </tr>
     <tr>
       <td><p>Create Login Profile</p></td>
-      <td><p>Create an access with a chosen password</p></td>
+      <td><p>Create a login profile with a password chosen by the attacker</p></td>
     </tr>
     <tr>
       <td><p>Update Login Profile</p></td>
-      <td><p>Update the existing password</p></td>
+      <td><p>Update the existing password with one chosen by the attacker</p></td>
     </tr>
     <tr>
       <td><p>Attach User Policy</p></td>
@@ -116,15 +116,19 @@ it took control of.</p>
     </tr>
     <tr>
       <td><p>Lambda Create and Invoke</p></td>
-      <td><p>Create a lambda function that will execute with high privileges and invoke it</p></td>
+      <td><p>Create a Lambda function that will execute with high privileges and invoke it</p></td>
     </tr>
     <tr>
       <td><p>Lambda Create and Add Permission</p></td>
-      <td><p>Create a lambda function that will execute with high privileges and grant permission to invoke it to a user or a service</p></td>
+      <td><p>Create a Lambda function that will execute with high privileges and grant permission to invoke it to a user or a service</p></td>
     </tr>
     <tr>
       <td><p>Lambda triggered with an external event</p></td>
-      <td><p>Create a lambda function that will execute with high privileges and link it to an external event</p></td>
+      <td><p>Create a Lambda function that will execute with high privileges and link it to an external event</p></td>
+    </tr>
+    <tr>
+      <td><p>Update Lambda code</p></td>
+      <td><p>Update the code of a Lambda function executing with high privileges</p></td>
     </tr>
     <tr>
       <td><p>CloudFormation</p></td>
@@ -142,13 +146,9 @@ it took control of.</p>
       <td><p>Update Glue Dev Endpoint</p></td>
       <td><p>Update the associated SSH key for the Glue endpoint</p></td>
     </tr>
-    <tr>
-      <td><p>Update Lambda code</p></td>
-      <td><p>Update the code of a lambda function executing with high privileges</p></td>
-    </tr>
   </tbody>
 </table>
-<p>The general recommendation to protect against privilege escalation is to restrict the resources that are granted sensitive permissions to. The
+<p>The general recommendation to protect against privilege escalation is to restrict the resources to which sensitive permissions are granted. The
 first example above is a good demonstration of sensitive permissions being used with a narrow scope of resources and where no privilege escalation is
 possible.</p>
 <h2>Noncompliant Code Example</h2>

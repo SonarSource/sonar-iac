@@ -4,9 +4,7 @@
   "status": "ready",
   "tags": [
     "aws",
-    "cwe",
-    "owasp-a6",
-    "owasp-a3"
+    "cwe"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6245",
@@ -15,17 +13,6 @@
   "securityStandards": {
     "CWE": [
       311
-    ],
-    "OWASP": [
-      "A3",
-      "A6"
-    ],
-    "CIS": [
-      "2.1.1"
-    ],
-    "OWASP Top 10 2021": [
-      "A4",
-      "A5"
     ],
     "PCI DSS 3.2": [
       "6.5.3"

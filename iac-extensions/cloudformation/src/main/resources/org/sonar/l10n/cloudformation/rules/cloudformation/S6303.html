@@ -1,6 +1,11 @@
-<p>Amazon Relational Database Service (RDS) allows to easily host and manage a relational database in the cloud. RDS databases can be encrypted,
-ensuring the security of data-at-rest. In the case that adversaries gain physical access to the storage medium they are not able to access the
-data.</p>
+<p>Using unencrypted RDS DB resources exposes data to unauthorized access to the underlying storage.<br> This includes database data, logs, automatic
+backups, read replicas, snapshots, and cluster metadata.</p>
+<p>This situation can occur in a variety of scenarios, such as:</p>
+<ul>
+  <li> a malicious insider working at the cloud provider gains physical access to the storage device and exfiltrates data. </li>
+  <li> unknown attackers penetrate the cloud provider’s logical infrastructure and systems for extortion. </li>
+</ul>
+<p>AWS-managed encryption at rest reduces this risk with a simple switch.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The database contains sensitive data that could cause harm when leaked. </li>
@@ -8,11 +13,11 @@ data.</p>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to encrypt databases that contain sensitive information. Encryption and decryption are handled transparently by RDS, so no further
-modifications to the application are necessary.</p>
+<p>It is recommended to enable encryption at rest on any RDS DB resource, regardless of the engine.<br> In any case, no further maintenance is
+required as encryption at rest is fully managed by AWS.</p>
 <h2>Sensitive Code Example</h2>
-<p>For <a
-href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-rds-database-instance.html">AWS::RDS::DBInstance</a>:</p>
+<p>For <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-rds-database-instance.html">AWS::RDS::DBInstance</a> and
+<a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-rds-dbcluster.html">AWS::RDS::DBCluster</a>:</p>
 <pre>
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
@@ -20,10 +25,14 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       StorageEncrypted: false  # Sensitive, disabled by default
+  DatabaseCluster:
+    Type: AWS::RDS:DBCluster:
+    Properties:
+      StorageEncrypted: false  # Sensitive, disabled by default
 </pre>
 <h2>Compliant Solution</h2>
-<p>For <a
-href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-rds-database-instance.html">AWS::RDS::DBInstance</a>:</p>
+<p>For <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-rds-database-instance.html">AWS::RDS::DBInstance</a> and
+<a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-rds-dbcluster.html">AWS::RDS::DBCluster</a>:</p>
 <pre>
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
@@ -31,17 +40,15 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       StorageEncrypted: true
+  DatabaseCluster:
+    Type: AWS::RDS:DBCluster:
+    Properties:
+      StorageEncrypted: false  # Sensitive, disabled by default
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
-  <li> <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
-  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
-  <li> <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html">Encrypting Amazon RDS resources</a> </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
-  Exposure </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
-  Misconfiguration </li>
+  <li> <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html">AWS Documentation</a> - Encrypting Amazon RDS
+  resources </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/311">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
 </ul>
 

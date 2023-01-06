@@ -1,5 +1,5 @@
 {
-  "title": "Having policies that grant all privileges is security-sensitive",
+  "title": "Policies granting all privileges are security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
@@ -8,7 +8,6 @@
   },
   "tags": [
     "cwe",
-    "owasp-a5",
     "aws",
     "gcp"
   ],
@@ -20,15 +19,6 @@
     "CWE": [
       284,
       732
-    ],
-    "OWASP": [
-      "A5"
-    ],
-    "CIS": [
-      "3.3"
-    ],
-    "OWASP Top 10 2021": [
-      "A1"
     ],
     "PCI DSS 3.2": [
       "6.5.8",
