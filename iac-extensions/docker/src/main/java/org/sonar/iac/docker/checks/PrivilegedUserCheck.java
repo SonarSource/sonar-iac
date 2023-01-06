@@ -19,17 +19,20 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.DockerImageTree;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.FileTree;
 import org.sonar.iac.docker.tree.api.UserTree;
 
 @Rule(key = "S6471")
@@ -72,27 +75,39 @@ public class PrivilegedUserCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(DockerImageTree.class, (ctx, dockerImage) -> {
-      String imageName = dockerImage.from().image().name().value();
-      Optional<UserTree> lastUser = getLastUser(dockerImage);
+    init.register(DockerImageTree.class, this::handle);
+  }
 
-      if (lastUser.isEmpty()) {
-        if (isScratchImage(imageName)) {
-          ctx.reportIssue(dockerImage.from(), MESSAGE_SCRATCH);
-        } else if (isUnsafeImage(imageName) && !isUserSafeImage(imageName)) {
-          ctx.reportIssue(dockerImage.from(), String.format(MESSAGE_UNSAFE_DEFAULT_ROOT, imageName));
-        } else if (isMicrosoftUnsafeImage(imageName)) {
-          ctx.reportIssue(dockerImage.from(), MESSAGE_MICROSOFT_DEFAULT_ROOT);
-        } else if (!isSafeImage(imageName)) {
-          ctx.reportIssue(dockerImage.from(), MESSAGE_OTHER_IMAGE);
-        }
-      } else {
-        String user = lastUser.get().user().value();
-        if(UNSAFE_USERS.contains(user)) {
-          ctx.reportIssue(lastUser.get(), String.format(MESSAGE_ROOT_USER, user));
-        }
+  private void handle(CheckContext ctx, DockerImageTree dockerImage) {
+    if(!isLastDockerImageInFile(dockerImage)) {
+      return;
+    }
+    String imageName = dockerImage.from().image().name().value();
+    Optional<UserTree> lastUser = getLastUser(dockerImage);
+
+    if (lastUser.isEmpty()) {
+      if (isScratchImage(imageName)) {
+        ctx.reportIssue(dockerImage.from(), MESSAGE_SCRATCH);
+      } else if (isUnsafeImage(imageName) && !isUserSafeImage(imageName)) {
+        ctx.reportIssue(dockerImage.from(), String.format(MESSAGE_UNSAFE_DEFAULT_ROOT, imageName));
+      } else if (isMicrosoftUnsafeImage(imageName)) {
+        ctx.reportIssue(dockerImage.from(), MESSAGE_MICROSOFT_DEFAULT_ROOT);
+      } else if (!isSafeImage(imageName)) {
+        ctx.reportIssue(dockerImage.from(), MESSAGE_OTHER_IMAGE);
       }
-    });
+    } else {
+      String user = lastUser.get().user().value();
+      if(UNSAFE_USERS.contains(user)) {
+        ctx.reportIssue(lastUser.get(), String.format(MESSAGE_ROOT_USER, user));
+      }
+    }
+  }
+
+  private static boolean isLastDockerImageInFile(DockerImageTree dockerImage) {
+    FileTree parent = (FileTree) dockerImage.parent();
+    List<DockerImageTree> dockerImageTrees = parent.dockerImages();
+    DockerImageTree last = dockerImageTrees.get(dockerImageTrees.size() - 1);
+    return last == dockerImage;
   }
 
   private static Optional<UserTree> getLastUser(DockerImageTree dockerImage) {

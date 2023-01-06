@@ -1,0 +1,4 @@
+  FROM haproxy
+# Noncompliant@+1 {{Setting the default user as root might unnecessarily make the application unsafe. Make sure it is safe here.}}
+  USER root
+# ^^^^^^^^^

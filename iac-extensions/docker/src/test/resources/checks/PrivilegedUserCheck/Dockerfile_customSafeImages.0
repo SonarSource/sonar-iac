@@ -1,0 +1,4 @@
+# Noncompliant@+1
+  FROM scratch
+# ^^^^^^^^^^^^
+  MAINTAINER bob

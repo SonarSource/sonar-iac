@@ -1,0 +1,5 @@
+FROM gcc as build
+
+# Noncompliant@+1 {{Scratch images run as root by default. Make sure it is safe here.}}
+  FROM scratch
+# ^^^^^^^^^^^^
