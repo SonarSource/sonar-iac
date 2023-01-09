@@ -5,6 +5,15 @@ FROM foo
 ENV ACCESS_TOKEN=${ACCESS_TOKEN}
 #   ^^^^^^^^^^^^
 # Noncompliant@+1
+ENV access_token=${ACCESS_TOKEN}
+#   ^^^^^^^^^^^^
+# Noncompliant@+1
+ENV ACCESS_TOKEN=${access_token}
+#   ^^^^^^^^^^^^
+# Noncompliant@+1
+ENV access_token=${access_token}
+#   ^^^^^^^^^^^^
+# Noncompliant@+1
 ENV MY_ACCESS_TOKEN=${ACCESS_TOKEN}
 # Noncompliant@+1
 ENV MY-ACCESS-TOKEN=${ACCESS_TOKEN}
@@ -14,6 +23,8 @@ ENV MyAccessToken=${ACCESS_TOKEN}
 ENV ACCESS_TOKEN=ThisIsSomethingThatShouldProbablyBeSecret
 # Noncompliant@+1
 ENV TOKEN=AAAA
+# Noncompliant@+1
+ENV token=AAAA
 # Noncompliant@+1
 ENV ACCESS_TOKEN=${ARG
 # Noncompliant@+1
