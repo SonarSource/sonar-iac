@@ -35,8 +35,11 @@ class ExposeTreeImplTest {
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.EXPOSE)
       .matches("EXPOSE 80")
+      .matches("EXPOSE 80/")
       .matches("EXPOSE bob")
       .matches("EXPOSE 80-88")
+      .matches("EXPOSE 80-88/tcp")
+      .matches("EXPOSE 80-88/")
       .matches("    EXPOSE 80")
       .matches("expose 80")
       .matches("EXPOSE \"80\"")
@@ -154,11 +157,11 @@ class ExposeTreeImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     // TODO : should be parsed differently : usual splitting port/separator/protocol
-    assertThat(tree.ports()).hasSize(1);
+    assertThat(tree.ports()).hasSize(3);
 
     PortTree port1 = tree.ports().get(0);
     assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
-    assertThat(port1.portMin().value()).isEqualTo("8\"0/t\"cp");
+    assertThat(port1.portMin().value()).isEqualTo("8");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
     assertThat(port1.children()).hasSize(1);
@@ -182,5 +185,21 @@ class ExposeTreeImplTest {
     assertThat(port1.children().get(0)).isSameAs(port1.portMin());
     assertThat(((SyntaxToken) port1.children().get(1)).value()).isEqualTo("-");
     assertThat(port1.children().get(2)).isSameAs(port1.portMax());
+  }
+
+  @Test
+  void exposeInstructionPortRangeWithProtocol() {
+    ExposeTree tree = parse("EXPOSE 80-89/udp", DockerLexicalGrammar.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
+    assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
+    assertThat(tree.ports()).hasSize(1);
+
+    PortTree port1 = tree.ports().get(0);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
+    assertThat(port1.portMin().value()).isEqualTo("80");
+    assertThat(port1.portMax().value()).isEqualTo("89");
+    assertThat(port1.protocol().value()).isEqualTo("udp");
+
+    assertThat(port1.children()).hasSize(5);
   }
 }
