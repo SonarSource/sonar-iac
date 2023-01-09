@@ -35,6 +35,7 @@ class EnvTreeImplTest {
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.ENV)
       .matches("ENV key1=value1")
+      .matches("ENV key1=")
       .matches("ENV key1 value1")
       .matches("ENV key1 value1 still_value1 again_value1")
       .matches("ENV key1 \"value1\" still_value1 again_value1")
@@ -80,6 +81,7 @@ class EnvTreeImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ENV");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 39);
     assertThat(tree.children()).hasSize(4);
+
     assertThat(tree.variableAssignments()).hasSize(1);
 
     KeyValuePairTree keyValuePair = tree.variableAssignments().get(0);
@@ -87,6 +89,22 @@ class EnvTreeImplTest {
     assertThat(keyValuePair.key().value()).isEqualTo("CPATH");
     assertThat(keyValuePair.equals().value()).isEqualTo("=");
     assertThat(keyValuePair.value().value()).isEqualTo("\"/usr/include/vtk-6.2\":$CPATH");
+  }
+
+  @Test
+  void envInstructionWithEmptyValue() {
+    EnvTree tree = parse("ENV key1=", DockerLexicalGrammar.ENV);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
+    assertThat(tree.keyword().value()).isEqualTo("ENV");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 9);
+    assertThat(tree.children()).hasSize(3);
+    assertThat(tree.variableAssignments()).hasSize(1);
+
+    KeyValuePairTree keyValuePair = tree.variableAssignments().get(0);
+    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(keyValuePair.key().value()).isEqualTo("key1");
+    assertThat(keyValuePair.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair.value()).isNull();
   }
 
   @Test
