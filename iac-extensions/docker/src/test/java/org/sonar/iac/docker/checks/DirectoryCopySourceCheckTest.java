@@ -21,6 +21,8 @@ package org.sonar.iac.docker.checks;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class DirectoryCopySourceCheckTest {
 
   @Test
@@ -31,5 +33,17 @@ class DirectoryCopySourceCheckTest {
   @Test
   void test_copy() {
     DockerVerifier.verify("DirectoryCopySourceCheck/Dockerfile_copy", new DirectoryCopySourceCheck());
+  }
+
+  @Test
+  void test_normalize() {
+    assertThat(DirectoryCopySourceCheck.normalize("./test")).isEqualTo(new String[] {".", "test"});
+    assertThat(DirectoryCopySourceCheck.normalize("./p/../test")).isEqualTo(new String[] {".", "test"});
+    assertThat(DirectoryCopySourceCheck.normalize("/test")).isEqualTo(new String[] {"", "test"});
+    assertThat(DirectoryCopySourceCheck.normalize("/./test")).isEqualTo(new String[] {"", "test"});
+    assertThat(DirectoryCopySourceCheck.normalize("test")).isEqualTo(new String[] {"test"});
+    assertThat(DirectoryCopySourceCheck.normalize("test/p")).isEqualTo(new String[] {"test", "p"});
+    assertThat(DirectoryCopySourceCheck.normalize("c:/test")).isEqualTo(new String[] {"c:", "test"});
+    assertThat(DirectoryCopySourceCheck.normalize("./test/a*")).isEqualTo(new String[] {".", "test", "a*"});
   }
 }
