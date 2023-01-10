@@ -221,8 +221,22 @@ public class DockerGrammar {
   public PortTree PORT() {
     return b.<PortTree>nonterminal(DockerLexicalGrammar.PORT).is(
       b.firstOf(
-        f.port(b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL), b.optional(b.token(DockerLexicalGrammar.EXPOSE_PROTOCOL))),
-        f.port(b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT)),
+        f.port(
+          b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT),
+          b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL), b.token(DockerLexicalGrammar.EXPOSE_PROTOCOL)
+        ),
+        f.port(
+          b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT),
+          b.optional(b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL))
+          ),
+        f.port(
+          b.token(DockerLexicalGrammar.EXPOSE_PORT),
+          b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL), b.token(DockerLexicalGrammar.EXPOSE_PROTOCOL)
+        ),
+        f.port(
+          b.token(DockerLexicalGrammar.EXPOSE_PORT),
+          b.optional(b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL))
+        ),
         f.port(b.token(DockerLexicalGrammar.STRING_LITERAL))
       )
     );

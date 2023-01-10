@@ -29,14 +29,16 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class PortTreeImpl extends DockerTreeImpl implements PortTree {
   private final SyntaxToken portMin;
+  private final SyntaxToken separatorPort;
   private final SyntaxToken portMax;
-  private final SyntaxToken separator;
+  private final SyntaxToken separatorProtocol;
   private final SyntaxToken protocol;
 
-  public PortTreeImpl(SyntaxToken portMin, SyntaxToken portMax, @Nullable SyntaxToken separator, @Nullable SyntaxToken protocol) {
+  public PortTreeImpl(SyntaxToken portMin, @Nullable SyntaxToken separatorPort, SyntaxToken portMax, @Nullable SyntaxToken separatorProtocol, @Nullable SyntaxToken protocol) {
     this.portMin = portMin;
+    this.separatorPort = separatorPort;
     this.portMax = portMax;
-    this.separator = separator;
+    this.separatorProtocol = separatorProtocol;
     this.protocol = protocol;
   }
 
@@ -46,16 +48,14 @@ public class PortTreeImpl extends DockerTreeImpl implements PortTree {
     children.add(this.portMin);
     // range format : 'portmin-portmax'
     if (this.portMin != this.portMax) {
-      children.add(this.separator);
+      children.add(this.separatorPort);
       children.add(this.portMax);
-    } else {
-      // one port format : 'port' or 'port/protocol'
-      if (this.separator != null) {
-        children.add(this.separator);
-      }
-      if (this.protocol != null) {
-        children.add(this.protocol);
-      }
+    }
+    if (this.separatorProtocol != null) {
+      children.add(this.separatorProtocol);
+    }
+    if (this.protocol != null) {
+      children.add(this.protocol);
     }
     return children;
   }

@@ -137,16 +137,24 @@ public class TreeFactory {
     return new ExposeTreeImpl(keyword, ports);
   }
 
-  public PortTree port(SyntaxToken portToken, SyntaxToken separatorToken, Optional<SyntaxToken> protocolToken) {
-    return new PortTreeImpl(portToken, portToken, separatorToken, protocolToken.orNull());
+  public PortTree port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, SyntaxToken separatorProtocol, SyntaxToken protocol) {
+    return new PortTreeImpl(portMin, separatorPort, portMax, separatorProtocol, protocol);
   }
 
-  public PortTree port(SyntaxToken portMin, SyntaxToken separatorToken, SyntaxToken portMax) {
-    return new PortTreeImpl(portMin, portMax, separatorToken, null);
+  public PortTree port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, Optional<SyntaxToken> separatorProtocol) {
+    return new PortTreeImpl(portMin, separatorPort, portMax, separatorProtocol.orNull(), null);
+  }
+
+  public PortTree port(SyntaxToken port, SyntaxToken separatorProtocol, SyntaxToken protocol) {
+    return new PortTreeImpl(port, null, port, separatorProtocol, protocol);
+  }
+
+  public PortTree port(SyntaxToken port, Optional<SyntaxToken> separatorProtocol) {
+    return new PortTreeImpl(port, null, port, separatorProtocol.orNull(), null);
   }
 
   public PortTree port(SyntaxToken portToken) {
-    return new PortTreeImpl(portToken, portToken, null, null);
+    return new PortTreeImpl(portToken, null, portToken, null, null);
   }
 
   public LabelTree label(SyntaxToken token, List<KeyValuePairTree> keyValuePairs) {
