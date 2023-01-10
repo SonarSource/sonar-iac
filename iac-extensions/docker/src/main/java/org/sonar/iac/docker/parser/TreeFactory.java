@@ -145,7 +145,7 @@ public class TreeFactory {
     return new PortTreeImpl(portMin, separatorPort, portMax, separatorProtocol.orNull(), null);
   }
 
-  public PortTree port(SyntaxToken port, SyntaxToken separatorProtocol,SyntaxToken protocol) {
+  public PortTree port(SyntaxToken port, SyntaxToken separatorProtocol, SyntaxToken protocol) {
     return new PortTreeImpl(port, null, port, separatorProtocol, protocol);
   }
 
