@@ -22,6 +22,7 @@ package org.sonar.iac.docker.checks;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,20 +39,20 @@ public class EnvSecretCheck implements IacCheck {
 
   private static final String MESSAGE = "Make sure that using ENV to handle a secret is safe here.";
 
-  private static final List<String> ENTITIES = List.of("ACCESS", "AMPLITUDE", "ANSIBLE", "ADMIN", "API",
+  private static final Set<String> ENTITIES = Set.of("ACCESS", "AMPLITUDE", "ANSIBLE", "ADMIN", "API",
     "APP", "AUTH", "CLIENT", "CONFIG", "DATABASE", "DB", "ENCRYPTION", "ENV", "FACEBOOK", "FIREBASE", "FTP", "GIT",
     "GITHUB", "GITLAB", "HONEYCOMB", "JWT", "KEYCLOAK", "KEYRING", "LDAP", "MAIL", "MASTER", "MARIADB", "MSSQL",
     "MYSQL", "NPM", "OAUTH", "OAUTH2", "PG", "POSTGRES", "REDIS", "REFRESH", "REPLICATION", "ROOT", "RPC", "SA",
     "SECRET", "SERVER", "SIGN", "SIGNING", "SLACK", "SVN", "USER", "VNC", "WEBHOOK");
 
-  private static final List<String> SECRETS = List.of("CREDENTIALS", "KEY", "PASS", "PASSPHRASE", "PASSWD", "PASSWORD",
+  private static final Set<String> SECRETS = Set.of("CREDENTIALS", "KEY", "PASS", "PASSPHRASE", "PASSWD", "PASSWORD",
     "SECRET", "TOKEN");
 
-  private static final List<String> EXCLUSIONS = List.of("ALLOW", "DIR", "EXPIRE", "EXPIRY", "FILE", "ID",
+  private static final Set<String> EXCLUSIONS = Set.of("ALLOW", "DIR", "EXPIRE", "EXPIRY", "FILE", "ID",
     "LOCATION", "NAME", "OWNER", "PATH", "URL");
 
-  private static final Pattern UPPERCASE_UNDERSCORE_NAME_PATTERN = Pattern.compile("^[A-Z_0-9]+$");
-  private static final Pattern UPPERCASE_DASH_NAME_PATTERN = Pattern.compile("^[A-Z-0-9]+$");
+  private static final Pattern UNDERSCORE_NAME_PATTERN = Pattern.compile("^\\w+$");
+  private static final Pattern DASH_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9-]+$");
 
   private static final Pattern CAMELCASE_NAME_PATTERN = Pattern.compile("^[A-Za-z]+$");
 
@@ -85,10 +86,10 @@ public class EnvSecretCheck implements IacCheck {
   }
 
   private static List<String> splitEnvVarName(String name) {
-    if (UPPERCASE_UNDERSCORE_NAME_PATTERN.matcher(name).matches()) {
+    if (UNDERSCORE_NAME_PATTERN.matcher(name).matches() && name.contains("_")) {
       return toUpperCase(name.split("_"));
     }
-    if (UPPERCASE_DASH_NAME_PATTERN.matcher(name).matches()) {
+    if (DASH_NAME_PATTERN.matcher(name).matches() && name.contains("-")) {
       return toUpperCase(name.split("-"));
     }
     if (CAMELCASE_NAME_PATTERN.matcher(name).matches()) {
