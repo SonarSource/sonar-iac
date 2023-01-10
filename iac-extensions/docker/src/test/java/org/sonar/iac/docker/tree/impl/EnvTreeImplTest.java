@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.EnvTree;
 import org.sonar.iac.docker.tree.api.KeyValuePairTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class EnvTreeImplTest {
@@ -42,10 +43,15 @@ class EnvTreeImplTest {
       .matches("ENV key1=value1 key2=value2")
       .matches("ENV \"key1\"=\"value1\" \"key2\"=\"value2\"")
       .matches("ENV \"key1\"=value1 key2=\"value2\"")
+      .matches("ENV CPATH=\"/usr/include/vtk-6.2\":$CPATH")
+      .matches("ENV CPATH=\"my path\"")
+      .matches("ENV CPATH=test\"t\"")
+      .matches("ENV CPATH=test\" with spacees \"")
       .notMatches("ENV")
       .notMatches("ENV key1")
       .notMatches("ENV ")
-      .notMatches("ENV \"key1 value1 still_value1 again_value1\"");
+      .notMatches("ENV \"key1 value1 still_value1 again_value1\"")
+      .notMatches("ENV CPATH=my path\"");
   }
 
   @Test
@@ -65,6 +71,22 @@ class EnvTreeImplTest {
     assertThat(keyValuePair.key().value()).isEqualTo("key1");
     assertThat(keyValuePair.equals()).isNull();
     assertThat(keyValuePair.value().value()).isEqualTo("value1");
+  }
+
+  @Test
+  void envInstructionWithEqualsAndSpecialCharacters() {
+    EnvTree tree = parse("ENV CPATH=\"/usr/include/vtk-6.2\":$CPATH", DockerLexicalGrammar.ENV);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
+    assertThat(tree.keyword().value()).isEqualTo("ENV");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 39);
+    assertThat(tree.children()).hasSize(4);
+    assertThat(tree.variableAssignments()).hasSize(1);
+
+    KeyValuePairTree keyValuePair = tree.variableAssignments().get(0);
+    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertThat(keyValuePair.key().value()).isEqualTo("CPATH");
+    assertThat(keyValuePair.equals().value()).isEqualTo("=");
+    assertThat(keyValuePair.value().value()).isEqualTo("\"/usr/include/vtk-6.2\":$CPATH");
   }
 
   @Test

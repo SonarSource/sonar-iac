@@ -39,6 +39,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * This enum is for extracting key from code like: {@code key=value}.
    */
   KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX,
+  VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX,
   STRING_UNTIL_EOL,
   STRING_LITERAL_WITH_QUOTES,
   EQUALS_OPERATOR,
@@ -158,11 +159,13 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
     b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
-    b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SPACING, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
     b.rule(STRING_UNTIL_EOL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
     b.rule(STRING_LITERAL_WITH_QUOTES).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
 
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
+
+    b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SPACING, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
+    b.rule(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(b.regexp("(?:\"[^\"]*\"|[^\\s])+"));
 
     b.rule(EXPOSE_PORT).is(SPACING, b.regexp("[0-9]+"));
     b.rule(EXPOSE_SEPARATOR_PORT).is(b.regexp("-"));

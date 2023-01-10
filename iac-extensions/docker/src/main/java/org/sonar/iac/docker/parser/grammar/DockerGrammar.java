@@ -62,6 +62,7 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LI
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
 
 @SuppressWarnings("java:S100")
 public class DockerGrammar {
@@ -300,7 +301,7 @@ public class DockerGrammar {
    */
   public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
     return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
-      f.keyValuePairEquals(b.token(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX), b.token(Punctuator.EQU), b.token(STRING_LITERAL))
+      f.keyValuePairEquals(b.token(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX), b.token(Punctuator.EQU), b.token(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX))
     );
   }
 
