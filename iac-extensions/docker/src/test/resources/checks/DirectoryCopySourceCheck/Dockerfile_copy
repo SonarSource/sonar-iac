@@ -123,3 +123,6 @@ COPY test/a* /example
 # Specific COPY use case
 COPY --from . /example
 COPY --from=bob "/" /example
+
+# FN, we don't handle yet element **
+ADD ./a/** /example

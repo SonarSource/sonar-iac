@@ -93,7 +93,7 @@ public class DirectoryCopySourceCheck implements IacCheck {
     String[] levels = normalize(path);
     if (levels.length == 0) return PathSensitivity.ROOT_OR_CURRENT;
     if (levels.length == 1 && (isRootOrCurrent(levels[0]))) return PathSensitivity.ROOT_OR_CURRENT;
-    int topLevel = getTopLevelIndex(levels);
+    int topLevel = getLevelToCheckIndex(levels);
     if (levels[topLevel].endsWith("*") && levels.length == topLevel+1) return PathSensitivity.TOP_LEVEL_GLOBBING;
     return PathSensitivity.SAFE;
   }
@@ -102,7 +102,14 @@ public class DirectoryCopySourceCheck implements IacCheck {
     return (level.isEmpty() || ".".equals(level) || WINDOWS_DRIVE_PATTERN.matcher(level).find());
   }
 
-  private static int getTopLevelIndex(String[] levels) {
+  /**
+   * Provide the index of the level that must be check in regard of if it is ending with a wildcard.
+   * The purpose is to skip the first level if it corresponds to a root or current folder representation.
+   * Examples :
+   * - will return index 0 : test, test/test2
+   * - will return index 1 : ./a, /a, c:/a
+   */
+  private static int getLevelToCheckIndex(String[] levels) {
     if (isRootOrCurrent(levels[0])) return 1;
     return 0;
   }
