@@ -301,7 +301,7 @@ public class DockerGrammar {
    */
   public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
     return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
-      f.keyValuePairEquals(b.token(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX), b.token(Punctuator.EQU), b.token(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX))
+      f.keyValuePairEquals(b.token(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX), b.token(Punctuator.EQU), b.optional(b.token(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX)))
     );
   }
 
