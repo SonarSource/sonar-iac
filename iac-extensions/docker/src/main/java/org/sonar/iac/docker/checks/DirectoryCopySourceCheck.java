@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.checks;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -84,17 +83,18 @@ public class DirectoryCopySourceCheck implements IacCheck {
    * Indicate if a path is sensitive. A path is sensitive if any of the current condition is true :
    * <ul>
    * <li>if the provided path resolve to a root level or to the current directory</li>
-   * <li>if there is any top level entry (level <= 1) ending with a wildcard</li>
+   * <li>if the top level entry end with a wildcard and there is no level below</li>
    * </ul>
    * Examples of root level : '/' ; '/test/..' ; 'c:/' ; 'c:/test/..'
    * Examples of current level : '.' ; './test/..'
-   * Examples of top level entry ending with wildcard : 'a*' ; './a*' ; '/a*' ; './test/../a*'
+   * Examples of top level entry ending with wildcard and nothing behind : 'a*' ; './a*' ; '/a*' ; './test/../a*'
    */
   private static PathSensitivity isSensitivePath(String path) {
     String[] levels = normalize(path);
     if (levels.length == 0) return PathSensitivity.ROOT_OR_CURRENT;
     if (levels.length == 1 && (isRootOrCurrent(levels[0]))) return PathSensitivity.ROOT_OR_CURRENT;
-    if (Arrays.stream(levels).limit(2).anyMatch(l -> l.endsWith("*"))) return PathSensitivity.TOP_LEVEL_GLOBBING;
+    int topLevel = getLevelToCheckIndex(levels);
+    if (levels[topLevel].endsWith("*") && levels.length == topLevel+1) return PathSensitivity.TOP_LEVEL_GLOBBING;
     return PathSensitivity.SAFE;
   }
 
@@ -102,7 +102,19 @@ public class DirectoryCopySourceCheck implements IacCheck {
     return (level.isEmpty() || ".".equals(level) || WINDOWS_DRIVE_PATTERN.matcher(level).find());
   }
 
-  private static String[] normalize(String path) {
+  /**
+   * Provide the index of the level that must be check in regard of if it is ending with a wildcard.
+   * The purpose is to skip the first level if it corresponds to a root or current folder representation.
+   * Examples :
+   * - will return index 0 : test, test/test2
+   * - will return index 1 : ./a, /a, c:/a
+   */
+  private static int getLevelToCheckIndex(String[] levels) {
+    if (isRootOrCurrent(levels[0])) return 1;
+    return 0;
+  }
+
+  static String[] normalize(String path) {
     Deque<String> levels = new ArrayDeque<>();
     for (String current : path.split("/")) {
       if ("..".equals(current) && !levels.isEmpty()) {

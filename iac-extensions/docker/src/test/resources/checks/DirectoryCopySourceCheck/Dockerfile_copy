@@ -77,10 +77,22 @@ COPY ./a*/ /example
 COPY /test/../a* /example
 
 # Noncompliant@+1
-COPY ./a*/.. /example
+COPY c:/a* /example
 
 # Noncompliant@+1
-COPY ./a*/test /example
+COPY c:/../a* /example
+
+# Noncompliant@+1
+COPY /../a* /example
+
+# Noncompliant@+1
+COPY ./a*/ /example
+
+# Noncompliant@+1
+COPY /test/../a* /example
+
+# Noncompliant@+1
+COPY ./a*/.. /example
 
 COPY ./example /example
 COPY "./example" /example
@@ -101,7 +113,16 @@ COPY ./*.py /example
 COPY ./*a /example
 COPY *a /example
 COPY ./a*/../test /example
+COPY ./a*/test /example
+COPY ./a*/*.py /example
+COPY /a*/*.py /example
+COPY ./test/a* /example
+COPY /test/a* /example
+COPY test/a* /example
 
 # Specific COPY use case
 COPY --from . /example
 COPY --from=bob "/" /example
+
+# FN, we don't handle yet element **
+ADD ./a/** /example

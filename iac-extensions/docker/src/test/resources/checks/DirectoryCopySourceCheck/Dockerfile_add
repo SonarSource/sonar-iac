@@ -64,10 +64,6 @@ ADD /source1 / /example
 # Noncompliant@+1
 ADD "/" /example
 
-# Unlike COPY, the --from option does not prevent raisin issue
-# Noncompliant@+1
-ADD --from . /example
-
 # Noncompliant@+1
 ADD /a* /example
 
@@ -81,6 +77,9 @@ ADD ./a*/ /example
 ADD /test/../a* /example
 
 # Noncompliant@+1
+ADD c:/a* /example
+
+# Noncompliant@+1
 ADD c:/../a* /example
 
 # Noncompliant@+1
@@ -88,9 +87,6 @@ ADD /../a* /example
 
 # Noncompliant@+1
 ADD http:/.. /example
-
-# Noncompliant@+1
-ADD ./a*/test /example
 
 # Noncompliant@+1
 ADD ./a*/.. /example
@@ -113,8 +109,18 @@ ADD ./*.py /example
 ADD ./*a /example
 ADD *a /example
 ADD ./a*/../test /example
+ADD ./a*/test /example
+ADD ./a*/*.py /example
+ADD /a*/*.py /example
 
 # specific ADD use case
 ADD http://.. /example
 ADD https://.. /example
 ADD "http://.." /example
+
+# Unlike COPY, the --from option does not prevent raising issue
+# Noncompliant@+1
+ADD --from . /example
+
+# FN, we don't handle yet element **
+ADD ./a/** /example
