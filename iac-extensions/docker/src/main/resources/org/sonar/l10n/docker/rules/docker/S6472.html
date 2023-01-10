@@ -36,18 +36,22 @@ ENV ACCESS_TOKEN=${ACCESS_TOKEN}
 CMD /run.sh
 </pre>
 <h2>Compliant Solution</h2>
-<p>For build time secrets:</p>
+<p>For build time secrets, use <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Buildkit’s secret mount type</a>
+instead:</p>
 <pre>
 FROM example
 RUN --mount=type=secret,id=build_secret ./installer.sh
 </pre>
-<p>For runtime secrets:</p>
+<p>For runtime secrets, leave the environment variables empty until runtime:</p>
 <pre>
 FROM example
 ENV ACCESS_TOKEN=""
 CMD /run.sh
 </pre>
-<p>The container is then started with:</p>
+<p>Store the runtime secrets in an <a href="https://docs.docker.com/compose/env-file/">environment file</a> (such as <code>.env</code>) and then start
+the container with the <a
+href="https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables—​e---env---env-file"><code>--env-file</code></a>
+argument:</p>
 <pre>
 docker run --env-file .env myImage
 </pre>
