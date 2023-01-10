@@ -185,8 +185,8 @@ public class TreeFactory {
     return new KeyValuePairTreeImpl(key, null, value);
   }
 
-  public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, SyntaxToken value) {
-    return new KeyValuePairTreeImpl(key, equals, value);
+  public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, Optional<SyntaxToken> value) {
+    return new KeyValuePairTreeImpl(key, equals, value.orNull());
   }
 
   public ParamTree param(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, Optional<SyntaxToken> value) {
