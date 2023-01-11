@@ -47,7 +47,7 @@ import org.sonar.iac.docker.visitors.DockerMetricsVisitor;
 public class DockerSensor extends IacSensor {
   private final Checks<IacCheck> checks;
 
-  protected DockerSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+  public DockerSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
                          NoSonarFilter noSonarFilter, DockerLanguage language) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
