@@ -8,9 +8,10 @@ It is a component of the [SonarQube](https://www.sonarqube.org/) platform and it
 It allows to produce stable and easily supported code by helping you find and correct vulnerabilities and code smells in your projects.
 
 # Features
-* 30+ rules
+* 80+ rules
 * Supports CloudFormation JSON/YAML
 * Supports Kubernetes YAML
+* Supports Dockerfiles
 * Supports Terraform for AWS
   * HCL native syntax for files named with a .tf suffix (JSON format not supported)
   * Terraform for Azure and GCP: coming soon
