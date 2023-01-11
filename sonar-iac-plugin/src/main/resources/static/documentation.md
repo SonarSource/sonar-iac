@@ -1,5 +1,5 @@
 ---
-title: Terraform/CloudFormation/Kubernetes
+title: Terraform/CloudFormation/Kubernetes/Docker
 key: iac
 ---
 
@@ -15,6 +15,7 @@ Discover and update the CloudFormation [properties](/analysis/analysis-parameter
 
 Discover and update the Kubernetes [properties](/analysis/analysis-parameters/) in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > Languages > Kubernetes](/#sonarqube-admin#/admin/settings?category=Kubernetes)**
 
+Discover and update the Docker [properties](/analysis/analysis-parameters/) in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > Languages > Docker](/#sonarqube-admin#/admin/settings?category=Docker)**
 
 ## Supported Versions, Formats and Providers
 * Terraform 1.x (HCL format only)
