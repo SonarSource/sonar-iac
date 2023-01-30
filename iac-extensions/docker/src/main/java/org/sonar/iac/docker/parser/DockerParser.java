@@ -25,12 +25,12 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.Docker;
 import org.sonar.iac.docker.parser.grammar.DockerGrammar;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public class DockerParser extends ActionParser<DockerTree> implements TreeParser<Tree> {
+public class DockerParser extends ActionParser<Docker> implements TreeParser<Tree> {
 
   public DockerParser() {
     this(DockerLexicalGrammar.FILE);
@@ -46,8 +46,8 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
   }
 
   @Override
-  public DockerTree parse(String source) {
-    DockerTree tree = super.parse(source);
+  public Docker parse(String source) {
+    Docker tree = super.parse(source);
     setParents(tree);
     return tree;
   }
@@ -57,9 +57,9 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
     return parse(source);
   }
 
-  private static void setParents(DockerTree tree) {
+  private static void setParents(Docker tree) {
     for (Tree children : tree.children()) {
-      DockerTree child = (DockerTree) children;
+      Docker child = (Docker) children;
       child.setParent(tree);
       setParents(child);
     }

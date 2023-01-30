@@ -31,8 +31,8 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.docker.tree.api.EnvTree;
-import org.sonar.iac.docker.tree.api.KeyValuePairTree;
+import org.sonar.iac.docker.tree.api.EnvInstruction;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 
 @Rule(key = "S6472")
 public class EnvSecretCheck implements IacCheck {
@@ -63,6 +63,8 @@ public class EnvSecretCheck implements IacCheck {
   private static final String ROOT_PATH_PATTERN = "^/[a-z]*+($|/)";
   private static final String RELATIVE_PATH_PATTERN = "^./[a-zA-Z_-]*+($|/)";
   private static final String EXPANSION_PATH_PATTERN = "^\\$\\{[^}]+}/";
+  // FP URIs should not be hardcoded
+  @SuppressWarnings("java:S1075")
   private static final String PATH_WITH_EXPANSION_PATTERN = "/.*+\\.[a-z0-9]{2,4}$";
   private static final Pattern PATH_PATTERN = Pattern.compile("(" + ROOT_PATH_PATTERN + "|" + RELATIVE_PATH_PATTERN
     + "|" + EXPANSION_PATH_PATTERN + "|" + PATH_WITH_EXPANSION_PATTERN + ")");
@@ -70,11 +72,11 @@ public class EnvSecretCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(EnvTree.class, (ctx, instruction) -> instruction
+    init.register(EnvInstruction.class, (ctx, instruction) -> instruction
       .variableAssignments().forEach(envVarAssignment -> checkEnvVariableAssignment(ctx, envVarAssignment)));
   }
 
-  private static void checkEnvVariableAssignment(CheckContext ctx, KeyValuePairTree envVarAssignment) {
+  private static void checkEnvVariableAssignment(CheckContext ctx, KeyValuePair envVarAssignment) {
     if (isSensitiveName(envVarAssignment.key().value()) && isSensitiveValue(envVarAssignment.value().value())) {
       ctx.reportIssue(envVarAssignment.key(), MESSAGE);
     }

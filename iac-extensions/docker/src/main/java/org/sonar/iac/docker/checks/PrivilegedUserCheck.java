@@ -30,10 +30,10 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.TreeUtils;
-import org.sonar.iac.docker.tree.api.DockerImageTree;
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.FileTree;
-import org.sonar.iac.docker.tree.api.UserTree;
+import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.File;
+import org.sonar.iac.docker.tree.api.UserInstruction;
 
 @Rule(key = "S6471")
 public class PrivilegedUserCheck implements IacCheck {
@@ -75,15 +75,15 @@ public class PrivilegedUserCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(DockerImageTree.class, this::handle);
+    init.register(DockerImage.class, this::handle);
   }
 
-  private void handle(CheckContext ctx, DockerImageTree dockerImage) {
+  private void handle(CheckContext ctx, DockerImage dockerImage) {
     if(!isLastDockerImageInFile(dockerImage)) {
       return;
     }
     String imageName = dockerImage.from().image().name().value();
-    Optional<UserTree> lastUser = getLastUser(dockerImage);
+    Optional<UserInstruction> lastUser = getLastUser(dockerImage);
 
     if (lastUser.isEmpty()) {
       if (isScratchImage(imageName)) {
@@ -103,15 +103,15 @@ public class PrivilegedUserCheck implements IacCheck {
     }
   }
 
-  private static boolean isLastDockerImageInFile(DockerImageTree dockerImage) {
-    FileTree parent = (FileTree) dockerImage.parent();
-    List<DockerImageTree> dockerImageTrees = parent.dockerImages();
-    DockerImageTree last = dockerImageTrees.get(dockerImageTrees.size() - 1);
+  private static boolean isLastDockerImageInFile(DockerImage dockerImage) {
+    File parent = (File) dockerImage.parent();
+    List<DockerImage> dockerImages = parent.dockerImages();
+    DockerImage last = dockerImages.get(dockerImages.size() - 1);
     return last == dockerImage;
   }
 
-  private static Optional<UserTree> getLastUser(DockerImageTree dockerImage) {
-    return TreeUtils.getLastDescendant(dockerImage, tree -> ((DockerTree) tree).is(DockerTree.Kind.USER)).map(UserTree.class::cast);
+  private static Optional<UserInstruction> getLastUser(DockerImage dockerImage) {
+    return TreeUtils.getLastDescendant(dockerImage, tree -> ((Docker) tree).is(Docker.Kind.USER)).map(UserInstruction.class::cast);
   }
 
   // All possible image use cases

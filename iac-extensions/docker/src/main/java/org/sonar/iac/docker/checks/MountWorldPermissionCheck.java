@@ -30,8 +30,8 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.tree.api.ParamTree;
-import org.sonar.iac.docker.tree.api.RunTree;
+import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.CheckUtils;
 
@@ -52,9 +52,9 @@ public class MountWorldPermissionCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunTree.class, (ctx, run) ->
+    init.register(RunInstruction.class, (ctx, run) ->
       CheckUtils.getParamByName(run.options(), "mount")
-        .map(ParamTree::value)
+        .map(Param::value)
         .ifPresent(mount -> checkMountParam(ctx, mount)));
   }
 

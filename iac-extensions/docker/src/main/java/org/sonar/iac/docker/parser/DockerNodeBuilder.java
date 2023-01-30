@@ -32,8 +32,8 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.impl.DockerTreeImpl;
+import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.impl.AbstractDockerImpl;
 import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -48,15 +48,15 @@ public class DockerNodeBuilder implements NodeBuilder {
       }
     }
 
-    return new DockerTreeImpl() {
+    return new AbstractDockerImpl() {
       @Override
       public List<Tree> children() {
         throw new UnsupportedOperationException();
       }
 
       @Override
-      public DockerTree.Kind getKind() {
-        return DockerTree.Kind.TOKEN;
+      public Docker.Kind getKind() {
+        return Docker.Kind.TOKEN;
       }
     };
   }

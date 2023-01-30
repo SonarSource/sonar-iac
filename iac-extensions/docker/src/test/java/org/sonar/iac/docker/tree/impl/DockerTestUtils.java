@@ -19,15 +19,15 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.Docker;
 import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class DockerTestUtils {
 
-  public static <T extends DockerTree> T parse(String input, GrammarRuleKey rootRule) {
+  public static <T extends Docker> T parse(String input, GrammarRuleKey rootRule) {
     DockerParser parser = new DockerParser(rootRule);
-    DockerTree tree = parser.parse(input);
+    Docker tree = parser.parse(input);
 
     return (T) tree;
   }

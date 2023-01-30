@@ -23,37 +23,37 @@ import com.sonar.sslr.api.typed.GrammarBuilder;
 import java.util.List;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.iac.docker.parser.TreeFactory;
-import org.sonar.iac.docker.tree.api.AddTree;
-import org.sonar.iac.docker.tree.api.AliasTree;
-import org.sonar.iac.docker.tree.api.ArgTree;
-import org.sonar.iac.docker.tree.api.CmdTree;
-import org.sonar.iac.docker.tree.api.CopyTree;
-import org.sonar.iac.docker.tree.api.DockerImageTree;
-import org.sonar.iac.docker.tree.api.EntrypointTree;
-import org.sonar.iac.docker.tree.api.EnvTree;
-import org.sonar.iac.docker.tree.api.ExecFormTree;
-import org.sonar.iac.docker.tree.api.ExposeTree;
-import org.sonar.iac.docker.tree.api.FileTree;
-import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.tree.api.HealthCheckTree;
-import org.sonar.iac.docker.tree.api.HereDocumentTree;
-import org.sonar.iac.docker.tree.api.ImageTree;
-import org.sonar.iac.docker.tree.api.InstructionTree;
-import org.sonar.iac.docker.tree.api.KeyValuePairTree;
-import org.sonar.iac.docker.tree.api.LabelTree;
-import org.sonar.iac.docker.tree.api.MaintainerTree;
-import org.sonar.iac.docker.tree.api.NoneTree;
-import org.sonar.iac.docker.tree.api.OnBuildTree;
-import org.sonar.iac.docker.tree.api.ParamTree;
-import org.sonar.iac.docker.tree.api.PortTree;
-import org.sonar.iac.docker.tree.api.RunTree;
-import org.sonar.iac.docker.tree.api.ShellFormTree;
-import org.sonar.iac.docker.tree.api.ShellTree;
-import org.sonar.iac.docker.tree.api.StopSignalTree;
+import org.sonar.iac.docker.tree.api.AddInstruction;
+import org.sonar.iac.docker.tree.api.Alias;
+import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.CmdInstruction;
+import org.sonar.iac.docker.tree.api.CopyInstruction;
+import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.EntrypointInstruction;
+import org.sonar.iac.docker.tree.api.EnvInstruction;
+import org.sonar.iac.docker.tree.api.ExecForm;
+import org.sonar.iac.docker.tree.api.ExposeInstruction;
+import org.sonar.iac.docker.tree.api.File;
+import org.sonar.iac.docker.tree.api.FromInstruction;
+import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
+import org.sonar.iac.docker.tree.api.HereDocument;
+import org.sonar.iac.docker.tree.api.Image;
+import org.sonar.iac.docker.tree.api.Instruction;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.LabelInstruction;
+import org.sonar.iac.docker.tree.api.MaintainerInstruction;
+import org.sonar.iac.docker.tree.api.NoneInstruction;
+import org.sonar.iac.docker.tree.api.OnBuildInstruction;
+import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Port;
+import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.tree.api.ShellForm;
+import org.sonar.iac.docker.tree.api.ShellInstruction;
+import org.sonar.iac.docker.tree.api.StopSignalInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.tree.api.UserTree;
-import org.sonar.iac.docker.tree.api.VolumeTree;
-import org.sonar.iac.docker.tree.api.WorkdirTree;
+import org.sonar.iac.docker.tree.api.UserInstruction;
+import org.sonar.iac.docker.tree.api.VolumeInstruction;
+import org.sonar.iac.docker.tree.api.WorkdirInstruction;
 
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAME;
@@ -75,8 +75,8 @@ public class DockerGrammar {
     this.f = f;
   }
 
-  public FileTree FILE() {
-    return b.<FileTree>nonterminal(DockerLexicalGrammar.FILE).is(
+  public File FILE() {
+    return b.<File>nonterminal(DockerLexicalGrammar.FILE).is(
       f.file(
         b.zeroOrMore(ARG()),
         b.zeroOrMore(DOCKERIMAGE()),
@@ -85,8 +85,8 @@ public class DockerGrammar {
     );
   }
 
-  public DockerImageTree DOCKERIMAGE() {
-    return b.<DockerImageTree>nonterminal(DockerLexicalGrammar.DOCKERIMAGE).is(
+  public DockerImage DOCKERIMAGE() {
+    return b.<DockerImage>nonterminal(DockerLexicalGrammar.DOCKERIMAGE).is(
       f.dockerImage(
         FROM(),
         b.zeroOrMore(INSTRUCTION())
@@ -94,8 +94,8 @@ public class DockerGrammar {
     );
   }
 
-  public InstructionTree INSTRUCTION() {
-    return b.<InstructionTree>nonterminal(DockerLexicalGrammar.INSTRUCTION).is(
+  public Instruction INSTRUCTION() {
+    return b.<Instruction>nonterminal(DockerLexicalGrammar.INSTRUCTION).is(
       f.instruction(
         b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.firstOf(
@@ -121,8 +121,8 @@ public class DockerGrammar {
     );
   }
 
-  public OnBuildTree ONBUILD() {
-    return b.<OnBuildTree>nonterminal(DockerLexicalGrammar.ONBUILD).is(
+  public OnBuildInstruction ONBUILD() {
+    return b.<OnBuildInstruction>nonterminal(DockerLexicalGrammar.ONBUILD).is(
       f.onbuild(
         b.token(DockerKeyword.ONBUILD),
         INSTRUCTION()
@@ -130,8 +130,8 @@ public class DockerGrammar {
     );
   }
 
-  public FromTree FROM() {
-    return b.<FromTree>nonterminal(DockerLexicalGrammar.FROM).is(
+  public FromInstruction FROM() {
+    return b.<FromInstruction>nonterminal(DockerLexicalGrammar.FROM).is(
       f.from(
         b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.token(DockerKeyword.FROM),
@@ -142,8 +142,8 @@ public class DockerGrammar {
     );
   }
 
-  public ParamTree PARAM() {
-    return b.<ParamTree>nonterminal(DockerLexicalGrammar.PARAM).is(
+  public Param PARAM() {
+    return b.<Param>nonterminal(DockerLexicalGrammar.PARAM).is(
       f.param(
         b.token(DockerLexicalGrammar.PARAM_PREFIX),
         b.token(DockerLexicalGrammar.PARAM_NAME),
@@ -153,8 +153,8 @@ public class DockerGrammar {
     );
   }
 
-  public ParamTree PARAM_NO_VALUE() {
-    return b.<ParamTree>nonterminal(DockerLexicalGrammar.PARAM_NO_VALUE).is(
+  public Param PARAM_NO_VALUE() {
+    return b.<Param>nonterminal(DockerLexicalGrammar.PARAM_NO_VALUE).is(
       f.param(
         b.token(DockerLexicalGrammar.PARAM_PREFIX),
         b.token(DockerLexicalGrammar.PARAM_NAME)
@@ -162,8 +162,8 @@ public class DockerGrammar {
     );
   }
 
-  public ImageTree IMAGE() {
-    return b.<ImageTree>nonterminal(DockerLexicalGrammar.IMAGE).is(
+  public Image IMAGE() {
+    return b.<Image>nonterminal(DockerLexicalGrammar.IMAGE).is(
       f.image(
         b.token(IMAGE_NAME),
         b.optional(b.token(IMAGE_TAG)),
@@ -172,8 +172,8 @@ public class DockerGrammar {
     );
   }
 
-  public AliasTree ALIAS() {
-    return b.<AliasTree>nonterminal(DockerLexicalGrammar.ALIAS).is(
+  public Alias ALIAS() {
+    return b.<Alias>nonterminal(DockerLexicalGrammar.ALIAS).is(
       f.alias(
         b.token(DockerKeyword.AS),
         b.token(DockerLexicalGrammar.IMAGE_ALIAS)
@@ -181,8 +181,8 @@ public class DockerGrammar {
     );
   }
 
-  public MaintainerTree MAINTAINER() {
-    return b.<MaintainerTree>nonterminal(DockerLexicalGrammar.MAINTAINER).is(
+  public MaintainerInstruction MAINTAINER() {
+    return b.<MaintainerInstruction>nonterminal(DockerLexicalGrammar.MAINTAINER).is(
       f.maintainer(b.token(DockerKeyword.MAINTAINER), ARGUMENTS())
     );
   }
@@ -195,8 +195,8 @@ public class DockerGrammar {
     );
   }
 
-  public StopSignalTree STOPSIGNAL() {
-    return b.<StopSignalTree>nonterminal(DockerLexicalGrammar.STOPSIGNAL).is(
+  public StopSignalInstruction STOPSIGNAL() {
+    return b.<StopSignalInstruction>nonterminal(DockerLexicalGrammar.STOPSIGNAL).is(
       f.stopSignal(
         b.token(DockerKeyword.STOPSIGNAL),
         b.token(STRING_LITERAL)
@@ -204,8 +204,8 @@ public class DockerGrammar {
     );
   }
 
-  public WorkdirTree WORKDIR() {
-    return b.<WorkdirTree>nonterminal(DockerLexicalGrammar.WORKDIR).is(
+  public WorkdirInstruction WORKDIR() {
+    return b.<WorkdirInstruction>nonterminal(DockerLexicalGrammar.WORKDIR).is(
       f.workdir(
         b.token(DockerKeyword.WORKDIR),
         ARGUMENTS()
@@ -213,14 +213,14 @@ public class DockerGrammar {
     );
   }
 
-  public ExposeTree EXPOSE() {
-    return b.<ExposeTree>nonterminal(DockerLexicalGrammar.EXPOSE).is(
+  public ExposeInstruction EXPOSE() {
+    return b.<ExposeInstruction>nonterminal(DockerLexicalGrammar.EXPOSE).is(
       f.expose(b.token(DockerKeyword.EXPOSE), b.oneOrMore(PORT()))
     );
   }
 
-  public PortTree PORT() {
-    return b.<PortTree>nonterminal(DockerLexicalGrammar.PORT).is(
+  public Port PORT() {
+    return b.<Port>nonterminal(DockerLexicalGrammar.PORT).is(
       b.firstOf(
         f.port(
           b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT),
@@ -243,8 +243,8 @@ public class DockerGrammar {
     );
   }
 
-  public LabelTree LABEL() {
-    return b.<LabelTree>nonterminal(DockerLexicalGrammar.LABEL).is(
+  public LabelInstruction LABEL() {
+    return b.<LabelInstruction>nonterminal(DockerLexicalGrammar.LABEL).is(
       f.label(b.token(DockerKeyword.LABEL),
         b.oneOrMore(
           b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
@@ -253,8 +253,8 @@ public class DockerGrammar {
     );
   }
 
-  public EnvTree ENV() {
-    return b.<EnvTree>nonterminal(DockerLexicalGrammar.ENV).is(
+  public EnvInstruction ENV() {
+    return b.<EnvInstruction>nonterminal(DockerLexicalGrammar.ENV).is(
       f.env(b.token(DockerKeyword.ENV),
         b.oneOrMore(
           b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
@@ -263,8 +263,8 @@ public class DockerGrammar {
     );
   }
 
-  public UserTree USER() {
-    return b.<UserTree>nonterminal(DockerLexicalGrammar.USER).is(
+  public UserInstruction USER() {
+    return b.<UserInstruction>nonterminal(DockerLexicalGrammar.USER).is(
       f.user(
         b.token(DockerKeyword.USER),
         b.token(DockerLexicalGrammar.USER_NAME),
@@ -281,8 +281,8 @@ public class DockerGrammar {
   /**
    * To match such element as KeyValuePairTree : key
    */
-  public KeyValuePairTree KEY_ONLY() {
-    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_ONLY).is(
+  public KeyValuePair KEY_ONLY() {
+    return b.<KeyValuePair>nonterminal(DockerLexicalGrammar.KEY_ONLY).is(
       f.key(b.token(STRING_LITERAL))
     );
   }
@@ -290,8 +290,8 @@ public class DockerGrammar {
   /**
    * To match such element : key1 value1 value1bis value1tris
    */
-  public KeyValuePairTree KEY_VALUE_PAIR() {
-    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_SINGLE).is(
+  public KeyValuePair KEY_VALUE_PAIR() {
+    return b.<KeyValuePair>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_SINGLE).is(
       f.keyValuePair(b.token(STRING_LITERAL), b.token(STRING_UNTIL_EOL))
     );
   }
@@ -299,14 +299,14 @@ public class DockerGrammar {
   /**
    * To match such element : key1=value1
    */
-  public KeyValuePairTree KEY_VALUE_PAIR_WITH_EQUALS() {
-    return b.<KeyValuePairTree>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
+  public KeyValuePair KEY_VALUE_PAIR_WITH_EQUALS() {
+    return b.<KeyValuePair>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
       f.keyValuePairEquals(b.token(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX), b.token(Punctuator.EQU), b.optional(b.token(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX)))
     );
   }
 
-  public ArgTree ARG() {
-    return b.<ArgTree>nonterminal(DockerLexicalGrammar.ARG).is(
+  public ArgInstruction ARG() {
+    return b.<ArgInstruction>nonterminal(DockerLexicalGrammar.ARG).is(
       f.arg(
         b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.token(DockerKeyword.ARG),
@@ -320,8 +320,8 @@ public class DockerGrammar {
     );
   }
 
-  public AddTree ADD() {
-    return b.<AddTree>nonterminal(DockerLexicalGrammar.ADD).is(
+  public AddInstruction ADD() {
+    return b.<AddInstruction>nonterminal(DockerLexicalGrammar.ADD).is(
       f.add(
         b.token(DockerKeyword.ADD),
         b.zeroOrMore(
@@ -338,8 +338,8 @@ public class DockerGrammar {
     );
   }
 
-  public CopyTree COPY() {
-    return b.<CopyTree>nonterminal(DockerLexicalGrammar.COPY).is(
+  public CopyInstruction COPY() {
+    return b.<CopyInstruction>nonterminal(DockerLexicalGrammar.COPY).is(
       f.copy(
         b.token(DockerKeyword.COPY),
         b.zeroOrMore(
@@ -357,8 +357,8 @@ public class DockerGrammar {
     );
   }
 
-  public CmdTree CMD() {
-    return b.<CmdTree>nonterminal(DockerLexicalGrammar.CMD).is(
+  public CmdInstruction CMD() {
+    return b.<CmdInstruction>nonterminal(DockerLexicalGrammar.CMD).is(
       f.cmd(
         b.token(DockerKeyword.CMD),
         b.optional(
@@ -371,8 +371,8 @@ public class DockerGrammar {
     );
   }
 
-  public EntrypointTree ENTRYPOINT() {
-    return b.<EntrypointTree>nonterminal(DockerLexicalGrammar.ENTRYPOINT).is(
+  public EntrypointInstruction ENTRYPOINT() {
+    return b.<EntrypointInstruction>nonterminal(DockerLexicalGrammar.ENTRYPOINT).is(
       f.entrypoint(
         b.token(DockerKeyword.ENTRYPOINT),
         b.optional(
@@ -385,8 +385,8 @@ public class DockerGrammar {
     );
   }
 
-  public RunTree RUN() {
-    return b.<RunTree>nonterminal(DockerLexicalGrammar.RUN).is(
+  public RunInstruction RUN() {
+    return b.<RunInstruction>nonterminal(DockerLexicalGrammar.RUN).is(
       f.run(
         b.token(DockerKeyword.RUN),
         b.zeroOrMore(
@@ -406,8 +406,8 @@ public class DockerGrammar {
     );
   }
 
-  public HealthCheckTree HEALTHCHECK() {
-    return b.<HealthCheckTree>nonterminal(DockerLexicalGrammar.HEALTHCHECK).is(
+  public HealthCheckInstruction HEALTHCHECK() {
+    return b.<HealthCheckInstruction>nonterminal(DockerLexicalGrammar.HEALTHCHECK).is(
       f.healthcheck(
         b.token(DockerKeyword.HEALTHCHECK),
         b.zeroOrMore(PARAM()),
@@ -416,8 +416,8 @@ public class DockerGrammar {
     );
   }
 
-  public ShellTree SHELL() {
-    return b.<ShellTree>nonterminal(DockerLexicalGrammar.SHELL).is(
+  public ShellInstruction SHELL() {
+    return b.<ShellInstruction>nonterminal(DockerLexicalGrammar.SHELL).is(
       f.shell(
         b.token(DockerKeyword.SHELL),
         EXEC_FORM()
@@ -425,8 +425,8 @@ public class DockerGrammar {
     );
   }
 
-  public NoneTree NONE() {
-    return b.<NoneTree>nonterminal(DockerLexicalGrammar.NONE).is(
+  public NoneInstruction NONE() {
+    return b.<NoneInstruction>nonterminal(DockerLexicalGrammar.NONE).is(
       f.none(b.token(DockerKeyword.NONE))
     );
   }
@@ -436,8 +436,8 @@ public class DockerGrammar {
    * {@code ["executable","param1","param2"]}
    * what is used by different instructions like CMD, ENTRYPOINT, RUN, SHELL
    */
-  public ExecFormTree EXEC_FORM() {
-    return b.<ExecFormTree>nonterminal(DockerLexicalGrammar.EXEC_FORM).is(
+  public ExecForm EXEC_FORM() {
+    return b.<ExecForm>nonterminal(DockerLexicalGrammar.EXEC_FORM).is(
       f.execForm(
         b.token(Punctuator.LBRACKET),
         b.optional(
@@ -458,8 +458,8 @@ public class DockerGrammar {
   /**
    * Shell Form is a way to define some executable command fo different instructions like CMD, ENTRYPOINT, RUN
    */
-  public ShellFormTree SHELL_FORM() {
-    return b.<ShellFormTree>nonterminal(DockerLexicalGrammar.SHELL_FORM).is(
+  public ShellForm SHELL_FORM() {
+    return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM).is(
       f.shellForm(
         b.oneOrMore(
           b.token(STRING_LITERAL)
@@ -468,16 +468,16 @@ public class DockerGrammar {
     );
   }
 
-  public HereDocumentTree HEREDOC_FORM() {
-    return b.<HereDocumentTree>nonterminal(DockerLexicalGrammar.HEREDOC_FORM).is(
+  public HereDocument HEREDOC_FORM() {
+    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM).is(
       f.hereDocument(
         b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)
       )
     );
   }
 
-  public VolumeTree VOLUME() {
-    return b.<VolumeTree>nonterminal(DockerLexicalGrammar.VOLUME).is(
+  public VolumeInstruction VOLUME() {
+    return b.<VolumeInstruction>nonterminal(DockerLexicalGrammar.VOLUME).is(
       f.volume(
         b.token(DockerKeyword.VOLUME),
         b.firstOf(

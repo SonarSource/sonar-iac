@@ -30,8 +30,8 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.docker.tree.api.ExposeTree;
-import org.sonar.iac.docker.tree.api.PortTree;
+import org.sonar.iac.docker.tree.api.ExposeInstruction;
+import org.sonar.iac.docker.tree.api.Port;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 @Rule(key = "S6473")
@@ -51,7 +51,7 @@ public class ExposePortCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(ExposeTree.class, (ctx, instruction) -> instruction.ports().forEach(port -> checkPort(ctx, port)));
+    init.register(ExposeInstruction.class, (ctx, instruction) -> instruction.ports().forEach(port -> checkPort(ctx, port)));
     sensitivePorts = sensitivePorts(portList);
   }
 
@@ -65,7 +65,7 @@ public class ExposePortCheck implements IacCheck {
     }
   }
 
-  private void checkPort(CheckContext ctx, PortTree port) {
+  private void checkPort(CheckContext ctx, Port port) {
     if (isTcpProtocol(port.protocol())) {
       try {
         int min = Integer.parseInt(port.portMin().value());
