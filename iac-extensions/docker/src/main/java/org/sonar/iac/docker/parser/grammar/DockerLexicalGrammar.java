@@ -48,6 +48,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   /**
    * SPACING
    */
+  WHITESPACE,
   SPACING,
   INSTRUCTION_PREFIX,
   WHITESPACE_OR_ESCAPED_LINE_BREAK,
@@ -88,6 +89,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   PARAM,
   PARAM_NO_VALUE,
+  PARAMS,
   PARAM_PREFIX,
   PARAM_NAME,
   PARAM_VALUE,
@@ -133,6 +135,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
+    b.rule(WHITESPACE).is(b.regexp("["+LexicalConstant.WHITESPACE+"]+"));
 
     b.rule(WHITESPACE_OR_ESCAPED_LINE_BREAK).is(
       b.skippedTrivia(b.regexp("(?:[" + LexicalConstant.WHITESPACE + "]|" + DockerLexicalConstant.LINE_BREAK + ")*+"))
@@ -167,27 +170,27 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SPACING, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
     b.rule(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(b.regexp("(?:\"[^\"]*\"|[^\\s])+"));
 
-    b.rule(EXPOSE_PORT).is(SPACING, b.regexp("[0-9]+"));
+    b.rule(EXPOSE_PORT).is(b.regexp("[0-9]+"));
     b.rule(EXPOSE_SEPARATOR_PORT).is(b.regexp("-"));
     b.rule(EXPOSE_SEPARATOR_PROTOCOL).is(b.regexp("/"));
     b.rule(EXPOSE_PROTOCOL).is(b.regexp("[a-zA-Z]+"));
 
-    b.rule(IMAGE_NAME).is(SPACING, b.regexp("[^@:\\s-][^@:\\s\\$]+"));
+    b.rule(IMAGE_NAME).is(b.regexp("[^@:\\s-][^@:\\s\\$]+"));
     b.rule(IMAGE_TAG).is(b.regexp(":[^@\\s]+"));
     b.rule(IMAGE_DIGEST).is(b.regexp("@[a-zA-Z0-9:]+"));
-    b.rule(IMAGE_ALIAS).is(SPACING, b.regexp("[-a-zA-Z0-9_\\.]+"));
+    b.rule(IMAGE_ALIAS).is(b.regexp("[-a-zA-Z0-9_\\.]+"));
 
-    b.rule(PARAM_PREFIX).is(SPACING, b.regexp("--"));
+    b.rule(PARAM_PREFIX).is(b.regexp("--"));
     b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
     b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
 
     b.rule(USER_STRING).is(b.regexp("(?:[^:" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "])++"));
     b.rule(USER_VARIABLE).is(b.regexp("\\$(?:[a-zA-Z_][a-zA-Z0-9_]*|\\{[^}]+\\})"));
-    b.rule(USER_NAME).is(SPACING, b.firstOf(USER_STRING, USER_VARIABLE));
+    b.rule(USER_NAME).is(b.firstOf(USER_STRING, USER_VARIABLE));
     b.rule(USER_SEPARATOR).is(b.regexp(":"));
     b.rule(USER_GROUP).is(b.firstOf(USER_STRING, USER_VARIABLE));
 
-    b.rule(HEREDOC_EXPRESSION).is(SPACING, b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?:[\\n\\r]|$)"));
+    b.rule(HEREDOC_EXPRESSION).is(b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?:[\\n\\r]|$)"));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

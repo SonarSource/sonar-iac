@@ -35,7 +35,6 @@ class ParamImplTest {
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.PARAM)
       .matches("--platform=foo")
-      .matches(" --platform=foo")
       .matches("--platform=FOO")
       .matches("--chown=55:mygroup")
       .matches("--hello-world=foo")
@@ -43,6 +42,7 @@ class ParamImplTest {
       .matches("--mount=type=secret,id=build_secret,mode=0666")
       .matches("--platform=")
 
+      .notMatches(" --platform=foo")
       .notMatches("-platform=foo")
       .notMatches("platform=foo")
       .notMatches("--platform= foo")

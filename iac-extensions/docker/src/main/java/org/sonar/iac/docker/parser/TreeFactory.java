@@ -23,6 +23,7 @@ import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
@@ -109,11 +110,12 @@ public class TreeFactory {
     return new OnBuildInstructionImpl(keyword, instruction);
   }
 
-  public FromInstruction from(Optional<SyntaxToken> spacing, SyntaxToken keyword, Optional<Param> platform, Image image, Optional<Alias> alias) {
-    return new FromInstructionImpl(keyword, platform.orNull(), image, alias.orNull());
+
+  public FromInstruction from(Optional<SyntaxToken> spacing, SyntaxToken keyword, Optional<Tuple<SyntaxToken, Param>> spacingAndPlatform, SyntaxToken spacingBeforeImage, Image image, Optional<Alias> alias) {
+    return new FromInstructionImpl(keyword, spacingAndPlatform.isPresent() ? spacingAndPlatform.get().second() : null, image, alias.orNull());
   }
 
-  public Alias alias(SyntaxToken keyword, SyntaxToken alias) {
+  public Alias alias(SyntaxToken keyword, SyntaxToken spacing, SyntaxToken alias) {
     return new AliasImpl(keyword, alias);
   }
 
@@ -133,8 +135,8 @@ public class TreeFactory {
     return new WorkdirInstructionImpl(keyword, values);
   }
 
-  public ExposeInstruction expose(SyntaxToken keyword, List<Port> ports) {
-    return new ExposeInstructionImpl(keyword, ports);
+  public ExposeInstruction expose(SyntaxToken keyword, List<Tuple<SyntaxToken, Port>> ports) {
+    return new ExposeInstructionImpl(keyword, ports.stream().map(Tuple::second).collect(Collectors.toList()));
   }
 
   public Port port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, SyntaxToken separatorProtocol, SyntaxToken protocol) {
@@ -169,12 +171,12 @@ public class TreeFactory {
     return new ArgInstructionImpl(token, argNames);
   }
 
-  public AddInstruction add(SyntaxToken add, Optional<List<Param>> options, LiteralList srcsAndDest) {
-    return new AddInstructionImpl(add, options.or(Collections.emptyList()), srcsAndDest);
+  public AddInstruction add(SyntaxToken add, List<Param> options, LiteralList srcsAndDest) {
+    return new AddInstructionImpl(add, options, srcsAndDest);
   }
 
-  public CopyInstruction copy(SyntaxToken copy, Optional<List<Param>> options, LiteralList srcsAndDest) {
-    return new CopyInstructionImpl(copy, options.or(Collections.emptyList()), srcsAndDest);
+  public CopyInstruction copy(SyntaxToken copy, List<Param> options, SyntaxToken spacing, LiteralList srcsAndDest) {
+    return new CopyInstructionImpl(copy, options, srcsAndDest);
   }
 
   public KeyValuePair key(SyntaxToken key) {
@@ -197,6 +199,14 @@ public class TreeFactory {
     return new ParamImpl(prefix, name, null, null);
   }
 
+  public List<Param> params(Optional<List<Tuple<SyntaxToken, Param>>> params) {
+    if (params.isPresent()) {
+      return params.get().stream().map(Tuple::second).collect(Collectors.toList());
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
   public Image image(SyntaxToken name, Optional<SyntaxToken> tag, Optional<SyntaxToken> digest) {
     return new ImageImpl(name, tag.orNull(), digest.orNull());
   }
@@ -209,11 +219,11 @@ public class TreeFactory {
     return new EntrypointInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public RunInstruction run(SyntaxToken token, Optional<List<Param>> options, Optional<LiteralList> execFormOrShellForm) {
-    return new RunInstructionImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
+  public RunInstruction run(SyntaxToken token, List<Param> options, Optional<Tuple<SyntaxToken, LiteralList>> execFormOrShellFormWithSpaceBefore) {
+    return new RunInstructionImpl(token, options, execFormOrShellFormWithSpaceBefore.isPresent() ? execFormOrShellFormWithSpaceBefore.get().second() : null);
   }
 
-  public UserInstruction user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
+  public UserInstruction user(SyntaxToken keyword, SyntaxToken spacing, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
     if (colonAndGroup.isPresent()) {
       return new UserInstructionImpl(keyword, user, colonAndGroup.get().first(), colonAndGroup.get().second());
     } else {
@@ -229,8 +239,14 @@ public class TreeFactory {
     return new ShellInstructionImpl(token, execForm);
   }
 
-  public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Param>> options, Instruction instruction) {
-    return new HealthCheckInstructionImpl(healthcheck, options.or(Collections.emptyList()), instruction);
+  public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Tuple<SyntaxToken, Param>>> options, Instruction instruction) {
+    List<Param> params;
+    if (options.isPresent()) {
+      params = options.get().stream().map(Tuple::second).collect(Collectors.toList());
+    } else {
+      params = Collections.emptyList();
+    }
+    return new HealthCheckInstructionImpl(healthcheck, params, instruction);
   }
 
   public NoneInstruction none(SyntaxToken none) {

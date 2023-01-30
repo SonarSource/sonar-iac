@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.parser.grammar;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.iac.docker.parser.TreeFactory;
@@ -135,7 +136,8 @@ public class DockerGrammar {
       f.from(
         b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.token(DockerKeyword.FROM),
-        b.optional(PARAM()),
+        b.optional(f.tuple(b.token(DockerLexicalGrammar.WHITESPACE), PARAM())),
+        b.token(DockerLexicalGrammar.WHITESPACE),
         IMAGE(),
         b.optional(ALIAS())
       )
@@ -162,6 +164,22 @@ public class DockerGrammar {
     );
   }
 
+  public List<Param> PARAMS() {
+    return b.<List<Param>>nonterminal(DockerLexicalGrammar.PARAMS).is(
+      f.params(
+        b.zeroOrMore(
+          f.tuple(
+            b.token(DockerLexicalGrammar.WHITESPACE),
+            b.firstOf(
+              PARAM(),
+              PARAM_NO_VALUE()
+            )
+          )
+        )
+      )
+    );
+  }
+
   public Image IMAGE() {
     return b.<Image>nonterminal(DockerLexicalGrammar.IMAGE).is(
       f.image(
@@ -176,6 +194,7 @@ public class DockerGrammar {
     return b.<Alias>nonterminal(DockerLexicalGrammar.ALIAS).is(
       f.alias(
         b.token(DockerKeyword.AS),
+        b.token(DockerLexicalGrammar.WHITESPACE),
         b.token(DockerLexicalGrammar.IMAGE_ALIAS)
       )
     );
@@ -215,7 +234,15 @@ public class DockerGrammar {
 
   public ExposeInstruction EXPOSE() {
     return b.<ExposeInstruction>nonterminal(DockerLexicalGrammar.EXPOSE).is(
-      f.expose(b.token(DockerKeyword.EXPOSE), b.oneOrMore(PORT()))
+      f.expose(
+        b.token(DockerKeyword.EXPOSE),
+        b.oneOrMore(
+          f.tuple(
+            b.token(DockerLexicalGrammar.WHITESPACE),
+            PORT()
+          )
+        )
+      )
     );
   }
 
@@ -267,6 +294,7 @@ public class DockerGrammar {
     return b.<UserInstruction>nonterminal(DockerLexicalGrammar.USER).is(
       f.user(
         b.token(DockerKeyword.USER),
+        b.token(DockerLexicalGrammar.WHITESPACE),
         b.token(DockerLexicalGrammar.USER_NAME),
         b.optional(
           f.tuple(
@@ -324,12 +352,7 @@ public class DockerGrammar {
     return b.<AddInstruction>nonterminal(DockerLexicalGrammar.ADD).is(
       f.add(
         b.token(DockerKeyword.ADD),
-        b.zeroOrMore(
-          b.firstOf(
-            PARAM(),
-            PARAM_NO_VALUE()
-          )
-        ),
+        PARAMS(),
         b.firstOf(
           EXEC_FORM(),
           SHELL_FORM()
@@ -342,12 +365,8 @@ public class DockerGrammar {
     return b.<CopyInstruction>nonterminal(DockerLexicalGrammar.COPY).is(
       f.copy(
         b.token(DockerKeyword.COPY),
-        b.zeroOrMore(
-          b.firstOf(
-            PARAM(),
-            PARAM_NO_VALUE()
-          )
-        ),
+        PARAMS(),
+        b.token(DockerLexicalGrammar.WHITESPACE),
         b.firstOf(
           HEREDOC_FORM(),
           EXEC_FORM(),
@@ -389,17 +408,15 @@ public class DockerGrammar {
     return b.<RunInstruction>nonterminal(DockerLexicalGrammar.RUN).is(
       f.run(
         b.token(DockerKeyword.RUN),
-        b.zeroOrMore(
-          b.firstOf(
-            PARAM(),
-            PARAM_NO_VALUE()
-          )
-        ),
+        PARAMS(),
         b.optional(
-          b.firstOf(
-            HEREDOC_FORM(),
-            EXEC_FORM(),
-            SHELL_FORM()
+          f.tuple(
+            b.token(DockerLexicalGrammar.WHITESPACE),
+            b.firstOf(
+              HEREDOC_FORM(),
+              EXEC_FORM(),
+              SHELL_FORM()
+            )
           )
         )
       )
@@ -410,7 +427,7 @@ public class DockerGrammar {
     return b.<HealthCheckInstruction>nonterminal(DockerLexicalGrammar.HEALTHCHECK).is(
       f.healthcheck(
         b.token(DockerKeyword.HEALTHCHECK),
-        b.zeroOrMore(PARAM()),
+        b.zeroOrMore(f.tuple(b.token(DockerLexicalGrammar.WHITESPACE), PARAM())),
         b.firstOf(NONE(), CMD())
       )
     );

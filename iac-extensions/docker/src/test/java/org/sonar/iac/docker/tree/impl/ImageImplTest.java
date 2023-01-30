@@ -36,13 +36,13 @@ class ImageImplTest {
     Assertions.assertThat(DockerLexicalGrammar.IMAGE)
       .matches("foo")
       .matches("FOO")
-      .matches(" foo")
       .matches("foo-bar")
       .matches("foo:bar")
       .matches("foo@bar")
       .matches("foo:bar@boo") // tag=bar digest=boo
       .matches("foo@bar:boo") // tag=null digest=bar:boo
 
+      .notMatches(" foo")
       .notMatches("-foo")
       .notMatches("foo$bar")
     ;
