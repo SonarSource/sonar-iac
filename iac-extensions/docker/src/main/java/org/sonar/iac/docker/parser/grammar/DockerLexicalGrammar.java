@@ -143,7 +143,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
       b.oneOrMore(
         b.firstOf(
           b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
-          b.skippedTrivia(b.regexp(DockerLexicalConstant.EOL)),
           SPACING
         )
       )
