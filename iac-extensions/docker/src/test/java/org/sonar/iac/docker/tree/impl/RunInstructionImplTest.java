@@ -310,12 +310,12 @@ class RunInstructionImplTest {
       "FILE1\n" +
       "HEALTHCHECK NONE";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertTextRange(tree.textRange()).hasRange(1,0,5,0);
+    assertTextRange(tree.textRange()).hasRange(1,0,4,5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().literals()).hasSize(1);
-    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<-FILE1 line 0\nline 1\nline 2\nFILE1\n");
+    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<-FILE1 line 0\nline 1\nline 2\nFILE1");
   }
 
   @Test
@@ -327,11 +327,11 @@ class RunInstructionImplTest {
       "FILE2\n" +
       "HEALTHCHECK NONE";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertTextRange(tree.textRange()).hasRange(1,0,6,0);
+    assertTextRange(tree.textRange()).hasRange(1,0,5,5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().literals()).hasSize(1);
-    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2\n");
+    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2");
   }
 }
