@@ -29,10 +29,10 @@ class AliasImplTest {
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.ALIAS)
       .matches("AS foo")
-      .matches(" AS foo")
       .matches("AS foo-bar")
       .matches("AS 1234")
 
+      .notMatches(" AS foo")
       .notMatches("AS")
       .notMatches("AS foo\n")
     ;

@@ -40,10 +40,11 @@ class ShellFormImplTest {
       .matches("executable param1 param2")
       .matches("executable \"param1\" param2")
       .matches("ls    -a")
-      .matches("   ls -a")
       .matches("git commit -m \"first commit\"")
 
-      .notMatches("");
+      .notMatches("   ls -a")
+      .notMatches("")
+    ;
   }
 
   @Test

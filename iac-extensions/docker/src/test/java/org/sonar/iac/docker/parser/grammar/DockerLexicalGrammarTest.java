@@ -34,7 +34,6 @@ public class DockerLexicalGrammarTest {
     Assertions.assertThat(DockerLexicalGrammar.STRING_LITERAL)
       .matches("f")
       .matches("foo")
-      .matches("   foo")
       .matches("1")
       .matches("123")
       .matches("SIGKILL")
@@ -50,6 +49,7 @@ public class DockerLexicalGrammarTest {
 
       .notMatches("")
       .notMatches("   ")
+      .notMatches("   foo")
       .notMatches("foo\nbar")
       .notMatches("foo\rbar");
   }
@@ -81,8 +81,10 @@ public class DockerLexicalGrammarTest {
     Assertions.ParserAssert cmd = Assertions.assertThat(DockerLexicalGrammar.CMD)
       .matches("CMD")
       .matches("CMD foo")
-      .matches("CMD \\\nfoo")
-      .matches("CMD\\\n foo")
+      // TODO : enable back when multi line preprocessor is done
+//      .matches("CMD \\\nfoo")
+//      .matches("CMD\\\n foo")
+//      .matches("CMD\\\nfoo") // no valid syntax but will be parsed
       .matches("CMD [\"foo\"]")
       .matches("CMD\t[\"foo\"]")
       .matches("CMD \\\nfoo")

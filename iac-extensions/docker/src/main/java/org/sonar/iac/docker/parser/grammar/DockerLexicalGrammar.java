@@ -29,6 +29,7 @@ import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   FILE,
+  FILE_ARGS,
   DOCKERIMAGE,
 
   /**
@@ -50,14 +51,20 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    */
   WHITESPACE,
   SPACING,
+  SPACING_OR_WHITESPACE_OR_COMMENT,
+  EOL,
+  // TODO : deprecated previous version of SPACING, should be removed once every reference has been replace/removed
+  SPACING_OLD,
   INSTRUCTION_PREFIX,
   WHITESPACE_OR_ESCAPED_LINE_BREAK,
   WHITESPACE_OR_LINE_BREAK,
+  LINE,
 
   /**
    * INSTRUCTIONS
    */
   INSTRUCTION,
+  INSTRUCTION_LINE,
   ONBUILD,
   FROM,
   MAINTAINER,
@@ -130,12 +137,32 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   private static void punctuators(LexerlessGrammarBuilder b) {
     for (Punctuator p : Punctuator.values()) {
-      b.rule(p).is(SPACING, p.getValue()).skip();
+      b.rule(p).is(SPACING_OLD, p.getValue()).skip();
     }
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
-    b.rule(WHITESPACE).is(b.regexp("["+LexicalConstant.WHITESPACE+"]+"));
+    b.rule(WHITESPACE).is(b.regexp("["+LexicalConstant.WHITESPACE+"]++"));
+    b.rule(SPACING).is(b.skippedTrivia(b.regexp("["+LexicalConstant.WHITESPACE+LexicalConstant.LINE_TERMINATOR+"]++")));
+    b.rule(EOL).is(b.regexp("(?:"+DockerLexicalConstant.EOL+"|$)"));
+    b.rule(SPACING_OR_WHITESPACE_OR_COMMENT).is(
+      b.oneOrMore(
+        b.firstOf(
+          b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
+          b.skippedTrivia(b.regexp(DockerLexicalConstant.EOL)),
+          SPACING
+        )
+      )
+    ).skip();
+
+    // TODO : to be removed once comment are properly supported
+//    b.rule(SPACING_OR_WHITESPACE_OR_COMMENT).is(
+//      SPACING,
+//      b.zeroOrMore(
+//        b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)), b.regexp(DockerLexicalConstant.EOL),
+//        SPACING)
+////    );
+//    ).skip();
 
     b.rule(WHITESPACE_OR_ESCAPED_LINE_BREAK).is(
       b.skippedTrivia(b.regexp("(?:[" + LexicalConstant.WHITESPACE + "]|" + DockerLexicalConstant.LINE_BREAK + ")*+"))
@@ -145,11 +172,12 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
       b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))
     );
 
-    b.rule(SPACING).is(
+    b.rule(SPACING_OLD).is(
       WHITESPACE_OR_ESCAPED_LINE_BREAK,
       b.zeroOrMore(
         b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)), b.regexp(DockerLexicalConstant.EOL),
-        WHITESPACE_OR_ESCAPED_LINE_BREAK)
+        WHITESPACE_OR_ESCAPED_LINE_BREAK
+      )
     ).skip();
 
     b.rule(INSTRUCTION_PREFIX).is(
@@ -161,13 +189,15 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
-    b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
-    b.rule(STRING_UNTIL_EOL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
-    b.rule(STRING_LITERAL_WITH_QUOTES).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
+    // TODO : those elements will be removed in the next grammar progressively, also removing the implicit spacing
+    b.rule(STRING_LITERAL).is(b.regexp(DockerLexicalConstant.STRING_LITERAL));
+    b.rule(STRING_UNTIL_EOL).is(SPACING_OLD, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
+    b.rule(STRING_LITERAL_WITH_QUOTES).is(SPACING_OLD, b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
 
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
 
-    b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SPACING, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
+    // TODO : remove the implicit spacing while reworking KeyValuePair with SONARIAC-540
+    b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SPACING_OLD, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
     b.rule(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(b.regexp("(?:\"[^\"]*\"|[^\\s])+"));
 
     b.rule(EXPOSE_PORT).is(b.regexp("[0-9]+"));
@@ -194,12 +224,18 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
-    Arrays.stream(DockerKeyword.values()).forEach(tokenType ->
-      b.rule(tokenType).is(
-        SPACING,
-        b.regexp("(?i)" + tokenType.getValue()),
-        b.regexp("(?=[" + LexicalConstant.WHITESPACE + "\\\\]|$)")
-      ).skip()
+    Arrays.stream(DockerKeyword.values()).forEach(tokenType -> {
+        if (tokenType == DockerKeyword.AS || tokenType == DockerKeyword.NONE) {
+          b.rule(tokenType).is(
+            b.regexp("(?i)" + tokenType.getValue())
+          ).skip();
+        } else {
+          b.rule(tokenType).is(
+            b.optional(SPACING_OR_WHITESPACE_OR_COMMENT),
+            b.regexp("(?i)" + tokenType.getValue())
+          ).skip();
+        }
+      }
     );
   }
 }

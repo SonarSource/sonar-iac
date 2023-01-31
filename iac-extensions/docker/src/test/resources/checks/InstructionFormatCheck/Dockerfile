@@ -14,6 +14,10 @@
   HEALTHCHECK --interval=5m --timeout=3s \
     cmd curl -f http://localhost/ || exit 1
 
+# Noncompliant@+1 {{Replace `none` with upper case format `NONE`.}}
+  HEALTHCHECK none
+#             ^^^^
+
   FROM jammy
 
   MAINTAINER foo<foo@bar.test>
