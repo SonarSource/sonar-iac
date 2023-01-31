@@ -40,11 +40,11 @@ class ExecFormImplTest {
       .matches("[\"ls\"]")
       .matches("[\"executable\",\"param1\",\"param2\"]")
       .matches("[\"/usr/bin/wc\",\"--help\"]")
-      .matches("    [\"/usr/bin/wc\",\"--help\"]")
       .matches("[\"foo\" , \"bar\"]")
       .matches("[ \"foo\", \"bar\" ]")
 
       .notMatches("[abc]")
+      .notMatches("    [\"/usr/bin/wc\",\"--help\"]")
       .notMatches("[\"la\" \"-bb\"")
       .notMatches("[\"la\", \"-bb\"")
       .notMatches("[\"la\", \"-bb]")

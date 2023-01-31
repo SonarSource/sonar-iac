@@ -151,13 +151,6 @@ class RunInstructionImplTest {
       .notMatches("RUN <<EOT\n  mkdir -p foo/bar\nEOT5");
   }
 
-  // TODO temp to remove next test
-  @Test
-  void tempTest() {
-    RunInstruction tree = DockerTestUtils.parse("RUN \"la\", \"-bb\"]", DockerLexicalGrammar.RUN);
-    int x = 3;
-  }
-
   // TODO : enable back when multi line preprocessor is ready
   // SONARIAC-504
 //  @Test

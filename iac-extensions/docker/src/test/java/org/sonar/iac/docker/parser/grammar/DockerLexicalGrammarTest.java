@@ -71,7 +71,6 @@ public class DockerLexicalGrammarTest {
       .matches("foo=bar")
 
       .notMatches("")
-      .notMatches("   ")
       .notMatches("foo\nbar")
       .notMatches("foo\rbar");
   }
