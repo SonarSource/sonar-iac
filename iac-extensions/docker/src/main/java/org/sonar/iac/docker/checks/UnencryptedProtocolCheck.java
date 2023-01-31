@@ -26,15 +26,15 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.docker.tree.api.AddTree;
-import org.sonar.iac.docker.tree.api.CommandInstructionTree;
-import org.sonar.iac.docker.tree.api.LiteralListTree;
+import org.sonar.iac.docker.tree.api.AddInstruction;
+import org.sonar.iac.docker.tree.api.CommandInstruction;
+import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
-import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
-import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ENTRYPOINT;
-import static org.sonar.iac.docker.tree.api.DockerTree.Kind.RUN;
+import static org.sonar.iac.docker.tree.api.Docker.Kind.ADD;
+import static org.sonar.iac.docker.tree.api.Docker.Kind.CMD;
+import static org.sonar.iac.docker.tree.api.Docker.Kind.ENTRYPOINT;
+import static org.sonar.iac.docker.tree.api.Docker.Kind.RUN;
 
 @Rule(key = "S5332")
 public class UnencryptedProtocolCheck implements IacCheck {
@@ -48,13 +48,13 @@ public class UnencryptedProtocolCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(CommandInstructionTree.class, (ctx, commandInstruction) -> {
-      LiteralListTree arguments = commandInstruction.arguments();
+    init.register(CommandInstruction.class, (ctx, commandInstruction) -> {
+      LiteralList arguments = commandInstruction.arguments();
       if (arguments == null || !commandInstruction.is(ADD, ENTRYPOINT, CMD, RUN)) return;
       checkUnencryptedProtocols(ctx, arguments.literals());
     });
 
-    init.register(AddTree.class, (ctx, add) -> {
+    init.register(AddInstruction.class, (ctx, add) -> {
       checkUnencryptedProtocols(ctx, add.srcs());
       checkUnencryptedProtocols(ctx, List.of(add.dest()));
     });

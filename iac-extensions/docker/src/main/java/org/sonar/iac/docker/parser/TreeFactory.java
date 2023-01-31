@@ -23,249 +23,249 @@ import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.docker.tree.api.AliasTree;
-import org.sonar.iac.docker.tree.api.ArgTree;
-import org.sonar.iac.docker.tree.api.CmdTree;
-import org.sonar.iac.docker.tree.api.DockerImageTree;
-import org.sonar.iac.docker.tree.api.EntrypointTree;
-import org.sonar.iac.docker.tree.api.CopyTree;
-import org.sonar.iac.docker.tree.api.EnvTree;
-import org.sonar.iac.docker.tree.api.ExecFormLiteralTree;
-import org.sonar.iac.docker.tree.api.ExecFormTree;
-import org.sonar.iac.docker.tree.api.AddTree;
-import org.sonar.iac.docker.tree.api.ExposeTree;
-import org.sonar.iac.docker.tree.api.FileTree;
-import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.tree.api.HealthCheckTree;
-import org.sonar.iac.docker.tree.api.HereDocumentTree;
-import org.sonar.iac.docker.tree.api.ImageTree;
-import org.sonar.iac.docker.tree.api.InstructionTree;
-import org.sonar.iac.docker.tree.api.KeyValuePairTree;
-import org.sonar.iac.docker.tree.api.LabelTree;
-import org.sonar.iac.docker.tree.api.LiteralListTree;
-import org.sonar.iac.docker.tree.api.MaintainerTree;
-import org.sonar.iac.docker.tree.api.NoneTree;
-import org.sonar.iac.docker.tree.api.OnBuildTree;
-import org.sonar.iac.docker.tree.api.ParamTree;
-import org.sonar.iac.docker.tree.api.RunTree;
-import org.sonar.iac.docker.tree.api.ShellTree;
-import org.sonar.iac.docker.tree.api.StopSignalTree;
-import org.sonar.iac.docker.tree.api.PortTree;
+import org.sonar.iac.docker.tree.api.AddInstruction;
+import org.sonar.iac.docker.tree.api.Alias;
+import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.CmdInstruction;
+import org.sonar.iac.docker.tree.api.CopyInstruction;
+import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.EntrypointInstruction;
+import org.sonar.iac.docker.tree.api.EnvInstruction;
+import org.sonar.iac.docker.tree.api.ExecForm;
+import org.sonar.iac.docker.tree.api.ExecFormLiteral;
+import org.sonar.iac.docker.tree.api.ExposeInstruction;
+import org.sonar.iac.docker.tree.api.File;
+import org.sonar.iac.docker.tree.api.FromInstruction;
+import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
+import org.sonar.iac.docker.tree.api.HereDocument;
+import org.sonar.iac.docker.tree.api.Image;
+import org.sonar.iac.docker.tree.api.Instruction;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.LabelInstruction;
+import org.sonar.iac.docker.tree.api.LiteralList;
+import org.sonar.iac.docker.tree.api.MaintainerInstruction;
+import org.sonar.iac.docker.tree.api.NoneInstruction;
+import org.sonar.iac.docker.tree.api.OnBuildInstruction;
+import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Port;
+import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SeparatedList;
-import org.sonar.iac.docker.tree.api.ShellFormTree;
+import org.sonar.iac.docker.tree.api.ShellForm;
+import org.sonar.iac.docker.tree.api.ShellInstruction;
+import org.sonar.iac.docker.tree.api.StopSignalInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.tree.api.UserTree;
-import org.sonar.iac.docker.tree.api.WorkdirTree;
-import org.sonar.iac.docker.tree.impl.AliasTreeImpl;
-import org.sonar.iac.docker.tree.impl.ArgTreeImpl;
-import org.sonar.iac.docker.tree.impl.CmdTreeImpl;
-import org.sonar.iac.docker.tree.impl.DockerImageTreeImpl;
-import org.sonar.iac.docker.tree.impl.EntrypointTreeImpl;
-import org.sonar.iac.docker.tree.impl.CopyTreeImpl;
-import org.sonar.iac.docker.tree.impl.EnvTreeImpl;
-import org.sonar.iac.docker.tree.impl.ExecFormLiteralTreeImpl;
-import org.sonar.iac.docker.tree.impl.ExecFormTreeImpl;
-import org.sonar.iac.docker.tree.impl.AddTreeImpl;
-import org.sonar.iac.docker.tree.impl.ExposeTreeImpl;
-import org.sonar.iac.docker.tree.api.VolumeTree;
-import org.sonar.iac.docker.tree.impl.FileTreeImpl;
-import org.sonar.iac.docker.tree.impl.FromTreeImpl;
-import org.sonar.iac.docker.tree.impl.HealthCheckTreeImpl;
-import org.sonar.iac.docker.tree.impl.HereDocumentTreeImpl;
-import org.sonar.iac.docker.tree.impl.ImageTreeImpl;
-import org.sonar.iac.docker.tree.impl.KeyValuePairTreeImpl;
-import org.sonar.iac.docker.tree.impl.LabelTreeImpl;
-import org.sonar.iac.docker.tree.impl.MaintainerTreeImpl;
-import org.sonar.iac.docker.tree.impl.NoneTreeImpl;
-import org.sonar.iac.docker.tree.impl.OnBuildTreeImpl;
-import org.sonar.iac.docker.tree.impl.ParamTreeImpl;
-import org.sonar.iac.docker.tree.impl.PortTreeImpl;
-import org.sonar.iac.docker.tree.impl.RunTreeImpl;
+import org.sonar.iac.docker.tree.api.UserInstruction;
+import org.sonar.iac.docker.tree.api.VolumeInstruction;
+import org.sonar.iac.docker.tree.api.WorkdirInstruction;
+import org.sonar.iac.docker.tree.impl.AddInstructionImpl;
+import org.sonar.iac.docker.tree.impl.AliasImpl;
+import org.sonar.iac.docker.tree.impl.ArgInstructionImpl;
+import org.sonar.iac.docker.tree.impl.CmdInstructionImpl;
+import org.sonar.iac.docker.tree.impl.CopyInstructionImpl;
+import org.sonar.iac.docker.tree.impl.DockerImageImpl;
+import org.sonar.iac.docker.tree.impl.EntrypointInstructionImpl;
+import org.sonar.iac.docker.tree.impl.EnvInstructionImpl;
+import org.sonar.iac.docker.tree.impl.ExecFormImpl;
+import org.sonar.iac.docker.tree.impl.ExecFormLiteralImpl;
+import org.sonar.iac.docker.tree.impl.ExposeInstructionImpl;
+import org.sonar.iac.docker.tree.impl.FileImpl;
+import org.sonar.iac.docker.tree.impl.FromInstructionImpl;
+import org.sonar.iac.docker.tree.impl.HealthCheckInstructionImpl;
+import org.sonar.iac.docker.tree.impl.HereDocumentImpl;
+import org.sonar.iac.docker.tree.impl.ImageImpl;
+import org.sonar.iac.docker.tree.impl.KeyValuePairImpl;
+import org.sonar.iac.docker.tree.impl.LabelInstructionImpl;
+import org.sonar.iac.docker.tree.impl.MaintainerInstructionImpl;
+import org.sonar.iac.docker.tree.impl.NoneImpl;
+import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
+import org.sonar.iac.docker.tree.impl.ParamImpl;
+import org.sonar.iac.docker.tree.impl.PortImpl;
+import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
-import org.sonar.iac.docker.tree.impl.ShellFormTreeImpl;
-import org.sonar.iac.docker.tree.impl.ShellTreeImpl;
-import org.sonar.iac.docker.tree.impl.StopSignalTreeImpl;
-import org.sonar.iac.docker.tree.impl.UserTreeImpl;
-import org.sonar.iac.docker.tree.impl.VolumeTreeImpl;
-import org.sonar.iac.docker.tree.impl.WorkdirTreeImpl;
+import org.sonar.iac.docker.tree.impl.ShellFormImpl;
+import org.sonar.iac.docker.tree.impl.ShellInstructionImpl;
+import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
+import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
+import org.sonar.iac.docker.tree.impl.VolumeImpl;
+import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 
 // S1172 - Unused function parameters should be removed - the spacing argument is ignored, but it's needed from grammar perspective
 @SuppressWarnings("java:S1172")
 public class TreeFactory {
 
-  public FileTree file(Optional<List<ArgTree>> globalArgs, Optional<List<DockerImageTree>> dockerImages, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileTreeImpl(globalArgs.or(Collections.emptyList()), dockerImages.or(Collections.emptyList()), eof);
+  public File file(Optional<List<ArgInstruction>> globalArgs, Optional<List<DockerImage>> dockerImages, Optional<SyntaxToken> spacing, SyntaxToken eof) {
+    return new FileImpl(globalArgs.or(Collections.emptyList()), dockerImages.or(Collections.emptyList()), eof);
   }
 
-  public DockerImageTree dockerImage(FromTree from, Optional<List<InstructionTree>> instructions) {
-    return new DockerImageTreeImpl(from, instructions.or(Collections.emptyList()));
+  public DockerImage dockerImage(FromInstruction from, Optional<List<Instruction>> instructions) {
+    return new DockerImageImpl(from, instructions.or(Collections.emptyList()));
   }
 
-  public InstructionTree instruction(Optional<SyntaxToken> spacing, InstructionTree instruction) {
+  public Instruction instruction(Optional<SyntaxToken> spacing, Instruction instruction) {
     return instruction;
   }
 
-  public OnBuildTree onbuild(SyntaxToken keyword, InstructionTree instruction) {
-    return new OnBuildTreeImpl(keyword, instruction);
+  public OnBuildInstruction onbuild(SyntaxToken keyword, Instruction instruction) {
+    return new OnBuildInstructionImpl(keyword, instruction);
   }
 
-  public FromTree from(Optional<SyntaxToken> spacing, SyntaxToken keyword, Optional<ParamTree> platform, ImageTree image, Optional<AliasTree> alias) {
-    return new FromTreeImpl(keyword, platform.orNull(), image, alias.orNull());
+  public FromInstruction from(Optional<SyntaxToken> spacing, SyntaxToken keyword, Optional<Param> platform, Image image, Optional<Alias> alias) {
+    return new FromInstructionImpl(keyword, platform.orNull(), image, alias.orNull());
   }
 
-  public AliasTree alias(SyntaxToken keyword, SyntaxToken alias) {
-    return new AliasTreeImpl(keyword, alias);
+  public Alias alias(SyntaxToken keyword, SyntaxToken alias) {
+    return new AliasImpl(keyword, alias);
   }
 
-  public MaintainerTree maintainer(SyntaxToken keyword, List<SyntaxToken> authorsToken) {
-    return new MaintainerTreeImpl(keyword, authorsToken);
+  public MaintainerInstruction maintainer(SyntaxToken keyword, List<SyntaxToken> authorsToken) {
+    return new MaintainerInstructionImpl(keyword, authorsToken);
   }
 
   public SyntaxToken argument(SyntaxToken token) {
     return token;
   }
 
-  public StopSignalTree stopSignal(SyntaxToken keyword, SyntaxToken tokenValue) {
-    return new StopSignalTreeImpl(keyword, tokenValue);
+  public StopSignalInstruction stopSignal(SyntaxToken keyword, SyntaxToken tokenValue) {
+    return new StopSignalInstructionImpl(keyword, tokenValue);
   }
 
-  public WorkdirTree workdir(SyntaxToken keyword, List<SyntaxToken> values) {
-    return new WorkdirTreeImpl(keyword, values);
+  public WorkdirInstruction workdir(SyntaxToken keyword, List<SyntaxToken> values) {
+    return new WorkdirInstructionImpl(keyword, values);
   }
 
-  public ExposeTree expose(SyntaxToken keyword, List<PortTree> ports) {
-    return new ExposeTreeImpl(keyword, ports);
+  public ExposeInstruction expose(SyntaxToken keyword, List<Port> ports) {
+    return new ExposeInstructionImpl(keyword, ports);
   }
 
-  public PortTree port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, SyntaxToken separatorProtocol, SyntaxToken protocol) {
-    return new PortTreeImpl(portMin, separatorPort, portMax, separatorProtocol, protocol);
+  public Port port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, SyntaxToken separatorProtocol, SyntaxToken protocol) {
+    return new PortImpl(portMin, separatorPort, portMax, separatorProtocol, protocol);
   }
 
-  public PortTree port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, Optional<SyntaxToken> separatorProtocol) {
-    return new PortTreeImpl(portMin, separatorPort, portMax, separatorProtocol.orNull(), null);
+  public Port port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, Optional<SyntaxToken> separatorProtocol) {
+    return new PortImpl(portMin, separatorPort, portMax, separatorProtocol.orNull(), null);
   }
 
-  public PortTree port(SyntaxToken port, SyntaxToken separatorProtocol, SyntaxToken protocol) {
-    return new PortTreeImpl(port, null, port, separatorProtocol, protocol);
+  public Port port(SyntaxToken port, SyntaxToken separatorProtocol, SyntaxToken protocol) {
+    return new PortImpl(port, null, port, separatorProtocol, protocol);
   }
 
-  public PortTree port(SyntaxToken port, Optional<SyntaxToken> separatorProtocol) {
-    return new PortTreeImpl(port, null, port, separatorProtocol.orNull(), null);
+  public Port port(SyntaxToken port, Optional<SyntaxToken> separatorProtocol) {
+    return new PortImpl(port, null, port, separatorProtocol.orNull(), null);
   }
 
-  public PortTree port(SyntaxToken portToken) {
-    return new PortTreeImpl(portToken, null, portToken, null, null);
+  public Port port(SyntaxToken portToken) {
+    return new PortImpl(portToken, null, portToken, null, null);
   }
 
-  public LabelTree label(SyntaxToken token, List<KeyValuePairTree> keyValuePairs) {
-    return new LabelTreeImpl(token, keyValuePairs);
+  public LabelInstruction label(SyntaxToken token, List<KeyValuePair> keyValuePairs) {
+    return new LabelInstructionImpl(token, keyValuePairs);
   }
 
-  public EnvTree env(SyntaxToken keyword, List<KeyValuePairTree> keyValuePairs) {
-    return new EnvTreeImpl(keyword, keyValuePairs);
+  public EnvInstruction env(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
+    return new EnvInstructionImpl(keyword, keyValuePairs);
   }
 
-  public ArgTree arg(Optional<SyntaxToken> spacing, SyntaxToken token, List<KeyValuePairTree> argNames) {
-    return new ArgTreeImpl(token, argNames);
+  public ArgInstruction arg(Optional<SyntaxToken> spacing, SyntaxToken token, List<KeyValuePair> argNames) {
+    return new ArgInstructionImpl(token, argNames);
   }
 
-  public AddTree add(SyntaxToken add, Optional<List<ParamTree>> options, LiteralListTree srcsAndDest) {
-    return new AddTreeImpl(add, options.or(Collections.emptyList()), srcsAndDest);
+  public AddInstruction add(SyntaxToken add, Optional<List<Param>> options, LiteralList srcsAndDest) {
+    return new AddInstructionImpl(add, options.or(Collections.emptyList()), srcsAndDest);
   }
 
-  public CopyTree copy(SyntaxToken copy, Optional<List<ParamTree>> options, LiteralListTree srcsAndDest) {
-    return new CopyTreeImpl(copy, options.or(Collections.emptyList()), srcsAndDest);
+  public CopyInstruction copy(SyntaxToken copy, Optional<List<Param>> options, LiteralList srcsAndDest) {
+    return new CopyInstructionImpl(copy, options.or(Collections.emptyList()), srcsAndDest);
   }
 
-  public KeyValuePairTree key(SyntaxToken key) {
-    return new KeyValuePairTreeImpl(key, null, null);
+  public KeyValuePair key(SyntaxToken key) {
+    return new KeyValuePairImpl(key, null, null);
   }
 
-  public KeyValuePairTree keyValuePair(SyntaxToken key, SyntaxToken value) {
-    return new KeyValuePairTreeImpl(key, null, value);
+  public KeyValuePair keyValuePair(SyntaxToken key, SyntaxToken value) {
+    return new KeyValuePairImpl(key, null, value);
   }
 
-  public KeyValuePairTree keyValuePairEquals(SyntaxToken key, SyntaxToken equals, Optional<SyntaxToken> value) {
-    return new KeyValuePairTreeImpl(key, equals, value.orNull());
+  public KeyValuePair keyValuePairEquals(SyntaxToken key, SyntaxToken equals, Optional<SyntaxToken> value) {
+    return new KeyValuePairImpl(key, equals, value.orNull());
   }
 
-  public ParamTree param(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, Optional<SyntaxToken> value) {
-    return new ParamTreeImpl(prefix, name, equals, value.orNull());
+  public Param param(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, Optional<SyntaxToken> value) {
+    return new ParamImpl(prefix, name, equals, value.orNull());
   }
 
-  public ParamTree param(SyntaxToken prefix, SyntaxToken name) {
-    return new ParamTreeImpl(prefix, name, null, null);
+  public Param param(SyntaxToken prefix, SyntaxToken name) {
+    return new ParamImpl(prefix, name, null, null);
   }
 
-  public ImageTree image(SyntaxToken name, Optional<SyntaxToken> tag, Optional<SyntaxToken> digest) {
-    return new ImageTreeImpl(name, tag.orNull(), digest.orNull());
+  public Image image(SyntaxToken name, Optional<SyntaxToken> tag, Optional<SyntaxToken> digest) {
+    return new ImageImpl(name, tag.orNull(), digest.orNull());
   }
 
-  public CmdTree cmd(SyntaxToken token, Optional<LiteralListTree> execFormOrShellForm) {
-    return new CmdTreeImpl(token, execFormOrShellForm.orNull());
+  public CmdInstruction cmd(SyntaxToken token, Optional<LiteralList> execFormOrShellForm) {
+    return new CmdInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public EntrypointTree entrypoint(SyntaxToken token, Optional<LiteralListTree> execFormOrShellForm) {
-    return new EntrypointTreeImpl(token, execFormOrShellForm.orNull());
+  public EntrypointInstruction entrypoint(SyntaxToken token, Optional<LiteralList> execFormOrShellForm) {
+    return new EntrypointInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public RunTree run(SyntaxToken token, Optional<List<ParamTree>> options, Optional<LiteralListTree> execFormOrShellForm) {
-    return new RunTreeImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
+  public RunInstruction run(SyntaxToken token, Optional<List<Param>> options, Optional<LiteralList> execFormOrShellForm) {
+    return new RunInstructionImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
   }
 
-  public UserTree user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
+  public UserInstruction user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
     if (colonAndGroup.isPresent()) {
-      return new UserTreeImpl(keyword, user, colonAndGroup.get().first(), colonAndGroup.get().second());
+      return new UserInstructionImpl(keyword, user, colonAndGroup.get().first(), colonAndGroup.get().second());
     } else {
-      return new UserTreeImpl(keyword, user, null, null);
+      return new UserInstructionImpl(keyword, user, null, null);
     }
   }
 
-  public VolumeTree volume(SyntaxToken token, LiteralListTree execFormOrShellForm) {
-    return new VolumeTreeImpl(token, execFormOrShellForm);
+  public VolumeInstruction volume(SyntaxToken token, LiteralList execFormOrShellForm) {
+    return new VolumeImpl(token, execFormOrShellForm);
   }
 
-  public ShellTree shell(SyntaxToken token, ExecFormTree execForm) {
-    return new ShellTreeImpl(token, execForm);
+  public ShellInstruction shell(SyntaxToken token, ExecForm execForm) {
+    return new ShellInstructionImpl(token, execForm);
   }
 
-  public HealthCheckTree healthcheck(SyntaxToken healthcheck, Optional<List<ParamTree>> options, InstructionTree instruction) {
-    return new HealthCheckTreeImpl(healthcheck, options.or(Collections.emptyList()), instruction);
+  public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Param>> options, Instruction instruction) {
+    return new HealthCheckInstructionImpl(healthcheck, options.or(Collections.emptyList()), instruction);
   }
 
-  public NoneTree none(SyntaxToken none) {
-    return new NoneTreeImpl(none);
+  public NoneInstruction none(SyntaxToken none) {
+    return new NoneImpl(none);
   }
 
-  public HereDocumentTree hereDocument(SyntaxToken content) {
-    return new HereDocumentTreeImpl(content);
+  public HereDocument hereDocument(SyntaxToken content) {
+    return new HereDocumentImpl(content);
   }
 
-  public ExecFormTree execForm(SyntaxToken leftBracket,
+  public ExecForm execForm(SyntaxToken leftBracket,
     Optional<Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>>> literals,
     SyntaxToken rightBracket) {
 
-    List<ExecFormLiteralTree> elements = new ArrayList<>();
+    List<ExecFormLiteral> elements = new ArrayList<>();
     List<SyntaxToken> separators = new ArrayList<>();
-    SeparatedList<ExecFormLiteralTree> separatedList = new SeparatedListImpl<>(elements, separators);
+    SeparatedList<ExecFormLiteral> separatedList = new SeparatedListImpl<>(elements, separators);
     if (literals.isPresent()) {
       Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>> tuple = literals.get();
-      elements.add(new ExecFormLiteralTreeImpl(tuple.first()));
+      elements.add(new ExecFormLiteralImpl(tuple.first()));
       Optional<List<Tuple<SyntaxToken, SyntaxToken>>> second = tuple.second();
       if(second.isPresent()) {
         List<Tuple<SyntaxToken, SyntaxToken>> comaAndLiterals = second.get();
         for (Tuple<SyntaxToken, SyntaxToken> comaAndLiteral : comaAndLiterals) {
           separators.add(comaAndLiteral.first());
-          elements.add(new ExecFormLiteralTreeImpl(comaAndLiteral.second()));
+          elements.add(new ExecFormLiteralImpl(comaAndLiteral.second()));
         }
       }
     }
 
-    return new ExecFormTreeImpl(leftBracket, separatedList, rightBracket);
+    return new ExecFormImpl(leftBracket, separatedList, rightBracket);
   }
 
-  public ShellFormTree shellForm(List<SyntaxToken> tokens) {
-    return new ShellFormTreeImpl(tokens);
+  public ShellForm shellForm(List<SyntaxToken> tokens) {
+    return new ShellFormImpl(tokens);
   }
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {

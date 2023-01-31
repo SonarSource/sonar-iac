@@ -21,8 +21,8 @@ package org.sonar.iac.docker.visitors;
 
 import java.util.Optional;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
-import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.FromInstruction;
+import org.sonar.iac.docker.tree.api.Instruction;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 
@@ -30,8 +30,8 @@ public class DockerHighlightingVisitor extends SyntaxHighlightingVisitor {
 
   @Override
   protected void languageSpecificHighlighting() {
-    register(InstructionTree.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
-    register(FromTree.class, (ctx, tree) -> Optional.ofNullable(tree.alias()).ifPresent(alias -> highlight(alias.keyword(), KEYWORD)));
+    register(Instruction.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
+    register(FromInstruction.class, (ctx, tree) -> Optional.ofNullable(tree.alias()).ifPresent(alias -> highlight(alias.keyword(), KEYWORD)));
   }
 
 

@@ -26,7 +26,7 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class SyntaxTokenImpl extends DockerTreeImpl implements SyntaxToken {
+public class SyntaxTokenImpl extends AbstractDockerImpl implements SyntaxToken {
 
   private final String value;
   private final List<Comment> comments;

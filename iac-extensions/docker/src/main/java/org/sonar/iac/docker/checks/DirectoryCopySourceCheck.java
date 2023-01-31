@@ -27,9 +27,9 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.docker.tree.api.AddTree;
-import org.sonar.iac.docker.tree.api.CopyTree;
-import org.sonar.iac.docker.tree.api.ParamTree;
+import org.sonar.iac.docker.tree.api.AddInstruction;
+import org.sonar.iac.docker.tree.api.CopyInstruction;
+import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.SyntaxTokenUtils;
 
@@ -42,11 +42,11 @@ public class DirectoryCopySourceCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(AddTree.class, DirectoryCopySourceCheck::checkAdd);
-    init.register(CopyTree.class, DirectoryCopySourceCheck::checkCopy);
+    init.register(AddInstruction.class, DirectoryCopySourceCheck::checkAdd);
+    init.register(CopyInstruction.class, DirectoryCopySourceCheck::checkCopy);
   }
 
-  private static void checkAdd(CheckContext ctx, AddTree add) {
+  private static void checkAdd(CheckContext ctx, AddInstruction add) {
     for (SyntaxToken src : add.srcs()) {
       String path = SyntaxTokenUtils.trimmedQuotesValues(src);
       if (!path.startsWith("http://") && !path.startsWith("https://")) {
@@ -55,15 +55,15 @@ public class DirectoryCopySourceCheck implements IacCheck {
     }
   }
 
-  private static void checkCopy(CheckContext ctx, CopyTree copy) {
-    if (hasOption(copy.options(), "from")) return;
+  private static void checkCopy(CheckContext ctx, CopyInstruction copyInstruction) {
+    if (hasOption(copyInstruction.options(), "from")) return;
 
-    for (SyntaxToken src : copy.srcs()) {
+    for (SyntaxToken src : copyInstruction.srcs()) {
       reportIfSensitive(ctx, src, isSensitivePath(SyntaxTokenUtils.trimmedQuotesValues(src)), "COPY");
     }
   }
 
-  private static boolean hasOption(List<ParamTree> options, String key) {
+  private static boolean hasOption(List<Param> options, String key) {
     return options.stream().anyMatch(param -> param.name().equals(key));
   }
 

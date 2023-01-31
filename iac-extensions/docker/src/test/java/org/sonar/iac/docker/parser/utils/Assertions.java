@@ -28,8 +28,8 @@ import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.parser.grammar.DockerKeyword;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.impl.DockerTreeImpl;
+import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.impl.AbstractDockerImpl;
 import org.sonar.sslr.tests.ParsingResultComparisonFailure;
 import org.sonar.sslr.tests.RuleAssert;
 import org.sonarsource.analyzer.commons.TokenLocation;
@@ -47,21 +47,21 @@ public class Assertions {
   /**
    * In most cases you need {@link #assertThat(DockerLexicalGrammar)} method.
    * <p>
-   * This one is added to avoid mistakes like passing {@link DockerKeyword} and expected {@link DockerTree}
+   * This one is added to avoid mistakes like passing {@link DockerKeyword} and expected {@link Docker}
    * instead of {@link org.sonar.iac.docker.tree.api.SyntaxToken}.
    */
   public static ParserAssert assertKeyword(DockerKeyword rule) {
     return new ParserAssert(new DockerParser(rule));
   }
 
-  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<DockerTree>> {
+  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<Docker>> {
 
-    public ParserAssert(ActionParser<DockerTree> actual) {
+    public ParserAssert(ActionParser<Docker> actual) {
       super(ParserAssert.class, actual);
     }
 
     private void parseTillEof(String input) {
-      DockerTreeImpl tree = (DockerTreeImpl) actual.parse(input);
+      AbstractDockerImpl tree = (AbstractDockerImpl) actual.parse(input);
       TokenLocation loc = new TokenLocation(1, 0, input);
       if (!tree.textRange().end().equals(new DefaultTextPointer(loc.endLine(), loc.endLineOffset()))) {
         throw new RecognitionException(

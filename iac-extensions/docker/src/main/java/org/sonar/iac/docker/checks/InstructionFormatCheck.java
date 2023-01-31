@@ -25,9 +25,9 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.docker.tree.api.AliasTree;
-import org.sonar.iac.docker.tree.api.FromTree;
-import org.sonar.iac.docker.tree.api.InstructionTree;
+import org.sonar.iac.docker.tree.api.Alias;
+import org.sonar.iac.docker.tree.api.FromInstruction;
+import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 @Rule(key = "S6476")
@@ -38,11 +38,11 @@ public class InstructionFormatCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(InstructionTree.class, (ctx, instruction) ->
+    init.register(Instruction.class, (ctx, instruction) ->
       checkInstructionKeyword(ctx, instruction.keyword()));
 
-    init.register(FromTree.class, (ctx, from) -> {
-      AliasTree alias = from.alias();
+    init.register(FromInstruction.class, (ctx, from) -> {
+      Alias alias = from.alias();
       if (alias != null) {
         checkInstructionKeyword(ctx, alias.keyword());
       }
