@@ -85,7 +85,7 @@ public class DockerLexicalGrammarTest {
       .matches("CMD\\\n foo")
       .matches("CMD [\"foo\"]")
       .matches("CMD\t[\"foo\"]")
-      .matches("CMD\\\nfoo") // no valid syntax but will be parsed
+      .matches("CMD \\\nfoo")
       .matches("CMD\\foo");// no valid syntax but will be parsed
 
     for (Character specialCharacter : FORBIDDEN_CHARACTERS_AFTER_KEYWORD) {

@@ -26,7 +26,7 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 public class DockerTestUtils {
 
   public static <T extends Docker> T parse(String input, GrammarRuleKey rootRule) {
-    DockerParser parser = new DockerParser(rootRule);
+    DockerParser parser = DockerParser.create(rootRule);
     Docker tree = parser.parse(input);
 
     return (T) tree;

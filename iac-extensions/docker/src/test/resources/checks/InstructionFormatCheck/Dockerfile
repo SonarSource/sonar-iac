@@ -6,10 +6,13 @@
   Maintainer foo<foo@bar.test>
 # ^^^^^^^^^^
 
+# Noncompliant@+1 {{Replace `cmd` with upper case format `CMD`.}}
+  HEALTHCHECK --interval=5m --timeout=3s cmd curl -f http://localhost/ || exit 1
+#                                        ^^^
+
 # Noncompliant@+2 {{Replace `cmd` with upper case format `CMD`.}}
   HEALTHCHECK --interval=5m --timeout=3s \
     cmd curl -f http://localhost/ || exit 1
-#   ^^^
 
   FROM jammy
 

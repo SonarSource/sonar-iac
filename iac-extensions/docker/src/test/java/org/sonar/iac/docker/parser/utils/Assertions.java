@@ -41,7 +41,7 @@ public class Assertions {
   }
 
   public static ParserAssert assertThat(DockerLexicalGrammar rule) {
-    return new ParserAssert(new DockerParser(rule));
+    return new ParserAssert(DockerParser.create(rule));
   }
 
   /**
@@ -51,7 +51,7 @@ public class Assertions {
    * instead of {@link org.sonar.iac.docker.tree.api.SyntaxToken}.
    */
   public static ParserAssert assertKeyword(DockerKeyword rule) {
-    return new ParserAssert(new DockerParser(rule));
+    return new ParserAssert(DockerParser.create(rule));
   }
 
   public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<Docker>> {
