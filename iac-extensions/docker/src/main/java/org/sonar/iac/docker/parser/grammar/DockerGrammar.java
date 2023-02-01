@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -83,10 +84,18 @@ public class DockerGrammar {
   public File FILE() {
     return b.<File>nonterminal(DockerLexicalGrammar.FILE).is(
       f.file(
-        b.zeroOrMore(ARG()),
-        b.zeroOrMore(DOCKERIMAGE()),
+        BODY(),
         b.optional(b.token(DockerLexicalGrammar.SPACING)),
         b.token(DockerLexicalGrammar.EOF))
+    );
+  }
+
+  public Body BODY() {
+    return b.<Body>nonterminal(DockerLexicalGrammar.BODY).is(
+      f.body(
+        b.zeroOrMore(ARG()),
+        b.oneOrMore(DOCKERIMAGE())
+      )
     );
   }
 

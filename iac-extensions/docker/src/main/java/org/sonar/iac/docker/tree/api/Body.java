@@ -17,35 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.impl;
+package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.Body;
-import org.sonar.iac.docker.tree.api.File;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class FileImpl extends AbstractDockerTreeImpl implements File {
-  private final Body body;
-  private final SyntaxToken eof;
-
-  public FileImpl(Body body, SyntaxToken eof) {
-    this.body = body;
-    this.eof = eof;
-  }
-
-  @Override
-  public Body body() {
-    return body;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return List.of(body, eof);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.FILE;
-  }
+public interface Body extends DockerTree {
+  List<ArgInstruction> globalArgs();
+  List<DockerImage> dockerImages();
 }

@@ -47,14 +47,6 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
   }
 
   @Test
-  void emptySource() {
-    scan("");
-    assertThat(visitor.linesOfCode()).isEmpty();
-    assertThat(visitor.commentLines()).isEmpty();
-    verify(noSonarFilter).noSonarInFile(inputFile, new HashSet<>());
-  }
-
-  @Test
   void linesOfCode() {
     scan(code(
       "FROM foo",

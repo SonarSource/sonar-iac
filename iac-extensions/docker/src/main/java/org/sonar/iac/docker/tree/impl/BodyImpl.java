@@ -19,33 +19,43 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Body;
-import org.sonar.iac.docker.tree.api.File;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.DockerImage;
 
-public class FileImpl extends AbstractDockerTreeImpl implements File {
-  private final Body body;
-  private final SyntaxToken eof;
+public class BodyImpl extends AbstractDockerTreeImpl implements Body {
 
-  public FileImpl(Body body, SyntaxToken eof) {
-    this.body = body;
-    this.eof = eof;
+  private final List<ArgInstruction> globalArgs;
+  private final List<DockerImage> dockerImages;
+
+  public BodyImpl(List<ArgInstruction> globalArgs, List<DockerImage> dockerImages) {
+    this.globalArgs = globalArgs;
+    this.dockerImages = dockerImages;
   }
 
   @Override
-  public Body body() {
-    return body;
+  public List<ArgInstruction> globalArgs() {
+    return globalArgs;
+  }
+
+  @Override
+  public List<DockerImage> dockerImages() {
+    return dockerImages;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(body, eof);
+    List<Tree> children = new ArrayList<>();
+    children.addAll(globalArgs);
+    children.addAll(dockerImages);
+    return children;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.FILE;
+    return Kind.BODY;
   }
 }

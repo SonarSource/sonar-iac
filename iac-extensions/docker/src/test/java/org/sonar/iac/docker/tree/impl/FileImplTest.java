@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import org.junit.jupiter.api.Disabled;
+import com.sonar.sslr.api.RecognitionException;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
@@ -27,88 +27,31 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class FileImplTest {
 
   @Test
-  void shouldParseEmptyFile() {
-    File file = parseFile("");
-    assertThat(file.getKind()).isEqualTo(DockerTree.Kind.FILE);
-    assertTextRange(file.textRange()).hasRange(1,0,1,0);
-    assertThat(file.globalArgs()).isEmpty();
-    assertThat(file.dockerImages()).isEmpty();
+  void shouldFailOnEmptyFile() {
+    assertThrows(RecognitionException.class, () -> parseFile(""), "Parse error at line 1 column 1");
   }
 
   @Test
-  void shouldParseEmptyFileWithByteOrderMark() {
-    File file = parseFile("\uFEFF");
-    assertThat(file.getKind()).isEqualTo(DockerTree.Kind.FILE);
-    assertTextRange(file.textRange()).hasRange(1,0,1,0);
-    assertThat(file.globalArgs()).isEmpty();
-    assertThat(file.dockerImages()).isEmpty();
-  }
-
-  @Test
-  void shouldParseFileWithSpace() {
-    File file = parseFile(" ");
-    assertTextRange(file.textRange()).hasRange(1,1,1,1);
-    assertThat(file.globalArgs()).isEmpty();
-    assertThat(file.dockerImages()).isEmpty();
-  }
-
-  @Test
-  void shouldParseFileWithMultipleEmptyLines() {
-    File file = parseFile("\n\n\n");
-    assertTextRange(file.textRange()).hasRange(4,0,4,0);
-    assertThat(file.globalArgs()).isEmpty();
-    assertThat(file.dockerImages()).isEmpty();
+  void shouldFailOnFileWithGlobalArgOnly() {
+    assertThrows(RecognitionException.class, () -> parseFile("ARG test=val"), "Parse error at line 1 column 1");
   }
 
   @Test
   void shouldParseFileWithFromInstruction() {
     File file = parseFile("FROM foobar");
-    assertThat(file.globalArgs()).isEmpty();
-    assertThat(file.dockerImages()).hasSize(1);
-  }
-
-  @Test
-  void shouldParseFileWithMultipleEmptyLinesAndInstruction() {
-    File file = parseFile("\n\n\nFROM foobar");
-    assertThat(file.dockerImages()).hasSize(1);
-  }
-
-  @Test
-  void shouldParseFileWithMultipleEmptyLinesAndMultilineInstruction() {
-    File file = parseFile("\n\n\nFROM \\\nfoobar");
-    assertThat(file.dockerImages()).hasSize(1);
-  }
-
-  @Test
-  void shouldParseFileWithArgInstruction() {
-    File file = parseFile("ARG FOO");
-    assertThat(file.globalArgs()).hasSize(1);
-    assertThat(file.dockerImages()).isEmpty();
-  }
-
-  @Test
-  void shouldParseFileWithArgInstructions() {
-    File file = parseFile("ARG FOO\nARG BAR");
-    assertThat(file.globalArgs()).hasSize(2);
-    assertThat(file.dockerImages()).isEmpty();
-  }
-
-  @Test
-  void shouldParseFileWithArgAndFromInstruction() {
-    File file = parseFile("ARG FOO\nFROM foobar");
-    assertThat(file.globalArgs()).hasSize(1);
-    assertThat(file.dockerImages()).hasSize(1);
+    assertThat(file.body().globalArgs()).isEmpty();
+    assertThat(file.body().dockerImages()).hasSize(1);
   }
 
   @Test
   void checkIsKindMethod() {
-    File file = parseFile("");
+    File file = parseFile("FROM foobar");
     assertThat(file.is(DockerTree.Kind.FILE)).isTrue();
     assertThat(file.is(DockerTree.Kind.FILE, DockerTree.Kind.FROM)).isTrue();
     assertThat(file.is(DockerTree.Kind.FROM)).isFalse();
@@ -116,16 +59,16 @@ class FileImplTest {
 
   @Test
   void checkTextRange() {
-    File file = parseFile("");
-    assertThat(file.textRange()).isEqualTo(TextRanges.range(1, 0, ""));
+    File file = parseFile("FROM foobar");
+    assertThat(file.textRange()).isEqualTo(TextRanges.range(1, 0, "FROM foobar"));
   }
 
   @Test
   void checkChildren() {
-    File file = parseFile("");
-    assertThat(file.children()).hasSize(1);
-    DockerTree child = (DockerTree) file.children().get(0);
-    assertThat(child.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
+    File file = parseFile("FROM foobar");
+    assertThat(file.children()).hasSize(2);
+    assertThat(((DockerTree) file.children().get(0)).getKind()).isEqualTo(DockerTree.Kind.BODY);
+    assertThat(((DockerTree) file.children().get(1)).getKind()).isEqualTo(DockerTree.Kind.TOKEN);
   }
 
   private File parseFile(String input) {

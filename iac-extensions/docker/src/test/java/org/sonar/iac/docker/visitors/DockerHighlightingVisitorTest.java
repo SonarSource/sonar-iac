@@ -36,19 +36,6 @@ class DockerHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void empty_input() {
-    highlight("");
-    assertHighlighting(1, 0, 0, null);
-  }
-
-  @Test
-  void comment() {
-    highlight("  # Comment");
-    assertHighlighting(0, 1, null);
-    assertHighlighting(2, 10, COMMENT);
-  }
-
-  @Test
   void instruction_keyword() {
     highlight("FROM foo");
     assertHighlighting(0, 3, KEYWORD);

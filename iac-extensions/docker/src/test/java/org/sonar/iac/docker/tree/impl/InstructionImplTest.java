@@ -44,7 +44,7 @@ class InstructionImplTest {
     );
 
     File file = parse(code, DockerLexicalGrammar.FILE);
-    DockerImage dockerImage = file.dockerImages().get(0);
+    DockerImage dockerImage = file.body().dockerImages().get(0);
     FromInstruction from = dockerImage.from();
     List<Comment> comments = from.keyword().comments();
     assertThat(comments).hasSize(1);
@@ -64,7 +64,7 @@ class InstructionImplTest {
     );
 
     File file = parse(code, DockerLexicalGrammar.FILE);
-    DockerImage dockerImage = file.dockerImages().get(0);
+    DockerImage dockerImage = file.body().dockerImages().get(0);
     FromInstruction from = dockerImage.from();
     List<Comment> instructionComments = from.keyword().comments();
     assertThat(instructionComments).isEmpty();

@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -64,6 +65,7 @@ import org.sonar.iac.docker.tree.api.WorkdirInstruction;
 import org.sonar.iac.docker.tree.impl.AddInstructionImpl;
 import org.sonar.iac.docker.tree.impl.AliasImpl;
 import org.sonar.iac.docker.tree.impl.ArgInstructionImpl;
+import org.sonar.iac.docker.tree.impl.BodyImpl;
 import org.sonar.iac.docker.tree.impl.CmdInstructionImpl;
 import org.sonar.iac.docker.tree.impl.CopyInstructionImpl;
 import org.sonar.iac.docker.tree.impl.DockerImageImpl;
@@ -101,8 +103,12 @@ import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 @SuppressWarnings("java:S1172")
 public class TreeFactory {
 
-  public File file(Optional<List<ArgInstruction>> globalArgs, Optional<List<DockerImage>> dockerImages, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileImpl(globalArgs.or(Collections.emptyList()), dockerImages.or(Collections.emptyList()), eof);
+  public File file(Body body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
+    return new FileImpl(body, eof);
+  }
+
+  public Body body(Optional<List<ArgInstruction>> globalArgs, List<DockerImage> dockerImages) {
+    return new BodyImpl(globalArgs.or(Collections.emptyList()), dockerImages);
   }
 
   public DockerImage dockerImage(FromInstruction from, Optional<List<Instruction>> instructions) {
