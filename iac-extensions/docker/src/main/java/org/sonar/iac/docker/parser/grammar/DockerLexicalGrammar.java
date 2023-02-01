@@ -50,8 +50,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * SPACING
    */
   WHITESPACE,
+  WHITESPACE_OR_LINE_BREAK,
   SPACING,
-  SPACING_OR_COMMENT,
   EOL,
 
   /**
@@ -77,6 +77,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   VOLUME,
   SHELL,
   HEALTHCHECK,
+  HEALTHCHECK_NONE,
   NONE,
 
   /**
@@ -101,6 +102,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   IMAGE,
   ALIAS,
+  ALIAS_AS,
   IMAGE_ALIAS,
   IMAGE_NAME,
   IMAGE_TAG,
@@ -137,13 +139,13 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   private static void lexical(LexerlessGrammarBuilder b) {
     b.rule(WHITESPACE).is(b.regexp("["+LexicalConstant.WHITESPACE+"]++"));
-    b.rule(SPACING).is(b.skippedTrivia(b.regexp("["+LexicalConstant.WHITESPACE+LexicalConstant.LINE_TERMINATOR+"]++")));
+    b.rule(WHITESPACE_OR_LINE_BREAK).is(b.skippedTrivia(b.regexp("["+LexicalConstant.WHITESPACE+LexicalConstant.LINE_TERMINATOR+"]++")));
     b.rule(EOL).is(b.regexp("(?:"+DockerLexicalConstant.EOL+"|$)"));
-    b.rule(SPACING_OR_COMMENT).is(
+    b.rule(SPACING).is(
       b.oneOrMore(
         b.firstOf(
           b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
-          SPACING
+          WHITESPACE_OR_LINE_BREAK
         )
       )
     ).skip();
@@ -180,22 +182,18 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(USER_SEPARATOR).is(b.regexp(":"));
     b.rule(USER_GROUP).is(b.firstOf(USER_STRING, USER_VARIABLE));
 
+    b.rule(ALIAS_AS).is(b.regexp("(?i)AS"));
+    b.rule(HEALTHCHECK_NONE).is(b.regexp("(?i)NONE"));
+
     b.rule(HEREDOC_EXPRESSION).is(b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)"));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
-    Arrays.stream(DockerKeyword.values()).forEach(tokenType -> {
-      // Exception : no implicit SPACING for AS or NONE keywords
-      if (tokenType == DockerKeyword.AS || tokenType == DockerKeyword.NONE) {
-        b.rule(tokenType).is(
-          b.regexp("(?i)" + tokenType.getValue())
-        ).skip();
-      } else {
-        b.rule(tokenType).is(
-          b.optional(SPACING_OR_COMMENT),
-          b.regexp("(?i)" + tokenType.getValue())
-        ).skip();
-      }
-    });
+    Arrays.stream(DockerKeyword.values()).forEach(tokenType ->
+      b.rule(tokenType).is(
+        b.optional(SPACING),
+        b.regexp("(?i)" + tokenType.getValue())
+      ).skip()
+    );
   }
 }

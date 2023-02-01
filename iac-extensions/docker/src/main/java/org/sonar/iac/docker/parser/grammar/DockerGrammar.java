@@ -82,7 +82,7 @@ public class DockerGrammar {
         b.zeroOrMore(FILE_ARG()),
         // Implicit spacing
         b.zeroOrMore(DOCKERIMAGE()),
-        b.optional(b.token(DockerLexicalGrammar.SPACING_OR_COMMENT)),
+        b.optional(b.token(DockerLexicalGrammar.SPACING)),
         b.token(DockerLexicalGrammar.EOF)
       )
     );
@@ -223,7 +223,7 @@ public class DockerGrammar {
   public Alias ALIAS() {
     return b.<Alias>nonterminal(DockerLexicalGrammar.ALIAS).is(
       f.alias(
-        b.token(DockerKeyword.AS),
+        b.token(DockerLexicalGrammar.ALIAS_AS),
         b.token(DockerLexicalGrammar.WHITESPACE),
         b.token(DockerLexicalGrammar.IMAGE_ALIAS)
       )
@@ -497,7 +497,7 @@ public class DockerGrammar {
 
   public NoneInstruction NONE() {
     return b.<NoneInstruction>nonterminal(DockerLexicalGrammar.NONE).is(
-      f.none(b.token(DockerKeyword.NONE))
+      f.none(b.token(DockerLexicalGrammar.HEALTHCHECK_NONE))
     );
   }
 

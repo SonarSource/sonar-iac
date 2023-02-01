@@ -54,7 +54,7 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
     verify(noSonarFilter).noSonarInFile(inputFile, new HashSet<>());
   }
 
-  // TODO : enable back when multiline preprocessor is done
+  // TODO SONARIAC-530: enable back when multiline preprocessor is done
 //  @Test
 //  void linesOfCode() {
 //    scan(code(

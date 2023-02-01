@@ -80,7 +80,7 @@ public class DockerLexicalGrammarTest {
     Assertions.ParserAssert cmd = Assertions.assertThat(DockerLexicalGrammar.CMD)
       .matches("CMD")
       .matches("CMD foo")
-      // TODO : enable back when multi line preprocessor is done
+      // TODO SONARIAC-530: enable back when multi line preprocessor is done
 //      .matches("CMD \\\nfoo")
 //      .matches("CMD\\\n foo")
 //      .matches("CMD\\\nfoo") // no valid syntax but will be parsed

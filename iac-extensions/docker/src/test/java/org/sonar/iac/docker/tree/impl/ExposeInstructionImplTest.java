@@ -51,7 +51,7 @@ class ExposeInstructionImplTest {
       .matches("EXPOSE \"80/tcp\"")
       .matches("EXPOSE $myport")
 
-      // TODO : enable back to matches once reworked with Argument
+      // TODO SONARIAC-546: enable back to matches once reworked with Argument
       .notMatches("EXPOSE 8\"0/t\"cp")
       .notMatches("EXPOSE80")
       .notMatches("EXPOSE")
