@@ -27,4 +27,9 @@ class EnvSecretCheckTest {
   void test() {
     DockerVerifier.verify("EnvSecretCheck/Dockerfile", new EnvSecretCheck());
   }
+
+  @Test
+  void alternative_escaping() {
+    DockerVerifier.verify("EnvSecretCheck/Dockerfile.alternative_escaping", new EnvSecretCheck());
+  }
 }

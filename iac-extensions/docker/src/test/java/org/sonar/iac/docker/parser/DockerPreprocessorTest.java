@@ -29,6 +29,10 @@ class DockerPreprocessorTest {
 
   final DockerPreprocessor preprocessor = new DockerPreprocessor();
 
+  enum ESCAPE_CHAR {
+    DEFAULT, ALTERNATIVE
+  }
+
   @ParameterizedTest
   @CsvSource({
     "'foo\\\nbar'",
@@ -43,6 +47,12 @@ class DockerPreprocessorTest {
   void processSingleEscapedLinebreak(String input) {
     String output = preprocessor.process(input);
     assertThat(output).isEqualTo("foobar");
+  }
+
+  @Test
+  void processAlternativeEscapedLinebreak() {
+    String output = preprocessor.process("# escape=`\nfoo`\nbar");
+    assertThat(output).isEqualTo("# escape=`\nfoobar");
   }
 
   @Test
@@ -72,5 +82,19 @@ class DockerPreprocessorTest {
     DockerPreprocessor.SourceOffset sourceOffset = preprocessor.sourceOffset();
     assertThat(sourceOffset.sourceLineAndColumnAt(2)).isEqualTo(new int[] {1,3});
     assertThat(sourceOffset.sourceLineAndColumnAt(3)).isEqualTo(new int[] {2,1});
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "'', 'DEFAULT'",
+    "'# escape=`', 'ALTERNATIVE'",
+    "'# escape=\\\\', 'DEFAULT'",
+    "' # escape=`', 'ALTERNATIVE'",
+    "'FROM foo\n# escape=`', 'DEFAULT'",
+    "'# comment\n# escape=`', 'ALTERNATIVE'",
+  })
+  void determineEscapeCharacter(String source, ESCAPE_CHAR expectedEscapeCharacter) {
+    String escapeChar = ESCAPE_CHAR.DEFAULT == expectedEscapeCharacter ? DockerPreprocessor.DEFAULT_ESCAPE_CHAR : DockerPreprocessor.ALTERNATIVE_ESCAPE_CHAR;
+    assertThat(DockerPreprocessor.determineEscapeCharacter(source)).isEqualTo(escapeChar);
   }
 }
