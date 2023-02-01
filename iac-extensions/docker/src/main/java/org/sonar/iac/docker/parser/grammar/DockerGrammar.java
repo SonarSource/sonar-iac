@@ -302,17 +302,18 @@ public class DockerGrammar {
     );
   }
 
-  public Object DOUBLE_QUOTED_STRING() {
-    return null;
-  }
-
-  public Object VARIABLE() {
-    return null;
-  }
-
-  public Object STRING_NO_SPACING() {
-    return null;
-  }
+//TODO Finish impl
+//  public Object DOUBLE_QUOTED_STRING() {
+//    return null;
+//  }
+//
+//  public Object VARIABLE() {
+//    return null;
+//  }
+//
+//  public Object STRING_NO_SPACING() {
+//    return null;
+//  }
 
   /**
    * To match such element as KeyValuePairTree : key
