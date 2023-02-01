@@ -26,8 +26,10 @@ import java.util.List;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
+import org.sonar.iac.docker.tree.api.Docker;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
@@ -48,6 +50,7 @@ import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.Port;
+import org.sonar.iac.docker.tree.api.QuotedString;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
@@ -60,6 +63,7 @@ import org.sonar.iac.docker.tree.api.WorkdirInstruction;
 import org.sonar.iac.docker.tree.impl.AddInstructionImpl;
 import org.sonar.iac.docker.tree.impl.AliasImpl;
 import org.sonar.iac.docker.tree.impl.ArgInstructionImpl;
+import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.CmdInstructionImpl;
 import org.sonar.iac.docker.tree.impl.CopyInstructionImpl;
 import org.sonar.iac.docker.tree.impl.DockerImageImpl;
@@ -80,6 +84,7 @@ import org.sonar.iac.docker.tree.impl.NoneImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ParamImpl;
 import org.sonar.iac.docker.tree.impl.PortImpl;
+import org.sonar.iac.docker.tree.impl.QuotedStringImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormImpl;
@@ -119,6 +124,14 @@ public class TreeFactory {
 
   public MaintainerInstruction maintainer(SyntaxToken keyword, List<SyntaxToken> authorsToken) {
     return new MaintainerInstructionImpl(keyword, authorsToken);
+  }
+
+  public Argument argument2(List<Docker> dockerTrees) {
+    return new ArgumentImpl(dockerTrees);
+  }
+
+  public QuotedString quotedString(SyntaxToken token) {
+    return new QuotedStringImpl(token);
   }
 
   public SyntaxToken argument(SyntaxToken token) {

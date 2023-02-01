@@ -26,6 +26,7 @@ import org.sonar.iac.docker.parser.TreeFactory;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -46,6 +47,7 @@ import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.Port;
+import org.sonar.iac.docker.tree.api.QuotedString;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
@@ -274,6 +276,42 @@ public class DockerGrammar {
         )
       )
     );
+  }
+
+  public Argument ARGUMENT() {
+    return b.<Argument>nonterminal(DockerLexicalGrammar.ARGUMENT).is(
+      f.argument2(
+        b.oneOrMore(
+          b.firstOf(
+            QUOTED_STRING()
+//            ,
+//            DOUBLE_QUOTED_STRING(),
+//            VARIABLE(),
+//            STRING_NO_SPACING()
+          )
+        )
+      )
+    );
+  }
+
+  public QuotedString QUOTED_STRING() {
+    return b.<QuotedString>nonterminal(DockerLexicalGrammar.QUOTED_STRING).is(
+      f.quotedString(
+        b.token(DockerLexicalGrammar.QUOTED_STRING_REGEX)
+      )
+    );
+  }
+
+  public Object DOUBLE_QUOTED_STRING() {
+    return null;
+  }
+
+  public Object VARIABLE() {
+    return null;
+  }
+
+  public Object STRING_NO_SPACING() {
+    return null;
   }
 
   /**

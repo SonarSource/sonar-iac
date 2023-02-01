@@ -38,6 +38,8 @@ public interface DockerTree extends Tree {
     IMAGE(Image.class),
     PARAM(Param.class),
     ALIAS(Alias.class),
+    ARGUMENT(Argument.class),
+    QUOTED_STRING(QuotedString.class),
     MAINTAINER(MaintainerInstruction.class),
     STOPSIGNAL(StopSignalInstruction.class),
     WORKDIR(WorkdirInstruction.class),
