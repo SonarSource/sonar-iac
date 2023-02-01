@@ -36,6 +36,9 @@ class DockerPreprocessorTest {
     "'foo\\\u2028bar'",
     "'foo\\\u2029bar'",
     "'foo\\\rbar'",
+    "'foo\\    \nbar'",
+    "'\\\nfoobar'",
+    "'foobar\\\n'"
   })
   void processSingleEscapedLinebreak(String input) {
     String output = preprocessor.process(input);

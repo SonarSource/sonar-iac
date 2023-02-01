@@ -26,12 +26,20 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.sonar.iac.common.parser.grammar.LexicalConstant.WHITESPACE;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalConstant.EOL;
+
 public class DockerPreprocessor {
 
   private SourceOffset sourceOffset;
 
-  private static final Pattern ESCAPED_LINE_BREAK = Pattern.compile("\\\\(\\r\\n|[\\n\\r\\u2028\\u2029])");
+  private static final String ESCAPE_CHAR = "\\\\";
+  private static final Pattern ESCAPED_LINE_BREAK = Pattern.compile(ESCAPE_CHAR + "[" + WHITESPACE + "]*+" + EOL);
 
+  /**
+   * Remove every escaped line break. This results in instructions being represented in one line at a time.
+   * Track removed characters to adjust the offset when creating syntax tokens.
+   */
   public String process(String source) {
     Matcher m = ESCAPED_LINE_BREAK.matcher(source);
     Map<Integer, Integer> shiftedOffsetMap = new LinkedHashMap<>();
@@ -70,6 +78,12 @@ public class DockerPreprocessor {
         moveToNextOffset();
       }
     }
+
+    /**
+     * Adjust index of parsed token to reflect actual location in the code.
+     * This adjustment only works in ascending order, i.e. the indices must be the same or higher for each call.
+     * This is done for performance reasons.
+     */
     public int[] sourceLineAndColumnAt(int index) {
       return input.lineAndColumnAt(adjustIndex(index));
     }
