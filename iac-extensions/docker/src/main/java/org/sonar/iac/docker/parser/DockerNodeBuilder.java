@@ -40,6 +40,8 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 public class DockerNodeBuilder implements NodeBuilder {
   public static final char BYTE_ORDER_MARK = '\uFEFF';
 
+  private DockerPreprocessor.SourceOffset sourceOffset;
+
   @Override
   public Object createNonTerminal(GrammarRuleKey ruleKey, Rule rule, List<Object> children, int startIndex, int endIndex) {
     for (Object child : children) {
@@ -68,16 +70,20 @@ public class DockerNodeBuilder implements NodeBuilder {
     return new SyntaxTokenImpl(value, range, createComments(trivias));
   }
 
-  private static TextRange tokenRange(Input input, int startIndex, String value) {
-    int[] lineAndColumn = input.lineAndColumnAt(startIndex);
+  private TextRange tokenRange(Input input, int startIndex, String value) {
+    int[] startLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex);
+    int[] endLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex + value.length());
     char[] fileChars = input.input();
     boolean hasByteOrderMark = fileChars.length > 0 && fileChars[0] == BYTE_ORDER_MARK;
-    int column = applyByteOrderMark(lineAndColumn[1], hasByteOrderMark) - 1;
-    return TextRanges.range(lineAndColumn[0], column, value);
+
+    int startColumn = applyByteOrderMark(startLineAndColumn[1], hasByteOrderMark);
+    int endColum = applyByteOrderMark(endLineAndColumn[1], hasByteOrderMark);
+
+    return TextRanges.range(startLineAndColumn[0], startColumn, endLineAndColumn[0], endColum);
   }
 
   private static int applyByteOrderMark(int column, boolean hasByteOrderMark) {
-    return hasByteOrderMark ? (column - 1) : column;
+    return (hasByteOrderMark ? (column - 1) : column) - 1;
   }
 
   private static List<Comment> createComments(List<Trivia> trivias) {
@@ -89,5 +95,9 @@ public class DockerNodeBuilder implements NodeBuilder {
       result.add(new CommentImpl(text, text.substring(2), range));
     }
     return result;
+  }
+
+  public void setSourceOffset(DockerPreprocessor.SourceOffset sourceOffset) {
+    this.sourceOffset = sourceOffset;
   }
 }

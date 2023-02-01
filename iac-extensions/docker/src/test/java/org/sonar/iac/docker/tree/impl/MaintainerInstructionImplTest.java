@@ -26,6 +26,7 @@ import org.sonar.iac.docker.tree.api.Docker;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class MaintainerInstructionImplTest {
@@ -62,10 +63,8 @@ class MaintainerInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(1);
     assertThat(tree.authors().get(0).value()).isEqualTo("\"bob\"");
-    assertThat(tree.textRange().start().line()).isEqualTo(1);
-    assertThat(tree.textRange().start().lineOffset()).isZero();
-    assertThat(tree.textRange().end().line()).isEqualTo(1);
-    assertThat(tree.textRange().end().lineOffset()).isEqualTo(16);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
+    assertTextRange(tree.keyword().textRange()).hasRange(1, 0, 1, 10);
     assertThat(tree.children()).hasSize(2);
   }
 
@@ -116,5 +115,12 @@ class MaintainerInstructionImplTest {
     assertThat(tree.authors()).hasSize(2);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");
     assertThat(tree.authors().get(1).value()).isEqualTo("boberman");
+  }
+
+  @Test
+  void maintainerInstructionWithEscapedLineBreaks() {
+    MaintainerInstruction tree = parse("MAIN\\\nTAINER \"bob\"", DockerLexicalGrammar.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(Docker.Kind.MAINTAINER);
+    assertTextRange(tree.keyword().textRange()).hasRange(1, 0, 2, 6);
   }
 }

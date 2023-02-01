@@ -32,22 +32,32 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class DockerParser extends ActionParser<Docker> implements TreeParser<Tree> {
 
-  public DockerParser() {
-    this(DockerLexicalGrammar.FILE);
-  }
+  private final DockerPreprocessor preprocessor = new DockerPreprocessor();
+  private final DockerNodeBuilder nodeBuilder;
 
-  public DockerParser(GrammarRuleKey rootRule) {
+  private DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule) {
     super(StandardCharsets.UTF_8,
       DockerLexicalGrammar.createGrammarBuilder(),
       DockerGrammar.class,
       new TreeFactory(),
-      new DockerNodeBuilder(),
+      nodeBuilder,
       rootRule);
+    this.nodeBuilder = nodeBuilder;
+  }
+
+  public static DockerParser create() {
+    return create(DockerLexicalGrammar.FILE);
+  }
+
+  public static DockerParser create(GrammarRuleKey rootRule) {
+    return new DockerParser(new DockerNodeBuilder(), rootRule);
   }
 
   @Override
   public Docker parse(String source) {
-    Docker tree = super.parse(source);
+    String preprocessedSource = preprocessor.process(source);
+    nodeBuilder.setSourceOffset(preprocessor.sourceOffset());
+    Docker tree = super.parse(preprocessedSource);
     setParents(tree);
     return tree;
   }

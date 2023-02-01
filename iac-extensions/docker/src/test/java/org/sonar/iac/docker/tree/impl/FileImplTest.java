@@ -41,6 +41,15 @@ class FileImplTest {
   }
 
   @Test
+  void shouldParseEmptyFileWithByteOrderMark() {
+    File file = parseFile("\uFEFF");
+    assertThat(file.getKind()).isEqualTo(Docker.Kind.FILE);
+    assertTextRange(file.textRange()).hasRange(1,0,1,0);
+    assertThat(file.globalArgs()).isEmpty();
+    assertThat(file.dockerImages()).isEmpty();
+  }
+
+  @Test
   void shouldParseFileWithSpace() {
     File file = parseFile(" ");
     assertTextRange(file.textRange()).hasRange(1,1,1,1);
@@ -71,7 +80,7 @@ class FileImplTest {
 
   @Test
   void shouldParseFileWithMultipleEmptyLinesAndMultilineInstruction() {
-    File file = parseFile("\n\n\nFROM\\\nfoobar");
+    File file = parseFile("\n\n\nFROM \\\nfoobar");
     assertThat(file.dockerImages()).hasSize(1);
   }
 

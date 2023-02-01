@@ -72,7 +72,7 @@ public class DockerSensor extends IacSensor {
 
   @Override
   protected DockerParser treeParser() {
-    return new DockerParser();
+    return DockerParser.create();
   }
 
   @Override

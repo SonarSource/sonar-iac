@@ -32,7 +32,7 @@ public class DockerVerifier {
   }
 
   private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
-  private static final DockerParser PARSER = new DockerParser();
+  private static final DockerParser PARSER = DockerParser.create();
 
   public static void verify(String fileName, IacCheck check) {
     Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
