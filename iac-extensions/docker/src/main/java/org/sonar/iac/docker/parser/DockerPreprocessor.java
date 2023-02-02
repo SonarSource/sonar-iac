@@ -35,7 +35,7 @@ public class DockerPreprocessor {
 
   static final String DEFAULT_ESCAPE_CHAR = "\\\\";
   static final String ALTERNATIVE_ESCAPE_CHAR = "`";
-  private static final String ALTERNATIVE_ESCAPE_CHAR_DIRECTIVE = "#\\s*+escape=" + ALTERNATIVE_ESCAPE_CHAR;
+  private static final String ALTERNATIVE_ESCAPE_CHAR_DIRECTIVE = "#\\s*+escape\\s*+=\\s*+" + ALTERNATIVE_ESCAPE_CHAR;
   private static final Pattern ALTERNATIVE_ESCAPE_CHAR_PATTERN = Pattern.compile("^(#[^" + EOL + "]*+" + EOL + "|\\s)*" + ALTERNATIVE_ESCAPE_CHAR_DIRECTIVE);
 
   /**

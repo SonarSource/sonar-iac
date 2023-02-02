@@ -86,12 +86,17 @@ class DockerPreprocessorTest {
 
   @ParameterizedTest
   @CsvSource({
-    "'', 'DEFAULT'",
-    "'# escape=`', 'ALTERNATIVE'",
-    "'# escape=\\\\', 'DEFAULT'",
-    "' # escape=`', 'ALTERNATIVE'",
-    "'FROM foo\n# escape=`', 'DEFAULT'",
-    "'# comment\n# escape=`', 'ALTERNATIVE'",
+    "'',                      DEFAULT",
+    "'# escape=`',            ALTERNATIVE",
+    "'# escape=\\\\',         DEFAULT",
+    "' # escape=`',           ALTERNATIVE",
+    "'FROM foo\n# escape=`',  DEFAULT",
+    "'# comment\n# escape=`', ALTERNATIVE",
+    "'#escape=`',             ALTERNATIVE",
+    "'# escape =`',           ALTERNATIVE",
+    "'# escape= `',           ALTERNATIVE",
+    "'# escape=',             DEFAULT",
+    "'# escape = `',          ALTERNATIVE",
   })
   void determineEscapeCharacter(String source, ESCAPE_CHAR expectedEscapeCharacter) {
     String escapeChar = ESCAPE_CHAR.DEFAULT == expectedEscapeCharacter ? DockerPreprocessor.DEFAULT_ESCAPE_CHAR : DockerPreprocessor.ALTERNATIVE_ESCAPE_CHAR;
