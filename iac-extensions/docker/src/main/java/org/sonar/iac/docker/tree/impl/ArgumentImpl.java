@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 
-public class ArgumentImpl extends AbstractDockerImpl implements Argument {
-  private final List<Docker> children;
+public class ArgumentImpl extends AbstractDockerTreeImpl implements Argument {
+  private final List<DockerTree> children;
 
-  public ArgumentImpl(List<Docker> children) {
+  public ArgumentImpl(List<DockerTree> children) {
     this.children = children;
   }
 

@@ -19,5 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface Argument extends Docker {
+public interface Argument extends DockerTree {
 }

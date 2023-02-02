@@ -22,13 +22,13 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.StringWithSpacing;
 
-public class StringWithSpacingImpl extends AbstractDockerImpl implements StringWithSpacing {
-  private final List<Docker> children;
+public class StringWithSpacingImpl extends AbstractDockerTreeImpl implements StringWithSpacing {
+  private final List<DockerTree> children;
 
-  public StringWithSpacingImpl(List<Docker> children) {
+  public StringWithSpacingImpl(List<DockerTree> children) {
     this.children = children;
   }
 

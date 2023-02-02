@@ -19,5 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface StringNoSpacing extends Docker {
+public interface StringNoSpacing extends DockerTree {
 }

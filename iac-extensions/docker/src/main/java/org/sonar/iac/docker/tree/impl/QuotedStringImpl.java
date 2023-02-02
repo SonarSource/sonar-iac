@@ -24,7 +24,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.QuotedString;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class QuotedStringImpl extends AbstractDockerImpl implements QuotedString {
+public class QuotedStringImpl extends AbstractDockerTreeImpl implements QuotedString {
 
   private final SyntaxToken token;
 

@@ -23,17 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.DoubleQuotedString;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class DoubleQuotedStringImpl extends AbstractDockerImpl implements DoubleQuotedString {
+public class DoubleQuotedStringImpl extends AbstractDockerTreeImpl implements DoubleQuotedString {
   private final SyntaxToken leftQuote;
   @Nullable
-  private final List<Docker> words;
+  private final List<DockerTree> words;
   private final SyntaxToken rightQuote;
 
-  public DoubleQuotedStringImpl(SyntaxToken leftQuote, @Nullable List<Docker> words, SyntaxToken rightQuote) {
+  public DoubleQuotedStringImpl(SyntaxToken leftQuote, @Nullable List<DockerTree> words, SyntaxToken rightQuote) {
     this.leftQuote = leftQuote;
     this.words = words;
     this.rightQuote = rightQuote;

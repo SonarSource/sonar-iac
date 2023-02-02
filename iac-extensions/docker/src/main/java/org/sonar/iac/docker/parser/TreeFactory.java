@@ -29,7 +29,7 @@ import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DoubleQuotedString;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
@@ -132,7 +132,7 @@ public class TreeFactory {
     return new MaintainerInstructionImpl(keyword, authorsToken);
   }
 
-  public Argument argument2(List<Docker> dockerTrees) {
+  public Argument argument2(List<DockerTree> dockerTrees) {
     return new ArgumentImpl(dockerTrees);
   }
 
@@ -141,11 +141,11 @@ public class TreeFactory {
   }
 
 
-  public DoubleQuotedString doubleQuotedString(SyntaxToken leftQuote, Optional<List<Docker>> words, SyntaxToken rightQuote) {
+  public DoubleQuotedString doubleQuotedString(SyntaxToken leftQuote, Optional<List<DockerTree>> words, SyntaxToken rightQuote) {
     return new DoubleQuotedStringImpl(leftQuote, words.orNull(), rightQuote);
   }
 
-  public StringWithSpacing stringWithSpacing(List<Docker> children) {
+  public StringWithSpacing stringWithSpacing(List<DockerTree> children) {
     return new StringWithSpacingImpl(children);
   }
 

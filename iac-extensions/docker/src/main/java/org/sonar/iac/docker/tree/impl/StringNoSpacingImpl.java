@@ -24,7 +24,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.StringNoSpacing;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class StringNoSpacingImpl extends AbstractDockerImpl implements StringNoSpacing {
+public class StringNoSpacingImpl extends AbstractDockerTreeImpl implements StringNoSpacing {
   private final SyntaxToken token;
 
   public StringNoSpacingImpl(SyntaxToken token) {
