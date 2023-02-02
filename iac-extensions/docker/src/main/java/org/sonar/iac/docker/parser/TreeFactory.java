@@ -31,6 +31,7 @@ import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.Docker;
 import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.DoubleQuotedString;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -56,6 +57,8 @@ import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
+import org.sonar.iac.docker.tree.api.StringNoSpacing;
+import org.sonar.iac.docker.tree.api.StringWithSpacing;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
@@ -67,6 +70,7 @@ import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.CmdInstructionImpl;
 import org.sonar.iac.docker.tree.impl.CopyInstructionImpl;
 import org.sonar.iac.docker.tree.impl.DockerImageImpl;
+import org.sonar.iac.docker.tree.impl.DoubleQuotedStringImpl;
 import org.sonar.iac.docker.tree.impl.EntrypointInstructionImpl;
 import org.sonar.iac.docker.tree.impl.EnvInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormImpl;
@@ -90,6 +94,8 @@ import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.tree.impl.ShellInstructionImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
+import org.sonar.iac.docker.tree.impl.StringNoSpacingImpl;
+import org.sonar.iac.docker.tree.impl.StringWithSpacingImpl;
 import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
 import org.sonar.iac.docker.tree.impl.VolumeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
@@ -132,6 +138,19 @@ public class TreeFactory {
 
   public QuotedString quotedString(SyntaxToken token) {
     return new QuotedStringImpl(token);
+  }
+
+
+  public DoubleQuotedString doubleQuotedString(SyntaxToken leftQuote, Optional<List<Docker>> words, SyntaxToken rightQuote) {
+    return new DoubleQuotedStringImpl(leftQuote, words.orNull(), rightQuote);
+  }
+
+  public StringWithSpacing stringWithSpacing(List<Docker> children) {
+    return new StringWithSpacingImpl(children);
+  }
+
+  public StringNoSpacing stringNoSpacing(SyntaxToken token) {
+    return new StringNoSpacingImpl(token);
   }
 
   public SyntaxToken argument(SyntaxToken token) {

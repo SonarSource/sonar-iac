@@ -30,6 +30,7 @@ import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.DoubleQuotedString;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -52,6 +53,8 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
+import org.sonar.iac.docker.tree.api.StringNoSpacing;
+import org.sonar.iac.docker.tree.api.StringWithSpacing;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
@@ -283,11 +286,8 @@ public class DockerGrammar {
       f.argument2(
         b.oneOrMore(
           b.firstOf(
-            QUOTED_STRING()
-//            ,
-//            DOUBLE_QUOTED_STRING(),
-//            VARIABLE(),
-//            STRING_NO_SPACING()
+            QUOTED_STRING(),
+            DOUBLE_QUOTED_STRING()
           )
         )
       )
@@ -302,18 +302,39 @@ public class DockerGrammar {
     );
   }
 
-//TODO Finish impl
-//  public Object DOUBLE_QUOTED_STRING() {
-//    return null;
-//  }
-//
-//  public Object VARIABLE() {
-//    return null;
-//  }
-//
-//  public Object STRING_NO_SPACING() {
-//    return null;
-//  }
+  public DoubleQuotedString DOUBLE_QUOTED_STRING() {
+    return b.<DoubleQuotedString>nonterminal(DockerLexicalGrammar.DOUBLE_QUOTED_STRING).is(
+      f.doubleQuotedString(
+        b.token(Punctuator.DOUBLE_QUOTE),
+        b.zeroOrMore(
+          b.firstOf(
+            STRING_WITH_SPACING()
+          )
+        ),
+        b.token(Punctuator.DOUBLE_QUOTE)
+      )
+    );
+  }
+
+  public StringWithSpacing STRING_WITH_SPACING() {
+    return b.<StringWithSpacing>nonterminal(DockerLexicalGrammar.STRING_WITH_SPACING).is(
+      f.stringWithSpacing(
+        b.oneOrMore(
+          b.firstOf(
+            STRING_NO_SPACING()
+          )
+        )
+      )
+    );
+  }
+
+  public StringNoSpacing STRING_NO_SPACING() {
+    return b.<StringNoSpacing>nonterminal(DockerLexicalGrammar.STRING_NO_SPACING).is(
+      f.stringNoSpacing(
+        b.token(DockerLexicalGrammar.STRING_NO_SPACING_REGEX)
+      )
+    );
+  }
 
   /**
    * To match such element as KeyValuePairTree : key

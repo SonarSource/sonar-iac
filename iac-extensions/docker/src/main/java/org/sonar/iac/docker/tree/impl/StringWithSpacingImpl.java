@@ -19,32 +19,26 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
-import org.sonar.iac.docker.parser.utils.Assertions;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.StringWithSpacing;
 
-class ArgumentImplTest {
+public class StringWithSpacingImpl extends AbstractDockerImpl implements StringWithSpacing {
+  private final List<Docker> children;
 
-  @Test
-  void shouldParseArgument() {
-    Assertions.assertThat(DockerLexicalGrammar.ARGUMENT)
-      // quoted string
-      .matches("'myString'")
-      .matches("'my String'")
-      .matches("'$my'")
-      .matches("'${my}'")
-      .matches("''")
-      .matches("'${my'")
-      .matches("\"WORKDIR\"")
-      .matches("\"aaa\"")
-      .matches("\"\"")
-      .matches("\"with_\\\"double_quotes\"")
-      .matches("\"with-'single-quote\"")
-      .matches("\"with=escaped=\\$dollar\"")
-      .matches("\"£§`~!@#%^&*()-_+=[]{}:;|\\,.<>/?\"")
-      .notMatches("xx")
-      .notMatches("")
-      .notMatches(" ")
-      .notMatches("\"");
+  public StringWithSpacingImpl(List<Docker> children) {
+    this.children = children;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return new ArrayList<>(children);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.STRING_WITH_SPACING;
   }
 }

@@ -52,6 +52,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   QUOTED_STRING,
   QUOTED_STRING_REGEX,
   DOUBLE_QUOTED_STRING,
+  STRING_WITH_SPACING,
+  STRING_NO_SPACING,
+  STRING_NO_SPACING_REGEX,
 
   /**
    * SPACING
@@ -159,19 +162,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
-    String quotedString = "'[^']*+'";
-    //TODO MS clean up before PR
-//     String stringNoSpacing = "(\\$|'|\"|[^\\s'\"\\$])++";
-//    String stringWithSpacing = "(" + stringNoSpacing + "|" + LexicalConstant.WHITESPACE + ")++";
-//    String variableName = "[a-zA-Z_][a-zA-Z0-9_]*+";
-//    String simpleVariable = "\\$" + variableName;
-//    String complexVariableModifiers = ":(-|+)(" + quotedString + "|" + "";
-//    String complexVariable = "\\${" + variableName;
-//    String variable = "";
-    b.rule(QUOTED_STRING_REGEX).is(b.regexp(quotedString));
-//    b.rule(DOUBLE_QUOTED_STRING).is(b.regexp("\"(" + stringWithSpacing + "|" + variable + ")*+\""));
-
-//    Pattern.compile("\\$\\{.*:(\\-|\\+)\\$.*}")
+    b.rule(QUOTED_STRING_REGEX).is(b.regexp("'[^']*+'"));
+    b.rule(STRING_NO_SPACING_REGEX).is(b.regexp("(?:\\$|\\\\\"|[^\"$])++"));
 
     // TODO : those elements will be removed in the next grammar progressively
     b.rule(STRING_LITERAL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL));
