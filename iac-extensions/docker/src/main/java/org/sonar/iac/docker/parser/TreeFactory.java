@@ -86,7 +86,7 @@ import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.tree.impl.ShellInstructionImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
 import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
-import org.sonar.iac.docker.tree.impl.VolumeImpl;
+import org.sonar.iac.docker.tree.impl.VolumeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 
 // S1172 - Unused function parameters should be removed - the spacing argument is ignored, but it's needed from grammar perspective
@@ -222,7 +222,7 @@ public class TreeFactory {
   }
 
   public VolumeInstruction volume(SyntaxToken token, LiteralList execFormOrShellForm) {
-    return new VolumeImpl(token, execFormOrShellForm);
+    return new VolumeInstructionImpl(token, execFormOrShellForm);
   }
 
   public ShellInstruction shell(SyntaxToken token, ExecForm execForm) {
