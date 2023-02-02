@@ -151,7 +151,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
-    // TODO : those elements will be removed in the next grammar progressively, implicit spacing has been removed until then
+    // TODO : those elements will be removed in the next grammar progressively
     b.rule(STRING_LITERAL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL));
     b.rule(STRING_UNTIL_EOL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
     b.rule(STRING_LITERAL_WITH_QUOTES).is(b.optional(WHITESPACE), b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
