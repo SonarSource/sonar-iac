@@ -31,10 +31,10 @@ import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-import static org.sonar.iac.docker.tree.api.Docker.Kind.ADD;
-import static org.sonar.iac.docker.tree.api.Docker.Kind.CMD;
-import static org.sonar.iac.docker.tree.api.Docker.Kind.ENTRYPOINT;
-import static org.sonar.iac.docker.tree.api.Docker.Kind.RUN;
+import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
+import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
+import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ENTRYPOINT;
+import static org.sonar.iac.docker.tree.api.DockerTree.Kind.RUN;
 
 @Rule(key = "S5332")
 public class UnencryptedProtocolCheck implements IacCheck {

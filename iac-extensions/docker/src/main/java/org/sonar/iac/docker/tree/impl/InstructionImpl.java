@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public abstract class InstructionImpl extends AbstractDockerImpl implements Instruction {
+public abstract class InstructionImpl extends AbstractDockerTreeImpl implements Instruction {
 
   protected final SyntaxToken keyword;
 

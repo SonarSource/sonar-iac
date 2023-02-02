@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -50,27 +50,27 @@ class ShellFormImplTest {
   void shouldCheckExecFormTree() {
     ShellForm execForm = DockerTestUtils.parse("executable param1 param2", DockerLexicalGrammar.SHELL_FORM);
 
-    assertThat(execForm.getKind()).isEqualTo(Docker.Kind.SHELL_FORM);
+    assertThat(execForm.getKind()).isEqualTo(DockerTree.Kind.SHELL_FORM);
     List<String> elementsAndSeparatorsAsText = execForm.literals().stream()
       .map(TextTree::value)
       .collect(Collectors.toList());
     assertThat(elementsAndSeparatorsAsText).containsExactly("executable", "param1", "param2");
 
     List<SyntaxToken> elements = execForm.literals();
-    assertThat(elements.get(0).getKind()).isEqualTo(Docker.Kind.TOKEN);
+    assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.TOKEN);
   }
 
   @Test
   void shouldCheckExecFormWithQuotesTree() {
     ShellForm execForm = DockerTestUtils.parse("git commit -m \"Some commit message\"", DockerLexicalGrammar.SHELL_FORM);
 
-    assertThat(execForm.getKind()).isEqualTo(Docker.Kind.SHELL_FORM);
+    assertThat(execForm.getKind()).isEqualTo(DockerTree.Kind.SHELL_FORM);
     List<String> elementsAndSeparatorsAsText = execForm.literals().stream()
       .map(TextTree::value)
       .collect(Collectors.toList());
     assertThat(elementsAndSeparatorsAsText).containsExactly("git", "commit", "-m", "\"Some commit message\"");
 
     List<SyntaxToken> elements = execForm.literals();
-    assertThat(elements.get(0).getKind()).isEqualTo(Docker.Kind.TOKEN);
+    assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.TOKEN);
   }
 }

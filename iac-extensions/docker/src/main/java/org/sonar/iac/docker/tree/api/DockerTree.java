@@ -22,12 +22,12 @@ package org.sonar.iac.docker.tree.api;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public interface Docker extends Tree {
+public interface DockerTree extends Tree {
 
   boolean is(Kind... kind);
   Kind getKind();
-  Docker parent();
-  void setParent(Docker parent);
+  DockerTree parent();
+  void setParent(DockerTree parent);
 
   enum Kind implements GrammarRuleKey {
     FILE(File.class),
@@ -65,9 +65,9 @@ public interface Docker extends Tree {
     TOKEN(SyntaxToken.class);
 
 
-    private final Class<? extends Docker> associatedInterface;
+    private final Class<? extends DockerTree> associatedInterface;
 
-    Kind(Class<? extends Docker> associatedInterface) {
+    Kind(Class<? extends DockerTree> associatedInterface) {
       this.associatedInterface = associatedInterface;
     }
   }

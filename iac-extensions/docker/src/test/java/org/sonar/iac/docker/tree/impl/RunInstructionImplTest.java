@@ -28,7 +28,7 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.LiteralList;
@@ -168,7 +168,7 @@ class RunInstructionImplTest {
   @Test
   void shouldCheckParseRunExecFormTree() {
     RunInstruction tree = DockerTestUtils.parse("RUN [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.RUN);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.RUN);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertTextRange(tree.textRange()).hasRange(1,0,1,36);
 
@@ -188,7 +188,7 @@ class RunInstructionImplTest {
   void shouldCheckParseRunShellFormTree() {
     RunInstruction tree = DockerTestUtils.parse("RUN executable param1 param2", DockerLexicalGrammar.RUN);
 
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.RUN);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertTextRange(tree.textRange()).hasRange(1,0,1,28);
 
@@ -207,7 +207,7 @@ class RunInstructionImplTest {
   @Test
   void shouldCheckParseRunOptionExecFormTree() {
     RunInstruction tree = DockerTestUtils.parse("RUN --mount=type=cache,target=/root/.cache/pip [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.RUN);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.RUN);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertTextRange(tree.textRange()).hasRange(1,0,1,79);
 
@@ -234,7 +234,7 @@ class RunInstructionImplTest {
   void shouldCheckParseRunOptionShellFormTree() {
     RunInstruction tree = DockerTestUtils.parse("RUN --mount=type=${mount_type:+ssh} executable param1 param2", DockerLexicalGrammar.RUN);
 
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.RUN);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertTextRange(tree.textRange()).hasRange(1,0,1,60);
 
@@ -261,7 +261,7 @@ class RunInstructionImplTest {
   void shouldCheckParseEmptyRunExecFormTree() {
     RunInstruction tree = DockerTestUtils.parse("RUN []", DockerLexicalGrammar.RUN);
 
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.RUN);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().literals()).isEmpty();
@@ -276,7 +276,7 @@ class RunInstructionImplTest {
   @Test
   void shouldCheckParseEmptyRunTree() {
     RunInstruction tree = DockerTestUtils.parse("RUN", DockerLexicalGrammar.RUN);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.RUN);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
 
     assertThat(tree.arguments()).isNull();
@@ -290,7 +290,7 @@ class RunInstructionImplTest {
       "FILE1";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.HEREDOC);
-    assertThat(tree.arguments().getKind()).isEqualTo(Docker.Kind.HEREDOCUMENT);
+    assertThat(tree.arguments().getKind()).isEqualTo(DockerTree.Kind.HEREDOCUMENT);
     assertTextRange(tree.textRange()).hasRange(1,0,4,5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");

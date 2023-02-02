@@ -26,7 +26,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class ParamImpl extends AbstractDockerImpl implements Param {
+public class ParamImpl extends AbstractDockerTreeImpl implements Param {
 
   private final SyntaxToken prefix;
   private final SyntaxToken name;

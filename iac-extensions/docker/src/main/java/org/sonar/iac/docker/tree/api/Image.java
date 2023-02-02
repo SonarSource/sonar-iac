@@ -21,7 +21,7 @@ package org.sonar.iac.docker.tree.api;
 
 import javax.annotation.Nullable;
 
-public interface Image extends Docker {
+public interface Image extends DockerTree {
   SyntaxToken name();
   @Nullable
   String tag();

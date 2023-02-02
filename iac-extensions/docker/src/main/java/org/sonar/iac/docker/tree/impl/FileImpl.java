@@ -27,7 +27,7 @@ import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class FileImpl extends AbstractDockerImpl implements File {
+public class FileImpl extends AbstractDockerTreeImpl implements File {
 
   private final List<ArgInstruction> globalArgs;
   private final List<DockerImage> dockerImages;

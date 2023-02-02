@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +34,7 @@ class FileImplTest {
   @Test
   void shouldParseEmptyFile() {
     File file = parseFile("");
-    assertThat(file.getKind()).isEqualTo(Docker.Kind.FILE);
+    assertThat(file.getKind()).isEqualTo(DockerTree.Kind.FILE);
     assertTextRange(file.textRange()).hasRange(1,0,1,0);
     assertThat(file.globalArgs()).isEmpty();
     assertThat(file.dockerImages()).isEmpty();
@@ -43,7 +43,7 @@ class FileImplTest {
   @Test
   void shouldParseEmptyFileWithByteOrderMark() {
     File file = parseFile("\uFEFF");
-    assertThat(file.getKind()).isEqualTo(Docker.Kind.FILE);
+    assertThat(file.getKind()).isEqualTo(DockerTree.Kind.FILE);
     assertTextRange(file.textRange()).hasRange(1,0,1,0);
     assertThat(file.globalArgs()).isEmpty();
     assertThat(file.dockerImages()).isEmpty();
@@ -108,9 +108,9 @@ class FileImplTest {
   @Test
   void checkIsKindMethod() {
     File file = parseFile("");
-    assertThat(file.is(Docker.Kind.FILE)).isTrue();
-    assertThat(file.is(Docker.Kind.FILE, Docker.Kind.FROM)).isTrue();
-    assertThat(file.is(Docker.Kind.FROM)).isFalse();
+    assertThat(file.is(DockerTree.Kind.FILE)).isTrue();
+    assertThat(file.is(DockerTree.Kind.FILE, DockerTree.Kind.FROM)).isTrue();
+    assertThat(file.is(DockerTree.Kind.FROM)).isFalse();
   }
 
   @Test
@@ -123,8 +123,8 @@ class FileImplTest {
   void checkChildren() {
     File file = parseFile("");
     assertThat(file.children()).hasSize(1);
-    Docker child = (Docker) file.children().get(0);
-    assertThat(child.getKind()).isEqualTo(Docker.Kind.TOKEN);
+    DockerTree child = (DockerTree) file.children().get(0);
+    assertThat(child.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
   }
 
   private File parseFile(String input) {

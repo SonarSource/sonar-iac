@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.AddInstruction;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -57,7 +57,7 @@ class AddInstructionImplTest {
   @Test
   void addInstructionSimple() {
     AddInstruction tree = parse("ADD src dest", DockerLexicalGrammar.ADD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 12);
     assertThat(tree.options()).isEmpty();
@@ -69,7 +69,7 @@ class AddInstructionImplTest {
   @Test
   void addInstructionExecForm() {
     AddInstruction tree = parse("ADD [\"src\", \"dest\"]", DockerLexicalGrammar.ADD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.options()).isEmpty();
@@ -81,7 +81,7 @@ class AddInstructionImplTest {
   @Test
   void addInstructionExecFormMultipleSrc() {
     AddInstruction tree = parse("ADD [\"src1\", \"src2\", \"src3\", \"dest\"]", DockerLexicalGrammar.ADD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 36);
     assertThat(tree.options()).isEmpty();
@@ -96,7 +96,7 @@ class AddInstructionImplTest {
   @Test
   void addInstructionSimpleQuotes() {
     AddInstruction tree = parse("ADD \"src\" \"dest\"", DockerLexicalGrammar.ADD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
@@ -107,7 +107,7 @@ class AddInstructionImplTest {
   @Test
   void addInstructionNoSrc() {
     AddInstruction tree = parse("ADD dest", DockerLexicalGrammar.ADD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).isEmpty();
@@ -117,7 +117,7 @@ class AddInstructionImplTest {
   @Test
   void addInstructionMultipleSrc() {
     AddInstruction tree = parse("ADD src1 src2 dest", DockerLexicalGrammar.ADD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 18);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(2);
@@ -129,12 +129,12 @@ class AddInstructionImplTest {
   @Test
   void addInstructionWithSimpleOption() {
     AddInstruction tree = parse("ADD --link /foo /bar", DockerLexicalGrammar.ADD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 20);
     assertThat(tree.options()).hasSize(1);
 
     Param option = tree.options().get(0);
-    assertThat(option.getKind()).isEqualTo(Docker.Kind.PARAM);
+    assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("link");
     assertThat(option.value()).isNull();
     assertThat(tree.srcs()).hasSize(1);
@@ -145,12 +145,12 @@ class AddInstructionImplTest {
   @Test
   void addInstructionWithOption() {
     AddInstruction tree = parse("ADD --chown=55:mygroup files* /somedir/", DockerLexicalGrammar.ADD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.options()).hasSize(1);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 39);
 
     Param option = tree.options().get(0);
-    assertThat(option.getKind()).isEqualTo(Docker.Kind.PARAM);
+    assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("chown");
     assertThat(option.value().value()).isEqualTo("55:mygroup");
 
@@ -162,17 +162,17 @@ class AddInstructionImplTest {
   @Test
   void addInstructionWithMultipleOptions() {
     AddInstruction tree = parse("ADD --option-one=value1 --option-two=value2 src dest", DockerLexicalGrammar.ADD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.options()).hasSize(2);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 52);
 
     Param option1 = tree.options().get(0);
-    assertThat(option1.getKind()).isEqualTo(Docker.Kind.PARAM);
+    assertThat(option1.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option1.name()).isEqualTo("option-one");
     assertThat(option1.value().value()).isEqualTo("value1");
 
     Param option2 = tree.options().get(1);
-    assertThat(option2.getKind()).isEqualTo(Docker.Kind.PARAM);
+    assertThat(option2.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option2.name()).isEqualTo("option-two");
     assertThat(option2.value().value()).isEqualTo("value2");
 

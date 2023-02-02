@@ -37,7 +37,7 @@ import org.sonar.iac.docker.tree.api.Instruction;
  *   FROM ubuntu:14.04
  *   EXPOSE 80/tcp
  */
-public class DockerImageImpl extends AbstractDockerImpl implements DockerImage {
+public class DockerImageImpl extends AbstractDockerTreeImpl implements DockerImage {
 
   private final FromInstruction from;
   private final List<Instruction> instructions;

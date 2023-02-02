@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Param;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ class ParamImplTest {
   @Test
   void test() {
     Param param = parse("--platform=foo", DockerLexicalGrammar.PARAM);
-    assertThat(param.getKind()).isEqualTo(Docker.Kind.PARAM);
+    assertThat(param.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(param.name()).isEqualTo("platform");
     assertThat(param.value().value()).isEqualTo("foo");
     assertTextRange(param.textRange()).hasRange(1, 0, 1, 14);

@@ -25,7 +25,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class ShellFormImpl extends AbstractDockerImpl implements ShellForm {
+public class ShellFormImpl extends AbstractDockerTreeImpl implements ShellForm {
 
   private final List<SyntaxToken> literals;
 

@@ -24,7 +24,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class ExecFormLiteralImpl extends AbstractDockerImpl implements ExecFormLiteral {
+public class ExecFormLiteralImpl extends AbstractDockerTreeImpl implements ExecFormLiteral {
 
   private final SyntaxToken value;
 

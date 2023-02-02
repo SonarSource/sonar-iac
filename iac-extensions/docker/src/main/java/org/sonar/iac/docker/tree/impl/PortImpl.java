@@ -27,7 +27,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Port;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class PortImpl extends AbstractDockerImpl implements Port {
+public class PortImpl extends AbstractDockerTreeImpl implements Port {
   private final SyntaxToken portMin;
   private final SyntaxToken separatorPort;
   private final SyntaxToken portMax;

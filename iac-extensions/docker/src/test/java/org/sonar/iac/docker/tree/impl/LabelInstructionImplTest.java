@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 
@@ -51,7 +51,7 @@ class LabelInstructionImplTest {
   @Test
   void labelInstructionWithoutEqualsOperator() {
     LabelInstruction tree = parse("LABEL key1 value1", DockerLexicalGrammar.LABEL);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.LABEL);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
@@ -61,7 +61,7 @@ class LabelInstructionImplTest {
     assertThat(tree.keyValuePairs()).hasSize(1);
 
     KeyValuePair keyValuePair = tree.keyValuePairs().get(0);
-    assertThat(keyValuePair.getKind()).isEqualTo(Docker.Kind.KEY_VALUE_PAIR);
+    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
     assertThat(keyValuePair.key().value()).isEqualTo("key1");
     assertThat(keyValuePair.equals()).isNull();
     assertThat(keyValuePair.value().value()).isEqualTo("value1");
@@ -70,7 +70,7 @@ class LabelInstructionImplTest {
   @Test
   void labelInstructionWithoutEqualsOperatorLong() {
     LabelInstruction tree = parse("LABEL key1 value1 still_value1 again_value1", DockerLexicalGrammar.LABEL);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.LABEL);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(1);
     KeyValuePair keyValuePair = tree.keyValuePairs().get(0);
@@ -82,7 +82,7 @@ class LabelInstructionImplTest {
   @Test
   void labelInstructionWithEqualsOperator() {
     LabelInstruction tree = parse("LABEL key1=value1", DockerLexicalGrammar.LABEL);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.LABEL);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(1);
     KeyValuePair keyValuePair = tree.keyValuePairs().get(0);
@@ -99,7 +99,7 @@ class LabelInstructionImplTest {
   @Test
   void labelInstructionWithEqualsOperatorMultipleValues() {
     LabelInstruction tree = parse("LABEL key1=value1 key2=value2", DockerLexicalGrammar.LABEL);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.LABEL);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(2);
     assertThat(tree.textRange().start().line()).isEqualTo(1);
@@ -121,7 +121,7 @@ class LabelInstructionImplTest {
   @Test
   void labelInstructionWithEqualsOperatorMultipleValuesQuotes() {
     LabelInstruction tree = parse("LABEL \"key1\"=\"value1\" \"key2\"=value2 key3=\"value3\"", DockerLexicalGrammar.LABEL);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.LABEL);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.keyword().value()).isEqualTo("LABEL");
     assertThat(tree.keyValuePairs()).hasSize(3);
     assertThat(tree.textRange().start().line()).isEqualTo(1);

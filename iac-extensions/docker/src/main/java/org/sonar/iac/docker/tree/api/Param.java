@@ -21,7 +21,7 @@ package org.sonar.iac.docker.tree.api;
 
 import javax.annotation.CheckForNull;
 
-public interface Param extends Docker {
+public interface Param extends DockerTree {
   String name();
   @CheckForNull
   SyntaxToken value();

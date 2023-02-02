@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -57,7 +57,7 @@ class ExecFormImplTest {
   void shouldCheckExecFormTree() {
     ExecForm execForm = DockerTestUtils.parse("[\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.EXEC_FORM);
 
-    assertThat(execForm.getKind()).isEqualTo(Docker.Kind.EXEC_FORM);
+    assertThat(execForm.getKind()).isEqualTo(DockerTree.Kind.EXEC_FORM);
     assertThat(execForm.leftBracket().value()).isEqualTo("[");
     assertThat(execForm.rightBracket().value()).isEqualTo("]");
     List<String> elementsAndSeparatorsAsText = execForm.literalsWithSeparators().elementsAndSeparators().stream()
@@ -74,7 +74,7 @@ class ExecFormImplTest {
     assertThat(elementsAndSeparatorsAsText).containsExactly("\"executable\"", "\"param1\"", "\"param2\"", ",", ",");
 
     List<ExecFormLiteral> elements = execForm.literalsWithSeparators().elements();
-    assertThat(elements.get(0).getKind()).isEqualTo(Docker.Kind.EXEC_FORM_LITERAL);
+    assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.EXEC_FORM_LITERAL);
     assertThat(elements.stream().map(t -> t.value().value())).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
 
     assertThat(execForm.literalsWithSeparators().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");

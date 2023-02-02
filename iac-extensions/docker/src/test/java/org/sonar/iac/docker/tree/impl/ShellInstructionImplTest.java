@@ -23,7 +23,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -53,7 +53,7 @@ class ShellInstructionImplTest {
   @Test
   void shellInstructionExecForm() {
     ShellInstruction tree = parse("SHELL [\"executable\", \"param1\", \"param2\"]", DockerLexicalGrammar.SHELL);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.SHELL);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.SHELL);
     assertThat(tree.keyword().value()).isEqualTo("SHELL");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 40);
 

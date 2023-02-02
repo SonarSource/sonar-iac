@@ -26,7 +26,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -78,7 +78,7 @@ class EntrypointInstructionImplTest {
   @Test
   void shouldCheckParseEntrypointExecFormTree() {
     EntrypointInstructionImpl tree = DockerTestUtils.parse("ENTRYPOINT [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.ENTRYPOINT);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ENTRYPOINT);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
     assertTextRange(tree.textRange()).hasRange(1,0,1,43);
 
@@ -99,7 +99,7 @@ class EntrypointInstructionImplTest {
   void shouldCheckParseEntrypointShellFormTree() {
     EntrypointInstructionImpl tree = DockerTestUtils.parse("ENTRYPOINT executable param1 param2", DockerLexicalGrammar.ENTRYPOINT);
 
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ENTRYPOINT);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
     assertTextRange(tree.textRange()).hasRange(1,0,1,35);
 
@@ -120,7 +120,7 @@ class EntrypointInstructionImplTest {
   void shouldCheckParseEmptyEntrypointExecFormTree() {
     EntrypointInstructionImpl tree = DockerTestUtils.parse("ENTRYPOINT []", DockerLexicalGrammar.ENTRYPOINT);
 
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ENTRYPOINT);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
     assertThat(tree.arguments()).isInstanceOf(ExecFormImpl.class);
@@ -133,7 +133,7 @@ class EntrypointInstructionImplTest {
   @Test
   void shouldCheckParseEmptyEntrypointTree() {
     EntrypointInstructionImpl tree = DockerTestUtils.parse("ENTRYPOINT", DockerLexicalGrammar.ENTRYPOINT);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ENTRYPOINT);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
     assertThat(tree.arguments()).isNull();

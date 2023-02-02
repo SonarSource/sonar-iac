@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Image;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ class ImageImplTest {
   @Test
   void test() {
     Image image = parse("foo:bar@boo", DockerLexicalGrammar.IMAGE);
-    assertThat(image.getKind()).isEqualTo(Docker.Kind.IMAGE);
+    assertThat(image.getKind()).isEqualTo(DockerTree.Kind.IMAGE);
     assertThat(image.name().value()).isEqualTo("foo");
     assertThat(image.tag()).isEqualTo("bar");
     assertThat(image.digest()).isEqualTo("boo");

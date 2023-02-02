@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree;
 import java.util.Optional;
 import java.util.function.Predicate;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 
 public class TreeUtils {
 
@@ -31,7 +31,7 @@ public class TreeUtils {
   public static Optional<Tree> getLastDescendant(Tree tree, Predicate<Tree> predicate) {
     Tree last = null;
     for (Tree child : tree.children()) {
-      Docker dockerChild = (Docker) child;
+      DockerTree dockerChild = (DockerTree) child;
       if (predicate.test(dockerChild)) {
         last = dockerChild;
       }

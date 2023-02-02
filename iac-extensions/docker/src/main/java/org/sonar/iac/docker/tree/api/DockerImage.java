@@ -21,7 +21,7 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
-public interface DockerImage extends Docker {
+public interface DockerImage extends DockerTree {
 
   FromInstruction from();
   List<Instruction> instructions();

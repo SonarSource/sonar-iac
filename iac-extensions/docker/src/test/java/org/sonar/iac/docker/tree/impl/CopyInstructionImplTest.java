@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.Param;
 
@@ -75,7 +75,7 @@ class CopyInstructionImplTest {
   @Test
   void copyInstructionShellForm() {
     CopyInstruction tree = parse("COPY src1 src2 dest", DockerLexicalGrammar.COPY);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.COPY);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.COPY);
     assertThat(tree.keyword().value()).isEqualTo("COPY");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.arguments()).isNotNull();
@@ -109,7 +109,7 @@ class CopyInstructionImplTest {
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
 
     Param option = tree.options().get(0);
-    assertThat(option.getKind()).isEqualTo(Docker.Kind.PARAM);
+    assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("chown");
     assertThat(option.value().value()).isEqualTo("55:mygroup");
 
@@ -126,7 +126,7 @@ class CopyInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 23);
 
     Param option = tree.options().get(0);
-    assertThat(option.getKind()).isEqualTo(Docker.Kind.PARAM);
+    assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("option");
     assertThat(option.value()).isNull();
 
@@ -142,7 +142,7 @@ class CopyInstructionImplTest {
       "FILE1";
     CopyInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.COPY);
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.HEREDOC);
-    assertThat(tree.arguments().getKind()).isEqualTo(Docker.Kind.HEREDOCUMENT);
+    assertThat(tree.arguments().getKind()).isEqualTo(DockerTree.Kind.HEREDOCUMENT);
     assertTextRange(tree.textRange()).hasRange(1,0,4,5);
 
     assertThat(tree.keyword().value()).isEqualTo("COPY");
