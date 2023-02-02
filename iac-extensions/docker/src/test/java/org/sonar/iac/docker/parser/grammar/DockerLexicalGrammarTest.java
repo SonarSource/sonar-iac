@@ -32,48 +32,48 @@ public class DockerLexicalGrammarTest {
   @Test
   void shouldVerifyStringLiteral() {
     Assertions.assertThat(DockerLexicalGrammar.STRING_LITERAL)
-      .matches("f")
-      .matches("foo")
-      .matches("   foo")
-      .matches("1")
-      .matches("123")
-      .matches("SIGKILL")
-      .matches("\"mystring\"")
-      .matches("\"partial_quotes_1")
-      .matches("partial_quotes_2\"")
-      .matches("foo/bar")
-      .matches("foo:bar")
-      .matches("\"foo:bar\"")
-      .matches("\"foo=bar\"")
-      .matches("foo\\bar")
-      .matches("foo=bar")
+      .matches(" f")
+      .matches(" foo")
+      .matches(" 1")
+      .matches(" 123")
+      .matches(" SIGKILL")
+      .matches(" \"mystring\"")
+      .matches(" \"partial_quotes_1")
+      .matches(" partial_quotes_2\"")
+      .matches(" foo/bar")
+      .matches(" foo:bar")
+      .matches(" \"foo:bar\"")
+      .matches(" \"foo=bar\"")
+      .matches(" foo\\bar")
+      .matches(" foo=bar")
 
       .notMatches("")
       .notMatches("   ")
-      .notMatches("foo\nbar")
-      .notMatches("foo\rbar");
+      .notMatches("foo")
+      .notMatches(" foo\nbar")
+      .notMatches(" foo\rbar");
   }
 
   @Test
   void testStringEol() {
     Assertions.assertThat(DockerLexicalGrammar.STRING_UNTIL_EOL)
-      .matches("f")
-      .matches("foo")
+      .matches(" f")
+      .matches(" foo")
       .matches("   foo")
-      .matches("1")
-      .matches("123")
-      .matches("SIGKILL")
-      .matches("\"mystring\"")
-      .matches("\"partial_quotes_1")
-      .matches("partial_quotes_2\"")
-      .matches("foo/bar")
-      .matches("foo\\bar")
-      .matches("foo=bar")
+      .matches(" 1")
+      .matches(" 123")
+      .matches(" SIGKILL")
+      .matches(" \"mystring\"")
+      .matches(" \"partial_quotes_1")
+      .matches(" partial_quotes_2\"")
+      .matches(" foo/bar")
+      .matches(" foo\\bar")
+      .matches(" foo=bar")
 
       .notMatches("")
-      .notMatches("   ")
-      .notMatches("foo\nbar")
-      .notMatches("foo\rbar");
+      .notMatches("foo")
+      .notMatches(" foo\nbar")
+      .notMatches(" foo\rbar");
   }
 
   @Test
@@ -86,7 +86,8 @@ public class DockerLexicalGrammarTest {
       .matches("CMD [\"foo\"]")
       .matches("CMD\t[\"foo\"]")
       .matches("CMD \\\nfoo")
-      .matches("CMD\\foo");// no valid syntax but will be parsed
+      .notMatches("CMD\\\nfoo")
+      .notMatches("CMD\\foo");
 
     for (Character specialCharacter : FORBIDDEN_CHARACTERS_AFTER_KEYWORD) {
       cmd.notMatches("CMD" + specialCharacter);

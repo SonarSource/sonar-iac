@@ -101,7 +101,7 @@ public class TreeFactory {
     return new DockerImageImpl(from, instructions.or(Collections.emptyList()));
   }
 
-  public Instruction instruction(Optional<SyntaxToken> spacing, Instruction instruction) {
+  public Instruction instruction(Instruction instruction) {
     return instruction;
   }
 
@@ -109,7 +109,7 @@ public class TreeFactory {
     return new OnBuildInstructionImpl(keyword, instruction);
   }
 
-  public FromInstruction from(Optional<SyntaxToken> spacing, SyntaxToken keyword, Optional<Param> platform, Image image, Optional<Alias> alias) {
+  public FromInstruction from(SyntaxToken keyword, Optional<Param> platform, Image image, Optional<Alias> alias) {
     return new FromInstructionImpl(keyword, platform.orNull(), image, alias.orNull());
   }
 
@@ -165,7 +165,7 @@ public class TreeFactory {
     return new EnvInstructionImpl(keyword, keyValuePairs);
   }
 
-  public ArgInstruction arg(Optional<SyntaxToken> spacing, SyntaxToken token, List<KeyValuePair> argNames) {
+  public ArgInstruction arg(SyntaxToken token, List<KeyValuePair> argNames) {
     return new ArgInstructionImpl(token, argNames);
   }
 

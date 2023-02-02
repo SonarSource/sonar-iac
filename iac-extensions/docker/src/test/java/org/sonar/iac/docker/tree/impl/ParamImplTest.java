@@ -34,31 +34,31 @@ class ParamImplTest {
   @Test
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.PARAM)
-      .matches("--platform=foo")
       .matches(" --platform=foo")
-      .matches("--platform=FOO")
-      .matches("--chown=55:mygroup")
-      .matches("--hello-world=foo")
-      .matches("--chown=55:mygroup")
-      .matches("--mount=type=secret,id=build_secret,mode=0666")
-      .matches("--platform=")
+      .matches(" --platform=FOO")
+      .matches(" --chown=55:mygroup")
+      .matches(" --hello-world=foo")
+      .matches(" --chown=55:mygroup")
+      .matches(" --mount=type=secret,id=build_secret,mode=0666")
+      .matches(" --platform=")
 
-      .notMatches("-platform=foo")
-      .notMatches("platform=foo")
-      .notMatches("--platform= foo")
-      .notMatches("--platform foo")
-      .notMatches("--PLATFORM=foo")
-      .notMatches("--platform=foo\n")
+      .notMatches("--platform=foo")
+      .notMatches(" -platform=foo")
+      .notMatches(" platform=foo")
+      .notMatches(" --platform= foo")
+      .notMatches(" --platform foo")
+      .notMatches(" --PLATFORM=foo")
+      .notMatches(" --platform=foo\n")
     ;
   }
 
   @Test
   void test() {
-    Param param = parse("--platform=foo", DockerLexicalGrammar.PARAM);
+    Param param = parse(" --platform=foo", DockerLexicalGrammar.PARAM);
     assertThat(param.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(param.name()).isEqualTo("platform");
     assertThat(param.value().value()).isEqualTo("foo");
-    assertTextRange(param.textRange()).hasRange(1, 0, 1, 14);
+    assertTextRange(param.textRange()).hasRange(1, 1, 1, 15);
   }
 
 }

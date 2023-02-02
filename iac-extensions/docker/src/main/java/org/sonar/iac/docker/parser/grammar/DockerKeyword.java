@@ -30,7 +30,6 @@ public enum DockerKeyword implements GrammarRuleKey {
   WORKDIR("WORKDIR"),
   EXPOSE("EXPOSE"),
   LABEL("LABEL"),
-  AS("AS"),
   ENV("ENV"),
   ARG("ARG"),
   CMD("CMD"),
@@ -42,7 +41,6 @@ public enum DockerKeyword implements GrammarRuleKey {
   VOLUME("VOLUME"),
   SHELL("SHELL"),
   HEALTHCHECK("HEALTHCHECK"),
-  NONE("NONE")
   ;
 
   private final String value;

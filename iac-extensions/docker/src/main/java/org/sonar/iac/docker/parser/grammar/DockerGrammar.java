@@ -80,7 +80,7 @@ public class DockerGrammar {
       f.file(
         b.zeroOrMore(ARG()),
         b.zeroOrMore(DOCKERIMAGE()),
-        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
+        b.optional(b.token(DockerLexicalGrammar.SPACING)),
         b.token(DockerLexicalGrammar.EOF))
     );
   }
@@ -97,7 +97,6 @@ public class DockerGrammar {
   public Instruction INSTRUCTION() {
     return b.<Instruction>nonterminal(DockerLexicalGrammar.INSTRUCTION).is(
       f.instruction(
-        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.firstOf(
           ONBUILD(),
           MAINTAINER(),
@@ -133,7 +132,6 @@ public class DockerGrammar {
   public FromInstruction FROM() {
     return b.<FromInstruction>nonterminal(DockerLexicalGrammar.FROM).is(
       f.from(
-        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.token(DockerKeyword.FROM),
         b.optional(PARAM()),
         IMAGE(),
@@ -175,7 +173,7 @@ public class DockerGrammar {
   public Alias ALIAS() {
     return b.<Alias>nonterminal(DockerLexicalGrammar.ALIAS).is(
       f.alias(
-        b.token(DockerKeyword.AS),
+        b.token(DockerLexicalGrammar.ALIAS_AS),
         b.token(DockerLexicalGrammar.IMAGE_ALIAS)
       )
     );
@@ -223,11 +221,11 @@ public class DockerGrammar {
     return b.<Port>nonterminal(DockerLexicalGrammar.PORT).is(
       b.firstOf(
         f.port(
-          b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT),
+          b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT_MAX),
           b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL), b.token(DockerLexicalGrammar.EXPOSE_PROTOCOL)
         ),
         f.port(
-          b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT),
+          b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT_MAX),
           b.optional(b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL))
           ),
         f.port(
@@ -308,7 +306,6 @@ public class DockerGrammar {
   public ArgInstruction ARG() {
     return b.<ArgInstruction>nonterminal(DockerLexicalGrammar.ARG).is(
       f.arg(
-        b.optional(b.token(DockerLexicalGrammar.INSTRUCTION_PREFIX)),
         b.token(DockerKeyword.ARG),
         b.oneOrMore(
           b.firstOf(
@@ -427,7 +424,7 @@ public class DockerGrammar {
 
   public NoneInstruction NONE() {
     return b.<NoneInstruction>nonterminal(DockerLexicalGrammar.NONE).is(
-      f.none(b.token(DockerKeyword.NONE))
+      f.none(b.token(DockerLexicalGrammar.HEALTHCHECK_NONE))
     );
   }
 

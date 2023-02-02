@@ -48,10 +48,10 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   /**
    * SPACING
    */
-  SPACING,
-  INSTRUCTION_PREFIX,
-  WHITESPACE_OR_ESCAPED_LINE_BREAK,
+  WHITESPACE,
   WHITESPACE_OR_LINE_BREAK,
+  SPACING,
+  EOL,
 
   /**
    * INSTRUCTIONS
@@ -75,6 +75,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   VOLUME,
   SHELL,
   HEALTHCHECK,
+  HEALTHCHECK_NONE,
   NONE,
 
   /**
@@ -98,6 +99,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   IMAGE,
   ALIAS,
+  ALIAS_AS,
   IMAGE_ALIAS,
   IMAGE_NAME,
   IMAGE_TAG,
@@ -110,6 +112,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   USER_GROUP,
 
   EXPOSE_PORT,
+  EXPOSE_PORT_MAX,
   EXPOSE_SEPARATOR_PORT,
   EXPOSE_SEPARATOR_PROTOCOL,
   EXPOSE_PROTOCOL,
@@ -127,75 +130,69 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void punctuators(LexerlessGrammarBuilder b) {
-    for (Punctuator p : Punctuator.values()) {
-      b.rule(p).is(SPACING, p.getValue()).skip();
-    }
+    b.rule(Punctuator.EQU).is(Punctuator.EQU.getValue()).skip();
+    b.rule(Punctuator.COMMA).is(b.optional(WHITESPACE), Punctuator.COMMA.getValue()).skip();
+    b.rule(Punctuator.RBRACKET).is(b.optional(WHITESPACE), Punctuator.RBRACKET.getValue()).skip();
+    b.rule(Punctuator.LBRACKET).is(WHITESPACE, Punctuator.LBRACKET.getValue()).skip();
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
-
-    b.rule(WHITESPACE_OR_ESCAPED_LINE_BREAK).is(
-      b.skippedTrivia(b.regexp("(?:[" + LexicalConstant.WHITESPACE + "]|" + DockerLexicalConstant.LINE_BREAK + ")*+"))
-    );
-
-    b.rule(WHITESPACE_OR_LINE_BREAK).is(
-      b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))
-    );
-
+    b.rule(WHITESPACE).is(b.skippedTrivia(b.regexp("["+LexicalConstant.WHITESPACE+"]++")));
+    b.rule(WHITESPACE_OR_LINE_BREAK).is(b.skippedTrivia(b.regexp("["+LexicalConstant.WHITESPACE+LexicalConstant.LINE_TERMINATOR+"]++")));
+    b.rule(EOL).is(b.regexp("(?:"+DockerLexicalConstant.EOL+"|$)"));
     b.rule(SPACING).is(
-      WHITESPACE_OR_ESCAPED_LINE_BREAK,
-      b.zeroOrMore(
-        b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)), b.regexp(DockerLexicalConstant.EOL),
-        WHITESPACE_OR_ESCAPED_LINE_BREAK)
-    ).skip();
-
-    b.rule(INSTRUCTION_PREFIX).is(
-      WHITESPACE_OR_LINE_BREAK,
-      b.zeroOrMore(
-        b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
-        WHITESPACE_OR_LINE_BREAK)
+      b.oneOrMore(
+        b.firstOf(
+          b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
+          WHITESPACE_OR_LINE_BREAK
+        )
+      )
     ).skip();
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
-    b.rule(STRING_LITERAL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL));
-    b.rule(STRING_UNTIL_EOL).is(SPACING, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
-    b.rule(STRING_LITERAL_WITH_QUOTES).is(SPACING, b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
+    // TODO : those elements will be removed in the next grammar progressively
+    b.rule(STRING_LITERAL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL));
+    b.rule(STRING_UNTIL_EOL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
+    b.rule(STRING_LITERAL_WITH_QUOTES).is(b.optional(WHITESPACE), b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
 
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
 
-    b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SPACING, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
+    b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(WHITESPACE, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
     b.rule(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(b.regexp("(?:\"[^\"]*\"|[^\\s])+"));
 
-    b.rule(EXPOSE_PORT).is(SPACING, b.regexp("[0-9]+"));
+    b.rule(EXPOSE_PORT).is(WHITESPACE, b.regexp("[0-9]+"));
+    b.rule(EXPOSE_PORT_MAX).is(b.regexp("[0-9]+"));
     b.rule(EXPOSE_SEPARATOR_PORT).is(b.regexp("-"));
     b.rule(EXPOSE_SEPARATOR_PROTOCOL).is(b.regexp("/"));
     b.rule(EXPOSE_PROTOCOL).is(b.regexp("[a-zA-Z]+"));
 
-    b.rule(IMAGE_NAME).is(SPACING, b.regexp("[^@:\\s-][^@:\\s\\$]+"));
+    b.rule(IMAGE_NAME).is(WHITESPACE, b.regexp("[^@:\\s-][^@:\\s\\$]+"));
     b.rule(IMAGE_TAG).is(b.regexp(":[^@\\s]+"));
     b.rule(IMAGE_DIGEST).is(b.regexp("@[a-zA-Z0-9:]+"));
-    b.rule(IMAGE_ALIAS).is(SPACING, b.regexp("[-a-zA-Z0-9_\\.]+"));
+    b.rule(IMAGE_ALIAS).is(WHITESPACE, b.regexp("[-a-zA-Z0-9_\\.]+"));
 
-    b.rule(PARAM_PREFIX).is(SPACING, b.regexp("--"));
+    b.rule(PARAM_PREFIX).is(WHITESPACE, b.regexp("--"));
     b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
     b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
 
     b.rule(USER_STRING).is(b.regexp("(?:[^:" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "])++"));
     b.rule(USER_VARIABLE).is(b.regexp("\\$(?:[a-zA-Z_][a-zA-Z0-9_]*|\\{[^}]+\\})"));
-    b.rule(USER_NAME).is(SPACING, b.firstOf(USER_STRING, USER_VARIABLE));
+    b.rule(USER_NAME).is(WHITESPACE, b.firstOf(USER_STRING, USER_VARIABLE));
     b.rule(USER_SEPARATOR).is(b.regexp(":"));
     b.rule(USER_GROUP).is(b.firstOf(USER_STRING, USER_VARIABLE));
 
-    b.rule(HEREDOC_EXPRESSION).is(SPACING, b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?:[\\n\\r]|$)"));
+    b.rule(ALIAS_AS).is(WHITESPACE, b.regexp("(?i)AS"));
+    b.rule(HEALTHCHECK_NONE).is(WHITESPACE, b.regexp("(?i)NONE"));
+
+    b.rule(HEREDOC_EXPRESSION).is(WHITESPACE, b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)"));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
     Arrays.stream(DockerKeyword.values()).forEach(tokenType ->
       b.rule(tokenType).is(
-        SPACING,
-        b.regexp("(?i)" + tokenType.getValue()),
-        b.regexp("(?=[" + LexicalConstant.WHITESPACE + "\\\\]|$)")
+        b.optional(SPACING),
+        b.regexp("(?i)" + tokenType.getValue())
       ).skip()
     );
   }

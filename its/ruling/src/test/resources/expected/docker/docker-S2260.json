@@ -2,4 +2,16 @@
 'docker-project:ruling/src/test/resources/sources/docker/parsingError/Dockerfile':[
 1,
 ],
+'docker-project:sources/docker/docker-containers/alpine3.7_py3.5.5_analytics/Dockerfile':[
+18,
+],
+'docker-project:sources/docker/docker-containers/dockeransible/Dockerfile':[
+20,
+],
+'docker-project:sources/docker/docker-containers/pyalp/alpine3.7_py3.5.5/Dockerfile':[
+18,
+],
+'docker-project:sources/docker/docker-containers/pyalp/alpine3.8_py3.5.5/Dockerfile':[
+18,
+],
 }

@@ -36,26 +36,26 @@ class ExecFormImplTest {
   @Test
   void shouldParseExecForm() {
     Assertions.assertThat(DockerLexicalGrammar.EXEC_FORM)
-      .matches("[]")
-      .matches("[\"ls\"]")
-      .matches("[\"executable\",\"param1\",\"param2\"]")
-      .matches("[\"/usr/bin/wc\",\"--help\"]")
+      .matches(" []")
+      .matches(" [\"ls\"]")
+      .matches(" [\"executable\",\"param1\",\"param2\"]")
+      .matches(" [\"/usr/bin/wc\",\"--help\"]")
+      .matches(" [\"foo\" , \"bar\"]")
+      .matches(" [ \"foo\", \"bar\" ]")
       .matches("    [\"/usr/bin/wc\",\"--help\"]")
-      .matches("[\"foo\" , \"bar\"]")
-      .matches("[ \"foo\", \"bar\" ]")
 
-      .notMatches("[abc]")
-      .notMatches("[\"la\" \"-bb\"")
-      .notMatches("[\"la\", \"-bb\"")
-      .notMatches("[\"la\", \"-bb]")
-      .notMatches("\"la\", \"-bb\"]")
-      .notMatches("[\"la\", \"-bb\",]")
+      .notMatches(" [abc]")
+      .notMatches(" [\"la\" \"-bb\"")
+      .notMatches(" [\"la\", \"-bb\"")
+      .notMatches(" [\"la\", \"-bb]")
+      .notMatches(" \"la\", \"-bb\"]")
+      .notMatches(" [\"la\", \"-bb\",]")
       .notMatches("");
   }
 
   @Test
   void shouldCheckExecFormTree() {
-    ExecForm execForm = DockerTestUtils.parse("[\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.EXEC_FORM);
+    ExecForm execForm = DockerTestUtils.parse(" [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.EXEC_FORM);
 
     assertThat(execForm.getKind()).isEqualTo(DockerTree.Kind.EXEC_FORM);
     assertThat(execForm.leftBracket().value()).isEqualTo("[");

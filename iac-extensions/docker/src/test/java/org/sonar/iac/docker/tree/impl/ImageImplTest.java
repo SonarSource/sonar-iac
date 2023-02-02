@@ -34,28 +34,28 @@ class ImageImplTest {
   @Test
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.IMAGE)
-      .matches("foo")
-      .matches("FOO")
       .matches(" foo")
-      .matches("foo-bar")
-      .matches("foo:bar")
-      .matches("foo@bar")
-      .matches("foo:bar@boo") // tag=bar digest=boo
-      .matches("foo@bar:boo") // tag=null digest=bar:boo
+      .matches(" FOO")
+      .matches(" foo-bar")
+      .matches(" foo:bar")
+      .matches(" foo@bar")
+      .matches(" foo:bar@boo") // tag=bar digest=boo
+      .matches(" foo@bar:boo") // tag=null digest=bar:boo
 
-      .notMatches("-foo")
-      .notMatches("foo$bar")
+      .notMatches("foo")
+      .notMatches(" -foo")
+      .notMatches(" foo$bar")
     ;
   }
 
   @Test
   void test() {
-    Image image = parse("foo:bar@boo", DockerLexicalGrammar.IMAGE);
+    Image image = parse(" foo:bar@boo", DockerLexicalGrammar.IMAGE);
     assertThat(image.getKind()).isEqualTo(DockerTree.Kind.IMAGE);
     assertThat(image.name().value()).isEqualTo("foo");
     assertThat(image.tag()).isEqualTo("bar");
     assertThat(image.digest()).isEqualTo("boo");
 
-    assertTextRange(image.textRange()).hasRange(1, 0, 1, 11);
+    assertTextRange(image.textRange()).hasRange(1, 1, 1, 12);
   }
 }
