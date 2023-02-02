@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirInstruction;
 
@@ -61,7 +61,7 @@ class WorkdirInstructionImplTest {
   @Test
   void shouldCheckParseTree() {
     WorkdirInstruction tree = DockerTestUtils.parse("WORKDIR /foo bar /baz", DockerLexicalGrammar.WORKDIR);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.WORKDIR);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.WORKDIR);
     assertThat(tree.keyword().value()).isEqualTo("WORKDIR");
     assertThat(tree.workdirList().stream().map(TextTree::value)).containsExactly("/foo", "bar", "/baz");
     List<SyntaxToken> children = tree.children().stream()

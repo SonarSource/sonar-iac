@@ -19,6 +19,6 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface Instruction extends Docker {
+public interface Instruction extends DockerTree {
   SyntaxToken keyword();
 }

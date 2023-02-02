@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Alias;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.Image;
 import org.sonar.iac.docker.tree.api.Param;
@@ -66,7 +66,7 @@ class FromInstructionImplTest {
   @Test
   void simpleImage() {
     FromInstruction from = parse("FROM foobar", DockerLexicalGrammar.FROM);
-    assertThat(from.getKind()).isEqualTo(Docker.Kind.FROM);
+    assertThat(from.getKind()).isEqualTo(DockerTree.Kind.FROM);
     assertThat(from.keyword().value()).isEqualTo("FROM");
     assertThat(from.parent()).isNull();
 
@@ -89,7 +89,7 @@ class FromInstructionImplTest {
 
     Alias alias = from.alias();
     assertThat(alias).isNotNull();
-    assertThat(alias.getKind()).isEqualTo(Docker.Kind.ALIAS);
+    assertThat(alias.getKind()).isEqualTo(DockerTree.Kind.ALIAS);
     assertThat(alias.keyword().value()).isEqualTo("AS");
     assertThat(alias.alias().value()).isEqualTo("fb");
     assertThat(alias.parent()).isEqualTo(from);
@@ -104,7 +104,7 @@ class FromInstructionImplTest {
     assertThat(from.alias()).isNull();
     Param platform = from.platform();
     assertThat(platform).isNotNull();
-    assertThat(platform.getKind()).isEqualTo(Docker.Kind.PARAM);
+    assertThat(platform.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(platform.value().value()).isEqualTo("foo");
     assertThat(platform.parent()).isEqualTo(from);
     assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamImpl.class, ImageImpl.class);

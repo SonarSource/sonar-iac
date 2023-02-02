@@ -26,7 +26,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Image;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class ImageImpl extends AbstractDockerImpl implements Image {
+public class ImageImpl extends AbstractDockerTreeImpl implements Image {
 
   private final SyntaxToken name;
   @Nullable

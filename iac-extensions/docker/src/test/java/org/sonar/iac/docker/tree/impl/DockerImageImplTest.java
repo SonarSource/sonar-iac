@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.FromInstruction;
@@ -41,7 +41,7 @@ class DockerImageImplTest {
   @Test
   void simpleImage() {
     DockerImage dockerImage = parse("FROM foobar", DockerLexicalGrammar.DOCKERIMAGE);
-    assertThat(dockerImage.getKind()).isEqualTo(Docker.Kind.DOCKERIMAGE);
+    assertThat(dockerImage.getKind()).isEqualTo(DockerTree.Kind.DOCKERIMAGE);
     assertTextRange(dockerImage.textRange()).hasRange(1, 0, 1, 11);
     assertThat(dockerImage.instructions()).isEmpty();
 
@@ -63,7 +63,7 @@ class DockerImageImplTest {
       "MAINTAINER bob",
       "EXPOSE 80"
     ), DockerLexicalGrammar.DOCKERIMAGE);
-    assertThat(dockerImage.getKind()).isEqualTo(Docker.Kind.DOCKERIMAGE);
+    assertThat(dockerImage.getKind()).isEqualTo(DockerTree.Kind.DOCKERIMAGE);
     assertTextRange(dockerImage.textRange()).hasRange(1, 0, 3, 9);
 
     assertThat(dockerImage.children()).hasExactlyElementsOfTypes(FromInstructionImpl.class, MaintainerInstructionImpl.class, ExposeInstructionImpl.class);

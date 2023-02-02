@@ -27,7 +27,7 @@ import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class ExecFormImpl extends AbstractDockerImpl implements ExecForm {
+public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
 
   private final SyntaxToken leftBracket;
   private final SeparatedList<ExecFormLiteral> literalsWithSeparators;

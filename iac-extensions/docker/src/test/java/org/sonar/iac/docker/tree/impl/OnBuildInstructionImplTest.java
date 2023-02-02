@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
@@ -57,14 +57,14 @@ class OnBuildInstructionImplTest {
   @Test
   void onbuildInstructionSimple() {
     OnBuildInstruction tree = parse("ONBUILD STOPSIGNAL SIGKILL", DockerLexicalGrammar.ONBUILD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ONBUILD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ONBUILD);
     assertThat(tree.keyword().value()).isEqualTo("ONBUILD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 26);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.instruction()).isInstanceOf(StopSignalInstruction.class);
 
     StopSignalInstruction stopSignal = (StopSignalInstruction) tree.instruction();
-    assertThat(stopSignal.getKind()).isEqualTo(Docker.Kind.STOPSIGNAL);
+    assertThat(stopSignal.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
     assertThat(stopSignal.keyword().value()).isEqualTo("STOPSIGNAL");
     assertThat(stopSignal.signal().value()).isEqualTo("SIGKILL");
     assertThat(((SyntaxToken)stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
@@ -74,14 +74,14 @@ class OnBuildInstructionImplTest {
   @Test
   void onbuildInstructionWithKeyValuePairArgument() {
     OnBuildInstruction tree = parse("ONBUILD LABEL key1=value1 key2=value2", DockerLexicalGrammar.ONBUILD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ONBUILD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ONBUILD);
     assertThat(tree.keyword().value()).isEqualTo("ONBUILD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 37);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.instruction()).isInstanceOf(LabelInstruction.class);
 
     LabelInstruction label = (LabelInstruction) tree.instruction();
-    assertThat(label.getKind()).isEqualTo(Docker.Kind.LABEL);
+    assertThat(label.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(label.keyword().value()).isEqualTo("LABEL");
     assertThat(label.keyValuePairs()).hasSize(2);
     assertTextRange(label.textRange()).hasRange(1, 8, 1, 37);
@@ -100,21 +100,21 @@ class OnBuildInstructionImplTest {
   @Test
   void onbuildRecursive() {
     OnBuildInstruction tree = parse("ONBUILD ONBUILD STOPSIGNAL SIGKILL", DockerLexicalGrammar.ONBUILD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.ONBUILD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ONBUILD);
     assertThat(tree.keyword().value()).isEqualTo("ONBUILD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 34);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.instruction()).isInstanceOf(OnBuildInstruction.class);
 
     OnBuildInstruction onBuild = (OnBuildInstruction) tree.instruction();
-    assertThat(onBuild.getKind()).isEqualTo(Docker.Kind.ONBUILD);
+    assertThat(onBuild.getKind()).isEqualTo(DockerTree.Kind.ONBUILD);
     assertThat(onBuild.keyword().value()).isEqualTo("ONBUILD");
     assertTextRange(onBuild.textRange()).hasRange(1, 8, 1, 34);
     assertThat(onBuild.children()).hasSize(2);
     assertThat(onBuild.instruction()).isInstanceOf(StopSignalInstruction.class);
 
     StopSignalInstruction stopSignal = (StopSignalInstruction) onBuild.instruction();
-    assertThat(stopSignal.getKind()).isEqualTo(Docker.Kind.STOPSIGNAL);
+    assertThat(stopSignal.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
     assertThat(stopSignal.keyword().value()).isEqualTo("STOPSIGNAL");
     assertThat(stopSignal.signal().value()).isEqualTo("SIGKILL");
     assertThat(((SyntaxToken)stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");

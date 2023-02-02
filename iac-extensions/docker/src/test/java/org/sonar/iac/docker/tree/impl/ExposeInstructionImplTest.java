@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
 import org.sonar.iac.docker.tree.api.Port;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -62,12 +62,12 @@ class ExposeInstructionImplTest {
   @Test
   void exposeInstructionWithSimpleValue() {
     ExposeInstruction tree = parse("EXPOSE 80", DockerLexicalGrammar.EXPOSE);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
 
     Port port1 = tree.ports().get(0);
-    assertThat(port1.getKind()).isEqualTo(Docker.Kind.PORT);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
@@ -76,12 +76,12 @@ class ExposeInstructionImplTest {
   @Test
   void exposeInstructionWithSimpleValueIncomplete() {
     ExposeInstruction tree = parse("EXPOSE 80/", DockerLexicalGrammar.EXPOSE);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
 
     Port port1 = tree.ports().get(0);
-    assertThat(port1.getKind()).isEqualTo(Docker.Kind.PORT);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
@@ -94,12 +94,12 @@ class ExposeInstructionImplTest {
   @Test
   void exposeInstructionWithComplexValue() {
     ExposeInstruction tree = parse("EXPOSE 80/tcp", DockerLexicalGrammar.EXPOSE);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
 
     Port port1 = tree.ports().get(0);
-    assertThat(port1.getKind()).isEqualTo(Docker.Kind.PORT);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol().value()).isEqualTo("tcp");
@@ -113,12 +113,12 @@ class ExposeInstructionImplTest {
   @Test
   void exposeInstructionWithMultipleValues() {
     ExposeInstruction tree = parse("EXPOSE 80/tcp 443", DockerLexicalGrammar.EXPOSE);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(2);
 
     Port port1 = tree.ports().get(0);
-    assertThat(port1.getKind()).isEqualTo(Docker.Kind.PORT);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol().value()).isEqualTo("tcp");
@@ -128,7 +128,7 @@ class ExposeInstructionImplTest {
     assertThat(port1.children().get(2)).isSameAs(port1.protocol());
 
     Port port2 = tree.ports().get(1);
-    assertThat(port2.getKind()).isEqualTo(Docker.Kind.PORT);
+    assertThat(port2.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port2.portMin().value()).isEqualTo("443");
     assertThat(port2.protocol()).isNull();
     assertThat(port2.children()).hasSize(1);
@@ -138,12 +138,12 @@ class ExposeInstructionImplTest {
   @Test
   void exposeInstructionWithArgumentValues() {
     ExposeInstruction tree = parse("EXPOSE ${my_port}", DockerLexicalGrammar.EXPOSE);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
 
     Port port1 = tree.ports().get(0);
-    assertThat(port1.getKind()).isEqualTo(Docker.Kind.PORT);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("${my_port}");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
@@ -154,13 +154,13 @@ class ExposeInstructionImplTest {
   @Test
   void exposeInstructionWithQuoteInTheMiddle() {
     ExposeInstruction tree = parse("EXPOSE 8\"0/t\"cp", DockerLexicalGrammar.EXPOSE);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     // TODO : should be parsed differently : usual splitting port/separator/protocol
     assertThat(tree.ports()).hasSize(3);
 
     Port port1 = tree.ports().get(0);
-    assertThat(port1.getKind()).isEqualTo(Docker.Kind.PORT);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("8");
     assertThat(port1.portMin()).isEqualTo(port1.portMax());
     assertThat(port1.protocol()).isNull();
@@ -171,12 +171,12 @@ class ExposeInstructionImplTest {
   @Test
   void exposeInstructionPortRange() {
     ExposeInstruction tree = parse("EXPOSE 80-89", DockerLexicalGrammar.EXPOSE);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
 
     Port port1 = tree.ports().get(0);
-    assertThat(port1.getKind()).isEqualTo(Docker.Kind.PORT);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMax().value()).isEqualTo("89");
     assertThat(port1.protocol()).isNull();
@@ -190,12 +190,12 @@ class ExposeInstructionImplTest {
   @Test
   void exposeInstructionPortRangeWithProtocol() {
     ExposeInstruction tree = parse("EXPOSE 80-89/udp", DockerLexicalGrammar.EXPOSE);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.EXPOSE);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.ports()).hasSize(1);
 
     Port port1 = tree.ports().get(0);
-    assertThat(port1.getKind()).isEqualTo(Docker.Kind.PORT);
+    assertThat(port1.getKind()).isEqualTo(DockerTree.Kind.PORT);
     assertThat(port1.portMin().value()).isEqualTo("80");
     assertThat(port1.portMax().value()).isEqualTo("89");
     assertThat(port1.protocol().value()).isEqualTo("udp");

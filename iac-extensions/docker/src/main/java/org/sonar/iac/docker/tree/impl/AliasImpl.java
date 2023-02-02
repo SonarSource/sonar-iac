@@ -24,7 +24,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class AliasImpl extends AbstractDockerImpl implements Alias {
+public class AliasImpl extends AbstractDockerTreeImpl implements Alias {
 
   private final SyntaxToken keyword;
   private final SyntaxToken alias;

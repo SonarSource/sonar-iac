@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 
-public abstract class AbstractDockerImpl implements Docker {
+public abstract class AbstractDockerTreeImpl implements DockerTree {
 
   protected TextRange textRange;
-  protected Docker parent;
+  protected DockerTree parent;
 
   @Override
   public final boolean is(Kind... kind) {
@@ -51,12 +51,12 @@ public abstract class AbstractDockerImpl implements Docker {
   }
 
   @Override
-  public Docker parent() {
+  public DockerTree parent() {
     return parent;
   }
 
   @Override
-  public void setParent(Docker parent) {
+  public void setParent(DockerTree parent) {
     this.parent = parent;
   }
 }

@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +59,7 @@ class MaintainerInstructionImplTest {
   @Test
   void maintainerInstructionWithAuthorValue() {
     MaintainerInstruction tree = parse("MAINTAINER \"bob\"", DockerLexicalGrammar.MAINTAINER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(1);
     assertThat(tree.authors().get(0).value()).isEqualTo("\"bob\"");
@@ -71,7 +71,7 @@ class MaintainerInstructionImplTest {
   @Test
   void simpleStringWithoutQuotes() {
     MaintainerInstruction tree = parse("MAINTAINER bob", DockerLexicalGrammar.MAINTAINER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(1);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");
@@ -80,7 +80,7 @@ class MaintainerInstructionImplTest {
   @Test
   void argument() {
     MaintainerInstruction tree = parse("MAINTAINER ${arg}", DockerLexicalGrammar.MAINTAINER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(1);
     assertThat(tree.authors().get(0).value()).isEqualTo("${arg}");
@@ -89,7 +89,7 @@ class MaintainerInstructionImplTest {
   @Test
   void stringWithoutQuotesAndWithSpaces() {
     MaintainerInstruction tree = parse("MAINTAINER bob boberman bob@bob.bob", DockerLexicalGrammar.MAINTAINER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(3);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");
@@ -100,7 +100,7 @@ class MaintainerInstructionImplTest {
   @Test
   void mixOfBoth() {
     MaintainerInstruction tree = parse("MAINTAINER bob \"boberman bob@bob.bob\"", DockerLexicalGrammar.MAINTAINER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(2);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");
@@ -110,7 +110,7 @@ class MaintainerInstructionImplTest {
   @Test
   void multiline() {
     MaintainerInstruction tree = parse("MAINTAINER bob \\\nboberman", DockerLexicalGrammar.MAINTAINER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertThat(tree.keyword().value()).isEqualTo("MAINTAINER");
     assertThat(tree.authors()).hasSize(2);
     assertThat(tree.authors().get(0).value()).isEqualTo("bob");
@@ -120,7 +120,7 @@ class MaintainerInstructionImplTest {
   @Test
   void maintainerInstructionWithEscapedLineBreaks() {
     MaintainerInstruction tree = parse("MAIN\\\nTAINER \"bob\"", DockerLexicalGrammar.MAINTAINER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.MAINTAINER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.MAINTAINER);
     assertTextRange(tree.keyword().textRange()).hasRange(1, 0, 2, 6);
   }
 }

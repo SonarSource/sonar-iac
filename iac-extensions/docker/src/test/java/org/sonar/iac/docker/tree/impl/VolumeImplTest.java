@@ -23,7 +23,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
@@ -53,7 +53,7 @@ class VolumeImplTest {
   @Test
   void volumeInstructionShell() {
     VolumeInstruction tree = parse("VOLUME /var/log /var/db", DockerLexicalGrammar.VOLUME);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.VOLUME);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.VOLUME);
     assertThat(tree.keyword().value()).isEqualTo("VOLUME");
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
 

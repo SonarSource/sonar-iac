@@ -21,7 +21,7 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
-public interface LiteralList extends Docker {
+public interface LiteralList extends DockerTree {
 
   enum LiteralListType {
     EXEC,

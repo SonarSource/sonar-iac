@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.Param;
@@ -59,13 +59,13 @@ class HealthCheckInstructionImplTest {
   @Test
   void healthcheckNone() {
     HealthCheckInstruction tree = DockerTestUtils.parse("HEALTHCHECK NONE", DockerLexicalGrammar.HEALTHCHECK);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.HEALTHCHECK);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.HEALTHCHECK);
     assertThat(tree.keyword().value()).isEqualTo("HEALTHCHECK");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
 
     assertThat(tree.isNone()).isTrue();
     assertThat(tree.instruction()).isInstanceOf(NoneInstruction.class);
-    assertThat(tree.instruction().getKind()).isEqualTo(Docker.Kind.NONE);
+    assertThat(tree.instruction().getKind()).isEqualTo(DockerTree.Kind.NONE);
     assertThat(tree.options()).isEmpty();
   }
 
@@ -76,7 +76,7 @@ class HealthCheckInstructionImplTest {
 
     assertThat(tree.isNone()).isFalse();
     assertThat(tree.instruction()).isInstanceOf(CmdInstruction.class);
-    assertThat(tree.instruction().getKind()).isEqualTo(Docker.Kind.CMD);
+    assertThat(tree.instruction().getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.options()).isEmpty();
 
     List<SyntaxToken> cmdArguments = ((CmdInstruction) tree.instruction()).arguments().literals();

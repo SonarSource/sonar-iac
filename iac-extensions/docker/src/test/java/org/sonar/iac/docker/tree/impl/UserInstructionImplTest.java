@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +67,7 @@ class UserInstructionImplTest {
   @Test
   void userInstructionSimple() {
     UserInstruction tree = parse("USER bob", DockerLexicalGrammar.USER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.USER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
     assertThat(tree.keyword().value()).isEqualTo("USER");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.children()).hasSize(2);
@@ -79,7 +79,7 @@ class UserInstructionImplTest {
   @Test
   void userInstructionNameWithDollar() {
     UserInstruction tree = parse("USER bob$alice", DockerLexicalGrammar.USER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.USER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
     assertThat(tree.keyword().value()).isEqualTo("USER");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 14);
     assertThat(tree.children()).hasSize(2);
@@ -91,7 +91,7 @@ class UserInstructionImplTest {
   @Test
   void userInstructionWithGroup() {
     UserInstruction tree = parse("USER bob:group", DockerLexicalGrammar.USER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.USER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
     assertThat(tree.keyword().value()).isEqualTo("USER");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 14);
     assertThat(tree.children()).hasSize(4);
@@ -103,7 +103,7 @@ class UserInstructionImplTest {
   @Test
   void userInstructionWithGroupVariable() {
     UserInstruction tree = parse("USER $user:${group}", DockerLexicalGrammar.USER);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.USER);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
     assertThat(tree.keyword().value()).isEqualTo("USER");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.children()).hasSize(4);

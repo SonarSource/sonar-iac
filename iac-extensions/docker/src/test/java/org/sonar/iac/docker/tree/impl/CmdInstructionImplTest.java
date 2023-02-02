@@ -27,7 +27,7 @@ import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
-import org.sonar.iac.docker.tree.api.Docker;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.LiteralList;
@@ -83,7 +83,7 @@ class CmdInstructionImplTest {
   @Test
   void shouldCheckParseCmdExecFormTree() {
     CmdInstruction tree = DockerTestUtils.parse("CMD [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.CMD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.CMD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertTextRange(tree.textRange()).hasRange(1,0,1,36);
 
@@ -103,7 +103,7 @@ class CmdInstructionImplTest {
   void shouldCheckParseCmdShellFormTree() {
     CmdInstruction tree = DockerTestUtils.parse("CMD executable param1 param2", DockerLexicalGrammar.CMD);
 
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.CMD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertTextRange(tree.textRange()).hasRange(1,0,1,28);
 
@@ -123,7 +123,7 @@ class CmdInstructionImplTest {
   void shouldCheckParseEmptyCmdExecFormTree() {
     CmdInstruction tree = DockerTestUtils.parse("CMD []", DockerLexicalGrammar.CMD);
 
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.CMD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().literals()).isEmpty();
@@ -138,7 +138,7 @@ class CmdInstructionImplTest {
   @Test
   void shouldCheckParseEmptyCmdTree() {
     CmdInstruction tree = DockerTestUtils.parse("CMD", DockerLexicalGrammar.CMD);
-    assertThat(tree.getKind()).isEqualTo(Docker.Kind.CMD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
 
     assertThat(tree.arguments()).isNull();

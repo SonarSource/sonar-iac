@@ -24,7 +24,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class HereDocumentImpl extends AbstractDockerImpl implements HereDocument {
+public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocument {
 
   private final SyntaxToken content;
 

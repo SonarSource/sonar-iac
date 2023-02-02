@@ -26,7 +26,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class KeyValuePairImpl extends AbstractDockerImpl implements KeyValuePair {
+public class KeyValuePairImpl extends AbstractDockerTreeImpl implements KeyValuePair {
   private final SyntaxToken key;
   private final SyntaxToken value;
   private final SyntaxToken equals;
