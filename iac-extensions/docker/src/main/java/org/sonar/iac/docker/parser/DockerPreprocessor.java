@@ -33,18 +33,22 @@ public class DockerPreprocessor {
 
   private SourceOffset sourceOffset;
 
-  private static final String ESCAPE_CHAR = "\\\\";
-  private static final Pattern ESCAPED_LINE_BREAK = Pattern.compile(ESCAPE_CHAR + "[" + WHITESPACE + "]*+" + EOL);
+  static final String DEFAULT_ESCAPE_CHAR = "\\\\";
+  static final String ALTERNATIVE_ESCAPE_CHAR = "`";
+  private static final String ALTERNATIVE_ESCAPE_CHAR_DIRECTIVE = "#\\s*+escape\\s*+=\\s*+" + ALTERNATIVE_ESCAPE_CHAR;
+  private static final Pattern ALTERNATIVE_ESCAPE_CHAR_PATTERN = Pattern.compile("^(#[^" + EOL + "]*+" + EOL + "|\\s)*" + ALTERNATIVE_ESCAPE_CHAR_DIRECTIVE);
 
   /**
    * Remove every escaped line break. This results in instructions being represented in one line at a time.
    * Track removed characters to adjust the offset when creating syntax tokens.
    */
   public String process(String source) {
-    Matcher m = ESCAPED_LINE_BREAK.matcher(source);
+    Matcher m = matchEscapedLineBreaks(source);
+
     Map<Integer, Integer> shiftedOffsetMap = new LinkedHashMap<>();
     StringBuilder sb = new StringBuilder(source);
     int shiftedIndex = 0;
+
     while (m.find()) {
       int startIndex = m.start() - shiftedIndex;
       int linebreakLength = m.end() - m.start();
@@ -54,8 +58,19 @@ public class DockerPreprocessor {
       }
       shiftedOffsetMap.put(m.end() - shiftedIndex, shiftedIndex);
     }
+
     sourceOffset = new SourceOffset(source, shiftedOffsetMap);
     return sb.toString();
+  }
+
+  private static Matcher matchEscapedLineBreaks(String source) {
+    String escapeCharacter = determineEscapeCharacter(source);
+    String escapedLineBreakPattern = "(?<!escape=)" + escapeCharacter + "[" + WHITESPACE + "]*+" + EOL;
+    return Pattern.compile(escapedLineBreakPattern).matcher(source);
+  }
+
+  static String determineEscapeCharacter(String source) {
+    return ALTERNATIVE_ESCAPE_CHAR_PATTERN.matcher(source).find() ? ALTERNATIVE_ESCAPE_CHAR : DEFAULT_ESCAPE_CHAR;
   }
 
   public SourceOffset sourceOffset() {
