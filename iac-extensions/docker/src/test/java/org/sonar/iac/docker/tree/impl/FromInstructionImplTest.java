@@ -38,10 +38,9 @@ class FromInstructionImplTest {
   void test() {
     Assertions.assertThat(DockerLexicalGrammar.FROM)
       .matches("FROM foobar")
-      // TODO : enable again once preprocessor for multiline is here
-//      .matches("FROM \\\n foobar")
-//      .matches("FROM \\\r foobar")
-//      .matches("FROM \\\r\n foobar")
+      .matches("FROM \\\n foobar")
+      .matches("FROM \\\r foobar")
+      .matches("FROM \\\r\n foobar")
       .matches("FROM foobar:latest")
       .matches("FROM foobar@12313423")
       .matches("FROM --platform=foo bar")
@@ -121,19 +120,17 @@ class FromInstructionImplTest {
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 36);
   }
 
-  // TODO : enable again once preprocessor for multiline is here
-//  @Test
-//  void multiline() {
-//    FromInstruction from = parse("FROM \\\n --platform=foo \\\n bar:latest \\\n AS fb", DockerLexicalGrammar.FROM);
-//    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, ImageTreeImpl.class, AliasTreeImpl.class);
-//    assertTextRange(from.textRange()).hasRange(1, 0, 4, 6);
-//  }
+  @Test
+  void multiline() {
+    FromInstruction from = parse("FROM \\\n --platform=foo \\\n bar:latest \\\n AS fb", DockerLexicalGrammar.FROM);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamImpl.class, ImageImpl.class, AliasImpl.class);
+    assertTextRange(from.textRange()).hasRange(1, 0, 4, 6);
+  }
 
-  // TODO : enable again once preprocessor for multiline is here
-//  @Test
-//  void multilineWindowsEOL() {
-//    FromInstruction from = parse("FROM \\\r\n --platform=foo \\\r\n bar:latest \\\r\n AS fb", DockerLexicalGrammar.FROM);
-//    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamTreeImpl.class, ImageTreeImpl.class, AliasTreeImpl.class);
-//    assertTextRange(from.textRange()).hasRange(1, 0, 4, 6);
-//  }
+  @Test
+  void multilineWindowsEOL() {
+    FromInstruction from = parse("FROM \\\r\n --platform=foo \\\r\n bar:latest \\\r\n AS fb", DockerLexicalGrammar.FROM);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ParamImpl.class, ImageImpl.class, AliasImpl.class);
+    assertTextRange(from.textRange()).hasRange(1, 0, 4, 6);
+  }
 }

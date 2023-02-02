@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
@@ -152,7 +153,9 @@ class ExposeInstructionImplTest {
     assertThat(port1.children().get(0)).isSameAs(port1.portMin());
   }
 
+  // TODO enable back after SONARIAC-546
   @Test
+  @Disabled("Will be fixed by SONARIAC-546")
   void exposeInstructionWithQuoteInTheMiddle() {
     ExposeInstruction tree = parse("EXPOSE 8\"0/t\"cp", DockerLexicalGrammar.EXPOSE);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);

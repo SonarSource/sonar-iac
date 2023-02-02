@@ -23,7 +23,6 @@ import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
@@ -94,15 +93,11 @@ import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 @SuppressWarnings("java:S1172")
 public class TreeFactory {
 
-  public File file(Optional<List<ArgInstruction>> globalArgs, Optional<List<DockerImage>> dockerImages, Optional<SyntaxToken> spacingBeforeEof, SyntaxToken eof) {
+  public File file(Optional<List<ArgInstruction>> globalArgs, Optional<List<DockerImage>> dockerImages, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileImpl(globalArgs.or(Collections.emptyList()), dockerImages.or(Collections.emptyList()), eof);
   }
 
-  public ArgInstruction fileArg(ArgInstruction arg, Optional<SyntaxToken> spacingAfter, SyntaxToken eof) {
-    return arg;
-  }
-
-  public DockerImage dockerImage(FromInstruction from, SyntaxToken eol, Optional<List<Instruction>> instructions) {
+  public DockerImage dockerImage(FromInstruction from, Optional<List<Instruction>> instructions) {
     return new DockerImageImpl(from, instructions.or(Collections.emptyList()));
   }
 
@@ -110,25 +105,19 @@ public class TreeFactory {
     return instruction;
   }
 
-  public Instruction instructionLine(Instruction instruction, Optional<SyntaxToken> spacingAfter, SyntaxToken eol) {
-    return instruction;
-  }
-
-  public OnBuildInstruction onbuild(SyntaxToken keyword, SyntaxToken spacing, Instruction instruction) {
+  public OnBuildInstruction onbuild(SyntaxToken keyword, Instruction instruction) {
     return new OnBuildInstructionImpl(keyword, instruction);
   }
 
-  public FromInstruction from(SyntaxToken keyword, Optional<Tuple<SyntaxToken, Param>> platformWithSpacingBefore, SyntaxToken spacingBeforeImage,
-    Image image, Optional<Tuple<SyntaxToken, Alias>> aliasWithSpacingBefore) {
-    return new FromInstructionImpl(keyword, platformWithSpacingBefore.isPresent() ? platformWithSpacingBefore.get().second() : null, image,
-      aliasWithSpacingBefore.isPresent() ? aliasWithSpacingBefore.get().second() : null);
+  public FromInstruction from(SyntaxToken keyword, Optional<Param> platform, Image image, Optional<Alias> alias) {
+    return new FromInstructionImpl(keyword, platform.orNull(), image, alias.orNull());
   }
 
-  public Alias alias(SyntaxToken keyword, SyntaxToken spacing, SyntaxToken alias) {
+  public Alias alias(SyntaxToken keyword, SyntaxToken alias) {
     return new AliasImpl(keyword, alias);
   }
 
-  public MaintainerInstruction maintainer(SyntaxToken keyword, SyntaxToken spacing, List<SyntaxToken> authorsToken) {
+  public MaintainerInstruction maintainer(SyntaxToken keyword, List<SyntaxToken> authorsToken) {
     return new MaintainerInstructionImpl(keyword, authorsToken);
   }
 
@@ -136,29 +125,16 @@ public class TreeFactory {
     return token;
   }
 
-  public SyntaxToken withSpacesAround(Optional<SyntaxToken> spacingBefore, SyntaxToken token, Optional<SyntaxToken> spacingAfter) {
-    return token;
-  }
-
-  public List<SyntaxToken> arguments(SyntaxToken first, Optional<List<Tuple<SyntaxToken, SyntaxToken>>> otherArgumentsWithSpacingBefore) {
-    List<SyntaxToken> result = new ArrayList<>();
-    result.add(first);
-    if(otherArgumentsWithSpacingBefore.isPresent()) {
-      otherArgumentsWithSpacingBefore.get().forEach(el -> result.add(el.second()));
-    }
-    return result;
-  }
-
-  public StopSignalInstruction stopSignal(SyntaxToken keyword, SyntaxToken spacing, SyntaxToken tokenValue) {
+  public StopSignalInstruction stopSignal(SyntaxToken keyword, SyntaxToken tokenValue) {
     return new StopSignalInstructionImpl(keyword, tokenValue);
   }
 
-  public WorkdirInstruction workdir(SyntaxToken keyword, SyntaxToken spacing, List<SyntaxToken> values) {
+  public WorkdirInstruction workdir(SyntaxToken keyword, List<SyntaxToken> values) {
     return new WorkdirInstructionImpl(keyword, values);
   }
 
-  public ExposeInstruction expose(SyntaxToken keyword, List<Tuple<SyntaxToken, Port>> spacingAndPorts) {
-    return new ExposeInstructionImpl(keyword, spacingAndPorts.stream().map(Tuple::second).collect(Collectors.toList()));
+  public ExposeInstruction expose(SyntaxToken keyword, List<Port> ports) {
+    return new ExposeInstructionImpl(keyword, ports);
   }
 
   public Port port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, SyntaxToken separatorProtocol, SyntaxToken protocol) {
@@ -181,31 +157,31 @@ public class TreeFactory {
     return new PortImpl(portToken, null, portToken, null, null);
   }
 
-  public LabelInstruction label(SyntaxToken token, List<Tuple<SyntaxToken, KeyValuePair>> keyValuePairsWithSpacingBefore) {
-    return new LabelInstructionImpl(token, keyValuePairsWithSpacingBefore.stream().map(Tuple::second).collect(Collectors.toList()));
+  public LabelInstruction label(SyntaxToken token, List<KeyValuePair> keyValuePairs) {
+    return new LabelInstructionImpl(token, keyValuePairs);
   }
 
-  public EnvInstruction env(SyntaxToken keyword, List<Tuple<SyntaxToken, KeyValuePair>> keyValuePairsWithSpacingBefore) {
-    return new EnvInstructionImpl(keyword, keyValuePairsWithSpacingBefore.stream().map(Tuple::second).collect(Collectors.toList()));
+  public EnvInstruction env(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
+    return new EnvInstructionImpl(keyword, keyValuePairs);
   }
 
-  public ArgInstruction arg(SyntaxToken token, List<Tuple<SyntaxToken, KeyValuePair>> argNamesWithSpacesBefore) {
-    return new ArgInstructionImpl(token, argNamesWithSpacesBefore.stream().map(Tuple::second).collect(Collectors.toList()));
+  public ArgInstruction arg(SyntaxToken token, List<KeyValuePair> argNames) {
+    return new ArgInstructionImpl(token, argNames);
   }
 
-  public AddInstruction add(SyntaxToken add, Optional<Tuple<SyntaxToken, List<Param>>> optionsWithSpacingBefore, SyntaxToken spacingAfterOptions, LiteralList srcsAndDest) {
-    return new AddInstructionImpl(add, optionsWithSpacingBefore.isPresent() ? optionsWithSpacingBefore.get().second() : Collections.emptyList(), srcsAndDest);
+  public AddInstruction add(SyntaxToken add, Optional<List<Param>> options, LiteralList srcsAndDest) {
+    return new AddInstructionImpl(add, options.or(Collections.emptyList()), srcsAndDest);
   }
 
-  public CopyInstruction copy(SyntaxToken copy, Optional<Tuple<SyntaxToken, List<Param>>> optionsWithSpacingBefore, SyntaxToken spacingAfterOptions, LiteralList srcsAndDest) {
-    return new CopyInstructionImpl(copy, optionsWithSpacingBefore.isPresent() ? optionsWithSpacingBefore.get().second() : Collections.emptyList(), srcsAndDest);
+  public CopyInstruction copy(SyntaxToken copy, Optional<List<Param>> options, LiteralList srcsAndDest) {
+    return new CopyInstructionImpl(copy, options.or(Collections.emptyList()), srcsAndDest);
   }
 
   public KeyValuePair key(SyntaxToken key) {
     return new KeyValuePairImpl(key, null, null);
   }
 
-  public KeyValuePair keyValuePair(SyntaxToken key, SyntaxToken spacing, SyntaxToken value) {
+  public KeyValuePair keyValuePair(SyntaxToken key, SyntaxToken value) {
     return new KeyValuePairImpl(key, null, value);
   }
 
@@ -221,34 +197,23 @@ public class TreeFactory {
     return new ParamImpl(prefix, name, null, null);
   }
 
-  public List<Param> params(Param firstParam, Optional<List<Tuple<SyntaxToken, Param>>> otherParamsWithSpacingBefore) {
-    List<Param> result = new ArrayList<>();
-    result.add(firstParam);
-    if (otherParamsWithSpacingBefore.isPresent()) {
-      result.addAll(otherParamsWithSpacingBefore.get().stream().map(Tuple::second).collect(Collectors.toList()));
-    }
-    return result;
-  }
-
   public Image image(SyntaxToken name, Optional<SyntaxToken> tag, Optional<SyntaxToken> digest) {
     return new ImageImpl(name, tag.orNull(), digest.orNull());
   }
 
-  public CmdInstruction cmd(SyntaxToken token, Optional<Tuple<SyntaxToken, LiteralList>> literalListWithSpacingBefore) {
-    return new CmdInstructionImpl(token, literalListWithSpacingBefore.isPresent() ? literalListWithSpacingBefore.get().second() : null);
+  public CmdInstruction cmd(SyntaxToken token, Optional<LiteralList> execFormOrShellForm) {
+    return new CmdInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public EntrypointInstruction entrypoint(SyntaxToken token, Optional<Tuple<SyntaxToken, LiteralList>> literalListWithSpacingBefore) {
-    return new EntrypointInstructionImpl(token, literalListWithSpacingBefore.isPresent() ? literalListWithSpacingBefore.get().second() : null);
+  public EntrypointInstruction entrypoint(SyntaxToken token, Optional<LiteralList> execFormOrShellForm) {
+    return new EntrypointInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public RunInstruction run(SyntaxToken token, Optional<Tuple<SyntaxToken, List<Param>>> optionsWithSpacingBefore,
-    Optional<Tuple<SyntaxToken, LiteralList>> execFormOrShellFormWithSpaceBefore) {
-    return new RunInstructionImpl(token, optionsWithSpacingBefore.isPresent() ? optionsWithSpacingBefore.get().second() : Collections.emptyList(),
-      execFormOrShellFormWithSpaceBefore.isPresent() ? execFormOrShellFormWithSpaceBefore.get().second() : null);
+  public RunInstruction run(SyntaxToken token, Optional<List<Param>> options, Optional<LiteralList> execFormOrShellForm) {
+    return new RunInstructionImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
   }
 
-  public UserInstruction user(SyntaxToken keyword, SyntaxToken spacing, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
+  public UserInstruction user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
     if (colonAndGroup.isPresent()) {
       return new UserInstructionImpl(keyword, user, colonAndGroup.get().first(), colonAndGroup.get().second());
     } else {
@@ -256,23 +221,16 @@ public class TreeFactory {
     }
   }
 
-  public VolumeInstruction volume(SyntaxToken token, SyntaxToken spacing, LiteralList execFormOrShellForm) {
+  public VolumeInstruction volume(SyntaxToken token, LiteralList execFormOrShellForm) {
     return new VolumeImpl(token, execFormOrShellForm);
   }
 
-  public ShellInstruction shell(SyntaxToken token, SyntaxToken spacing, ExecForm execForm) {
+  public ShellInstruction shell(SyntaxToken token, ExecForm execForm) {
     return new ShellInstructionImpl(token, execForm);
   }
 
-  public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Tuple<SyntaxToken, Param>>> optionsWithSpacingBefore,
-    SyntaxToken spacing, Instruction instruction) {
-    List<Param> params;
-    if (optionsWithSpacingBefore.isPresent()) {
-      params = optionsWithSpacingBefore.get().stream().map(Tuple::second).collect(Collectors.toList());
-    } else {
-      params = Collections.emptyList();
-    }
-    return new HealthCheckInstructionImpl(healthcheck, params, instruction);
+  public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Param>> options, Instruction instruction) {
+    return new HealthCheckInstructionImpl(healthcheck, options.or(Collections.emptyList()), instruction);
   }
 
   public NoneInstruction none(SyntaxToken none) {
@@ -283,9 +241,9 @@ public class TreeFactory {
     return new HereDocumentImpl(content);
   }
 
-  public ExecForm execForm(SyntaxToken leftBracket, Optional<SyntaxToken> spacingBefore,
+  public ExecForm execForm(SyntaxToken leftBracket,
     Optional<Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>>> literals,
-    Optional<SyntaxToken> spacingAfter, SyntaxToken rightBracket) {
+    SyntaxToken rightBracket) {
 
     List<ExecFormLiteral> elements = new ArrayList<>();
     List<SyntaxToken> separators = new ArrayList<>();
@@ -306,13 +264,8 @@ public class TreeFactory {
     return new ExecFormImpl(leftBracket, separatedList, rightBracket);
   }
 
-  public ShellForm shellForm(SyntaxToken firstToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>> tokensWithSpacingBefore) {
-    List<SyntaxToken> result = new ArrayList<>();
-    result.add(firstToken);
-    if (tokensWithSpacingBefore.isPresent()) {
-      tokensWithSpacingBefore.get().forEach(element -> result.add(element.second()));
-    }
-    return new ShellFormImpl(result);
+  public ShellForm shellForm(List<SyntaxToken> tokens) {
+    return new ShellFormImpl(tokens);
   }
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {

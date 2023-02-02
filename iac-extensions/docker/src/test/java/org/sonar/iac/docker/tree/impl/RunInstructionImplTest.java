@@ -76,6 +76,7 @@ class RunInstructionImplTest {
         "EOF")
       .matches("RUN export FLASK_APP=app.py")
       .matches("RUN export FLASK_APP=app.py")
+      .matches("RUN RUN set -ex \\\n\t&& apk add --no-cache --virtual .fetch-deps \\\n\t\tgnupg")
       .matches("RUN \"/usr/bin/run.sh\"")
       .matches("    RUN \"/usr/bin/run.sh\"")
       .matches("RUN     \"/usr/bin/run.sh\"")
@@ -118,21 +119,20 @@ class RunInstructionImplTest {
       .matches("RUN --security=sandbox /bin/sh /deploy.sh")
       .matches("RUN --mount=target=. mkdir -p /output && zip -FS -r /output/lambda.zip ./")
       .matches("RUN --mount=target=/ \"/usr/bin/run.sh\"")
+      .matches("RUN --mount=type=cache,target=/go/pkg/mod/cache \\\n" +
+        "    go mod download")
+      .matches("RUN --mount=type=cache,target=/root/.cache/pip \\\n" +
+        "    pip3 install -r requirements.txt")
       .matches("RUN msbuild .\\DockerSamples.AspNetExporter.App\\DockerSamples.AspNetExporter.App.csproj /p:OutputPath=c:\\out")
       .matches("    RUN --mount=target=/ \"/usr/bin/run.sh\"")
       .matches("RUN     --mount=target=/   \"/usr/bin/run.sh\"")
+      .matches("RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;     Write-Host \"Downloading Prometheus version: $env:PROMETHEUS_VERSION\";")
       // not exec form
       .matches("RUN [\"la\", \"-bb\"")
       .matches("RUN [\"la\", \"-bb]")
       .matches("RUN \"la\", \"-bb\"]")
 
-      .notMatches("--mount=target=. /bin/sh /deploy.sh")
-      // TODO move back those test to matches() once the preprocessor multiline is done
-      .notMatches("RUN --mount=type=cache,target=/go/pkg/mod/cache \\\n" +
-        "    go mod download")
-      .notMatches("RUN --mount=type=cache,target=/root/.cache/pip \\\n" +
-        "    pip3 install -r requirements.txt")
-    ;
+      .notMatches("--mount=target=. /bin/sh /deploy.sh");
   }
 
   @Test
@@ -151,22 +151,21 @@ class RunInstructionImplTest {
       .notMatches("RUN <<EOT\n  mkdir -p foo/bar\nEOT5");
   }
 
-  // TODO : enable back when multi line preprocessor is ready
   // SONARIAC-504
-//  @Test
-//  void shouldParseMultiline() {
-//    RunInstruction tree = DockerTestUtils.parse("RUN  \\\n" +
-//        "        TEST=test && \\\n" +
-//        "        ls && \\\n" +
-//        "        curl sLO https://google.com &&\\\n" +
-//        "        echo ${TEST} | sha256sum --check",
-//      DockerLexicalGrammar.RUN);
-//
-//    assertThat(tree.options()).isEmpty();
-//    assertThat(tree.arguments()).isNotNull();
-//    assertThat(tree.arguments().type()).isEqualTo(LiteralListTree.LiteralListType.SHELL);
-//    assertThat(tree.arguments().literals()).hasSize(13);
-//  }
+  @Test
+  void shouldParseMultiline() {
+    RunInstruction tree = DockerTestUtils.parse("RUN  \\\n" +
+        "        TEST=test && \\\n" +
+        "        ls && \\\n" +
+        "        curl sLO https://google.com &&\\\n" +
+        "        echo ${TEST} | sha256sum --check",
+      DockerLexicalGrammar.RUN);
+
+    assertThat(tree.options()).isEmpty();
+    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
+    assertThat(tree.arguments().literals()).hasSize(13);
+  }
 
   @Test
   void shouldCheckParseRunExecFormTree() {
