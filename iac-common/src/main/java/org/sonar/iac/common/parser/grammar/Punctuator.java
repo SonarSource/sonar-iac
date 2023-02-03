@@ -49,6 +49,7 @@ public enum Punctuator implements GrammarRuleKey {
   STAR("*"),
   QUERY("?"),
   EXCLAMATION("!"),
+  QUOTE("'"),
   DOUBLE_QUOTE("\""),
   DOLLAR_LCURLY("${"),
   DOLLAR_LCURLY_TILDE("${~"),

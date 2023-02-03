@@ -49,6 +49,7 @@ import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.Port;
+import org.sonar.iac.docker.tree.api.QuotedString;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
@@ -84,6 +85,7 @@ import org.sonar.iac.docker.tree.impl.NoneImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ParamImpl;
 import org.sonar.iac.docker.tree.impl.PortImpl;
+import org.sonar.iac.docker.tree.impl.QuotedStringImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormImpl;
@@ -130,7 +132,11 @@ public class TreeFactory {
     return new ArgumentImpl(dockerTrees);
   }
 
-  public StringLiteral stringLiteral(SyntaxToken token) {
+  public QuotedString quotedString(SyntaxToken leftQuote, Optional<StringLiteral> word, SyntaxToken rightQuote) {
+    return new QuotedStringImpl(leftQuote, word.orNull(), rightQuote);
+  }
+
+  public StringLiteral stringNoQuote(SyntaxToken token) {
     return new StringLiteralImpl(List.of(token));
   }
 

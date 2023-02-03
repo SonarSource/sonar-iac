@@ -47,6 +47,7 @@ import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.Port;
+import org.sonar.iac.docker.tree.api.QuotedString;
 import org.sonar.iac.docker.tree.api.StringLiteral;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
@@ -291,10 +292,22 @@ public class DockerGrammar {
     );
   }
 
-  public StringLiteral QUOTED_STRING() {
-    return b.<StringLiteral>nonterminal(DockerLexicalGrammar.QUOTED_STRING).is(
-      f.stringLiteral(
-        b.token(DockerLexicalGrammar.QUOTED_STRING_REGEX)
+  public QuotedString QUOTED_STRING() {
+    return b.<QuotedString>nonterminal(DockerLexicalGrammar.QUOTED_STRING).is(
+      f.quotedString(
+        b.token(Punctuator.QUOTE),
+        b.optional(
+          STRING_NO_QUOTE()
+        ),
+        b.token(Punctuator.QUOTE)
+      )
+    );
+  }
+
+  public StringLiteral STRING_NO_QUOTE() {
+    return b.<StringLiteral>nonterminal(DockerLexicalGrammar.STRING_NO_QUOTE).is(
+      f.stringNoQuote(
+        b.token(DockerLexicalGrammar.STRING_NO_QUOTE_REGEX)
       )
     );
   }

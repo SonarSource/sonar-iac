@@ -50,10 +50,10 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    */
   ARGUMENT,
   QUOTED_STRING,
-  QUOTED_STRING_REGEX,
+  STRING_NO_QUOTE,
+  STRING_NO_QUOTE_REGEX,
   DOUBLE_QUOTED_STRING,
   STRING_WITH_SPACING,
-  STRING_NO_SPACING,
   STRING_NO_SPACING_REGEX,
 
   /**
@@ -146,6 +146,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(Punctuator.RBRACKET).is(b.optional(WHITESPACE), Punctuator.RBRACKET.getValue()).skip();
     b.rule(Punctuator.LBRACKET).is(WHITESPACE, Punctuator.LBRACKET.getValue()).skip();
     b.rule(Punctuator.DOUBLE_QUOTE).is(b.optional(WHITESPACE), Punctuator.DOUBLE_QUOTE.getValue());
+    b.rule(Punctuator.QUOTE).is(b.optional(WHITESPACE), Punctuator.QUOTE.getValue());
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
@@ -163,7 +164,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
-    b.rule(QUOTED_STRING_REGEX).is(b.regexp("'[^']*+'"));
+    b.rule(STRING_NO_QUOTE_REGEX).is(b.regexp("[^']*+"));
     b.rule(STRING_NO_SPACING_REGEX).is(b.regexp("(?:\\$|\\\\\"|[^\"$])++"));
 
     // TODO : those elements will be removed in the next grammar progressively

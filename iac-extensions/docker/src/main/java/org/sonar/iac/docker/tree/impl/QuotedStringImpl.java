@@ -21,57 +21,63 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.DoubleQuotedString;
+import org.sonar.iac.docker.tree.api.QuotedString;
 import org.sonar.iac.docker.tree.api.StringLiteral;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class DoubleQuotedStringImpl extends AbstractDockerTreeImpl implements DoubleQuotedString {
-  private final SyntaxToken leftDoubleQuote;
-  private final List<StringLiteral> words;
-  private final SyntaxToken rightDoubleQuote;
+public class QuotedStringImpl extends AbstractDockerTreeImpl implements QuotedString {
+  private final SyntaxToken leftQuote;
+  @Nullable
+  private final StringLiteral word;
+  private final SyntaxToken rightQuote;
 
-  public DoubleQuotedStringImpl(SyntaxToken leftDoubleQuote, List<StringLiteral> words, SyntaxToken rightDoubleQuote) {
-    this.leftDoubleQuote = leftDoubleQuote;
-    this.words = words;
-    this.rightDoubleQuote = rightDoubleQuote;
+  public QuotedStringImpl(SyntaxToken leftQuote, @Nullable StringLiteral word, SyntaxToken rightQuote) {
+    this.leftQuote = leftQuote;
+    this.word = word;
+    this.rightQuote = rightQuote;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(leftDoubleQuote);
-    children.addAll(words);
-    children.add(rightDoubleQuote);
+    children.add(leftQuote);
+    if(word != null) {
+      children.add(word);
+    }
+    children.add(rightQuote);
     return children;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.DOUBLE_QUOTED_STRING;
+    return Kind.QUOTED_STRING;
   }
 
   @Override
   public String value() {
-    StringBuilder text = new StringBuilder();
-    for (StringLiteral word : words) {
-      text.append(word.value());
+    String text = "";
+    if(word != null) {
+      text = word.value();
     }
-    return leftDoubleQuote.value() + text + rightDoubleQuote.value();
+    return leftQuote.value() + text + rightQuote.value();
   }
 
   @Override
-  public SyntaxToken leftDoubleQuote() {
-    return leftDoubleQuote;
+  public SyntaxToken leftQuote() {
+    return leftQuote;
   }
 
   @Override
-  public SyntaxToken rightDoubleQuote() {
-    return rightDoubleQuote;
+  public SyntaxToken rightQuote() {
+    return rightQuote;
   }
 
   @Override
-  public List<StringLiteral> words() {
-    return words;
+  @CheckForNull
+  public StringLiteral word() {
+    return word;
   }
 }

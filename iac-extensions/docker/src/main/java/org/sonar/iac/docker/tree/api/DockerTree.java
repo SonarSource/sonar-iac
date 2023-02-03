@@ -42,6 +42,7 @@ public interface DockerTree extends Tree {
     ARGUMENT(Argument.class),
     STRING_LITERAL(StringLiteralImpl.class),
     DOUBLE_QUOTED_STRING(DoubleQuotedString.class),
+    QUOTED_STRING(QuotedString.class),
     MAINTAINER(MaintainerInstruction.class),
     STOPSIGNAL(StopSignalInstruction.class),
     WORKDIR(WorkdirInstruction.class),

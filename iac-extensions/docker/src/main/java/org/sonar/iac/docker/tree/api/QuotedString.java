@@ -19,10 +19,8 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-
-public interface DoubleQuotedString extends StringLiteral {
-  SyntaxToken leftDoubleQuote();
-  SyntaxToken rightDoubleQuote();
-  List<StringLiteral> words();
+public interface QuotedString extends StringLiteral {
+  SyntaxToken leftQuote();
+  SyntaxToken rightQuote();
+  StringLiteral word();
 }
