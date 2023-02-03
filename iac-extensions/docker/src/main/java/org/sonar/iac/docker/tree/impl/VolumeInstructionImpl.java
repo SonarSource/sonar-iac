@@ -25,11 +25,11 @@ import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
 
-public class VolumeImpl extends InstructionImpl implements VolumeInstruction {
+public class VolumeInstructionImpl extends InstructionImpl implements VolumeInstruction {
 
   private final LiteralList arguments;
 
-  public VolumeImpl(SyntaxToken volume, LiteralList arguments) {
+  public VolumeInstructionImpl(SyntaxToken volume, LiteralList arguments) {
     super(volume);
     this.arguments = arguments;
   }

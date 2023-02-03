@@ -31,7 +31,7 @@ import org.sonar.iac.docker.tree.api.VolumeInstruction;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
-class VolumeImplTest {
+class VolumeInstructionImplTest {
   @Test
   void matchingSimple() {
     Assertions.assertThat(DockerLexicalGrammar.VOLUME)
