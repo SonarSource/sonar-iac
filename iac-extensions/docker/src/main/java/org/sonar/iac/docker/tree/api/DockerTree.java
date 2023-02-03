@@ -20,6 +20,7 @@
 package org.sonar.iac.docker.tree.api;
 
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.impl.StringLiteralImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public interface DockerTree extends Tree {
@@ -39,10 +40,8 @@ public interface DockerTree extends Tree {
     PARAM(Param.class),
     ALIAS(Alias.class),
     ARGUMENT(Argument.class),
-    QUOTED_STRING(QuotedString.class),
+    STRING_LITERAL(StringLiteralImpl.class),
     DOUBLE_QUOTED_STRING(DoubleQuotedString.class),
-    STRING_WITH_SPACING(StringWithSpacing.class),
-    STRING_NO_SPACING(StringNoSpacing.class),
     MAINTAINER(MaintainerInstruction.class),
     STOPSIGNAL(StopSignalInstruction.class),
     WORKDIR(WorkdirInstruction.class),

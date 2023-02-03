@@ -19,5 +19,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface DoubleQuotedString extends DockerTree {
+public interface DoubleQuotedString extends StringLiteral {
+  SyntaxToken leftDoubleQuote();
+  SyntaxToken rightDoubleQuote();
 }

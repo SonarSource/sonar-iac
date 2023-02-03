@@ -21,19 +21,17 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.DoubleQuotedString;
+import org.sonar.iac.docker.tree.api.StringLiteral;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class DoubleQuotedStringImpl extends AbstractDockerTreeImpl implements DoubleQuotedString {
   private final SyntaxToken leftQuote;
-  @Nullable
-  private final List<DockerTree> words;
+  private final List<StringLiteral> words;
   private final SyntaxToken rightQuote;
 
-  public DoubleQuotedStringImpl(SyntaxToken leftQuote, @Nullable List<DockerTree> words, SyntaxToken rightQuote) {
+  public DoubleQuotedStringImpl(SyntaxToken leftQuote, List<StringLiteral> words, SyntaxToken rightQuote) {
     this.leftQuote = leftQuote;
     this.words = words;
     this.rightQuote = rightQuote;
@@ -43,9 +41,7 @@ public class DoubleQuotedStringImpl extends AbstractDockerTreeImpl implements Do
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(leftQuote);
-    if (words != null) {
-      children.addAll(words);
-    }
+    children.addAll(words);
     children.add(rightQuote);
     return children;
   }
@@ -53,5 +49,24 @@ public class DoubleQuotedStringImpl extends AbstractDockerTreeImpl implements Do
   @Override
   public Kind getKind() {
     return Kind.DOUBLE_QUOTED_STRING;
+  }
+
+  @Override
+  public String value() {
+    StringBuilder text = new StringBuilder();
+    for (StringLiteral word : words) {
+      text.append(word.value());
+    }
+    return leftQuote.value() + text + rightQuote.value();
+  }
+
+  @Override
+  public SyntaxToken leftDoubleQuote() {
+    return leftQuote;
+  }
+
+  @Override
+  public SyntaxToken rightDoubleQuote() {
+    return rightQuote;
   }
 }

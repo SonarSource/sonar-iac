@@ -20,4 +20,5 @@
 package org.sonar.iac.docker.tree.api;
 
 public interface Argument extends DockerTree {
+  String value();
 }

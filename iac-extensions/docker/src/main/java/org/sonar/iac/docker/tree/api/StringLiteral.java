@@ -17,28 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.impl;
+package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.QuotedString;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
-
-public class QuotedStringImpl extends AbstractDockerTreeImpl implements QuotedString {
-
-  private final SyntaxToken token;
-
-  public QuotedStringImpl(SyntaxToken token) {
-    this.token = token;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return List.of(token);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.QUOTED_STRING;
-  }
+public interface StringLiteral extends DockerTree {
+  String value();
 }

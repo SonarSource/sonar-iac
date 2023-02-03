@@ -29,9 +29,7 @@ import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
-import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.DoubleQuotedString;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -51,14 +49,12 @@ import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.Port;
-import org.sonar.iac.docker.tree.api.QuotedString;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
-import org.sonar.iac.docker.tree.api.StringNoSpacing;
-import org.sonar.iac.docker.tree.api.StringWithSpacing;
+import org.sonar.iac.docker.tree.api.StringLiteral;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
@@ -88,14 +84,12 @@ import org.sonar.iac.docker.tree.impl.NoneImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ParamImpl;
 import org.sonar.iac.docker.tree.impl.PortImpl;
-import org.sonar.iac.docker.tree.impl.QuotedStringImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.tree.impl.ShellInstructionImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
-import org.sonar.iac.docker.tree.impl.StringNoSpacingImpl;
-import org.sonar.iac.docker.tree.impl.StringWithSpacingImpl;
+import org.sonar.iac.docker.tree.impl.StringLiteralImpl;
 import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
 import org.sonar.iac.docker.tree.impl.VolumeImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
@@ -132,25 +126,20 @@ public class TreeFactory {
     return new MaintainerInstructionImpl(keyword, authorsToken);
   }
 
-  public Argument argument2(List<DockerTree> dockerTrees) {
+  public Argument argument(List<StringLiteral> dockerTrees) {
     return new ArgumentImpl(dockerTrees);
   }
 
-  public QuotedString quotedString(SyntaxToken token) {
-    return new QuotedStringImpl(token);
+  public StringLiteral stringLiteral(SyntaxToken token) {
+    return new StringLiteralImpl(List.of(token));
   }
 
-
-  public DoubleQuotedString doubleQuotedString(SyntaxToken leftQuote, Optional<List<DockerTree>> words, SyntaxToken rightQuote) {
-    return new DoubleQuotedStringImpl(leftQuote, words.orNull(), rightQuote);
+  public StringLiteral doubleQuotedString(SyntaxToken leftQuote, Optional<List<StringLiteral>> words, SyntaxToken rightQuote) {
+    return new DoubleQuotedStringImpl(leftQuote, words.or(List.of()), rightQuote);
   }
 
-  public StringWithSpacing stringWithSpacing(List<DockerTree> children) {
-    return new StringWithSpacingImpl(children);
-  }
-
-  public StringNoSpacing stringNoSpacing(SyntaxToken token) {
-    return new StringNoSpacingImpl(token);
+  public StringLiteral stringWithSpacing(List<SyntaxToken> tokens) {
+    return new StringLiteralImpl(tokens);
   }
 
   public SyntaxToken argument(SyntaxToken token) {

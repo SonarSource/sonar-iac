@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.StringLiteral;
 
 public class ArgumentImpl extends AbstractDockerTreeImpl implements Argument {
-  private final List<DockerTree> children;
+  private final List<StringLiteral> children;
 
-  public ArgumentImpl(List<DockerTree> children) {
+  public ArgumentImpl(List<StringLiteral> children) {
     this.children = children;
   }
 
@@ -40,5 +40,14 @@ public class ArgumentImpl extends AbstractDockerTreeImpl implements Argument {
   @Override
   public Kind getKind() {
     return Kind.ARGUMENT;
+  }
+
+  @Override
+  public String value() {
+    StringBuilder text = new StringBuilder();
+    for (StringLiteral child : children) {
+      text.append(child.value());
+    }
+    return text.toString();
   }
 }

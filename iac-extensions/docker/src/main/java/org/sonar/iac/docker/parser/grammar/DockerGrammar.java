@@ -30,7 +30,6 @@ import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.DoubleQuotedString;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -48,13 +47,11 @@ import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.Port;
-import org.sonar.iac.docker.tree.api.QuotedString;
+import org.sonar.iac.docker.tree.api.StringLiteral;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
-import org.sonar.iac.docker.tree.api.StringNoSpacing;
-import org.sonar.iac.docker.tree.api.StringWithSpacing;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
@@ -283,7 +280,7 @@ public class DockerGrammar {
 
   public Argument ARGUMENT() {
     return b.<Argument>nonterminal(DockerLexicalGrammar.ARGUMENT).is(
-      f.argument2(
+      f.argument(
         b.oneOrMore(
           b.firstOf(
             QUOTED_STRING(),
@@ -294,16 +291,16 @@ public class DockerGrammar {
     );
   }
 
-  public QuotedString QUOTED_STRING() {
-    return b.<QuotedString>nonterminal(DockerLexicalGrammar.QUOTED_STRING).is(
-      f.quotedString(
+  public StringLiteral QUOTED_STRING() {
+    return b.<StringLiteral>nonterminal(DockerLexicalGrammar.QUOTED_STRING).is(
+      f.stringLiteral(
         b.token(DockerLexicalGrammar.QUOTED_STRING_REGEX)
       )
     );
   }
 
-  public DoubleQuotedString DOUBLE_QUOTED_STRING() {
-    return b.<DoubleQuotedString>nonterminal(DockerLexicalGrammar.DOUBLE_QUOTED_STRING).is(
+  public StringLiteral DOUBLE_QUOTED_STRING() {
+    return b.<StringLiteral>nonterminal(DockerLexicalGrammar.DOUBLE_QUOTED_STRING).is(
       f.doubleQuotedString(
         b.token(Punctuator.DOUBLE_QUOTE),
         b.zeroOrMore(
@@ -316,22 +313,14 @@ public class DockerGrammar {
     );
   }
 
-  public StringWithSpacing STRING_WITH_SPACING() {
-    return b.<StringWithSpacing>nonterminal(DockerLexicalGrammar.STRING_WITH_SPACING).is(
+  public StringLiteral STRING_WITH_SPACING() {
+    return b.<StringLiteral>nonterminal(DockerLexicalGrammar.STRING_WITH_SPACING).is(
       f.stringWithSpacing(
         b.oneOrMore(
           b.firstOf(
-            STRING_NO_SPACING()
+            b.token(DockerLexicalGrammar.STRING_NO_SPACING_REGEX)
           )
         )
-      )
-    );
-  }
-
-  public StringNoSpacing STRING_NO_SPACING() {
-    return b.<StringNoSpacing>nonterminal(DockerLexicalGrammar.STRING_NO_SPACING).is(
-      f.stringNoSpacing(
-        b.token(DockerLexicalGrammar.STRING_NO_SPACING_REGEX)
       )
     );
   }

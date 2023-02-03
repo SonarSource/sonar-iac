@@ -26,9 +26,8 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.QuotedString;
-import org.sonar.iac.docker.tree.api.StringNoSpacing;
-import org.sonar.iac.docker.tree.api.StringWithSpacing;
+import org.sonar.iac.docker.tree.api.DoubleQuotedString;
+import org.sonar.iac.docker.tree.api.StringLiteral;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,8 +67,8 @@ class ArgumentImplTest {
 
     List<Tree> children = tree.children();
     assertThat(children).hasSize(1);
-    QuotedString child = (QuotedString) children.get(0);
-    assertThat(child.getKind()).isEqualTo(DockerTree.Kind.QUOTED_STRING);
+    StringLiteral child = (StringLiteral) children.get(0);
+    assertThat(child.getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
     assertTextRange(child.textRange()).hasRange(1, 0, 1, 11);
 
     List<Tree> grandchildren = child.children();
@@ -80,43 +79,45 @@ class ArgumentImplTest {
 
   @Test
   void shouldParseDoubleQuoted() {
-    Argument tree = parse("\"my-long-string\"'", DockerLexicalGrammar.ARGUMENT);
+    String text = "\"my-long-string\"";
+    Argument tree = parse(text, DockerLexicalGrammar.ARGUMENT);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARGUMENT);
+    assertThat(tree.value()).isEqualTo(text);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
 
     List<Tree> children = tree.children();
     assertThat(children).hasSize(1);
-    DoubleQuotedStringImpl child = (DoubleQuotedStringImpl) children.get(0);
+    DoubleQuotedString child = (DoubleQuotedString) children.get(0);
+    assertThat(child.value()).isEqualTo(text);
     assertThat(child.getKind()).isEqualTo(DockerTree.Kind.DOUBLE_QUOTED_STRING);
     assertTextRange(child.textRange()).hasRange(1, 0, 1, 16);
 
     List<Tree> grandchildren = child.children();
     assertThat(grandchildren).hasSize(3);
+    SyntaxToken left = child.leftDoubleQuote();
     SyntaxToken leftDoubleQuote = (SyntaxToken) grandchildren.get(0);
+    assertThat(left).isSameAs(leftDoubleQuote);
     assertThat(leftDoubleQuote.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
     assertThat(leftDoubleQuote.value()).isEqualTo("\"");
     assertTextRange(leftDoubleQuote.textRange()).hasRange(1, 0, 1, 1);
 
+    SyntaxToken right = child.rightDoubleQuote();
     SyntaxToken rightDoubleQuote = (SyntaxToken) grandchildren.get(2);
+    assertThat(right).isSameAs(rightDoubleQuote);
     assertThat(rightDoubleQuote.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
     assertThat(rightDoubleQuote.value()).isEqualTo("\"");
     assertTextRange(rightDoubleQuote.textRange()).hasRange(1, 15, 1, 16);
 
-    StringWithSpacing stringWithSpacing = (StringWithSpacing) grandchildren.get(1);
-    assertThat(stringWithSpacing.getKind()).isEqualTo(DockerTree.Kind.STRING_WITH_SPACING);
+    StringLiteral stringWithSpacing = (StringLiteral) grandchildren.get(1);
+    assertThat(stringWithSpacing.getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
     assertTextRange(stringWithSpacing.textRange()).hasRange(1, 1, 1, 15);
 
     List<Tree> stringWithSpacingChildren = stringWithSpacing.children();
     assertThat(stringWithSpacingChildren).hasSize(1);
-    StringNoSpacing stringNoSpacing = (StringNoSpacing) stringWithSpacingChildren.get(0);
+    SyntaxToken stringNoSpacing = (SyntaxToken) stringWithSpacingChildren.get(0);
     assertTextRange(stringNoSpacing.textRange()).hasRange(1, 1, 1, 15);
-    assertThat(stringNoSpacing.getKind()).isEqualTo(DockerTree.Kind.STRING_NO_SPACING);
-    List<Tree> stringNoSpacingChildren = stringNoSpacing.children();
-    assertThat(stringNoSpacingChildren).hasSize(1);
-
-    SyntaxToken textToken = (SyntaxToken) stringNoSpacingChildren.get(0);
-    assertThat(textToken.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
-    assertThat(textToken.value()).isEqualTo("my-long-string");
-    assertTextRange(textToken.textRange()).hasRange(1, 1, 1, 15);
+    assertThat(stringNoSpacing.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
+    assertThat(stringNoSpacing.value()).isEqualTo("my-long-string");
+    assertThat(stringNoSpacing.children()).isEmpty();
   }
 }
