@@ -145,6 +145,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(Punctuator.COMMA).is(b.optional(WHITESPACE), Punctuator.COMMA.getValue()).skip();
     b.rule(Punctuator.RBRACKET).is(b.optional(WHITESPACE), Punctuator.RBRACKET.getValue()).skip();
     b.rule(Punctuator.LBRACKET).is(WHITESPACE, Punctuator.LBRACKET.getValue()).skip();
+    b.rule(Punctuator.DOUBLE_QUOTE).is(b.optional(WHITESPACE), Punctuator.DOUBLE_QUOTE.getValue());
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
