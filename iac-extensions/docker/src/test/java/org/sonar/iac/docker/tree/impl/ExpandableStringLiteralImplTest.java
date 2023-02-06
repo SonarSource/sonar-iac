@@ -23,54 +23,43 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.Literal;
+import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
+import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
+import org.sonar.iac.docker.tree.api.RegularVariable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.REGULAR_STRING_LITERAL;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
-class LiteralImplTest {
+class ExpandableStringLiteralImplTest {
 
   @Test
-  void shouldParseLiteral() {
-    Assertions.assertThat(DockerLexicalGrammar.REGULAR_STRING_LITERAL)
+  void shouldParserExpandableStringLiteral() {
+    Assertions.assertThat(DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL)
+      .matches("\"foo$bar\"")
+      .matches("\"foo $bar\"")
+      .matches("\"$bar\"")
       .matches("\"foo\"")
-      .matches(" \"foo\"")
-      .matches("\"foo bar\"")
-      .matches("'foo'")
-      .matches("'foo bar'")
-      .matches("\"$3\"")
-      .matches("'$foo'")
-      .matches("'${foo}'")
-      .matches("'\\''")
-      .matches("\"\\\\\"")
 
-      .notMatches("\"\"\"")
-      .notMatches("\"\\\"")
-      .notMatches("'''")
-      .notMatches("\"$foo\"")
-      .notMatches("\"${foo}\"")
-      .notMatches("foo")
-      .notMatches("$foo")
-      .notMatches("\"foo\" ");
+      .notMatches("'$foo'")
+    ;
   }
 
   @Test
-  void regularStringLiteral() {
-    Literal literal = parse("\"foo\"", REGULAR_STRING_LITERAL);
-    assertThat(literal.getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
-  }
+  void shouldReturnElements() {
+    ExpandableStringLiteral literal = parse("\"foo$bar\"", DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL);
+    assertThat(literal.getKind()).isEqualTo(DockerTree.Kind.EXPANDABLE_STRING_LITERAL);
+    assertTextRange(literal.textRange()).hasRange(1, 0, 1, 9);
+    assertThat(literal.elements()).hasSize(2);
 
-  @Test
-  void textRangeShouldIncludeQuotes() {
-    Literal literal = parse("\"foo\"", REGULAR_STRING_LITERAL);
-    assertTextRange(literal.textRange()).hasRange(1, 0, 1, 5);
-  }
+    assertThat(literal.elements().get(0)).isInstanceOfSatisfying(ExpandableStringCharacters.class, characters -> {
+      assertThat(characters.getKind()).isEqualTo(DockerTree.Kind.EXPANDABLE_STRING_CHARACTERS);
+      assertThat(characters.value()).isEqualTo("foo");
+    });
 
-  @Test
-  void valueShouldBeWithoutDoubleQuotes() {
-    Literal literal = parse("\"foo\"", REGULAR_STRING_LITERAL);
-    assertThat(literal.value()).isEqualTo("foo");
+    assertThat(literal.elements().get(1)).isInstanceOfSatisfying(RegularVariable.class, variable -> {
+      assertThat(variable.getKind()).isEqualTo(DockerTree.Kind.REGULAR_VARIABLE);
+      assertThat(variable.identifier()).isEqualTo("bar");
+    });
   }
 }

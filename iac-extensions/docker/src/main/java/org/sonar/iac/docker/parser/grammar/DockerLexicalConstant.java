@@ -38,17 +38,20 @@ public class DockerLexicalConstant {
   /**
    * IDENTIFIERS
    */
+  private static final String VAR_IDENTIFIER_START = "[a-zA-Z_]";
+  public static final String VAR_IDENTIFIER_PART = "[" + VAR_IDENTIFIER_START + "[0-9]]";
+  public static final String VAR_IDENTIFIER = VAR_IDENTIFIER_START + VAR_IDENTIFIER_PART + "*+";
+  public static final String ENCAPS_VAR_MODIFIER_SEPARATOR = "':'('-'|'+')";
+
 
   /**
    * LITERAL
    */
-  private static final String IDENTIFIER_START = "[a-zA-Z_\\x7f-\\xff]";
-
   /**
    * '$' sign is allowed in double quoted string and heredoc only when it does not conflict with the
    * encapsulated variable expression, i.e when it not followed with '{' or a starting identifier character.
    */
-  private static final String PERMITTED_EMBEDDED_DOLAR = "(?:\\$(?!\\{|" + IDENTIFIER_START + "))";
+  private static final String PERMITTED_EMBEDDED_DOLAR = "(?:\\$(?!\\{|" + VAR_IDENTIFIER_START + "))";
 
   private static final String NON_SPECIAL_CHARACTERS = "(?:[^\"\\\\$\\{])";
 
@@ -65,7 +68,6 @@ public class DockerLexicalConstant {
     + "\"" + STRING_WITH_ENCAPS_VAR_CHARACTERS + "?+" + "\""
     + "|'(?:[^'\\\\]*+(?:\\\\[\\s\\S])?+)*+'"
     + ")";
-
 
   private DockerLexicalConstant() {
   }

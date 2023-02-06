@@ -26,6 +26,8 @@ import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalConstant.VAR_IDENTIFIER;
+
 public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   FILE,
@@ -119,9 +121,19 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   HEREDOC_EXPRESSION,
 
-  REGULAR_QUATED_STRING_LITERAL,
+  REGULAR_QUOTED_STRING_LITERAL,
 
-  ARGUMENT;
+  ARGUMENT,
+
+  REGULAR_STRING_LITERAL,
+
+  EXPANDABLE_STRING_LITERAL,
+
+  STRING_WITH_ENCAPS_VAR_CHARACTERS,
+
+  REGULAR_VAR_IDENTIFIER,
+
+  REGULAR_VARIABLE;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -138,6 +150,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(Punctuator.COMMA).is(b.optional(WHITESPACE), Punctuator.COMMA.getValue()).skip();
     b.rule(Punctuator.RBRACKET).is(b.optional(WHITESPACE), Punctuator.RBRACKET.getValue()).skip();
     b.rule(Punctuator.LBRACKET).is(WHITESPACE, Punctuator.LBRACKET.getValue()).skip();
+    b.rule(Punctuator.DOUBLE_QUOTE).is(Punctuator.DOUBLE_QUOTE.getValue());
+    b.rule(Punctuator.DOLLAR).is(b.optional(WHITESPACE), Punctuator.DOLLAR.getValue()).skip();
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
@@ -155,8 +169,12 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
+    // Identifier
+    b.rule(REGULAR_VAR_IDENTIFIER).is(b.regexp(VAR_IDENTIFIER)).skip();
+
     // Literals
-    b.rule(REGULAR_QUATED_STRING_LITERAL).is(b.optional(WHITESPACE), b.regexp(DockerLexicalConstant.QUOTED_STRING_LITERAL));
+    b.rule(REGULAR_QUOTED_STRING_LITERAL).is(b.optional(WHITESPACE), b.regexp(DockerLexicalConstant.QUOTED_STRING_LITERAL));
+    b.rule(STRING_WITH_ENCAPS_VAR_CHARACTERS).is(b.regexp(DockerLexicalConstant.STRING_WITH_ENCAPS_VAR_CHARACTERS));
 
     // TODO : those elements will be removed in the next grammar progressively
     b.rule(STRING_LITERAL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL_OLD));

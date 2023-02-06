@@ -34,6 +34,8 @@ import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.ExecFormLiteral;
+import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
+import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.FromInstruction;
@@ -43,6 +45,7 @@ import org.sonar.iac.docker.tree.api.Image;
 import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
+import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
@@ -68,6 +71,8 @@ import org.sonar.iac.docker.tree.impl.EntrypointInstructionImpl;
 import org.sonar.iac.docker.tree.impl.EnvInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormLiteralImpl;
+import org.sonar.iac.docker.tree.impl.ExpandableStringCharactersImpl;
+import org.sonar.iac.docker.tree.impl.ExpandableStringLiteralImpl;
 import org.sonar.iac.docker.tree.impl.ExposeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.FileImpl;
 import org.sonar.iac.docker.tree.impl.FromInstructionImpl;
@@ -88,6 +93,7 @@ import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.tree.impl.ShellInstructionImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
 import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
+import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.VolumeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 
@@ -274,8 +280,25 @@ public class TreeFactory {
     return new Tuple<>(first, second);
   }
 
-  public Argument regularStringLiteral(SyntaxToken token) {
+  public Literal regularStringLiteral(SyntaxToken token) {
     return new LiteralImpl(token);
+  }
+
+  public ExpandableStringLiteral expandableStringLiteral(
+    Optional<SyntaxToken> whitespace,
+    SyntaxToken openDoubleQuote,
+    List<Argument> arguments,
+    SyntaxToken closeDoubleQuote
+  ) {
+    return new ExpandableStringLiteralImpl(openDoubleQuote, arguments, closeDoubleQuote);
+  }
+
+  public ExpandableStringCharacters expandableStringCharacters(SyntaxToken token) {
+    return new ExpandableStringCharactersImpl(token);
+  }
+
+  public Argument regularVariable(SyntaxToken dollar, SyntaxToken identifier) {
+    return new RegularVariableImpl(dollar, identifier);
   }
 
 
