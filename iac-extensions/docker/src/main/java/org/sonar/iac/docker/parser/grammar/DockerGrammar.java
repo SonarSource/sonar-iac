@@ -67,9 +67,9 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAM
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
+import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.WHITESPACE;
 
 @SuppressWarnings("java:S100")
 public class DockerGrammar {
@@ -456,11 +456,12 @@ public class DockerGrammar {
         b.token(Punctuator.LBRACKET),
         b.optional(
           f.tuple(
-            f.argument(b.token(STRING_LITERAL_WITH_QUOTES)),
+            f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)), EXPANDABLE_STRING_LITERAL()),
             b.zeroOrMore(
               f.tuple(
                 b.token(Punctuator.COMMA),
-                f.argument(b.token(STRING_LITERAL_WITH_QUOTES)))
+                f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)), EXPANDABLE_STRING_LITERAL())
+              )
             )
           )
         ),

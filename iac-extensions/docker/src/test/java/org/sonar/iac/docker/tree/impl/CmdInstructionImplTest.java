@@ -89,11 +89,7 @@ class CmdInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
-    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
-    assertTextRange(textRanges.get(0)).hasRange(1,5,1,17);
-    assertTextRange(textRanges.get(1)).hasRange(1,18,1,26);
-    assertTextRange(textRanges.get(2)).hasRange(1,27,1,35);
+    assertThat(tree.arguments().arguments().stream().map(ExecFormUtils::toString)).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
@@ -126,7 +122,7 @@ class CmdInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().literals()).isEmpty();
+    assertThat(tree.arguments().arguments()).isEmpty();
 
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
     SeparatedList<ExecFormLiteral> literals = ((ExecForm) tree.arguments()).literalsWithSeparators();

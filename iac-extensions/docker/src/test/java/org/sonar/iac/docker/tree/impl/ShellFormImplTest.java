@@ -30,6 +30,7 @@ import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ShellFormImplTest {
 
@@ -59,6 +60,10 @@ class ShellFormImplTest {
 
     List<SyntaxToken> elements = execForm.literals();
     assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.TOKEN);
+
+    assertThatThrownBy(execForm::arguments)
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("TODO SONARIAC-541");
   }
 
   @Test

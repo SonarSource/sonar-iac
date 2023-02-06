@@ -68,10 +68,7 @@ class VolumeInstructionImplTest {
     VolumeInstruction tree = parse("VOLUME [\"/var/log\", \"/var/db\"]", DockerLexicalGrammar.VOLUME);
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
 
-    List<SyntaxToken> literalListTree = tree.arguments().literals();
-    assertThat(literalListTree).hasSize(2);
-    assertThat(literalListTree.get(0).value()).isEqualTo("\"/var/log\"");
-    assertThat(literalListTree.get(1).value()).isEqualTo("\"/var/db\"");
+    assertThat(tree.arguments().arguments().stream().map(ExecFormUtils::toString)).containsExactly("/var/log", "/var/db");
   }
 
   @Test
@@ -79,7 +76,6 @@ class VolumeInstructionImplTest {
     VolumeInstruction tree = parse("VOLUME []", DockerLexicalGrammar.VOLUME);
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
 
-    List<SyntaxToken> literalListTree = tree.arguments().literals();
-    assertThat(literalListTree).isEmpty();
+    assertThat(tree.arguments().arguments()).isEmpty();
   }
 }

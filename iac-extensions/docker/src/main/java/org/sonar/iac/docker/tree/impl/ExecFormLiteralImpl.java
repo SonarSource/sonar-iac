@@ -22,13 +22,13 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ExecFormLiteral;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 
 public class ExecFormLiteralImpl extends AbstractDockerTreeImpl implements ExecFormLiteral {
 
-  private final SyntaxToken value;
+  private final ExpandableStringLiteral value;
 
-  public ExecFormLiteralImpl(SyntaxToken value) {
+  public ExecFormLiteralImpl(ExpandableStringLiteral value) {
     this.value = value;
   }
 
@@ -43,7 +43,7 @@ public class ExecFormLiteralImpl extends AbstractDockerTreeImpl implements ExecF
   }
 
   @Override
-  public SyntaxToken value() {
+  public ExpandableStringLiteral value() {
     return value;
   }
 }

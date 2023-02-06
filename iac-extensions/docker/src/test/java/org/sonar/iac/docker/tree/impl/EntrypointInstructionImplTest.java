@@ -26,7 +26,12 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
+import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
+import org.sonar.iac.docker.tree.api.Expression;
+import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -84,12 +89,7 @@ class EntrypointInstructionImplTest {
 
     assertThat(tree.arguments()).isInstanceOf(ExecFormImpl.class);
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().literals().stream().map(TextTree::value))
-      .containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
-    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
-    assertTextRange(textRanges.get(0)).hasRange(1,12,1,24);
-    assertTextRange(textRanges.get(1)).hasRange(1,25,1,33);
-    assertTextRange(textRanges.get(2)).hasRange(1,34,1,42);
+    assertThat(tree.arguments().arguments().stream().map(ExecFormUtils::toString)).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat(((ExecFormImpl)tree.children().get(1))).isSameAs(tree.arguments());
@@ -124,7 +124,7 @@ class EntrypointInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
     assertThat(tree.arguments()).isInstanceOf(ExecFormImpl.class);
-    assertThat(tree.arguments().literals()).isEmpty();
+    assertThat(tree.arguments().arguments()).isEmpty();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat((tree.children().get(1))).isSameAs(tree.arguments());

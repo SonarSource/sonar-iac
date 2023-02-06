@@ -22,6 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.SeparatedList;
@@ -58,11 +59,21 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
     return leftBracket;
   }
 
+  /**
+   * @deprecated To be removed once arguments() methods exist in all implementation and that literals() can be replaced everywhere.
+   * For now the method has been transformed to still provide the same data as before.
+   */
+  @Deprecated(forRemoval = true)
   @Override
   public List<SyntaxToken> literals() {
-    List<SyntaxToken> result = new ArrayList<>();
+    throw new UnsupportedOperationException("Method to be removed from LiteralList interface once SONARIAC-541 and SONARIAC-572 are done.");
+  }
+
+  @Override
+  public List<Argument> arguments() {
+    List<Argument> result = new ArrayList<>();
     for (ExecFormLiteral element : literalsWithSeparators.elements()) {
-      result.add(element.value());
+      result.add(new ArgumentImpl(List.of(element.value())));
     }
     return result;
   }

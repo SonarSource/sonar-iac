@@ -263,19 +263,19 @@ public class TreeFactory {
   }
 
   public ExecForm execForm(SyntaxToken leftBracket,
-    Optional<Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>>> literals,
+    Optional<Tuple<ExpandableStringLiteral, Optional<List<Tuple<SyntaxToken, ExpandableStringLiteral>>>>> literals,
     SyntaxToken rightBracket) {
 
     List<ExecFormLiteral> elements = new ArrayList<>();
     List<SyntaxToken> separators = new ArrayList<>();
     SeparatedList<ExecFormLiteral> separatedList = new SeparatedListImpl<>(elements, separators);
     if (literals.isPresent()) {
-      Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>> tuple = literals.get();
+      Tuple<ExpandableStringLiteral, Optional<List<Tuple<SyntaxToken, ExpandableStringLiteral>>>> tuple = literals.get();
       elements.add(new ExecFormLiteralImpl(tuple.first()));
-      Optional<List<Tuple<SyntaxToken, SyntaxToken>>> second = tuple.second();
+      Optional<List<Tuple<SyntaxToken, ExpandableStringLiteral>>> second = tuple.second();
       if(second.isPresent()) {
-        List<Tuple<SyntaxToken, SyntaxToken>> comaAndLiterals = second.get();
-        for (Tuple<SyntaxToken, SyntaxToken> comaAndLiteral : comaAndLiterals) {
+        List<Tuple<SyntaxToken, ExpandableStringLiteral>> comaAndLiterals = second.get();
+        for (Tuple<SyntaxToken, ExpandableStringLiteral> comaAndLiteral : comaAndLiterals) {
           separators.add(comaAndLiteral.first());
           elements.add(new ExecFormLiteralImpl(comaAndLiteral.second()));
         }
@@ -291,6 +291,10 @@ public class TreeFactory {
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {
     return new Tuple<>(first, second);
+  }
+
+  public <T> T withOptionalWhitespace(Optional<SyntaxToken> whitespace, T t) {
+    return t;
   }
 
   public Literal regularStringLiteral(SyntaxToken token) {
