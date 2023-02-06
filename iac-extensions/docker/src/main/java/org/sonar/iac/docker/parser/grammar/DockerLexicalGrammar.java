@@ -117,7 +117,11 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   EXPOSE_SEPARATOR_PROTOCOL,
   EXPOSE_PROTOCOL,
 
-  HEREDOC_EXPRESSION;
+  HEREDOC_EXPRESSION,
+
+  REGULAR_QUATED_STRING_LITERAL,
+
+  ARGUMENT;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -151,8 +155,11 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
+    // Literals
+    b.rule(REGULAR_QUATED_STRING_LITERAL).is(b.optional(WHITESPACE), b.regexp(DockerLexicalConstant.QUOTED_STRING_LITERAL));
+
     // TODO : those elements will be removed in the next grammar progressively
-    b.rule(STRING_LITERAL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL));
+    b.rule(STRING_LITERAL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL_OLD));
     b.rule(STRING_UNTIL_EOL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
     b.rule(STRING_LITERAL_WITH_QUOTES).is(b.optional(WHITESPACE), b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
 

@@ -26,6 +26,7 @@ import org.sonar.iac.docker.parser.TreeFactory;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -482,6 +483,18 @@ public class DockerGrammar {
           SHELL_FORM()
         )
       )
+    );
+  }
+
+  public Argument ARGUMENT() {
+    return b.<Argument>nonterminal(DockerLexicalGrammar.ARGUMENT).is(
+      STRING_LITERAL()
+    );
+  }
+
+  public Argument STRING_LITERAL() {
+    return b.<Argument>nonterminal().is(
+      f.regularStringLiteral(b.token(DockerLexicalGrammar.REGULAR_QUATED_STRING_LITERAL))
     );
   }
 }

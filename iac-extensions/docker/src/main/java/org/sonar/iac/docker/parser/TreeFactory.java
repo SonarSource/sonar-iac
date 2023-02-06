@@ -26,6 +26,7 @@ import java.util.List;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -75,6 +76,7 @@ import org.sonar.iac.docker.tree.impl.HereDocumentImpl;
 import org.sonar.iac.docker.tree.impl.ImageImpl;
 import org.sonar.iac.docker.tree.impl.KeyValuePairImpl;
 import org.sonar.iac.docker.tree.impl.LabelInstructionImpl;
+import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerInstructionImpl;
 import org.sonar.iac.docker.tree.impl.NoneImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
@@ -271,6 +273,11 @@ public class TreeFactory {
   public <T, U> Tuple<T, U> tuple(T first, U second) {
     return new Tuple<>(first, second);
   }
+
+  public Argument regularStringLiteral(SyntaxToken token) {
+    return new LiteralImpl(token);
+  }
+
 
   public static class Tuple<T, U> {
 
