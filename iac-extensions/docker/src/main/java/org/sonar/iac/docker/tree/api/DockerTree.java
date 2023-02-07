@@ -62,7 +62,13 @@ public interface DockerTree extends Tree {
     NONE(NoneInstruction.class),
     HEREDOCUMENT(HereDocument.class),
 
-    TOKEN(SyntaxToken.class);
+    TOKEN(SyntaxToken.class),
+
+    STRING_LITERAL(Literal.class),
+
+    EXPANDABLE_STRING_LITERAL(ExpandableStringLiteral.class),
+    EXPANDABLE_STRING_CHARACTERS(ExpandableStringCharacters.class),
+    REGULAR_VARIABLE(RegularVariable.class);
 
 
     private final Class<? extends DockerTree> associatedInterface;

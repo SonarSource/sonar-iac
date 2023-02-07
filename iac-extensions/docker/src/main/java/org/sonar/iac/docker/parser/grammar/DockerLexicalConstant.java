@@ -30,11 +30,44 @@ public class DockerLexicalConstant {
   public static final String STRING_LITERAL_WITH_QUOTES = "\"(?:[^\"\\\\]*+(?:\\\\[\\s\\S])?+)*+\"";
   public static final String STRING_LITERAL_WITHOUT_QUOTES = "(?:(?!" + LINE_BREAK+ ")[^\\s])++";
   public static final String STRING_LITERAL_WITHOUT_QUOTES_NO_EQUALS = "[^\\s=]++";
-  public static final String STRING_LITERAL = "(?:(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES + "))+";
+  public static final String STRING_LITERAL_OLD = "(?:(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES + "))+";
   public static final String KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX = "(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES_NO_EQUALS + ")";
   public static final String STRING_UNTIL_EOL = ".+";
   public static final String EQUALS_OPERATOR = "=";
 
+  /**
+   * IDENTIFIERS
+   */
+  private static final String VAR_IDENTIFIER_START = "[a-zA-Z_]";
+  public static final String VAR_IDENTIFIER_PART = "[" + VAR_IDENTIFIER_START + "[0-9]]";
+  public static final String VAR_IDENTIFIER = VAR_IDENTIFIER_START + VAR_IDENTIFIER_PART + "*+";
+  public static final String ENCAPS_VAR_MODIFIER_SEPARATOR = "':'('-'|'+')";
+
+
+  /**
+   * LITERAL
+   */
+  /**
+   * '$' sign is allowed in double quoted string and heredoc only when it does not conflict with the
+   * encapsulated variable expression, i.e when it not followed with '{' or a starting identifier character.
+   */
+  private static final String PERMITTED_EMBEDDED_DOLAR = "(?:\\$(?!\\{|" + VAR_IDENTIFIER_START + "))";
+
+  private static final String NON_SPECIAL_CHARACTERS = "(?:[^\"\\\\$\\{])";
+
+  // TODO: Handle custom escaping for escaped characters in strings
+  private static final String ESCAPED_CHARACTER_OR_STANDALONE_BACKSLASH = "(?:\\\\[\\s\\S]?)";
+
+  public static final String STRING_WITH_ENCAPS_VAR_CHARACTERS = "(?:(?:"
+    + NON_SPECIAL_CHARACTERS
+    + "|" + PERMITTED_EMBEDDED_DOLAR
+    + "|" + ESCAPED_CHARACTER_OR_STANDALONE_BACKSLASH
+    + ")++)";
+
+  public static final String QUOTED_STRING_LITERAL = "(?:"
+    + "\"" + STRING_WITH_ENCAPS_VAR_CHARACTERS + "?+" + "\""
+    + "|'(?:[^'\\\\]*+(?:\\\\[\\s\\S])?+)*+'"
+    + ")";
 
   private DockerLexicalConstant() {
   }
