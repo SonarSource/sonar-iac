@@ -45,6 +45,7 @@ class LiteralImplTest {
       .matches("'${foo}'")
       .matches("'\\''")
       .matches("\"\\\\\"")
+      .matches("\"foo\\\"bar\"")
 
       .notMatches("\"\"\"")
       .notMatches("\"\\\"")
@@ -53,7 +54,10 @@ class LiteralImplTest {
       .notMatches("\"${foo}\"")
       .notMatches("foo")
       .notMatches("$foo")
-      .notMatches("\"foo\" ");
+      .notMatches("\"foo\" ")
+      .notMatches("\"foo$bar5a\"")
+      .notMatches("\"foo$$bar\"")
+    ;
   }
 
   @Test
