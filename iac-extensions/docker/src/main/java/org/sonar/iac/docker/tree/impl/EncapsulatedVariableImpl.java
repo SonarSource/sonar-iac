@@ -19,8 +19,11 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -29,11 +32,19 @@ public class EncapsulatedVariableImpl extends AbstractDockerTreeImpl implements 
 
   private final SyntaxToken openDollarCurly;
   private final SyntaxToken identifier;
+  private final SyntaxToken modifierSeparator;
+  private final Argument modifier;
   private final SyntaxToken closeCurly;
 
-  public EncapsulatedVariableImpl(SyntaxToken openDollarCurly, SyntaxToken identifier, SyntaxToken closeCurly) {
+  public EncapsulatedVariableImpl(SyntaxToken openDollarCurly,
+                                  SyntaxToken identifier,
+                                  @Nullable SyntaxToken modifierSeparator,
+                                  @Nullable Argument modifier,
+                                  SyntaxToken closeCurly) {
     this.openDollarCurly = openDollarCurly;
     this.identifier = identifier;
+    this.modifierSeparator = modifierSeparator;
+    this.modifier = modifier;
     this.closeCurly = closeCurly;
   }
 
@@ -42,9 +53,23 @@ public class EncapsulatedVariableImpl extends AbstractDockerTreeImpl implements 
     return identifier.value();
   }
 
+  @Nullable
+  @Override
+  public Argument modifier() {
+    return modifier;
+  }
+
   @Override
   public List<Tree> children() {
-    return List.of(openDollarCurly, identifier, closeCurly);
+    List<Tree> children = new ArrayList<>();
+    children.add(openDollarCurly);
+    children.add(identifier);
+    if (modifier != null) {
+      children.add(modifierSeparator);
+      children.add(modifier);
+    }
+    children.add(closeCurly);
+    return children;
   }
 
   @Override

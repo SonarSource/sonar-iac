@@ -132,7 +132,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   REGULAR_VAR_IDENTIFIER,
 
-  REGULAR_VARIABLE, ENCAPSULATED_VARIABLE;
+  REGULAR_VARIABLE,
+  ENCAPSULATED_VARIABLE,
+  ENCAPS_VAR_MODIFIER_SEPARATOR;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -172,7 +174,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     // Identifier
     b.rule(REGULAR_VAR_IDENTIFIER).is(b.regexp(DockerLexicalConstant.VAR_IDENTIFIER));
-
+    b.rule(ENCAPS_VAR_MODIFIER_SEPARATOR).is(b.regexp("(?::(-|\\+))"));
     // Literals
     b.rule(REGULAR_QUOTED_STRING_LITERAL).is(b.optional(WHITESPACE), b.regexp(DockerLexicalConstant.QUOTED_STRING_LITERAL));
     b.rule(STRING_WITH_ENCAPS_VAR_CHARACTERS).is(b.regexp(DockerLexicalConstant.STRING_WITH_ENCAPS_VAR_CHARACTERS));

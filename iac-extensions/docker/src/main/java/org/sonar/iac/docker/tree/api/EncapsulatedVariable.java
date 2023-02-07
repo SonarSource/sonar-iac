@@ -19,6 +19,11 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import javax.annotation.Nullable;
+
 public interface EncapsulatedVariable extends Argument {
   String identifier();
+
+  @Nullable
+  Argument modifier();
 }

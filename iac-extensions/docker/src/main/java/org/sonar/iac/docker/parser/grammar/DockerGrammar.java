@@ -503,7 +503,7 @@ public class DockerGrammar {
     return b.<Argument>nonterminal(DockerLexicalGrammar.ARGUMENT).is(
       b.firstOf(
         STRING_LITERAL(),
-        REGULAR_VARIABLE()
+        VARIABLE()
       )
     );
   }
@@ -563,6 +563,12 @@ public class DockerGrammar {
       f.encapsulatedVariable(
         b.token(Punctuator.DOLLAR_LCURLY),
         b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER),
+        b.optional(
+          f.tuple(
+            b.token(DockerLexicalGrammar.ENCAPS_VAR_MODIFIER_SEPARATOR),
+            ARGUMENT()
+          )
+        ),
         b.token(Punctuator.RCURLYBRACE)
       )
     );
