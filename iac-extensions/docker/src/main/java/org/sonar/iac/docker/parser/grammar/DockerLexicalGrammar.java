@@ -26,8 +26,6 @@ import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalConstant.VAR_IDENTIFIER;
-
 public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   FILE,
@@ -134,7 +132,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   REGULAR_VAR_IDENTIFIER,
 
-  REGULAR_VARIABLE;
+  REGULAR_VARIABLE, ENCAPSULATED_VARIABLE;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -153,6 +151,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(Punctuator.LBRACKET).is(WHITESPACE, Punctuator.LBRACKET.getValue()).skip();
     b.rule(Punctuator.DOUBLE_QUOTE).is(Punctuator.DOUBLE_QUOTE.getValue());
     b.rule(Punctuator.DOLLAR).is(b.optional(WHITESPACE), Punctuator.DOLLAR.getValue()).skip();
+    b.rule(Punctuator.DOLLAR_LCURLY).is(b.optional(WHITESPACE), Punctuator.DOLLAR_LCURLY.getValue());
+    b.rule(Punctuator.RCURLYBRACE).is(Punctuator.RCURLYBRACE.getValue());
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
@@ -171,7 +171,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
     // Identifier
-    b.rule(REGULAR_VAR_IDENTIFIER).is(b.regexp(VAR_IDENTIFIER)).skip();
+    b.rule(REGULAR_VAR_IDENTIFIER).is(b.regexp(DockerLexicalConstant.VAR_IDENTIFIER));
 
     // Literals
     b.rule(REGULAR_QUOTED_STRING_LITERAL).is(b.optional(WHITESPACE), b.regexp(DockerLexicalConstant.QUOTED_STRING_LITERAL));

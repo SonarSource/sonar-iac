@@ -31,6 +31,7 @@ import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -53,6 +54,7 @@ import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.Port;
+import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
@@ -69,6 +71,7 @@ import org.sonar.iac.docker.tree.impl.BodyImpl;
 import org.sonar.iac.docker.tree.impl.CmdInstructionImpl;
 import org.sonar.iac.docker.tree.impl.CopyInstructionImpl;
 import org.sonar.iac.docker.tree.impl.DockerImageImpl;
+import org.sonar.iac.docker.tree.impl.EncapsulatedVariableImpl;
 import org.sonar.iac.docker.tree.impl.EntrypointInstructionImpl;
 import org.sonar.iac.docker.tree.impl.EnvInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormImpl;
@@ -89,13 +92,13 @@ import org.sonar.iac.docker.tree.impl.NoneImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ParamImpl;
 import org.sonar.iac.docker.tree.impl.PortImpl;
+import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.tree.impl.ShellInstructionImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
 import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
-import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.VolumeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 
@@ -303,8 +306,12 @@ public class TreeFactory {
     return new ExpandableStringCharactersImpl(token);
   }
 
-  public Argument regularVariable(SyntaxToken dollar, SyntaxToken identifier) {
+  public RegularVariable regularVariable(SyntaxToken dollar, SyntaxToken identifier) {
     return new RegularVariableImpl(dollar, identifier);
+  }
+
+  public EncapsulatedVariable encapsulatedVariable(SyntaxToken openDollarCurly, SyntaxToken identifier, SyntaxToken closeCurly) {
+    return new EncapsulatedVariableImpl(openDollarCurly, identifier, closeCurly);
   }
 
 

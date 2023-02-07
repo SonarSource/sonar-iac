@@ -531,7 +531,7 @@ public class DockerGrammar {
         b.oneOrMore(
           b.firstOf(
             EXPANDABLE_STRING_CHARACTERS(),
-            REGULAR_VARIABLE())),
+            VARIABLE())),
         b.token(Punctuator.DOUBLE_QUOTE)));
   }
 
@@ -540,11 +540,30 @@ public class DockerGrammar {
       f.expandableStringCharacters(b.token(DockerLexicalGrammar.STRING_WITH_ENCAPS_VAR_CHARACTERS)));
   }
 
+  public Argument VARIABLE() {
+    return b.<Argument>nonterminal().is(
+      b.firstOf(
+        REGULAR_VARIABLE(),
+        ENCAPS_VARIABLE()
+      )
+    );
+  }
+
   public Argument REGULAR_VARIABLE() {
     return b.<Argument>nonterminal(DockerLexicalGrammar.REGULAR_VARIABLE).is(
       f.regularVariable(
         b.token(Punctuator.DOLLAR),
         b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER)
+      )
+    );
+  }
+
+  public Argument ENCAPS_VARIABLE() {
+    return b.<Argument>nonterminal(DockerLexicalGrammar.ENCAPSULATED_VARIABLE).is(
+      f.encapsulatedVariable(
+        b.token(Punctuator.DOLLAR_LCURLY),
+        b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER),
+        b.token(Punctuator.RCURLYBRACE)
       )
     );
   }

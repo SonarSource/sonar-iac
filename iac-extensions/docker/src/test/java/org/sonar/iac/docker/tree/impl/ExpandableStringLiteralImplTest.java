@@ -42,6 +42,9 @@ class ExpandableStringLiteralImplTest {
       .matches("\"foo\"")
       .matches("\"foo$bar5a\"")
       .matches("\"foo$$bar\"")
+      .matches("\"${foo}\"")
+      .matches("\"foo ${bar}\"")
+      .matches("\"1${bar}2\"")
 
       .notMatches("'$foo'")
     ;
