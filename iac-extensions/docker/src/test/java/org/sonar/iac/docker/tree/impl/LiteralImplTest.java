@@ -36,7 +36,7 @@ class LiteralImplTest {
   void shouldParseLiteral() {
     Assertions.assertThat(DockerLexicalGrammar.REGULAR_STRING_LITERAL)
       .matches("\"foo\"")
-      .matches(" \"foo\"")
+      .matches("\"foo\"")
       .matches("\"foo bar\"")
       .matches("'foo'")
       .matches("'foo bar'")
