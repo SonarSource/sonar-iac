@@ -31,6 +31,7 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalConstant.VAR_IDEN
 public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   FILE,
+  BODY,
   DOCKERIMAGE,
 
   /**

@@ -83,13 +83,13 @@ class DockerImageImplTest {
       "FROM bar",
       "USER bob",
       "LABEL key1=value1"), DockerLexicalGrammar.FILE);
-    assertThat(file.dockerImages()).hasSize(2);
+    assertThat(file.body().dockerImages()).hasSize(2);
 
-    DockerImage dockerImage1 = file.dockerImages().get(0);
+    DockerImage dockerImage1 = file.body().dockerImages().get(0);
     assertTextRange(dockerImage1.textRange()).hasRange(1, 0, 3, 9);
     assertThat(dockerImage1.children()).hasExactlyElementsOfTypes(FromInstructionImpl.class, MaintainerInstructionImpl.class, ExposeInstructionImpl.class);
 
-    DockerImage dockerImage2 = file.dockerImages().get(1);
+    DockerImage dockerImage2 = file.body().dockerImages().get(1);
     assertTextRange(dockerImage2.textRange()).hasRange(4, 0, 6, 17);
     assertThat(dockerImage2.children()).hasExactlyElementsOfTypes(FromInstructionImpl.class, UserInstructionImpl.class, LabelInstructionImpl.class);
   }

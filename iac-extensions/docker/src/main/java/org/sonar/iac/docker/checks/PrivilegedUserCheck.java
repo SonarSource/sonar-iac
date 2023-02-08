@@ -30,9 +30,9 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.TreeUtils;
+import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
 @Rule(key = "S6471")
@@ -104,7 +104,7 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private static boolean isLastDockerImageInFile(DockerImage dockerImage) {
-    File parent = (File) dockerImage.parent();
+    Body parent = (Body) dockerImage.parent();
     List<DockerImage> dockerImages = parent.dockerImages();
     DockerImage last = dockerImages.get(dockerImages.size() - 1);
     return last == dockerImage;
