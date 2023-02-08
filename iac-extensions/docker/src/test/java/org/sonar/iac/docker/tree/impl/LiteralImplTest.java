@@ -45,18 +45,22 @@ class LiteralImplTest {
       .matches("'\\''")
       .matches("\"\\\\\"")
       .matches("\"foo\\\"bar\"")
+      .matches("foo")
+      .matches("foo.2323")
+      .matches("234234")
+      .matches("ab}cd")
 
       .notMatches("\"\"\"")
       .notMatches("\"\\\"")
       .notMatches("'''")
       .notMatches("\"$foo\"")
       .notMatches("\"${foo}\"")
-      .notMatches("foo")
       .notMatches("$foo")
       .notMatches("\"foo\" ")
       .notMatches("\"foo$bar5a\"")
       .notMatches("\"$3\"")
       .notMatches("\"foo$$bar\"")
+      .notMatches("foo}")
     ;
   }
 

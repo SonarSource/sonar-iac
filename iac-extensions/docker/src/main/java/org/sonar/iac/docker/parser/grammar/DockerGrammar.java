@@ -199,6 +199,7 @@ public class DockerGrammar {
     );
   }
 
+  // TODO get rid of this method or even rename the method and token grammar because it will only remain for MAINTAINER
   public List<SyntaxToken> ARGUMENTS() {
     return b.<List<SyntaxToken>>nonterminal(DockerLexicalGrammar.ARGUMENTS).is(
       b.oneOrMore(
@@ -519,7 +520,10 @@ public class DockerGrammar {
 
   public Literal REGULAR_STRING_LITERAL() {
     return b.<Literal>nonterminal(DockerLexicalGrammar.REGULAR_STRING_LITERAL).is(
-      f.regularStringLiteral(b.token(DockerLexicalGrammar.REGULAR_QUOTED_STRING_LITERAL))
+      b.firstOf(
+        f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL)),
+        f.regularStringLiteral(b.token(DockerLexicalGrammar.UNQUOTED_STRING_LITERAL))
+      )
     );
   }
 
