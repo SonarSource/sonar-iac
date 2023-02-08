@@ -199,6 +199,7 @@ public class DockerGrammar {
     );
   }
 
+  // TODO get rid of this method or even rename the method and token grammar because it will only remain for MAINTAINER
   public List<SyntaxToken> ARGUMENTS() {
     return b.<List<SyntaxToken>>nonterminal(DockerLexicalGrammar.ARGUMENTS).is(
       b.oneOrMore(
@@ -503,7 +504,7 @@ public class DockerGrammar {
     return b.<Argument>nonterminal(DockerLexicalGrammar.ARGUMENT).is(
       b.firstOf(
         STRING_LITERAL(),
-        REGULAR_VARIABLE()
+        VARIABLE()
       )
     );
   }
@@ -519,7 +520,10 @@ public class DockerGrammar {
 
   public Literal REGULAR_STRING_LITERAL() {
     return b.<Literal>nonterminal(DockerLexicalGrammar.REGULAR_STRING_LITERAL).is(
-      f.regularStringLiteral(b.token(DockerLexicalGrammar.REGULAR_QUOTED_STRING_LITERAL))
+      b.firstOf(
+        f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL)),
+        f.regularStringLiteral(b.token(DockerLexicalGrammar.UNQUOTED_STRING_LITERAL))
+      )
     );
   }
 
@@ -531,7 +535,7 @@ public class DockerGrammar {
         b.oneOrMore(
           b.firstOf(
             EXPANDABLE_STRING_CHARACTERS(),
-            REGULAR_VARIABLE())),
+            VARIABLE())),
         b.token(Punctuator.DOUBLE_QUOTE)));
   }
 
@@ -540,11 +544,36 @@ public class DockerGrammar {
       f.expandableStringCharacters(b.token(DockerLexicalGrammar.STRING_WITH_ENCAPS_VAR_CHARACTERS)));
   }
 
+  public Argument VARIABLE() {
+    return b.<Argument>nonterminal().is(
+      b.firstOf(
+        REGULAR_VARIABLE(),
+        ENCAPS_VARIABLE()
+      )
+    );
+  }
+
   public Argument REGULAR_VARIABLE() {
     return b.<Argument>nonterminal(DockerLexicalGrammar.REGULAR_VARIABLE).is(
       f.regularVariable(
         b.token(Punctuator.DOLLAR),
         b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER)
+      )
+    );
+  }
+
+  public Argument ENCAPS_VARIABLE() {
+    return b.<Argument>nonterminal(DockerLexicalGrammar.ENCAPSULATED_VARIABLE).is(
+      f.encapsulatedVariable(
+        b.token(Punctuator.DOLLAR_LCURLY),
+        b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER),
+        b.optional(
+          f.tuple(
+            b.token(DockerLexicalGrammar.ENCAPS_VAR_MODIFIER_SEPARATOR),
+            ARGUMENT()
+          )
+        ),
+        b.token(Punctuator.RCURLYBRACE)
       )
     );
   }

@@ -69,7 +69,8 @@ public interface DockerTree extends Tree {
 
     EXPANDABLE_STRING_LITERAL(ExpandableStringLiteral.class),
     EXPANDABLE_STRING_CHARACTERS(ExpandableStringCharacters.class),
-    REGULAR_VARIABLE(RegularVariable.class);
+    REGULAR_VARIABLE(RegularVariable.class),
+    ENCAPSULATED_VARIABLE(EncapsulatedVariable.class);
 
 
     private final Class<? extends DockerTree> associatedInterface;

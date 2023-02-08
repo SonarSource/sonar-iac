@@ -36,30 +36,40 @@ class LiteralImplTest {
   void shouldParseLiteral() {
     Assertions.assertThat(DockerLexicalGrammar.REGULAR_STRING_LITERAL)
       .matches("\"foo\"")
-      .matches(" \"foo\"")
+      .matches("\"foo\"")
       .matches("\"foo bar\"")
       .matches("'foo'")
       .matches("'foo bar'")
-      .matches("\"$3\"")
       .matches("'$foo'")
       .matches("'${foo}'")
       .matches("'\\''")
       .matches("\"\\\\\"")
+      .matches("\"foo\\\"bar\"")
+      .matches("foo")
+      .matches("foo.2323")
+      .matches("234234")
+      .matches("ab}cd")
 
       .notMatches("\"\"\"")
       .notMatches("\"\\\"")
       .notMatches("'''")
       .notMatches("\"$foo\"")
       .notMatches("\"${foo}\"")
-      .notMatches("foo")
       .notMatches("$foo")
-      .notMatches("\"foo\" ");
+      .notMatches("\"foo\" ")
+      .notMatches("\"foo$bar5a\"")
+      .notMatches("\"$3\"")
+      .notMatches("\"foo$$bar\"")
+      .notMatches("foo}")
+    ;
   }
 
   @Test
   void regularStringLiteral() {
-    Literal literal = parse("\"foo\"", REGULAR_STRING_LITERAL);
+    Literal literal = parse("foo", REGULAR_STRING_LITERAL);
     assertThat(literal.getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
+    assertThat(literal.value()).isEqualTo("foo");
+    assertTextRange(literal.textRange()).hasRange(1, 0, 1, 3);
   }
 
   @Test
@@ -71,6 +81,12 @@ class LiteralImplTest {
   @Test
   void valueShouldBeWithoutDoubleQuotes() {
     Literal literal = parse("\"foo\"", REGULAR_STRING_LITERAL);
+    assertThat(literal.value()).isEqualTo("foo");
+  }
+
+  @Test
+  void valueShouldBeWithoutSingleQuotes() {
+    Literal literal = parse("'foo'", REGULAR_STRING_LITERAL);
     assertThat(literal.value()).isEqualTo("foo");
   }
 }

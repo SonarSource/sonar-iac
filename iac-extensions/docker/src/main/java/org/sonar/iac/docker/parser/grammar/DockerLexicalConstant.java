@@ -38,10 +38,9 @@ public class DockerLexicalConstant {
   /**
    * IDENTIFIERS
    */
-  private static final String VAR_IDENTIFIER_START = "[a-zA-Z_]";
-  public static final String VAR_IDENTIFIER_PART = "[" + VAR_IDENTIFIER_START + "[0-9]]";
-  public static final String VAR_IDENTIFIER = VAR_IDENTIFIER_START + VAR_IDENTIFIER_PART + "*+";
-  public static final String ENCAPS_VAR_MODIFIER_SEPARATOR = "':'('-'|'+')";
+  private static final String VAR_IDENTIFIER_START = "[a-zA-Z_0-9]";
+  public static final String VAR_IDENTIFIER = VAR_IDENTIFIER_START + "++";
+  public static final String ENCAPS_VAR_MODIFIER_SEPARATOR = ":(-|\\+)";
 
 
   /**
@@ -67,6 +66,12 @@ public class DockerLexicalConstant {
   public static final String QUOTED_STRING_LITERAL = "(?:"
     + "\"" + STRING_WITH_ENCAPS_VAR_CHARACTERS + "?+" + "\""
     + "|'(?:[^'\\\\]*+(?:\\\\[\\s\\S])?+)*+'"
+    + ")";
+
+  public static final String ESCAPED_UNQUOTED_STRING_CHARACTERS = "\\\\$|\\\\'|\\\\\"";
+
+  public static final String UNQUOTED_STRING_LITERAL = "(?:"
+    + "(?:" + ESCAPED_UNQUOTED_STRING_CHARACTERS + "|[^\\s'\"$}]++|[^\\s'\"$]++(?<!}))++"
     + ")";
 
   private DockerLexicalConstant() {

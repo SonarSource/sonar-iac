@@ -17,40 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.impl;
+package org.sonar.iac.docker.tree.api;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.Literal;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import javax.annotation.Nullable;
 
-public class LiteralImpl extends AbstractDockerTreeImpl implements Literal {
+public interface EncapsulatedVariable extends Argument {
+  String identifier();
 
+  @Nullable
+  String modifierSeparator();
 
-  private final SyntaxToken token;
-
-  public LiteralImpl(SyntaxToken token) {
-    this.token = token;
-  }
-
-  @Override
-  public String value() {
-    String value = token.value();
-    if (value.startsWith("\"") || value.startsWith("'")) {
-      return value.substring(1, value.length() - 1);
-    }
-    return value;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return Collections.singletonList(token);
-  }
-
-  @Override
-  public Kind getKind() {
-    return DockerTree.Kind.STRING_LITERAL;
-  }
+  @Nullable
+  Argument modifier();
 }
