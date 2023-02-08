@@ -23,8 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class RegularVariableImplTest {
 
   @Test
@@ -34,8 +32,8 @@ class RegularVariableImplTest {
       .matches("$FOO")
       .matches("$F1")
       .matches("$_foo")
+      .matches("$1")
 
-      .notMatches("$1")
       .notMatches("$foo.bar");
   }
 }

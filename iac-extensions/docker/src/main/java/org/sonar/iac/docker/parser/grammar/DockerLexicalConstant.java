@@ -38,9 +38,8 @@ public class DockerLexicalConstant {
   /**
    * IDENTIFIERS
    */
-  private static final String VAR_IDENTIFIER_START = "[a-zA-Z_]";
-  public static final String VAR_IDENTIFIER_PART = "[" + VAR_IDENTIFIER_START + "[0-9]]";
-  public static final String VAR_IDENTIFIER = VAR_IDENTIFIER_START + VAR_IDENTIFIER_PART + "*+";
+  private static final String VAR_IDENTIFIER_START = "[a-zA-Z_0-9]";
+  public static final String VAR_IDENTIFIER = VAR_IDENTIFIER_START + "[a-zA-Z_0-9]" + "*+";
   public static final String ENCAPS_VAR_MODIFIER_SEPARATOR = "':'('-'|'+')";
 
 
