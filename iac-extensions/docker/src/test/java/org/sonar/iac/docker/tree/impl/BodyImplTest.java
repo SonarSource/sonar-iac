@@ -51,6 +51,15 @@ class BodyImplTest {
   }
 
   @Test
+  void shouldParseEmptyFileWithByteOrderMark() {
+    Body body = parseBody("\uFEFFFROM foobar");
+    assertThat(body.getKind()).isEqualTo(DockerTree.Kind.BODY);
+    assertTextRange(body.textRange()).hasRange(1,0,1,11);
+    assertThat(body.globalArgs()).isEmpty();
+    assertThat(body.dockerImages()).hasSize(1);
+  }
+
+  @Test
   void shouldParseFileWithMultipleEmptyLinesAndMultilineInstruction() {
     Body body = parseBody("\n\n\nFROM \\\nfoobar");
     assertThat(body.dockerImages()).hasSize(1);
