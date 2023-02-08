@@ -55,6 +55,12 @@ public class EncapsulatedVariableImpl extends AbstractDockerTreeImpl implements 
 
   @Nullable
   @Override
+  public String modifierSeparator() {
+    return modifierSeparator != null ? modifierSeparator.value() : null;
+  }
+
+  @Nullable
+  @Override
   public Argument modifier() {
     return modifier;
   }

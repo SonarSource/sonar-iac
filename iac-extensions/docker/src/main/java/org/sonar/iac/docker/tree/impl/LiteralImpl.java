@@ -38,7 +38,10 @@ public class LiteralImpl extends AbstractDockerTreeImpl implements Literal {
   @Override
   public String value() {
     String value = token.value();
-    return value.substring(1, value.length() - 1);
+    if (value.startsWith("\"") || value.startsWith("'")) {
+      return value.substring(1, value.length() - 1);
+    }
+    return value;
   }
 
   @Override

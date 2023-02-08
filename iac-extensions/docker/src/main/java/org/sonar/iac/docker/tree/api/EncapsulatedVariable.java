@@ -25,5 +25,8 @@ public interface EncapsulatedVariable extends Argument {
   String identifier();
 
   @Nullable
+  String modifierSeparator();
+
+  @Nullable
   Argument modifier();
 }

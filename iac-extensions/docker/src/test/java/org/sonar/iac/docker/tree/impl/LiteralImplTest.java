@@ -66,8 +66,10 @@ class LiteralImplTest {
 
   @Test
   void regularStringLiteral() {
-    Literal literal = parse("\"foo\"", REGULAR_STRING_LITERAL);
+    Literal literal = parse("foo", REGULAR_STRING_LITERAL);
     assertThat(literal.getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
+    assertThat(literal.value()).isEqualTo("foo");
+    assertTextRange(literal.textRange()).hasRange(1, 0, 1, 3);
   }
 
   @Test
@@ -79,6 +81,12 @@ class LiteralImplTest {
   @Test
   void valueShouldBeWithoutDoubleQuotes() {
     Literal literal = parse("\"foo\"", REGULAR_STRING_LITERAL);
+    assertThat(literal.value()).isEqualTo("foo");
+  }
+
+  @Test
+  void valueShouldBeWithoutSingleQuotes() {
+    Literal literal = parse("'foo'", REGULAR_STRING_LITERAL);
     assertThat(literal.value()).isEqualTo("foo");
   }
 }

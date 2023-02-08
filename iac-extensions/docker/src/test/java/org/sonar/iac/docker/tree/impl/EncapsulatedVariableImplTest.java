@@ -22,6 +22,13 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
+import org.sonar.iac.docker.tree.api.Literal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class EncapsulatedVariableImplTest {
 
@@ -43,5 +50,25 @@ class EncapsulatedVariableImplTest {
       .notMatches("$foo")
       .notMatches("${foo:*$bar}")
     ;
+  }
+
+  @Test
+  void shouldReturnCorrectNameAndDefaultValue() {
+    EncapsulatedVariable variable = parse("${foo:-bar}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
+
+    assertThat(variable.getKind()).isEqualTo(DockerTree.Kind.ENCAPSULATED_VARIABLE);
+    assertThat(variable.identifier()).isEqualTo("foo");
+    assertThat(variable.modifierSeparator()).isEqualTo(":-");
+
+    assertThat(variable.modifier()).isInstanceOfSatisfying(Literal.class, modifier ->
+      assertThat(modifier.value()).isEqualTo("bar"));
+
+    assertTextRange(variable.textRange()).hasRange(1,0,1,11);
+  }
+
+  @Test
+  void shouldHaveNoModifierSeparator() {
+    EncapsulatedVariable variable = parse("${foo}", DockerLexicalGrammar.ENCAPSULATED_VARIABLE);
+    assertThat(variable.modifierSeparator()).isNull();
   }
 }
