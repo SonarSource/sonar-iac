@@ -69,7 +69,7 @@ class DockerImageImplTest {
     assertThat(dockerImage.children()).hasExactlyElementsOfTypes(FromInstructionImpl.class, MaintainerInstructionImpl.class, ExposeInstructionImpl.class);
     assertThat(dockerImage.instructions()).hasSize(2);
     MaintainerInstruction maintainer = (MaintainerInstruction) dockerImage.instructions().get(0);
-//    assertThat(maintainer.authors()).extracting(TextTree::value).containsExactly("bob");
+    assertThat(maintainer.authors()).extracting(TextTree::value).containsExactly("bob");
     ExposeInstruction expose = (ExposeInstruction) dockerImage.instructions().get(1);
     assertThat(expose.ports()).extracting(Port::portMin).extracting(TextTree::value).containsExactly("80");
   }
