@@ -19,6 +19,6 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface ExpandableStringCharacters extends Argument {
+public interface ExpandableStringCharacters extends Expression {
   String value();
 }

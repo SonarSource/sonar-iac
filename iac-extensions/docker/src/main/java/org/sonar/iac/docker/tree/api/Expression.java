@@ -19,14 +19,8 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.Nullable;
-
-public interface EncapsulatedVariable extends Expression {
-  String identifier();
-
-  @Nullable
-  String modifierSeparator();
-
-  @Nullable
-  Argument modifier();
+/**
+ * Parent interface for all the trees representing arguments
+ */
+public interface Expression extends DockerTree{
 }

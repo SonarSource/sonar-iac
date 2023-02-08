@@ -21,6 +21,6 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
-public interface ExpandableStringLiteral extends Argument {
-  List<Argument> elements();
+public interface ExpandableStringLiteral extends Expression {
+  List<Expression> expressions();
 }

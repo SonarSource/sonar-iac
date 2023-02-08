@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-/**
- * Parent interface for all the trees representing arguments
- */
-public interface Argument extends DockerTree{
+import java.util.List;
+
+public interface Argument extends DockerTree {
+  List<Expression> expressions();
 }

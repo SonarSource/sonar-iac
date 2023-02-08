@@ -55,14 +55,14 @@ class ExpandableStringLiteralImplTest {
     ExpandableStringLiteral literal = parse("\"foo$bar\"", DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL);
     assertThat(literal.getKind()).isEqualTo(DockerTree.Kind.EXPANDABLE_STRING_LITERAL);
     assertTextRange(literal.textRange()).hasRange(1, 0, 1, 9);
-    assertThat(literal.elements()).hasSize(2);
+    assertThat(literal.expressions()).hasSize(2);
 
-    assertThat(literal.elements().get(0)).isInstanceOfSatisfying(ExpandableStringCharacters.class, characters -> {
+    assertThat(literal.expressions().get(0)).isInstanceOfSatisfying(ExpandableStringCharacters.class, characters -> {
       assertThat(characters.getKind()).isEqualTo(DockerTree.Kind.EXPANDABLE_STRING_CHARACTERS);
       assertThat(characters.value()).isEqualTo("foo");
     });
 
-    assertThat(literal.elements().get(1)).isInstanceOfSatisfying(RegularVariable.class, variable -> {
+    assertThat(literal.expressions().get(1)).isInstanceOfSatisfying(RegularVariable.class, variable -> {
       assertThat(variable.getKind()).isEqualTo(DockerTree.Kind.REGULAR_VARIABLE);
       assertThat(variable.identifier()).isEqualTo("bar");
     });

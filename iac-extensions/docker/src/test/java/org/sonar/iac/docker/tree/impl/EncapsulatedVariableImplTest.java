@@ -22,9 +22,9 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
-import org.sonar.iac.docker.tree.api.Literal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -43,6 +43,7 @@ class EncapsulatedVariableImplTest {
       .matches("${foo:+'bar'}")
       .matches("${foo:+\"bar\"}")
       .matches("${foo:+bar}")
+      .matches("${foo:+bar$bar}")
       .matches("${foo:+${bar}}")
       .matches("${foo:+${bar:-'foobar'}}")
       .matches("${foo:+${bar:-${foobar:+'foobar'}}}")
@@ -50,6 +51,7 @@ class EncapsulatedVariableImplTest {
 
       .notMatches("$foo")
       .notMatches("${foo:*$bar}")
+      .notMatches("${foo:+bar $bar}")
       .notMatches("${foo }")
       .notMatches("${\"foo\"}")
       .notMatches("${:-bar}")
@@ -64,11 +66,13 @@ class EncapsulatedVariableImplTest {
     assertThat(variable.getKind()).isEqualTo(DockerTree.Kind.ENCAPSULATED_VARIABLE);
     assertThat(variable.identifier()).isEqualTo("foo");
     assertThat(variable.modifierSeparator()).isEqualTo(":-");
-
-    assertThat(variable.modifier()).isInstanceOfSatisfying(Literal.class, modifier ->
-      assertThat(modifier.value()).isEqualTo("bar"));
-
     assertTextRange(variable.textRange()).hasRange(1,0,1,11);
+
+    Argument modifier = variable.modifier();
+    assertThat(modifier).isNotNull();
+    assertThat(modifier.expressions()).hasSize(1);
+    assertThat(modifier.expressions().get(0)).isInstanceOfSatisfying(LiteralImpl.class,
+      literal -> assertThat(literal.value()).isEqualTo("bar"));
   }
 
   @Test
