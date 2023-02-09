@@ -154,8 +154,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(Punctuator.RBRACKET).is(b.optional(WHITESPACE), Punctuator.RBRACKET.getValue()).skip();
     b.rule(Punctuator.LBRACKET).is(WHITESPACE, Punctuator.LBRACKET.getValue()).skip();
     b.rule(Punctuator.DOUBLE_QUOTE).is(Punctuator.DOUBLE_QUOTE.getValue());
-    b.rule(Punctuator.DOLLAR).is(b.optional(WHITESPACE), Punctuator.DOLLAR.getValue()).skip();
-    b.rule(Punctuator.DOLLAR_LCURLY).is(b.optional(WHITESPACE), Punctuator.DOLLAR_LCURLY.getValue());
+    b.rule(Punctuator.DOLLAR).is(Punctuator.DOLLAR.getValue()).skip();
+    b.rule(Punctuator.DOLLAR_LCURLY).is(Punctuator.DOLLAR_LCURLY.getValue());
     b.rule(Punctuator.RCURLYBRACE).is(Punctuator.RCURLYBRACE.getValue());
   }
 

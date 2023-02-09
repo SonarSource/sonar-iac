@@ -37,6 +37,7 @@ import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
+import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
@@ -68,7 +69,6 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LI
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL_WITH_QUOTES;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.WHITESPACE;
 
 @SuppressWarnings("java:S100")
 public class DockerGrammar {
@@ -502,15 +502,19 @@ public class DockerGrammar {
 
   public Argument ARGUMENT() {
     return b.<Argument>nonterminal(DockerLexicalGrammar.ARGUMENT).is(
-      b.firstOf(
-        STRING_LITERAL(),
-        VARIABLE()
+      f.newArgument(
+        b.oneOrMore(
+          b.firstOf(
+            STRING_LITERAL(),
+            VARIABLE()
+          )
+        )
       )
     );
   }
 
-  public Argument STRING_LITERAL() {
-    return b.<Argument>nonterminal().is(
+  public Expression STRING_LITERAL() {
+    return b.<Expression>nonterminal().is(
       b.firstOf(
         REGULAR_STRING_LITERAL(),
         EXPANDABLE_STRING_LITERAL()
@@ -530,7 +534,6 @@ public class DockerGrammar {
   public ExpandableStringLiteral EXPANDABLE_STRING_LITERAL() {
     return b.<ExpandableStringLiteral>nonterminal(DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL).is(
       f.expandableStringLiteral(
-        b.optional(b.token(WHITESPACE)),
         b.token(Punctuator.DOUBLE_QUOTE),
         b.oneOrMore(
           b.firstOf(
@@ -539,13 +542,13 @@ public class DockerGrammar {
         b.token(Punctuator.DOUBLE_QUOTE)));
   }
 
-  public Argument EXPANDABLE_STRING_CHARACTERS() {
+  public Expression EXPANDABLE_STRING_CHARACTERS() {
     return b.<ExpandableStringCharacters>nonterminal().is(
       f.expandableStringCharacters(b.token(DockerLexicalGrammar.STRING_WITH_ENCAPS_VAR_CHARACTERS)));
   }
 
-  public Argument VARIABLE() {
-    return b.<Argument>nonterminal().is(
+  public Expression VARIABLE() {
+    return b.<Expression>nonterminal().is(
       b.firstOf(
         REGULAR_VARIABLE(),
         ENCAPS_VARIABLE()
@@ -553,8 +556,8 @@ public class DockerGrammar {
     );
   }
 
-  public Argument REGULAR_VARIABLE() {
-    return b.<Argument>nonterminal(DockerLexicalGrammar.REGULAR_VARIABLE).is(
+  public Expression REGULAR_VARIABLE() {
+    return b.<Expression>nonterminal(DockerLexicalGrammar.REGULAR_VARIABLE).is(
       f.regularVariable(
         b.token(Punctuator.DOLLAR),
         b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER)
@@ -562,8 +565,8 @@ public class DockerGrammar {
     );
   }
 
-  public Argument ENCAPS_VARIABLE() {
-    return b.<Argument>nonterminal(DockerLexicalGrammar.ENCAPSULATED_VARIABLE).is(
+  public Expression ENCAPS_VARIABLE() {
+    return b.<Expression>nonterminal(DockerLexicalGrammar.ENCAPSULATED_VARIABLE).is(
       f.encapsulatedVariable(
         b.token(Punctuator.DOLLAR_LCURLY),
         b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER),

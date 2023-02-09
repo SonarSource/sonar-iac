@@ -22,38 +22,30 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Expression;
-import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class ExpandableStringLiteralImpl extends AbstractDockerTreeImpl implements ExpandableStringLiteral {
+public class ArgumentImpl extends AbstractDockerTreeImpl implements Argument {
 
-  private final SyntaxToken openDoubleQuote;
-  private final List<Expression> elements;
-  private final SyntaxToken closeDoubleQuote;
+  private final List<Expression> expressions;
 
-  public ExpandableStringLiteralImpl(SyntaxToken openDoubleQuote, List<Expression> elements, SyntaxToken closeDoubleQuote) {
-    this.openDoubleQuote = openDoubleQuote;
-    this.elements = elements;
-    this.closeDoubleQuote = closeDoubleQuote;
-  }
-
-  @Override
-  public List<Expression> expressions() {
-    return elements;
+  public ArgumentImpl(List<Expression> expressions) {
+    this.expressions = expressions;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    children.add(openDoubleQuote);
-    children.addAll(elements);
-    children.add(closeDoubleQuote);
-    return children;
+    return new ArrayList<>(expressions);
+  }
+
+  @Override
+  public List<Expression> expressions() {
+    return expressions;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.EXPANDABLE_STRING_LITERAL;
+    return DockerTree.Kind.ARGUMENT;
   }
 }

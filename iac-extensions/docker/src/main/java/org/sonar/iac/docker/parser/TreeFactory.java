@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
@@ -67,6 +68,7 @@ import org.sonar.iac.docker.tree.api.WorkdirInstruction;
 import org.sonar.iac.docker.tree.impl.AddInstructionImpl;
 import org.sonar.iac.docker.tree.impl.AliasImpl;
 import org.sonar.iac.docker.tree.impl.ArgInstructionImpl;
+import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.BodyImpl;
 import org.sonar.iac.docker.tree.impl.CmdInstructionImpl;
 import org.sonar.iac.docker.tree.impl.CopyInstructionImpl;
@@ -294,12 +296,11 @@ public class TreeFactory {
   }
 
   public ExpandableStringLiteral expandableStringLiteral(
-    Optional<SyntaxToken> whitespace,
     SyntaxToken openDoubleQuote,
-    List<Argument> arguments,
+    List<Expression> expressions,
     SyntaxToken closeDoubleQuote
   ) {
-    return new ExpandableStringLiteralImpl(openDoubleQuote, arguments, closeDoubleQuote);
+    return new ExpandableStringLiteralImpl(openDoubleQuote, expressions, closeDoubleQuote);
   }
 
   public ExpandableStringCharacters expandableStringCharacters(SyntaxToken token) {
@@ -316,6 +317,10 @@ public class TreeFactory {
     }
     return new EncapsulatedVariableImpl(openDollarCurly, identifier, null, null, closeCurly);
 
+  }
+
+  public Argument newArgument(List<Expression> expressions) {
+    return new ArgumentImpl(expressions);
   }
 
 
