@@ -49,6 +49,7 @@ class LiteralImplTest {
       .matches("foo.2323")
       .matches("234234")
       .matches("ab}cd")
+      .matches("ab=cd")
 
       .notMatches("\"\"\"")
       .notMatches("\"\\\"")

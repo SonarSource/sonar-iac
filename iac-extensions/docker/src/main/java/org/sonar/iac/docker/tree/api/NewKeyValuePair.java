@@ -19,12 +19,13 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-/**
- * @deprecated use {@link NewKeyValuePair} instead
- */
-@Deprecated
-public interface KeyValuePair extends DockerTree {
-  SyntaxToken key();
-  SyntaxToken equals();
-  SyntaxToken value();
+import javax.annotation.Nullable;
+
+public interface NewKeyValuePair extends DockerTree {
+  Argument key();
+
+  SyntaxToken equalSign();
+
+  @Nullable
+  Argument value();
 }

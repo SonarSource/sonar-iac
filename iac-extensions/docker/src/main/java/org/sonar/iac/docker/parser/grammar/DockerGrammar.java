@@ -48,6 +48,7 @@ import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
+import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
@@ -513,11 +514,36 @@ public class DockerGrammar {
     );
   }
 
+  public Argument KEY_ARGUMENT() {
+    return b.<Argument>nonterminal().is(
+      f.newArgument(
+        b.oneOrMore(
+          b.firstOf(
+            f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL)),
+            f.regularStringLiteral(b.token(DockerLexicalGrammar.UNQUOTED_KEY_LITERAL)),
+            EXPANDABLE_STRING_LITERAL(),
+            VARIABLE()
+          )
+        )
+      )
+    );
+  }
+
   public Expression STRING_LITERAL() {
     return b.<Expression>nonterminal().is(
       b.firstOf(
         REGULAR_STRING_LITERAL(),
         EXPANDABLE_STRING_LITERAL()
+      )
+    );
+  }
+
+  public NewKeyValuePair NEW_KEY_VALUE_PAIR() {
+    return b.<NewKeyValuePair>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR).is(
+      f.newKeyValuePair(
+        KEY_ARGUMENT(),
+        b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
+        b.optional(ARGUMENT())
       )
     );
   }

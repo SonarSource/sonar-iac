@@ -34,6 +34,7 @@ class RegularVariableImplTest {
       .matches("$_foo")
       .matches("$1")
 
+      .notMatches("$foo=")
       .notMatches("$foo.bar");
   }
 }
