@@ -22,9 +22,11 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
+import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -66,9 +68,12 @@ class OnBuildInstructionImplTest {
     StopSignalInstruction stopSignal = (StopSignalInstruction) tree.instruction();
     assertThat(stopSignal.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
     assertThat(stopSignal.keyword().value()).isEqualTo("STOPSIGNAL");
-    assertThat(stopSignal.signal().value()).isEqualTo("SIGKILL");
+    assertThat(stopSignal.signal().expressions()).hasSize(1);
+    assertThat(stopSignal.signal().expressions().get(0).getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
+    assertThat(((Literal)stopSignal.signal().expressions().get(0)).value()).isEqualTo("SIGKILL");
+
     assertThat(((SyntaxToken)stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
-    assertThat(((SyntaxToken)stopSignal.children().get(1)).value()).isEqualTo("SIGKILL");
+    assertThat(((Literal) ((Argument)stopSignal.children().get(1)).expressions().get(0)).value()).isEqualTo("SIGKILL");
   }
 
   @Test
@@ -116,8 +121,10 @@ class OnBuildInstructionImplTest {
     StopSignalInstruction stopSignal = (StopSignalInstruction) onBuild.instruction();
     assertThat(stopSignal.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
     assertThat(stopSignal.keyword().value()).isEqualTo("STOPSIGNAL");
-    assertThat(stopSignal.signal().value()).isEqualTo("SIGKILL");
+    assertThat(stopSignal.signal().expressions()).hasSize(1);
+    assertThat(stopSignal.signal().expressions().get(0).getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
+    assertThat(((Literal)stopSignal.signal().expressions().get(0)).value()).isEqualTo("SIGKILL");
     assertThat(((SyntaxToken)stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
-    assertThat(((SyntaxToken)stopSignal.children().get(1)).value()).isEqualTo("SIGKILL");
+    assertThat(((Literal) ((Argument)stopSignal.children().get(1)).expressions().get(0)).value()).isEqualTo("SIGKILL");
   }
 }

@@ -212,7 +212,8 @@ public class DockerGrammar {
     return b.<StopSignalInstruction>nonterminal(DockerLexicalGrammar.STOPSIGNAL).is(
       f.stopSignal(
         b.token(DockerKeyword.STOPSIGNAL),
-        b.token(STRING_LITERAL)
+        b.token(DockerLexicalGrammar.WHITESPACE),
+        ARGUMENT()
       )
     );
   }

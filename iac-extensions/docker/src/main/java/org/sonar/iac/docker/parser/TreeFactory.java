@@ -144,8 +144,8 @@ public class TreeFactory {
     return token;
   }
 
-  public StopSignalInstruction stopSignal(SyntaxToken keyword, SyntaxToken tokenValue) {
-    return new StopSignalInstructionImpl(keyword, tokenValue);
+  public StopSignalInstruction stopSignal(SyntaxToken keyword, SyntaxToken whitespace, Argument argument) {
+    return new StopSignalInstructionImpl(keyword, argument);
   }
 
   public WorkdirInstruction workdir(SyntaxToken keyword, List<SyntaxToken> values) {

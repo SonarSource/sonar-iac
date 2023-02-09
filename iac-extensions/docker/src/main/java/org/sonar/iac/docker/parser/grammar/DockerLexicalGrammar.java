@@ -160,8 +160,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
-    b.rule(WHITESPACE).is(b.skippedTrivia(b.regexp("["+LexicalConstant.WHITESPACE+"]++")));
-    b.rule(WHITESPACE_OR_LINE_BREAK).is(b.skippedTrivia(b.regexp("["+LexicalConstant.WHITESPACE+LexicalConstant.LINE_TERMINATOR+"]++")));
+    b.rule(WHITESPACE).is(b.regexp("["+LexicalConstant.WHITESPACE+"]++")).skip();
+    b.rule(WHITESPACE_OR_LINE_BREAK).is(b.regexp("["+LexicalConstant.WHITESPACE+LexicalConstant.LINE_TERMINATOR+"]++")).skip();
     b.rule(EOL).is(b.regexp("(?:"+DockerLexicalConstant.EOL+"|$)"));
     b.rule(SPACING).is(
       b.oneOrMore(
