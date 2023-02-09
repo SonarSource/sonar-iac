@@ -124,6 +124,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   UNQUOTED_STRING_LITERAL,
 
+  UNQUOTED_KEY_LITERAL,
+
   ARGUMENT,
 
   REGULAR_STRING_LITERAL,
@@ -136,7 +138,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   REGULAR_VARIABLE,
   ENCAPSULATED_VARIABLE,
-  ENCAPS_VAR_MODIFIER_SEPARATOR;
+  ENCAPS_VAR_MODIFIER_SEPARATOR,
+
+  KEY_VALUE_PAIR;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -180,6 +184,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     // Literals
     b.rule(QUOTED_STRING_LITERAL).is(b.regexp(DockerLexicalConstant.QUOTED_STRING_LITERAL));
     b.rule(UNQUOTED_STRING_LITERAL).is(b.regexp(DockerLexicalConstant.UNQUOTED_STRING_LITERAL));
+    b.rule(UNQUOTED_KEY_LITERAL).is(b.regexp(DockerLexicalConstant.UNQUOTED_KEY_LITERAL));
     b.rule(STRING_WITH_ENCAPS_VAR_CHARACTERS).is(b.regexp(DockerLexicalConstant.STRING_WITH_ENCAPS_VAR_CHARACTERS));
 
     // TODO : those elements will be removed in the next grammar progressively

@@ -49,6 +49,10 @@ class LiteralImplTest {
       .matches("foo.2323")
       .matches("234234")
       .matches("ab}cd")
+      .matches("ab=cd")
+
+      // TODO SONARIAC-576
+      .notMatches("ke\\\"y")
 
       .notMatches("\"\"\"")
       .notMatches("\"\\\"")
