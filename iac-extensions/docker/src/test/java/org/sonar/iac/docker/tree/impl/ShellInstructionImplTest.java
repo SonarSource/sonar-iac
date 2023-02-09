@@ -57,7 +57,7 @@ class ShellInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("SHELL");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 40);
 
-    assertThat(tree.arguments().arguments().stream().map(ExecFormUtils::toString)).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().arguments().stream().map(ExecFormTestUtils::toString)).containsExactly("executable", "param1", "param2");
   }
 
   @Test

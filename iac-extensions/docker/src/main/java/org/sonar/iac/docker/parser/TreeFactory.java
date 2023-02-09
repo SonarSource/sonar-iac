@@ -36,7 +36,6 @@ import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.ExecForm;
-import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
@@ -78,7 +77,6 @@ import org.sonar.iac.docker.tree.impl.EncapsulatedVariableImpl;
 import org.sonar.iac.docker.tree.impl.EntrypointInstructionImpl;
 import org.sonar.iac.docker.tree.impl.EnvInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormImpl;
-import org.sonar.iac.docker.tree.impl.ExecFormLiteralImpl;
 import org.sonar.iac.docker.tree.impl.ExpandableStringCharactersImpl;
 import org.sonar.iac.docker.tree.impl.ExpandableStringLiteralImpl;
 import org.sonar.iac.docker.tree.impl.ExposeInstructionImpl;
@@ -262,22 +260,19 @@ public class TreeFactory {
     return new HereDocumentImpl(content);
   }
 
-  public ExecForm execForm(SyntaxToken leftBracket,
-    Optional<Tuple<ExpandableStringLiteral, Optional<List<Tuple<SyntaxToken, ExpandableStringLiteral>>>>> literals,
+  public ExecForm execForm(SyntaxToken leftBracket, Optional<ExpandableStringLiteral> firstExpression,
+    Optional<List<Tuple<SyntaxToken, ExpandableStringLiteral>>> otherExpressions,
     SyntaxToken rightBracket) {
 
-    List<ExecFormLiteral> elements = new ArrayList<>();
+    List<ExpandableStringLiteral> elements = new ArrayList<>();
     List<SyntaxToken> separators = new ArrayList<>();
-    SeparatedList<ExecFormLiteral> separatedList = new SeparatedListImpl<>(elements, separators);
-    if (literals.isPresent()) {
-      Tuple<ExpandableStringLiteral, Optional<List<Tuple<SyntaxToken, ExpandableStringLiteral>>>> tuple = literals.get();
-      elements.add(new ExecFormLiteralImpl(tuple.first()));
-      Optional<List<Tuple<SyntaxToken, ExpandableStringLiteral>>> second = tuple.second();
-      if(second.isPresent()) {
-        List<Tuple<SyntaxToken, ExpandableStringLiteral>> comaAndLiterals = second.get();
-        for (Tuple<SyntaxToken, ExpandableStringLiteral> comaAndLiteral : comaAndLiterals) {
-          separators.add(comaAndLiteral.first());
-          elements.add(new ExecFormLiteralImpl(comaAndLiteral.second()));
+    SeparatedList<ExpandableStringLiteral> separatedList = new SeparatedListImpl<>(elements, separators);
+    if (firstExpression.isPresent()) {
+      elements.add(firstExpression.get());
+      if (otherExpressions.isPresent()) {
+        for (Tuple<SyntaxToken, ExpandableStringLiteral> expressionWithComma : otherExpressions.get()) {
+          separators.add(expressionWithComma.first());
+          elements.add(expressionWithComma.second());
         }
       }
     }

@@ -454,17 +454,11 @@ public class DockerGrammar {
     return b.<ExecForm>nonterminal(DockerLexicalGrammar.EXEC_FORM).is(
       f.execForm(
         b.token(Punctuator.LBRACKET),
-        b.optional(
+        b.optional(f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)), EXPANDABLE_STRING_LITERAL())),
+        b.zeroOrMore(
           f.tuple(
-            f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)), EXPANDABLE_STRING_LITERAL()),
-            b.zeroOrMore(
-              f.tuple(
-                b.token(Punctuator.COMMA),
-                f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)), EXPANDABLE_STRING_LITERAL())
-              )
-            )
-          )
-        ),
+            b.token(Punctuator.COMMA),
+            f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)), EXPANDABLE_STRING_LITERAL()))),
         b.token(Punctuator.RBRACKET)
       )
     );

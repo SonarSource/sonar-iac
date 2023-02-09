@@ -26,10 +26,10 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SeparatedList;
@@ -176,7 +176,7 @@ class RunInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().arguments().stream().map(ExecFormUtils::toString)).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().arguments().stream().map(ExecFormTestUtils::toString)).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
@@ -217,7 +217,7 @@ class RunInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().arguments().stream().map(ExecFormUtils::toString)).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().arguments().stream().map(ExecFormTestUtils::toString)).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(Param.class);
@@ -261,7 +261,7 @@ class RunInstructionImplTest {
     assertThat(tree.arguments().arguments()).isEmpty();
 
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
-    SeparatedList<ExecFormLiteral> literals = ((ExecForm) tree.arguments()).literalsWithSeparators();
+    SeparatedList<ExpandableStringLiteral> literals = ((ExecForm) tree.arguments()).expressionsWithSeparators();
     assertThat(literals.elementsAndSeparators()).isEmpty();
     assertThat(literals.elements()).isEmpty();
     assertThat(literals.separators()).isEmpty();

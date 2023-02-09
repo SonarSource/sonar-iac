@@ -27,7 +27,7 @@ import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.Literal;
 
-public class ExecFormUtils {
+public class ExecFormTestUtils {
 
   public static String toString(Argument arg) {
     return toString(arg.expressions());

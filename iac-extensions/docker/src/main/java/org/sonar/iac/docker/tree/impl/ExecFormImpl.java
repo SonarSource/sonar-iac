@@ -23,20 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.ExecForm;
+import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
 
   private final SyntaxToken leftBracket;
-  private final SeparatedList<ExecFormLiteral> literalsWithSeparators;
+  private final SeparatedList<ExpandableStringLiteral> expressionsWithSeparators;
   private final SyntaxToken rightBracket;
 
-  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<ExecFormLiteral> literals, SyntaxToken rightBracket) {
+  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<ExpandableStringLiteral> expressionsWithSeparators, SyntaxToken rightBracket) {
     this.leftBracket = leftBracket;
-    this.literalsWithSeparators = literals;
+    this.expressionsWithSeparators = expressionsWithSeparators;
     this.rightBracket = rightBracket;
   }
 
@@ -44,7 +44,7 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
     result.add(leftBracket);
-    result.addAll(literalsWithSeparators.elementsAndSeparators());
+    result.addAll(expressionsWithSeparators.elementsAndSeparators());
     result.add(rightBracket);
     return result;
   }
@@ -72,8 +72,8 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   @Override
   public List<Argument> arguments() {
     List<Argument> result = new ArrayList<>();
-    for (ExecFormLiteral element : literalsWithSeparators.elements()) {
-      result.add(new ArgumentImpl(List.of(element.value())));
+    for (ExpandableStringLiteral element : expressionsWithSeparators.elements()) {
+      result.add(new ArgumentImpl(List.of(element)));
     }
     return result;
   }
@@ -84,8 +84,8 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   }
 
   @Override
-  public SeparatedList<ExecFormLiteral> literalsWithSeparators() {
-    return literalsWithSeparators;
+  public SeparatedList<ExpandableStringLiteral> expressionsWithSeparators() {
+    return expressionsWithSeparators;
   }
 
   @Override

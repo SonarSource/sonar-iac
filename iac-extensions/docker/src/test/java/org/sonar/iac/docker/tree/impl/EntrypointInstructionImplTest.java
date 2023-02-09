@@ -89,7 +89,7 @@ class EntrypointInstructionImplTest {
 
     assertThat(tree.arguments()).isInstanceOf(ExecFormImpl.class);
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().arguments().stream().map(ExecFormUtils::toString)).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().arguments().stream().map(ExecFormTestUtils::toString)).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat(((ExecFormImpl)tree.children().get(1))).isSameAs(tree.arguments());
