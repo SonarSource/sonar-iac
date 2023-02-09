@@ -50,9 +50,8 @@ class LiteralImplTest {
       .matches("234234")
       .matches("ab}cd")
       .matches("ab=cd")
-
-      // TODO SONARIAC-576
-      .notMatches("ke\\\"y")
+      .matches("ke\\\"y")
+      .matches("foo}")
 
       .notMatches("\"\"\"")
       .notMatches("\"\\\"")
@@ -64,7 +63,6 @@ class LiteralImplTest {
       .notMatches("\"foo$bar5a\"")
       .notMatches("\"$3\"")
       .notMatches("\"foo$$bar\"")
-      .notMatches("foo}")
     ;
   }
 

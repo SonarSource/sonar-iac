@@ -134,6 +134,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   STRING_WITH_ENCAPS_VAR_CHARACTERS,
 
+  UNQUOTED_VARIABLE_MODIFIER,
+
   REGULAR_VAR_IDENTIFIER,
 
   REGULAR_VARIABLE,
@@ -185,7 +187,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(QUOTED_STRING_LITERAL).is(b.regexp(DockerLexicalConstant.QUOTED_STRING_LITERAL));
     b.rule(UNQUOTED_STRING_LITERAL).is(b.regexp(DockerLexicalConstant.UNQUOTED_STRING_LITERAL));
     b.rule(UNQUOTED_KEY_LITERAL).is(b.regexp(DockerLexicalConstant.UNQUOTED_KEY_LITERAL));
+
     b.rule(STRING_WITH_ENCAPS_VAR_CHARACTERS).is(b.regexp(DockerLexicalConstant.STRING_WITH_ENCAPS_VAR_CHARACTERS));
+    b.rule(UNQUOTED_VARIABLE_MODIFIER).is(b.regexp(DockerLexicalConstant.UNQUOTED_VARIABLE_MODIFIER));
 
     // TODO : those elements will be removed in the next grammar progressively
     b.rule(STRING_LITERAL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL_OLD));
