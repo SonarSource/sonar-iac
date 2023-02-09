@@ -551,8 +551,8 @@ public class DockerGrammar {
   public Literal REGULAR_STRING_LITERAL() {
     return b.<Literal>nonterminal(DockerLexicalGrammar.REGULAR_STRING_LITERAL).is(
       b.firstOf(
-        f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL)),
-        f.regularStringLiteral(b.token(DockerLexicalGrammar.UNQUOTED_STRING_LITERAL))
+        f.regularStringLiteral(b.token(DockerLexicalGrammar.UNQUOTED_STRING_LITERAL)),
+        f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL))
       )
     );
   }

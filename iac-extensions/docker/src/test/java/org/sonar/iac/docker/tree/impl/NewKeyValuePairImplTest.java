@@ -43,8 +43,12 @@ class NewKeyValuePairImplTest {
       .matches("key=value=")
       .matches("${key}=value=")
       .matches("key=")
+      .matches("ke\\\"y=value")
 
       .matches("\"key=\"=value") // This is invalid syntax, but it would increase the grammar complexity to cover this case
+
+      // TODO SONARIAC-576
+      .notMatches("key=val\\\"ue")
 
       .notMatches("key")
       .notMatches("key= value")

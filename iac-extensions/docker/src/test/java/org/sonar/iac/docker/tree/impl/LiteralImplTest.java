@@ -51,6 +51,9 @@ class LiteralImplTest {
       .matches("ab}cd")
       .matches("ab=cd")
 
+      // TODO SONARIAC-576
+      .notMatches("ke\\\"y")
+
       .notMatches("\"\"\"")
       .notMatches("\"\\\"")
       .notMatches("'''")
