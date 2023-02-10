@@ -55,8 +55,10 @@ class StopSignalInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
     assertThat(tree.keyword().value()).isEqualTo("STOPSIGNAL");
 
-    assertThat(tree.signal().expressions()).hasSize(1);
-    assertThat(tree.signal().expressions().get(0).getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
-    assertThat(((Literal)tree.signal().expressions().get(0)).value()).isEqualTo("SIGKILL");
+    assertThat(tree.signal().expressions()).satisfies(expressions -> {
+      assertThat(expressions).hasSize(1);
+      assertThat(expressions.get(0).getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
+      assertThat((Literal)expressions.get(0)).extracting(Literal::value).isEqualTo("SIGKILL");
+    });
   }
 }

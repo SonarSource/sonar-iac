@@ -68,12 +68,14 @@ class OnBuildInstructionImplTest {
     StopSignalInstruction stopSignal = (StopSignalInstruction) tree.instruction();
     assertThat(stopSignal.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
     assertThat(stopSignal.keyword().value()).isEqualTo("STOPSIGNAL");
-    assertThat(stopSignal.signal().expressions()).hasSize(1);
-    assertThat(stopSignal.signal().expressions().get(0).getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
-    assertThat(((Literal)stopSignal.signal().expressions().get(0)).value()).isEqualTo("SIGKILL");
+
+    assertThat(stopSignal.signal().expressions()).satisfies(expressions -> {
+      assertThat(expressions).hasSize(1);
+      assertThat(expressions.get(0).getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
+      assertThat((Literal)expressions.get(0)).extracting(Literal::value).isEqualTo("SIGKILL");
+    });
 
     assertThat(((SyntaxToken)stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
-    assertThat(((Literal) ((Argument)stopSignal.children().get(1)).expressions().get(0)).value()).isEqualTo("SIGKILL");
   }
 
   @Test
