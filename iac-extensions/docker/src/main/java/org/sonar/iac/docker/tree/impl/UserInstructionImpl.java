@@ -21,50 +21,30 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
 public class UserInstructionImpl extends InstructionImpl implements UserInstruction {
 
-  private final SyntaxToken user;
-  private final SyntaxToken colon;
-  private final SyntaxToken group;
+  private final List<Argument> arguments;
 
-  public UserInstructionImpl(SyntaxToken keyword, SyntaxToken user, @Nullable SyntaxToken colon, @Nullable SyntaxToken group) {
+  public UserInstructionImpl(SyntaxToken keyword, List<Argument> arguments) {
     super(keyword);
-    this.user = user;
-    this.colon = colon;
-    this.group = group;
+    this.arguments = arguments;
   }
 
   @Override
-  public SyntaxToken user() {
-    return user;
-  }
-
-  @Override
-  @Nullable
-  public SyntaxToken colon() {
-    return colon;
-  }
-
-  @Override
-  @Nullable
-  public SyntaxToken group() {
-    return group;
+  public List<Argument> arguments() {
+    return arguments;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    children.add(user);
-    if (colon != null && group != null) {
-      children.add(colon);
-      children.add(group);
-    }
+    children.addAll(arguments);
     return children;
   }
 

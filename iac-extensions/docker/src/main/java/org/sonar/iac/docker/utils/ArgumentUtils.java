@@ -34,6 +34,17 @@ public class ArgumentUtils {
     // utils class
   }
 
+  /**
+   * Resolve a list of Argument as a single string, used by some instructions like USER.
+   */
+  public static ArgumentResolution resolve(List<Argument> arguments) {
+    StringBuilder sb = new StringBuilder();
+    for (Argument argument : arguments) {
+      sb.append(resolve(argument).value);
+    }
+    return new ArgumentResolution(sb.toString());
+  }
+
   public static ArgumentResolution resolve(Argument argument) {
     return resolve(argument.expressions());
   }

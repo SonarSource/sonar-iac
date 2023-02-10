@@ -24,6 +24,7 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.UserInstruction;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -40,7 +41,6 @@ class UserInstructionImplTest {
       .matches("USER BobAndAlicE")
       .matches("USER _underscore")
       .matches("USER name-lastname")
-      .matches("USER dollar$")
       .matches("USER -minus")
       .matches("USER 123")
       .matches("USER aa$bb")
@@ -50,17 +50,18 @@ class UserInstructionImplTest {
       .matches("USER $var:$group")
       .matches("USER ${var}:${group}")
       .matches("USER \"bob\"")
-      .matches("USER $(var)")
-      .notMatches("USER bob :group")
-      .notMatches("USER bob:")
-      .notMatches("USER $var with space")
+      .matches("USER bob :group")
+      .matches("USER bob:")
+      .matches("USER $var with space")
+      .matches("USER bob:group bob2")
+      .matches("USER bob:group:something")
       .notMatches("USER ${var with space}")
       .notMatches("USER $user:${group with space}")
-      .notMatches("USER bob:group bob2")
+      .notMatches("USER dollar$")
+      .notMatches("USER $(var)")
       .notMatches("USER")
       .notMatches("USERR bob")
       .notMatches("USER ")
-      .notMatches("USER bob:group:something")
     ;
   }
 
@@ -71,21 +72,8 @@ class UserInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("USER");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.children()).hasSize(2);
-    assertThat(tree.user().value()).isEqualTo("bob");
-    assertThat(tree.colon()).isNull();
-    assertThat(tree.group()).isNull();
-  }
-
-  @Test
-  void userInstructionNameWithDollar() {
-    UserInstruction tree = parse("USER bob$alice", DockerLexicalGrammar.USER);
-    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
-    assertThat(tree.keyword().value()).isEqualTo("USER");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 14);
-    assertThat(tree.children()).hasSize(2);
-    assertThat(tree.user().value()).isEqualTo("bob$alice");
-    assertThat(tree.colon()).isNull();
-    assertThat(tree.group()).isNull();
+    assertThat(tree.arguments()).hasSize(1);
+    assertThat(ArgumentUtils.resolve(tree.arguments()).value()).isEqualTo("bob");
   }
 
   @Test
@@ -94,21 +82,8 @@ class UserInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
     assertThat(tree.keyword().value()).isEqualTo("USER");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 14);
-    assertThat(tree.children()).hasSize(4);
-    assertThat(tree.user().value()).isEqualTo("bob");
-    assertThat(tree.colon().value()).isEqualTo(":");
-    assertThat(tree.group().value()).isEqualTo("group");
-  }
-
-  @Test
-  void userInstructionWithGroupVariable() {
-    UserInstruction tree = parse("USER $user:${group}", DockerLexicalGrammar.USER);
-    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
-    assertThat(tree.keyword().value()).isEqualTo("USER");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
-    assertThat(tree.children()).hasSize(4);
-    assertThat(tree.user().value()).isEqualTo("$user");
-    assertThat(tree.colon().value()).isEqualTo(":");
-    assertThat(tree.group().value()).isEqualTo("${group}");
+    assertThat(tree.children()).hasSize(2);
+    assertThat(tree.arguments()).hasSize(1);
+    assertThat(ArgumentUtils.resolve(tree.arguments()).value()).isEqualTo("bob:group");
   }
 }

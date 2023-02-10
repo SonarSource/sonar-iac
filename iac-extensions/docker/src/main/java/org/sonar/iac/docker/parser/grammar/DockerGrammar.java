@@ -285,13 +285,10 @@ public class DockerGrammar {
     return b.<UserInstruction>nonterminal(DockerLexicalGrammar.USER).is(
       f.user(
         b.token(DockerKeyword.USER),
-        b.token(DockerLexicalGrammar.USER_NAME),
-        b.optional(
-          f.tuple(
-            b.token(DockerLexicalGrammar.USER_SEPARATOR),
-            b.token(DockerLexicalGrammar.USER_GROUP)
-          )
-        )
+        b.oneOrMore(f.tuple(
+          b.token(DockerLexicalGrammar.WHITESPACE),
+          ARGUMENT()
+        ))
       )
     );
   }

@@ -233,12 +233,8 @@ public class TreeFactory {
     return new RunInstructionImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
   }
 
-  public UserInstruction user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
-    if (colonAndGroup.isPresent()) {
-      return new UserInstructionImpl(keyword, user, colonAndGroup.get().first(), colonAndGroup.get().second());
-    } else {
-      return new UserInstructionImpl(keyword, user, null, null);
-    }
+  public UserInstruction user(SyntaxToken keyword, List<Tuple<SyntaxToken, Argument>> argumentsWithWhitespace) {
+    return new UserInstructionImpl(keyword, argumentsWithWhitespace.stream().map(Tuple::second).collect(Collectors.toList()));
   }
 
   public VolumeInstruction volume(SyntaxToken token, LiteralList execFormOrShellForm) {

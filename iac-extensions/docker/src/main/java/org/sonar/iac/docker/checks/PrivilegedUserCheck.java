@@ -34,6 +34,7 @@ import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.UserInstruction;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6471")
 public class PrivilegedUserCheck implements IacCheck {
@@ -96,7 +97,7 @@ public class PrivilegedUserCheck implements IacCheck {
         ctx.reportIssue(dockerImage.from(), MESSAGE_OTHER_IMAGE);
       }
     } else {
-      String user = lastUser.get().user().value();
+      String user = ArgumentUtils.resolve(lastUser.get().arguments()).value();
       if(UNSAFE_USERS.contains(user)) {
         ctx.reportIssue(lastUser.get(), String.format(MESSAGE_ROOT_USER, user));
       }
