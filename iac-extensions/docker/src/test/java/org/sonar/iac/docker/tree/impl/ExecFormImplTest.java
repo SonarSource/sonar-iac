@@ -27,12 +27,10 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
-import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ExecFormImplTest {
 
@@ -91,8 +89,6 @@ class ExecFormImplTest {
 
     assertThat(execForm.argumentsWithSeparators().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
 
-    assertThatThrownBy(execForm::literals)
-      .isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("Method to be removed from LiteralList interface once SONARIAC-541 and SONARIAC-572 are done.");
+    assertThat(execForm.literals()).extracting(SyntaxToken::value).containsExactly("executable", "param1", "param2");
   }
 }

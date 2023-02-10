@@ -17,6 +17,9 @@
 'docker-project:sources/docker/awesome-compose/flask/app/Dockerfile':[
 10,
 ],
+'docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile':[
+12,
+],
 'docker-project:sources/docker/awesome-compose/nginx-flask-mongo/flask/Dockerfile':[
 9,
 ],
