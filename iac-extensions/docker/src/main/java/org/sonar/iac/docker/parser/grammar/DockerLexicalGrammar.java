@@ -50,6 +50,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * SPACING
    */
   WHITESPACE,
+  SKIPPED_WHITESPACE,
   WHITESPACE_OR_LINE_BREAK,
   SPACING,
   EOL,
@@ -156,9 +157,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
   private static void punctuators(LexerlessGrammarBuilder b) {
     b.rule(Punctuator.EQU).is(Punctuator.EQU.getValue()).skip();
-    b.rule(Punctuator.COMMA).is(b.optional(WHITESPACE), Punctuator.COMMA.getValue()).skip();
-    b.rule(Punctuator.RBRACKET).is(b.optional(WHITESPACE), Punctuator.RBRACKET.getValue()).skip();
-    b.rule(Punctuator.LBRACKET).is(WHITESPACE, Punctuator.LBRACKET.getValue()).skip();
+    b.rule(Punctuator.COMMA).is(b.optional(SKIPPED_WHITESPACE), Punctuator.COMMA.getValue()).skip();
+    b.rule(Punctuator.RBRACKET).is(b.optional(SKIPPED_WHITESPACE), Punctuator.RBRACKET.getValue()).skip();
+    b.rule(Punctuator.LBRACKET).is(SKIPPED_WHITESPACE, Punctuator.LBRACKET.getValue()).skip();
     b.rule(Punctuator.DOUBLE_QUOTE).is(Punctuator.DOUBLE_QUOTE.getValue());
     b.rule(Punctuator.DOLLAR).is(Punctuator.DOLLAR.getValue()).skip();
     b.rule(Punctuator.DOLLAR_LCURLY).is(Punctuator.DOLLAR_LCURLY.getValue());
@@ -166,14 +167,15 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
-    b.rule(WHITESPACE).is(b.skippedTrivia(b.regexp("["+LexicalConstant.WHITESPACE+"]++")));
-    b.rule(WHITESPACE_OR_LINE_BREAK).is(b.skippedTrivia(b.regexp("["+LexicalConstant.WHITESPACE+LexicalConstant.LINE_TERMINATOR+"]++")));
+    b.rule(WHITESPACE).is(b.regexp("["+LexicalConstant.WHITESPACE+"]++")).skip();
+    b.rule(SKIPPED_WHITESPACE).is(b.skippedTrivia(WHITESPACE));
+    b.rule(WHITESPACE_OR_LINE_BREAK).is(b.regexp("["+LexicalConstant.WHITESPACE+LexicalConstant.LINE_TERMINATOR+"]++")).skip();
     b.rule(EOL).is(b.regexp("(?:"+DockerLexicalConstant.EOL+"|$)"));
     b.rule(SPACING).is(
       b.oneOrMore(
         b.firstOf(
           b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
-          WHITESPACE_OR_LINE_BREAK
+          b.skippedTrivia(WHITESPACE_OR_LINE_BREAK)
         )
       )
     ).skip();
@@ -192,40 +194,40 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(UNQUOTED_VARIABLE_MODIFIER).is(b.regexp(DockerLexicalConstant.UNQUOTED_VARIABLE_MODIFIER));
 
     // TODO : those elements will be removed in the next grammar progressively
-    b.rule(STRING_LITERAL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL_OLD));
-    b.rule(STRING_UNTIL_EOL).is(WHITESPACE, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
-    b.rule(STRING_LITERAL_WITH_QUOTES).is(b.optional(WHITESPACE), b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
+    b.rule(STRING_LITERAL).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL_OLD));
+    b.rule(STRING_UNTIL_EOL).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
+    b.rule(STRING_LITERAL_WITH_QUOTES).is(b.optional(SKIPPED_WHITESPACE), b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
 
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
 
-    b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(WHITESPACE, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
+    b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
     b.rule(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(b.regexp("(?:\"[^\"]*\"|[^\\s])+"));
 
-    b.rule(EXPOSE_PORT).is(WHITESPACE, b.regexp("[0-9]+"));
+    b.rule(EXPOSE_PORT).is(SKIPPED_WHITESPACE, b.regexp("[0-9]+"));
     b.rule(EXPOSE_PORT_MAX).is(b.regexp("[0-9]+"));
     b.rule(EXPOSE_SEPARATOR_PORT).is(b.regexp("-"));
     b.rule(EXPOSE_SEPARATOR_PROTOCOL).is(b.regexp("/"));
     b.rule(EXPOSE_PROTOCOL).is(b.regexp("[a-zA-Z]+"));
 
-    b.rule(IMAGE_NAME).is(WHITESPACE, b.regexp("[^@:\\s-][^@:\\s\\$]+"));
+    b.rule(IMAGE_NAME).is(SKIPPED_WHITESPACE, b.regexp("[^@:\\s-][^@:\\s\\$]+"));
     b.rule(IMAGE_TAG).is(b.regexp(":[^@\\s]+"));
     b.rule(IMAGE_DIGEST).is(b.regexp("@[a-zA-Z0-9:]+"));
-    b.rule(IMAGE_ALIAS).is(WHITESPACE, b.regexp("[-a-zA-Z0-9_\\.]+"));
+    b.rule(IMAGE_ALIAS).is(SKIPPED_WHITESPACE, b.regexp("[-a-zA-Z0-9_\\.]+"));
 
-    b.rule(PARAM_PREFIX).is(WHITESPACE, b.regexp("--"));
+    b.rule(PARAM_PREFIX).is(SKIPPED_WHITESPACE, b.regexp("--"));
     b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
     b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
 
     b.rule(USER_STRING).is(b.regexp("(?:[^:" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "])++"));
     b.rule(USER_VARIABLE).is(b.regexp("\\$(?:[a-zA-Z_][a-zA-Z0-9_]*|\\{[^}]+\\})"));
-    b.rule(USER_NAME).is(WHITESPACE, b.firstOf(USER_STRING, USER_VARIABLE));
+    b.rule(USER_NAME).is(SKIPPED_WHITESPACE, b.firstOf(USER_STRING, USER_VARIABLE));
     b.rule(USER_SEPARATOR).is(b.regexp(":"));
     b.rule(USER_GROUP).is(b.firstOf(USER_STRING, USER_VARIABLE));
 
-    b.rule(ALIAS_AS).is(WHITESPACE, b.regexp("(?i)AS"));
-    b.rule(HEALTHCHECK_NONE).is(WHITESPACE, b.regexp("(?i)NONE"));
+    b.rule(ALIAS_AS).is(SKIPPED_WHITESPACE, b.regexp("(?i)AS"));
+    b.rule(HEALTHCHECK_NONE).is(SKIPPED_WHITESPACE, b.regexp("(?i)NONE"));
 
-    b.rule(HEREDOC_EXPRESSION).is(WHITESPACE, b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)"));
+    b.rule(HEREDOC_EXPRESSION).is(SKIPPED_WHITESPACE, b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)"));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

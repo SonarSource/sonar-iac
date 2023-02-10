@@ -20,5 +20,5 @@
 package org.sonar.iac.docker.tree.api;
 
 public interface StopSignalInstruction extends Instruction {
-  SyntaxToken signal();
+  Argument signal();
 }

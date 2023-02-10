@@ -21,14 +21,15 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class StopSignalInstructionImpl extends InstructionImpl implements StopSignalInstruction {
 
-  private final SyntaxToken signal;
+  private final Argument signal;
 
-  public StopSignalInstructionImpl(SyntaxToken keyword, SyntaxToken signal) {
+  public StopSignalInstructionImpl(SyntaxToken keyword, Argument signal) {
     super(keyword);
     this.signal = signal;
   }
@@ -44,7 +45,7 @@ public class StopSignalInstructionImpl extends InstructionImpl implements StopSi
   }
 
   @Override
-  public SyntaxToken signal() {
+  public Argument signal() {
     return signal;
   }
 }

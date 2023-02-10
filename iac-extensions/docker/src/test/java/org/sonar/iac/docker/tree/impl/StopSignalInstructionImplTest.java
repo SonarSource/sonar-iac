@@ -22,7 +22,9 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -52,8 +54,11 @@ class StopSignalInstructionImplTest {
     StopSignalInstruction tree = DockerTestUtils.parse("STOPSIGNAL SIGKILL", DockerLexicalGrammar.STOPSIGNAL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.STOPSIGNAL);
     assertThat(tree.keyword().value()).isEqualTo("STOPSIGNAL");
-    assertThat(tree.signal().value()).isEqualTo("SIGKILL");
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("STOPSIGNAL");
-    assertThat(((SyntaxToken)tree.children().get(1)).value()).isEqualTo("SIGKILL");
+
+    assertThat(tree.signal().expressions()).satisfies(expressions -> {
+      assertThat(expressions).hasSize(1);
+      assertThat(expressions.get(0).getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
+      assertThat((Literal)expressions.get(0)).extracting(Literal::value).isEqualTo("SIGKILL");
+    });
   }
 }
