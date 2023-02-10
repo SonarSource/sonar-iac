@@ -539,10 +539,39 @@ public class DockerGrammar {
 
   public NewKeyValuePair NEW_KEY_VALUE_PAIR() {
     return b.<NewKeyValuePair>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR).is(
+      b.firstOf(
+        KEY_VALUE_PAIR_WITH_EQUAL(),
+        KEY_VALUE_PAIR_WITHOUT_EQUAL()
+      )
+    );
+  }
+
+  public NewKeyValuePair KEY_VALUE_PAIR_WITH_EQUAL() {
+    return b.<NewKeyValuePair>nonterminal().is(
       f.newKeyValuePair(
         KEY_ARGUMENT(),
         b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
         b.optional(ARGUMENT())
+      )
+    );
+  }
+
+  public NewKeyValuePair KEY_VALUE_PAIR_WITHOUT_EQUAL() {
+    return b.<NewKeyValuePair>nonterminal().is(
+      f.newKeyValuePair(
+        KEY_ARGUMENT(),
+        b.optional(
+          f.tuple(
+            b.token(DockerLexicalGrammar.WHITESPACE),
+            ARGUMENT()
+          )
+        ),
+        b.zeroOrMore(
+          f.tuple(
+            b.token(DockerLexicalGrammar.WHITESPACE),
+            ARGUMENT()
+          )
+        )
       )
     );
   }
