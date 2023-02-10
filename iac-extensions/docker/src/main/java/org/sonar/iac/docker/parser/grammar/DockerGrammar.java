@@ -561,7 +561,7 @@ public class DockerGrammar {
       f.newKeyValuePair(
         KEY_ARGUMENT(),
         b.optional(
-          f.tuple(
+          f.ignoreFirst(
             b.token(DockerLexicalGrammar.WHITESPACE),
             ARGUMENT()
           )

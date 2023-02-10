@@ -329,9 +329,9 @@ public class TreeFactory {
     return new NewKeyValuePairImpl(key, equalSign, value.orNull());
   }
 
-  public NewKeyValuePair newKeyValuePair(Argument key, Optional<Tuple<SyntaxToken, Argument>> firstValue, Optional<List<Tuple<SyntaxToken, Argument>>> moreValue) {
+  public NewKeyValuePair newKeyValuePair(Argument key, Optional<Argument> firstValue, Optional<List<Tuple<SyntaxToken, Argument>>> moreValue) {
     if (firstValue.isPresent()) {
-      List<Expression> firstValueExpressions = firstValue.get().second().expressions();
+      List<Expression> firstValueExpressions = firstValue.get().expressions();
       List<Expression> expressions = new LinkedList<>(firstValueExpressions);
 
       for (Tuple<SyntaxToken, Argument> valuePart : moreValue.or(Collections.emptyList())) {
