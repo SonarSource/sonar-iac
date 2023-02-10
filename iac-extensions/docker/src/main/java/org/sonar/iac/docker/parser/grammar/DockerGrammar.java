@@ -456,12 +456,12 @@ public class DockerGrammar {
         b.token(Punctuator.LBRACKET),
         b.optional(
           f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)),
-            f.expressionAsArgument(EXPANDABLE_STRING_LITERAL()))),
+            f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL()))),
         b.zeroOrMore(
           f.tuple(
             b.token(Punctuator.COMMA),
             f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)),
-              f.expressionAsArgument(EXPANDABLE_STRING_LITERAL())))),
+              f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL())))),
         b.token(Punctuator.RBRACKET)
       )
     );

@@ -260,7 +260,7 @@ public class TreeFactory {
     return new HereDocumentImpl(content);
   }
 
-  public Argument expressionAsArgument(Expression expression) {
+  public Argument singleExpressionArguement(Expression expression) {
     return new ArgumentImpl(List.of(expression));
   }
 
