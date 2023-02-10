@@ -19,12 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.Nullable;
-
-public interface UserInstruction extends Instruction {
-  SyntaxToken user();
-  @Nullable
-  SyntaxToken colon();
-  @Nullable
-  SyntaxToken group();
+public interface UserInstruction extends Instruction, HasArguments {
 }

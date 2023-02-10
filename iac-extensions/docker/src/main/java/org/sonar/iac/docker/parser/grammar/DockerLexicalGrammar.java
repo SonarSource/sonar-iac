@@ -106,12 +106,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   IMAGE_TAG,
   IMAGE_DIGEST,
 
-  USER_STRING,
-  USER_VARIABLE,
-  USER_NAME,
-  USER_SEPARATOR,
-  USER_GROUP,
-
   EXPOSE_PORT,
   EXPOSE_PORT_MAX,
   EXPOSE_SEPARATOR_PORT,
@@ -215,12 +209,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(PARAM_PREFIX).is(SKIPPED_WHITESPACE, b.regexp("--"));
     b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
     b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
-
-    b.rule(USER_STRING).is(b.regexp("(?:[^:" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "])++"));
-    b.rule(USER_VARIABLE).is(b.regexp("\\$(?:[a-zA-Z_][a-zA-Z0-9_]*|\\{[^}]+\\})"));
-    b.rule(USER_NAME).is(SKIPPED_WHITESPACE, b.firstOf(USER_STRING, USER_VARIABLE));
-    b.rule(USER_SEPARATOR).is(b.regexp(":"));
-    b.rule(USER_GROUP).is(b.firstOf(USER_STRING, USER_VARIABLE));
 
     b.rule(ALIAS_AS).is(SKIPPED_WHITESPACE, b.regexp("(?i)AS"));
     b.rule(HEALTHCHECK_NONE).is(SKIPPED_WHITESPACE, b.regexp("(?i)NONE"));

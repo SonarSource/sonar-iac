@@ -23,7 +23,6 @@ import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
@@ -149,8 +148,8 @@ public class TreeFactory {
     return new StopSignalInstructionImpl(keyword, argument);
   }
 
-  public WorkdirInstruction workdir(SyntaxToken keyword, List<Tuple<SyntaxToken, Argument>> argumentsWithWhitespace) {
-    return new WorkdirInstructionImpl(keyword, argumentsWithWhitespace.stream().map(Tuple::second).collect(Collectors.toList()));
+  public WorkdirInstruction workdir(SyntaxToken keyword, List<Argument> arguments) {
+    return new WorkdirInstructionImpl(keyword, arguments);
   }
 
   public ExposeInstruction expose(SyntaxToken keyword, List<Port> ports) {
@@ -233,12 +232,8 @@ public class TreeFactory {
     return new RunInstructionImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
   }
 
-  public UserInstruction user(SyntaxToken keyword, SyntaxToken user, Optional<Tuple<SyntaxToken, SyntaxToken>> colonAndGroup) {
-    if (colonAndGroup.isPresent()) {
-      return new UserInstructionImpl(keyword, user, colonAndGroup.get().first(), colonAndGroup.get().second());
-    } else {
-      return new UserInstructionImpl(keyword, user, null, null);
-    }
+  public UserInstruction user(SyntaxToken keyword, List<Argument> arguments) {
+    return new UserInstructionImpl(keyword, arguments);
   }
 
   public VolumeInstruction volume(SyntaxToken token, LiteralList execFormOrShellForm) {
@@ -293,8 +288,8 @@ public class TreeFactory {
     return new Tuple<>(first, second);
   }
 
-  public <T> T withOptionalWhitespace(Optional<SyntaxToken> whitespace, T t) {
-    return t;
+  public <T, U> U ignoreFirst(T first, U second) {
+    return second;
   }
 
   public Literal regularStringLiteral(SyntaxToken token) {

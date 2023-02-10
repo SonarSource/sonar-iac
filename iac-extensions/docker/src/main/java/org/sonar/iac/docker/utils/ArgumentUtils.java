@@ -26,12 +26,24 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
+import org.sonar.iac.docker.tree.api.HasArguments;
 import org.sonar.iac.docker.tree.api.Literal;
 
 public class ArgumentUtils {
 
   private ArgumentUtils() {
     // utils class
+  }
+
+  /**
+   * Resolve a list of Argument as a single string, used by some instructions like USER.
+   */
+  public static ArgumentResolution resolveAndMerge(HasArguments hasArguments) {
+    StringBuilder sb = new StringBuilder();
+    for (Argument argument : hasArguments.arguments()) {
+      sb.append(resolve(argument).value);
+    }
+    return new ArgumentResolution(sb.toString());
   }
 
   public static ArgumentResolution resolve(Argument argument) {
