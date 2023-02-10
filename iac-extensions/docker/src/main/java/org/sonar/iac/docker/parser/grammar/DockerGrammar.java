@@ -599,10 +599,25 @@ public class DockerGrammar {
         b.optional(
           f.tuple(
             b.token(DockerLexicalGrammar.ENCAPS_VAR_MODIFIER_SEPARATOR),
-            ARGUMENT()
+            ENCAPS_VARIABLE_MODIFIER()
           )
         ),
         b.token(Punctuator.RCURLYBRACE)
+      )
+    );
+  }
+
+  public Argument ENCAPS_VARIABLE_MODIFIER() {
+    return b.<Argument>nonterminal().is(
+      f.newArgument(
+        b.oneOrMore(
+          b.firstOf(
+            EXPANDABLE_STRING_LITERAL(),
+            VARIABLE(),
+            f.regularStringLiteral(b.token(DockerLexicalGrammar.UNQUOTED_VARIABLE_MODIFIER)),
+            f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL))
+          )
+        )
       )
     );
   }
