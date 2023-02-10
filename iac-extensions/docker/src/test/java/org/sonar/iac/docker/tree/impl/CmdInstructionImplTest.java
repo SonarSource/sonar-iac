@@ -26,14 +26,16 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.ExecForm;
+import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -89,11 +91,7 @@ class CmdInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("\"executable\"", "\"param1\"", "\"param2\"");
-    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
-    assertTextRange(textRanges.get(0)).hasRange(1,5,1,17);
-    assertTextRange(textRanges.get(1)).hasRange(1,18,1,26);
-    assertTextRange(textRanges.get(2)).hasRange(1,27,1,35);
+    assertThat(tree.arguments().arguments().stream().map(t -> ArgumentUtils.resolve(t).value())).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
@@ -126,10 +124,10 @@ class CmdInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().literals()).isEmpty();
+    assertThat(tree.arguments().arguments()).isEmpty();
 
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
-    SeparatedList<ExecFormLiteral> literals = ((ExecForm) tree.arguments()).literalsWithSeparators();
+    SeparatedList<Argument> literals = ((ExecForm) tree.arguments()).argumentsWithSeparators();
     assertThat(literals.elementsAndSeparators()).isEmpty();
     assertThat(literals.elements()).isEmpty();
     assertThat(literals.separators()).isEmpty();

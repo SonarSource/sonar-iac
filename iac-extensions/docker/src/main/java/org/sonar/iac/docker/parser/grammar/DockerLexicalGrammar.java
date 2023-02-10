@@ -42,7 +42,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX,
   VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX,
   STRING_UNTIL_EOL,
-  STRING_LITERAL_WITH_QUOTES,
   EQUALS_OPERATOR,
   EOF,
 
@@ -196,7 +195,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     // TODO : those elements will be removed in the next grammar progressively
     b.rule(STRING_LITERAL).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL_OLD));
     b.rule(STRING_UNTIL_EOL).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
-    b.rule(STRING_LITERAL_WITH_QUOTES).is(b.optional(SKIPPED_WHITESPACE), b.regexp(DockerLexicalConstant.STRING_LITERAL_WITH_QUOTES));
 
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
 

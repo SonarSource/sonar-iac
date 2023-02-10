@@ -26,6 +26,7 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -57,11 +58,7 @@ class ShellInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("SHELL");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 40);
 
-    List<SyntaxToken> literals = tree.arguments().literals();
-    assertThat(literals).hasSize(3);
-    assertThat(literals.get(0).value()).isEqualTo("\"executable\"");
-    assertThat(literals.get(1).value()).isEqualTo("\"param1\"");
-    assertThat(literals.get(2).value()).isEqualTo("\"param2\"");
+    assertThat(tree.arguments().arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("executable", "param1", "param2");
   }
 
   @Test
@@ -69,7 +66,6 @@ class ShellInstructionImplTest {
     ShellInstruction tree = parse("SHELL []", DockerLexicalGrammar.SHELL);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
 
-    List<SyntaxToken> literals = tree.arguments().literals();
-    assertThat(literals).isEmpty();
+    assertThat(tree.arguments().arguments()).isEmpty();
   }
 }

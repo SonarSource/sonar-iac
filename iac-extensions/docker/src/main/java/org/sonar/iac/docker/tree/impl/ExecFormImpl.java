@@ -20,22 +20,26 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.ExecFormLiteral;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
 
   private final SyntaxToken leftBracket;
-  private final SeparatedList<ExecFormLiteral> literalsWithSeparators;
+  private final SeparatedList<Argument> argumentsWithSeparators;
   private final SyntaxToken rightBracket;
 
-  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<ExecFormLiteral> literals, SyntaxToken rightBracket) {
+  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<Argument> argumentsWithSeparators, SyntaxToken rightBracket) {
     this.leftBracket = leftBracket;
-    this.literalsWithSeparators = literals;
+    this.argumentsWithSeparators = argumentsWithSeparators;
     this.rightBracket = rightBracket;
   }
 
@@ -43,7 +47,7 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
     result.add(leftBracket);
-    result.addAll(literalsWithSeparators.elementsAndSeparators());
+    result.addAll(argumentsWithSeparators.elementsAndSeparators());
     result.add(rightBracket);
     return result;
   }
@@ -58,13 +62,31 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
     return leftBracket;
   }
 
+  /**
+   * @deprecated To be removed once arguments() methods exist in all implementation and that literals() can be replaced everywhere.
+   * For now the method has been transformed to still provide the same data as before.
+   */
+  @Deprecated(forRemoval = true)
   @Override
   public List<SyntaxToken> literals() {
-    List<SyntaxToken> result = new ArrayList<>();
-    for (ExecFormLiteral element : literalsWithSeparators.elements()) {
-      result.add(element.value());
+    List<SyntaxToken> literals = arguments().stream()
+      .map(ExecFormImpl::argumentToSyntaxToken)
+      .collect(Collectors.toList());
+    return literals.contains(null) ? Collections.emptyList() : literals;
+  }
+
+  @Nullable
+  private static SyntaxToken argumentToSyntaxToken(Argument argument) {
+    String value = ArgumentUtils.resolve(argument).value();
+    if (value != null) {
+      return new SyntaxTokenImpl(value, argument.textRange(), Collections.emptyList());
     }
-    return result;
+    return null;
+  }
+
+  @Override
+  public List<Argument> arguments() {
+    return argumentsWithSeparators.elements();
   }
 
   @Override
@@ -73,8 +95,8 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   }
 
   @Override
-  public SeparatedList<ExecFormLiteral> literalsWithSeparators() {
-    return literalsWithSeparators;
+  public SeparatedList<Argument> argumentsWithSeparators() {
+    return argumentsWithSeparators;
   }
 
   @Override

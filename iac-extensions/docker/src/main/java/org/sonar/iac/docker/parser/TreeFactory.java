@@ -36,7 +36,6 @@ import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.ExecForm;
-import org.sonar.iac.docker.tree.api.ExecFormLiteral;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
@@ -78,7 +77,6 @@ import org.sonar.iac.docker.tree.impl.EncapsulatedVariableImpl;
 import org.sonar.iac.docker.tree.impl.EntrypointInstructionImpl;
 import org.sonar.iac.docker.tree.impl.EnvInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ExecFormImpl;
-import org.sonar.iac.docker.tree.impl.ExecFormLiteralImpl;
 import org.sonar.iac.docker.tree.impl.ExpandableStringCharactersImpl;
 import org.sonar.iac.docker.tree.impl.ExpandableStringLiteralImpl;
 import org.sonar.iac.docker.tree.impl.ExposeInstructionImpl;
@@ -262,22 +260,23 @@ public class TreeFactory {
     return new HereDocumentImpl(content);
   }
 
-  public ExecForm execForm(SyntaxToken leftBracket,
-    Optional<Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>>> literals,
+  public Argument singleExpressionArguement(Expression expression) {
+    return new ArgumentImpl(List.of(expression));
+  }
+
+  public ExecForm execForm(SyntaxToken leftBracket, Optional<Argument> firstArgument,
+    Optional<List<Tuple<SyntaxToken, Argument>>> otherArguments,
     SyntaxToken rightBracket) {
 
-    List<ExecFormLiteral> elements = new ArrayList<>();
+    List<Argument> elements = new ArrayList<>();
     List<SyntaxToken> separators = new ArrayList<>();
-    SeparatedList<ExecFormLiteral> separatedList = new SeparatedListImpl<>(elements, separators);
-    if (literals.isPresent()) {
-      Tuple<SyntaxToken, Optional<List<Tuple<SyntaxToken, SyntaxToken>>>> tuple = literals.get();
-      elements.add(new ExecFormLiteralImpl(tuple.first()));
-      Optional<List<Tuple<SyntaxToken, SyntaxToken>>> second = tuple.second();
-      if(second.isPresent()) {
-        List<Tuple<SyntaxToken, SyntaxToken>> comaAndLiterals = second.get();
-        for (Tuple<SyntaxToken, SyntaxToken> comaAndLiteral : comaAndLiterals) {
-          separators.add(comaAndLiteral.first());
-          elements.add(new ExecFormLiteralImpl(comaAndLiteral.second()));
+    SeparatedList<Argument> separatedList = new SeparatedListImpl<>(elements, separators);
+    if (firstArgument.isPresent()) {
+      elements.add(firstArgument.get());
+      if (otherArguments.isPresent()) {
+        for (Tuple<SyntaxToken, Argument> expressionWithComma : otherArguments.get()) {
+          separators.add(expressionWithComma.first());
+          elements.add(expressionWithComma.second());
         }
       }
     }
@@ -291,6 +290,10 @@ public class TreeFactory {
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {
     return new Tuple<>(first, second);
+  }
+
+  public <T> T withOptionalWhitespace(Optional<SyntaxToken> whitespace, T t) {
+    return t;
   }
 
   public Literal regularStringLiteral(SyntaxToken token) {

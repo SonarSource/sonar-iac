@@ -22,6 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -46,6 +47,12 @@ public class ShellFormImpl extends AbstractDockerTreeImpl implements ShellForm {
   @Override
   public List<SyntaxToken> literals() {
     return literals;
+  }
+
+  // TODO : SONARIAC-541 adapt ShellForm to use Argument
+  @Override
+  public List<Argument> arguments() {
+    throw new UnsupportedOperationException("TODO SONARIAC-541");
   }
 
   @Override

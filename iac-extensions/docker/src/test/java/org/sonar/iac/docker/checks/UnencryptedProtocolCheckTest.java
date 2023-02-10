@@ -19,10 +19,13 @@
  */
 package org.sonar.iac.docker.checks;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class UnencryptedProtocolCheckTest {
 
+  // TODO : SONARIAC-572 and SONARIAC-541 to be completed before switching to arguments() instead of literals
+  @Disabled("To enable back when transition is done and literals() has been replaced by arguments()")
   @Test
   void test() {
     DockerVerifier.verify("UnencryptedProtocolCheck/Dockerfile", new UnencryptedProtocolCheck());

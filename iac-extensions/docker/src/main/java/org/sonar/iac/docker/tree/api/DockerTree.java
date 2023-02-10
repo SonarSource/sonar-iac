@@ -53,7 +53,6 @@ public interface DockerTree extends Tree {
     RUN(RunInstruction.class),
     SHELL_FORM(ShellForm.class),
     EXEC_FORM(ExecForm.class),
-    EXEC_FORM_LITERAL(ExecFormLiteral.class),
     ADD(AddInstruction.class),
     COPY(CopyInstruction.class),
     VOLUME(VolumeInstruction.class),

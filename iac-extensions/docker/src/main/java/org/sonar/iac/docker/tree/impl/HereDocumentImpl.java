@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -45,6 +46,12 @@ public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocu
   @Override
   public List<SyntaxToken> literals() {
     return List.of(content);
+  }
+
+  // TODO : SONARIAC-572 adapt HereDoc form and replace literals() by arguments()
+  @Override
+  public List<Argument> arguments() {
+    throw new UnsupportedOperationException("TODO SONARIAC-572");
   }
 
   @Override
