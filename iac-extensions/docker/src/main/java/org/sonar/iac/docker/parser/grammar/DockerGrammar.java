@@ -223,7 +223,10 @@ public class DockerGrammar {
     return b.<WorkdirInstruction>nonterminal(DockerLexicalGrammar.WORKDIR).is(
       f.workdir(
         b.token(DockerKeyword.WORKDIR),
-        ARGUMENTS()
+        b.oneOrMore(f.tuple(
+          b.token(DockerLexicalGrammar.WHITESPACE),
+          ARGUMENT()
+        ))
       )
     );
   }

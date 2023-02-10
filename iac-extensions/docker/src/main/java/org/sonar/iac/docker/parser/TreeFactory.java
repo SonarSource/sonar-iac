@@ -23,6 +23,7 @@ import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
@@ -148,8 +149,8 @@ public class TreeFactory {
     return new StopSignalInstructionImpl(keyword, argument);
   }
 
-  public WorkdirInstruction workdir(SyntaxToken keyword, List<SyntaxToken> values) {
-    return new WorkdirInstructionImpl(keyword, values);
+  public WorkdirInstruction workdir(SyntaxToken keyword, List<Tuple<SyntaxToken, Argument>> argumentsWithWhitespace) {
+    return new WorkdirInstructionImpl(keyword, argumentsWithWhitespace.stream().map(Tuple::second).collect(Collectors.toList()));
   }
 
   public ExposeInstruction expose(SyntaxToken keyword, List<Port> ports) {
