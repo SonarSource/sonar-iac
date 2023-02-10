@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +36,7 @@ class NewKeyValuePairImplTest {
   @Test
   void matchingKeyValuePair() {
     Assertions.assertThat(DockerLexicalGrammar.KEY_VALUE_PAIR)
+      // Pairs with equal sign
       .matches("\"key\"=\"value\"")
       .matches("key=value")
       .matches("$key=\"value\"")
@@ -46,16 +48,27 @@ class NewKeyValuePairImplTest {
       .matches("ke\\\"y=value")
       .matches("key=val\\\"ue")
 
+      // Pairs without equal sign and without value
+      .matches("\"key\"")
+      .matches("key")
+      .matches("$key")
+      .matches("prefix_$key")
+
+      // Pairs without equal sign
+      .matches("\"key\" \"value\"")
+      .matches("\"key\" \"value1\" \"value2\"")
+      .matches("key $value1 = $value2")
+      .matches("key $value1 = ${value2}")
+
       .matches("\"key=\"=value") // This is invalid syntax, but it would increase the grammar complexity to cover this case
 
-      .notMatches("key")
       .notMatches("key= value")
       .notMatches("\"key\"= \"value\"")
     ;
   }
 
   @Test
-  void shouldProvideAllRelevantInfo() {
+  void shouldProvideAllRelevantInfoForKvpWithEqualSign() {
     NewKeyValuePair keyValuePair = parse("key=value", DockerLexicalGrammar.KEY_VALUE_PAIR);
 
     assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
@@ -75,6 +88,26 @@ class NewKeyValuePairImplTest {
       assertThat(key).isNotNull();
       assertTextRange(key.textRange()).hasRange(1, 4 , 1, 9);
     });
+  }
 
+  @Test
+  void shouldProvideAllRelevantInfoForKvpAsSingleKey() {
+    NewKeyValuePair keyValuePair = parse("key", DockerLexicalGrammar.KEY_VALUE_PAIR);
+
+    assertThat(keyValuePair.equalSign()).isNull();
+    assertThat(keyValuePair.value()).isNull();
+  }
+
+  @Test
+  void shouldProvideAllRelevantInfoForKvpWithoutEqualSign() {
+    NewKeyValuePair keyValuePair = parse("key value1    value2", DockerLexicalGrammar.KEY_VALUE_PAIR);
+
+    assertThat(keyValuePair.equalSign()).isNull();
+    assertThat(keyValuePair.value()).isNotNull().satisfies(argument ->
+      assertThat(argument.expressions())
+        .hasSize(3)
+        .hasExactlyElementsOfTypes(LiteralImpl.class, LiteralImpl.class, LiteralImpl.class)
+        .extracting(expression -> ((Literal) expression).value())
+        .containsExactly("value1", "    ", "value2"));
   }
 }

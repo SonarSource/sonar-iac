@@ -22,6 +22,7 @@ package org.sonar.iac.docker.parser;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
@@ -326,6 +327,23 @@ public class TreeFactory {
 
   public NewKeyValuePair newKeyValuePair(Argument key, SyntaxToken equalSign, Optional<Argument> value) {
     return new NewKeyValuePairImpl(key, equalSign, value.orNull());
+  }
+
+  public NewKeyValuePair newKeyValuePair(Argument key, Optional<Argument> firstValue, Optional<List<Tuple<SyntaxToken, Argument>>> moreValue) {
+    if (firstValue.isPresent()) {
+      List<Expression> firstValueExpressions = firstValue.get().expressions();
+      List<Expression> expressions = new LinkedList<>(firstValueExpressions);
+
+      for (Tuple<SyntaxToken, Argument> valuePart : moreValue.or(Collections.emptyList())) {
+        expressions.add(new LiteralImpl(valuePart.first()));
+        expressions.addAll(valuePart.second().expressions());
+      }
+
+      Argument value = new ArgumentImpl(expressions);
+      return new NewKeyValuePairImpl(key, null, value);
+    } else {
+      return new NewKeyValuePairImpl(key, null, null);
+    }
   }
 
 

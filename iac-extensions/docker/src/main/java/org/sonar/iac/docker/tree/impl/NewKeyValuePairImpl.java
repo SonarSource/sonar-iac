@@ -31,13 +31,13 @@ public class NewKeyValuePairImpl extends AbstractDockerTreeImpl implements NewKe
 
   private final Argument key;
   @Nullable
-  private final SyntaxToken equal;
+  private final SyntaxToken equalSign;
   @Nullable
   private final Argument value;
 
-  public NewKeyValuePairImpl(Argument key, SyntaxToken equalSign, @Nullable Argument value) {
+  public NewKeyValuePairImpl(Argument key, @Nullable SyntaxToken equalSign, @Nullable Argument value) {
     this.key = key;
-    this.equal = equalSign;
+    this.equalSign = equalSign;
     this.value = value;
   }
 
@@ -46,9 +46,10 @@ public class NewKeyValuePairImpl extends AbstractDockerTreeImpl implements NewKe
     return key;
   }
 
+  @Nullable
   @Override
   public SyntaxToken equalSign() {
-    return equal;
+    return equalSign;
   }
 
   @Nullable
@@ -61,7 +62,9 @@ public class NewKeyValuePairImpl extends AbstractDockerTreeImpl implements NewKe
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(key);
-    children.add(equal);
+    if (equalSign != null) {
+      children.add(equalSign);
+    }
     if (value != null) {
       children.add(value);
     }
