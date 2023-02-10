@@ -19,7 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-
 public interface WorkdirInstruction extends Instruction, HasArguments {
 }

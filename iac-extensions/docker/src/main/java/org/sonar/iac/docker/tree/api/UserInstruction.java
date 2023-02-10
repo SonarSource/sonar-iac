@@ -19,7 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-
 public interface UserInstruction extends Instruction, HasArguments {
 }
