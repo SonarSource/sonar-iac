@@ -29,7 +29,7 @@ import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.Image;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
-import org.sonar.iac.docker.tree.api.Port;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -71,7 +71,7 @@ class DockerImageImplTest {
     MaintainerInstruction maintainer = (MaintainerInstruction) dockerImage.instructions().get(0);
     assertThat(maintainer.authors()).extracting(TextTree::value).containsExactly("bob");
     ExposeInstruction expose = (ExposeInstruction) dockerImage.instructions().get(1);
-    assertThat(expose.ports()).extracting(Port::portMin).extracting(TextTree::value).containsExactly("80");
+    assertThat(expose.arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("80");
   }
 
   @Test

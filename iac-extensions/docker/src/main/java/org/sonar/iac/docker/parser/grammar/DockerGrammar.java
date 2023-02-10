@@ -52,7 +52,6 @@ import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
-import org.sonar.iac.docker.tree.api.Port;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
@@ -233,30 +232,12 @@ public class DockerGrammar {
 
   public ExposeInstruction EXPOSE() {
     return b.<ExposeInstruction>nonterminal(DockerLexicalGrammar.EXPOSE).is(
-      f.expose(b.token(DockerKeyword.EXPOSE), b.oneOrMore(PORT()))
-    );
-  }
-
-  public Port PORT() {
-    return b.<Port>nonterminal(DockerLexicalGrammar.PORT).is(
-      b.firstOf(
-        f.port(
-          b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT_MAX),
-          b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL), b.token(DockerLexicalGrammar.EXPOSE_PROTOCOL)
-        ),
-        f.port(
-          b.token(DockerLexicalGrammar.EXPOSE_PORT), b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PORT), b.token(DockerLexicalGrammar.EXPOSE_PORT_MAX),
-          b.optional(b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL))
-          ),
-        f.port(
-          b.token(DockerLexicalGrammar.EXPOSE_PORT),
-          b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL), b.token(DockerLexicalGrammar.EXPOSE_PROTOCOL)
-        ),
-        f.port(
-          b.token(DockerLexicalGrammar.EXPOSE_PORT),
-          b.optional(b.token(DockerLexicalGrammar.EXPOSE_SEPARATOR_PROTOCOL))
-        ),
-        f.port(b.token(DockerLexicalGrammar.STRING_LITERAL))
+      f.expose(
+        b.token(DockerKeyword.EXPOSE),
+        b.oneOrMore(f.ignoreFirst(
+          b.token(DockerLexicalGrammar.WHITESPACE),
+          ARGUMENT()
+        ))
       )
     );
   }

@@ -55,7 +55,6 @@ import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Param;
-import org.sonar.iac.docker.tree.api.Port;
 import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SeparatedList;
@@ -94,7 +93,6 @@ import org.sonar.iac.docker.tree.impl.NewKeyValuePairImpl;
 import org.sonar.iac.docker.tree.impl.NoneImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
 import org.sonar.iac.docker.tree.impl.ParamImpl;
-import org.sonar.iac.docker.tree.impl.PortImpl;
 import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
@@ -153,28 +151,8 @@ public class TreeFactory {
     return new WorkdirInstructionImpl(keyword, arguments);
   }
 
-  public ExposeInstruction expose(SyntaxToken keyword, List<Port> ports) {
-    return new ExposeInstructionImpl(keyword, ports);
-  }
-
-  public Port port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, SyntaxToken separatorProtocol, SyntaxToken protocol) {
-    return new PortImpl(portMin, separatorPort, portMax, separatorProtocol, protocol);
-  }
-
-  public Port port(SyntaxToken portMin, SyntaxToken separatorPort, SyntaxToken portMax, Optional<SyntaxToken> separatorProtocol) {
-    return new PortImpl(portMin, separatorPort, portMax, separatorProtocol.orNull(), null);
-  }
-
-  public Port port(SyntaxToken port, SyntaxToken separatorProtocol, SyntaxToken protocol) {
-    return new PortImpl(port, null, port, separatorProtocol, protocol);
-  }
-
-  public Port port(SyntaxToken port, Optional<SyntaxToken> separatorProtocol) {
-    return new PortImpl(port, null, port, separatorProtocol.orNull(), null);
-  }
-
-  public Port port(SyntaxToken portToken) {
-    return new PortImpl(portToken, null, portToken, null, null);
+  public ExposeInstruction expose(SyntaxToken keyword, List<Argument> arguments) {
+    return new ExposeInstructionImpl(keyword, arguments);
   }
 
   public LabelInstruction label(SyntaxToken token, List<KeyValuePair> keyValuePairs) {
@@ -283,6 +261,10 @@ public class TreeFactory {
 
   public ShellForm shellForm(List<SyntaxToken> tokens) {
     return new ShellFormImpl(tokens);
+  }
+
+  public <T, U> U ignoreFirst(T firstItem, U secondItem) {
+    return secondItem;
   }
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {

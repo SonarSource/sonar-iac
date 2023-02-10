@@ -43,7 +43,6 @@ public interface DockerTree extends Tree {
     STOPSIGNAL(StopSignalInstruction.class),
     WORKDIR(WorkdirInstruction.class),
     EXPOSE(ExposeInstruction.class),
-    PORT(Port.class),
     LABEL(LabelInstruction.class),
     ENV(EnvInstruction.class),
     KEY_VALUE_PAIR(KeyValuePair.class),

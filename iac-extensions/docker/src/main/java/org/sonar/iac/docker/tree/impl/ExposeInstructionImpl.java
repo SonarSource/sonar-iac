@@ -22,23 +22,24 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
-import org.sonar.iac.docker.tree.api.Port;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class ExposeInstructionImpl extends InstructionImpl implements ExposeInstruction {
-  private final List<Port> ports;
 
-  public ExposeInstructionImpl(SyntaxToken keyword, List<Port> ports) {
+  private final List<Argument> arguments;
+
+  public ExposeInstructionImpl(SyntaxToken keyword, List<Argument> arguments) {
     super(keyword);
-    this.ports = ports;
+    this.arguments = arguments;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    children.addAll(ports);
+    children.addAll(arguments);
     return children;
   }
   @Override
@@ -47,7 +48,7 @@ public class ExposeInstructionImpl extends InstructionImpl implements ExposeInst
   }
 
   @Override
-  public List<Port> ports() {
-    return ports;
+  public List<Argument> arguments() {
+    return arguments;
   }
 }
