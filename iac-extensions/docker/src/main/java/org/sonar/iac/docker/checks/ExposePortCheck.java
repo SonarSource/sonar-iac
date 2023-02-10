@@ -68,7 +68,7 @@ public class ExposePortCheck implements IacCheck {
     String portStr = ArgumentUtils.resolve(arg).value();
     if (portStr == null) return;
     try {
-      Port port = Port.parse(portStr);
+      Port port = new Port.PortParser(portStr).parsePort().parseProtocol().build();
       if (port.protocol == Protocol.TCP && isSensitivePort(port.portMin, port.portMax)) {
         ctx.reportIssue(arg, MESSAGE);
       }
@@ -99,28 +99,36 @@ public class ExposePortCheck implements IacCheck {
      * Parse a string as a Port representation.
      * Expected format : [0-9]+(-[0-9]+)?(/(tcp|udp)?)?
      */
-    static Port parse(String str) {
-      Port port = new Port();
-      String[] splittedProtocol = str.split("/");
-      port.parsePorts(splittedProtocol[0].split("-"));
-      port.parseProtocol(splittedProtocol);
-      return port;
-    }
-
-    private void parsePorts(String[] ports) {
-      portMin = Integer.parseInt(ports[0]);
-      if (ports.length > 1) {
-        portMax = Integer.parseInt(ports[1]);
-      } else {
-        portMax = portMin;
+    static class PortParser {
+      String[] splittedProtocol;
+      Port port;
+      public PortParser(String str) {
+        port = new Port();
+        splittedProtocol = str.split("/");
       }
-    }
 
-    private void parseProtocol(String[] splittedProtocol) {
-      if (splittedProtocol.length > 1 && splittedProtocol[1].equalsIgnoreCase("udp")) {
-        protocol = Protocol.UDP;
-      } else {
-        protocol = Protocol.TCP;
+      public PortParser parsePort() {
+        String[] ports = splittedProtocol[0].split("-");
+        port.portMin = Integer.parseInt(ports[0]);
+        if (ports.length > 1) {
+          port.portMax = Integer.parseInt(ports[1]);
+        } else {
+          port.portMax = port.portMin;
+        }
+        return this;
+      }
+
+      public PortParser parseProtocol() {
+        if (splittedProtocol.length > 1 && splittedProtocol[1].equalsIgnoreCase("udp")) {
+          port.protocol = Protocol.UDP;
+        } else {
+          port.protocol = Protocol.TCP;
+        }
+        return this;
+      }
+
+      public Port build() {
+        return port;
       }
     }
   }

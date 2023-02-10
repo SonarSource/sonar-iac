@@ -19,8 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-
-public interface ExposeInstruction extends Instruction {
-  List<Argument> arguments();
+public interface ExposeInstruction extends Instruction, HasArguments {
 }

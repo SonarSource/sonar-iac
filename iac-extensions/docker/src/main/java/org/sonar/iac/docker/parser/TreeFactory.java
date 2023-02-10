@@ -263,10 +263,6 @@ public class TreeFactory {
     return new ShellFormImpl(tokens);
   }
 
-  public <T, U> U ignoreFirst(T firstItem, U secondItem) {
-    return secondItem;
-  }
-
   public <T, U> Tuple<T, U> tuple(T first, U second) {
     return new Tuple<>(first, second);
   }
