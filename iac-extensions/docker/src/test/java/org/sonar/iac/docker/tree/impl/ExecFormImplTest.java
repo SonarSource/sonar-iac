@@ -24,10 +24,12 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,12 +63,12 @@ class ExecFormImplTest {
     assertThat(execForm.getKind()).isEqualTo(DockerTree.Kind.EXEC_FORM);
     assertThat(execForm.leftBracket().value()).isEqualTo("[");
     assertThat(execForm.rightBracket().value()).isEqualTo("]");
-    List<String> elementsAndSeparatorsAsText = execForm.expressionsWithSeparators().elementsAndSeparators().stream()
+    List<String> elementsAndSeparatorsAsText = execForm.argumentsWithSeparators().elementsAndSeparators().stream()
       .map(t -> {
         if (t instanceof SyntaxToken) {
           return ((SyntaxToken) t).value();
-        } else if (t instanceof ExpandableStringLiteral) {
-          return ExecFormTestUtils.toString(((ExpandableStringLiteral) t).expressions());
+        } else if (t instanceof Argument) {
+          return ArgumentUtils.resolve((Argument) t).value();
         } else {
           throw new RuntimeException("Invalid cast from " + t.getClass());
         }
@@ -74,11 +76,20 @@ class ExecFormImplTest {
       .collect(Collectors.toList());
     assertThat(elementsAndSeparatorsAsText).containsExactly("executable", "param1", "param2", ",", ",");
 
-    List<ExpandableStringLiteral> elements = execForm.expressionsWithSeparators().elements();
-    assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.EXPANDABLE_STRING_LITERAL);
-    assertThat(execForm.arguments().stream().map(ExecFormTestUtils::toString)).containsExactly("executable", "param1", "param2");
+    for (Argument argument : execForm.argumentsWithSeparators().elements()) {
+      assertThat(argument.expressions()).hasSize(1);
+      assertThat(argument.expressions().get(0).getKind()).isEqualTo(DockerTree.Kind.EXPANDABLE_STRING_LITERAL);
+    }
 
-    assertThat(execForm.expressionsWithSeparators().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
+    List<Argument> elements = execForm.argumentsWithSeparators().elements();
+    assertThat(elements.get(0)).satisfies(argument -> {
+      assertThat(argument.expressions()).hasSize(1);
+      assertThat(argument.expressions().get(0).getKind()).isEqualTo(DockerTree.Kind.EXPANDABLE_STRING_LITERAL);
+    });
+    assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.ARGUMENT);
+    assertThat(execForm.arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("executable", "param1", "param2");
+
+    assertThat(execForm.argumentsWithSeparators().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
 
     assertThatThrownBy(execForm::literals)
       .isInstanceOf(UnsupportedOperationException.class)

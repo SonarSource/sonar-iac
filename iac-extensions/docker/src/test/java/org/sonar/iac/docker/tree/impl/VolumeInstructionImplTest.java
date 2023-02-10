@@ -27,6 +27,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
@@ -68,7 +69,7 @@ class VolumeInstructionImplTest {
     VolumeInstruction tree = parse("VOLUME [\"/var/log\", \"/var/db\"]", DockerLexicalGrammar.VOLUME);
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
 
-    assertThat(tree.arguments().arguments().stream().map(ExecFormTestUtils::toString)).containsExactly("/var/log", "/var/db");
+    assertThat(tree.arguments().arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("/var/log", "/var/db");
   }
 
   @Test

@@ -19,9 +19,12 @@
  */
 package org.sonar.iac.docker.utils;
 
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
+import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.Literal;
 
@@ -32,8 +35,12 @@ public class ArgumentUtils {
   }
 
   public static ArgumentResolution resolve(Argument argument) {
+    return resolve(argument.expressions());
+  }
+
+  public static ArgumentResolution resolve(List<Expression> expressions) {
     StringBuilder sb = new StringBuilder();
-    for (Expression expression : argument.expressions()) {
+    for (Expression expression : expressions) {
       String expressionResolution = resolveExpression(expression);
       if (expressionResolution == null) {
         return new ArgumentResolution(null);
@@ -48,10 +55,16 @@ public class ArgumentUtils {
     if (expression.is(DockerTree.Kind.STRING_LITERAL)) {
       return ((Literal)expression).value();
     }
+    if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_LITERAL)) {
+      return resolve(((ExpandableStringLiteral)expression).expressions()).value();
+    }
+    if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_CHARACTERS)) {
+      return ((ExpandableStringCharacters)expression).value();
+    }
     return null;
   }
 
-  static class ArgumentResolution {
+  public static class ArgumentResolution {
 
     private final String value;
 

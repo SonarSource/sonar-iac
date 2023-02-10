@@ -21,6 +21,6 @@ package org.sonar.iac.docker.tree.api;
 
 public interface ExecForm extends LiteralList {
   SyntaxToken leftBracket();
-  SeparatedList<ExpandableStringLiteral> expressionsWithSeparators();
+  SeparatedList<Argument> argumentsWithSeparators();
   SyntaxToken rightBracket();
 }

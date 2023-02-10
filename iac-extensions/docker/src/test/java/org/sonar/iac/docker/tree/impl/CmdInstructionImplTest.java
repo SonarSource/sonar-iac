@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -34,6 +35,7 @@ import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -89,7 +91,7 @@ class CmdInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().arguments().stream().map(ExecFormTestUtils::toString)).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().arguments().stream().map(t -> ArgumentUtils.resolve(t).value())).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
@@ -125,7 +127,7 @@ class CmdInstructionImplTest {
     assertThat(tree.arguments().arguments()).isEmpty();
 
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
-    SeparatedList<ExpandableStringLiteral> literals = ((ExecForm) tree.arguments()).expressionsWithSeparators();
+    SeparatedList<Argument> literals = ((ExecForm) tree.arguments()).argumentsWithSeparators();
     assertThat(literals.elementsAndSeparators()).isEmpty();
     assertThat(literals.elements()).isEmpty();
     assertThat(literals.separators()).isEmpty();

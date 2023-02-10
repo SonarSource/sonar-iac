@@ -260,17 +260,21 @@ public class TreeFactory {
     return new HereDocumentImpl(content);
   }
 
-  public ExecForm execForm(SyntaxToken leftBracket, Optional<ExpandableStringLiteral> firstExpression,
-    Optional<List<Tuple<SyntaxToken, ExpandableStringLiteral>>> otherExpressions,
+  public Argument expressionAsArgument(Expression expression) {
+    return new ArgumentImpl(List.of(expression));
+  }
+
+  public ExecForm execForm(SyntaxToken leftBracket, Optional<Argument> firstArgument,
+    Optional<List<Tuple<SyntaxToken, Argument>>> otherArguments,
     SyntaxToken rightBracket) {
 
-    List<ExpandableStringLiteral> elements = new ArrayList<>();
+    List<Argument> elements = new ArrayList<>();
     List<SyntaxToken> separators = new ArrayList<>();
-    SeparatedList<ExpandableStringLiteral> separatedList = new SeparatedListImpl<>(elements, separators);
-    if (firstExpression.isPresent()) {
-      elements.add(firstExpression.get());
-      if (otherExpressions.isPresent()) {
-        for (Tuple<SyntaxToken, ExpandableStringLiteral> expressionWithComma : otherExpressions.get()) {
+    SeparatedList<Argument> separatedList = new SeparatedListImpl<>(elements, separators);
+    if (firstArgument.isPresent()) {
+      elements.add(firstArgument.get());
+      if (otherArguments.isPresent()) {
+        for (Tuple<SyntaxToken, Argument> expressionWithComma : otherArguments.get()) {
           separators.add(expressionWithComma.first());
           elements.add(expressionWithComma.second());
         }
