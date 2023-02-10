@@ -22,12 +22,13 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirInstruction;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,13 +64,10 @@ class WorkdirInstructionImplTest {
     WorkdirInstruction tree = DockerTestUtils.parse("WORKDIR /foo bar /baz", DockerLexicalGrammar.WORKDIR);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.WORKDIR);
     assertThat(tree.keyword().value()).isEqualTo("WORKDIR");
-    assertThat(tree.workdirList().stream().map(TextTree::value)).containsExactly("/foo", "bar", "/baz");
-    List<SyntaxToken> children = tree.children().stream()
-      .map(c -> (SyntaxToken) c)
-      .collect(Collectors.toList());
-    assertThat(children.get(0).value()).isEqualTo("WORKDIR");
-    assertThat(children.get(1).value()).isEqualTo("/foo");
-    assertThat(children.get(2).value()).isEqualTo("bar");
-    assertThat(children.get(3).value()).isEqualTo("/baz");
+    assertThat(tree.arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("/foo", "bar", "/baz");
+    assertThat(tree.children().get(0)).isInstanceOf(SyntaxToken.class);
+    assertThat(tree.children().get(1)).isInstanceOf(Argument.class);
+    assertThat(tree.children().get(2)).isInstanceOf(Argument.class);
+    assertThat(tree.children().get(3)).isInstanceOf(Argument.class);
   }
 }

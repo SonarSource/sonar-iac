@@ -51,7 +51,7 @@ public class ArgumentUtils {
     return null;
   }
 
-  static class ArgumentResolution {
+  public static class ArgumentResolution {
 
     private final String value;
 

@@ -22,23 +22,24 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.WorkdirInstruction;
 
 public class WorkdirInstructionImpl extends InstructionImpl implements WorkdirInstruction {
 
-  private final List<SyntaxToken> workdirList;
+  private final List<Argument> arguments;
 
-  public WorkdirInstructionImpl(SyntaxToken keyword, List<SyntaxToken> workdirList) {
+  public WorkdirInstructionImpl(SyntaxToken keyword, List<Argument> arguments) {
     super(keyword);
-    this.workdirList = workdirList;
+    this.arguments = arguments;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
     result.add(keyword);
-    result.addAll(workdirList);
+    result.addAll(arguments);
     return result;
   }
 
@@ -48,7 +49,7 @@ public class WorkdirInstructionImpl extends InstructionImpl implements WorkdirIn
   }
 
   @Override
-  public List<SyntaxToken> workdirList() {
-    return workdirList;
+  public List<Argument> arguments() {
+    return arguments;
   }
 }
