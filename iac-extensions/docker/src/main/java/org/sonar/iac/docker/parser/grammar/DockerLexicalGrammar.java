@@ -88,11 +88,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   KEY_VALUE_PAIR_EQUALS,
   KEY_VALUE_PAIR_SINGLE,
 
-  PARAM,
-  PARAM_NO_VALUE,
-  PARAM_PREFIX,
-  PARAM_NAME,
-  PARAM_VALUE,
+  FLAG,
+  FLAG_PREFIX,
+  FLAG_NAME,
   ARG_NAME,
   EXEC_FORM,
   SHELL_FORM,
@@ -194,9 +192,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(IMAGE_DIGEST).is(b.regexp("@[a-zA-Z0-9:]+"));
     b.rule(IMAGE_ALIAS).is(SKIPPED_WHITESPACE, b.regexp("[-a-zA-Z0-9_\\.]+"));
 
-    b.rule(PARAM_PREFIX).is(SKIPPED_WHITESPACE, b.regexp("--"));
-    b.rule(PARAM_NAME).is(b.regexp("[a-z][-a-z]*+"));
-    b.rule(PARAM_VALUE).is(b.regexp("[^\\s]+"));
+    b.rule(FLAG_PREFIX).is(SKIPPED_WHITESPACE, b.regexp("--"));
+    b.rule(FLAG_NAME).is(b.regexp("[a-z][-a-z]*+"));
 
     b.rule(ALIAS_AS).is(SKIPPED_WHITESPACE, b.regexp("(?i)AS"));
     b.rule(HEALTHCHECK_NONE).is(SKIPPED_WHITESPACE, b.regexp("(?i)NONE"));

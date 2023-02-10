@@ -26,8 +26,9 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -138,7 +139,7 @@ class AddInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 20);
     assertThat(tree.options()).hasSize(1);
 
-    Param option = tree.options().get(0);
+    Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("link");
     assertThat(option.value()).isNull();
@@ -154,10 +155,10 @@ class AddInstructionImplTest {
     assertThat(tree.options()).hasSize(1);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 39);
 
-    Param option = tree.options().get(0);
+    Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("chown");
-    assertThat(option.value().value()).isEqualTo("55:mygroup");
+    assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("55:mygroup");
 
     assertThat(tree.srcs()).hasSize(1);
     assertThat(tree.srcs().get(0).value()).isEqualTo("files*");
@@ -171,15 +172,15 @@ class AddInstructionImplTest {
     assertThat(tree.options()).hasSize(2);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 52);
 
-    Param option1 = tree.options().get(0);
+    Flag option1 = tree.options().get(0);
     assertThat(option1.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option1.name()).isEqualTo("option-one");
-    assertThat(option1.value().value()).isEqualTo("value1");
+    assertThat(ArgumentUtils.resolve(option1.value()).value()).isEqualTo("value1");
 
-    Param option2 = tree.options().get(1);
+    Flag option2 = tree.options().get(1);
     assertThat(option2.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option2.name()).isEqualTo("option-two");
-    assertThat(option2.value().value()).isEqualTo("value2");
+    assertThat(ArgumentUtils.resolve(option2.value()).value()).isEqualTo("value2");
 
     assertThat(tree.srcs()).hasSize(1);
     assertThat(tree.srcs().get(0).value()).isEqualTo("src");

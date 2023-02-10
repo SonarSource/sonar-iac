@@ -24,15 +24,15 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class HealthCheckInstructionImpl extends InstructionImpl implements HealthCheckInstruction {
 
-  private final List<Param> options;
+  private final List<Flag> options;
   private final Instruction instruction;
 
-  public HealthCheckInstructionImpl(SyntaxToken keyword, List<Param> options, Instruction instruction) {
+  public HealthCheckInstructionImpl(SyntaxToken keyword, List<Flag> options, Instruction instruction) {
     super(keyword);
     this.options = options;
     this.instruction = instruction;
@@ -49,7 +49,7 @@ public class HealthCheckInstructionImpl extends InstructionImpl implements Healt
   }
 
   @Override
-  public List<Param> options() {
+  public List<Flag> options() {
     return options;
   }
 

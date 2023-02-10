@@ -30,9 +30,10 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 import org.sonar.iac.docker.utils.CheckUtils;
 
 @Rule(key = "S6469")
@@ -54,12 +55,12 @@ public class MountWorldPermissionCheck implements IacCheck {
   public void initialize(InitContext init) {
     init.register(RunInstruction.class, (ctx, run) ->
       CheckUtils.getParamByName(run.options(), "mount")
-        .map(Param::value)
+        .map(Flag::value)
         .ifPresent(mount -> checkMountParam(ctx, mount)));
   }
 
-  private static void checkMountParam(CheckContext ctx, SyntaxToken mountOptions) {
-    String value = mountOptions.value();
+  private static void checkMountParam(CheckContext ctx, Argument mountOptions) {
+    String value = ArgumentUtils.resolve(mountOptions).value();
     TextPointer start = mountOptions.textRange().start();
     MountOption type = MountOption.creatFromMatcher(MOUNT_TYPE_PATTERN.matcher(value), start);
     MountOption mode = MountOption.creatFromMatcher(MOUNT_MODE_PATTERN.matcher(value), start);

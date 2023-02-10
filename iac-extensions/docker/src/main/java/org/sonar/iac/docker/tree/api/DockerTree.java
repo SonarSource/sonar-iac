@@ -37,7 +37,7 @@ public interface DockerTree extends Tree {
     ONBUILD(OnBuildInstruction.class),
     FROM(FromInstruction.class),
     IMAGE(Image.class),
-    PARAM(Param.class),
+    PARAM(Flag.class),
     ALIAS(Alias.class),
     MAINTAINER(MaintainerInstruction.class),
     STOPSIGNAL(StopSignalInstruction.class),

@@ -24,15 +24,15 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.LiteralList;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class RunInstructionImpl extends AbstractCommandInstructionImpl implements RunInstruction {
 
-  private final List<Param> options;
+  private final List<Flag> options;
 
-  public RunInstructionImpl(SyntaxToken keyword, List<Param> options, @Nullable LiteralList arguments) {
+  public RunInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable LiteralList arguments) {
     super(keyword, arguments);
     this.options = options;
   }
@@ -54,7 +54,7 @@ public class RunInstructionImpl extends AbstractCommandInstructionImpl implement
   }
 
   @Override
-  public List<Param> options() {
+  public List<Flag> options() {
     return options;
   }
 }

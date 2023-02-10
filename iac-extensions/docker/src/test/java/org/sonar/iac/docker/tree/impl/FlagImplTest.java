@@ -23,17 +23,18 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
-class ParamImplTest {
+class FlagImplTest {
 
   @Test
   void matchingSimple() {
-    Assertions.assertThat(DockerLexicalGrammar.PARAM)
+    Assertions.assertThat(DockerLexicalGrammar.FLAG)
       .matches(" --platform=foo")
       .matches(" --platform=FOO")
       .matches(" --chown=55:mygroup")
@@ -41,6 +42,8 @@ class ParamImplTest {
       .matches(" --chown=55:mygroup")
       .matches(" --mount=type=secret,id=build_secret,mode=0666")
       .matches(" --platform=")
+      .matches(" --platform=\"foo\"")
+      .matches(" --platform=\"foo\"${val}other")
 
       .notMatches("--platform=foo")
       .notMatches(" -platform=foo")
@@ -54,10 +57,10 @@ class ParamImplTest {
 
   @Test
   void test() {
-    Param param = parse(" --platform=foo", DockerLexicalGrammar.PARAM);
+    Flag param = parse(" --platform=foo", DockerLexicalGrammar.FLAG);
     assertThat(param.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(param.name()).isEqualTo("platform");
-    assertThat(param.value().value()).isEqualTo("foo");
+    assertThat(ArgumentUtils.resolve(param.value()).value()).isEqualTo("foo");
     assertTextRange(param.textRange()).hasRange(1, 1, 1, 15);
   }
 

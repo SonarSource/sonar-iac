@@ -26,16 +26,16 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.Image;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class FromInstructionImpl extends InstructionImpl implements FromInstruction {
 
-  private final Param platform;
+  private final Flag platform;
   private final Image image;
   private final Alias alias;
 
-  public FromInstructionImpl(SyntaxToken keyword, @Nullable Param platform, Image image, @Nullable Alias alias) {
+  public FromInstructionImpl(SyntaxToken keyword, @Nullable Flag platform, Image image, @Nullable Alias alias) {
     super(keyword);
     this.platform = platform;
     this.image = image;
@@ -44,7 +44,7 @@ public class FromInstructionImpl extends InstructionImpl implements FromInstruct
 
   @Nullable
   @Override
-  public Param platform() {
+  public Flag platform() {
     return platform;
   }
 

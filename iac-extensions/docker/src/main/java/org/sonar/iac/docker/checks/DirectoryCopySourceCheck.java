@@ -29,7 +29,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.SyntaxTokenUtils;
 
@@ -63,7 +63,7 @@ public class DirectoryCopySourceCheck implements IacCheck {
     }
   }
 
-  private static boolean hasOption(List<Param> options, String key) {
+  private static boolean hasOption(List<Flag> options, String key) {
     return options.stream().anyMatch(param -> param.name().equals(key));
   }
 

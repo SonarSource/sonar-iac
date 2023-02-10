@@ -24,7 +24,7 @@ import javax.annotation.CheckForNull;
 public interface FromInstruction extends Instruction {
 
   @CheckForNull
-  Param platform();
+  Flag platform();
 
   Image image();
 
