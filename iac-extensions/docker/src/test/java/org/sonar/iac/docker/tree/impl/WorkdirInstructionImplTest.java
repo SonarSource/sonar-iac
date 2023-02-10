@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;

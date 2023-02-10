@@ -223,10 +223,10 @@ public class DockerGrammar {
     return b.<WorkdirInstruction>nonterminal(DockerLexicalGrammar.WORKDIR).is(
       f.workdir(
         b.token(DockerKeyword.WORKDIR),
-        b.oneOrMore(f.tuple(
+        b.oneOrMore(f.ignoreFirst(
           b.token(DockerLexicalGrammar.WHITESPACE),
-          ARGUMENT()
-        ))
+          ARGUMENT())
+        )
       )
     );
   }
@@ -285,7 +285,7 @@ public class DockerGrammar {
     return b.<UserInstruction>nonterminal(DockerLexicalGrammar.USER).is(
       f.user(
         b.token(DockerKeyword.USER),
-        b.oneOrMore(f.tuple(
+        b.oneOrMore(f.ignoreFirst(
           b.token(DockerLexicalGrammar.WHITESPACE),
           ARGUMENT()
         ))
@@ -455,12 +455,12 @@ public class DockerGrammar {
       f.execForm(
         b.token(Punctuator.LBRACKET),
         b.optional(
-          f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)),
+          f.ignoreFirst(b.optional(b.token(WHITESPACE)),
             f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL()))),
         b.zeroOrMore(
           f.tuple(
             b.token(Punctuator.COMMA),
-            f.withOptionalWhitespace(b.optional(b.token(WHITESPACE)),
+            f.ignoreFirst(b.optional(b.token(WHITESPACE)),
               f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL())))),
         b.token(Punctuator.RBRACKET)
       )

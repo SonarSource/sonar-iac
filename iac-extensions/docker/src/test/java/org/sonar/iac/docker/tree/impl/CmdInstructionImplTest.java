@@ -30,7 +30,6 @@ import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
-import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;

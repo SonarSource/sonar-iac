@@ -73,7 +73,7 @@ class UserInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.arguments()).hasSize(1);
-    assertThat(ArgumentUtils.resolve(tree.arguments()).value()).isEqualTo("bob");
+    assertThat(ArgumentUtils.resolveAndMerge(tree).value()).isEqualTo("bob");
   }
 
   @Test
@@ -84,6 +84,6 @@ class UserInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 14);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.arguments()).hasSize(1);
-    assertThat(ArgumentUtils.resolve(tree.arguments()).value()).isEqualTo("bob:group");
+    assertThat(ArgumentUtils.resolveAndMerge(tree).value()).isEqualTo("bob:group");
   }
 }

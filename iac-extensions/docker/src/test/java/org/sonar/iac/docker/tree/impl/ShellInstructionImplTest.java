@@ -19,13 +19,11 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

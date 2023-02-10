@@ -97,7 +97,7 @@ public class PrivilegedUserCheck implements IacCheck {
         ctx.reportIssue(dockerImage.from(), MESSAGE_OTHER_IMAGE);
       }
     } else {
-      String user = ArgumentUtils.resolve(lastUser.get().arguments()).value();
+      String user = ArgumentUtils.resolveAndMerge(lastUser.get()).value();
       if(UNSAFE_USERS.contains(user)) {
         ctx.reportIssue(lastUser.get(), String.format(MESSAGE_ROOT_USER, user));
       }
