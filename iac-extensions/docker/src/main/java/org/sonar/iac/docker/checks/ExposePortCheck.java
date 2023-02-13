@@ -22,7 +22,6 @@ package org.sonar.iac.docker.checks;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Rule;
@@ -30,9 +29,9 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
-import org.sonar.iac.docker.tree.api.Port;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6473")
 public class ExposePortCheck implements IacCheck {
@@ -51,7 +50,7 @@ public class ExposePortCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(ExposeInstruction.class, (ctx, instruction) -> instruction.ports().forEach(port -> checkPort(ctx, port)));
+    init.register(ExposeInstruction.class, (ctx, instruction) -> instruction.arguments().forEach(arg -> checkPort(ctx, arg)));
     sensitivePorts = sensitivePorts(portList);
   }
 
@@ -65,17 +64,16 @@ public class ExposePortCheck implements IacCheck {
     }
   }
 
-  private void checkPort(CheckContext ctx, Port port) {
-    if (isTcpProtocol(port.protocol())) {
-      try {
-        int min = Integer.parseInt(port.portMin().value());
-        int max = Integer.parseInt(port.portMax().value());
-        if (isSensitivePort(min, max)) {
-          ctx.reportIssue(port, MESSAGE);
-        }
-      } catch (NumberFormatException e) {
-        // do nothing
+  private void checkPort(CheckContext ctx, Argument arg) {
+    String portStr = ArgumentUtils.resolve(arg).value();
+    if (portStr == null) return;
+    try {
+      Port port = new Port.PortParser(portStr).parsePort().parseProtocol().build();
+      if (port.protocol == Protocol.TCP && isSensitivePort(port.portMin, port.portMax)) {
+        ctx.reportIssue(arg, MESSAGE);
       }
+    } catch (NumberFormatException e) {
+      // do nothing
     }
   }
 
@@ -87,14 +85,52 @@ public class ExposePortCheck implements IacCheck {
     return value >= min && value <= max;
   }
 
+  enum Protocol {TCP, UDP}
+
   /**
-   * If no protocol is specified it defaults to TCP
+   * Represent a single Port exposition in docker, with a range and a protocol.
    */
-  private static boolean isTcpProtocol(@Nullable SyntaxToken protocol) {
-    if (protocol != null) {
-      return "tcp".equals(protocol.value());
+  static class Port {
+    int portMin;
+    int portMax;
+    Protocol protocol;
+
+    /**
+     * Parse a string as a Port representation.
+     * Expected format : [0-9]+(-[0-9]+)?(/(tcp|udp)?)?
+     */
+    static class PortParser {
+      String[] splittedProtocol;
+      Port port;
+      public PortParser(String str) {
+        port = new Port();
+        splittedProtocol = str.split("/");
+      }
+
+      public PortParser parsePort() {
+        String[] ports = splittedProtocol[0].split("-");
+        port.portMin = Integer.parseInt(ports[0]);
+        if (ports.length > 1) {
+          port.portMax = Integer.parseInt(ports[1]);
+        } else {
+          port.portMax = port.portMin;
+        }
+        return this;
+      }
+
+      public PortParser parseProtocol() {
+        if (splittedProtocol.length > 1 && splittedProtocol[1].equalsIgnoreCase("udp")) {
+          port.protocol = Protocol.UDP;
+        } else {
+          port.protocol = Protocol.TCP;
+        }
+        return this;
+      }
+
+      public Port build() {
+        return port;
+      }
     }
-    return true;
   }
 
 }

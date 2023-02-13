@@ -106,12 +106,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   IMAGE_TAG,
   IMAGE_DIGEST,
 
-  EXPOSE_PORT,
-  EXPOSE_PORT_MAX,
-  EXPOSE_SEPARATOR_PORT,
-  EXPOSE_SEPARATOR_PROTOCOL,
-  EXPOSE_PROTOCOL,
-
   HEREDOC_EXPRESSION,
 
   QUOTED_STRING_LITERAL,
@@ -194,12 +188,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
     b.rule(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(b.regexp("(?:\"[^\"]*\"|[^\\s])+"));
-
-    b.rule(EXPOSE_PORT).is(SKIPPED_WHITESPACE, b.regexp("[0-9]+"));
-    b.rule(EXPOSE_PORT_MAX).is(b.regexp("[0-9]+"));
-    b.rule(EXPOSE_SEPARATOR_PORT).is(b.regexp("-"));
-    b.rule(EXPOSE_SEPARATOR_PROTOCOL).is(b.regexp("/"));
-    b.rule(EXPOSE_PROTOCOL).is(b.regexp("[a-zA-Z]+"));
 
     b.rule(IMAGE_NAME).is(SKIPPED_WHITESPACE, b.regexp("[^@:\\s-][^@:\\s\\$]+"));
     b.rule(IMAGE_TAG).is(b.regexp(":[^@\\s]+"));
