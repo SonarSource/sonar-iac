@@ -51,12 +51,7 @@ import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
-<<<<<<< HEAD
-import org.sonar.iac.docker.tree.api.Param;
-=======
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.tree.api.Port;
->>>>>>> c5616960 (SONARIAC-543 Change ParamTree to Flag and change its implementation to use Argument for value)
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;

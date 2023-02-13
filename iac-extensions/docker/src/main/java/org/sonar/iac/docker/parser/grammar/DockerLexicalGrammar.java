@@ -193,7 +193,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(IMAGE_ALIAS).is(SKIPPED_WHITESPACE, b.regexp("[-a-zA-Z0-9_\\.]+"));
 
     b.rule(FLAG_PREFIX).is(SKIPPED_WHITESPACE, b.regexp("--"));
-    b.rule(FLAG_NAME).is(b.regexp("[a-z][-a-z]*+"));
+    b.rule(FLAG_NAME).is(b.regexp(DockerLexicalConstant.FLAG_NAME));
 
     b.rule(ALIAS_AS).is(SKIPPED_WHITESPACE, b.regexp("(?i)AS"));
     b.rule(HEALTHCHECK_NONE).is(SKIPPED_WHITESPACE, b.regexp("(?i)NONE"));
