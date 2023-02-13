@@ -68,4 +68,10 @@ class WorkdirInstructionImplTest {
     assertThat(tree.children().get(2)).isInstanceOf(Argument.class);
     assertThat(tree.children().get(3)).isInstanceOf(Argument.class);
   }
+
+  @Test
+  void test() {
+    WorkdirInstruction tree = DockerTestUtils.parse("WORKDIR executable \"param1 ${my_var:-test}\"", DockerLexicalGrammar.WORKDIR);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.WORKDIR);
+  }
 }

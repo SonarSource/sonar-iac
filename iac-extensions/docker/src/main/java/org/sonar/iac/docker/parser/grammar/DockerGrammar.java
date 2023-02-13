@@ -68,7 +68,6 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.KEY_IN_KE
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.WHITESPACE;
 
 @SuppressWarnings("java:S100")
 public class DockerGrammar {
@@ -344,7 +343,7 @@ public class DockerGrammar {
         b.optional(
           b.firstOf(
             EXEC_FORM(),
-            SHELL_FORM()
+            SHELL_FORM_GENERIC()
           )
         )
       )
@@ -358,7 +357,7 @@ public class DockerGrammar {
         b.optional(
           b.firstOf(
             EXEC_FORM(),
-            SHELL_FORM()
+            SHELL_FORM_GENERIC()
           )
         )
       )
@@ -376,7 +375,7 @@ public class DockerGrammar {
           b.firstOf(
             HEREDOC_FORM(),
             EXEC_FORM(),
-            SHELL_FORM()
+            SHELL_FORM_GENERIC()
           )
         )
       )
@@ -418,12 +417,12 @@ public class DockerGrammar {
       f.execForm(
         b.token(Punctuator.LBRACKET),
         b.optional(
-          f.ignoreFirst(b.optional(b.token(WHITESPACE)),
+          f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
             f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL()))),
         b.zeroOrMore(
           f.tuple(
             b.token(Punctuator.COMMA),
-            f.ignoreFirst(b.optional(b.token(WHITESPACE)),
+            f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
               f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL())))),
         b.token(Punctuator.RBRACKET)
       )
@@ -437,7 +436,20 @@ public class DockerGrammar {
     return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM).is(
       f.shellForm(
         b.oneOrMore(
-          b.token(STRING_LITERAL)
+          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT())
+        )
+      )
+    );
+  }
+
+  /**
+   * Generic version of Shell Form, which should be used to parse non-docker-only syntax for shell content.
+   */
+  public ShellForm SHELL_FORM_GENERIC() {
+    return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM_GENERIC).is(
+      f.shellForm(
+        b.oneOrMore(
+          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC())
         )
       )
     );
@@ -476,6 +488,19 @@ public class DockerGrammar {
     );
   }
 
+  public Argument ARGUMENT_GENERIC() {
+    return b.<Argument>nonterminal(DockerLexicalGrammar.ARGUMENT_GENERIC).is(
+      f.newArgument(
+        b.oneOrMore(
+          b.firstOf(
+            STRING_LITERAL_GENERIC(),
+            VARIABLE_GENERIC()
+          )
+        )
+      )
+    );
+  }
+
   public Argument KEY_ARGUMENT() {
     return b.<Argument>nonterminal().is(
       f.newArgument(
@@ -496,6 +521,15 @@ public class DockerGrammar {
       b.firstOf(
         REGULAR_STRING_LITERAL(),
         EXPANDABLE_STRING_LITERAL()
+      )
+    );
+  }
+
+  public Expression STRING_LITERAL_GENERIC() {
+    return b.<Expression>nonterminal().is(
+      b.firstOf(
+        REGULAR_STRING_LITERAL(),
+        EXPANDABLE_STRING_LITERAL_GENERIC()
       )
     );
   }
@@ -559,6 +593,17 @@ public class DockerGrammar {
         b.token(Punctuator.DOUBLE_QUOTE)));
   }
 
+  public ExpandableStringLiteral EXPANDABLE_STRING_LITERAL_GENERIC() {
+    return b.<ExpandableStringLiteral>nonterminal(DockerLexicalGrammar.EXPANDABLE_STRING_LITERAL_GENERIC).is(
+      f.expandableStringLiteral(
+        b.token(Punctuator.DOUBLE_QUOTE),
+        b.oneOrMore(
+          b.firstOf(
+            EXPANDABLE_STRING_CHARACTERS(),
+            VARIABLE_GENERIC())),
+        b.token(Punctuator.DOUBLE_QUOTE)));
+  }
+
   public Expression EXPANDABLE_STRING_CHARACTERS() {
     return b.<ExpandableStringCharacters>nonterminal().is(
       f.expandableStringCharacters(b.token(DockerLexicalGrammar.STRING_WITH_ENCAPS_VAR_CHARACTERS)));
@@ -569,6 +614,15 @@ public class DockerGrammar {
       b.firstOf(
         REGULAR_VARIABLE(),
         ENCAPS_VARIABLE()
+      )
+    );
+  }
+
+  public Expression VARIABLE_GENERIC() {
+    return b.<Expression>nonterminal().is(
+      b.firstOf(
+        REGULAR_VARIABLE(),
+        ENCAPS_VARIABLE_GENERIC()
       )
     );
   }
@@ -592,6 +646,19 @@ public class DockerGrammar {
             b.token(DockerLexicalGrammar.ENCAPS_VAR_MODIFIER_SEPARATOR),
             ENCAPS_VARIABLE_MODIFIER()
           )
+        ),
+        b.token(Punctuator.RCURLYBRACE)
+      )
+    );
+  }
+
+  public Expression ENCAPS_VARIABLE_GENERIC() {
+    return b.<Expression>nonterminal(DockerLexicalGrammar.ENCAPSULATED_VARIABLE_GENERIC).is(
+      f.encapsulatedVariableGeneric(
+        b.token(Punctuator.DOLLAR_LCURLY),
+        b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER),
+        b.optional(
+          b.token(DockerLexicalGrammar.ENCAPS_VAR_MODIFIER_GENERIC)
         ),
         b.token(Punctuator.RCURLYBRACE)
       )
