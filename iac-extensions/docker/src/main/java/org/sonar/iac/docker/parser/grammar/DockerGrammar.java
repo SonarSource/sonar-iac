@@ -244,10 +244,18 @@ public class DockerGrammar {
 
   public LabelInstruction LABEL() {
     return b.<LabelInstruction>nonterminal(DockerLexicalGrammar.LABEL).is(
-      f.label(b.token(DockerKeyword.LABEL),
-        b.oneOrMore(
-          b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
-        )
+      b.firstOf(
+        f.label(
+          b.token(DockerKeyword.LABEL),
+          b.oneOrMore(
+            f.ignoreFirst(
+              b.token(WHITESPACE),
+              KEY_VALUE_PAIR_WITH_EQUAL()))),
+        f.label(
+          b.token(DockerKeyword.LABEL),
+          f.ignoreFirst(
+            b.token(WHITESPACE),
+            KEY_VALUE_PAIR_WITHOUT_EQUAL()))
       )
     );
   }

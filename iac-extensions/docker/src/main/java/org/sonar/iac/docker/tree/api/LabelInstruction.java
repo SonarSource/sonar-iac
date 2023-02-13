@@ -22,5 +22,5 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface LabelInstruction extends Instruction {
-  List<KeyValuePair> keyValuePairs();
+  List<NewKeyValuePair> labels();
 }

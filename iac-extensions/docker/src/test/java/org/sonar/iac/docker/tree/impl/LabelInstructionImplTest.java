@@ -19,14 +19,16 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
+import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.TestUtils.argValue;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class LabelInstructionImplTest {
@@ -58,13 +60,11 @@ class LabelInstructionImplTest {
     assertThat(tree.textRange().end().line()).isEqualTo(1);
     assertThat(tree.textRange().end().lineOffset()).isEqualTo(17);
     assertThat(tree.children()).hasSize(3);
-    assertThat(tree.keyValuePairs()).hasSize(1);
+    assertThat(tree.labels()).hasSize(1);
 
-    KeyValuePair keyValuePair = tree.keyValuePairs().get(0);
-    assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
-    assertThat(keyValuePair.key().value()).isEqualTo("key1");
-    assertThat(keyValuePair.equals()).isNull();
-    assertThat(keyValuePair.value().value()).isEqualTo("value1");
+    NewKeyValuePair label = tree.labels().get(0);
+    assertThat(label.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
+    assertLabel(label, "key1", "value1");
   }
 
   @Test
@@ -72,10 +72,9 @@ class LabelInstructionImplTest {
     LabelInstruction tree = parse("LABEL key1 value1 still_value1 again_value1", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.keyword().value()).isEqualTo("LABEL");
-    assertThat(tree.keyValuePairs()).hasSize(1);
-    KeyValuePair keyValuePair = tree.keyValuePairs().get(0);
-    assertThat(keyValuePair.key().value()).isEqualTo("key1");
-    assertThat(keyValuePair.value().value()).isEqualTo("value1 still_value1 again_value1");
+    assertThat(tree.labels()).hasSize(1);
+    NewKeyValuePair label = tree.labels().get(0);
+    assertLabel(label, "key1", "value1 still_value1 again_value1");
     assertThat(tree.children()).hasSize(3);
   }
 
@@ -84,11 +83,9 @@ class LabelInstructionImplTest {
     LabelInstruction tree = parse("LABEL key1=value1", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.keyword().value()).isEqualTo("LABEL");
-    assertThat(tree.keyValuePairs()).hasSize(1);
-    KeyValuePair keyValuePair = tree.keyValuePairs().get(0);
-    assertThat(keyValuePair.key().value()).isEqualTo("key1");
-    assertThat(keyValuePair.equals().value()).isEqualTo("=");
-    assertThat(keyValuePair.value().value()).isEqualTo("value1");
+    assertThat(tree.labels()).hasSize(1);
+    NewKeyValuePair label = tree.labels().get(0);
+    assertLabel(label, "key1", "value1");
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
@@ -101,21 +98,16 @@ class LabelInstructionImplTest {
     LabelInstruction tree = parse("LABEL key1=value1 key2=value2", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.keyword().value()).isEqualTo("LABEL");
-    assertThat(tree.keyValuePairs()).hasSize(2);
+    assertThat(tree.labels()).hasSize(2);
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
     assertThat(tree.textRange().end().lineOffset()).isEqualTo(29);
     assertThat(tree.children()).hasSize(7);
 
-    KeyValuePair keyValuePair1 = tree.keyValuePairs().get(0);
-    assertThat(keyValuePair1.key().value()).isEqualTo("key1");
-    assertThat(keyValuePair1.equals().value()).isEqualTo("=");
-    assertThat(keyValuePair1.value().value()).isEqualTo("value1");
-    KeyValuePair keyValuePair2 = tree.keyValuePairs().get(1);
-    assertThat(keyValuePair2.key().value()).isEqualTo("key2");
-    assertThat(keyValuePair2.equals().value()).isEqualTo("=");
-    assertThat(keyValuePair2.value().value()).isEqualTo("value2");
+    List<NewKeyValuePair> labels = tree.labels();
+    assertLabel(labels.get(0), "key1", "value1");
+    assertLabel(labels.get(1), "key2", "value2");
   }
 
   @Test
@@ -123,24 +115,21 @@ class LabelInstructionImplTest {
     LabelInstruction tree = parse("LABEL \"key1\"=\"value1\" \"key2\"=value2 key3=\"value3\"", DockerLexicalGrammar.LABEL);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(tree.keyword().value()).isEqualTo("LABEL");
-    assertThat(tree.keyValuePairs()).hasSize(3);
+    assertThat(tree.labels()).hasSize(3);
     assertThat(tree.textRange().start().line()).isEqualTo(1);
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
     assertThat(tree.textRange().end().lineOffset()).isEqualTo(49);
     assertThat(tree.children()).hasSize(10);
 
-    KeyValuePair keyValuePair1 = tree.keyValuePairs().get(0);
-    assertThat(keyValuePair1.key().value()).isEqualTo("\"key1\"");
-    assertThat(keyValuePair1.equals().value()).isEqualTo("=");
-    assertThat(keyValuePair1.value().value()).isEqualTo("\"value1\"");
-    KeyValuePair keyValuePair2 = tree.keyValuePairs().get(1);
-    assertThat(keyValuePair2.key().value()).isEqualTo("\"key2\"");
-    assertThat(keyValuePair2.equals().value()).isEqualTo("=");
-    assertThat(keyValuePair2.value().value()).isEqualTo("value2");
-    KeyValuePair keyValuePair3 = tree.keyValuePairs().get(2);
-    assertThat(keyValuePair3.key().value()).isEqualTo("key3");
-    assertThat(keyValuePair3.equals().value()).isEqualTo("=");
-    assertThat(keyValuePair3.value().value()).isEqualTo("\"value3\"");
+    List<NewKeyValuePair> labels = tree.labels();
+    assertLabel(labels.get(0), "key1", "value1");
+    assertLabel(labels.get(1), "key2", "value2");
+    assertLabel(labels.get(2), "key3", "value3");
+  }
+
+  private static void assertLabel(NewKeyValuePair label, String expectedKey, String expectedValue) {
+    assertThat(argValue(label.key())).isEqualTo(expectedKey);
+    assertThat(argValue(label.value())).isEqualTo(expectedValue);
   }
 }

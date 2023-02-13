@@ -155,8 +155,12 @@ public class TreeFactory {
     return new ExposeInstructionImpl(keyword, arguments);
   }
 
-  public LabelInstruction label(SyntaxToken token, List<KeyValuePair> keyValuePairs) {
+  public LabelInstruction label(SyntaxToken token, List<NewKeyValuePair> keyValuePairs) {
     return new LabelInstructionImpl(token, keyValuePairs);
+  }
+
+  public LabelInstruction label(SyntaxToken token, NewKeyValuePair keyValuePair) {
+    return new LabelInstructionImpl(token, Collections.singletonList(keyValuePair));
   }
 
   public EnvInstruction env(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
