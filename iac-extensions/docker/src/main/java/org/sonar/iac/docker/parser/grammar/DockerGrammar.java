@@ -68,7 +68,6 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.KEY_IN_KE
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.WHITESPACE;
 
 @SuppressWarnings("java:S100")
 public class DockerGrammar {
@@ -436,12 +435,12 @@ public class DockerGrammar {
       f.execForm(
         b.token(Punctuator.LBRACKET),
         b.optional(
-          f.ignoreFirst(b.optional(b.token(WHITESPACE)),
+          f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
             f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL()))),
         b.zeroOrMore(
           f.tuple(
             b.token(Punctuator.COMMA),
-            f.ignoreFirst(b.optional(b.token(WHITESPACE)),
+            f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
               f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL())))),
         b.token(Punctuator.RBRACKET)
       )
@@ -455,7 +454,7 @@ public class DockerGrammar {
     return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM).is(
       f.shellForm(
         b.oneOrMore(
-          b.token(STRING_LITERAL)
+          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT())
         )
       )
     );

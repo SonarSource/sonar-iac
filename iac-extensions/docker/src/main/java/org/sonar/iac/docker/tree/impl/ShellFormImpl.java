@@ -20,23 +20,27 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 public class ShellFormImpl extends AbstractDockerTreeImpl implements ShellForm {
 
-  private final List<SyntaxToken> literals;
+  private final List<Argument> arguments;
 
-  public ShellFormImpl(List<SyntaxToken> literals) {
-    this.literals = literals;
+  public ShellFormImpl(List<Argument> arguments) {
+    this.arguments = arguments;
   }
 
   @Override
   public List<Tree> children() {
-    return new ArrayList<>(literals);
+    return new ArrayList<>(arguments);
   }
 
   @Override
@@ -44,15 +48,31 @@ public class ShellFormImpl extends AbstractDockerTreeImpl implements ShellForm {
     return Kind.SHELL_FORM;
   }
 
+  /**
+   * @deprecated To be removed once arguments() methods exist in all implementation and that literals() can be replaced everywhere.
+   * For now the method has been transformed to still provide the same data as before.
+   */
+  @Deprecated(forRemoval = true)
   @Override
   public List<SyntaxToken> literals() {
-    return literals;
+    List<SyntaxToken> literals = arguments().stream()
+      .map(ShellFormImpl::argumentToSyntaxToken)
+      .collect(Collectors.toList());
+    return literals.contains(null) ? Collections.emptyList() : literals;
   }
 
-  // TODO : SONARIAC-541 adapt ShellForm to use Argument
+  @Nullable
+  private static SyntaxToken argumentToSyntaxToken(Argument argument) {
+    String value = ArgumentUtils.resolve(argument).value();
+    if (value != null) {
+      return new SyntaxTokenImpl(value, argument.textRange(), Collections.emptyList());
+    }
+    return null;
+  }
+
   @Override
   public List<Argument> arguments() {
-    throw new UnsupportedOperationException("TODO SONARIAC-541");
+    return arguments;
   }
 
   @Override

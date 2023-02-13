@@ -27,6 +27,7 @@ import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.Param;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -84,9 +85,9 @@ class RunInstructionImplTest {
       .matches("run")
       // not exec form
       .matches("RUN [\"la\", \"-bb\"")
-      .matches("RUN [\"la\", \"-bb]")
       .matches("RUN \"la\", \"-bb\"]")
 
+      .notMatches("RUN [\"la\", \"-bb]")
       .notMatches("/bin/sh /deploy.sh");
   }
 
@@ -120,6 +121,10 @@ class RunInstructionImplTest {
       .matches("RUN --security=sandbox /bin/sh /deploy.sh")
       .matches("RUN --mount=target=. mkdir -p /output && zip -FS -r /output/lambda.zip ./")
       .matches("RUN --mount=target=/ \"/usr/bin/run.sh\"")
+      .matches("RUN {command}")
+      .matches("RUN \"{command}\"")
+      .matches("RUN echo \"Acquire::http {No-Cache=True;};\" > /etc/apt/apt.conf.d/no-cache")
+      .matches("RUN echo \"Acquire::http {No-Cache=True;};\" > /etc/apt/apt.conf.d/no-cache")
       .matches("RUN --mount=type=cache,target=/go/pkg/mod/cache \\\n" +
         "    go mod download")
       .matches("RUN --mount=type=cache,target=/root/.cache/pip \\\n" +
@@ -130,9 +135,10 @@ class RunInstructionImplTest {
       .matches("RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;     Write-Host \"Downloading Prometheus version: $env:PROMETHEUS_VERSION\";")
       // not exec form
       .matches("RUN [\"la\", \"-bb\"")
-      .matches("RUN [\"la\", \"-bb]")
       .matches("RUN \"la\", \"-bb\"]")
 
+      .notMatches("RUN ${PYTHON_VERSION%%[a-z]*}")
+      .notMatches("RUN [\"la\", \"-bb]")
       .notMatches("--mount=target=. /bin/sh /deploy.sh");
   }
 
@@ -152,14 +158,13 @@ class RunInstructionImplTest {
       .notMatches("RUN <<EOT\n  mkdir -p foo/bar\nEOT5");
   }
 
-  // SONARIAC-504
   @Test
   void shouldParseMultiline() {
     RunInstruction tree = DockerTestUtils.parse("RUN  \\\n" +
         "        TEST=test && \\\n" +
         "        ls && \\\n" +
         "        curl sLO https://google.com &&\\\n" +
-        "        echo ${TEST} | sha256sum --check",
+        "        echo TEST | sha256sum --check",
       DockerLexicalGrammar.RUN);
 
     assertThat(tree.options()).isEmpty();
@@ -193,6 +198,8 @@ class RunInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
+    assertThat(tree.arguments().arguments().stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::value))
+      .containsExactly("executable", "param1", "param2");
     assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
     List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,4,1,14);
@@ -241,6 +248,8 @@ class RunInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
+    assertThat(tree.arguments().arguments().stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::value))
+      .containsExactly("executable", "param1", "param2");
     assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
     List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,36,1,46);

@@ -45,6 +45,8 @@ class ExecFormImplTest {
       .matches(" [ \"foo\", \"bar\" ]")
       .matches("    [\"/usr/bin/wc\",\"--help\"]")
 
+      // TODO : SONARIAC-XXX accept any variable format
+      .notMatches(" [\"${test%%form}\"]")
       .notMatches(" [abc]")
       .notMatches(" [\"la\" \"-bb\"")
       .notMatches(" [\"la\", \"-bb\"")

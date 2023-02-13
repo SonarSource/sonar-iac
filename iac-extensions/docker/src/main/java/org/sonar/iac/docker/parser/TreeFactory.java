@@ -259,8 +259,8 @@ public class TreeFactory {
     return new ExecFormImpl(leftBracket, separatedList, rightBracket);
   }
 
-  public ShellForm shellForm(List<SyntaxToken> tokens) {
-    return new ShellFormImpl(tokens);
+  public ShellForm shellForm(List<Argument> arguments) {
+    return new ShellFormImpl(arguments);
   }
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {

@@ -58,6 +58,8 @@ class VolumeInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("VOLUME");
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
 
+    assertThat(tree.arguments().arguments().stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::value))
+      .containsExactly("/var/log", "/var/db");
     List<SyntaxToken> literalListTree = tree.arguments().literals();
     assertThat(literalListTree).hasSize(2);
     assertThat(literalListTree.get(0).value()).isEqualTo("/var/log");

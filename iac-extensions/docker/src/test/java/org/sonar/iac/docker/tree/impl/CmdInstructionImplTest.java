@@ -75,9 +75,9 @@ class CmdInstructionImplTest {
       .matches("cmd")
       // not exec form
       .matches("CMD [\"la\", \"-bb\"")
-      .matches("CMD [\"la\", \"-bb]")
       .matches("CMD \"la\", \"-bb\"]")
 
+      .notMatches("CMD [\"la\", \"-bb]")
       .notMatches("/bin/sh /deploy.sh");
   }
 
@@ -107,6 +107,8 @@ class CmdInstructionImplTest {
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
     assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().arguments().stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::value))
+      .containsExactly("executable", "param1", "param2");
     List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,4,1,14);
     assertTextRange(textRanges.get(1)).hasRange(1,15,1,21);

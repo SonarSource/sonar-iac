@@ -61,6 +61,8 @@ class EntrypointInstructionImplTest {
       .matches("ENTRYPOINT ls")
       .matches("ENTRYPOINT \"ls\"")
       .matches("ENTRYPOINT command param1 param2")
+      .matches("ENTRYPOINT command\"test\"command")
+      .matches("ENTRYPOINT comm\\\"and")
       .matches("ENTRYPOINT echo \"This is a test.\" | wc -")
       .matches("ENTRYPOINT /bin/sh /deploy.sh")
       .matches("ENTRYPOINT mkdir -p /output && zip -FS -r /output/lambda.zip ./")
@@ -70,9 +72,9 @@ class EntrypointInstructionImplTest {
       .matches("entrypoint")
       // not exec form
       .matches("ENTRYPOINT [\"la\", \"-bb\"")
-      .matches("ENTRYPOINT [\"la\", \"-bb]")
       .matches("ENTRYPOINT \"la\", \"-bb\"]")
 
+      .notMatches("ENTRYPOINT [\"la\", \"-bb]")
       .notMatches("/bin/sh /deploy.sh");
   }
 
@@ -102,6 +104,8 @@ class EntrypointInstructionImplTest {
     assertThat(tree.arguments()).isInstanceOf(ShellFormImpl.class);
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
     assertThat(tree.arguments().literals().stream().map(TextTree::value))
+      .containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().arguments().stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::value))
       .containsExactly("executable", "param1", "param2");
     List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,11,1,21);
