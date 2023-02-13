@@ -469,10 +469,16 @@ public class DockerGrammar {
   public HereDocument HEREDOC_FORM() {
     return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM).is(
       f.hereDocument(
-        b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)
+          b.oneOrMore(
+            f.regularStringLiteral(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION))
+          )
+//        b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)
       )
     );
   }
+
+
+
 
   public VolumeInstruction VOLUME() {
     return b.<VolumeInstruction>nonterminal(DockerLexicalGrammar.VOLUME).is(

@@ -28,6 +28,7 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Flag;
+import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -294,8 +295,8 @@ class RunInstructionImplTest {
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().literals()).hasSize(1);
-    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<FILE1\nline 1\nline 2\nFILE1");
+    assertThat(tree.arguments().arguments()).hasSize(1);
+    assertThat(((Literal)tree.arguments().arguments().get(0).expressions().get(0)).value()).isEqualTo("<<FILE1\nline 1\nline 2\nFILE1");
   }
 
   @Test
@@ -310,8 +311,8 @@ class RunInstructionImplTest {
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().literals()).hasSize(1);
-    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<-FILE1 line 0\nline 1\nline 2\nFILE1");
+    assertThat(tree.arguments().arguments()).hasSize(1);
+    assertThat(((Literal)tree.arguments().arguments().get(0).expressions().get(0)).value()).isEqualTo("<<-FILE1 line 0\nline 1\nline 2\nFILE1");
   }
 
   @Test
@@ -327,7 +328,7 @@ class RunInstructionImplTest {
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().literals()).hasSize(1);
-    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2");
+    assertThat(tree.arguments().arguments()).hasSize(1);
+    assertThat(((LiteralImpl)tree.arguments().arguments().get(0).expressions().get(0)).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2");
   }
 }

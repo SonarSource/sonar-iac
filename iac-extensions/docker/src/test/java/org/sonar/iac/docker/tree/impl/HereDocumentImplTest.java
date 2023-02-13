@@ -24,6 +24,8 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.HereDocument;
+import org.sonar.iac.docker.tree.api.Literal;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,11 +54,12 @@ class HereDocumentImplTest {
     HereDocument hereDoc = DockerTestUtils.parse(" <<KEY\nline 1\nKEY", DockerLexicalGrammar.HEREDOC_FORM);
 
     assertThat(hereDoc.getKind()).isEqualTo(DockerTree.Kind.HEREDOCUMENT);
-    assertThat(hereDoc.literals()).hasSize(1);
-    assertThat(hereDoc.literals().get(0).value()).isEqualTo("<<KEY\nline 1\nKEY");
+    assertThat(hereDoc.arguments()).hasSize(1);
+    assertThat(hereDoc.arguments().get(0).expressions()).hasSize(1);
+    assertThat(((Literal)hereDoc.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<KEY\nline 1\nKEY");
 
-    assertThatThrownBy(hereDoc::arguments)
+    assertThatThrownBy(hereDoc::literals)
       .isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("TODO SONARIAC-572");
+      .hasMessage("TODO SONARIAC-579 Remove LiteralList.literals()");
   }
 }

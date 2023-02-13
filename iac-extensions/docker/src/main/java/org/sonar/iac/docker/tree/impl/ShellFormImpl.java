@@ -51,6 +51,7 @@ public class ShellFormImpl extends AbstractDockerTreeImpl implements ShellForm {
   /**
    * @deprecated To be removed once arguments() methods exist in all implementation and that literals() can be replaced everywhere.
    * For now the method has been transformed to still provide the same data as before.
+   * TODO SONARIAC-579 Remove LiteralList.literals()
    */
   @Deprecated(forRemoval = true)
   @Override

@@ -231,11 +231,11 @@ public class TreeFactory {
     return new NoneImpl(none);
   }
 
-  public HereDocument hereDocument(SyntaxToken content) {
-    return new HereDocumentImpl(content);
+  public HereDocument hereDocument(List<Expression> arguments) {
+    return new HereDocumentImpl(List.of(newArgument(arguments)));
   }
 
-  public Argument singleExpressionArguement(Expression expression) {
+  public Argument singleExpressionArgument(Expression expression) {
     return new ArgumentImpl(List.of(expression));
   }
 

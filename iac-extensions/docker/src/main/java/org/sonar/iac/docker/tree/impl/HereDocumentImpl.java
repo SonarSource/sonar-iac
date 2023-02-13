@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -27,15 +28,15 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocument {
 
-  private final SyntaxToken content;
+  private final List<Argument> arguments;
 
-  public HereDocumentImpl(SyntaxToken content) {
-    this.content = content;
+  public HereDocumentImpl(List<Argument> arguments) {
+    this.arguments = arguments;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(content);
+    return new ArrayList<>(arguments);
   }
 
   @Override
@@ -45,13 +46,12 @@ public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocu
 
   @Override
   public List<SyntaxToken> literals() {
-    return List.of(content);
+    throw new UnsupportedOperationException("TODO SONARIAC-579 Remove LiteralList.literals()");
   }
 
-  // TODO : SONARIAC-572 adapt HereDoc form and replace literals() by arguments()
   @Override
   public List<Argument> arguments() {
-    throw new UnsupportedOperationException("TODO SONARIAC-572");
+    return arguments;
   }
 
   @Override
