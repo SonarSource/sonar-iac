@@ -70,8 +70,6 @@ class AddInstructionImplTest {
     assertThat(tree.dest().value()).isEqualTo("dest");
   }
 
-  // TODO : SONARIAC-572 and SONARIAC-541 to be completed before switching to arguments() instead of literals
-  @Disabled("To enable back when transition is done and literals() has been replaced by arguments()")
   @Test
   void addInstructionExecForm() {
     AddInstruction tree = parse("ADD [\"src\", \"dest\"]", DockerLexicalGrammar.ADD);
@@ -80,8 +78,8 @@ class AddInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("\"src\"");
-    assertThat(tree.dest().value()).isEqualTo("\"dest\"");
+    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
+    assertThat(tree.dest().value()).isEqualTo("dest");
   }
 
   // TODO : SONARIAC-572 and SONARIAC-541 to be completed before switching to arguments() instead of literals
