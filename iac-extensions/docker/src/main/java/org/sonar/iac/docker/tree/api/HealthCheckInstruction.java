@@ -24,6 +24,6 @@ import java.util.List;
 public interface HealthCheckInstruction extends Instruction {
 
   boolean isNone();
-  List<Param> options();
+  List<Flag> options();
   Instruction instruction();
 }

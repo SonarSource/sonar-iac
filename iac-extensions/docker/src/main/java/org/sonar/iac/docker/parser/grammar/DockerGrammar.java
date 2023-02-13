@@ -51,7 +51,7 @@ import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
@@ -147,29 +147,20 @@ public class DockerGrammar {
     return b.<FromInstruction>nonterminal(DockerLexicalGrammar.FROM).is(
       f.from(
         b.token(DockerKeyword.FROM),
-        b.optional(PARAM()),
+        b.optional(FLAG()),
         IMAGE(),
         b.optional(ALIAS())
       )
     );
   }
 
-  public Param PARAM() {
-    return b.<Param>nonterminal(DockerLexicalGrammar.PARAM).is(
-      f.param(
-        b.token(DockerLexicalGrammar.PARAM_PREFIX),
-        b.token(DockerLexicalGrammar.PARAM_NAME),
-        b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
-        b.optional(b.token(DockerLexicalGrammar.PARAM_VALUE))
-      )
-    );
-  }
-
-  public Param PARAM_NO_VALUE() {
-    return b.<Param>nonterminal(DockerLexicalGrammar.PARAM_NO_VALUE).is(
-      f.param(
-        b.token(DockerLexicalGrammar.PARAM_PREFIX),
-        b.token(DockerLexicalGrammar.PARAM_NAME)
+  public Flag FLAG() {
+    return b.<Flag>nonterminal(DockerLexicalGrammar.FLAG).is(
+      f.flag(
+        b.token(DockerLexicalGrammar.FLAG_PREFIX),
+        b.token(DockerLexicalGrammar.FLAG_NAME),
+        b.optional(b.token(DockerLexicalGrammar.EQUALS_OPERATOR)),
+        b.optional(ARGUMENT())
       )
     );
   }
@@ -320,10 +311,7 @@ public class DockerGrammar {
       f.add(
         b.token(DockerKeyword.ADD),
         b.zeroOrMore(
-          b.firstOf(
-            PARAM(),
-            PARAM_NO_VALUE()
-          )
+          FLAG()
         ),
         b.firstOf(
           EXEC_FORM(),
@@ -338,10 +326,7 @@ public class DockerGrammar {
       f.copy(
         b.token(DockerKeyword.COPY),
         b.zeroOrMore(
-          b.firstOf(
-            PARAM(),
-            PARAM_NO_VALUE()
-          )
+          FLAG()
         ),
         b.firstOf(
           HEREDOC_FORM(),
@@ -385,10 +370,7 @@ public class DockerGrammar {
       f.run(
         b.token(DockerKeyword.RUN),
         b.zeroOrMore(
-          b.firstOf(
-            PARAM(),
-            PARAM_NO_VALUE()
-          )
+          FLAG()
         ),
         b.optional(
           b.firstOf(
@@ -405,7 +387,7 @@ public class DockerGrammar {
     return b.<HealthCheckInstruction>nonterminal(DockerLexicalGrammar.HEALTHCHECK).is(
       f.healthcheck(
         b.token(DockerKeyword.HEALTHCHECK),
-        b.zeroOrMore(PARAM()),
+        b.zeroOrMore(FLAG()),
         b.firstOf(NONE(), CMD())
       )
     );

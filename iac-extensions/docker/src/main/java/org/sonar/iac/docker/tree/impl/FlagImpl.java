@@ -23,17 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class ParamImpl extends AbstractDockerTreeImpl implements Param {
+public class FlagImpl extends AbstractDockerTreeImpl implements Flag {
 
   private final SyntaxToken prefix;
   private final SyntaxToken name;
   private final SyntaxToken equals;
-  private final SyntaxToken value;
+  private final Argument value;
 
-  public ParamImpl(SyntaxToken prefix, SyntaxToken name, @Nullable SyntaxToken equals, @Nullable SyntaxToken value) {
+  public FlagImpl(SyntaxToken prefix, SyntaxToken name, @Nullable SyntaxToken equals, @Nullable Argument value) {
     this.prefix = prefix;
     this.name = name;
     this.equals = equals;
@@ -47,7 +48,7 @@ public class ParamImpl extends AbstractDockerTreeImpl implements Param {
 
   @Nullable
   @Override
-  public SyntaxToken value() {
+  public Argument value() {
     return value;
   }
 

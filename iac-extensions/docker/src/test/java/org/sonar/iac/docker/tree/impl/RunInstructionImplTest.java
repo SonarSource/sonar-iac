@@ -27,7 +27,7 @@ import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -210,10 +210,10 @@ class RunInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertTextRange(tree.textRange()).hasRange(1,0,1,79);
 
-    Param option = tree.options().get(0);
+    Flag option = tree.options().get(0);
     assertThat(((SyntaxToken)option.children().get(0)).value()).isEqualTo("--");
     assertThat(option.name()).isEqualTo("mount");
-    assertThat(option.value().value()).isEqualTo("type=cache,target=/root/.cache/pip");
+    assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("type=cache,target=/root/.cache/pip");
     assertTextRange(option.textRange()).hasRange(1,4,1,46);
 
     assertThat(tree.arguments()).isNotNull();
@@ -221,7 +221,7 @@ class RunInstructionImplTest {
     assertThat(tree.arguments().arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
-    assertThat(tree.children().get(1)).isInstanceOf(Param.class);
+    assertThat(tree.children().get(1)).isInstanceOf(Flag.class);
     assertThat(tree.children().get(2)).isInstanceOf(ExecForm.class);
   }
 
@@ -233,10 +233,10 @@ class RunInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertTextRange(tree.textRange()).hasRange(1,0,1,60);
 
-    Param option = tree.options().get(0);
+    Flag option = tree.options().get(0);
     assertThat(((SyntaxToken)option.children().get(0)).value()).isEqualTo("--");
     assertThat(option.name()).isEqualTo("mount");
-    assertThat(option.value().value()).isEqualTo("type=${mount_type:+ssh}");
+    assertThat(ArgumentUtils.resolve(option.value()).value()).isNull();
     assertTextRange(option.textRange()).hasRange(1,4,1,35);
 
     assertThat(tree.arguments()).isNotNull();
@@ -248,7 +248,7 @@ class RunInstructionImplTest {
     assertTextRange(textRanges.get(2)).hasRange(1,54,1,60);
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
-    assertThat(tree.children().get(1)).isInstanceOf(Param.class);
+    assertThat(tree.children().get(1)).isInstanceOf(Flag.class);
     assertThat(tree.children().get(2)).isInstanceOf(ShellForm.class);
   }
 

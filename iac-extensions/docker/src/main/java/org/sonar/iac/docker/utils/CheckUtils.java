@@ -21,14 +21,14 @@ package org.sonar.iac.docker.utils;
 
 import java.util.List;
 import java.util.Optional;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 
 public class CheckUtils {
 
   private CheckUtils() {
   }
 
-  public static Optional<Param> getParamByName(List<Param> params, String name) {
+  public static Optional<Flag> getParamByName(List<Flag> params, String name) {
     return params.stream().filter(param -> name.equals(param.name())).findFirst();
   }
 }

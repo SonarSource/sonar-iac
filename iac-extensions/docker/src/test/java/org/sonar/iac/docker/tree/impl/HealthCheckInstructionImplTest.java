@@ -27,8 +27,9 @@ import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -47,9 +48,9 @@ class HealthCheckInstructionImplTest {
       .matches("HEALTHCHECK CMD command param1 param2")
       .matches("HEALTHCHECK --interval=30s CMD")
       .matches("HEALTHCHECK --interval=30s NONE")
+      .matches("HEALTHCHECK --flag CMD")
       .notMatches("HEALTHCHECK")
       .notMatches("HEALTHCHECKK NONE")
-      .notMatches("HEALTHCHECK --flag CMD")
       .notMatches("HEALTHCHECK --interval=30s")
       .notMatches("HEALTHCHECK NONEE")
       .notMatches("HEALTHCHECKNONE")
@@ -98,10 +99,10 @@ class HealthCheckInstructionImplTest {
     assertThat(cmdArguments).hasSize(1);
     assertThat(cmdArguments.get(0).value()).isEqualTo("command");
 
-    List<Param> options = tree.options();
+    List<Flag> options = tree.options();
     assertThat(options.get(0).name()).isEqualTo("interval");
-    assertThat(options.get(0).value().value()).isEqualTo("30s");
+    assertThat(ArgumentUtils.resolve(options.get(0).value()).value()).isEqualTo("30s");
     assertThat(options.get(1).name()).isEqualTo("timeout");
-    assertThat(options.get(1).value().value()).isEqualTo("5s");
+    assertThat(ArgumentUtils.resolve(options.get(1).value()).value()).isEqualTo("5s");
   }
 }

@@ -22,5 +22,5 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface RunInstruction extends CommandInstruction {
-  List<Param> options();
+  List<Flag> options();
 }

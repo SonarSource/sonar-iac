@@ -26,7 +26,8 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.LiteralList;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -111,10 +112,10 @@ class CopyInstructionImplTest {
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
 
-    Param option = tree.options().get(0);
+    Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("chown");
-    assertThat(option.value().value()).isEqualTo("55:mygroup");
+    assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("55:mygroup");
 
     assertThat(tree.srcs()).hasSize(1);
     assertThat(tree.srcs().get(0).value()).isEqualTo("files*");
@@ -128,7 +129,7 @@ class CopyInstructionImplTest {
     assertThat(tree.options()).hasSize(1);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 23);
 
-    Param option = tree.options().get(0);
+    Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("option");
     assertThat(option.value()).isNull();

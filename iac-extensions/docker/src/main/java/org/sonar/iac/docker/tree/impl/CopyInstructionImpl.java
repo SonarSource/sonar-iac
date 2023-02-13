@@ -22,12 +22,12 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.List;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.LiteralList;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class CopyInstructionImpl extends AbstractTransferImpl implements CopyInstruction {
 
-  public CopyInstructionImpl(SyntaxToken add, List<Param> options, LiteralList srcsAndDest) {
+  public CopyInstructionImpl(SyntaxToken add, List<Flag> options, LiteralList srcsAndDest) {
     super(add, options, srcsAndDest);
   }
 

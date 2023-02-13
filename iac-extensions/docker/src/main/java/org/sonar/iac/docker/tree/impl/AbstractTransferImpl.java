@@ -24,7 +24,7 @@ import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.TransferInstruction;
 import org.sonar.iac.docker.tree.api.LiteralList;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 /**
@@ -34,17 +34,17 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
  * {@code MY_CMD --param=value ["src1", "src2", "dest"]}
  */
 public abstract class AbstractTransferImpl extends InstructionImpl implements TransferInstruction {
-  protected final List<Param> options;
+  protected final List<Flag> options;
   protected final LiteralList srcsAndDest;
 
-  protected AbstractTransferImpl(SyntaxToken add, List<Param> options, LiteralList srcsAndDest) {
+  protected AbstractTransferImpl(SyntaxToken add, List<Flag> options, LiteralList srcsAndDest) {
     super(add);
     this.options = options;
     this.srcsAndDest = srcsAndDest;
   }
 
   @Override
-  public List<Param> options() {
+  public List<Flag> options() {
     return options;
   }
 

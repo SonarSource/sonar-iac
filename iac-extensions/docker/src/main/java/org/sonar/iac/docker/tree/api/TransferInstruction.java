@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface TransferInstruction extends Instruction {
-  List<Param> options();
+  List<Flag> options();
   List<SyntaxToken> srcs();
   SyntaxToken dest();
 }

@@ -54,7 +54,7 @@ import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
-import org.sonar.iac.docker.tree.api.Param;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SeparatedList;
@@ -92,7 +92,7 @@ import org.sonar.iac.docker.tree.impl.MaintainerInstructionImpl;
 import org.sonar.iac.docker.tree.impl.NewKeyValuePairImpl;
 import org.sonar.iac.docker.tree.impl.NoneImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
-import org.sonar.iac.docker.tree.impl.ParamImpl;
+import org.sonar.iac.docker.tree.impl.FlagImpl;
 import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
@@ -127,7 +127,7 @@ public class TreeFactory {
     return new OnBuildInstructionImpl(keyword, instruction);
   }
 
-  public FromInstruction from(SyntaxToken keyword, Optional<Param> platform, Image image, Optional<Alias> alias) {
+  public FromInstruction from(SyntaxToken keyword, Optional<Flag> platform, Image image, Optional<Alias> alias) {
     return new FromInstructionImpl(keyword, platform.orNull(), image, alias.orNull());
   }
 
@@ -167,11 +167,11 @@ public class TreeFactory {
     return new ArgInstructionImpl(token, argNames);
   }
 
-  public AddInstruction add(SyntaxToken add, Optional<List<Param>> options, LiteralList srcsAndDest) {
+  public AddInstruction add(SyntaxToken add, Optional<List<Flag>> options, LiteralList srcsAndDest) {
     return new AddInstructionImpl(add, options.or(Collections.emptyList()), srcsAndDest);
   }
 
-  public CopyInstruction copy(SyntaxToken copy, Optional<List<Param>> options, LiteralList srcsAndDest) {
+  public CopyInstruction copy(SyntaxToken copy, Optional<List<Flag>> options, LiteralList srcsAndDest) {
     return new CopyInstructionImpl(copy, options.or(Collections.emptyList()), srcsAndDest);
   }
 
@@ -187,12 +187,8 @@ public class TreeFactory {
     return new KeyValuePairImpl(key, equals, value.orNull());
   }
 
-  public Param param(SyntaxToken prefix, SyntaxToken name, SyntaxToken equals, Optional<SyntaxToken> value) {
-    return new ParamImpl(prefix, name, equals, value.orNull());
-  }
-
-  public Param param(SyntaxToken prefix, SyntaxToken name) {
-    return new ParamImpl(prefix, name, null, null);
+  public Flag flag(SyntaxToken prefix, SyntaxToken name, Optional<SyntaxToken> equals, Optional<Argument> value) {
+    return new FlagImpl(prefix, name, equals.orNull(), value.orNull());
   }
 
   public Image image(SyntaxToken name, Optional<SyntaxToken> tag, Optional<SyntaxToken> digest) {
@@ -207,7 +203,7 @@ public class TreeFactory {
     return new EntrypointInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public RunInstruction run(SyntaxToken token, Optional<List<Param>> options, Optional<LiteralList> execFormOrShellForm) {
+  public RunInstruction run(SyntaxToken token, Optional<List<Flag>> options, Optional<LiteralList> execFormOrShellForm) {
     return new RunInstructionImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
   }
 
@@ -223,7 +219,7 @@ public class TreeFactory {
     return new ShellInstructionImpl(token, execForm);
   }
 
-  public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Param>> options, Instruction instruction) {
+  public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Flag>> options, Instruction instruction) {
     return new HealthCheckInstructionImpl(healthcheck, options.or(Collections.emptyList()), instruction);
   }
 
