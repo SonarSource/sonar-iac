@@ -23,19 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class ArgInstructionImpl extends InstructionImpl implements ArgInstruction {
-  private final List<KeyValuePair> keyValuePairs;
+  private final List<NewKeyValuePair> keyValuePairs;
 
-  public ArgInstructionImpl(SyntaxToken arg, List<KeyValuePair> argNames) {
+  public ArgInstructionImpl(SyntaxToken arg, List<NewKeyValuePair> argNames) {
     super(arg);
     this.keyValuePairs = argNames;
   }
 
   @Override
-  public List<KeyValuePair> keyValuePairs() {
+  public List<NewKeyValuePair> keyValuePairs() {
     return keyValuePairs;
   }
 

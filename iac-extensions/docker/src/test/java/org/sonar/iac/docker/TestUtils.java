@@ -21,7 +21,10 @@ package org.sonar.iac.docker;
 
 import javax.annotation.Nullable;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.utils.ArgumentUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestUtils {
 
@@ -32,5 +35,14 @@ public class TestUtils {
   @Nullable
   public static String argValue(Argument argument) {
     return ArgumentUtils.resolve(argument).value();
+  }
+
+  public static void assertKeyValuePair(NewKeyValuePair keyValuePair, String expectedKey, @Nullable String expectedValue) {
+    assertThat(argValue(keyValuePair.key())).isEqualTo(expectedKey);
+    if (expectedValue == null) {
+      assertThat(keyValuePair.value()).isNull();
+    } else {
+      assertThat(argValue(keyValuePair.value())).isEqualTo(expectedValue);
+    }
   }
 }
