@@ -235,10 +235,18 @@ public class DockerGrammar {
 
   public LabelInstruction LABEL() {
     return b.<LabelInstruction>nonterminal(DockerLexicalGrammar.LABEL).is(
-      f.label(b.token(DockerKeyword.LABEL),
-        b.oneOrMore(
-          b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
-        )
+      b.firstOf(
+        f.label(
+          b.token(DockerKeyword.LABEL),
+          b.oneOrMore(
+            f.ignoreFirst(
+              b.token(WHITESPACE),
+              KEY_VALUE_PAIR_WITH_EQUAL()))),
+        f.label(
+          b.token(DockerKeyword.LABEL),
+          f.ignoreFirst(
+            b.token(WHITESPACE),
+            KEY_VALUE_PAIR_WITHOUT_EQUAL()))
       )
     );
   }
@@ -504,7 +512,8 @@ public class DockerGrammar {
     return b.<NewKeyValuePair>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR).is(
       b.firstOf(
         KEY_VALUE_PAIR_WITH_EQUAL(),
-        KEY_VALUE_PAIR_WITHOUT_EQUAL()
+        KEY_VALUE_PAIR_WITHOUT_EQUAL(),
+        NEW_KEY_ONLY()
       )
     );
   }
@@ -514,7 +523,7 @@ public class DockerGrammar {
       f.newKeyValuePair(
         KEY_ARGUMENT(),
         b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
-        b.optional(ARGUMENT())
+        ARGUMENT()
       )
     );
   }
@@ -523,11 +532,9 @@ public class DockerGrammar {
     return b.<NewKeyValuePair>nonterminal().is(
       f.newKeyValuePair(
         KEY_ARGUMENT(),
-        b.optional(
-          f.ignoreFirst(
-            b.token(DockerLexicalGrammar.WHITESPACE),
-            ARGUMENT()
-          )
+        f.ignoreFirst(
+          b.token(DockerLexicalGrammar.WHITESPACE),
+          ARGUMENT()
         ),
         b.zeroOrMore(
           f.tuple(
@@ -535,6 +542,15 @@ public class DockerGrammar {
             ARGUMENT()
           )
         )
+      )
+    );
+  }
+
+  public NewKeyValuePair NEW_KEY_ONLY() {
+    return b.<NewKeyValuePair>nonterminal().is(
+      f.newKeyValuePair(
+        KEY_ARGUMENT(),
+        b.optional(b.token(DockerLexicalGrammar.EQUALS_OPERATOR))
       )
     );
   }

@@ -155,8 +155,12 @@ public class TreeFactory {
     return new ExposeInstructionImpl(keyword, arguments);
   }
 
-  public LabelInstruction label(SyntaxToken token, List<KeyValuePair> keyValuePairs) {
+  public LabelInstruction label(SyntaxToken token, List<NewKeyValuePair> keyValuePairs) {
     return new LabelInstructionImpl(token, keyValuePairs);
+  }
+
+  public LabelInstruction label(SyntaxToken token, NewKeyValuePair keyValuePair) {
+    return new LabelInstructionImpl(token, Collections.singletonList(keyValuePair));
   }
 
   public EnvInstruction env(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
@@ -299,26 +303,27 @@ public class TreeFactory {
     return new ArgumentImpl(expressions);
   }
 
-  public NewKeyValuePair newKeyValuePair(Argument key, SyntaxToken equalSign, Optional<Argument> value) {
-    return new NewKeyValuePairImpl(key, equalSign, value.orNull());
+  public NewKeyValuePair newKeyValuePair(Argument key, SyntaxToken equalSign, Argument value) {
+    return new NewKeyValuePairImpl(key, equalSign, value);
   }
 
-  public NewKeyValuePair newKeyValuePair(Argument key, Optional<Argument> firstValue, Optional<List<Tuple<SyntaxToken, Argument>>> moreValue) {
-    if (firstValue.isPresent()) {
-      List<Expression> firstValueExpressions = firstValue.get().expressions();
-      List<Expression> expressions = new LinkedList<>(firstValueExpressions);
+  public NewKeyValuePair newKeyValuePair(Argument key, Argument firstValue, Optional<List<Tuple<SyntaxToken, Argument>>> moreValue) {
+    List<Expression> expressions = new LinkedList<>(firstValue.expressions());
 
-      for (Tuple<SyntaxToken, Argument> valuePart : moreValue.or(Collections.emptyList())) {
-        expressions.add(new LiteralImpl(valuePart.first()));
-        expressions.addAll(valuePart.second().expressions());
-      }
-
-      Argument value = new ArgumentImpl(expressions);
-      return new NewKeyValuePairImpl(key, null, value);
-    } else {
-      return new NewKeyValuePairImpl(key, null, null);
+    for (Tuple<SyntaxToken, Argument> valuePart : moreValue.or(Collections.emptyList())) {
+      expressions.add(new LiteralImpl(valuePart.first()));
+      expressions.addAll(valuePart.second().expressions());
     }
+
+    Argument value = new ArgumentImpl(expressions);
+    return new NewKeyValuePairImpl(key, null, value);
   }
+
+
+  public NewKeyValuePair newKeyValuePair(Argument key, Optional<SyntaxToken> equalSign) {
+    return new NewKeyValuePairImpl(key, equalSign.orNull(), null);
+  }
+
 
 
   public static class Tuple<T, U> {

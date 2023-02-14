@@ -19,20 +19,22 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
+import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.TestUtils.argValue;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class OnBuildInstructionImplTest {
@@ -90,18 +92,15 @@ class OnBuildInstructionImplTest {
     LabelInstruction label = (LabelInstruction) tree.instruction();
     assertThat(label.getKind()).isEqualTo(DockerTree.Kind.LABEL);
     assertThat(label.keyword().value()).isEqualTo("LABEL");
-    assertThat(label.keyValuePairs()).hasSize(2);
+    assertThat(label.labels()).hasSize(2);
     assertTextRange(label.textRange()).hasRange(1, 8, 1, 37);
     assertThat(label.children()).hasSize(7);
 
-    KeyValuePair keyValuePair1 = label.keyValuePairs().get(0);
-    assertThat(keyValuePair1.key().value()).isEqualTo("key1");
-    assertThat(keyValuePair1.equals().value()).isEqualTo("=");
-    assertThat(keyValuePair1.value().value()).isEqualTo("value1");
-    KeyValuePair keyValuePair2 = label.keyValuePairs().get(1);
-    assertThat(keyValuePair2.key().value()).isEqualTo("key2");
-    assertThat(keyValuePair2.equals().value()).isEqualTo("=");
-    assertThat(keyValuePair2.value().value()).isEqualTo("value2");
+    List<NewKeyValuePair> labels = label.labels();
+    assertLabel(labels.get(0), "key1", "value1");
+    assertLabel(labels.get(1), "key2", "value2");
+
+
   }
 
   @Test
@@ -128,5 +127,10 @@ class OnBuildInstructionImplTest {
     assertThat(((Literal)stopSignal.signal().expressions().get(0)).value()).isEqualTo("SIGKILL");
     assertThat(((SyntaxToken)stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
     assertThat(((Literal) ((Argument)stopSignal.children().get(1)).expressions().get(0)).value()).isEqualTo("SIGKILL");
+  }
+
+  private static void assertLabel(NewKeyValuePair label, String expectedKey, String expectedValue) {
+    assertThat(argValue(label.key())).isEqualTo(expectedKey);
+    assertThat(argValue(label.value())).isEqualTo(expectedValue);
   }
 }

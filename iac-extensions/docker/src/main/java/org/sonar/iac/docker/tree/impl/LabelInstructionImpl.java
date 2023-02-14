@@ -22,20 +22,20 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
+import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class LabelInstructionImpl extends InstructionImpl implements LabelInstruction {
-  private final List<KeyValuePair> keyValuePairs;
+  private final List<NewKeyValuePair> keyValuePairs;
 
-  public LabelInstructionImpl(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
+  public LabelInstructionImpl(SyntaxToken keyword, List<NewKeyValuePair> keyValuePairs) {
     super(keyword);
     this.keyValuePairs = keyValuePairs;
   }
 
   @Override
-  public List<KeyValuePair> keyValuePairs() {
+  public List<NewKeyValuePair> labels() {
     return keyValuePairs;
   }
 
@@ -43,7 +43,7 @@ public class LabelInstructionImpl extends InstructionImpl implements LabelInstru
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    for (KeyValuePair keyValuePair : keyValuePairs) {
+    for (NewKeyValuePair keyValuePair : keyValuePairs) {
       children.addAll(keyValuePair.children());
     }
     return children;

@@ -17,10 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker;
 
-import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
-public interface LabelInstruction extends Instruction {
-  List<NewKeyValuePair> labels();
+public class TestUtils {
+
+  private TestUtils() {
+    // utils class
+  }
+
+  @Nullable
+  public static String argValue(Argument argument) {
+    return ArgumentUtils.resolve(argument).value();
+  }
 }
