@@ -33,6 +33,7 @@ import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
@@ -83,9 +84,12 @@ public class PrivilegedUserCheck implements IacCheck {
     if(!isLastDockerImageInFile(dockerImage)) {
       return;
     }
-    String imageName = dockerImage.from().image().name().value();
-    Optional<UserInstruction> lastUser = getLastUser(dockerImage);
+    String imageName = getImageName(dockerImage.from());
+    if (imageName == null) {
+      return;
+    }
 
+    Optional<UserInstruction> lastUser = getLastUser(dockerImage);
     if (lastUser.isEmpty()) {
       if (isScratchImage(imageName)) {
         ctx.reportIssue(dockerImage.from(), MESSAGE_SCRATCH);
@@ -101,6 +105,19 @@ public class PrivilegedUserCheck implements IacCheck {
       if(UNSAFE_USERS.contains(user)) {
         ctx.reportIssue(lastUser.get(), String.format(MESSAGE_ROOT_USER, user));
       }
+    }
+  }
+
+  private static String getImageName(FromInstruction from) {
+    String fullImageName = ArgumentUtils.resolve(from.image()).value();
+    if (fullImageName == null) {
+      return null;
+    } else if (fullImageName.contains(":")) {
+      return fullImageName.split(":")[0];
+    } else if (fullImageName.contains("@")) {
+      return fullImageName.split("@")[0];
+    } else {
+      return fullImageName;
     }
   }
 

@@ -42,7 +42,6 @@ import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.HereDocument;
-import org.sonar.iac.docker.tree.api.Image;
 import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
@@ -61,9 +60,6 @@ import org.sonar.iac.docker.tree.api.UserInstruction;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
 import org.sonar.iac.docker.tree.api.WorkdirInstruction;
 
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_DIGEST;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_NAME;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.IMAGE_TAG;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
@@ -147,7 +143,7 @@ public class DockerGrammar {
       f.from(
         b.token(DockerKeyword.FROM),
         b.optional(FLAG()),
-        IMAGE(),
+        f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT()),
         b.optional(ALIAS())
       )
     );
@@ -160,16 +156,6 @@ public class DockerGrammar {
         b.token(DockerLexicalGrammar.FLAG_NAME),
         b.optional(b.token(DockerLexicalGrammar.EQUALS_OPERATOR)),
         b.optional(ARGUMENT())
-      )
-    );
-  }
-
-  public Image IMAGE() {
-    return b.<Image>nonterminal(DockerLexicalGrammar.IMAGE).is(
-      f.image(
-        b.token(IMAGE_NAME),
-        b.optional(b.token(IMAGE_TAG)),
-        b.optional(b.token(IMAGE_DIGEST))
       )
     );
   }

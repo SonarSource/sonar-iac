@@ -1,0 +1,4 @@
+# Noncompliant@+1 {{The golang image runs with root as the default user. Make sure it is safe here.}}
+  FROM golang:tag@digest
+  MAINTAINER bob
+

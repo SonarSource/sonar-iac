@@ -22,15 +22,12 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromInstruction;
-import org.sonar.iac.docker.tree.api.Image;
-import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.TestUtils.assertFrom;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class FromInstructionImplTest {
@@ -72,45 +69,29 @@ class FromInstructionImplTest {
     assertThat(from.keyword().value()).isEqualTo("FROM");
     assertThat(from.parent()).isNull();
 
-    Image image = from.image();
-    assertThat(image.name().value()).isEqualTo("foobar");
-    assertThat(image.tag()).isNull();
-    assertThat(image.digest()).isNull();
-    assertThat(image.parent()).isEqualTo(from);
-
-    assertThat(from.alias()).isNull();
-    assertThat(from.platform()).isNull();
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ImageImpl.class);
+    assertThat(from.image().parent()).isEqualTo(from);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ArgumentImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 11);
+
+    assertFrom(from, "foobar", null, null, null);
   }
 
   @Test
   void imageWithAlias() {
     FromInstruction from = parse("FROM foobar AS fb", DockerLexicalGrammar.FROM);
-    assertThat(from.platform()).isNull();
-
-    Alias alias = from.alias();
-    assertThat(alias).isNotNull();
-    assertThat(alias.getKind()).isEqualTo(DockerTree.Kind.ALIAS);
-    assertThat(alias.keyword().value()).isEqualTo("AS");
-    assertThat(alias.alias().value()).isEqualTo("fb");
-    assertThat(alias.parent()).isEqualTo(from);
-
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ImageImpl.class, AliasImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ArgumentImpl.class, AliasImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 17);
+
+    assertFrom(from, "foobar", null, null, "fb");
   }
 
   @Test
   void imageWithPlatform() {
     FromInstruction from = parse("FROM --platform=foo bar", DockerLexicalGrammar.FROM);
-    assertThat(from.alias()).isNull();
-    Flag platform = from.platform();
-    assertThat(platform).isNotNull();
-    assertThat(platform.getKind()).isEqualTo(DockerTree.Kind.PARAM);
-    assertThat(ArgumentUtils.resolve(platform.value()).value()).isEqualTo("foo");
-    assertThat(platform.parent()).isEqualTo(from);
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, FlagImpl.class, ImageImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, FlagImpl.class, ArgumentImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 23);
+
+    assertFrom(from, "bar", "platform", "foo", null);
   }
 
   @Test
@@ -118,21 +99,27 @@ class FromInstructionImplTest {
     FromInstruction from = parse("FROM --platform=foo bar:latest AS fb", DockerLexicalGrammar.FROM);
     assertThat(from.alias()).isNotNull();
     assertThat(from.platform()).isNotNull();
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, FlagImpl.class, ImageImpl.class, AliasImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, FlagImpl.class, ArgumentImpl.class, AliasImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 1, 36);
+
+    assertFrom(from, "bar:latest", "platform", "foo", "fb");
   }
 
   @Test
   void multiline() {
     FromInstruction from = parse("FROM \\\n --platform=foo \\\n bar:latest \\\n AS fb", DockerLexicalGrammar.FROM);
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, FlagImpl.class, ImageImpl.class, AliasImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, FlagImpl.class, ArgumentImpl.class, AliasImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 4, 6);
+
+    assertFrom(from, "bar:latest", "platform", "foo", "fb");
   }
 
   @Test
   void multilineWindowsEOL() {
     FromInstruction from = parse("FROM \\\r\n --platform=foo \\\r\n bar:latest \\\r\n AS fb", DockerLexicalGrammar.FROM);
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, FlagImpl.class, ImageImpl.class, AliasImpl.class);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, FlagImpl.class, ArgumentImpl.class, AliasImpl.class);
     assertTextRange(from.textRange()).hasRange(1, 0, 4, 6);
+
+    assertFrom(from, "bar:latest", "platform", "foo", "fb");
   }
 }

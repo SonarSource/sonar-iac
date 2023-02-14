@@ -26,7 +26,7 @@ public interface FromInstruction extends Instruction {
   @CheckForNull
   Flag platform();
 
-  Image image();
+  Argument image();
 
   @CheckForNull
   Alias alias();
