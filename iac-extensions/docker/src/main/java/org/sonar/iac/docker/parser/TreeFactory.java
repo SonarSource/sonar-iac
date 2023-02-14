@@ -28,12 +28,11 @@ import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
@@ -41,7 +40,9 @@ import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
+import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.File;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.HereDocument;
@@ -53,9 +54,7 @@ import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.NewKeyValuePair;
-import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
-import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SeparatedList;
@@ -82,6 +81,7 @@ import org.sonar.iac.docker.tree.impl.ExpandableStringCharactersImpl;
 import org.sonar.iac.docker.tree.impl.ExpandableStringLiteralImpl;
 import org.sonar.iac.docker.tree.impl.ExposeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.FileImpl;
+import org.sonar.iac.docker.tree.impl.FlagImpl;
 import org.sonar.iac.docker.tree.impl.FromInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HealthCheckInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HereDocumentImpl;
@@ -91,9 +91,7 @@ import org.sonar.iac.docker.tree.impl.LabelInstructionImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerInstructionImpl;
 import org.sonar.iac.docker.tree.impl.NewKeyValuePairImpl;
-import org.sonar.iac.docker.tree.impl.NoneImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
-import org.sonar.iac.docker.tree.impl.FlagImpl;
 import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
 import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
@@ -230,10 +228,6 @@ public class TreeFactory {
     } else {
       return new HealthCheckInstructionImpl(healthcheck, flags.or(List.of()), null, (SyntaxToken)noneOrCmd);
     }
-  }
-
-  public NoneInstruction none(SyntaxToken none) {
-    return new NoneImpl(none);
   }
 
   public HereDocument hereDocument(SyntaxToken content) {

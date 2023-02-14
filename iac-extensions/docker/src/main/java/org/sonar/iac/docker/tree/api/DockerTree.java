@@ -58,7 +58,6 @@ public interface DockerTree extends Tree {
     USER(UserInstruction.class),
     SHELL(ShellInstruction.class),
     HEALTHCHECK(HealthCheckInstruction.class),
-    NONE(NoneInstruction.class),
     HEREDOCUMENT(HereDocument.class),
 
     TOKEN(SyntaxToken.class),

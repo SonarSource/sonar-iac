@@ -49,7 +49,6 @@ import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.NewKeyValuePair;
-import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
@@ -412,12 +411,6 @@ public class DockerGrammar {
         b.token(DockerKeyword.SHELL),
         EXEC_FORM()
       )
-    );
-  }
-
-  public NoneInstruction NONE() {
-    return b.<NoneInstruction>nonterminal(DockerLexicalGrammar.NONE).is(
-      f.none(b.token(DockerLexicalGrammar.HEALTHCHECK_NONE))
     );
   }
 
