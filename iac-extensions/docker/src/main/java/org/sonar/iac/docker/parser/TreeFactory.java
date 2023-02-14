@@ -231,8 +231,8 @@ public class TreeFactory {
     return new NoneImpl(none);
   }
 
-  public HereDocument hereDocument(List<Expression> arguments) {
-    return new HereDocumentImpl(List.of(newArgument(arguments)));
+  public HereDocument hereDocument(Expression argument) {
+    return new HereDocumentImpl(newArgument(List.of(argument)));
   }
 
   public Argument singleExpressionArgument(Expression expression) {

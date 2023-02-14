@@ -56,12 +56,16 @@
 ],
 'docker-project:sources/docker/awesome-compose/react-java-mysql/backend/Dockerfile':[
 11,
+27,
 ],
 'docker-project:sources/docker/awesome-compose/react-nginx/Dockerfile':[
 28,
 ],
 'docker-project:sources/docker/awesome-compose/react-rust-postgres/frontend/Dockerfile':[
 15,
+],
+'docker-project:sources/docker/awesome-compose/spring-postgres/backend/Dockerfile':[
+26,
 ],
 'docker-project:sources/docker/awesome-compose/traefik-golang/backend/Dockerfile':[
 9,

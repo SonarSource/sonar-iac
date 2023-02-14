@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExecForm;
@@ -71,18 +70,9 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   @Override
   public List<SyntaxToken> literals() {
     List<SyntaxToken> literals = arguments().stream()
-      .map(ExecFormImpl::argumentToSyntaxToken)
+      .map(ArgumentUtils::argumentToSyntaxToken)
       .collect(Collectors.toList());
     return literals.contains(null) ? Collections.emptyList() : literals;
-  }
-
-  @Nullable
-  private static SyntaxToken argumentToSyntaxToken(Argument argument) {
-    String value = ArgumentUtils.resolve(argument).value();
-    if (value != null) {
-      return new SyntaxTokenImpl(value, argument.textRange(), Collections.emptyList());
-    }
-    return null;
   }
 
   @Override

@@ -58,8 +58,9 @@ class HereDocumentImplTest {
     assertThat(hereDoc.arguments().get(0).expressions()).hasSize(1);
     assertThat(((Literal)hereDoc.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<KEY\nline 1\nKEY");
 
-    assertThatThrownBy(hereDoc::literals)
-      .isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("TODO SONARIAC-579 Remove LiteralList.literals()");
+    assertThat(hereDoc.literals()).hasSize(1);
+    SyntaxToken syntaxToken = hereDoc.literals().get(0);
+    assertThat(syntaxToken.value()).isEqualTo("<<KEY\nline 1\nKEY");
+    assertThat(syntaxToken.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
   }
 }
