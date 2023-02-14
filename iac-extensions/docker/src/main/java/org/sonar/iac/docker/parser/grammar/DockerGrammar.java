@@ -429,12 +429,12 @@ public class DockerGrammar {
         b.token(Punctuator.LBRACKET),
         b.optional(
           f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
-            f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL()))),
+            f.singleExpressionArgument(EXPANDABLE_STRING_LITERAL()))),
         b.zeroOrMore(
           f.tuple(
             b.token(Punctuator.COMMA),
             f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
-              f.singleExpressionArguement(EXPANDABLE_STRING_LITERAL())))),
+              f.singleExpressionArgument(EXPANDABLE_STRING_LITERAL())))),
         b.token(Punctuator.RBRACKET)
       )
     );
