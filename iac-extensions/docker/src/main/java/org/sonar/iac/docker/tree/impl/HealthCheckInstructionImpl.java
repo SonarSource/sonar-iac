@@ -33,14 +33,14 @@ public class HealthCheckInstructionImpl extends InstructionImpl implements Healt
 
   private final List<Flag> options;
   @Nullable
-  private final CmdInstruction instruction;
+  private final CmdInstruction cmdInstruction;
   @Nullable
   private final SyntaxToken none;
 
-  public HealthCheckInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable CmdInstruction instruction, @Nullable SyntaxToken none) {
+  public HealthCheckInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable CmdInstruction cmdInstruction, @Nullable SyntaxToken none) {
     super(keyword);
     this.options = options;
-    this.instruction = instruction;
+    this.cmdInstruction = cmdInstruction;
     this.none = none;
   }
 
@@ -49,8 +49,8 @@ public class HealthCheckInstructionImpl extends InstructionImpl implements Healt
     List<Tree> result = new ArrayList<>();
     result.add(keyword);
     result.addAll(options);
-    if(instruction != null) {
-      result.add(instruction);
+    if(cmdInstruction != null) {
+      result.add(cmdInstruction);
     }
     if(none != null) {
       result.add(none);
@@ -70,8 +70,8 @@ public class HealthCheckInstructionImpl extends InstructionImpl implements Healt
 
   @Override
   @CheckForNull
-  public CmdInstruction instruction() {
-    return instruction;
+  public CmdInstruction cmdInstruction() {
+    return cmdInstruction;
   }
 
   @Override

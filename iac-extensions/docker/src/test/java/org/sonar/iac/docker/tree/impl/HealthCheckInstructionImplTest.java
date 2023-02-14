@@ -67,7 +67,7 @@ class HealthCheckInstructionImplTest {
     assertThat(tree.none().getKind()).isEqualTo(DockerTree.Kind.TOKEN);
     assertThat(tree.none().value()).isEqualTo("NONE");
     assertTextRange(tree.none().textRange()).hasRange(1,12,1,16);
-    assertThat(tree.instruction()).isNull();
+    assertThat(tree.cmdInstruction()).isNull();
     assertThat(tree.options()).isEmpty();
   }
 
@@ -78,10 +78,10 @@ class HealthCheckInstructionImplTest {
 
     assertThat(tree.isNone()).isFalse();
     assertThat(tree.none()).isNull();
-    assertThat(tree.instruction().getKind()).isEqualTo(DockerTree.Kind.CMD);
+    assertThat(tree.cmdInstruction().getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.options()).isEmpty();
 
-    List<SyntaxToken> cmdArguments = tree.instruction().arguments().literals();
+    List<SyntaxToken> cmdArguments = tree.cmdInstruction().arguments().literals();
     assertThat(cmdArguments).hasSize(2);
     assertThat(cmdArguments.get(0).value()).isEqualTo("command");
     assertThat(cmdArguments.get(1).value()).isEqualTo("param");
@@ -96,7 +96,7 @@ class HealthCheckInstructionImplTest {
     assertThat(tree.none()).isNull();
     assertThat(tree.options()).hasSize(2);
 
-    List<SyntaxToken> cmdArguments = tree.instruction().arguments().literals();
+    List<SyntaxToken> cmdArguments = tree.cmdInstruction().arguments().literals();
     assertThat(cmdArguments).hasSize(1);
     assertThat(cmdArguments.get(0).value()).isEqualTo("command");
 

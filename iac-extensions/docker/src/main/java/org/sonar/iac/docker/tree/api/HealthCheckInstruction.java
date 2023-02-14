@@ -25,6 +25,6 @@ public interface HealthCheckInstruction extends Instruction {
 
   boolean isNone();
   List<Flag> options();
-  CmdInstruction instruction();
+  CmdInstruction cmdInstruction();
   SyntaxToken none();
 }

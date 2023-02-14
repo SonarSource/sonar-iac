@@ -224,9 +224,9 @@ public class TreeFactory {
 
   public  HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Flag>> flags, DockerTree noneOrCmd) {
     if (noneOrCmd instanceof CmdInstruction) {
-      return new HealthCheckInstructionImpl(healthcheck, flags.or(List.of()), (CmdInstruction)noneOrCmd, null);
+      return new HealthCheckInstructionImpl(healthcheck, flags.or(Collections.emptyList()), (CmdInstruction)noneOrCmd, null);
     } else {
-      return new HealthCheckInstructionImpl(healthcheck, flags.or(List.of()), null, (SyntaxToken)noneOrCmd);
+      return new HealthCheckInstructionImpl(healthcheck, flags.or(Collections.emptyList()), null, (SyntaxToken)noneOrCmd);
     }
   }
 
