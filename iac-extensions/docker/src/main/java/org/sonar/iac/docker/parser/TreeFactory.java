@@ -28,6 +28,7 @@ import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
@@ -223,8 +224,12 @@ public class TreeFactory {
     return new ShellInstructionImpl(token, execForm);
   }
 
-  public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Flag>> options, Instruction instruction) {
-    return new HealthCheckInstructionImpl(healthcheck, options.or(Collections.emptyList()), instruction);
+  public  HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Flag>> flags, DockerTree noneOrCmd) {
+    if (noneOrCmd instanceof CmdInstruction) {
+      return new HealthCheckInstructionImpl(healthcheck, flags.or(List.of()), (CmdInstruction)noneOrCmd, null);
+    } else {
+      return new HealthCheckInstructionImpl(healthcheck, flags.or(List.of()), null, (SyntaxToken)noneOrCmd);
+    }
   }
 
   public NoneInstruction none(SyntaxToken none) {

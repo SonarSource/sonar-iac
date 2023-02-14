@@ -19,33 +19,48 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
-import org.sonar.iac.docker.tree.api.Instruction;
-import org.sonar.iac.docker.tree.api.NoneInstruction;
+import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.Flag;
+import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class HealthCheckInstructionImpl extends InstructionImpl implements HealthCheckInstruction {
 
   private final List<Flag> options;
-  private final Instruction instruction;
+  @Nullable
+  private final CmdInstruction instruction;
+  @Nullable
+  private final SyntaxToken none;
 
-  public HealthCheckInstructionImpl(SyntaxToken keyword, List<Flag> options, Instruction instruction) {
+  public HealthCheckInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable CmdInstruction instruction, @Nullable SyntaxToken none) {
     super(keyword);
     this.options = options;
     this.instruction = instruction;
+    this.none = none;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(keyword, instruction);
+    List<Tree> result = new ArrayList<>();
+    result.add(keyword);
+    result.addAll(options);
+    if(instruction != null) {
+      result.add(instruction);
+    }
+    if(none != null) {
+      result.add(none);
+    }
+    return result;
   }
 
   @Override
   public boolean isNone() {
-    return instruction instanceof NoneInstruction;
+    return none != null;
   }
 
   @Override
@@ -54,8 +69,15 @@ public class HealthCheckInstructionImpl extends InstructionImpl implements Healt
   }
 
   @Override
-  public Instruction instruction() {
+  @CheckForNull
+  public CmdInstruction instruction() {
     return instruction;
+  }
+
+  @Override
+  @CheckForNull
+  public SyntaxToken none() {
+    return none;
   }
 
   @Override

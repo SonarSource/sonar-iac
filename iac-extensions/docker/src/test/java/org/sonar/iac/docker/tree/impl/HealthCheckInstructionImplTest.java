@@ -23,11 +23,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
-import org.sonar.iac.docker.tree.api.NoneInstruction;
 import org.sonar.iac.docker.tree.api.Flag;
+import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
@@ -52,6 +50,7 @@ class HealthCheckInstructionImplTest {
       .notMatches("HEALTHCHECK")
       .notMatches("HEALTHCHECKK NONE")
       .notMatches("HEALTHCHECK --interval=30s")
+      .notMatches("HEALTHCHECK--interval=30s")
       .notMatches("HEALTHCHECK NONEE")
       .notMatches("HEALTHCHECKNONE")
     ;
@@ -65,8 +64,10 @@ class HealthCheckInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
 
     assertThat(tree.isNone()).isTrue();
-    assertThat(tree.instruction()).isInstanceOf(NoneInstruction.class);
-    assertThat(tree.instruction().getKind()).isEqualTo(DockerTree.Kind.NONE);
+    assertThat(tree.none().getKind()).isEqualTo(DockerTree.Kind.TOKEN);
+    assertThat(tree.none().value()).isEqualTo("NONE");
+    assertTextRange(tree.none().textRange()).hasRange(1,12,1,16);
+    assertThat(tree.instruction()).isNull();
     assertThat(tree.options()).isEmpty();
   }
 
@@ -76,11 +77,11 @@ class HealthCheckInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 29);
 
     assertThat(tree.isNone()).isFalse();
-    assertThat(tree.instruction()).isInstanceOf(CmdInstruction.class);
+    assertThat(tree.none()).isNull();
     assertThat(tree.instruction().getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.options()).isEmpty();
 
-    List<SyntaxToken> cmdArguments = ((CmdInstruction) tree.instruction()).arguments().literals();
+    List<SyntaxToken> cmdArguments = tree.instruction().arguments().literals();
     assertThat(cmdArguments).hasSize(2);
     assertThat(cmdArguments.get(0).value()).isEqualTo("command");
     assertThat(cmdArguments.get(1).value()).isEqualTo("param");
@@ -92,10 +93,10 @@ class HealthCheckInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 51);
 
     assertThat(tree.isNone()).isFalse();
-    assertThat(tree.instruction()).isInstanceOf(CmdInstruction.class);
+    assertThat(tree.none()).isNull();
     assertThat(tree.options()).hasSize(2);
 
-    List<SyntaxToken> cmdArguments = ((CmdInstruction) tree.instruction()).arguments().literals();
+    List<SyntaxToken> cmdArguments = tree.instruction().arguments().literals();
     assertThat(cmdArguments).hasSize(1);
     assertThat(cmdArguments.get(0).value()).isEqualTo("command");
 

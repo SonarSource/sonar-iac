@@ -398,7 +398,10 @@ public class DockerGrammar {
       f.healthcheck(
         b.token(DockerKeyword.HEALTHCHECK),
         b.zeroOrMore(FLAG()),
-        b.firstOf(NONE(), CMD())
+        b.firstOf(
+          b.token(DockerLexicalGrammar.HEALTHCHECK_NONE),
+          CMD()
+        )
       )
     );
   }
