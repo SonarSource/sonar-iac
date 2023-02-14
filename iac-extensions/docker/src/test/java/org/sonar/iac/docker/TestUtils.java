@@ -19,7 +19,9 @@
  */
 package org.sonar.iac.docker;
 
+import java.util.Objects;
 import javax.annotation.Nullable;
+import org.assertj.core.api.AbstractAssert;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.NewKeyValuePair;
@@ -50,9 +52,12 @@ public class TestUtils {
   public static void assertFrom(FromInstruction from, String expectedName, @Nullable String expectedFlagName, @Nullable String expectedFlagValue, @Nullable String expectedAlias) {
     assertThat(argValue(from.image())).isEqualTo(expectedName);
     if (expectedFlagName != null) {
+      assertThat(from.platform()).isNotNull();
       assertThat(from.platform().name()).isEqualTo(expectedFlagName);
       if (expectedFlagValue != null) {
         assertThat(argValue(from.platform().value())).isEqualTo(expectedFlagValue);
+      } else {
+        assertThat(from.platform().value()).isNull();
       }
     } else {
       assertThat(from.platform()).isNull();

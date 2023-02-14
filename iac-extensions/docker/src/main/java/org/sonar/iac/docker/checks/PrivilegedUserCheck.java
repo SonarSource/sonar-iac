@@ -85,11 +85,11 @@ public class PrivilegedUserCheck implements IacCheck {
       return;
     }
     String imageName = getImageName(dockerImage.from());
-    Optional<UserInstruction> lastUser = getLastUser(dockerImage);
     if (imageName == null) {
       return;
     }
 
+    Optional<UserInstruction> lastUser = getLastUser(dockerImage);
     if (lastUser.isEmpty()) {
       if (isScratchImage(imageName)) {
         ctx.reportIssue(dockerImage.from(), MESSAGE_SCRATCH);
