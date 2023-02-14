@@ -27,13 +27,13 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.FromInstruction;
-import org.sonar.iac.docker.tree.api.Image;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.TestUtils.assertFrom;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class DockerImageImplTest {
@@ -46,14 +46,8 @@ class DockerImageImplTest {
     assertThat(dockerImage.instructions()).isEmpty();
 
     FromInstruction from = dockerImage.from();
-    assertThat(from.keyword().value()).isEqualTo("FROM");
-    assertThat(from.alias()).isNull();
-    assertThat(from.platform()).isNull();
-    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ImageImpl.class);
-    Image image = from.image();
-    assertThat(image.name().value()).isEqualTo("foobar");
-    assertThat(image.tag()).isNull();
-    assertThat(image.digest()).isNull();
+    assertFrom(from, "foobar", null, null, null);
+    assertThat(from.children()).hasExactlyElementsOfTypes(SyntaxTokenImpl.class, ArgumentImpl.class);
   }
 
   @Test

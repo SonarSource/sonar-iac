@@ -44,7 +44,6 @@ import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.HereDocument;
-import org.sonar.iac.docker.tree.api.Image;
 import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
@@ -84,7 +83,6 @@ import org.sonar.iac.docker.tree.impl.FileImpl;
 import org.sonar.iac.docker.tree.impl.FromInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HealthCheckInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HereDocumentImpl;
-import org.sonar.iac.docker.tree.impl.ImageImpl;
 import org.sonar.iac.docker.tree.impl.KeyValuePairImpl;
 import org.sonar.iac.docker.tree.impl.LabelInstructionImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
@@ -127,7 +125,7 @@ public class TreeFactory {
     return new OnBuildInstructionImpl(keyword, instruction);
   }
 
-  public FromInstruction from(SyntaxToken keyword, Optional<Flag> platform, Image image, Optional<Alias> alias) {
+  public FromInstruction from(SyntaxToken keyword, Optional<Flag> platform, Argument image, Optional<Alias> alias) {
     return new FromInstructionImpl(keyword, platform.orNull(), image, alias.orNull());
   }
 
@@ -193,10 +191,6 @@ public class TreeFactory {
 
   public Flag flag(SyntaxToken prefix, SyntaxToken name, Optional<SyntaxToken> equals, Optional<Argument> value) {
     return new FlagImpl(prefix, name, equals.orNull(), value.orNull());
-  }
-
-  public Image image(SyntaxToken name, Optional<SyntaxToken> tag, Optional<SyntaxToken> digest) {
-    return new ImageImpl(name, tag.orNull(), digest.orNull());
   }
 
   public CmdInstruction cmd(SyntaxToken token, Optional<LiteralList> execFormOrShellForm) {

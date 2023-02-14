@@ -97,13 +97,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   SHELL_FORM_GENERIC,
   HEREDOC_FORM,
 
-  IMAGE,
   ALIAS,
   ALIAS_AS,
   IMAGE_ALIAS,
-  IMAGE_NAME,
-  IMAGE_TAG,
-  IMAGE_DIGEST,
 
   HEREDOC_EXPRESSION,
 
@@ -193,9 +189,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
     b.rule(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(b.regexp("(?:\"[^\"]*\"|[^\\s])+"));
 
-    b.rule(IMAGE_NAME).is(SKIPPED_WHITESPACE, b.regexp("[^@:\\s-][^@:\\s\\$]+"));
-    b.rule(IMAGE_TAG).is(b.regexp(":[^@\\s]+"));
-    b.rule(IMAGE_DIGEST).is(b.regexp("@[a-zA-Z0-9:]+"));
     b.rule(IMAGE_ALIAS).is(SKIPPED_WHITESPACE, b.regexp("[-a-zA-Z0-9_\\.]+"));
 
     b.rule(FLAG_PREFIX).is(SKIPPED_WHITESPACE, b.regexp("--"));

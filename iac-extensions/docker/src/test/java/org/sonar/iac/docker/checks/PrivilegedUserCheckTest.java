@@ -27,14 +27,14 @@ class PrivilegedUserCheckTest {
 
   @Test
   void testNonCompliant() {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 14; i++) {
       DockerVerifier.verify("PrivilegedUserCheck/Dockerfile." + i, check);
     }
   }
 
   @Test
   void testCompliant() {
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 9; i++) {
       DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile-Compliant." + i, check);
     }
   }
