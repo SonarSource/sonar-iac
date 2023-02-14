@@ -305,9 +305,12 @@ public class DockerGrammar {
       f.arg(
         b.token(DockerKeyword.ARG),
         b.oneOrMore(
-          b.firstOf(
-            KEY_VALUE_PAIR_WITH_EQUALS(),
-            KEY_ONLY()
+          f.ignoreFirst(
+            b.token(WHITESPACE),
+            b.firstOf(
+              KEY_VALUE_PAIR_WITH_EQUAL(),
+              NEW_KEY_ONLY()
+            )
           )
         )
       )

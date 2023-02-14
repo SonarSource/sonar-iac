@@ -167,7 +167,7 @@ public class TreeFactory {
     return new EnvInstructionImpl(keyword, keyValuePairs);
   }
 
-  public ArgInstruction arg(SyntaxToken token, List<KeyValuePair> argNames) {
+  public ArgInstruction arg(SyntaxToken token, List<NewKeyValuePair> argNames) {
     return new ArgInstructionImpl(token, argNames);
   }
 
