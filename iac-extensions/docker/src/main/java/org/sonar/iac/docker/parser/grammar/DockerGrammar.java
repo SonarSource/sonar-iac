@@ -239,12 +239,12 @@ public class DockerGrammar {
           b.token(DockerKeyword.LABEL),
           b.oneOrMore(
             f.ignoreFirst(
-              b.token(WHITESPACE),
+              b.token(DockerLexicalGrammar.WHITESPACE),
               KEY_VALUE_PAIR_WITH_EQUAL()))),
         f.label(
           b.token(DockerKeyword.LABEL),
           f.ignoreFirst(
-            b.token(WHITESPACE),
+            b.token(DockerLexicalGrammar.WHITESPACE),
             KEY_VALUE_PAIR_WITHOUT_EQUAL()))
       )
     );
@@ -305,7 +305,7 @@ public class DockerGrammar {
         b.token(DockerKeyword.ARG),
         b.oneOrMore(
           f.ignoreFirst(
-            b.token(WHITESPACE),
+            b.token(DockerLexicalGrammar.WHITESPACE),
             b.firstOf(
               KEY_VALUE_PAIR_WITH_EQUAL(),
               NEW_KEY_ONLY()
