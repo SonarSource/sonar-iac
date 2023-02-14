@@ -70,8 +70,10 @@ public class EncapsulatedVariableImpl extends AbstractDockerTreeImpl implements 
     List<Tree> children = new ArrayList<>();
     children.add(openDollarCurly);
     children.add(identifier);
-    if (modifier != null) {
+    if (modifierSeparator != null) {
       children.add(modifierSeparator);
+    }
+    if (modifier != null) {
       children.add(modifier);
     }
     children.add(closeCurly);

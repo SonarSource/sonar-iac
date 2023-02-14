@@ -259,8 +259,8 @@ public class TreeFactory {
     return new ExecFormImpl(leftBracket, separatedList, rightBracket);
   }
 
-  public ShellForm shellForm(List<SyntaxToken> tokens) {
-    return new ShellFormImpl(tokens);
+  public ShellForm shellForm(List<Argument> arguments) {
+    return new ShellFormImpl(arguments);
   }
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {
@@ -296,7 +296,16 @@ public class TreeFactory {
       return new EncapsulatedVariableImpl(openDollarCurly, identifier, modifier.get().first(), modifier.get().second(), closeCurly);
     }
     return new EncapsulatedVariableImpl(openDollarCurly, identifier, null, null, closeCurly);
+  }
 
+  public EncapsulatedVariable encapsulatedVariableGeneric(SyntaxToken openDollarCurly, SyntaxToken identifier, Optional<SyntaxToken> modifier, SyntaxToken closeCurly) {
+    if (modifier.isPresent()) {
+      List<Expression> modifierExpr = new ArrayList<>();
+      modifierExpr.add(new LiteralImpl(modifier.get()));
+      return new EncapsulatedVariableImpl(openDollarCurly, identifier, null, new ArgumentImpl(modifierExpr), closeCurly);
+    } else {
+      return new EncapsulatedVariableImpl(openDollarCurly, identifier, null, null, closeCurly);
+    }
   }
 
   public Argument newArgument(List<Expression> expressions) {

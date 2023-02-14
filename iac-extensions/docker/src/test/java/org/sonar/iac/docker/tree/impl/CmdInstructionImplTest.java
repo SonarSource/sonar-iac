@@ -75,9 +75,12 @@ class CmdInstructionImplTest {
       .matches("cmd")
       // not exec form
       .matches("CMD [\"la\", \"-bb\"")
-      .matches("CMD [\"la\", \"-bb]")
       .matches("CMD \"la\", \"-bb\"]")
+      .matches("CMD ${cmd}")
+      .matches("CMD ${cmd:-test}")
+      .matches("CMD ${cmd%%[a-z]+}")
 
+      .notMatches("CMD [\"la\", \"-bb]")
       .notMatches("/bin/sh /deploy.sh");
   }
 

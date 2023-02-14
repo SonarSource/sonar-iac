@@ -212,9 +212,6 @@
 'docker-project:sources/docker/dockerfile-examples/tomcat/Dockerfile':[
 1,
 ],
-'docker-project:sources/docker/dockerfile-examples/ubuntu/Dockerfile':[
-1,
-],
 'docker-project:sources/docker/dockerfile-examples/wordpress/Dockerfile':[
 1,
 ],

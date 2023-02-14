@@ -84,9 +84,13 @@ class RunInstructionImplTest {
       .matches("run")
       // not exec form
       .matches("RUN [\"la\", \"-bb\"")
-      .matches("RUN [\"la\", \"-bb]")
       .matches("RUN \"la\", \"-bb\"]")
+      .matches("RUN ${run}")
+      .matches("RUN ${run:-test}")
+      .matches("RUN ${run%%[a-z]+}")
+      .matches("RUN 'this is my var \" and other \"'")
 
+      .notMatches("RUN [\"la\", \"-bb]")
       .notMatches("/bin/sh /deploy.sh");
   }
 
@@ -130,9 +134,9 @@ class RunInstructionImplTest {
       .matches("RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;     Write-Host \"Downloading Prometheus version: $env:PROMETHEUS_VERSION\";")
       // not exec form
       .matches("RUN [\"la\", \"-bb\"")
-      .matches("RUN [\"la\", \"-bb]")
       .matches("RUN \"la\", \"-bb\"]")
 
+      .notMatches("RUN [\"la\", \"-bb]")
       .notMatches("--mount=target=. /bin/sh /deploy.sh");
   }
 
@@ -159,7 +163,7 @@ class RunInstructionImplTest {
         "        TEST=test && \\\n" +
         "        ls && \\\n" +
         "        curl sLO https://google.com &&\\\n" +
-        "        echo ${TEST} | sha256sum --check",
+        "        echo TEST | sha256sum --check",
       DockerLexicalGrammar.RUN);
 
     assertThat(tree.options()).isEmpty();

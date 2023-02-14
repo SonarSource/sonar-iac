@@ -70,9 +70,12 @@ class EntrypointInstructionImplTest {
       .matches("entrypoint")
       // not exec form
       .matches("ENTRYPOINT [\"la\", \"-bb\"")
-      .matches("ENTRYPOINT [\"la\", \"-bb]")
       .matches("ENTRYPOINT \"la\", \"-bb\"]")
+      .matches("ENTRYPOINT ${entrypoint}")
+      .matches("ENTRYPOINT ${entrypoint:-test}")
+      .matches("ENTRYPOINT ${entrypoint%%[a-z]+}")
 
+      .notMatches("ENTRYPOINT [\"la\", \"-bb]")
       .notMatches("/bin/sh /deploy.sh");
   }
 

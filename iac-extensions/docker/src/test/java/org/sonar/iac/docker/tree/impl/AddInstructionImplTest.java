@@ -48,11 +48,13 @@ class AddInstructionImplTest {
       .matches("ADD --link /foo /bar")
       .matches("ADD \"src\" \"dest\"")
       .matches("ADD --option= src dest")
+      .matches("ADD ${myadd:-test} dest")
 
       .notMatches("ADD--option= src dest")
       .notMatches("ADDD --option= src dest")
       .notMatches("ADD")
       .notMatches("ADD ")
+      .notMatches("ADD ${myadd%%[a-z]+} dest")
       .notMatches("ADD --option=value");
   }
 
@@ -106,8 +108,8 @@ class AddInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("\"src\"");
-    assertThat(tree.dest().value()).isEqualTo("\"dest\"");
+    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
+    assertThat(tree.dest().value()).isEqualTo("dest");
   }
 
   @Test
