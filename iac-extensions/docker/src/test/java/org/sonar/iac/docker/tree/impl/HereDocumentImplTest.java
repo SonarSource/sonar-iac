@@ -35,6 +35,7 @@ class HereDocumentImplTest {
   @Test
   void shouldParseHereDocForm() {
     Assertions.assertThat(DockerLexicalGrammar.HEREDOC_FORM)
+      .matches(" <<KEY\n \nKEY")
       .matches(" <<KEY\nline 1\nKEY")
       .matches(" <<KEY vals\nline 1\nKEY")
       .matches(" <<KEY1 <<KEY2\nKEY1\nKEY2")

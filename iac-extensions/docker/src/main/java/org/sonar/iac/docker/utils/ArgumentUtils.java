@@ -79,6 +79,7 @@ public class ArgumentUtils {
     return null;
   }
 
+  // TODO Consider to remove by SONARIAC-579 Remove LiteralList
   @Nullable
   public static SyntaxToken argumentToSyntaxToken(Argument argument) {
     String value = ArgumentUtils.resolve(argument).value();

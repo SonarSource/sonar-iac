@@ -44,6 +44,8 @@ public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocu
     return Kind.HEREDOCUMENT;
   }
 
+  // TODO remove method SONARIAC-579 Remove LiteralList
+  @Deprecated(forRemoval = true)
   @Override
   public List<SyntaxToken> literals() {
     SyntaxToken syntaxToken = ArgumentUtils.argumentToSyntaxToken(argument);
