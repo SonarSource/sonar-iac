@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.utils;
 
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -28,6 +29,8 @@ import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.HasArguments;
 import org.sonar.iac.docker.tree.api.Literal;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 
 public class ArgumentUtils {
 
@@ -72,6 +75,16 @@ public class ArgumentUtils {
     }
     if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_CHARACTERS)) {
       return ((ExpandableStringCharacters)expression).value();
+    }
+    return null;
+  }
+
+  // TODO Consider to remove by SONARIAC-579 Remove LiteralList
+  @Nullable
+  public static SyntaxToken argumentToSyntaxToken(Argument argument) {
+    String value = ArgumentUtils.resolve(argument).value();
+    if (value != null) {
+      return new SyntaxTokenImpl(value, argument.textRange(), Collections.emptyList());
     }
     return null;
   }

@@ -24,6 +24,8 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.HereDocument;
+import org.sonar.iac.docker.tree.api.Literal;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,6 +35,7 @@ class HereDocumentImplTest {
   @Test
   void shouldParseHereDocForm() {
     Assertions.assertThat(DockerLexicalGrammar.HEREDOC_FORM)
+      .matches(" <<KEY\n \nKEY")
       .matches(" <<KEY\nline 1\nKEY")
       .matches(" <<KEY vals\nline 1\nKEY")
       .matches(" <<KEY1 <<KEY2\nKEY1\nKEY2")
@@ -52,11 +55,13 @@ class HereDocumentImplTest {
     HereDocument hereDoc = DockerTestUtils.parse(" <<KEY\nline 1\nKEY", DockerLexicalGrammar.HEREDOC_FORM);
 
     assertThat(hereDoc.getKind()).isEqualTo(DockerTree.Kind.HEREDOCUMENT);
-    assertThat(hereDoc.literals()).hasSize(1);
-    assertThat(hereDoc.literals().get(0).value()).isEqualTo("<<KEY\nline 1\nKEY");
+    assertThat(hereDoc.arguments()).hasSize(1);
+    assertThat(hereDoc.arguments().get(0).expressions()).hasSize(1);
+    assertThat(((Literal)hereDoc.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<KEY\nline 1\nKEY");
 
-    assertThatThrownBy(hereDoc::arguments)
-      .isInstanceOf(UnsupportedOperationException.class)
-      .hasMessage("TODO SONARIAC-572");
+    assertThat(hereDoc.literals()).hasSize(1);
+    SyntaxToken syntaxToken = hereDoc.literals().get(0);
+    assertThat(syntaxToken.value()).isEqualTo("<<KEY\nline 1\nKEY");
+    assertThat(syntaxToken.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
   }
 }

@@ -24,18 +24,19 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocument {
 
-  private final SyntaxToken content;
+  private final Argument argument;
 
-  public HereDocumentImpl(SyntaxToken content) {
-    this.content = content;
+  public HereDocumentImpl(Argument argument) {
+    this.argument = argument;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(content);
+    return List.of(argument);
   }
 
   @Override
@@ -43,15 +44,20 @@ public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocu
     return Kind.HEREDOCUMENT;
   }
 
+  // TODO remove method SONARIAC-579 Remove LiteralList
+  @Deprecated(forRemoval = true)
   @Override
   public List<SyntaxToken> literals() {
-    return List.of(content);
+    SyntaxToken syntaxToken = ArgumentUtils.argumentToSyntaxToken(argument);
+    if (syntaxToken != null) {
+      return List.of(syntaxToken);
+    }
+    return List.of();
   }
 
-  // TODO : SONARIAC-572 adapt HereDoc form and replace literals() by arguments()
   @Override
   public List<Argument> arguments() {
-    throw new UnsupportedOperationException("TODO SONARIAC-572");
+    return List.of(argument);
   }
 
   @Override

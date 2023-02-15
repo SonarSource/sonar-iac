@@ -37,3 +37,5 @@ ADD "http://www.httpvshttps.com/" /foo/
 ADD "http://www.httpvshttps.com/" "http://www.other.com/" /bar/
 
 COPY "http://www.httpvshttps.com/" /bar/
+
+RUN ls
