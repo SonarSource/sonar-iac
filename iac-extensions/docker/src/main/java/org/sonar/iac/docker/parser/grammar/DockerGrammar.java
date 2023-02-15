@@ -237,9 +237,33 @@ public class DockerGrammar {
 
   public EnvInstruction ENV() {
     return b.<EnvInstruction>nonterminal(DockerLexicalGrammar.ENV).is(
-      f.env(b.token(DockerKeyword.ENV),
-        b.oneOrMore(
-          b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
+      b.firstOf(
+        f.env(
+          b.token(DockerKeyword.ENV),
+          b.oneOrMore(
+            f.ignoreFirst(
+              b.token(DockerLexicalGrammar.WHITESPACE),
+              KEY_VALUE_PAIR_WITH_EQUAL()
+            )
+          )
+        ),
+        f.env(
+          b.token(DockerKeyword.ENV),
+          b.oneOrMore(
+            f.ignoreFirst(
+              b.token(DockerLexicalGrammar.WHITESPACE),
+              KEY_VALUE_PAIR_WITHOUT_EQUAL()
+            )
+          )
+        ),
+        f.env(
+          b.token(DockerKeyword.ENV),
+          b.oneOrMore(
+            f.ignoreFirst(
+              b.token(DockerLexicalGrammar.WHITESPACE),
+              NEW_KEY_VALUE_PAIR_WITHOUT_VALUE()
+            )
+          )
         )
       )
     );
@@ -561,6 +585,15 @@ public class DockerGrammar {
             ARGUMENT()
           )
         )
+      )
+    );
+  }
+
+  public NewKeyValuePair NEW_KEY_VALUE_PAIR_WITHOUT_VALUE() {
+    return b.<NewKeyValuePair>nonterminal().is(
+      f.newKeyValuePair(
+        KEY_ARGUMENT(),
+        b.token(DockerLexicalGrammar.EQUALS_OPERATOR)
       )
     );
   }

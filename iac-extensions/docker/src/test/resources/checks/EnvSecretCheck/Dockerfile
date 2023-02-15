@@ -26,8 +26,6 @@ ENV TOKEN=AAAA
 # Noncompliant@+1
 ENV token=AAAA
 # Noncompliant@+1
-ENV ACCESS_TOKEN=${ARG
-# Noncompliant@+1
 ENV ACCESS_TOKEN="hts://www.secrets.com"
 # Noncompliant@+1
 ENV MY_1_ACCESS_TOKEN=AAAA

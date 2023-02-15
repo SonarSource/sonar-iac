@@ -160,7 +160,7 @@ public class TreeFactory {
     return new LabelInstructionImpl(token, Collections.singletonList(keyValuePair));
   }
 
-  public EnvInstruction env(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
+  public EnvInstruction env(SyntaxToken keyword, List<NewKeyValuePair> keyValuePairs) {
     return new EnvInstructionImpl(keyword, keyValuePairs);
   }
 
@@ -326,6 +326,9 @@ public class TreeFactory {
     return new NewKeyValuePairImpl(key, equalSign.orNull(), null);
   }
 
+  public NewKeyValuePair newKeyValuePair(Argument key, SyntaxToken equalSign) {
+    return new NewKeyValuePairImpl(key, equalSign, null);
+  }
 
 
   public static class Tuple<T, U> {

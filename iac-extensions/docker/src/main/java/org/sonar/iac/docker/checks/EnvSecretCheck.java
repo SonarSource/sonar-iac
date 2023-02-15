@@ -27,12 +27,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6472")
 public class EnvSecretCheck implements IacCheck {
@@ -73,16 +75,17 @@ public class EnvSecretCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(EnvInstruction.class, (ctx, instruction) -> instruction
-      .variableAssignments().forEach(envVarAssignment -> checkEnvVariableAssignment(ctx, envVarAssignment)));
+      .environmentVariables().forEach(envVarAssignment -> checkEnvVariableAssignment(ctx, envVarAssignment)));
   }
 
-  private static void checkEnvVariableAssignment(CheckContext ctx, KeyValuePair envVarAssignment) {
-    if (isSensitiveName(envVarAssignment.key().value()) && isSensitiveValue(envVarAssignment.value().value())) {
+  private static void checkEnvVariableAssignment(CheckContext ctx, NewKeyValuePair envVarAssignment) {
+    if (isSensitiveName(ArgumentUtils.resolve(envVarAssignment.key()).value()) && isSensitiveValue(ArgumentUtils.resolve(envVarAssignment.value()).value())) {
       ctx.reportIssue(envVarAssignment.key(), MESSAGE);
     }
   }
 
-  private static boolean isSensitiveName(String name) {
+  private static boolean isSensitiveName(@Nullable String name) {
+    if (name == null) return false;
     List<String> words = splitEnvVarName(name);
     return isSecretWordOnly(words) || containsSecretEntityWordCombination(words);
   }
@@ -121,7 +124,8 @@ public class EnvSecretCheck implements IacCheck {
     return false;
   }
 
-  private static boolean isSensitiveValue(String value) {
+  private static boolean isSensitiveValue(@Nullable String value) {
+    if(value == null) return false;
     value = stripQuotes(value);
 
     if (value.isBlank() || isUrl(value) || isPath(value)) {
