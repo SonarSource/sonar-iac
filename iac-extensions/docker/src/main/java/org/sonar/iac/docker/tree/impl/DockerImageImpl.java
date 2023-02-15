@@ -22,6 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.Instruction;
@@ -41,6 +42,7 @@ public class DockerImageImpl extends AbstractDockerTreeImpl implements DockerIma
 
   private final FromInstruction from;
   private final List<Instruction> instructions;
+  private Scope scope;
 
   public DockerImageImpl(FromInstruction from, List<Instruction> instructions) {
     this.from = from;
@@ -68,5 +70,18 @@ public class DockerImageImpl extends AbstractDockerTreeImpl implements DockerIma
   @Override
   public Kind getKind() {
     return Kind.DOCKERIMAGE;
+  }
+
+  @Override
+  public void setScope(Scope scope) {
+    if (this.scope != null) {
+      throw new IllegalArgumentException("A scope is already set");
+    }
+    this.scope = scope;
+  }
+
+  @Override
+  public Scope scope() {
+    return scope;
   }
 }

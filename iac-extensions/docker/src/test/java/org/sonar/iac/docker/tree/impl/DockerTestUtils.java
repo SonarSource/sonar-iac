@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.parser.DockerParser;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class DockerTestUtils {

@@ -19,9 +19,7 @@
  */
 package org.sonar.iac.docker;
 
-import java.util.Objects;
 import javax.annotation.Nullable;
-import org.assertj.core.api.AbstractAssert;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.NewKeyValuePair;

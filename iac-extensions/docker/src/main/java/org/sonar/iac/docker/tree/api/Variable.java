@@ -19,10 +19,6 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-
-public interface DockerImage extends DockerTree, HasScope {
-
-  FromInstruction from();
-  List<Instruction> instructions();
+public interface Variable extends Expression, HasSymbol {
+  String identifier();
 }
