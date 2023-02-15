@@ -19,10 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -32,7 +29,8 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class ShellFormImplTest {
 
@@ -77,15 +75,27 @@ class ShellFormImplTest {
     ShellForm shellForm = DockerTestUtils.parse(" executable param1 param2", DockerLexicalGrammar.SHELL_FORM);
 
     assertThat(shellForm.getKind()).isEqualTo(DockerTree.Kind.SHELL_FORM);
-    assertThat(shellForm.arguments().stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::value).collect(Collectors.toList()))
-      .containsExactly("executable", "param1", "param2");
-    List<String> elementsAndSeparatorsAsText = shellForm.literals().stream()
-      .map(TextTree::value)
-      .collect(Collectors.toList());
-    assertThat(elementsAndSeparatorsAsText).containsExactly("executable", "param1", "param2");
+    assertArgumentsValue(shellForm.arguments(), "executable", "param1", "param2");
+  }
 
-    List<SyntaxToken> elements = shellForm.literals();
-    assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.TOKEN);
+  @Test
+  void shouldCheckShellFormTreeWithVariable() {
+    ShellForm shellForm = DockerTestUtils.parse(" executable $var", DockerLexicalGrammar.SHELL_FORM);
+
+    assertThat(shellForm.getKind()).isEqualTo(DockerTree.Kind.SHELL_FORM);
+    assertArgumentsValue(shellForm.arguments(), "executable", null);
+
+    ArgumentUtils.ArgumentResolution argResolved1 = ArgumentUtils.resolve(shellForm.arguments().get(0));
+    assertThat(argResolved1.value()).isEqualTo("executable");
+    assertTextRange(argResolved1.textRange()).hasRange(1, 1, 1, 11);
+    SyntaxToken token1 = argResolved1.asSyntaxToken();
+    assertThat(token1.value()).isEqualTo("executable");
+    assertTextRange(token1.textRange()).hasRange(1, 1, 1, 11);
+
+    ArgumentUtils.ArgumentResolution argResolved2 = ArgumentUtils.resolve(shellForm.arguments().get(1));
+    assertThat(argResolved2.value()).isNull();
+    assertTextRange(argResolved2.textRange()).isNull();
+    assertThat(argResolved2.asSyntaxToken()).isNull();
   }
 
   @Test
@@ -93,15 +103,7 @@ class ShellFormImplTest {
     ShellForm shellForm = DockerTestUtils.parse(" git commit -m \"Some commit message\"", DockerLexicalGrammar.SHELL_FORM);
 
     assertThat(shellForm.getKind()).isEqualTo(DockerTree.Kind.SHELL_FORM);
-    assertThat(shellForm.arguments().stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::value).collect(Collectors.toList()))
-      .containsExactly("git", "commit", "-m", "Some commit message");
-    List<String> elementsAndSeparatorsAsText = shellForm.literals().stream()
-      .map(TextTree::value)
-      .collect(Collectors.toList());
-    assertThat(elementsAndSeparatorsAsText).containsExactly("git", "commit", "-m", "Some commit message");
-
-    List<SyntaxToken> elements = shellForm.literals();
-    assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.TOKEN);
+    assertArgumentsValue(shellForm.arguments(), "git", "commit", "-m", "Some commit message");
   }
 
   @Test

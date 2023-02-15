@@ -29,13 +29,6 @@ public interface LiteralList extends DockerTree {
     HEREDOC
   }
 
-  /**
-   * @deprecated should be removed once the full transition to Argument for both SHELL/EXEC/HEREDOC forms has been completed
-   * TODO SONARIAC-579 Remove LiteralList.literals()
-   */
-  @Deprecated(forRemoval = true)
-  List<SyntaxToken> literals();
-
   List<Argument> arguments();
 
   LiteralListType type();

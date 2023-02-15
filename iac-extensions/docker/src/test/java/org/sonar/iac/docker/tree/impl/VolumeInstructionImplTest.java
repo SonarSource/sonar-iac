@@ -19,17 +19,16 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.LiteralList;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class VolumeInstructionImplTest {
@@ -60,10 +59,7 @@ class VolumeInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("VOLUME");
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
 
-    List<SyntaxToken> literalListTree = tree.arguments().literals();
-    assertThat(literalListTree).hasSize(2);
-    assertThat(literalListTree.get(0).value()).isEqualTo("/var/log");
-    assertThat(literalListTree.get(1).value()).isEqualTo("/var/db");
+    assertArgumentsValue(tree.arguments().arguments(), "/var/log", "/var/db");
   }
 
   @Test

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -40,6 +39,7 @@ import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class RunInstructionImplTest {
 
@@ -170,7 +170,7 @@ class RunInstructionImplTest {
     assertThat(tree.options()).isEmpty();
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
-    assertThat(tree.arguments().literals()).hasSize(13);
+    assertThat(tree.arguments().arguments()).hasSize(13);
   }
 
   @Test
@@ -198,8 +198,9 @@ class RunInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
-    assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
+    assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
+    List<TextRange> textRanges = tree.arguments().arguments()
+      .stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::textRange).collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,4,1,14);
     assertTextRange(textRanges.get(1)).hasRange(1,15,1,21);
     assertTextRange(textRanges.get(2)).hasRange(1,22,1,28);
@@ -223,7 +224,7 @@ class RunInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("executable", "param1", "param2");
+    assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(Flag.class);
@@ -246,8 +247,9 @@ class RunInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
-    assertThat(tree.arguments().literals().stream().map(TextTree::value)).containsExactly("executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().literals().stream().map(TextTree::textRange).collect(Collectors.toList());
+    assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
+    List<TextRange> textRanges = tree.arguments().arguments()
+      .stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::textRange).collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,36,1,46);
     assertTextRange(textRanges.get(1)).hasRange(1,47,1,53);
     assertTextRange(textRanges.get(2)).hasRange(1,54,1,60);

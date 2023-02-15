@@ -3,6 +3,12 @@
 5,
 7,
 ],
+'docker-project:sources/docker/dockerfile-examples/mongodb/Dockerfile':[
+8,
+],
+'docker-project:sources/docker/dockerfile-examples/postgres/Dockerfile':[
+9,
+],
 'docker-project:sources/docker/dockerfile-examples/wordpress/Dockerfile':[
 9,
 ],

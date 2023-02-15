@@ -31,6 +31,7 @@ import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class HealthCheckInstructionImplTest {
   @Test
@@ -81,10 +82,7 @@ class HealthCheckInstructionImplTest {
     assertThat(tree.cmdInstruction().getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.options()).isEmpty();
 
-    List<SyntaxToken> cmdArguments = tree.cmdInstruction().arguments().literals();
-    assertThat(cmdArguments).hasSize(2);
-    assertThat(cmdArguments.get(0).value()).isEqualTo("command");
-    assertThat(cmdArguments.get(1).value()).isEqualTo("param");
+    assertArgumentsValue(tree.cmdInstruction().arguments().arguments(), "command", "param");
   }
 
   @Test
@@ -96,9 +94,7 @@ class HealthCheckInstructionImplTest {
     assertThat(tree.none()).isNull();
     assertThat(tree.options()).hasSize(2);
 
-    List<SyntaxToken> cmdArguments = tree.cmdInstruction().arguments().literals();
-    assertThat(cmdArguments).hasSize(1);
-    assertThat(cmdArguments.get(0).value()).isEqualTo("command");
+    assertArgumentsValue(tree.cmdInstruction().arguments().arguments(), "command");
 
     List<Flag> options = tree.options();
     assertThat(options.get(0).name()).isEqualTo("interval");

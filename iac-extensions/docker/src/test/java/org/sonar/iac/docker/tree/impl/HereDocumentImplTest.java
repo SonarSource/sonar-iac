@@ -28,7 +28,7 @@ import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class HereDocumentImplTest {
 
@@ -59,9 +59,6 @@ class HereDocumentImplTest {
     assertThat(hereDoc.arguments().get(0).expressions()).hasSize(1);
     assertThat(((Literal)hereDoc.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<KEY\nline 1\nKEY");
 
-    assertThat(hereDoc.literals()).hasSize(1);
-    SyntaxToken syntaxToken = hereDoc.literals().get(0);
-    assertThat(syntaxToken.value()).isEqualTo("<<KEY\nline 1\nKEY");
-    assertThat(syntaxToken.getKind()).isEqualTo(DockerTree.Kind.TOKEN);
+    assertArgumentsValue(hereDoc.arguments(), "<<KEY\nline 1\nKEY");
   }
 }
