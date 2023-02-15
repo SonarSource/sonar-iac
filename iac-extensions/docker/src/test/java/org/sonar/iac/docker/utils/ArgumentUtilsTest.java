@@ -23,6 +23,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
@@ -43,6 +44,8 @@ class ArgumentUtilsTest {
     assertThat(ArgumentUtils.resolve(argument)).extracting(ArgumentUtils.ArgumentResolution::value)
       .isNotNull()
       .isEqualTo("foo");
+    SyntaxToken token = ArgumentUtils.argumentToSyntaxToken(argument);
+    assertThat(token).isNotNull();
   }
 
   @ParameterizedTest
@@ -57,6 +60,8 @@ class ArgumentUtilsTest {
     Argument argument = parseArgument(input);
     assertThat(ArgumentUtils.resolve(argument)).extracting(ArgumentUtils.ArgumentResolution::value)
       .isNull();
+    SyntaxToken token = ArgumentUtils.argumentToSyntaxToken(argument);
+    assertThat(token).isNull();
   }
 
   private static Argument parseArgument(String input) {
