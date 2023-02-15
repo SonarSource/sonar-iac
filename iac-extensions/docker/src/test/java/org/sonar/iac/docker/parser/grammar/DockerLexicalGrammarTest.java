@@ -55,28 +55,6 @@ public class DockerLexicalGrammarTest {
   }
 
   @Test
-  void testStringEol() {
-    Assertions.assertThat(DockerLexicalGrammar.STRING_UNTIL_EOL)
-      .matches(" f")
-      .matches(" foo")
-      .matches("   foo")
-      .matches(" 1")
-      .matches(" 123")
-      .matches(" SIGKILL")
-      .matches(" \"mystring\"")
-      .matches(" \"partial_quotes_1")
-      .matches(" partial_quotes_2\"")
-      .matches(" foo/bar")
-      .matches(" foo\\bar")
-      .matches(" foo=bar")
-
-      .notMatches("")
-      .notMatches("foo")
-      .notMatches(" foo\nbar")
-      .notMatches(" foo\rbar");
-  }
-
-  @Test
   void testKeyword() {
     Assertions.ParserAssert cmd = Assertions.assertThat(DockerLexicalGrammar.CMD)
       .matches("CMD")

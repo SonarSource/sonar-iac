@@ -176,18 +176,6 @@ public class TreeFactory {
     return new CopyInstructionImpl(copy, options.or(Collections.emptyList()), srcsAndDest);
   }
 
-  public KeyValuePair key(SyntaxToken key) {
-    return new KeyValuePairImpl(key, null, null);
-  }
-
-  public KeyValuePair keyValuePair(SyntaxToken key, SyntaxToken value) {
-    return new KeyValuePairImpl(key, null, value);
-  }
-
-  public KeyValuePair keyValuePairEquals(SyntaxToken key, SyntaxToken equals, Optional<SyntaxToken> value) {
-    return new KeyValuePairImpl(key, equals, value.orNull());
-  }
-
   public Flag flag(SyntaxToken prefix, SyntaxToken name, Optional<SyntaxToken> equals, Optional<Argument> value) {
     return new FlagImpl(prefix, name, equals.orNull(), value.orNull());
   }
