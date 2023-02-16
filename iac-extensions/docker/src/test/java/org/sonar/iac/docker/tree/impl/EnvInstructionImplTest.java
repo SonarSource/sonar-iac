@@ -37,6 +37,7 @@ class EnvInstructionImplTest {
     Assertions.assertThat(DockerLexicalGrammar.ENV)
       .matches("ENV key1=value1")
       .matches("ENV key1=")
+      .matches("ENV key1")
       .matches("ENV key1 value1")
       .matches("ENV key1 value1 still_value1 again_value1")
       .matches("ENV key1 \"value1\" still_value1 again_value1")
@@ -49,10 +50,9 @@ class EnvInstructionImplTest {
       .matches("ENV CPATH=\"my path\"")
       .matches("ENV CPATH=test\"t\"")
       .matches("ENV CPATH=test\" with spacees \"")
+      .matches("ENV \"key1 value1 still_value1 again_value1\"")
       .notMatches("ENV")
-      .notMatches("ENV key1")
       .notMatches("ENV ")
-      .notMatches("ENV \"key1 value1 still_value1 again_value1\"")
       .notMatches("ENV CPATH=my path\"")
       .notMatches("ENV ACCESS_TOKEN=${ARG");
   }

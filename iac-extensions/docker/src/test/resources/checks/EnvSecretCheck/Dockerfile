@@ -1,25 +1,15 @@
 FROM foo
 
 
-# Noncompliant@+1 {{Make sure that using ENV to handle a secret is safe here.}}
 ENV ACCESS_TOKEN=${ACCESS_TOKEN}
-#   ^^^^^^^^^^^^
-# Noncompliant@+1
 ENV access_token=${ACCESS_TOKEN}
-#   ^^^^^^^^^^^^
-# Noncompliant@+1
 ENV ACCESS_TOKEN=${access_token}
-#   ^^^^^^^^^^^^
-# Noncompliant@+1
 ENV access_token=${access_token}
-#   ^^^^^^^^^^^^
-# Noncompliant@+1
 ENV MY_ACCESS_TOKEN=${ACCESS_TOKEN}
-# Noncompliant@+1
 ENV MY-ACCESS-TOKEN=${ACCESS_TOKEN}
-# Noncompliant@+1
 ENV MyAccessToken=${ACCESS_TOKEN}
-# Noncompliant@+1
+
+# Noncompliant@+1 {{Make sure that using ENV to handle a secret is safe here.}}
 ENV ACCESS_TOKEN=ThisIsSomethingThatShouldProbablyBeSecret
 # Noncompliant@+1
 ENV TOKEN=AAAA

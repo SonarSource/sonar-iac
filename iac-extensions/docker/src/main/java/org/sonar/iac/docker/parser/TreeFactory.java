@@ -47,7 +47,6 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.Instruction;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.LiteralList;
@@ -84,7 +83,6 @@ import org.sonar.iac.docker.tree.impl.FlagImpl;
 import org.sonar.iac.docker.tree.impl.FromInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HealthCheckInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HereDocumentImpl;
-import org.sonar.iac.docker.tree.impl.KeyValuePairImpl;
 import org.sonar.iac.docker.tree.impl.LabelInstructionImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerInstructionImpl;
@@ -312,10 +310,6 @@ public class TreeFactory {
 
   public NewKeyValuePair newKeyValuePair(Argument key, Optional<SyntaxToken> equalSign) {
     return new NewKeyValuePairImpl(key, equalSign.orNull(), null);
-  }
-
-  public NewKeyValuePair newKeyValuePair(Argument key, SyntaxToken equalSign) {
-    return new NewKeyValuePairImpl(key, equalSign, null);
   }
 
 

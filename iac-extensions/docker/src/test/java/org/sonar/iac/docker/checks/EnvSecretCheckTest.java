@@ -19,18 +19,15 @@
  */
 package org.sonar.iac.docker.checks;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class EnvSecretCheckTest {
 
-  @Disabled("TODO SONARIAC-557")
   @Test
   void test() {
     DockerVerifier.verify("EnvSecretCheck/Dockerfile", new EnvSecretCheck());
   }
 
-  @Disabled("TODO SONARIAC-557")
   @Test
   void alternative_escaping() {
     DockerVerifier.verify("EnvSecretCheck/Dockerfile.alternative_escaping", new EnvSecretCheck());
