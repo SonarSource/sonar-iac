@@ -22,6 +22,8 @@ package org.sonar.iac.docker.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -87,14 +89,16 @@ public class ArgumentUtils {
     return null;
   }
 
-  // TODO Consider to remove by SONARIAC-579 Remove LiteralList
   @Nullable
   public static SyntaxToken argumentToSyntaxToken(Argument argument) {
-    String value = ArgumentUtils.resolve(argument).value();
-    if (value != null) {
-      return new SyntaxTokenImpl(value, argument.textRange(), Collections.emptyList());
-    }
-    return null;
+    return ArgumentUtils.resolve(argument).asSyntaxToken();
+  }
+
+  public static List<SyntaxToken> argumentsToSyntaxTokens(List<Argument> arguments) {
+    return arguments.stream()
+      .map(ArgumentUtils::argumentToSyntaxToken)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 
   public static class ArgumentResolution {

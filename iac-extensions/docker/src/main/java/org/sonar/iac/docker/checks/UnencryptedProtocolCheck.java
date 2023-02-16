@@ -20,10 +20,8 @@
 package org.sonar.iac.docker.checks;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -32,12 +30,12 @@ import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ENTRYPOINT;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.RUN;
+import static org.sonar.iac.docker.utils.ArgumentUtils.argumentsToSyntaxTokens;
 
 @Rule(key = "S5332")
 public class UnencryptedProtocolCheck implements IacCheck {
@@ -54,11 +52,7 @@ public class UnencryptedProtocolCheck implements IacCheck {
     init.register(CommandInstruction.class, (ctx, commandInstruction) -> {
       LiteralList arguments = commandInstruction.arguments();
       if (arguments == null || !commandInstruction.is(ADD, ENTRYPOINT, CMD, RUN)) return;
-      checkUnencryptedProtocols(ctx, arguments.arguments().stream()
-        .map(ArgumentUtils::resolve)
-        .map(ArgumentUtils.ArgumentResolution::asSyntaxToken)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList()));
+      checkUnencryptedProtocols(ctx, argumentsToSyntaxTokens(arguments.arguments()));
     });
 
     init.register(AddInstruction.class, (ctx, add) -> {

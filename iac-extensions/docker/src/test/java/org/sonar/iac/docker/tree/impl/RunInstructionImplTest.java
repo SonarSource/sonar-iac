@@ -199,8 +199,10 @@ class RunInstructionImplTest {
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
     assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().arguments()
-      .stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::textRange).collect(Collectors.toList());
+    List<TextRange> textRanges = tree.arguments().arguments().stream()
+      .map(ArgumentUtils::resolve)
+      .map(ArgumentUtils.ArgumentResolution::textRange)
+      .collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,4,1,14);
     assertTextRange(textRanges.get(1)).hasRange(1,15,1,21);
     assertTextRange(textRanges.get(2)).hasRange(1,22,1,28);
@@ -248,8 +250,10 @@ class RunInstructionImplTest {
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
     assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().arguments()
-      .stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::textRange).collect(Collectors.toList());
+    List<TextRange> textRanges = tree.arguments().arguments().stream()
+      .map(ArgumentUtils::resolve)
+      .map(ArgumentUtils.ArgumentResolution::textRange)
+      .collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,36,1,46);
     assertTextRange(textRanges.get(1)).hasRange(1,47,1,53);
     assertTextRange(textRanges.get(2)).hasRange(1,54,1,60);

@@ -105,8 +105,10 @@ class EntrypointInstructionImplTest {
     assertThat(tree.arguments()).isInstanceOf(ShellFormImpl.class);
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
     assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().arguments()
-      .stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::textRange).collect(Collectors.toList());
+    List<TextRange> textRanges = tree.arguments().arguments().stream()
+      .map(ArgumentUtils::resolve)
+      .map(ArgumentUtils.ArgumentResolution::textRange)
+      .collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,11,1,21);
     assertTextRange(textRanges.get(1)).hasRange(1,22,1,28);
     assertTextRange(textRanges.get(2)).hasRange(1,29,1,35);

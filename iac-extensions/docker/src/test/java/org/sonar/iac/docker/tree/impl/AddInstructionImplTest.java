@@ -70,6 +70,18 @@ class AddInstructionImplTest {
   }
 
   @Test
+  void addInstructionWithEmptyVariable() {
+    AddInstruction tree = parse("ADD src $dest", DockerLexicalGrammar.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
+    assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 13);
+    assertThat(tree.options()).isEmpty();
+    assertThat(tree.srcs()).hasSize(1);
+    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
+    assertThat(tree.dest()).isNull();
+  }
+
+  @Test
   void addInstructionExecForm() {
     AddInstruction tree = parse("ADD [\"src\", \"dest\"]", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
