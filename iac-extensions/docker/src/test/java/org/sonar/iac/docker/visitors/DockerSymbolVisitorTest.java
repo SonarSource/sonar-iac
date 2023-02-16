@@ -124,10 +124,14 @@ class DockerSymbolVisitorTest {
     Scope imageScope = body.dockerImages().get(0).scope();
 
     assertThat(bodyScope.getSymbol("foo")).isNotNull()
-      .satisfies(symbol -> assertThat(symbol.usages()).hasSize(1));
+      .satisfies(symbol -> assertThat(symbol.usages())
+        .hasSize(1)
+        .extracting(usage -> usage.scope().kind()).containsExactly(Scope.Kind.GLOBAL));
 
     assertThat(imageScope.getSymbol("foo")).isNotNull()
-      .satisfies(symbol -> assertThat(symbol.usages()).hasSize(2));
+      .satisfies(symbol -> assertThat(symbol.usages())
+        .hasSize(2)
+        .extracting(usage -> usage.scope().kind()).containsExactly(Scope.Kind.GLOBAL, Scope.Kind.IMAGE));
   }
 
   @Test
@@ -160,7 +164,7 @@ class DockerSymbolVisitorTest {
     Symbol symbol = image.scope().getSymbol("foo");
     Variable variable = firstDescendant(image, Variable.class);
 
-    assertThat(symbol.usages()).extracting(Usage::kind).containsExactly(Usage.Kind.ASSIGNMENT, Usage.Kind.ARGUMENT);
+    assertThat(symbol.usages()).extracting(Usage::kind).containsExactly(Usage.Kind.ASSIGNMENT, Usage.Kind.ACCESS);
     assertThat(symbol.usages().get(1).tree()).isEqualTo(variable);
     assertThat(variable.symbol()).isSameAs(symbol);
   }
@@ -201,7 +205,7 @@ class DockerSymbolVisitorTest {
     DockerImage image = body.dockerImages().get(0);
 
     for (HasScope hasScope : List.of(body, image)) {
-      Scope newScope = new Scope();
+      Scope newScope = new Scope(Scope.Kind.IMAGE);
       Throwable t = Assert.assertThrows(IllegalArgumentException.class, () -> hasScope.setScope(newScope));
       assertThat(t.getMessage()).isEqualTo("A scope is already set");
     }

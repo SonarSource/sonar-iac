@@ -33,7 +33,7 @@ import org.sonar.iac.docker.utils.ArgumentUtils;
 
 public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
 
-  private final Scope globalScope = new Scope();
+  private final Scope globalScope = new Scope(Scope.Kind.GLOBAL);
   private Scope currentScope = globalScope;
 
   public DockerSymbolVisitor() {
@@ -48,7 +48,7 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
   }
 
   public void setImageScope(InputFileContext ctx, DockerImage dockerImage) {
-    currentScope = new Scope(globalScope);
+    currentScope = new Scope(Scope.Kind.IMAGE, globalScope);
     dockerImage.setScope(currentScope);
   }
 
@@ -57,7 +57,7 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
       String identifier = ArgumentUtils.resolve(keyValuePair.key()).value();
       if (identifier != null) {
         Symbol symbol = currentScope.addSymbol(identifier);
-        symbol.addUsage(keyValuePair, Usage.Kind.ASSIGNMENT);
+        symbol.addUsage(currentScope, keyValuePair, Usage.Kind.ASSIGNMENT);
       }
     }
   }
@@ -65,7 +65,7 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
   private void visitVariable(InputFileContext ctx, Variable variable) {
     Symbol symbol = currentScope.getSymbol(variable.identifier());
     if (symbol != null) {
-      symbol.addUsage(variable, Usage.Kind.ARGUMENT);
+      symbol.addUsage(currentScope, variable, Usage.Kind.ACCESS);
     }
   }
 }

@@ -25,16 +25,23 @@ public class Usage {
 
   public enum Kind {
     ASSIGNMENT,
-    ARGUMENT
+    ACCESS
   }
+
+  private final Scope scope;
 
   private final DockerTree tree;
 
   private final Kind kind;
 
-  public Usage(DockerTree tree, Kind kind) {
+  public Usage(Scope scope, DockerTree tree, Kind kind) {
+    this.scope = scope;
     this.tree = tree;
     this.kind = kind;
+  }
+
+  public Scope scope() {
+    return scope;
   }
 
   public DockerTree tree() {
