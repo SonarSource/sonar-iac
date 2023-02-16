@@ -65,7 +65,7 @@ class DockerSymbolVisitorTest {
 
     Symbol symbol = image.scope().getSymbol("foo");
     assertThat(symbol).isNotNull();
-    assertThat(symbol.usages()).allSatisfy(usage -> {
+    assertThat(symbol.usages()).hasSize(1).allSatisfy(usage -> {
       assertThat(usage.kind()).isEqualTo(Usage.Kind.ASSIGNMENT);
       assertThat(usage.tree()).isEqualTo(keyValuePair);
     });
@@ -75,6 +75,8 @@ class DockerSymbolVisitorTest {
   void argInstructionShouldCreateTwoSymbols() {
     DockerImage image = scanImage("ARG foo1=bar foo2=bar");
     List<NewKeyValuePair> keyValuePairs = firstDescendant(image, ArgInstruction.class).keyValuePairs();
+
+    assertThat(image.scope().getSymbols()).hasSize(2);
 
     Symbol symbol1 = image.scope().getSymbol("foo1");
     assertThat(symbol1.usages()).extracting(Usage::tree).containsExactly(keyValuePairs.get(0));
