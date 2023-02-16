@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker;
 
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.FromInstruction;
@@ -36,6 +37,22 @@ public class TestUtils {
   @Nullable
   public static String argValue(Argument argument) {
     return ArgumentUtils.resolve(argument).value();
+  }
+
+  public static void assertArgumentsValue(List<Argument> args, String... values) {
+    assertThat(args).hasSize(values.length);
+    for (int i = 0; i < args.size(); i++) {
+      assertThat(argValue(args.get(i))).isEqualTo(values[i]);
+    }
+  }
+
+  public static void assertKeyValuePair(NewKeyValuePair keyValuePair, String expectedKey, @Nullable String expectedValue) {
+    assertThat(argValue(keyValuePair.key())).isEqualTo(expectedKey);
+    if (expectedValue == null) {
+      assertThat(keyValuePair.value()).isNull();
+    } else {
+      assertThat(argValue(keyValuePair.value())).isEqualTo(expectedValue);
+    }
   }
 
   public static void assertFrom(FromInstruction from, String expectedName, @Nullable String expectedFlagName, @Nullable String expectedFlagValue, @Nullable String expectedAlias) {

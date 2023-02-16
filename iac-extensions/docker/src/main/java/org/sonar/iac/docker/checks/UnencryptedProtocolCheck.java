@@ -35,6 +35,7 @@ import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ENTRYPOINT;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.RUN;
+import static org.sonar.iac.docker.utils.ArgumentUtils.argumentsToSyntaxTokens;
 
 @Rule(key = "S5332")
 public class UnencryptedProtocolCheck implements IacCheck {
@@ -51,7 +52,7 @@ public class UnencryptedProtocolCheck implements IacCheck {
     init.register(CommandInstruction.class, (ctx, commandInstruction) -> {
       LiteralList arguments = commandInstruction.arguments();
       if (arguments == null || !commandInstruction.is(ADD, ENTRYPOINT, CMD, RUN)) return;
-      checkUnencryptedProtocols(ctx, arguments.literals());
+      checkUnencryptedProtocols(ctx, argumentsToSyntaxTokens(arguments.arguments()));
     });
 
     init.register(AddInstruction.class, (ctx, add) -> {

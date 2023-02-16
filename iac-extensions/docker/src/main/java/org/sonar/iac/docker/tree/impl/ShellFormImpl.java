@@ -20,14 +20,10 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ShellForm;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 public class ShellFormImpl extends AbstractDockerTreeImpl implements ShellForm {
 
@@ -45,20 +41,6 @@ public class ShellFormImpl extends AbstractDockerTreeImpl implements ShellForm {
   @Override
   public Kind getKind() {
     return Kind.SHELL_FORM;
-  }
-
-  /**
-   * @deprecated To be removed once arguments() methods exist in all implementation and that literals() can be replaced everywhere.
-   * For now the method has been transformed to still provide the same data as before.
-   * TODO SONARIAC-579 Remove LiteralList.literals()
-   */
-  @Deprecated(forRemoval = true)
-  @Override
-  public List<SyntaxToken> literals() {
-    List<SyntaxToken> literals = arguments().stream()
-      .map(ArgumentUtils::argumentToSyntaxToken)
-      .collect(Collectors.toList());
-    return literals.contains(null) ? Collections.emptyList() : literals;
   }
 
   @Override

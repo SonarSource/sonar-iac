@@ -31,6 +31,7 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class ExecFormImplTest {
 
@@ -89,6 +90,6 @@ class ExecFormImplTest {
 
     assertThat(execForm.argumentsWithSeparators().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
 
-    assertThat(execForm.literals()).extracting(SyntaxToken::value).containsExactly("executable", "param1", "param2");
+    assertArgumentsValue(execForm.arguments(), "executable", "param1", "param2");
   }
 }

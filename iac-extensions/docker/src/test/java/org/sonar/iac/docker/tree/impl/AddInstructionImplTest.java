@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
@@ -71,6 +70,18 @@ class AddInstructionImplTest {
   }
 
   @Test
+  void addInstructionWithEmptyVariable() {
+    AddInstruction tree = parse("ADD src $dest", DockerLexicalGrammar.ADD);
+    assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
+    assertThat(tree.keyword().value()).isEqualTo("ADD");
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 13);
+    assertThat(tree.options()).isEmpty();
+    assertThat(tree.srcs()).hasSize(1);
+    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
+    assertThat(tree.dest()).isNull();
+  }
+
+  @Test
   void addInstructionExecForm() {
     AddInstruction tree = parse("ADD [\"src\", \"dest\"]", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
@@ -82,8 +93,6 @@ class AddInstructionImplTest {
     assertThat(tree.dest().value()).isEqualTo("dest");
   }
 
-  // TODO : SONARIAC-572 and SONARIAC-541 to be completed before switching to arguments() instead of literals
-  @Disabled("To enable back when transition is done and literals() has been replaced by arguments()")
   @Test
   void addInstructionExecFormMultipleSrc() {
     AddInstruction tree = parse("ADD [\"src1\", \"src2\", \"src3\", \"dest\"]", DockerLexicalGrammar.ADD);
@@ -93,10 +102,10 @@ class AddInstructionImplTest {
     assertThat(tree.options()).isEmpty();
     List<SyntaxToken> srcs = tree.srcs();
     assertThat(srcs).hasSize(3);
-    assertThat(srcs.get(0).value()).isEqualTo("\"src1\"");
-    assertThat(srcs.get(1).value()).isEqualTo("\"src2\"");
-    assertThat(srcs.get(2).value()).isEqualTo("\"src3\"");
-    assertThat(tree.dest().value()).isEqualTo("\"dest\"");
+    assertThat(srcs.get(0).value()).isEqualTo("src1");
+    assertThat(srcs.get(1).value()).isEqualTo("src2");
+    assertThat(srcs.get(2).value()).isEqualTo("src3");
+    assertThat(tree.dest().value()).isEqualTo("dest");
   }
 
   @Test

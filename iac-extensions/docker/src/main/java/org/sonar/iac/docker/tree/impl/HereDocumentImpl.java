@@ -23,8 +23,6 @@ import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.HereDocument;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocument {
 
@@ -42,17 +40,6 @@ public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocu
   @Override
   public Kind getKind() {
     return Kind.HEREDOCUMENT;
-  }
-
-  // TODO remove method SONARIAC-579 Remove LiteralList
-  @Deprecated(forRemoval = true)
-  @Override
-  public List<SyntaxToken> literals() {
-    SyntaxToken syntaxToken = ArgumentUtils.argumentToSyntaxToken(argument);
-    if (syntaxToken != null) {
-      return List.of(syntaxToken);
-    }
-    return List.of();
   }
 
   @Override

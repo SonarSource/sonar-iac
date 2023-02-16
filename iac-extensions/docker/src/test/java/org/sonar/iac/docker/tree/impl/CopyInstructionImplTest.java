@@ -31,6 +31,7 @@ import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammarTest.FORBIDDEN_CHARACTERS_AFTER_KEYWORD;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
@@ -91,8 +92,6 @@ class CopyInstructionImplTest {
     assertThat(tree.dest().value()).isEqualTo("dest");
   }
 
-  // TODO : SONARIAC-572 and SONARIAC-541 to be completed before switching to arguments() instead of literals
-  @Disabled("To enable back when transition is done and literals() has been replaced by arguments()")
   @Test
   void copyInstructionExecForm() {
     CopyInstruction tree = parse("COPY [\"src1\", \"src2\", \"dest\"]", DockerLexicalGrammar.COPY);
@@ -101,9 +100,9 @@ class CopyInstructionImplTest {
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
     assertThat(tree.srcs()).hasSize(2);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("\"src1\"");
-    assertThat(tree.srcs().get(1).value()).isEqualTo("\"src2\"");
-    assertThat(tree.dest().value()).isEqualTo("\"dest\"");
+    assertThat(tree.srcs().get(0).value()).isEqualTo("src1");
+    assertThat(tree.srcs().get(1).value()).isEqualTo("src2");
+    assertThat(tree.dest().value()).isEqualTo("dest");
   }
 
   @Test
@@ -154,7 +153,6 @@ class CopyInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("COPY");
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.HEREDOC);
-    assertThat(tree.arguments().literals()).hasSize(1);
-    assertThat(tree.arguments().literals().get(0).value()).isEqualTo("<<FILE1\nline 1\nline 2\nFILE1");
+    assertArgumentsValue(tree.arguments().arguments(), "<<FILE1\nline 1\nline 2\nFILE1");
   }
 }

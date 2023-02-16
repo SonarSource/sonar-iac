@@ -19,9 +19,14 @@
  */
 package org.sonar.iac.docker.utils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
@@ -43,10 +48,13 @@ public class ArgumentUtils {
    */
   public static ArgumentResolution resolveAndMerge(HasArguments hasArguments) {
     StringBuilder sb = new StringBuilder();
+    List<TextRange> ranges = new ArrayList<>();
     for (Argument argument : hasArguments.arguments()) {
-      sb.append(resolve(argument).value);
+      ArgumentResolution resolved = resolve(argument);
+      sb.append(resolved.value);
+      ranges.add(resolved.textRange);
     }
-    return new ArgumentResolution(sb.toString());
+    return new ArgumentResolution(sb.toString(), TextRanges.merge(ranges));
   }
 
   public static ArgumentResolution resolve(Argument argument) {
@@ -55,14 +63,16 @@ public class ArgumentUtils {
 
   public static ArgumentResolution resolve(List<Expression> expressions) {
     StringBuilder sb = new StringBuilder();
+    List<TextRange> ranges = new ArrayList<>();
     for (Expression expression : expressions) {
       String expressionResolution = resolveExpression(expression);
       if (expressionResolution == null) {
-        return new ArgumentResolution(null);
+        return new ArgumentResolution(null, null);
       }
       sb.append(expressionResolution);
+      ranges.add(expression.textRange());
     }
-    return new ArgumentResolution(sb.toString());
+    return new ArgumentResolution(sb.toString(), TextRanges.merge(ranges));
   }
 
   @Nullable
@@ -79,27 +89,44 @@ public class ArgumentUtils {
     return null;
   }
 
-  // TODO Consider to remove by SONARIAC-579 Remove LiteralList
   @Nullable
   public static SyntaxToken argumentToSyntaxToken(Argument argument) {
-    String value = ArgumentUtils.resolve(argument).value();
-    if (value != null) {
-      return new SyntaxTokenImpl(value, argument.textRange(), Collections.emptyList());
-    }
-    return null;
+    return ArgumentUtils.resolve(argument).asSyntaxToken();
+  }
+
+  public static List<SyntaxToken> argumentsToSyntaxTokens(List<Argument> arguments) {
+    return arguments.stream()
+      .map(ArgumentUtils::argumentToSyntaxToken)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 
   public static class ArgumentResolution {
 
     private final String value;
+    private final TextRange textRange;
 
-    ArgumentResolution(@Nullable String value) {
+    ArgumentResolution(@Nullable String value, @Nullable TextRange textRange) {
       this.value = value;
+      this.textRange = textRange;
     }
 
     @Nullable
     public String value() {
       return value;
+    }
+
+    @Nullable
+    public TextRange textRange() {
+      return textRange;
+    }
+
+    @Nullable
+    public SyntaxToken asSyntaxToken() {
+      if (value == null || textRange == null) {
+        return null;
+      }
+      return new SyntaxTokenImpl(value, textRange, Collections.emptyList());
     }
   }
 }
