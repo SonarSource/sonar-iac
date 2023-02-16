@@ -47,7 +47,6 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.Instruction;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.LiteralList;
@@ -84,7 +83,6 @@ import org.sonar.iac.docker.tree.impl.FlagImpl;
 import org.sonar.iac.docker.tree.impl.FromInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HealthCheckInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HereDocumentImpl;
-import org.sonar.iac.docker.tree.impl.KeyValuePairImpl;
 import org.sonar.iac.docker.tree.impl.LabelInstructionImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerInstructionImpl;
@@ -160,7 +158,7 @@ public class TreeFactory {
     return new LabelInstructionImpl(token, Collections.singletonList(keyValuePair));
   }
 
-  public EnvInstruction env(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
+  public EnvInstruction env(SyntaxToken keyword, List<NewKeyValuePair> keyValuePairs) {
     return new EnvInstructionImpl(keyword, keyValuePairs);
   }
 
@@ -174,18 +172,6 @@ public class TreeFactory {
 
   public CopyInstruction copy(SyntaxToken copy, Optional<List<Flag>> options, LiteralList srcsAndDest) {
     return new CopyInstructionImpl(copy, options.or(Collections.emptyList()), srcsAndDest);
-  }
-
-  public KeyValuePair key(SyntaxToken key) {
-    return new KeyValuePairImpl(key, null, null);
-  }
-
-  public KeyValuePair keyValuePair(SyntaxToken key, SyntaxToken value) {
-    return new KeyValuePairImpl(key, null, value);
-  }
-
-  public KeyValuePair keyValuePairEquals(SyntaxToken key, SyntaxToken equals, Optional<SyntaxToken> value) {
-    return new KeyValuePairImpl(key, equals, value.orNull());
   }
 
   public Flag flag(SyntaxToken prefix, SyntaxToken name, Optional<SyntaxToken> equals, Optional<Argument> value) {
@@ -325,7 +311,6 @@ public class TreeFactory {
   public NewKeyValuePair newKeyValuePair(Argument key, Optional<SyntaxToken> equalSign) {
     return new NewKeyValuePairImpl(key, equalSign.orNull(), null);
   }
-
 
 
   public static class Tuple<T, U> {

@@ -39,17 +39,16 @@ import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.File;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.Instruction;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
-import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
@@ -58,11 +57,6 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
 import org.sonar.iac.docker.tree.api.WorkdirInstruction;
-
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_LITERAL;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.STRING_UNTIL_EOL;
-import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX;
 
 @SuppressWarnings("java:S100")
 public class DockerGrammar {
@@ -237,9 +231,13 @@ public class DockerGrammar {
 
   public EnvInstruction ENV() {
     return b.<EnvInstruction>nonterminal(DockerLexicalGrammar.ENV).is(
-      f.env(b.token(DockerKeyword.ENV),
+      f.env(
+        b.token(DockerKeyword.ENV),
         b.oneOrMore(
-          b.firstOf(KEY_VALUE_PAIR_WITH_EQUALS(), KEY_VALUE_PAIR())
+          f.ignoreFirst(
+            b.token(DockerLexicalGrammar.WHITESPACE),
+            NEW_KEY_VALUE_PAIR()
+          )
         )
       )
     );
@@ -254,33 +252,6 @@ public class DockerGrammar {
           ARGUMENT()
         ))
       )
-    );
-  }
-
-  /**
-   * To match such element as KeyValuePairTree : key
-   */
-  public KeyValuePair KEY_ONLY() {
-    return b.<KeyValuePair>nonterminal(DockerLexicalGrammar.KEY_ONLY).is(
-      f.key(b.token(STRING_LITERAL))
-    );
-  }
-
-  /**
-   * To match such element : key1 value1 value1bis value1tris
-   */
-  public KeyValuePair KEY_VALUE_PAIR() {
-    return b.<KeyValuePair>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_SINGLE).is(
-      f.keyValuePair(b.token(STRING_LITERAL), b.token(STRING_UNTIL_EOL))
-    );
-  }
-
-  /**
-   * To match such element : key1=value1
-   */
-  public KeyValuePair KEY_VALUE_PAIR_WITH_EQUALS() {
-    return b.<KeyValuePair>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR_EQUALS).is(
-      f.keyValuePairEquals(b.token(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX), b.token(Punctuator.EQU), b.optional(b.token(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX)))
     );
   }
 

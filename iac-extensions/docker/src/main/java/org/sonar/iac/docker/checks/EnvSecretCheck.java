@@ -23,16 +23,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6472")
 public class EnvSecretCheck implements IacCheck {
@@ -68,21 +69,21 @@ public class EnvSecretCheck implements IacCheck {
   private static final String PATH_WITH_EXPANSION_PATTERN = "/.*+\\.[a-z0-9]{2,4}$";
   private static final Pattern PATH_PATTERN = Pattern.compile("(" + ROOT_PATH_PATTERN + "|" + RELATIVE_PATH_PATTERN
     + "|" + EXPANSION_PATH_PATTERN + "|" + PATH_WITH_EXPANSION_PATTERN + ")");
-  private static final Pattern EXPANSION_DEFAULT_VALUE_PATTERN = Pattern.compile("-(\"[^\"]+\"|[^-]+)$");
 
   @Override
   public void initialize(InitContext init) {
     init.register(EnvInstruction.class, (ctx, instruction) -> instruction
-      .variableAssignments().forEach(envVarAssignment -> checkEnvVariableAssignment(ctx, envVarAssignment)));
+      .environmentVariables().forEach(envVarAssignment -> checkEnvVariableAssignment(ctx, envVarAssignment)));
   }
 
-  private static void checkEnvVariableAssignment(CheckContext ctx, KeyValuePair envVarAssignment) {
-    if (isSensitiveName(envVarAssignment.key().value()) && isSensitiveValue(envVarAssignment.value().value())) {
+  private static void checkEnvVariableAssignment(CheckContext ctx, NewKeyValuePair envVarAssignment) {
+    if (isSensitiveName(ArgumentUtils.resolve(envVarAssignment.key()).value()) && isSensitiveValue(ArgumentUtils.resolve(envVarAssignment.value()).value())) {
       ctx.reportIssue(envVarAssignment.key(), MESSAGE);
     }
   }
 
-  private static boolean isSensitiveName(String name) {
+  private static boolean isSensitiveName(@Nullable String name) {
+    if (name == null) return false;
     List<String> words = splitEnvVarName(name);
     return isSecretWordOnly(words) || containsSecretEntityWordCombination(words);
   }
@@ -121,20 +122,10 @@ public class EnvSecretCheck implements IacCheck {
     return false;
   }
 
-  private static boolean isSensitiveValue(String value) {
-    value = stripQuotes(value);
+  private static boolean isSensitiveValue(@Nullable String value) {
+    if(value == null) return false;
 
-    if (value.isBlank() || isUrl(value) || isPath(value)) {
-      return false;
-    }
-
-    if (value.startsWith("${") && value.endsWith("}")) {
-      Matcher m = EXPANSION_DEFAULT_VALUE_PATTERN.matcher(value.substring(2, value.length() - 1));
-      if (m.find()) {
-        return isSensitiveName(m.group(1));
-      }
-    }
-    return true;
+    return !value.isBlank() && !isUrl(value) && !isPath(value);
   }
 
   private static boolean isUrl(String value) {
@@ -144,12 +135,4 @@ public class EnvSecretCheck implements IacCheck {
   private static boolean isPath(String value) {
     return PATH_PATTERN.matcher(value).find();
   }
-
-  private static String stripQuotes(String value) {
-    if (value.startsWith("\"") && value.endsWith("\"")) {
-      return value.substring(1, value.length() - 1);
-    }
-    return value;
-  }
-
 }

@@ -1,4 +1,3 @@
-
 /*
  * SonarQube IaC Plugin
  * Copyright (C) 2021-2022 SonarSource SA
@@ -24,19 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.NewKeyValuePair;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class EnvInstructionImpl extends InstructionImpl implements EnvInstruction {
-  private final List<KeyValuePair> keyValuePairs;
+  private final List<NewKeyValuePair> keyValuePairs;
 
-  public EnvInstructionImpl(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
+  public EnvInstructionImpl(SyntaxToken keyword, List<NewKeyValuePair> keyValuePairs) {
     super(keyword);
     this.keyValuePairs = keyValuePairs;
   }
 
   @Override
-  public List<KeyValuePair> variableAssignments() {
+  public List<NewKeyValuePair> environmentVariables() {
     return keyValuePairs;
   }
 
@@ -44,7 +43,7 @@ public class EnvInstructionImpl extends InstructionImpl implements EnvInstructio
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    for (KeyValuePair keyValuePair : keyValuePairs) {
+    for (NewKeyValuePair keyValuePair : keyValuePairs) {
       children.addAll(keyValuePair.children());
     }
     return children;

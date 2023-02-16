@@ -36,12 +36,6 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
    * Lexical
    */
   STRING_LITERAL,
-  /**
-   * This enum is for extracting key from code like: {@code key=value}.
-   */
-  KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX,
-  VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX,
-  STRING_UNTIL_EOL,
   EQUALS_OPERATOR,
   EOF,
 
@@ -182,12 +176,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     // TODO : those elements will be removed in the next grammar progressively
     b.rule(STRING_LITERAL).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.STRING_LITERAL_OLD));
-    b.rule(STRING_UNTIL_EOL).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.STRING_UNTIL_EOL));
 
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
-
-    b.rule(KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.KEY_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX));
-    b.rule(VALUE_IN_KEY_VALUE_PAIR_IN_EQUALS_SYNTAX).is(b.regexp("(?:\"[^\"]*\"|[^\\s])+"));
 
     b.rule(IMAGE_ALIAS).is(SKIPPED_WHITESPACE, b.regexp("[-a-zA-Z0-9_\\.]+"));
 
