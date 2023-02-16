@@ -67,7 +67,12 @@ public class DockerSensor extends IacSensor {
     FileSystem fileSystem = sensorContext.fileSystem();
     FilePredicates p = fileSystem.predicates();
     return p.and(
-      p.or(p.matchesPathPattern("**/Dockerfile"), p.matchesPathPattern("**/Dockerfile.*")),
+      p.or(
+        p.matchesPathPattern("**/Dockerfile"),
+        p.matchesPathPattern("**/Dockerfile.*"),
+        p.matchesPathPattern("**/**.Dockerfile"),
+        p.matchesPathPattern("**/**.dockerfile")
+      ),
       p.hasType(InputFile.Type.MAIN));
   }
 

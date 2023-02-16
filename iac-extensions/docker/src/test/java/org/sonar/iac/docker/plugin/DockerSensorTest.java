@@ -66,7 +66,9 @@ class DockerSensorTest extends ExtensionSensorTest {
       inputFile("Dockerfile.foo", ""),
       inputFile("FooDockerfile", ""),
       inputFile("DockerfileFoo", ""),
-      inputFile("Dockerfile.foo.bar", "")
+      inputFile("Dockerfile.foo.bar", ""),
+      inputFile("Foo.Dockerfile", ""),
+      inputFile("Foo.dockerfile", "")
     );
 
     FileSystem fileSystem = context.fileSystem();
@@ -74,7 +76,7 @@ class DockerSensorTest extends ExtensionSensorTest {
 
     assertThat(inputFiles)
       .extracting(inputFile -> Path.of(inputFile.uri()).getFileName().toString())
-      .containsExactly("Dockerfile", "Dockerfile.foo.bar", "Dockerfile.foo");
+      .containsOnly("Dockerfile", "Dockerfile.foo.bar", "Dockerfile.foo", "Foo.Dockerfile", "Foo.dockerfile");
   }
 
   @Test
