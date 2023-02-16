@@ -51,7 +51,7 @@ import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.RunInstruction;
@@ -86,7 +86,7 @@ import org.sonar.iac.docker.tree.impl.HereDocumentImpl;
 import org.sonar.iac.docker.tree.impl.LabelInstructionImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerInstructionImpl;
-import org.sonar.iac.docker.tree.impl.NewKeyValuePairImpl;
+import org.sonar.iac.docker.tree.impl.KeyValuePairImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
 import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
@@ -150,19 +150,19 @@ public class TreeFactory {
     return new ExposeInstructionImpl(keyword, arguments);
   }
 
-  public LabelInstruction label(SyntaxToken token, List<NewKeyValuePair> keyValuePairs) {
+  public LabelInstruction label(SyntaxToken token, List<KeyValuePair> keyValuePairs) {
     return new LabelInstructionImpl(token, keyValuePairs);
   }
 
-  public LabelInstruction label(SyntaxToken token, NewKeyValuePair keyValuePair) {
+  public LabelInstruction label(SyntaxToken token, KeyValuePair keyValuePair) {
     return new LabelInstructionImpl(token, Collections.singletonList(keyValuePair));
   }
 
-  public EnvInstruction env(SyntaxToken keyword, List<NewKeyValuePair> keyValuePairs) {
+  public EnvInstruction env(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
     return new EnvInstructionImpl(keyword, keyValuePairs);
   }
 
-  public ArgInstruction arg(SyntaxToken token, List<NewKeyValuePair> argNames) {
+  public ArgInstruction arg(SyntaxToken token, List<KeyValuePair> argNames) {
     return new ArgInstructionImpl(token, argNames);
   }
 
@@ -291,11 +291,11 @@ public class TreeFactory {
     return new ArgumentImpl(expressions);
   }
 
-  public NewKeyValuePair newKeyValuePair(Argument key, SyntaxToken equalSign, Argument value) {
-    return new NewKeyValuePairImpl(key, equalSign, value);
+  public KeyValuePair keyValuePair(Argument key, SyntaxToken equalSign, Argument value) {
+    return new KeyValuePairImpl(key, equalSign, value);
   }
 
-  public NewKeyValuePair newKeyValuePair(Argument key, Argument firstValue, Optional<List<Tuple<SyntaxToken, Argument>>> moreValue) {
+  public KeyValuePair keyValuePair(Argument key, Argument firstValue, Optional<List<Tuple<SyntaxToken, Argument>>> moreValue) {
     List<Expression> expressions = new LinkedList<>(firstValue.expressions());
 
     for (Tuple<SyntaxToken, Argument> valuePart : moreValue.or(Collections.emptyList())) {
@@ -304,12 +304,12 @@ public class TreeFactory {
     }
 
     Argument value = new ArgumentImpl(expressions);
-    return new NewKeyValuePairImpl(key, null, value);
+    return new KeyValuePairImpl(key, null, value);
   }
 
 
-  public NewKeyValuePair newKeyValuePair(Argument key, Optional<SyntaxToken> equalSign) {
-    return new NewKeyValuePairImpl(key, equalSign.orNull(), null);
+  public KeyValuePair keyValuePair(Argument key, Optional<SyntaxToken> equalSign) {
+    return new KeyValuePairImpl(key, equalSign.orNull(), null);
   }
 
 

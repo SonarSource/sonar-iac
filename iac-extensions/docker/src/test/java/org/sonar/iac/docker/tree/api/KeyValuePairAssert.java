@@ -22,56 +22,56 @@ package org.sonar.iac.docker.tree.api;
 import org.assertj.core.api.Assertions;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
-public class NewKeyValuePairAssert extends DockerTreeAssert<NewKeyValuePairAssert, NewKeyValuePair> {
+public class KeyValuePairAssert extends DockerTreeAssert<KeyValuePairAssert, KeyValuePair> {
 
-  private NewKeyValuePairAssert(NewKeyValuePair newKeyValuePair) {
-    super(newKeyValuePair, NewKeyValuePairAssert.class);
+  private KeyValuePairAssert(KeyValuePair keyValuePair) {
+    super(keyValuePair, KeyValuePairAssert.class);
   }
 
-  public static NewKeyValuePairAssert assertThat(NewKeyValuePair actual) {
-    return new NewKeyValuePairAssert(actual);
+  public static KeyValuePairAssert assertThat(KeyValuePair actual) {
+    return new KeyValuePairAssert(actual);
   }
 
-  public NewKeyValuePairAssert hasKey(String key) {
+  public KeyValuePairAssert hasKey(String key) {
     isNotNull();
     String value = ArgumentUtils.resolve(actual.key()).value();
     Assertions.assertThat(value)
-      .overridingErrorMessage("Expected NewKeyValuePair key to be <%s> but was <%s>", key, value)
+      .overridingErrorMessage("Expected KeyValuePair key to be <%s> but was <%s>", key, value)
       .isEqualTo(key);
     return this;
   }
 
-  public NewKeyValuePairAssert hasEqualSignNull() {
+  public KeyValuePairAssert hasEqualSignNull() {
     isNotNull();
     SyntaxToken syntaxToken = actual.equalSign();
     Assertions.assertThat(syntaxToken)
-      .overridingErrorMessage("Expected NewKeyValuePair equal sign to be NULL but was <%s>", syntaxToken)
+      .overridingErrorMessage("Expected KeyValuePair equal sign to be NULL but was <%s>", syntaxToken)
       .isNull();
     return this;
   }
 
-  public NewKeyValuePairAssert hasEqualSign(String expectedEqualSign) {
+  public KeyValuePairAssert hasEqualSign(String expectedEqualSign) {
     isNotNull();
     SyntaxToken syntaxToken = actual.equalSign();
     Assertions.assertThat(syntaxToken.value())
-      .overridingErrorMessage("Expected NewKeyValuePair equal sign to be NULL but was <%s>", syntaxToken)
+      .overridingErrorMessage("Expected KeyValuePair equal sign to be NULL but was <%s>", syntaxToken)
       .isEqualTo(expectedEqualSign);
     return this;
   }
 
-  public NewKeyValuePairAssert hasValue(String expectedValue) {
+  public KeyValuePairAssert hasValue(String expectedValue) {
     isNotNull();
     String value = ArgumentUtils.resolve(actual.value()).value();
     Assertions.assertThat(value)
-      .overridingErrorMessage("Expected NewKeyValuePair value to be <%s> but was <%s>", expectedValue, value)
+      .overridingErrorMessage("Expected KeyValuePair value to be <%s> but was <%s>", expectedValue, value)
       .isEqualTo(expectedValue);
     return this;
   }
 
-  public NewKeyValuePairAssert hasValueNull() {
+  public KeyValuePairAssert hasValueNull() {
     isNotNull();
     Assertions.assertThat(actual.value())
-      .overridingErrorMessage("Expected NewKeyValuePair value to be NULL but was <%s>", actual.value())
+      .overridingErrorMessage("Expected KeyValuePair value to be NULL but was <%s>", actual.value())
       .isNull();
     return this;
   }

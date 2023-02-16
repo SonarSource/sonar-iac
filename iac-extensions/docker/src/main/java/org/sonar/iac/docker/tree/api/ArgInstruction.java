@@ -22,5 +22,5 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 public interface ArgInstruction extends Instruction {
-  List<NewKeyValuePair> keyValuePairs();
+  List<KeyValuePair> keyValuePairs();
 }

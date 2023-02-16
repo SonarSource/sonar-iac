@@ -27,7 +27,7 @@ import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
@@ -53,7 +53,7 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
   }
 
   public void visitArgInstruction(InputFileContext ctx, ArgInstruction argInstruction) {
-    for (NewKeyValuePair keyValuePair : argInstruction.keyValuePairs()) {
+    for (KeyValuePair keyValuePair : argInstruction.keyValuePairs()) {
       String identifier = ArgumentUtils.resolve(keyValuePair.key()).value();
       if (identifier != null) {
         Symbol symbol = currentScope.addSymbol(identifier);

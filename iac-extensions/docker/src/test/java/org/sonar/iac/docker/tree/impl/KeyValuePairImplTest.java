@@ -25,13 +25,13 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Literal;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
-class NewKeyValuePairImplTest {
+class KeyValuePairImplTest {
 
   @Test
   void matchingKeyValuePair() {
@@ -69,7 +69,7 @@ class NewKeyValuePairImplTest {
 
   @Test
   void shouldProvideAllRelevantInfoForKvpWithEqualSign() {
-    NewKeyValuePair keyValuePair = parse("key=value", DockerLexicalGrammar.KEY_VALUE_PAIR);
+    KeyValuePair keyValuePair = parse("key=value", DockerLexicalGrammar.KEY_VALUE_PAIR);
 
     assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
     assertTextRange(keyValuePair.textRange()).hasRange(1, 0, 1, 9);
@@ -92,7 +92,7 @@ class NewKeyValuePairImplTest {
 
   @Test
   void shouldProvideAllRelevantInfoForKvpAsSingleKey() {
-    NewKeyValuePair keyValuePair = parse("key", DockerLexicalGrammar.KEY_VALUE_PAIR);
+    KeyValuePair keyValuePair = parse("key", DockerLexicalGrammar.KEY_VALUE_PAIR);
 
     assertThat(keyValuePair.equalSign()).isNull();
     assertThat(keyValuePair.value()).isNull();
@@ -100,7 +100,7 @@ class NewKeyValuePairImplTest {
 
   @Test
   void shouldProvideAllRelevantInfoForKvpWithoutEqualSign() {
-    NewKeyValuePair keyValuePair = parse("key value1    value2", DockerLexicalGrammar.KEY_VALUE_PAIR);
+    KeyValuePair keyValuePair = parse("key value1    value2", DockerLexicalGrammar.KEY_VALUE_PAIR);
 
     assertThat(keyValuePair.equalSign()).isNull();
     assertThat(keyValuePair.value()).isNotNull().satisfies(argument ->

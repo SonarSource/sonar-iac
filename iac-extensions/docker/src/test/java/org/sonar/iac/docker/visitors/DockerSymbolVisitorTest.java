@@ -41,7 +41,7 @@ import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.HasScope;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +56,7 @@ class DockerSymbolVisitorTest {
   @Test
   void argInstructionShouldCreateSymbol() {
     DockerImage image = scanImage("ARG foo=bar");
-    NewKeyValuePair keyValuePair = firstDescendant(image, NewKeyValuePair.class);
+    KeyValuePair keyValuePair = firstDescendant(image, KeyValuePair.class);
 
     Scope scope = image.scope();
 
@@ -74,7 +74,7 @@ class DockerSymbolVisitorTest {
   @Test
   void argInstructionShouldCreateTwoSymbols() {
     DockerImage image = scanImage("ARG foo1=bar foo2=bar");
-    List<NewKeyValuePair> keyValuePairs = firstDescendant(image, ArgInstruction.class).keyValuePairs();
+    List<KeyValuePair> keyValuePairs = firstDescendant(image, ArgInstruction.class).keyValuePairs();
 
     assertThat(image.scope().getSymbols()).hasSize(2);
 
