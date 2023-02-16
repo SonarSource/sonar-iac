@@ -42,6 +42,7 @@ import org.sonar.iac.docker.checks.DockerCheckList;
 import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.visitors.DockerHighlightingVisitor;
 import org.sonar.iac.docker.visitors.DockerMetricsVisitor;
+import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 @Phase(name = Phase.Name.POST)
 public class DockerSensor extends IacSensor {
@@ -83,6 +84,7 @@ public class DockerSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     return List.of(
+      new DockerSymbolVisitor(),
       new ChecksVisitor(checks, statistics),
       new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter),
       new DockerHighlightingVisitor()

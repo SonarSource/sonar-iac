@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.symbols.Symbol;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
@@ -35,6 +36,7 @@ public class EncapsulatedVariableImpl extends AbstractDockerTreeImpl implements 
   private final SyntaxToken modifierSeparator;
   private final Argument modifier;
   private final SyntaxToken closeCurly;
+  private Symbol symbol;
 
   public EncapsulatedVariableImpl(SyntaxToken openDollarCurly,
                                   SyntaxToken identifier,
@@ -83,5 +85,19 @@ public class EncapsulatedVariableImpl extends AbstractDockerTreeImpl implements 
   @Override
   public Kind getKind() {
     return DockerTree.Kind.ENCAPSULATED_VARIABLE;
+  }
+
+  @Nullable
+  @Override
+  public Symbol symbol() {
+    return symbol;
+  }
+
+  @Override
+  public void setSymbol(Symbol symbol) {
+    if (this.symbol != null) {
+      throw new IllegalArgumentException("A symbol is already set");
+    }
+    this.symbol = symbol;
   }
 }

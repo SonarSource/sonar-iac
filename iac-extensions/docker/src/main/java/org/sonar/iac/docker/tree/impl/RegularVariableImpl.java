@@ -20,7 +20,9 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.symbols.Symbol;
 import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
@@ -28,6 +30,7 @@ public class RegularVariableImpl extends AbstractDockerTreeImpl implements Regul
 
   private final SyntaxToken dollar;
   private final SyntaxToken identifier;
+  private Symbol symbol;
 
   public RegularVariableImpl(SyntaxToken dollar, SyntaxToken identifier) {
     this.dollar = dollar;
@@ -47,5 +50,19 @@ public class RegularVariableImpl extends AbstractDockerTreeImpl implements Regul
   @Override
   public Kind getKind() {
     return Kind.REGULAR_VARIABLE;
+  }
+
+  @Nullable
+  @Override
+  public Symbol symbol() {
+    return symbol;
+  }
+
+  @Override
+  public void setSymbol(Symbol symbol) {
+    if (this.symbol != null) {
+      throw new IllegalArgumentException("A symbol is already set");
+    }
+    this.symbol = symbol;
   }
 }

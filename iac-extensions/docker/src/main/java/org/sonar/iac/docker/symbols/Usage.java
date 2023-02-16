@@ -17,12 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.symbols;
 
-import java.util.List;
+import org.sonar.iac.docker.tree.api.DockerTree;
 
-public interface DockerImage extends DockerTree, HasScope {
+public class Usage {
 
-  FromInstruction from();
-  List<Instruction> instructions();
+  public enum Kind {
+    ASSIGNMENT,
+    ARGUMENT
+  }
+
+  private final DockerTree tree;
+
+  private final Kind kind;
+
+  public Usage(DockerTree tree, Kind kind) {
+    this.tree = tree;
+    this.kind = kind;
+  }
+
+  public DockerTree tree() {
+    return tree;
+  }
+
+  public Kind kind() {
+    return kind;
+  }
 }

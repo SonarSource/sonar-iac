@@ -19,6 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface RegularVariable extends Expression {
-  String identifier();
+public interface RegularVariable extends Variable {
 }

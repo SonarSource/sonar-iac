@@ -21,8 +21,7 @@ package org.sonar.iac.docker.tree.api;
 
 import javax.annotation.Nullable;
 
-public interface EncapsulatedVariable extends Expression {
-  String identifier();
+public interface EncapsulatedVariable extends Variable {
 
   @Nullable
   String modifierSeparator();

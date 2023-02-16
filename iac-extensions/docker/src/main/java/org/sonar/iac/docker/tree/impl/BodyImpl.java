@@ -22,6 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -30,6 +31,7 @@ public class BodyImpl extends AbstractDockerTreeImpl implements Body {
 
   private final List<ArgInstruction> globalArgs;
   private final List<DockerImage> dockerImages;
+  private Scope scope;
 
   public BodyImpl(List<ArgInstruction> globalArgs, List<DockerImage> dockerImages) {
     this.globalArgs = globalArgs;
@@ -57,5 +59,18 @@ public class BodyImpl extends AbstractDockerTreeImpl implements Body {
   @Override
   public Kind getKind() {
     return Kind.BODY;
+  }
+
+  @Override
+  public void setScope(Scope scope) {
+    if (this.scope != null) {
+      throw new IllegalArgumentException("A scope is already set");
+    }
+    this.scope = scope;
+  }
+
+  @Override
+  public Scope scope() {
+    return scope;
   }
 }

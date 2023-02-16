@@ -17,12 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.symbols;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.HasSymbol;
 
-public interface DockerImage extends DockerTree, HasScope {
+public class Symbol {
 
-  FromInstruction from();
-  List<Instruction> instructions();
+  private final String name;
+
+  private final List<Usage> usages;
+
+  public Symbol(String name) {
+    this.name = name;
+    this.usages = new ArrayList<>();
+  }
+
+  public Symbol(Symbol orgSymbol) {
+    this.name = orgSymbol.name;
+    this.usages = new ArrayList<>(orgSymbol.usages);
+  }
+
+  public void addUsage(DockerTree tree, Usage.Kind kind) {
+    Usage usage = new Usage(tree, kind);
+    usages.add(usage);
+    if (tree instanceof HasSymbol) {
+      ((HasSymbol) tree).setSymbol(this);
+    }
+  }
+
+  public String name() {
+    return name;
+  }
+
+  public List<Usage> usages() {
+    return usages;
+  }
+
 }

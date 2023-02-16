@@ -17,12 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.symbols;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 
-public interface DockerImage extends DockerTree, HasScope {
+public class Scope {
 
-  FromInstruction from();
-  List<Instruction> instructions();
+  private final Map<String, Symbol> symbols = new HashMap<>();
+
+  public Scope() {
+  }
+
+  public Scope(Scope orgScope) {
+    orgScope.symbols.forEach((name, symbol) -> this.symbols.put(name, new Symbol(symbol)));
+  }
+
+  public Symbol addSymbol(String name) {
+    return symbols.computeIfAbsent(name, s -> new Symbol(name));
+  }
+
+  @Nullable
+  public Symbol getSymbol(String name) {
+    return symbols.getOrDefault(name, null);
+  }
+
+  public List<Symbol> getSymbols() {
+    return new ArrayList<>(symbols.values());
+  }
 }

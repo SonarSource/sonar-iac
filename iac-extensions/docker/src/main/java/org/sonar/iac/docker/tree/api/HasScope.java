@@ -19,10 +19,13 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
+import org.sonar.iac.docker.symbols.Scope;
 
-public interface DockerImage extends DockerTree, HasScope {
+public interface HasScope {
+  Scope scope();
 
-  FromInstruction from();
-  List<Instruction> instructions();
+  /**
+   * @throws IllegalArgumentException when scope is already set
+   */
+  void setScope(Scope scope);
 }

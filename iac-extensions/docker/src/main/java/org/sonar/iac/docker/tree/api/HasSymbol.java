@@ -19,10 +19,15 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.docker.symbols.Symbol;
 
-public interface DockerImage extends DockerTree, HasScope {
+public interface HasSymbol {
+  @Nullable
+  Symbol symbol();
 
-  FromInstruction from();
-  List<Instruction> instructions();
+  /**
+   * @throws IllegalArgumentException when symbol is already set.
+   */
+  void setSymbol(Symbol symbol);
 }

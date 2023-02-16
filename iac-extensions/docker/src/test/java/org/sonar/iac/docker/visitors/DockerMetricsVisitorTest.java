@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.visitors;
 
-import java.util.HashSet;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -30,7 +29,6 @@ import org.sonar.iac.common.testing.AbstractMetricsTest;
 import org.sonar.iac.docker.parser.DockerParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 
