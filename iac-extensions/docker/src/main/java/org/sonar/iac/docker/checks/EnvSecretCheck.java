@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,7 +69,6 @@ public class EnvSecretCheck implements IacCheck {
   private static final String PATH_WITH_EXPANSION_PATTERN = "/.*+\\.[a-z0-9]{2,4}$";
   private static final Pattern PATH_PATTERN = Pattern.compile("(" + ROOT_PATH_PATTERN + "|" + RELATIVE_PATH_PATTERN
     + "|" + EXPANSION_PATH_PATTERN + "|" + PATH_WITH_EXPANSION_PATTERN + ")");
-  private static final Pattern EXPANSION_DEFAULT_VALUE_PATTERN = Pattern.compile("-(\"[^\"]+\"|[^-]+)$");
 
   @Override
   public void initialize(InitContext init) {
@@ -126,19 +124,8 @@ public class EnvSecretCheck implements IacCheck {
 
   private static boolean isSensitiveValue(@Nullable String value) {
     if(value == null) return false;
-    value = stripQuotes(value);
 
-    if (value.isBlank() || isUrl(value) || isPath(value)) {
-      return false;
-    }
-
-    if (value.startsWith("${") && value.endsWith("}")) {
-      Matcher m = EXPANSION_DEFAULT_VALUE_PATTERN.matcher(value.substring(2, value.length() - 1));
-      if (m.find()) {
-        return isSensitiveName(m.group(1));
-      }
-    }
-    return true;
+    return !value.isBlank() && !isUrl(value) && !isPath(value);
   }
 
   private static boolean isUrl(String value) {
@@ -148,12 +135,4 @@ public class EnvSecretCheck implements IacCheck {
   private static boolean isPath(String value) {
     return PATH_PATTERN.matcher(value).find();
   }
-
-  private static String stripQuotes(String value) {
-    if (value.startsWith("\"") && value.endsWith("\"")) {
-      return value.substring(1, value.length() - 1);
-    }
-    return value;
-  }
-
 }
