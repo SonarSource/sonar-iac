@@ -104,7 +104,8 @@ class IacRulingTest {
   @Test
   void test_docker() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/docker/**/Dockerfile*, ruling/src/test/resources/sources/docker/**/Dockerfile*");
+    properties.put("sonar.inclusions", "sources/docker/**/Dockerfile*, ruling/src/test/resources/sources/docker/**/Dockerfile*, " +
+      "ruling/src/test/resources/sources/docker/**/**.Dockerfile, ruling/src/test/resources/sources/docker/**/**.dockerfile");
     run_ruling_test("docker", properties);
   }
 

@@ -6,6 +6,15 @@
 3,
 5,
 ],
+'docker-project:ruling/src/test/resources/sources/docker/filename/Bar.Dockerfile':[
+1,
+],
+'docker-project:ruling/src/test/resources/sources/docker/filename/Dockerfile.foo':[
+1,
+],
+'docker-project:ruling/src/test/resources/sources/docker/filename/Foo.dockerfile':[
+1,
+],
 'docker-project:sources/docker/awesome-compose/angular/angular/Dockerfile':[
 3,
 16,
