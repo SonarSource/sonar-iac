@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.LiteralList;
+import org.sonar.iac.docker.tree.api.ArgumentsForm;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -32,7 +32,7 @@ public class RunInstructionImpl extends AbstractCommandInstructionImpl implement
 
   private final List<Flag> options;
 
-  public RunInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable LiteralList arguments) {
+  public RunInstructionImpl(SyntaxToken keyword, List<Flag> options, @Nullable ArgumentsForm arguments) {
     super(keyword, arguments);
     this.options = options;
   }

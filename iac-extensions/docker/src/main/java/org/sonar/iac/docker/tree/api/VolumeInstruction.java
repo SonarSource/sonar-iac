@@ -19,6 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface VolumeInstruction extends Instruction {
-  LiteralList arguments();
+public interface VolumeInstruction extends Instruction, HasArguments {
 }

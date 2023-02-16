@@ -25,14 +25,11 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
-import org.sonar.iac.docker.tree.api.LiteralList;
-import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
@@ -168,9 +165,7 @@ class RunInstructionImplTest {
       DockerLexicalGrammar.RUN);
 
     assertThat(tree.options()).isEmpty();
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
-    assertThat(tree.arguments().arguments()).hasSize(13);
+    assertThat(tree.arguments()).hasSize(13);
   }
 
   @Test
@@ -180,9 +175,7 @@ class RunInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertTextRange(tree.textRange()).hasRange(1,0,1,36);
 
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
@@ -196,10 +189,8 @@ class RunInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertTextRange(tree.textRange()).hasRange(1,0,1,28);
 
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
-    assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().arguments().stream()
+    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    List<TextRange> textRanges = tree.arguments().stream()
       .map(ArgumentUtils::resolve)
       .map(ArgumentUtils.ArgumentResolution::textRange)
       .collect(Collectors.toList());
@@ -224,9 +215,7 @@ class RunInstructionImplTest {
     assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("type=cache,target=/root/.cache/pip");
     assertTextRange(option.textRange()).hasRange(1,4,1,46);
 
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
+    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(Flag.class);
@@ -247,10 +236,8 @@ class RunInstructionImplTest {
     assertThat(ArgumentUtils.resolve(option.value()).value()).isNull();
     assertTextRange(option.textRange()).hasRange(1,4,1,35);
 
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
-    assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().arguments().stream()
+    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    List<TextRange> textRanges = tree.arguments().stream()
       .map(ArgumentUtils::resolve)
       .map(ArgumentUtils.ArgumentResolution::textRange)
       .collect(Collectors.toList());
@@ -269,14 +256,10 @@ class RunInstructionImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().arguments()).isEmpty();
+    assertThat(tree.arguments()).isEmpty();
 
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
-    SeparatedList<Argument> literals = ((ExecForm) tree.arguments()).argumentsWithSeparators();
-    assertThat(literals.elementsAndSeparators()).isEmpty();
-    assertThat(literals.elements()).isEmpty();
-    assertThat(literals.separators()).isEmpty();
+    assertThat(tree.arguments()).isEmpty();
   }
 
   @Test
@@ -285,7 +268,7 @@ class RunInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
 
-    assertThat(tree.arguments()).isNull();
+    assertThat(tree.arguments()).isEmpty();
   }
 
   @Test
@@ -295,14 +278,11 @@ class RunInstructionImplTest {
       "line 2\n" +
       "FILE1";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.HEREDOC);
-    assertThat(tree.arguments().getKind()).isEqualTo(DockerTree.Kind.HEREDOCUMENT);
     assertTextRange(tree.textRange()).hasRange(1,0,4,5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().arguments()).hasSize(1);
-    assertThat(((Literal)tree.arguments().arguments().get(0).expressions().get(0)).value()).isEqualTo("<<FILE1\nline 1\nline 2\nFILE1");
+    assertThat(tree.arguments()).hasSize(1);
+    assertThat(((Literal)tree.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<FILE1\nline 1\nline 2\nFILE1");
   }
 
   @Test
@@ -316,9 +296,8 @@ class RunInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,4,5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().arguments()).hasSize(1);
-    assertThat(((Literal)tree.arguments().arguments().get(0).expressions().get(0)).value()).isEqualTo("<<-FILE1 line 0\nline 1\nline 2\nFILE1");
+    assertThat(tree.arguments()).hasSize(1);
+    assertThat(((Literal)tree.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<-FILE1 line 0\nline 1\nline 2\nFILE1");
   }
 
   @Test
@@ -333,8 +312,7 @@ class RunInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,5,5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().arguments()).hasSize(1);
-    assertThat(((LiteralImpl)tree.arguments().arguments().get(0).expressions().get(0)).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2");
+    assertThat(tree.arguments()).hasSize(1);
+    assertThat(((LiteralImpl)tree.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2");
   }
 }

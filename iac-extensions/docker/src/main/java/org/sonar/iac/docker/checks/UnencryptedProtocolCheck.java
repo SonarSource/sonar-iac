@@ -28,7 +28,6 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
-import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
@@ -50,9 +49,8 @@ public class UnencryptedProtocolCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(CommandInstruction.class, (ctx, commandInstruction) -> {
-      LiteralList arguments = commandInstruction.arguments();
-      if (arguments == null || !commandInstruction.is(ADD, ENTRYPOINT, CMD, RUN)) return;
-      checkUnencryptedProtocols(ctx, argumentsToSyntaxTokens(arguments.arguments()));
+      if (!commandInstruction.is(ADD, ENTRYPOINT, CMD, RUN)) return;
+      checkUnencryptedProtocols(ctx, argumentsToSyntaxTokens(commandInstruction.arguments()));
     });
 
     init.register(AddInstruction.class, (ctx, add) -> {

@@ -19,5 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface ShellForm extends LiteralList {
+public interface ShellForm extends ArgumentsForm {
 }

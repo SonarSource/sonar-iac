@@ -20,13 +20,13 @@
 package org.sonar.iac.docker.tree.impl;
 
 import javax.annotation.Nullable;
+import org.sonar.iac.docker.tree.api.ArgumentsForm;
 import org.sonar.iac.docker.tree.api.EntrypointInstruction;
-import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class EntrypointInstructionImpl extends AbstractCommandInstructionImpl implements EntrypointInstruction {
 
-  public EntrypointInstructionImpl(SyntaxToken keyword, @Nullable LiteralList arguments) {
+  public EntrypointInstructionImpl(SyntaxToken keyword, @Nullable ArgumentsForm arguments) {
     super(keyword, arguments);
   }
 

@@ -82,7 +82,7 @@ class HealthCheckInstructionImplTest {
     assertThat(tree.cmdInstruction().getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.options()).isEmpty();
 
-    assertArgumentsValue(tree.cmdInstruction().arguments().arguments(), "command", "param");
+    assertArgumentsValue(tree.cmdInstruction().arguments(), "command", "param");
   }
 
   @Test
@@ -94,7 +94,7 @@ class HealthCheckInstructionImplTest {
     assertThat(tree.none()).isNull();
     assertThat(tree.options()).hasSize(2);
 
-    assertArgumentsValue(tree.cmdInstruction().arguments().arguments(), "command");
+    assertArgumentsValue(tree.cmdInstruction().arguments(), "command");
 
     List<Flag> options = tree.options();
     assertThat(options.get(0).name()).isEqualTo("interval");

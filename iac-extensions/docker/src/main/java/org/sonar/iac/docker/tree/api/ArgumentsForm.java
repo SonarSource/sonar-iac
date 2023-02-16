@@ -19,17 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
-
-public interface LiteralList extends DockerTree {
-
-  enum LiteralListType {
-    EXEC,
-    SHELL,
-    HEREDOC
-  }
-
-  List<Argument> arguments();
-
-  LiteralListType type();
+public interface ArgumentsForm extends HasArguments, DockerTree {
 }

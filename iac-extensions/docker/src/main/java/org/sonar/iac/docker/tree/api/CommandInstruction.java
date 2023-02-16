@@ -19,14 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.CheckForNull;
-
-public interface CommandInstruction extends Instruction {
-
-  /**
-   * This method always returns arguments passed to the instruction irrespective of the form (shell or exec).
-   * In most instructions it can be null
-   */
-  @CheckForNull
-  LiteralList arguments();
+public interface CommandInstruction extends Instruction, HasArguments {
 }

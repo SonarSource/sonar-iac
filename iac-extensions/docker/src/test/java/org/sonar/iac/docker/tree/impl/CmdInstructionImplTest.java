@@ -25,12 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
-import org.sonar.iac.docker.tree.api.LiteralList;
-import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
@@ -92,8 +89,7 @@ class CmdInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,1,36);
 
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().arguments().stream().map(t -> ArgumentUtils.resolve(t).value())).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().stream().map(t -> ArgumentUtils.resolve(t).value())).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
@@ -108,9 +104,8 @@ class CmdInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,1,28);
 
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
-    assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().arguments()
+    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    List<TextRange> textRanges = tree.arguments()
       .stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::textRange).collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,4,1,14);
     assertTextRange(textRanges.get(1)).hasRange(1,15,1,21);
@@ -123,17 +118,10 @@ class CmdInstructionImplTest {
   @Test
   void shouldCheckParseEmptyCmdExecFormTree() {
     CmdInstruction tree = DockerTestUtils.parse("CMD []", DockerLexicalGrammar.CMD);
-
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().arguments()).isEmpty();
-
-    assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
-    SeparatedList<Argument> literals = ((ExecForm) tree.arguments()).argumentsWithSeparators();
-    assertThat(literals.elementsAndSeparators()).isEmpty();
-    assertThat(literals.elements()).isEmpty();
-    assertThat(literals.separators()).isEmpty();
+    assertThat(tree.arguments()).isEmpty();
   }
 
   @Test
@@ -141,7 +129,7 @@ class CmdInstructionImplTest {
     CmdInstruction tree = DockerTestUtils.parse("CMD", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
-
-    assertThat(tree.arguments()).isNull();
+    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.arguments()).isEmpty();
   }
 }

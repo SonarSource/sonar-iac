@@ -26,7 +26,6 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
@@ -86,12 +85,10 @@ class EntrypointInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
     assertTextRange(tree.textRange()).hasRange(1,0,1,43);
 
-    assertThat(tree.arguments()).isInstanceOf(ExecFormImpl.class);
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(tree.arguments().arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
-    assertThat(((ExecFormImpl)tree.children().get(1))).isSameAs(tree.arguments());
+    assertThat(tree.children().get(1)).isInstanceOf(ExecFormImpl.class);
   }
 
   @Test
@@ -102,19 +99,14 @@ class EntrypointInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
     assertTextRange(tree.textRange()).hasRange(1,0,1,35);
 
-    assertThat(tree.arguments()).isInstanceOf(ShellFormImpl.class);
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
-    assertArgumentsValue(tree.arguments().arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().arguments().stream()
+    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    List<TextRange> textRanges = tree.arguments().stream()
       .map(ArgumentUtils::resolve)
       .map(ArgumentUtils.ArgumentResolution::textRange)
       .collect(Collectors.toList());
     assertTextRange(textRanges.get(0)).hasRange(1,11,1,21);
     assertTextRange(textRanges.get(1)).hasRange(1,22,1,28);
     assertTextRange(textRanges.get(2)).hasRange(1,29,1,35);
-
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
-    assertThat((tree.children().get(1))).isSameAs(tree.arguments());
   }
 
   @Test
@@ -124,11 +116,7 @@ class EntrypointInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
-    assertThat(tree.arguments()).isInstanceOf(ExecFormImpl.class);
-    assertThat(tree.arguments().arguments()).isEmpty();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
-    assertThat((tree.children().get(1))).isSameAs(tree.arguments());
+    assertThat(tree.arguments()).isEmpty();
   }
 
   @Test
@@ -137,7 +125,7 @@ class EntrypointInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
-    assertThat(tree.arguments()).isNull();
+    assertThat(tree.arguments()).isEmpty();
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat(tree.children()).hasSize(1);
   }

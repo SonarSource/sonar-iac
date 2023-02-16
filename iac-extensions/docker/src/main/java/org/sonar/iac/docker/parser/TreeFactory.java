@@ -28,6 +28,7 @@ import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ArgumentsForm;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
@@ -49,7 +50,6 @@ import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
-import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
@@ -166,11 +166,11 @@ public class TreeFactory {
     return new ArgInstructionImpl(token, argNames);
   }
 
-  public AddInstruction add(SyntaxToken add, Optional<List<Flag>> options, LiteralList srcsAndDest) {
+  public AddInstruction add(SyntaxToken add, Optional<List<Flag>> options, ArgumentsForm srcsAndDest) {
     return new AddInstructionImpl(add, options.or(Collections.emptyList()), srcsAndDest);
   }
 
-  public CopyInstruction copy(SyntaxToken copy, Optional<List<Flag>> options, LiteralList srcsAndDest) {
+  public CopyInstruction copy(SyntaxToken copy, Optional<List<Flag>> options, ArgumentsForm srcsAndDest) {
     return new CopyInstructionImpl(copy, options.or(Collections.emptyList()), srcsAndDest);
   }
 
@@ -178,15 +178,15 @@ public class TreeFactory {
     return new FlagImpl(prefix, name, equals.orNull(), value.orNull());
   }
 
-  public CmdInstruction cmd(SyntaxToken token, Optional<LiteralList> execFormOrShellForm) {
+  public CmdInstruction cmd(SyntaxToken token, Optional<ArgumentsForm> execFormOrShellForm) {
     return new CmdInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public EntrypointInstruction entrypoint(SyntaxToken token, Optional<LiteralList> execFormOrShellForm) {
+  public EntrypointInstruction entrypoint(SyntaxToken token, Optional<ArgumentsForm> execFormOrShellForm) {
     return new EntrypointInstructionImpl(token, execFormOrShellForm.orNull());
   }
 
-  public RunInstruction run(SyntaxToken token, Optional<List<Flag>> options, Optional<LiteralList> execFormOrShellForm) {
+  public RunInstruction run(SyntaxToken token, Optional<List<Flag>> options, Optional<ArgumentsForm> execFormOrShellForm) {
     return new RunInstructionImpl(token, options.or(Collections.emptyList()), execFormOrShellForm.orNull());
   }
 
@@ -194,7 +194,7 @@ public class TreeFactory {
     return new UserInstructionImpl(keyword, arguments);
   }
 
-  public VolumeInstruction volume(SyntaxToken token, LiteralList execFormOrShellForm) {
+  public VolumeInstruction volume(SyntaxToken token, ArgumentsForm execFormOrShellForm) {
     return new VolumeInstructionImpl(token, execFormOrShellForm);
   }
 

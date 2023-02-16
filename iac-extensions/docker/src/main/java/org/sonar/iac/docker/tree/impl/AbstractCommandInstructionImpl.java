@@ -20,18 +20,20 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ArgumentsForm;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
-import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public abstract class AbstractCommandInstructionImpl extends InstructionImpl implements CommandInstruction {
 
-  protected final LiteralList arguments;
+  protected final ArgumentsForm arguments;
 
-  protected AbstractCommandInstructionImpl(SyntaxToken keyword, @Nullable LiteralList arguments) {
+  protected AbstractCommandInstructionImpl(SyntaxToken keyword, @Nullable ArgumentsForm arguments) {
     super(keyword);
     this.arguments = arguments;
   }
@@ -47,7 +49,10 @@ public abstract class AbstractCommandInstructionImpl extends InstructionImpl imp
   }
 
   @Override
-  public LiteralList arguments() {
-    return arguments;
+  public List<Argument> arguments() {
+    if (arguments == null) {
+      return Collections.emptyList();
+    }
+    return arguments.arguments();
   }
 }

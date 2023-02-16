@@ -47,9 +47,4 @@ public class ShellFormImpl extends AbstractDockerTreeImpl implements ShellForm {
   public List<Argument> arguments() {
     return arguments;
   }
-
-  @Override
-  public LiteralListType type() {
-    return LiteralListType.SHELL;
-  }
 }
