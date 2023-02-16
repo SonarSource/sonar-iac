@@ -47,7 +47,7 @@ import org.sonar.iac.docker.tree.api.Instruction;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
@@ -236,7 +236,7 @@ public class DockerGrammar {
         b.oneOrMore(
           f.ignoreFirst(
             b.token(DockerLexicalGrammar.WHITESPACE),
-            NEW_KEY_VALUE_PAIR()
+            KEY_VALUE_PAIR()
           )
         )
       )
@@ -264,7 +264,7 @@ public class DockerGrammar {
             b.token(DockerLexicalGrammar.WHITESPACE),
             b.firstOf(
               KEY_VALUE_PAIR_WITH_EQUAL(),
-              NEW_KEY_ONLY()
+              KEY_VALUE_PAIR_KEY_ONLY()
             )
           )
         )
@@ -498,19 +498,19 @@ public class DockerGrammar {
     );
   }
 
-  public NewKeyValuePair NEW_KEY_VALUE_PAIR() {
-    return b.<NewKeyValuePair>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR).is(
+  public KeyValuePair KEY_VALUE_PAIR() {
+    return b.<KeyValuePair>nonterminal(DockerLexicalGrammar.KEY_VALUE_PAIR).is(
       b.firstOf(
         KEY_VALUE_PAIR_WITH_EQUAL(),
         KEY_VALUE_PAIR_WITHOUT_EQUAL(),
-        NEW_KEY_ONLY()
+        KEY_VALUE_PAIR_KEY_ONLY()
       )
     );
   }
 
-  public NewKeyValuePair KEY_VALUE_PAIR_WITH_EQUAL() {
-    return b.<NewKeyValuePair>nonterminal().is(
-      f.newKeyValuePair(
+  public KeyValuePair KEY_VALUE_PAIR_WITH_EQUAL() {
+    return b.<KeyValuePair>nonterminal().is(
+      f.keyValuePair(
         KEY_ARGUMENT(),
         b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
         ARGUMENT()
@@ -518,9 +518,9 @@ public class DockerGrammar {
     );
   }
 
-  public NewKeyValuePair KEY_VALUE_PAIR_WITHOUT_EQUAL() {
-    return b.<NewKeyValuePair>nonterminal().is(
-      f.newKeyValuePair(
+  public KeyValuePair KEY_VALUE_PAIR_WITHOUT_EQUAL() {
+    return b.<KeyValuePair>nonterminal().is(
+      f.keyValuePair(
         KEY_ARGUMENT(),
         f.ignoreFirst(
           b.token(DockerLexicalGrammar.WHITESPACE),
@@ -536,9 +536,9 @@ public class DockerGrammar {
     );
   }
 
-  public NewKeyValuePair NEW_KEY_ONLY() {
-    return b.<NewKeyValuePair>nonterminal().is(
-      f.newKeyValuePair(
+  public KeyValuePair KEY_VALUE_PAIR_KEY_ONLY() {
+    return b.<KeyValuePair>nonterminal().is(
+      f.keyValuePair(
         KEY_ARGUMENT(),
         b.optional(b.token(DockerLexicalGrammar.EQUALS_OPERATOR))
       )

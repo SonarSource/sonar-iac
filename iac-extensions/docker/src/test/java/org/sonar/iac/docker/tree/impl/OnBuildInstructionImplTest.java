@@ -27,7 +27,7 @@ import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -96,7 +96,7 @@ class OnBuildInstructionImplTest {
     assertTextRange(label.textRange()).hasRange(1, 8, 1, 37);
     assertThat(label.children()).hasSize(7);
 
-    List<NewKeyValuePair> labels = label.labels();
+    List<KeyValuePair> labels = label.labels();
     assertLabel(labels.get(0), "key1", "value1");
     assertLabel(labels.get(1), "key2", "value2");
 
@@ -129,7 +129,7 @@ class OnBuildInstructionImplTest {
     assertThat(((Literal) ((Argument)stopSignal.children().get(1)).expressions().get(0)).value()).isEqualTo("SIGKILL");
   }
 
-  private static void assertLabel(NewKeyValuePair label, String expectedKey, String expectedValue) {
+  private static void assertLabel(KeyValuePair label, String expectedKey, String expectedValue) {
     assertThat(argValue(label.key())).isEqualTo(expectedKey);
     assertThat(argValue(label.value())).isEqualTo(expectedValue);
   }

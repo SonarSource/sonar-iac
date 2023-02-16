@@ -23,19 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class EnvInstructionImpl extends InstructionImpl implements EnvInstruction {
-  private final List<NewKeyValuePair> keyValuePairs;
+  private final List<KeyValuePair> keyValuePairs;
 
-  public EnvInstructionImpl(SyntaxToken keyword, List<NewKeyValuePair> keyValuePairs) {
+  public EnvInstructionImpl(SyntaxToken keyword, List<KeyValuePair> keyValuePairs) {
     super(keyword);
     this.keyValuePairs = keyValuePairs;
   }
 
   @Override
-  public List<NewKeyValuePair> environmentVariables() {
+  public List<KeyValuePair> environmentVariables() {
     return keyValuePairs;
   }
 
@@ -43,7 +43,7 @@ public class EnvInstructionImpl extends InstructionImpl implements EnvInstructio
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    for (NewKeyValuePair keyValuePair : keyValuePairs) {
+    for (KeyValuePair keyValuePair : keyValuePairs) {
       children.addAll(keyValuePair.children());
     }
     return children;

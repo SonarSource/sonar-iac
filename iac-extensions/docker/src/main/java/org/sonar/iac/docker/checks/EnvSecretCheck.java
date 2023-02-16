@@ -32,7 +32,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6472")
@@ -76,7 +76,7 @@ public class EnvSecretCheck implements IacCheck {
       .environmentVariables().forEach(envVarAssignment -> checkEnvVariableAssignment(ctx, envVarAssignment)));
   }
 
-  private static void checkEnvVariableAssignment(CheckContext ctx, NewKeyValuePair envVarAssignment) {
+  private static void checkEnvVariableAssignment(CheckContext ctx, KeyValuePair envVarAssignment) {
     if (isSensitiveName(ArgumentUtils.resolve(envVarAssignment.key()).value()) && isSensitiveValue(ArgumentUtils.resolve(envVarAssignment.value()).value())) {
       ctx.reportIssue(envVarAssignment.key(), MESSAGE);
     }

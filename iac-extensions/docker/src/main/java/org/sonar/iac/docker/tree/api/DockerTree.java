@@ -44,7 +44,7 @@ public interface DockerTree extends Tree {
     EXPOSE(ExposeInstruction.class),
     LABEL(LabelInstruction.class),
     ENV(EnvInstruction.class),
-    KEY_VALUE_PAIR(NewKeyValuePair.class),
+    KEY_VALUE_PAIR(KeyValuePair.class),
     ARG(ArgInstruction.class),
     CMD(CmdInstruction.class),
     ENTRYPOINT(EntrypointInstruction.class),

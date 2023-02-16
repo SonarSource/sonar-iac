@@ -24,10 +24,10 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class NewKeyValuePairImpl extends AbstractDockerTreeImpl implements NewKeyValuePair {
+public class KeyValuePairImpl extends AbstractDockerTreeImpl implements KeyValuePair {
 
   private final Argument key;
   @Nullable
@@ -35,7 +35,7 @@ public class NewKeyValuePairImpl extends AbstractDockerTreeImpl implements NewKe
   @Nullable
   private final Argument value;
 
-  public NewKeyValuePairImpl(Argument key, @Nullable SyntaxToken equalSign, @Nullable Argument value) {
+  public KeyValuePairImpl(Argument key, @Nullable SyntaxToken equalSign, @Nullable Argument value) {
     this.key = key;
     this.equalSign = equalSign;
     this.value = value;

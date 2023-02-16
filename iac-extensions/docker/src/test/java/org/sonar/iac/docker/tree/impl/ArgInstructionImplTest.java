@@ -24,8 +24,8 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
-import org.sonar.iac.docker.tree.api.NewKeyValuePairAssert;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -59,9 +59,9 @@ class ArgInstructionImplTest {
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.keyValuePairs()).hasSize(1);
 
-    NewKeyValuePair keyValuePair = tree.keyValuePairs().get(0);
+    KeyValuePair keyValuePair = tree.keyValuePairs().get(0);
     assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
-    NewKeyValuePairAssert.assertThat(keyValuePair)
+    KeyValuePairAssert.assertThat(keyValuePair)
       .hasKey("key1");
   }
 
@@ -74,8 +74,8 @@ class ArgInstructionImplTest {
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.keyValuePairs()).hasSize(1);
 
-    NewKeyValuePair keyValuePair = tree.keyValuePairs().get(0);
-    NewKeyValuePairAssert.assertThat(keyValuePair)
+    KeyValuePair keyValuePair = tree.keyValuePairs().get(0);
+    KeyValuePairAssert.assertThat(keyValuePair)
       .hasKey("key1")
       .hasValue("value1");
   }
@@ -89,13 +89,13 @@ class ArgInstructionImplTest {
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.keyValuePairs()).hasSize(2);
 
-    NewKeyValuePair keyValuePair1 = tree.keyValuePairs().get(0);
-    NewKeyValuePairAssert.assertThat(keyValuePair1)
+    KeyValuePair keyValuePair1 = tree.keyValuePairs().get(0);
+    KeyValuePairAssert.assertThat(keyValuePair1)
       .hasKey("key1")
       .hasValue("value1");
 
-    NewKeyValuePair keyValuePair2 = tree.keyValuePairs().get(1);
-    NewKeyValuePairAssert.assertThat(keyValuePair2)
+    KeyValuePair keyValuePair2 = tree.keyValuePairs().get(1);
+    KeyValuePairAssert.assertThat(keyValuePair2)
       .hasKey("key2")
       .hasValueNull();
   }
@@ -109,13 +109,13 @@ class ArgInstructionImplTest {
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.keyValuePairs()).hasSize(2);
 
-    NewKeyValuePair keyValuePair1 = tree.keyValuePairs().get(0);
-    NewKeyValuePairAssert.assertThat(keyValuePair1)
+    KeyValuePair keyValuePair1 = tree.keyValuePairs().get(0);
+    KeyValuePairAssert.assertThat(keyValuePair1)
       .hasKey("key1")
       .hasValue("value1");
 
-    NewKeyValuePair keyValuePair2 = tree.keyValuePairs().get(1);
-    NewKeyValuePairAssert.assertThat(keyValuePair2)
+    KeyValuePair keyValuePair2 = tree.keyValuePairs().get(1);
+    KeyValuePairAssert.assertThat(keyValuePair2)
       .hasKey("key2")
       .hasValue("value2");
   }

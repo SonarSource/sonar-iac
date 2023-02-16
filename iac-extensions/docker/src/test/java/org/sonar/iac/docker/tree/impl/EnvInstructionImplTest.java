@@ -24,8 +24,8 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
-import org.sonar.iac.docker.tree.api.NewKeyValuePair;
-import org.sonar.iac.docker.tree.api.NewKeyValuePairAssert;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -69,8 +69,8 @@ class EnvInstructionImplTest {
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.environmentVariables()).hasSize(1);
 
-    NewKeyValuePair keyValuePair = tree.environmentVariables().get(0);
-    NewKeyValuePairAssert.assertThat(keyValuePair)
+    KeyValuePair keyValuePair = tree.environmentVariables().get(0);
+    KeyValuePairAssert.assertThat(keyValuePair)
       .hasKind(DockerTree.Kind.KEY_VALUE_PAIR)
       .hasKey("key1")
       .hasEqualSignNull()
@@ -87,8 +87,8 @@ class EnvInstructionImplTest {
 
     assertThat(tree.environmentVariables()).hasSize(1);
 
-    NewKeyValuePair keyValuePair = tree.environmentVariables().get(0);
-    NewKeyValuePairAssert.assertThat(keyValuePair)
+    KeyValuePair keyValuePair = tree.environmentVariables().get(0);
+    KeyValuePairAssert.assertThat(keyValuePair)
       .hasKind(DockerTree.Kind.KEY_VALUE_PAIR)
       .hasKey("CPATH")
       .hasEqualSign("=")
@@ -104,8 +104,8 @@ class EnvInstructionImplTest {
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.environmentVariables()).hasSize(1);
 
-    NewKeyValuePair keyValuePair = tree.environmentVariables().get(0);
-    NewKeyValuePairAssert.assertThat(keyValuePair)
+    KeyValuePair keyValuePair = tree.environmentVariables().get(0);
+    KeyValuePairAssert.assertThat(keyValuePair)
       .hasKind(DockerTree.Kind.KEY_VALUE_PAIR)
       .hasKey("key1")
       .hasEqualSign("=")
@@ -119,8 +119,8 @@ class EnvInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ENV");
     assertThat(tree.environmentVariables()).hasSize(1);
     assertThat(tree.children()).hasSize(3);
-    NewKeyValuePair keyValuePair = tree.environmentVariables().get(0);
-    NewKeyValuePairAssert.assertThat(keyValuePair)
+    KeyValuePair keyValuePair = tree.environmentVariables().get(0);
+    KeyValuePairAssert.assertThat(keyValuePair)
       .hasKind(DockerTree.Kind.KEY_VALUE_PAIR)
       .hasKey("key1")
       .hasEqualSignNull()
