@@ -27,12 +27,21 @@ import javax.annotation.Nullable;
 
 public class Scope {
 
-  private final Map<String, Symbol> symbols = new HashMap<>();
-
-  public Scope() {
+  public enum Kind {
+    GLOBAL,
+    IMAGE
   }
 
-  public Scope(Scope orgScope) {
+  private final Map<String, Symbol> symbols = new HashMap<>();
+
+  private final Kind kind;
+
+  public Scope(Kind kind) {
+    this.kind = kind;
+  }
+
+  public Scope(Kind kind, Scope orgScope) {
+    this(kind);
     orgScope.symbols.forEach((name, symbol) -> this.symbols.put(name, new Symbol(symbol)));
   }
 
@@ -47,5 +56,9 @@ public class Scope {
 
   public List<Symbol> getSymbols() {
     return new ArrayList<>(symbols.values());
+  }
+
+  public Kind kind() {
+    return kind;
   }
 }

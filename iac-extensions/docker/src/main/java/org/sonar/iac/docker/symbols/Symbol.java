@@ -40,8 +40,8 @@ public class Symbol {
     this.usages = new ArrayList<>(orgSymbol.usages);
   }
 
-  public void addUsage(DockerTree tree, Usage.Kind kind) {
-    Usage usage = new Usage(tree, kind);
+  public void addUsage(Scope scope, DockerTree tree, Usage.Kind kind) {
+    Usage usage = new Usage(scope, tree, kind);
     usages.add(usage);
     if (tree instanceof HasSymbol) {
       ((HasSymbol) tree).setSymbol(this);
