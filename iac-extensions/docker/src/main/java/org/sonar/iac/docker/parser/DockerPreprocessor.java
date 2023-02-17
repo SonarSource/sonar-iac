@@ -53,10 +53,8 @@ public class DockerPreprocessor {
     while (m.find()) {
       int startIndex = m.start() - shiftedIndex;
       int linebreakLength = m.end() - m.start();
-      for (int i = 0; i < linebreakLength; i++) {
-        sb.deleteCharAt(startIndex);
-        shiftedIndex++;
-      }
+      sb.delete(startIndex, startIndex + linebreakLength);
+      shiftedIndex += linebreakLength;
       shiftedOffsetMap.put(m.end() - shiftedIndex, shiftedIndex);
     }
 
@@ -68,7 +66,8 @@ public class DockerPreprocessor {
 
   private static Matcher matchEscapedLineBreaks(String source) {
     String escapeCharacter = determineEscapeCharacter(source);
-    String escapedLineBreakPattern = "(?<!escape=)" + escapeCharacter + "[" + WHITESPACE + "]*+" + EOL;
+    String commentsOrEmptyLines = "(?:[" + WHITESPACE + "]*+(?:#[^\\n\\r]*+)?"+EOL+")*";
+    String escapedLineBreakPattern = "(?<!escape=)" + escapeCharacter + "[" + WHITESPACE + "]*+" + EOL + commentsOrEmptyLines;
     return Pattern.compile(escapedLineBreakPattern).matcher(source);
   }
 
