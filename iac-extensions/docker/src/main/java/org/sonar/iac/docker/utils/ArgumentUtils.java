@@ -32,6 +32,7 @@ import org.sonar.iac.docker.symbols.Symbol;
 import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
@@ -91,7 +92,8 @@ public class ArgumentUtils {
     if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_CHARACTERS)) {
       return ((ExpandableStringCharacters)expression).value();
     }
-    if (expression.is(DockerTree.Kind.REGULAR_VARIABLE, DockerTree.Kind.ENCAPSULATED_VARIABLE)) {
+    if (expression.is(DockerTree.Kind.REGULAR_VARIABLE)
+      || (expression.is(DockerTree.Kind.ENCAPSULATED_VARIABLE) && !":+".equals(((EncapsulatedVariable) expression).modifierSeparator()))) {
       return resolveVariable((Variable) expression).value();
     }
     return null;

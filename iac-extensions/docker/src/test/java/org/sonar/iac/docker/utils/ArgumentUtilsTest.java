@@ -84,7 +84,7 @@ class ArgumentUtilsTest {
     "FROM foo\nARG foo=bar\nLABEL label=${foo}",
     "FROM foo\nARG foo=bar\nLABEL label=${foo:-notbar}",
     "FROM foo\nARG foo=notbar\nARG foo=bar\nLABEL label=$foo",
-    "FROM foo\nARG foo=ar\nLABEL label=b$foo"
+    "FROM foo\nARG foo=ar\nLABEL label=b$foo",
   })
   void shouldResolveLabelValue(String input) {
     File file = parseFileAndAnalyzeSymbols(input);
@@ -100,7 +100,11 @@ class ArgumentUtilsTest {
     "FROM foo\nLABEL label=$foo",
     "FROM foo\nARG foo\nLABEL label=$foo",
     "FROM foo\nARG foo=barKey\nARG $foo=barValue\nLABEL label=$barKey",
-    "ARG foo=bar\nFROM foo\nLABEL label=$foo"
+    "ARG foo=bar\nFROM foo\nLABEL label=$foo",
+    // TODO SONARIAC-596 Include default value when resolving an encapsulated variable
+    "FROM foo\nLABEL label=${foo:-bar}",
+    // TODO SONARIAC-597 Include value insert when resolving an encapsulated variable
+    "FROM foo\n ARG foo=bar\nLABEL label=${foo:+notbar}"
   })
   void shouldResolveLabelValueToNull(String input) {
     File file = parseFileAndAnalyzeSymbols(input);
