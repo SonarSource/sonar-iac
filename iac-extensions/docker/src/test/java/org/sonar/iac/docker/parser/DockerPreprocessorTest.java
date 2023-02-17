@@ -22,7 +22,6 @@ package org.sonar.iac.docker.parser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -84,9 +83,9 @@ class DockerPreprocessorTest {
     "'RUN test\\\n# simple comment\n     \n\n  # comment with spaces before\npong', 6, 1"
   })
   void processRunCommandWithInlineCommentAndEmptyLines(String input, int line, int column) {
-    String output = preprocessor.process(input);
-    assertThat(output).isEqualTo("RUN testpong");
-    DockerPreprocessor.SourceOffset sourceOffset = preprocessor.sourceOffset();
+    DockerPreprocessor.PreprocessorResult result = preprocessor.process(input);
+    assertThat(result.processedSourceCode()).isEqualTo("RUN testpong");
+    DockerPreprocessor.SourceOffset sourceOffset = result.sourceOffset();
     assertThat(sourceOffset.sourceLineAndColumnAt(7)).isEqualTo(new int[] {1, 8});
     assertThat(sourceOffset.sourceLineAndColumnAt(8)).isEqualTo(new int[] {line, column});
   }

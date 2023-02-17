@@ -21,10 +21,15 @@ package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.parser.grammar.DockerGrammar;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
@@ -59,6 +64,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
     nodeBuilder.setPreprocessorResult(preprocessorResult);
     DockerTree tree = super.parse(preprocessorResult.processedSourceCode());
     setParents(tree);
+    attachInlineCommentToNextElement(tree);
     return tree;
   }
 
@@ -72,6 +78,15 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       DockerTree child = (DockerTree) children;
       child.setParent(tree);
       setParents(child);
+    }
+  }
+
+  private void attachInlineCommentToNextElement(DockerTree tree) {
+    List<DockerPreprocessor.InlineComment> inlineComments = preprocessor.getInlineComments();
+    for (DockerPreprocessor.InlineComment inlineComment : inlineComments) {
+      Optional<Tree> element = TreeUtils.getFirstChildAfterLine(tree, HasComments.class::isInstance, inlineComment.textRange.start().line());
+      element.ifPresent(el -> ((HasComments) el).comments().add(
+        new CommentImpl(inlineComment.comment, inlineComment.comment.substring(1).trim(), inlineComment.textRange)));
     }
   }
 }
