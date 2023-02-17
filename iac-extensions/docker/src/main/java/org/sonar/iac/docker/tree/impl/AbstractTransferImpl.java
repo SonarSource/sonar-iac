@@ -21,7 +21,6 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ArgumentList;
@@ -55,10 +54,7 @@ public abstract class AbstractTransferImpl extends InstructionImpl implements Tr
   public List<SyntaxToken> srcs() {
     List<Argument> args = srcsAndDest.arguments();
     List<Argument> srcs = args.subList(0, args.size()-1);
-    return srcs.stream()
-      .map(ArgumentUtils::resolve)
-      .map(ArgumentUtils.ArgumentResolution::asSyntaxToken)
-      .collect(Collectors.toList());
+    return ArgumentUtils.argumentsToSyntaxTokens(srcs);
   }
 
   @Override
