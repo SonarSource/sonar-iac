@@ -20,14 +20,15 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
-import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class CopyInstructionImpl extends AbstractTransferImpl implements CopyInstruction {
 
-  public CopyInstructionImpl(SyntaxToken add, List<Flag> options, LiteralList srcsAndDest) {
+  public CopyInstructionImpl(SyntaxToken add, List<Flag> options, ArgumentList srcsAndDest) {
     super(add, options, srcsAndDest);
   }
 
@@ -37,7 +38,7 @@ public class CopyInstructionImpl extends AbstractTransferImpl implements CopyIns
   }
 
   @Override
-  public LiteralList arguments() {
-    return srcsAndDest;
+  public List<Argument> arguments() {
+    return srcsAndDest.arguments();
   }
 }

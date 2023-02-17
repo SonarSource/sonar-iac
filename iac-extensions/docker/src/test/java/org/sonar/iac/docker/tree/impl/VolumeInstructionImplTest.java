@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
@@ -57,24 +56,18 @@ class VolumeInstructionImplTest {
     VolumeInstruction tree = parse("VOLUME /var/log /var/db", DockerLexicalGrammar.VOLUME);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.VOLUME);
     assertThat(tree.keyword().value()).isEqualTo("VOLUME");
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
-
-    assertArgumentsValue(tree.arguments().arguments(), "/var/log", "/var/db");
+    assertArgumentsValue(tree.arguments(), "/var/log", "/var/db");
   }
 
   @Test
   void volumeInstructionExec() {
     VolumeInstruction tree = parse("VOLUME [\"/var/log\", \"/var/db\"]", DockerLexicalGrammar.VOLUME);
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-
-    assertThat(tree.arguments().arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("/var/log", "/var/db");
+    assertThat(tree.arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("/var/log", "/var/db");
   }
 
   @Test
   void volumeInstructionEmptyExec() {
     VolumeInstruction tree = parse("VOLUME []", DockerLexicalGrammar.VOLUME);
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
-
-    assertThat(tree.arguments().arguments()).isEmpty();
+    assertThat(tree.arguments()).isEmpty();
   }
 }

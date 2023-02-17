@@ -21,13 +21,13 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
 import org.sonar.iac.docker.tree.api.AddInstruction;
-import org.sonar.iac.docker.tree.api.LiteralList;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class AddInstructionImpl extends AbstractTransferImpl implements AddInstruction {
 
-  public AddInstructionImpl(SyntaxToken add, List<Flag> options, LiteralList srcsAndDest) {
+  public AddInstructionImpl(SyntaxToken add, List<Flag> options, ArgumentList srcsAndDest) {
     super(add, options, srcsAndDest);
   }
 

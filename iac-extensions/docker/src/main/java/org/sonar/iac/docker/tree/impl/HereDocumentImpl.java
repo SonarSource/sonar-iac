@@ -46,9 +46,4 @@ public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocu
   public List<Argument> arguments() {
     return List.of(argument);
   }
-
-  @Override
-  public LiteralListType type() {
-    return LiteralListType.HEREDOC;
-  }
 }

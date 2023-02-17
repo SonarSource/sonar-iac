@@ -64,11 +64,6 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   }
 
   @Override
-  public LiteralListType type() {
-    return LiteralListType.EXEC;
-  }
-
-  @Override
   public SeparatedList<Argument> argumentsWithSeparators() {
     return argumentsWithSeparators;
   }

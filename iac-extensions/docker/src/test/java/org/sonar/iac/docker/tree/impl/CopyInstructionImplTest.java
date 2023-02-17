@@ -19,13 +19,11 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.LiteralList;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
@@ -84,7 +82,6 @@ class CopyInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("COPY");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(2);
     assertThat(tree.srcs().get(0).value()).isEqualTo("src1");
@@ -98,7 +95,6 @@ class CopyInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 29);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.EXEC);
     assertThat(tree.srcs()).hasSize(2);
     assertThat(tree.srcs().get(0).value()).isEqualTo("src1");
     assertThat(tree.srcs().get(1).value()).isEqualTo("src2");
@@ -111,7 +107,6 @@ class CopyInstructionImplTest {
     assertThat(tree.options()).hasSize(1);
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 40);
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.SHELL);
 
     Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
@@ -146,13 +141,10 @@ class CopyInstructionImplTest {
       "line 2\n" +
       "FILE1";
     CopyInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.COPY);
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.HEREDOC);
-    assertThat(tree.arguments().getKind()).isEqualTo(DockerTree.Kind.HEREDOCUMENT);
     assertTextRange(tree.textRange()).hasRange(1,0,4,5);
 
     assertThat(tree.keyword().value()).isEqualTo("COPY");
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().type()).isEqualTo(LiteralList.LiteralListType.HEREDOC);
-    assertArgumentsValue(tree.arguments().arguments(), "<<FILE1\nline 1\nline 2\nFILE1");
+    assertArgumentsValue(tree.arguments(), "<<FILE1\nline 1\nline 2\nFILE1");
   }
 }
