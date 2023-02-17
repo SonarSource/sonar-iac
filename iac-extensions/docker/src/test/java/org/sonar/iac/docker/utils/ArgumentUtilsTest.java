@@ -19,19 +19,33 @@
  */
 package org.sonar.iac.docker.utils;
 
+import java.util.Collections;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.docker.TestUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.Expression;
+import org.sonar.iac.docker.tree.api.File;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.impl.ArgumentImpl;
+import org.sonar.iac.docker.tree.impl.LiteralImpl;
+import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class ArgumentUtilsTest {
 
+  private final InputFileContext inputFileContext = mock(InputFileContext.class);
+
   @ParameterizedTest
-  @CsvSource({
+  @ValueSource(strings = {
     "foo",
     "\"foo\"",
     "fo\"o\"",
@@ -49,7 +63,7 @@ class ArgumentUtilsTest {
   }
 
   @ParameterizedTest
-  @CsvSource({
+  @ValueSource(strings = {
     "${foo}",
     "$foo",
     "\"foo$bar\"",
@@ -64,7 +78,70 @@ class ArgumentUtilsTest {
     assertThat(token).isNull();
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "FROM foo\nARG foo=bar\nLABEL label=$foo",
+    "FROM foo\nARG foo=bar\nLABEL label=${foo}",
+    "FROM foo\nARG foo=bar\nLABEL label=${foo:-notbar}",
+    "FROM foo\nARG foo=notbar\nARG foo=bar\nLABEL label=$foo",
+    "FROM foo\nARG foo=ar\nLABEL label=b$foo",
+  })
+  void shouldResolveLabelValue(String input) {
+    File file = parseFileAndAnalyzeSymbols(input);
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isEqualTo("bar");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "FROM foo\nLABEL label=$foo",
+    "FROM foo\nARG foo\nLABEL label=$foo",
+    "FROM foo\nARG foo=barKey\nARG $foo=barValue\nLABEL label=$barKey",
+    "ARG foo=bar\nFROM foo\nLABEL label=$foo",
+    // TODO SONARIAC-596 Include default value when resolving an encapsulated variable
+    "FROM foo\nLABEL label=${foo:-bar}",
+    // TODO SONARIAC-597 Include value insert when resolving an encapsulated variable
+    "FROM foo\n ARG foo=bar\nLABEL label=${foo:+notbar}"
+  })
+  void shouldResolveLabelValueToNull(String input) {
+    File file = parseFileAndAnalyzeSymbols(input);
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isNull();
+  }
+
+  @Test
+  void shouldNotFailOnUnknownExpression() {
+    Expression unknownExpression = new UnknownExpression();
+    Argument argument = new ArgumentImpl(Collections.singletonList(unknownExpression));
+
+    assertThat(ArgumentUtils.resolve(argument).value()).isNull();
+  }
+
+  private File parseFileAndAnalyzeSymbols(String input) {
+    File file = parse(input, DockerLexicalGrammar.FILE);
+    DockerSymbolVisitor visitor = new DockerSymbolVisitor();
+    visitor.scan(inputFileContext, file);
+    return file;
+  }
+
   private static Argument parseArgument(String input) {
     return parse(input, DockerLexicalGrammar.ARGUMENT);
+  }
+
+  static class UnknownExpression extends LiteralImpl {
+    public UnknownExpression() {
+      super(null);
+    }
+
+    @Override
+    public Kind getKind() {
+      return null;
+    }
   }
 }

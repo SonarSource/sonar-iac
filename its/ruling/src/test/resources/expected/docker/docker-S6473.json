@@ -1,4 +1,8 @@
 {
+'docker-project:ruling/src/test/resources/sources/docker/S6473/Dockerfile.6473':[
+3,
+6,
+],
 'docker-project:sources/docker/docker-containers/ubuntuhost/ubuntu16.04/Dockerfile':[
 27,
 ],
