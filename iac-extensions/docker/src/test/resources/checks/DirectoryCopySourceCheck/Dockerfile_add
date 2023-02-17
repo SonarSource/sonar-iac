@@ -124,3 +124,10 @@ ADD --from . /example
 
 # FN, we don't handle yet element **
 ADD ./a/** /example
+
+
+ADD ${JAR_FILE} application.jar
+ADD "${JAR_FILE}" application.jar
+ADD "${JAR_FILE:-file.jar}" application.jar
+ADD "${JAR_FILE:+file.jar}" application.jar
+ADD 'file.jar' application.jar

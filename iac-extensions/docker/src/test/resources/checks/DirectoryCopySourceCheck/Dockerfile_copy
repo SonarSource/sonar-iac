@@ -125,4 +125,10 @@ COPY --from . /example
 COPY --from=bob "/" /example
 
 # FN, we don't handle yet element **
-ADD ./a/** /example
+COPY ./a/** /example
+
+COPY ${JAR_FILE} application.jar
+COPY "${JAR_FILE}" application.jar
+COPY "${JAR_FILE:-file.jar}" application.jar
+COPY "${JAR_FILE:+file.jar}" application.jar
+COPY 'file.jar' application.jar
