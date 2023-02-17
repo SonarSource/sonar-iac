@@ -28,10 +28,10 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.api.AddInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.utils.SyntaxTokenUtils;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6470")
 public class DirectoryCopySourceCheck implements IacCheck {
@@ -47,9 +47,9 @@ public class DirectoryCopySourceCheck implements IacCheck {
   }
 
   private static void checkAdd(CheckContext ctx, AddInstruction add) {
-    for (SyntaxToken src : add.srcs()) {
-      String path = SyntaxTokenUtils.trimmedQuotesValues(src);
-      if (!path.startsWith("http://") && !path.startsWith("https://")) {
+    for (Argument src : add.srcs()) {
+      String path = ArgumentUtils.resolve(src).value();
+      if (path != null && !path.startsWith("http://") && !path.startsWith("https://")) {
         reportIfSensitive(ctx, src, isSensitivePath(path), "ADD");
       }
     }
@@ -58,8 +58,11 @@ public class DirectoryCopySourceCheck implements IacCheck {
   private static void checkCopy(CheckContext ctx, CopyInstruction copyInstruction) {
     if (hasOption(copyInstruction.options(), "from")) return;
 
-    for (SyntaxToken src : copyInstruction.srcs()) {
-      reportIfSensitive(ctx, src, isSensitivePath(SyntaxTokenUtils.trimmedQuotesValues(src)), "COPY");
+    for (Argument src : copyInstruction.srcs()) {
+      String path = ArgumentUtils.resolve(src).value();
+      if (path != null) {
+        reportIfSensitive(ctx, src, isSensitivePath(path), "COPY");
+      }
     }
   }
 
@@ -67,7 +70,7 @@ public class DirectoryCopySourceCheck implements IacCheck {
     return options.stream().anyMatch(param -> param.name().equals(key));
   }
 
-  private static void reportIfSensitive(CheckContext ctx, SyntaxToken src, PathSensitivity sensitivity, String instructionName) {
+  private static void reportIfSensitive(CheckContext ctx, Argument src, PathSensitivity sensitivity, String instructionName) {
     if(sensitivity == PathSensitivity.ROOT_OR_CURRENT) {
       ctx.reportIssue(src, MESSAGE_CURRENT_OR_ROOT);
     } else if (sensitivity == PathSensitivity.TOP_LEVEL_GLOBBING) {

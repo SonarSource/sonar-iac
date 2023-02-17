@@ -27,15 +27,14 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.api.AddInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ENTRYPOINT;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.RUN;
-import static org.sonar.iac.docker.utils.ArgumentUtils.argumentsToSyntaxTokens;
-
 @Rule(key = "S5332")
 public class UnencryptedProtocolCheck implements IacCheck {
 
@@ -50,7 +49,7 @@ public class UnencryptedProtocolCheck implements IacCheck {
   public void initialize(InitContext init) {
     init.register(CommandInstruction.class, (ctx, commandInstruction) -> {
       if (!commandInstruction.is(ADD, ENTRYPOINT, CMD, RUN)) return;
-      checkUnencryptedProtocols(ctx, argumentsToSyntaxTokens(commandInstruction.arguments()));
+      checkUnencryptedProtocols(ctx,commandInstruction.arguments());
     });
 
     init.register(AddInstruction.class, (ctx, add) -> {
@@ -59,11 +58,14 @@ public class UnencryptedProtocolCheck implements IacCheck {
     });
   }
 
-  private static void checkUnencryptedProtocols(CheckContext ctx, List<SyntaxToken> syntaxTokens) {
-    for (SyntaxToken syntaxToken : syntaxTokens) {
-      Matcher matcher = UNENCRYPTED_PROTOCOLS.matcher(syntaxToken.value());
-      if (matcher.find() && !LOOPBACK.matcher(matcher.group("rest")).find()) {
-        ctx.reportIssue(syntaxToken, MESSAGE);
+  private static void checkUnencryptedProtocols(CheckContext ctx, List<Argument> paths) {
+    for (Argument path : paths) {
+      String resolvedPath = ArgumentUtils.resolve(path).value();
+      if (resolvedPath != null) {
+        Matcher matcher = UNENCRYPTED_PROTOCOLS.matcher(resolvedPath);
+        if (matcher.find() && !LOOPBACK.matcher(matcher.group("rest")).find()) {
+          ctx.reportIssue(path, MESSAGE);
+        }
       }
     }
   }

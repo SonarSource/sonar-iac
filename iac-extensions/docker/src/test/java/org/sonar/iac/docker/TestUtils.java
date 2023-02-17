@@ -29,8 +29,8 @@ import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.FromInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,25 +40,20 @@ public class TestUtils {
     // utils class
   }
 
-  @Nullable
-  public static String argValue(Argument argument) {
-    return ArgumentUtils.resolve(argument).value();
-  }
-
   public static void assertArgumentsValue(List<Argument> args, String... values) {
     assertThat(args).hasSize(values.length);
     for (int i = 0; i < args.size(); i++) {
-      assertThat(argValue(args.get(i))).isEqualTo(values[i]);
+      ArgumentAssert.assertThat(args.get(i)).hasValue(values[i]);
     }
   }
 
   public static void assertFrom(FromInstruction from, String expectedName, @Nullable String expectedFlagName, @Nullable String expectedFlagValue, @Nullable String expectedAlias) {
-    assertThat(argValue(from.image())).isEqualTo(expectedName);
+    ArgumentAssert.assertThat(from.image()).hasValue(expectedName);
     if (expectedFlagName != null) {
       assertThat(from.platform()).isNotNull();
       assertThat(from.platform().name()).isEqualTo(expectedFlagName);
       if (expectedFlagValue != null) {
-        assertThat(argValue(from.platform().value())).isEqualTo(expectedFlagValue);
+        ArgumentAssert.assertThat(from.platform().value()).hasValue(expectedFlagValue);
       } else {
         assertThat(from.platform().value()).isNull();
       }

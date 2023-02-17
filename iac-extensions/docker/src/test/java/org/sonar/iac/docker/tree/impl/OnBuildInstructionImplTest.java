@@ -25,16 +25,16 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
-import static org.sonar.iac.docker.TestUtils.argValue;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class OnBuildInstructionImplTest {
@@ -97,10 +97,8 @@ class OnBuildInstructionImplTest {
     assertThat(label.children()).hasSize(7);
 
     List<KeyValuePair> labels = label.labels();
-    assertLabel(labels.get(0), "key1", "value1");
-    assertLabel(labels.get(1), "key2", "value2");
-
-
+    KeyValuePairAssert.assertThat(labels.get(0)).hasKey("key1").hasValue("value1");
+    KeyValuePairAssert.assertThat(labels.get(1)).hasKey("key2").hasValue("value2");
   }
 
   @Test
@@ -127,10 +125,5 @@ class OnBuildInstructionImplTest {
     assertThat(((Literal)stopSignal.signal().expressions().get(0)).value()).isEqualTo("SIGKILL");
     assertThat(((SyntaxToken)stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
     assertThat(((Literal) ((Argument)stopSignal.children().get(1)).expressions().get(0)).value()).isEqualTo("SIGKILL");
-  }
-
-  private static void assertLabel(KeyValuePair label, String expectedKey, String expectedValue) {
-    assertThat(argValue(label.key())).isEqualTo(expectedKey);
-    assertThat(argValue(label.value())).isEqualTo(expectedValue);
   }
 }

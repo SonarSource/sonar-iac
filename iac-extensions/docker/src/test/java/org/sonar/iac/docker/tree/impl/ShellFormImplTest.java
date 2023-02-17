@@ -22,14 +22,13 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.ShellForm;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class ShellFormImplTest {
@@ -87,15 +86,10 @@ class ShellFormImplTest {
 
     ArgumentUtils.ArgumentResolution argResolved1 = ArgumentUtils.resolve(shellForm.arguments().get(0));
     assertThat(argResolved1.value()).isEqualTo("executable");
-    assertTextRange(argResolved1.textRange()).hasRange(1, 1, 1, 11);
-    SyntaxToken token1 = argResolved1.asSyntaxToken();
-    assertThat(token1.value()).isEqualTo("executable");
-    assertTextRange(token1.textRange()).hasRange(1, 1, 1, 11);
 
     ArgumentUtils.ArgumentResolution argResolved2 = ArgumentUtils.resolve(shellForm.arguments().get(1));
     assertThat(argResolved2.value()).isNull();
-    assertTextRange(argResolved2.textRange()).isNull();
-    assertThat(argResolved2.asSyntaxToken()).isNull();
+    ArgumentAssert.assertThat(shellForm.arguments().get(1)).isUnresolved();
   }
 
   @Test
@@ -116,6 +110,6 @@ class ShellFormImplTest {
     EncapsulatedVariable var = (EncapsulatedVariable) shellForm.arguments().get(0).expressions().get(0);
     assertThat(var.identifier()).isEqualTo("var");
     assertThat(var.modifierSeparator()).isNull();
-    assertThat(ArgumentUtils.resolve(var.modifier()).value()).isEqualTo("%%[a-z]+");
+    ArgumentAssert.assertThat(var.modifier()).hasValue("%%[a-z]+");
   }
 }

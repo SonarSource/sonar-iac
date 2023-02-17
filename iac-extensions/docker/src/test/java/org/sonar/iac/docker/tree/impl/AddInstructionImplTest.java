@@ -24,9 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.AddInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,8 +66,8 @@ class AddInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 12);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
-    assertThat(tree.dest().value()).isEqualTo("dest");
+    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
+    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -77,8 +78,8 @@ class AddInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 13);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
-    assertThat(tree.dest()).isNull();
+    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
+    ArgumentAssert.assertThat(tree.dest()).isUnresolved();
   }
 
   @Test
@@ -89,8 +90,8 @@ class AddInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
-    assertThat(tree.dest().value()).isEqualTo("dest");
+    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
+    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -100,12 +101,12 @@ class AddInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ADD");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 36);
     assertThat(tree.options()).isEmpty();
-    List<SyntaxToken> srcs = tree.srcs();
+    List<Argument> srcs = tree.srcs();
     assertThat(srcs).hasSize(3);
-    assertThat(srcs.get(0).value()).isEqualTo("src1");
-    assertThat(srcs.get(1).value()).isEqualTo("src2");
-    assertThat(srcs.get(2).value()).isEqualTo("src3");
-    assertThat(tree.dest().value()).isEqualTo("dest");
+    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src1");
+    ArgumentAssert.assertThat(tree.srcs().get(1)).hasValue("src2");
+    ArgumentAssert.assertThat(tree.srcs().get(2)).hasValue("src3");
+    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -115,8 +116,8 @@ class AddInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
-    assertThat(tree.dest().value()).isEqualTo("dest");
+    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
+    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -126,7 +127,7 @@ class AddInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).isEmpty();
-    assertThat(tree.dest().value()).isEqualTo("dest");
+    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -136,9 +137,9 @@ class AddInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 18);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(2);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("src1");
-    assertThat(tree.srcs().get(1).value()).isEqualTo("src2");
-    assertThat(tree.dest().value()).isEqualTo("dest");
+    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src1");
+    ArgumentAssert.assertThat(tree.srcs().get(1)).hasValue("src2");
+    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -153,8 +154,8 @@ class AddInstructionImplTest {
     assertThat(option.name()).isEqualTo("link");
     assertThat(option.value()).isNull();
     assertThat(tree.srcs()).hasSize(1);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("/foo");
-    assertThat(tree.dest().value()).isEqualTo("/bar");
+    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("/foo");
+    ArgumentAssert.assertThat(tree.dest()).hasValue("/bar");
   }
 
   @Test
@@ -170,8 +171,9 @@ class AddInstructionImplTest {
     assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("55:mygroup");
 
     assertThat(tree.srcs()).hasSize(1);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("files*");
-    assertThat(tree.dest().value()).isEqualTo("/somedir/");
+
+    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("files*");
+    ArgumentAssert.assertThat(tree.dest()).hasValue("/somedir/");
   }
 
   @Test
@@ -192,7 +194,7 @@ class AddInstructionImplTest {
     assertThat(ArgumentUtils.resolve(option2.value()).value()).isEqualTo("value2");
 
     assertThat(tree.srcs()).hasSize(1);
-    assertThat(tree.srcs().get(0).value()).isEqualTo("src");
-    assertThat(tree.dest().value()).isEqualTo("dest");
+    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
+    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
   }
 }

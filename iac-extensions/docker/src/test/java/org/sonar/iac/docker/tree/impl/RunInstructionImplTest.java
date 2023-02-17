@@ -19,17 +19,14 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.api.DockerTree;
+import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.utils.ArgumentUtils;
@@ -190,13 +187,6 @@ class RunInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,1,28);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().stream()
-      .map(ArgumentUtils::resolve)
-      .map(ArgumentUtils.ArgumentResolution::textRange)
-      .collect(Collectors.toList());
-    assertTextRange(textRanges.get(0)).hasRange(1,4,1,14);
-    assertTextRange(textRanges.get(1)).hasRange(1,15,1,21);
-    assertTextRange(textRanges.get(2)).hasRange(1,22,1,28);
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);
@@ -237,13 +227,6 @@ class RunInstructionImplTest {
     assertTextRange(option.textRange()).hasRange(1,4,1,35);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().stream()
-      .map(ArgumentUtils::resolve)
-      .map(ArgumentUtils.ArgumentResolution::textRange)
-      .collect(Collectors.toList());
-    assertTextRange(textRanges.get(0)).hasRange(1,36,1,46);
-    assertTextRange(textRanges.get(1)).hasRange(1,47,1,53);
-    assertTextRange(textRanges.get(2)).hasRange(1,54,1,60);
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(Flag.class);
