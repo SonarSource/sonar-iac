@@ -19,5 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface ArgumentsForm extends HasArguments, DockerTree {
+public interface ArgumentList extends HasArguments, DockerTree {
 }

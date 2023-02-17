@@ -22,15 +22,15 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.ArgumentsForm;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
 
 public class VolumeInstructionImpl extends InstructionImpl implements VolumeInstruction {
 
-  private final ArgumentsForm arguments;
+  private final ArgumentList arguments;
 
-  public VolumeInstructionImpl(SyntaxToken volume, ArgumentsForm arguments) {
+  public VolumeInstructionImpl(SyntaxToken volume, ArgumentList arguments) {
     super(volume);
     this.arguments = arguments;
   }

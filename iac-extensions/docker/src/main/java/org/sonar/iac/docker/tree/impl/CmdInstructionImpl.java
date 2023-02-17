@@ -20,13 +20,13 @@
 package org.sonar.iac.docker.tree.impl;
 
 import javax.annotation.Nullable;
-import org.sonar.iac.docker.tree.api.ArgumentsForm;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class CmdInstructionImpl extends AbstractCommandInstructionImpl implements CmdInstruction {
 
-  public CmdInstructionImpl(SyntaxToken keyword, @Nullable ArgumentsForm arguments) {
+  public CmdInstructionImpl(SyntaxToken keyword, @Nullable ArgumentList arguments) {
     super(keyword, arguments);
   }
 

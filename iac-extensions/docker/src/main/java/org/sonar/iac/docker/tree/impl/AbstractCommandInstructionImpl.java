@@ -25,15 +25,15 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.ArgumentsForm;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public abstract class AbstractCommandInstructionImpl extends InstructionImpl implements CommandInstruction {
 
-  protected final ArgumentsForm arguments;
+  protected final ArgumentList arguments;
 
-  protected AbstractCommandInstructionImpl(SyntaxToken keyword, @Nullable ArgumentsForm arguments) {
+  protected AbstractCommandInstructionImpl(SyntaxToken keyword, @Nullable ArgumentList arguments) {
     super(keyword);
     this.arguments = arguments;
   }

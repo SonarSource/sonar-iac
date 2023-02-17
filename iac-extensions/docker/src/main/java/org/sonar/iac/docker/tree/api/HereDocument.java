@@ -19,5 +19,5 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-public interface HereDocument extends ArgumentsForm {
+public interface HereDocument extends ArgumentList {
 }

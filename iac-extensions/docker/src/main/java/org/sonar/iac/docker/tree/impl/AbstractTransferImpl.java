@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.ArgumentsForm;
+import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.TransferInstruction;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -38,9 +38,9 @@ import org.sonar.iac.docker.utils.ArgumentUtils;
  */
 public abstract class AbstractTransferImpl extends InstructionImpl implements TransferInstruction {
   protected final List<Flag> options;
-  protected final ArgumentsForm srcsAndDest;
+  protected final ArgumentList srcsAndDest;
 
-  protected AbstractTransferImpl(SyntaxToken add, List<Flag> options, ArgumentsForm srcsAndDest) {
+  protected AbstractTransferImpl(SyntaxToken add, List<Flag> options, ArgumentList srcsAndDest) {
     super(add);
     this.options = options;
     this.srcsAndDest = srcsAndDest;
