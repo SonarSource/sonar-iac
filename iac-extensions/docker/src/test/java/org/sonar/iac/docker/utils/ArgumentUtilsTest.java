@@ -19,16 +19,26 @@
  */
 package org.sonar.iac.docker.utils;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.docker.TestUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.File;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class ArgumentUtilsTest {
+
+  private final InputFileContext inputFileContext = mock(InputFileContext.class);
 
   @ParameterizedTest
   @CsvSource({
@@ -62,6 +72,97 @@ class ArgumentUtilsTest {
       .isNull();
     SyntaxToken token = ArgumentUtils.argumentToSyntaxToken(argument);
     assertThat(token).isNull();
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "$foo",
+    "${foo}"
+  })
+  void shouldResolveSingleAssignedVariable(String variable) {
+    File file = parseFileAndAnalyzeSymbols("FROM foo\nARG foo=bar\nLABEL label=" + variable);
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isEqualTo("bar");
+  }
+
+  @Test
+  void shouldResolveVarFromGlobalScopeWhenAccessible() {
+    File file = parseFileAndAnalyzeSymbols("ARG foo=bar\nFROM foo\nARG foo\nLABEL label=$foo");
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isEqualTo("bar");
+  }
+
+  @Test
+  void shouldNotResolveVarFromGlobalScopeWhenNotAccessible() {
+    File file = parseFileAndAnalyzeSymbols("ARG foo=bar\nFROM foo\nLABEL label=$foo");
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isNull();
+  }
+
+  @Test
+  void shouldResolveOverrideVar() {
+    File file = parseFileAndAnalyzeSymbols("FROM foo\nARG foo=bar1\nARG foo=bar2\nLABEL label=$foo");
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isEqualTo("bar2");
+  }
+
+  @Test
+  void shouldResolveUndefinedVarToNull() {
+    File file = parseFileAndAnalyzeSymbols("FROM foo\nLABEL label=$foo");
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isNull();
+  }
+
+  @Test
+  void shouldResolveVarWithoutDefaultToNull() {
+    File file = parseFileAndAnalyzeSymbols("FROM foo\nARG foo\nLABEL label=$foo");
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isNull();
+  }
+
+  @Test
+  void shouldNotResolveVarVar() {
+    File file = parseFileAndAnalyzeSymbols("FROM foo\nARG foo=barKey\nARG $foo=barValue\nLABEL label=$barKey");
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isNull();
+  }
+
+  @Test
+  void shouldResolveStringVariableConcatenation() {
+    File file = parseFileAndAnalyzeSymbols("FROM foo\nARG foo=bar\nLABEL label=foo$foo");
+
+    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    assertThat(resolution.value()).isEqualTo("foobar");
+  }
+
+  private File parseFileAndAnalyzeSymbols(String input) {
+    File file = parse(input, DockerLexicalGrammar.FILE);
+    DockerSymbolVisitor visitor = new DockerSymbolVisitor();
+    visitor.scan(inputFileContext, file);
+    return file;
   }
 
   private static Argument parseArgument(String input) {

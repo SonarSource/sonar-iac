@@ -1,4 +1,9 @@
+ARG GLOBAL_PORT_1=22
+ARG GLOBAL_PORT_2=22
+
 FROM foo
+
+ARG GLOBAL_PORT_1
 
 # Noncompliant@+1 {{Make sure that exposing administration services is safe here.}}
 EXPOSE 22
@@ -44,21 +49,26 @@ ARG SENSITIVE_PORT=22
 ARG SENSITIVE_PROTOCOL=tcp
 ARG COMPLIANT_PROTOCOL=udp
 
-# FN
+# Noncompliant@+1
 EXPOSE $SENSITIVE_EXPOSE
 
-# FN
+# Noncompliant@+1
 EXPOSE $SENSITIVE_PORT
 
-# FN
+# Noncompliant@+1
 EXPOSE 20 $SENSITIVE_PORT
 
 EXPOSE $SENSITIVE_PORT/UDP
 
-# FN
+# Noncompliant@+1
 EXPOSE 22/$SENSITIVE_PROTOCOL
 
 EXPOSE 22/$COMPLIANT_PROTOCOL
 
+# Noncompliant@+1
+EXPOSE $GLOBAL_PORT_1
+
+# GLOBAL_PORT_2 is not accesible in this scope
+EXPOSE $GLOBAL_PORT_2
 
 EXPOSE FOO
