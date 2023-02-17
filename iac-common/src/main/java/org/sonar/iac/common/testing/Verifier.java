@@ -63,9 +63,7 @@ public final class Verifier {
 
   public static void verify(TreeParser<Tree> parser, Path path, IacCheck check, Function<SingleFileVerifier, TestContext> contextSupplier) {
     Tree root = parse(parser, path);
-    SingleFileVerifier verifier = createVerifier(path, root);
-    runAnalysis(contextSupplier.apply(verifier), check, root);
-    verifier.assertOneOrMoreIssues();
+    verify(root, path, check, contextSupplier);
   }
 
   /**
@@ -75,6 +73,12 @@ public final class Verifier {
     Tree root = parse(parser, path);
     List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(path, root)), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
+  }
+
+  public static void verify(Tree root, Path path, IacCheck check, Function<SingleFileVerifier, TestContext> contextSupplier) {
+    SingleFileVerifier verifier = createVerifier(path, root);
+    runAnalysis(contextSupplier.apply(verifier), check, root);
+    verifier.assertOneOrMoreIssues();
   }
 
   public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check) {
@@ -94,7 +98,7 @@ public final class Verifier {
     return ctx.raisedIssues;
   }
 
-  private static Tree parse(TreeParser<Tree> parser, Path path) {
+  public static Tree parse(TreeParser<Tree> parser, Path path) {
     String testFileContent = readFile(path);
     return parser.parse(testFileContent, null);
   }
