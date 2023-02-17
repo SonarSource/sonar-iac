@@ -73,7 +73,9 @@ EXPOSE $GLOBAL_PORT_2
 
 EXPOSE FOO
 
+# TODO SONARIAC-596 Include default value when resolving an encapsulated variable
+EXPOSE ${UNKNOWN_PORT:-22}
+
+# TODO SONARIAC-597 Include value insert when resolving an encapsulated variable
 ARG SENSITIVE_PORT=22
-# False Positive TODO SONARIAC-597 Include value insert when resolving an encapsulated variable
-# Noncompliant@+1
 EXPOSE ${SENSITIVE_PORT:+80}
