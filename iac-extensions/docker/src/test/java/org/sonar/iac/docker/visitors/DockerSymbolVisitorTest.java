@@ -20,18 +20,10 @@
 package org.sonar.iac.docker.visitors;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.symbols.Scope;
@@ -46,6 +38,7 @@ import org.sonar.iac.docker.tree.api.Variable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.docker.TestUtils.firstDescendant;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class DockerSymbolVisitorTest {
@@ -224,23 +217,6 @@ class DockerSymbolVisitorTest {
     DockerSymbolVisitor visitor = new DockerSymbolVisitor();
     visitor.scan(inputFileContext, image);
     return image;
-  }
-
-  private static <T extends Tree> T firstDescendant(Tree root, Class<T> clazz) {
-    return (T) firstDescendant(root, clazz::isInstance).orElse(null);
-  }
-
-  private static Optional<Tree> firstDescendant(@Nullable Tree root, Predicate<Tree> predicate) {
-    return descendants(root).filter(predicate).findFirst();
-  }
-
-  private static Stream<Tree> descendants(@Nullable Tree root) {
-    if (root == null || root.children().isEmpty()) {
-      return Stream.empty();
-    }
-    Spliterator<Tree> spliterator = Spliterators.spliteratorUnknownSize(root.children().iterator(), Spliterator.ORDERED);
-    Stream<Tree> stream = StreamSupport.stream(spliterator, false);
-    return stream.flatMap(tree -> Stream.concat(Stream.of(tree), descendants(tree)));
   }
 
 }
