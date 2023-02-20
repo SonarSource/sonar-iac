@@ -19,8 +19,11 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.docker.TestUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -86,5 +89,29 @@ class DockerImageImplTest {
     DockerImage dockerImage2 = file.body().dockerImages().get(1);
     assertTextRange(dockerImage2.textRange()).hasRange(4, 0, 6, 17);
     assertThat(dockerImage2.children()).hasExactlyElementsOfTypes(FromInstructionImpl.class, UserInstructionImpl.class, LabelInstructionImpl.class);
+  }
+
+  @Test
+  void shouldParseCommentBeforeDockerImage() {
+    File file = parse(code(
+      "# foobar",
+      "FROM foo"
+    ), DockerLexicalGrammar.FILE);
+
+    DockerImage image = TestUtils.firstDescendant(file, DockerImage.class);
+    List<Comment> comments = image.from().keyword().comments();
+    assertThat(comments).extracting(Comment::contentText).containsExactly("foobar");
+  }
+
+  @Test
+  void shouldParseEmptyCommentBeforeDockerImage() {
+    File file = parse(code(
+        "#",
+        "FROM foo"
+    ), DockerLexicalGrammar.FILE);
+
+    DockerImage image = TestUtils.firstDescendant(file, DockerImage.class);
+    List<Comment> comments = image.from().keyword().comments();
+    assertThat(comments).extracting(Comment::contentText).containsExactly("");
   }
 }
