@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.util.Scanner;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -41,6 +41,8 @@ import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 public class CloudformationSensor extends YamlSensor {
+
+  private static final int DEFAULT_BUFFER_SIZE = 8192;
 
   private final AnalysisWarnings analysisWarnings;
 
@@ -95,9 +97,13 @@ public class CloudformationSensor extends YamlSensor {
         return true;
       }
 
-      try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
-        while (scanner.hasNextLine()) {
-          if (scanner.nextLine().contains(fileIdentifier)) {
+      try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
+        // Only firs 8k bytes is read to avoid slow execution for big one-line files
+        byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
+        String text = new String(bytes, inputFile.charset());
+        String[] lines = text.split("\n");
+        for (String line : lines) {
+          if (line.contains(fileIdentifier)) {
             return true;
           }
         }
