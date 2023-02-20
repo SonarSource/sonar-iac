@@ -20,7 +20,9 @@
 package org.sonar.iac.docker.utils;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.iac.docker.symbols.Scope;
@@ -56,82 +58,95 @@ public class ArgumentUtils {
   }
 
   public static ArgumentResolution resolve(Argument argument) {
-    return resolve(argument.expressions());
+    return ArgumentResolver.resolve(argument);
   }
 
-  public static ArgumentResolution resolve(List<Expression> expressions) {
-    StringBuilder sb = new StringBuilder();
-    for (Expression expression : expressions) {
-      String expressionResolution = resolveExpression(expression);
-      if (expressionResolution == null) {
-        return new ArgumentResolution(null);
+  private static class ArgumentResolver {
+
+    Set<Expression> visitedExpressions = new HashSet<>();
+
+    private static ArgumentResolution resolve(Argument argument) {
+      return new ArgumentResolver().resolveExpressions(argument.expressions());
+    }
+
+    private ArgumentResolution resolveExpressions(List<Expression> expressions) {
+      StringBuilder sb = new StringBuilder();
+      for (Expression expression : expressions) {
+        if (!visitedExpressions.add(expression)) {
+          return ArgumentResolution.EMPTY;
+        }
+
+        String expressionResolution = resolveExpression(expression);
+        if (expressionResolution == null) {
+          return ArgumentResolution.EMPTY;
+        }
+        sb.append(expressionResolution);
       }
-      sb.append(expressionResolution);
+      return new ArgumentResolution(sb.toString());
     }
-    return new ArgumentResolution(sb.toString());
-  }
 
-  @Nullable
-  private static String resolveExpression(Expression expression) {
-    if (expression.is(DockerTree.Kind.STRING_LITERAL)) {
-      return ((Literal)expression).value();
+    @Nullable
+    private String resolveExpression(Expression expression) {
+      if (expression.is(DockerTree.Kind.STRING_LITERAL)) {
+        return ((Literal)expression).value();
+      }
+      if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_LITERAL)) {
+        return resolveExpressions(((ExpandableStringLiteral)expression).expressions()).value();
+      }
+      if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_CHARACTERS)) {
+        return ((ExpandableStringCharacters)expression).value();
+      }
+      if (expression.is(DockerTree.Kind.REGULAR_VARIABLE)
+        || (expression.is(DockerTree.Kind.ENCAPSULATED_VARIABLE) && !":+".equals(((EncapsulatedVariable) expression).modifierSeparator()))) {
+        return resolveVariable((Variable) expression).value();
+      }
+      return null;
     }
-    if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_LITERAL)) {
-      return resolve(((ExpandableStringLiteral)expression).expressions()).value();
+
+    private ArgumentResolution resolveVariable(Variable variable) {
+      Symbol symbol = variable.symbol();
+      return symbol != null ? resolveSymbol(symbol) : ArgumentResolution.EMPTY;
     }
-    if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_CHARACTERS)) {
-      return ((ExpandableStringCharacters)expression).value();
+
+    /**
+     * To resolve the value of a symbol at a given state, the last assigned value is considered.
+     * There for all symbol usages are analyzed for the last assignment with value before the access.
+     */
+    private ArgumentResolution resolveSymbol(Symbol symbol) {
+      List<Usage> usages = symbol.usages();
+      Collections.reverse(usages);
+
+      List<Usage> reversedAssignments = usages.stream()
+        .filter(usage -> usage.kind().equals(Usage.Kind.ASSIGNMENT))
+        .collect(Collectors.toList());
+      Scope.Kind accessScopeKind = usages.get(0).scope().kind();
+
+      Argument lastAssignedValue = findLastAccessibleAssignedValue(reversedAssignments, accessScopeKind);
+
+      return lastAssignedValue != null ? resolveExpressions(lastAssignedValue.expressions()) : ArgumentResolution.EMPTY;
     }
-    if (expression.is(DockerTree.Kind.REGULAR_VARIABLE)
-      || (expression.is(DockerTree.Kind.ENCAPSULATED_VARIABLE) && !":+".equals(((EncapsulatedVariable) expression).modifierSeparator()))) {
-      return resolveVariable((Variable) expression).value();
-    }
-    return null;
-  }
 
-  private static ArgumentResolution resolveVariable(Variable variable) {
-    Symbol symbol = variable.symbol();
-    return symbol != null ? resolveSymbol(symbol) : ArgumentResolution.EMPTY;
-  }
-
-  /**
-   * To resolve the value of a symbol at a given state, the last assigned value is considered.
-   * There for all symbol usages are analyzed for the last assignment with value before the access.
-   */
-  private static ArgumentResolution resolveSymbol(Symbol symbol) {
-    List<Usage> usages = symbol.usages();
-    Collections.reverse(usages);
-
-    List<Usage> reversedAssignments = usages.stream()
-      .filter(usage -> usage.kind().equals(Usage.Kind.ASSIGNMENT))
-      .collect(Collectors.toList());
-    Scope.Kind accessScopeKind = usages.get(0).scope().kind();
-
-    Argument lastAssignedValue = findLastAccessibleAssignedValue(reversedAssignments, accessScopeKind);
-
-    return lastAssignedValue != null ? resolve(lastAssignedValue) : ArgumentResolution.EMPTY;
-  }
-
-  /**
-   * In Dockerfiles exit two kinds of scopes where variables can be defined and accessed.
-   * To access a variable from the global scope inside a DockerImage scope the variable access has to be enabled
-   * by an assignment instruction of the variable without value.
-   */
-  @Nullable
-  private static Argument findLastAccessibleAssignedValue(List<Usage> assignments, Scope.Kind accessScopeKind) {
-    boolean hasAccessToGlobalScope = false;
-    for (Usage assignment : assignments) {
-      if (assignment.tree().is(DockerTree.Kind.KEY_VALUE_PAIR)) {
-        KeyValuePair assignmentTree = (KeyValuePair) assignment.tree();
-        Argument value = assignmentTree.value();
-        if (value != null) {
-          return (assignment.scope().kind().equals(accessScopeKind) || hasAccessToGlobalScope) ? value : null;
-        } else {
-          hasAccessToGlobalScope = true;
+    /**
+     * In Dockerfiles exit two kinds of scopes where variables can be defined and accessed.
+     * To access a variable from the global scope inside a DockerImage scope the variable access has to be enabled
+     * by an assignment instruction of the variable without value.
+     */
+    @Nullable
+    private static Argument findLastAccessibleAssignedValue(List<Usage> assignments, Scope.Kind accessScopeKind) {
+      boolean hasAccessToGlobalScope = false;
+      for (Usage assignment : assignments) {
+        if (assignment.tree().is(DockerTree.Kind.KEY_VALUE_PAIR)) {
+          KeyValuePair assignmentTree = (KeyValuePair) assignment.tree();
+          Argument value = assignmentTree.value();
+          if (value != null) {
+            return (assignment.scope().kind().equals(accessScopeKind) || hasAccessToGlobalScope) ? value : null;
+          } else {
+            hasAccessToGlobalScope = true;
+          }
         }
       }
+      return null;
     }
-    return null;
   }
 
   public static class ArgumentResolution {
