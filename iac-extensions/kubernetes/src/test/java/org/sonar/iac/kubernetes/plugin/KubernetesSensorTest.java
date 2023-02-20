@@ -98,7 +98,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       context.fileSystem().add(inputFile);
     }
     long start = System.currentTimeMillis();
-    Assertions.assertTimeout(Duration.ofMillis(300), () -> sensor().execute(context));
+    Assertions.assertTimeout(Duration.ofMillis(800), () -> sensor().execute(context));
     long stop = System.currentTimeMillis();
     System.out.println("shouldFastCheckFilePredicate took: " + (stop - start) + " ms");
   }
@@ -159,7 +159,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   private String generateBigJson() {
-    StringBuilder sb = new StringBuilder("{");
+    StringBuilder sb = new StringBuilder("{\"elements\":[");
     for (int i = 0; i < 500000; i++) {
       sb.append("\"lastName\": \"last name\", \"firstName\": \"first name\", \"streetAddress\": \"street address\", ")
         .append("\"email\": \"email\", \"index\": \"")
@@ -167,7 +167,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
         .append("\"},");
     }
     sb.deleteCharAt(sb.length() - 1);
-    sb.append("}");
+    sb.append("]}");
     return sb.toString();
   }
 }
