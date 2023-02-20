@@ -19,10 +19,31 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import java.util.List;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
-public interface TransferInstruction extends Instruction {
-  List<Flag> options();
-  List<Argument> srcs();
-  Argument dest();
+public class ArgumentAssert extends DockerTreeAssert<ArgumentAssert, Argument> {
+
+  private ArgumentAssert(Argument argument) {
+    super(argument, ArgumentAssert.class);
+  }
+
+  public static ArgumentAssert assertThat(Argument actual) {
+    return new ArgumentAssert(actual);
+  }
+
+  public ArgumentResolutionAssert resolve() {
+    return new ArgumentResolutionAssert(ArgumentUtils.resolve(actual));
+  }
+
+  public ArgumentAssert hasValue(String value) {
+    isNotNull();
+    resolve().hasValue(value);
+    return this;
+  }
+
+  public ArgumentAssert isUnresolved() {
+    isNotNull();
+    resolve().isUnresolved();
+    return this;
+  }
 }

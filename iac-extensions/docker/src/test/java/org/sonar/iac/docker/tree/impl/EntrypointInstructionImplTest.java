@@ -19,10 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -100,13 +97,6 @@ class EntrypointInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,1,35);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments().stream()
-      .map(ArgumentUtils::resolve)
-      .map(ArgumentUtils.ArgumentResolution::textRange)
-      .collect(Collectors.toList());
-    assertTextRange(textRanges.get(0)).hasRange(1,11,1,21);
-    assertTextRange(textRanges.get(1)).hasRange(1,22,1,28);
-    assertTextRange(textRanges.get(2)).hasRange(1,29,1,35);
   }
 
   @Test

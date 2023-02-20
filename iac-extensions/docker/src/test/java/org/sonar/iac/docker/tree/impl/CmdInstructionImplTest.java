@@ -19,10 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
@@ -105,11 +102,6 @@ class CmdInstructionImplTest {
 
     assertThat(tree.arguments()).isNotNull();
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
-    List<TextRange> textRanges = tree.arguments()
-      .stream().map(ArgumentUtils::resolve).map(ArgumentUtils.ArgumentResolution::textRange).collect(Collectors.toList());
-    assertTextRange(textRanges.get(0)).hasRange(1,4,1,14);
-    assertTextRange(textRanges.get(1)).hasRange(1,15,1,21);
-    assertTextRange(textRanges.get(2)).hasRange(1,22,1,28);
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);

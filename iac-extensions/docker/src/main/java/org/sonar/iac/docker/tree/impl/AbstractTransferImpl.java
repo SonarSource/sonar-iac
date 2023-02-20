@@ -24,10 +24,9 @@ import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ArgumentList;
-import org.sonar.iac.docker.tree.api.TransferInstruction;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.utils.ArgumentUtils;
+import org.sonar.iac.docker.tree.api.TransferInstruction;
 
 /**
  * To be used when we want to implement a command that expect one+ src with one dest (supporting both SHELL and EXEC format) with Params.
@@ -51,17 +50,15 @@ public abstract class AbstractTransferImpl extends InstructionImpl implements Tr
   }
 
   @Override
-  public List<SyntaxToken> srcs() {
+  public List<Argument> srcs() {
     List<Argument> args = srcsAndDest.arguments();
-    List<Argument> srcs = args.subList(0, args.size()-1);
-    return ArgumentUtils.argumentsToSyntaxTokens(srcs);
+    return args.subList(0, args.size()-1);
   }
 
   @Override
-  public SyntaxToken dest() {
+  public Argument dest() {
     List<Argument> args = srcsAndDest.arguments();
-    Argument dest = args.get(args.size()-1);
-    return ArgumentUtils.resolve(dest).asSyntaxToken();
+    return args.get(args.size()-1);
   }
 
   @Override

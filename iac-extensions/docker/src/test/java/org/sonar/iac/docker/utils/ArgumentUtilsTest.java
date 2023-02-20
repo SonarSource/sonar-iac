@@ -31,7 +31,6 @@ import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
@@ -58,8 +57,6 @@ class ArgumentUtilsTest {
     assertThat(ArgumentUtils.resolve(argument)).extracting(ArgumentUtils.ArgumentResolution::value)
       .isNotNull()
       .isEqualTo("foo");
-    SyntaxToken token = ArgumentUtils.argumentToSyntaxToken(argument);
-    assertThat(token).isNotNull();
   }
 
   @ParameterizedTest
@@ -74,8 +71,6 @@ class ArgumentUtilsTest {
     Argument argument = parseArgument(input);
     assertThat(ArgumentUtils.resolve(argument)).extracting(ArgumentUtils.ArgumentResolution::value)
       .isNull();
-    SyntaxToken token = ArgumentUtils.argumentToSyntaxToken(argument);
-    assertThat(token).isNull();
   }
 
   @ParameterizedTest
