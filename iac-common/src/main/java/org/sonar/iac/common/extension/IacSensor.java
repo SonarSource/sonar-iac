@@ -50,6 +50,7 @@ public abstract class IacSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(IacSensor.class);
   private static final Pattern EMPTY_FILE_CONTENT_PATTERN = Pattern.compile("\\s*+");
+  private static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
 
   protected final SonarRuntime sonarRuntime;
   protected final FileLinesContextFactory fileLinesContextFactory;
@@ -160,6 +161,8 @@ public abstract class IacSensor implements Sensor {
         } catch (ParseException e) {
           logParsingError(inputFile, e);
           inputFileContext.reportParseError(repositoryKey(), e.getPosition());
+
+          interruptOnFailFast(inputFileContext.sensorContext, inputFile, e);
         }
         progressReport.nextFile();
       }
@@ -194,7 +197,15 @@ public abstract class IacSensor implements Sensor {
         } catch (RuntimeException e) {
           inputFileContext.reportAnalysisError(e.getMessage(), null);
           LOG.error("Cannot analyse '" + inputFile +"': " + e.getMessage(), e);
+
+          interruptOnFailFast(inputFileContext.sensorContext, inputFile, e);
         }
+      }
+    }
+
+    private void interruptOnFailFast(SensorContext context, InputFile inputFile, Exception e) {
+      if (context.config().getBoolean(FAIL_FAST_PROPERTY_NAME).orElse(false)) {
+        throw new IllegalStateException("Exception when analyzing '" + inputFile + "'", e);
       }
     }
 
