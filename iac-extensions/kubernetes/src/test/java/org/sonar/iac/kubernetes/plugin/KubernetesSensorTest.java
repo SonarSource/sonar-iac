@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.time.Duration;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.batch.fs.InputFile;
@@ -88,6 +90,19 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(descriptor.languages()).containsExactly("json", "yaml");
   }
 
+  @Test
+  void shouldFastCheckFilePredicate() {
+    String content = generateBigJson();
+    for (int i = 0; i < 10; i++) {
+      InputFile inputFile = inputFile("temp" + i + ".json", content);
+      context.fileSystem().add(inputFile);
+    }
+    long start = System.currentTimeMillis();
+    Assertions.assertTimeout(Duration.ofMillis(250), () -> sensor().execute(context));
+    long stop = System.currentTimeMillis();
+    System.out.println("shouldFastCheckFilePredicate took: " + (stop - start) + " ms");
+  }
+
   private void asserNotSourceFileIsParsed() {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("0 source files to be analyzed");
   }
@@ -112,7 +127,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   private KubernetesSensor sensor(String... rules) {
     return sensor(checkFactory(rules));
   }
-
 
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
@@ -142,5 +156,18 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFileWithIdentifiers("");
+  }
+
+  private String generateBigJson() {
+    StringBuilder sb = new StringBuilder("{");
+    for (int i = 0; i < 500000; i++) {
+      sb.append("\"lastName\": \"last name\", \"firstName\": \"first name\", \"streetAddress\": \"street address\", ")
+        .append("\"email\": \"email\", \"index\": \"")
+        .append(i)
+        .append("\"},");
+    }
+    sb.deleteCharAt(sb.length() - 1);
+    sb.append("}");
+    return sb.toString();
   }
 }

@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.Set;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -61,6 +61,7 @@ public class KubernetesSensor extends YamlSensor {
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
     private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata", "spec");
     private static final Logger LOG = Loggers.get(KubernetesFilePredicate.class);
+    private static final int DEFAULT_BUFFER_SIZE = 8192;
 
     @Override
     public boolean apply(InputFile inputFile) {
@@ -69,9 +70,12 @@ public class KubernetesSensor extends YamlSensor {
 
     private static boolean hasKubernetesObjectStructure(InputFile inputFile) {
       int identifierCount = 0;
-      try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
-        while (scanner.hasNextLine()) {
-          String line = scanner.nextLine();
+      try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
+        // Only firs 8k bytes is read to avoid slow execution for big one-line files
+        byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
+        String text = new String(bytes, inputFile.charset());
+        String[] lines = text.split("\n");
+        for (String line : lines) {
           if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
             identifierCount++;
           } else if (FILE_SEPERATOR.equals(line)) {
