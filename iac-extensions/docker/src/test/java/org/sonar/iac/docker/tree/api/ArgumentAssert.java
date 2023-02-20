@@ -36,11 +36,13 @@ public class ArgumentAssert extends DockerTreeAssert<ArgumentAssert, Argument> {
   }
 
   public ArgumentAssert hasValue(String value) {
+    isNotNull();
     resolve().hasValue(value);
     return this;
   }
 
   public ArgumentAssert isUnresolved() {
+    isNotNull();
     resolve().isUnresolved();
     return this;
   }
