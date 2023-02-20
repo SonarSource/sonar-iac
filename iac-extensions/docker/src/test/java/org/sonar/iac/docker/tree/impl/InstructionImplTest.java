@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.docker.TestUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -75,5 +76,29 @@ class InstructionImplTest {
     Comment comment = aliasComments.get(0);
     assertThat(comment.contentText()).isEqualTo("multiline comment");
     assertTextRange(comment.textRange()).hasRange(2, 0, 2, 19);
+  }
+
+  @Test
+  void shouldParseCommentWithoutSpace() {
+    File file = parse(code(
+      "#foobar",
+      "FROM foo"
+    ), DockerLexicalGrammar.FILE);
+
+    DockerImage image = TestUtils.firstDescendant(file, DockerImage.class);
+    List<Comment> comments = image.from().keyword().comments();
+    assertThat(comments).extracting(Comment::contentText).containsExactly("foobar");
+  }
+
+  @Test
+  void shouldParseEmptyComment() {
+    File file = parse(code(
+      "#",
+      "FROM foo"
+    ), DockerLexicalGrammar.FILE);
+
+    DockerImage image = TestUtils.firstDescendant(file, DockerImage.class);
+    List<Comment> comments = image.from().keyword().comments();
+    assertThat(comments).extracting(Comment::contentText).containsExactly("");
   }
 }

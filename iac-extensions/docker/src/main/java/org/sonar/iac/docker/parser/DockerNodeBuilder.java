@@ -92,7 +92,8 @@ public class DockerNodeBuilder implements NodeBuilder {
       Token triviaToken = trivia.getToken();
       String text = triviaToken.getValue();
       TextRange range = TextRanges.range(triviaToken.getLine(), triviaToken.getColumn(), text);
-      result.add(new CommentImpl(text, text.substring(2), range));
+      String contentText = text.length() > 1 ? text.substring(1).trim() : "";
+      result.add(new CommentImpl(text, contentText, range));
     }
     return result;
   }
