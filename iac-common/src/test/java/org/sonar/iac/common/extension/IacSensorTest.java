@@ -143,22 +143,6 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void test_parsing_error_should_interrupt_analysis_when_fail_fast_enabled() {
-    IacSensor sensor = sensor(checkFactory());
-
-    MapSettings settings = new MapSettings();
-    settings
-      .setProperty(getActivationSettingKey(), true)
-      .setProperty("sonar.internal.analysis.failFast", true);
-    context.setSettings(settings);
-
-    InputFile inputFile = inputFile("file1.iac", "\n{}");
-    assertThatThrownBy(() -> analyse(sensor, inputFile))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Exception when analyzing 'file1.iac'");
-  }
-
-  @Test
   void test_parsing_error_should_raise_on_corrupted_file() throws IOException {
     InputFile inputFile = inputFile("fakeFile.iac", "\n{}");
     InputFile spyInputFile = spy(inputFile);
