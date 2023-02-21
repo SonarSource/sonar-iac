@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.docker.parser;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
@@ -82,12 +82,22 @@ class DockerNodeBuilderTest {
     assertThat(nodeBuilder.getCommentsForToken(tokenRange)).hasSize(2);
   }
 
-  private void setCommentMap(Map<Integer, Comment> commentMap) {
+  @Test
+  void shouldAddCommentByOrderToToken() {
+    SortedMap<Integer, Comment> commentMap = buildCommentMap(2, 4, 1);
+    Comment firstComment = commentMap.get(1);
+    Comment secondComment = commentMap.get(2);
+    setCommentMap(commentMap);
+    TextRange tokenRange = TextRanges.range(3, 1, 3, 5);
+    assertThat(nodeBuilder.getCommentsForToken(tokenRange)).containsExactly(firstComment, secondComment);
+  }
+
+  private void setCommentMap(SortedMap<Integer, Comment> commentMap) {
     nodeBuilder.setPreprocessorResult(new DockerPreprocessor.PreprocessorResult(null, null, commentMap));
   }
 
-  private static Map<Integer, Comment> buildCommentMap(int... commentLines) {
-    Map<Integer, Comment> commentMap = new HashMap<>();
+  private static SortedMap<Integer, Comment> buildCommentMap(int... commentLines) {
+    SortedMap<Integer, Comment> commentMap = new TreeMap<>();
     for (int line : commentLines) {
       commentMap.put(line, mock(Comment.class));
     }

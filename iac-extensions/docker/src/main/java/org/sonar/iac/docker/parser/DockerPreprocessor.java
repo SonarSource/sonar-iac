@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.iac.common.api.tree.Comment;
@@ -62,7 +63,7 @@ public class DockerPreprocessor {
     String processedSourceCode = sb.toString();
     SourceOffset sourceOffset = new SourceOffset(source, shiftedOffsetMap);
     // TODO SONARIAC-533: Provide a Map of removed comments
-    return new PreprocessorResult(processedSourceCode, sourceOffset, Collections.emptyMap());
+    return new PreprocessorResult(processedSourceCode, sourceOffset, Collections.emptySortedMap());
   }
 
   private static Matcher matchEscapedLineBreaks(String source) {
@@ -124,9 +125,9 @@ public class DockerPreprocessor {
 
     private final String processedSourceCode;
     private final SourceOffset sourceOffset;
-    private final Map<Integer, Comment> commentMap;
+    private final SortedMap<Integer, Comment> commentMap;
 
-    public PreprocessorResult(String processedSourceCode, SourceOffset sourceOffset, Map<Integer, Comment> commentMap) {
+    public PreprocessorResult(String processedSourceCode, SourceOffset sourceOffset, SortedMap<Integer, Comment> commentMap) {
       this.processedSourceCode = processedSourceCode;
       this.sourceOffset = sourceOffset;
       this.commentMap = commentMap;
@@ -140,7 +141,7 @@ public class DockerPreprocessor {
       return sourceOffset;
     }
 
-    public Map<Integer, Comment> commentMap() {
+    public SortedMap<Integer, Comment> commentMap() {
       return commentMap;
     }
   }
