@@ -55,9 +55,9 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
 
   @Override
   public DockerTree parse(String source) {
-    String preprocessedSource = preprocessor.process(source);
-    nodeBuilder.setSourceOffset(preprocessor.sourceOffset());
-    DockerTree tree = super.parse(preprocessedSource);
+    DockerPreprocessor.PreprocessorResult preprocessorResult = preprocessor.process(source);
+    nodeBuilder.setPreprocessorResult(preprocessorResult);
+    DockerTree tree = super.parse(preprocessorResult.processedSourceCode());
     setParents(tree);
     return tree;
   }

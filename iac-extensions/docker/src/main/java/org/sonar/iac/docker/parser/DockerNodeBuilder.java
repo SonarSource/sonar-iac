@@ -26,12 +26,16 @@ import com.sonar.sslr.api.Trivia;
 import com.sonar.sslr.api.typed.Input;
 import com.sonar.sslr.api.typed.NodeBuilder;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.parser.DockerPreprocessor.PreprocessorResult;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.impl.AbstractDockerTreeImpl;
 import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
@@ -41,6 +45,10 @@ public class DockerNodeBuilder implements NodeBuilder {
   public static final char BYTE_ORDER_MARK = '\uFEFF';
 
   private DockerPreprocessor.SourceOffset sourceOffset;
+  private Iterator<Map.Entry<Integer, Comment>> commentMapIterator;
+
+  @Nullable
+  private Map.Entry<Integer, Comment> nextComment;
 
   @Override
   public Object createNonTerminal(GrammarRuleKey ruleKey, Rule rule, List<Object> children, int startIndex, int endIndex) {
@@ -67,6 +75,7 @@ public class DockerNodeBuilder implements NodeBuilder {
   public Object createTerminal(Input input, int startIndex, int endIndex, List<Trivia> trivias, TokenType type) {
     String value = input.substring(startIndex, endIndex);
     TextRange range = tokenRange(input, startIndex, value);
+    // TODO SONARIAC-533: create comment should be replaced with getCommentsForToken
     return new SyntaxTokenImpl(value, range, createComments(trivias));
   }
 
@@ -86,6 +95,29 @@ public class DockerNodeBuilder implements NodeBuilder {
     return (hasByteOrderMark ? (column - 1) : column) - 1;
   }
 
+  /**
+   * Comments are removed form the code in the preprocessing to handle escaped line breaks and inline comments correctly.
+   * The stored comments are restored from the {@link PreprocessorResult} and added to the SyntaxToken during the parsing.
+   */
+  List<Comment> getCommentsForToken(TextRange tokenRange) {
+    List<Comment> comments = new ArrayList<>();
+    while (nextComment != null && isAllocatableComment(nextComment.getKey(), tokenRange)) {
+      comments.add(nextComment.getValue());
+      nextComment = commentMapIterator.hasNext() ? commentMapIterator.next() : null;
+    }
+    return comments;
+  }
+
+  /**
+   * A comment is allocatable to a token when:
+   * a. the comment line is before the token start line
+   * b. the comment line is before the token end line which means the comment is an inline comment
+   */
+  private static boolean isAllocatableComment(int commentLine, TextRange tokenRange) {
+    return commentLine < tokenRange.end().line();
+  }
+
+  // TODO SONARIAC-533: Can be removed because it will be obsolete when comment processing is handled by the Preprocessor
   private static List<Comment> createComments(List<Trivia> trivias) {
     List<Comment> result = new ArrayList<>();
     for (Trivia trivia : trivias) {
@@ -98,7 +130,11 @@ public class DockerNodeBuilder implements NodeBuilder {
     return result;
   }
 
-  public void setSourceOffset(DockerPreprocessor.SourceOffset sourceOffset) {
-    this.sourceOffset = sourceOffset;
+  public void setPreprocessorResult(PreprocessorResult preprocessorResult) {
+    sourceOffset = preprocessorResult.sourceOffset();
+    commentMapIterator = preprocessorResult.commentMap().entrySet().iterator();
+    if (commentMapIterator.hasNext()) {
+      nextComment = commentMapIterator.next();
+    }
   }
 }
