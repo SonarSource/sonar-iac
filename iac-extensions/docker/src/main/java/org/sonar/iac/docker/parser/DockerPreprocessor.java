@@ -20,18 +20,19 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Input;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.sonar.iac.common.api.tree.Comment;
 
 import static org.sonar.iac.common.parser.grammar.LexicalConstant.WHITESPACE;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalConstant.EOL;
 
 public class DockerPreprocessor {
-
-  private SourceOffset sourceOffset;
 
   static final String DEFAULT_ESCAPE_CHAR = "\\\\";
   static final String ALTERNATIVE_ESCAPE_CHAR = "`";
@@ -42,7 +43,7 @@ public class DockerPreprocessor {
    * Remove every escaped line break. This results in instructions being represented in one line at a time.
    * Track removed characters to adjust the offset when creating syntax tokens.
    */
-  public String process(String source) {
+  public PreprocessorResult process(String source) {
     Matcher m = matchEscapedLineBreaks(source);
 
     Map<Integer, Integer> shiftedOffsetMap = new LinkedHashMap<>();
@@ -59,8 +60,10 @@ public class DockerPreprocessor {
       shiftedOffsetMap.put(m.end() - shiftedIndex, shiftedIndex);
     }
 
-    sourceOffset = new SourceOffset(source, shiftedOffsetMap);
-    return sb.toString();
+    String processedSourceCode = sb.toString();
+    SourceOffset sourceOffset = new SourceOffset(source, shiftedOffsetMap);
+    // TODO SONARIAC-533: Provide a Map of removed comments
+    return new PreprocessorResult(processedSourceCode, sourceOffset, Collections.emptySortedMap());
   }
 
   private static Matcher matchEscapedLineBreaks(String source) {
@@ -71,10 +74,6 @@ public class DockerPreprocessor {
 
   static String determineEscapeCharacter(String source) {
     return ALTERNATIVE_ESCAPE_CHAR_PATTERN.matcher(source).find() ? ALTERNATIVE_ESCAPE_CHAR : DEFAULT_ESCAPE_CHAR;
-  }
-
-  public SourceOffset sourceOffset() {
-    return sourceOffset;
   }
 
   public static class SourceOffset {
@@ -119,6 +118,31 @@ public class DockerPreprocessor {
       Map.Entry<Integer, Integer> nextOffset = shiftedOffsetIterator.next();
       nextIndexOffset = nextOffset.getKey();
       nextOffsetAdjustment = nextOffset.getValue();
+    }
+  }
+
+  static class PreprocessorResult {
+
+    private final String processedSourceCode;
+    private final SourceOffset sourceOffset;
+    private final SortedMap<Integer, Comment> commentMap;
+
+    public PreprocessorResult(String processedSourceCode, SourceOffset sourceOffset, SortedMap<Integer, Comment> commentMap) {
+      this.processedSourceCode = processedSourceCode;
+      this.sourceOffset = sourceOffset;
+      this.commentMap = commentMap;
+    }
+
+    public String processedSourceCode() {
+      return processedSourceCode;
+    }
+
+    public SourceOffset sourceOffset() {
+      return sourceOffset;
+    }
+
+    public SortedMap<Integer, Comment> commentMap() {
+      return commentMap;
     }
   }
 }

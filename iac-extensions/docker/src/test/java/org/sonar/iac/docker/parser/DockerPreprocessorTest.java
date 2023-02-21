@@ -45,41 +45,40 @@ class DockerPreprocessorTest {
     "'foobar\\\n'"
   })
   void processSingleEscapedLinebreak(String input) {
-    String output = preprocessor.process(input);
+    String output = preprocessor.process(input).processedSourceCode();
     assertThat(output).isEqualTo("foobar");
   }
 
   @Test
   void processAlternativeEscapedLinebreak() {
-    String output = preprocessor.process("# escape=`\nfoo`\nbar");
+    String output = preprocessor.process("# escape=`\nfoo`\nbar").processedSourceCode();
     assertThat(output).isEqualTo("# escape=`\nfoobar");
   }
 
   @Test
   void processNoEscapedLinebreak() {
     String input = "foo\nbar";
-    String output = preprocessor.process(input);
+    String output = preprocessor.process(input).processedSourceCode();
     assertThat(output).isEqualTo(input);
   }
 
   @Test
   void processNoLinebreak() {
     String input = "foo bar";
-    String output = preprocessor.process(input);
+    String output = preprocessor.process(input).processedSourceCode();
     assertThat(output).isEqualTo(input);
   }
 
   @Test
   void processMultipleEscapedLinebreaks() {
     String input = "foo\\\nbar\\\npong";
-    String output = preprocessor.process(input);
+    String output = preprocessor.process(input).processedSourceCode();
     assertThat(output).isEqualTo("foobarpong");
   }
 
   @Test
   void sourceLineAndColumnWithOneEscapedLinebreak() {
-    preprocessor.process("foo\\\nbar");
-    DockerPreprocessor.SourceOffset sourceOffset = preprocessor.sourceOffset();
+    DockerPreprocessor.SourceOffset sourceOffset = preprocessor.process("foo\\\nbar").sourceOffset();
     assertThat(sourceOffset.sourceLineAndColumnAt(2)).isEqualTo(new int[] {1,3});
     assertThat(sourceOffset.sourceLineAndColumnAt(3)).isEqualTo(new int[] {2,1});
   }
