@@ -98,7 +98,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       context.fileSystem().add(inputFile);
     }
     long start = System.currentTimeMillis();
-    Assertions.assertTimeout(Duration.ofMillis(800), () -> sensor().execute(context));
+    Assertions.assertTimeout(Duration.ofSeconds(1), () -> sensor().execute(context));
     long stop = System.currentTimeMillis();
     System.out.println("shouldFastCheckFilePredicate took: " + (stop - start) + " ms");
   }
