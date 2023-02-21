@@ -25,9 +25,9 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.parser.grammar.DockerGrammar;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class DockerParser extends ActionParser<DockerTree> implements TreeParser<Tree> {

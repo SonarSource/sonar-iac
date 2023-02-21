@@ -53,8 +53,8 @@ class DockerHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  @Disabled("Will be fixed with SONARIAC-533")
-  // TODO SONARIAC-533
+  @Disabled("Will be fixed with SONARIAC-606")
+  // TODO SONARIAC-606
   void comment_inside_instruction() {
     highlight(code("FROM \\",
       "# Comment",

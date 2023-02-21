@@ -19,9 +19,11 @@
  */
 package org.sonar.iac.docker.parser;
 
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.sonar.iac.common.api.tree.Comment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,7 +54,7 @@ class DockerPreprocessorTest {
   @Test
   void processAlternativeEscapedLinebreak() {
     String output = preprocessor.process("# escape=`\nfoo`\nbar").processedSourceCode();
-    assertThat(output).isEqualTo("# escape=`\nfoobar");
+    assertThat(output).isEqualTo("foobar");
   }
 
   @Test
@@ -74,6 +76,30 @@ class DockerPreprocessorTest {
     String input = "foo\\\nbar\\\npong";
     String output = preprocessor.process(input).processedSourceCode();
     assertThat(output).isEqualTo("foobarpong");
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "'RUN test\\\n# my comment\npong',                                              3, 1",
+    "'RUN test\\\n     \npong',                                                     3, 1",
+    "'RUN test\\\n# simple comment\n     \n\n  # comment with spaces before\npong', 6, 1"
+  })
+  void processRunCommandWithInlineCommentAndEmptyLines(String input, int line, int column) {
+    DockerPreprocessor.PreprocessorResult result = preprocessor.process(input);
+    assertThat(result.processedSourceCode()).isEqualTo("RUN testpong");
+    DockerPreprocessor.SourceOffset sourceOffset = result.sourceOffset();
+    assertThat(sourceOffset.sourceLineAndColumnAt(7)).isEqualTo(new int[] {1, 8});
+    assertThat(sourceOffset.sourceLineAndColumnAt(8)).isEqualTo(new int[] {line, column});
+  }
+
+  @Test
+  void getInlineComment() {
+    DockerPreprocessor.PreprocessorResult result = preprocessor.process("RUN test\\\n# my comment\npong");
+    assertThat(result.processedSourceCode()).isEqualTo("RUN testpong");
+    Map<Integer, Comment> commentMap = result.commentMap();
+    assertThat(commentMap).hasSize(1);
+    assertThat(commentMap.keySet()).containsExactly(2);
+    assertThat(commentMap.get(2).value()).isEqualTo("# my comment");
   }
 
   @Test

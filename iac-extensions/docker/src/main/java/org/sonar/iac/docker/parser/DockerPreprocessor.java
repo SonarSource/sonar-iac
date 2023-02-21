@@ -20,56 +20,95 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Input;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.CommentImpl;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.sonar.iac.common.parser.grammar.LexicalConstant.WHITESPACE;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalConstant.EOL;
 
 public class DockerPreprocessor {
 
+  private static final String NOT_EOL_CHARS = "[^\\n\\r\\u2028\\u2029]";
+  private static final String COMMENT = "(#" + NOT_EOL_CHARS + "*+)";
+  private static final String INLINE_COMMENT_OR_EMPTY_LINE = "(?<!" + NOT_EOL_CHARS + ")(?<inlineCommentOrEmptyLine>(?:[" + WHITESPACE + "]*+" + COMMENT + "?(?:" + EOL + "|$))*)";
+  private static final String COMMENT_LINE = "(?<!" + NOT_EOL_CHARS + ")(?<commentLine>(?:[" + WHITESPACE + "]*+" + COMMENT + "(?:" + EOL + "|$)))";
+
   static final String DEFAULT_ESCAPE_CHAR = "\\\\";
   static final String ALTERNATIVE_ESCAPE_CHAR = "`";
   private static final String ALTERNATIVE_ESCAPE_CHAR_DIRECTIVE = "#\\s*+escape\\s*+=\\s*+" + ALTERNATIVE_ESCAPE_CHAR;
   private static final Pattern ALTERNATIVE_ESCAPE_CHAR_PATTERN = Pattern.compile("^(#[^" + EOL + "]*+" + EOL + "|\\s)*" + ALTERNATIVE_ESCAPE_CHAR_DIRECTIVE);
+  private static final Pattern COMMENT_PATTERN = Pattern.compile(COMMENT);
+
+  private static final Set<String> COMMENT_TYPES = Set.of("commentLine", "inlineCommentOrEmptyLine");
 
   /**
    * Remove every escaped line break. This results in instructions being represented in one line at a time.
    * Track removed characters to adjust the offset when creating syntax tokens.
    */
   public PreprocessorResult process(String source) {
-    Matcher m = matchEscapedLineBreaks(source);
-
-    Map<Integer, Integer> shiftedOffsetMap = new LinkedHashMap<>();
+    Input input = new Input(source.toCharArray());
+    SortedMap<Integer, Integer> shiftedOffsetMap = new TreeMap<>();
+    SortedMap<Integer, Comment> comments = new TreeMap<>();
     StringBuilder sb = new StringBuilder(source);
+
     int shiftedIndex = 0;
 
+    Matcher m = matchRemovableSequences(source);
     while (m.find()) {
+      // Remove sequence from source code
       int startIndex = m.start() - shiftedIndex;
-      int linebreakLength = m.end() - m.start();
-      for (int i = 0; i < linebreakLength; i++) {
-        sb.deleteCharAt(startIndex);
-        shiftedIndex++;
-      }
+      int removableLength = m.end() - m.start();
+      sb.delete(startIndex, startIndex + removableLength);
+      shiftedIndex += removableLength;
+
+      // Process comments
+      COMMENT_TYPES.forEach(type -> extractComments(input, m, comments, type));
+
+      // Update offset map
       shiftedOffsetMap.put(m.end() - shiftedIndex, shiftedIndex);
     }
 
-    String processedSourceCode = sb.toString();
-    SourceOffset sourceOffset = new SourceOffset(source, shiftedOffsetMap);
-    // TODO SONARIAC-533: Provide a Map of removed comments
-    return new PreprocessorResult(processedSourceCode, sourceOffset, Collections.emptySortedMap());
+    SourceOffset sourceOffset = new SourceOffset(input, shiftedOffsetMap);
+    return new PreprocessorResult(sb.toString(), sourceOffset, comments);
   }
 
-  private static Matcher matchEscapedLineBreaks(String source) {
+  private static void extractComments(Input input, Matcher sourceMatcher, SortedMap<Integer, Comment> commentMap, String commentType) {
+    String commentLine = sourceMatcher.group(commentType);
+    if (commentLine != null) {
+      Matcher commentMatcher = COMMENT_PATTERN.matcher(commentLine);
+      while (commentMatcher.find()) {
+        int[] lineAndColumn = input.lineAndColumnAt(sourceMatcher.start(commentType) + commentMatcher.start());
+        Comment comment = buildComment(commentMatcher.group(), lineAndColumn[0], lineAndColumn[1] - 1);
+        commentMap.put(lineAndColumn[0], comment);
+      }
+    }
+  }
+
+  private static Comment buildComment(String value, int line, int column) {
+    TextRange range = TextRanges.range(line, column, value);
+    String contentText = value.length() > 1 ? value.substring(1).trim() : "";
+    return new CommentImpl(value, contentText, range);
+  }
+
+
+  private static Matcher matchRemovableSequences(String source) {
     String escapeCharacter = determineEscapeCharacter(source);
-    String escapedLineBreakPattern = "(?<!escape=)" + escapeCharacter + "[" + WHITESPACE + "]*+" + EOL;
-    return Pattern.compile(escapedLineBreakPattern).matcher(source);
+
+    String escapedLineBreaks = "(?<escapedLineBreaks>(?<!escape=)" + escapeCharacter + "[" + WHITESPACE + "]*+" + EOL +  ")";
+    String multiLineInstruction = escapedLineBreaks + INLINE_COMMENT_OR_EMPTY_LINE;
+
+    String pattern = "(?:" + multiLineInstruction + "|" + COMMENT_LINE + ")";
+
+    return Pattern.compile(pattern).matcher(source);
   }
 
   static String determineEscapeCharacter(String source) {
@@ -85,8 +124,8 @@ public class DockerPreprocessor {
     private int nextOffsetAdjustment = 0;
     private int nextIndexOffset = 0;
 
-    public SourceOffset(String source, Map<Integer, Integer> shiftedOffsetMap) {
-      input = new Input(source.toCharArray());
+    public SourceOffset(Input input, SortedMap<Integer, Integer> shiftedOffsetMap) {
+      this.input = input;
       shiftedOffsetIterator = shiftedOffsetMap.entrySet().iterator();
       if (shiftedOffsetIterator.hasNext()) {
         moveToNextOffset();

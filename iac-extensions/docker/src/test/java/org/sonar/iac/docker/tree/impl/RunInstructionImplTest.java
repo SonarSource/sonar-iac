@@ -20,10 +20,14 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
+import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
@@ -297,5 +301,105 @@ class RunInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).hasSize(1);
     assertThat(((LiteralImpl)tree.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "RUN executable    \\\n# my comment\nparameters",
+    "RUN executable  \\\n# my comment\n  parameters",
+    "RUN executable  \\\n# com\n  \n  parameters",
+    "RUN executable  \\\n# com\n  \n# com\n  parameters"
+  })
+  void shouldHaveInlineCommentAttachedToInaccessibleWhitespace(String toParse) {
+    RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
+
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.arguments()).hasSize(2);
+    assertArgumentsValue(tree.arguments(), "executable", "parameters");
+
+    // Comments are associated to the whitespace which are not accessible from the tree because they are ignored/not stored on the grammar
+    SyntaxTokenImpl syntaxToken1 = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree.arguments().get(0), SyntaxTokenImpl.class::isInstance).get();
+    assertThat(syntaxToken1.value()).isEqualTo("executable");
+    assertThat(syntaxToken1.comments()).isEmpty();
+    SyntaxTokenImpl syntaxToken2 = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree.arguments().get(1), SyntaxTokenImpl.class::isInstance).get();
+    assertThat(syntaxToken2.value()).isEqualTo("parameters");
+    assertThat(syntaxToken2.comments()).isEmpty();
+  }
+
+  @Test
+  void shouldHaveInlineCommentAttachedToPreviousToken() {
+    String toParse = "RUN executable\\\n" +
+      "# my comment\n" +
+      "     parameters";
+    RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
+    assertTextRange(tree.textRange()).hasRange(1,0,3,15);
+
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.arguments()).hasSize(2);
+    assertArgumentsValue(tree.arguments(), "executable", "parameters");
+
+    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree.arguments().get(0), SyntaxTokenImpl.class::isInstance).get();
+    assertThat(syntaxToken.value()).isEqualTo("executable");
+
+    assertThat(syntaxToken.comments()).hasSize(1);
+    Comment comment = syntaxToken.comments().get(0);
+    assertThat(comment.value()).isEqualTo("# my comment");
+    assertThat(comment.contentText()).isEqualTo("my comment");
+    assertTextRange(comment.textRange()).hasRange(2,0,2,12);
+  }
+
+  @Test
+  void shouldHaveInlineCommentAttachedToMergedTokens() {
+    String toParse = "RUN executable\\\n" +
+      "# my comment\n" +
+      "parameters";
+    RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
+    assertTextRange(tree.textRange()).hasRange(1,0,3,10);
+
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.arguments()).hasSize(1);
+    assertArgumentsValue(tree.arguments(), "executableparameters");
+
+    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
+    assertThat(syntaxToken.value()).isEqualTo("executableparameters");
+    assertThat(syntaxToken.comments())
+      .hasSize(1)
+      .extracting("value").containsExactly("# my comment");
+  }
+
+  @Test
+  void shouldHaveInlineCommentAttachedToMergedTokensMultipleComment() {
+    String toParse = "RUN executable\\\n" +
+      "# my comment 1\n" +
+      "    # my comment 2\n" +
+      "parameters";
+    RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
+    assertTextRange(tree.textRange()).hasRange(1,0,4,10);
+
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.arguments()).hasSize(1);
+    assertArgumentsValue(tree.arguments(), "executableparameters");
+
+    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
+    assertThat(syntaxToken.value()).isEqualTo("executableparameters");
+    assertThat(syntaxToken.comments())
+      .hasSize(2)
+      .extracting("value").containsExactly("# my comment 1", "# my comment 2");
+  }
+
+  @Test
+  void endOfFileAfterInlineComment() {
+    String toParse = "RUN executable\\\n" +
+      "# my comment";
+    RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
+    assertTextRange(tree.textRange()).hasRange(1,0,2,12);
+
+    assertThat(tree.keyword().value()).isEqualTo("RUN");
+    assertThat(tree.arguments()).hasSize(1);
+    assertArgumentsValue(tree.arguments(), "executable");
+
+    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
+    assertThat(syntaxToken.value()).isEqualTo("executable");
+    assertThat(syntaxToken.comments()).isEmpty();
   }
 }
