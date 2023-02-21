@@ -37,6 +37,7 @@ import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class ArgumentUtilsTest {
@@ -116,6 +117,20 @@ class ArgumentUtilsTest {
     Argument argument = new ArgumentImpl(Collections.singletonList(unknownExpression));
 
     assertThat(ArgumentUtils.resolve(argument).value()).isNull();
+  }
+
+  // SONARIAC-601
+  @Test
+  void shouldNotDeadLoopWhenResolvingSelfAssignedVariable() {
+    File file = parseFileAndAnalyzeSymbols(code(
+      "FROM foo",
+      "ARG FOO=${FOO}",
+      "LABEL MY_LABEL=${FOO}"
+    ));
+
+    Argument label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0).value();
+    assertThat(label).isNotNull();
+    assertThat(ArgumentUtils.resolve(label).value()).isNull();
   }
 
   private File parseFileAndAnalyzeSymbols(String input) {
