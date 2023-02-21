@@ -56,6 +56,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -139,6 +140,22 @@ class IacSensorTest extends AbstractSensorTest {
 
     Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();
     assertThat(analysisErrors).hasSize(1);
+  }
+
+  @Test
+  void test_parsing_error_should_interrupt_analysis_when_fail_fast_enabled() {
+    IacSensor sensor = sensor(checkFactory());
+
+    MapSettings settings = new MapSettings();
+    settings
+      .setProperty(getActivationSettingKey(), true)
+      .setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+
+    InputFile inputFile = inputFile("file1.iac", "\n{}");
+    assertThatThrownBy(() -> analyse(sensor, inputFile))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Exception when analyzing 'file1.iac'");
   }
 
   @Test
@@ -266,6 +283,33 @@ class IacSensorTest extends AbstractSensorTest {
     AnalysisError analysisError = analysisErrors.iterator().next();
     assertThat(analysisError.inputFile()).isEqualTo(inputFile);
     assertThat(logTester.logs()).contains("Cannot analyse 'file1.iac': Crash");
+  }
+
+  @Test
+  void failure_in_check_stops_analysis_with_fail_fast_enabled() {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks checks = mock(Checks.class);
+    IacCheck failingCheck = init ->
+      init.register(Tree.class, (ctx, tree) -> {
+        throw new IllegalStateException("Crash");
+      });
+    when(checks.ruleKey(failingCheck)).thenReturn(RuleKey.of(repositoryKey(), "failing"));
+    when(checkFactory.create(repositoryKey())).thenReturn(checks);
+    when(checks.all()).thenReturn(Collections.singletonList(failingCheck));
+    testParser = (source, inputFileContext) -> new TestTree();
+
+    InputFile inputFile = inputFile("file1.iac", "foo");
+    IacSensor sensor = sensor(checkFactory);
+
+    MapSettings settings = new MapSettings();
+    settings
+      .setProperty(getActivationSettingKey(), true)
+      .setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+
+    assertThatThrownBy(() -> analyse(sensor, inputFile))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Exception when analyzing 'file1.iac'");
   }
 
   @Test
