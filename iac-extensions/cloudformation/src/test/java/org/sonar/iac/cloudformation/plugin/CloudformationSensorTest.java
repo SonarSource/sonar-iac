@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
+import java.time.Duration;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -75,6 +77,19 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     assertThat(context.allIssues()).hasSize(1);
   }
 
+  @Test
+  void shouldFastCheckFilePredicate() {
+    String content = generateBigJson();
+    for (int i = 0; i < 10; i++) {
+      InputFile inputFile = inputFile("temp" + i + ".json", content);
+      context.fileSystem().add(inputFile);
+    }
+    long start = System.currentTimeMillis();
+    Assertions.assertTimeout(Duration.ofMillis(800), () -> sensor().execute(context));
+    long stop = System.currentTimeMillis();
+    System.out.println("shouldFastCheckFilePredicate took: " + (stop - start) + " ms");
+  }
+
   private CloudformationSensor sensor(String... rules) {
     return sensor(checkFactory(rules));
   }
@@ -112,5 +127,18 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFile("comment.yaml", "# Some Comment");
+  }
+
+  private String generateBigJson() {
+    StringBuilder sb = new StringBuilder("{\"elements\":[");
+    for (int i = 0; i < 500000; i++) {
+      sb.append("\"lastName\": \"last name\", \"firstName\": \"first name\", \"streetAddress\": \"street address\", ")
+        .append("\"email\": \"email\", \"index\": \"")
+        .append(i)
+        .append("\"},");
+    }
+    sb.deleteCharAt(sb.length() - 1);
+    sb.append("]}");
+    return sb.toString();
   }
 }
