@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.Rule;
-import com.sonar.sslr.api.Token;
 import com.sonar.sslr.api.TokenType;
 import com.sonar.sslr.api.Trivia;
 import com.sonar.sslr.api.typed.Input;
@@ -33,7 +32,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.parser.DockerPreprocessor.PreprocessorResult;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -75,8 +73,7 @@ public class DockerNodeBuilder implements NodeBuilder {
   public Object createTerminal(Input input, int startIndex, int endIndex, List<Trivia> trivias, TokenType type) {
     String value = input.substring(startIndex, endIndex);
     TextRange range = tokenRange(input, startIndex, value);
-    // TODO SONARIAC-533: create comment should be replaced with getCommentsForToken
-    return new SyntaxTokenImpl(value, range, createComments(trivias));
+    return new SyntaxTokenImpl(value, range, getCommentsForToken(range));
   }
 
   private TextRange tokenRange(Input input, int startIndex, String value) {
@@ -115,19 +112,6 @@ public class DockerNodeBuilder implements NodeBuilder {
    */
   private static boolean isAllocatableComment(int commentLine, TextRange tokenRange) {
     return commentLine < tokenRange.end().line();
-  }
-
-  // TODO SONARIAC-533: Can be removed because it will be obsolete when comment processing is handled by the Preprocessor
-  private static List<Comment> createComments(List<Trivia> trivias) {
-    List<Comment> result = new ArrayList<>();
-    for (Trivia trivia : trivias) {
-      Token triviaToken = trivia.getToken();
-      String text = triviaToken.getValue();
-      TextRange range = TextRanges.range(triviaToken.getLine(), triviaToken.getColumn(), text);
-      String contentText = text.length() > 1 ? text.substring(1).trim() : "";
-      result.add(new CommentImpl(text, contentText, range));
-    }
-    return result;
   }
 
   public void setPreprocessorResult(PreprocessorResult preprocessorResult) {

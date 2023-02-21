@@ -39,8 +39,8 @@ import static org.sonar.iac.docker.parser.grammar.DockerLexicalConstant.EOL;
 public class DockerPreprocessor {
 
   public static final String COMMENT = "(#[^\\n\\r]*+)";
-  public static final String INLINE_COMMENT_OR_EMPTY_LINE = "(?<inlineCommentOrEmptyLine>(?:[" + WHITESPACE + "]*+" + COMMENT + "?(?:" + EOL + "|$))*)";
-  public static final String COMMENT_LINE = "(?<commentLine>(?:[" + WHITESPACE + "]*+" + COMMENT + "(?:" + EOL + "|$)))";
+  public static final String INLINE_COMMENT_OR_EMPTY_LINE = "(?<![^\\n\\r])(?<inlineCommentOrEmptyLine>(?:[" + WHITESPACE + "]*+" + COMMENT + "?(?:" + EOL + "|$))*)";
+  public static final String COMMENT_LINE = "(?<![^\\n\\r])(?<commentLine>(?:[" + WHITESPACE + "]*+" + COMMENT + "(?:" + EOL + "|$)))";
 
   static final String DEFAULT_ESCAPE_CHAR = "\\\\";
   static final String ALTERNATIVE_ESCAPE_CHAR = "`";
@@ -83,20 +83,20 @@ public class DockerPreprocessor {
 
   private static void extractComments(Input input, Matcher soureMatcher, SortedMap<Integer, Comment> commentMap, String commentType) {
     String commentLine = soureMatcher.group(commentType);
-    if (!commentLine.isEmpty()) {
+    if (commentLine != null) {
       Matcher commentMatcher = COMMENT_PATTERN.matcher(commentLine);
       while (commentMatcher.find()) {
         int[] lineAndColumn = input.lineAndColumnAt(soureMatcher.start(commentType) + commentMatcher.start());
-        Comment comment = buildComment(commentMatcher.group(), lineAndColumn[0], lineAndColumn[1]);
+        Comment comment = buildComment(commentMatcher.group(), lineAndColumn[0], lineAndColumn[1] - 1);
         commentMap.put(lineAndColumn[0], comment);
       }
     }
   }
 
-  private static Comment buildComment(String text, int line, int column) {
-    TextRange range = TextRanges.range(line, column, text);
-    String contentText = text.length() > 1 ? text.substring(1).trim() : "";
-    return new CommentImpl(text, contentText, range);
+  private static Comment buildComment(String value, int line, int column) {
+    TextRange range = TextRanges.range(line, column, value);
+    String contentText = value.length() > 1 ? value.substring(1).trim() : "";
+    return new CommentImpl(value, contentText, range);
   }
 
 

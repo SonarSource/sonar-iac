@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.docker.TestUtils;
@@ -55,8 +54,6 @@ class InstructionImplTest {
   }
 
   @Test
-  @Disabled("Will be fixed with SONARIAC-533")
-  // TODO SONARIAC-533
   void commentInMultilineInstruction() {
     String code = code(
       "FROM foo \\",
