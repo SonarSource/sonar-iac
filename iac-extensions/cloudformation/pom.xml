@@ -33,6 +33,12 @@
 
     <!-- unit tests -->
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-iac-common</artifactId>
+      <classifier>tests</classifier>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
