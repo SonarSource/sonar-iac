@@ -22,6 +22,7 @@ package org.sonar.iac.kubernetes.plugin;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -58,6 +59,8 @@ public class KubernetesSensor extends YamlSensor {
 
   static class KubernetesFilePredicate implements FilePredicate {
 
+    private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
+
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
     private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata", "spec");
     private static final Logger LOG = Loggers.get(KubernetesFilePredicate.class);
@@ -74,7 +77,7 @@ public class KubernetesSensor extends YamlSensor {
         // Only firs 8k bytes is read to avoid slow execution for big one-line files
         byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
         String text = new String(bytes, inputFile.charset());
-        String[] lines = text.split("\n");
+        String[] lines = LINE_TERMINATOR.split(text);
         for (String line : lines) {
           if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
             identifierCount++;

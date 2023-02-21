@@ -21,6 +21,7 @@ package org.sonar.iac.cloudformation.plugin;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.regex.Pattern;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -81,6 +82,8 @@ public class CloudformationSensor extends YamlSensor {
 
   private static class FileIdentificationPredicate implements FilePredicate {
     private static final Logger LOG = Loggers.get(FileIdentificationPredicate.class);
+    private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
+
     private final String fileIdentifier;
 
     public FileIdentificationPredicate(String fileIdentifier) {
@@ -101,7 +104,7 @@ public class CloudformationSensor extends YamlSensor {
         // Only firs 8k bytes is read to avoid slow execution for big one-line files
         byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
         String text = new String(bytes, inputFile.charset());
-        String[] lines = text.split("\n");
+        String[] lines = LINE_TERMINATOR.split(text);
         for (String line : lines) {
           if (line.contains(fileIdentifier)) {
             return true;
