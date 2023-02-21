@@ -27,7 +27,7 @@
 23,
 ],
 'docker-project:sources/docker/aspnet-monitoring/prometheus/Dockerfile.ltsc2019':[
-2,
+25,
 ],
 'docker-project:sources/docker/aspnet-monitoring/website/Dockerfile':[
 15,
@@ -84,9 +84,6 @@
 1,
 ],
 'docker-project:sources/docker/awesome-compose/nginx-nodejs-redis/web/Dockerfile':[
-1,
-],
-'docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/nginx/Dockerfile':[
 1,
 ],
 'docker-project:sources/docker/awesome-compose/react-express-mongodb/backend/Dockerfile':[

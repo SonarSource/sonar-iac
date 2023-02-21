@@ -59,8 +59,8 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
   }
 
   @Test
-  @Disabled("Will be fixed with SONARIAC-533")
-  // TODO SONARIAC-533
+  @Disabled("Will be fixed with SONARIAC-606")
+  // TODO SONARIAC-606
   void commentLines() {
     scan(code(
       "# comment 1",

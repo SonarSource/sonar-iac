@@ -54,7 +54,7 @@ class DockerPreprocessorTest {
   @Test
   void processAlternativeEscapedLinebreak() {
     String output = preprocessor.process("# escape=`\nfoo`\nbar").processedSourceCode();
-    assertThat(output).isEqualTo("# escape=`\nfoobar");
+    assertThat(output).isEqualTo("foobar");
   }
 
   @Test

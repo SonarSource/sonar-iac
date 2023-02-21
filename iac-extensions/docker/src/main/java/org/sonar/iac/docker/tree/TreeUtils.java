@@ -42,17 +42,4 @@ public class TreeUtils {
     }
     return Optional.ofNullable(last);
   }
-
-  public static Optional<Tree> getFirstChildAfterLine(Tree tree, Predicate<Tree> predicate, int line) {
-    for (Tree child : tree.children()) {
-      if (child.textRange().start().line() > line || (child.textRange().end().line() > line && child.textRange().end().lineOffset() > 0)) {
-        if (predicate.test(child)) {
-          return Optional.of(child);
-        } else {
-          return getFirstChildAfterLine(child, predicate, line);
-        }
-      }
-    }
-    return Optional.empty();
-  }
 }
