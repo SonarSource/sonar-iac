@@ -161,8 +161,6 @@ public abstract class IacSensor implements Sensor {
         } catch (ParseException e) {
           logParsingError(inputFile, e);
           inputFileContext.reportParseError(repositoryKey(), e.getPosition());
-
-          interruptOnFailFast(inputFileContext.sensorContext, inputFile, e);
         }
         progressReport.nextFile();
       }
