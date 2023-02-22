@@ -7,6 +7,7 @@
     "constantCost": "60min"
   },
   "tags": [
+    "docker",
     "cwe"
   ],
   "defaultSeverity": "Major",
@@ -15,7 +16,7 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      284
+      653
     ],
     "PCI DSS 3.2": [
       "6.5.8"
