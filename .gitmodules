@@ -37,3 +37,6 @@
 [submodule "its/sources/docker/aspnet-monitoring"]
 	path = its/sources/docker/aspnet-monitoring
 	url = https://github.com/dockersamples/aspnet-monitoring.git
+[submodule "its/sources/docker/public-dockerfiles"]
+	path = its/sources/docker/public-dockerfiles
+	url = git@github.com:SonarSource/public-dockerfiles.git
