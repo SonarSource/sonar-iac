@@ -1,4 +1,10 @@
 {
+'docker-project:sources/docker/docker-containers/alpine3.7_py3.5.5_analytics/Dockerfile':[
+125,
+],
+'docker-project:sources/docker/docker-containers/dockeransible/Dockerfile':[
+17,
+],
 'docker-project:sources/docker/dockerfile-examples/jenkins/Dockerfile':[
 5,
 7,

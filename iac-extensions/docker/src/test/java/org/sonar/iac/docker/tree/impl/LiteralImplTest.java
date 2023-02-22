@@ -54,6 +54,9 @@ class LiteralImplTest {
       .matches("foo}")
       .matches("$")
       .matches("$(foo)")
+      .matches("\"{\"")
+      .matches("\"$\"")
+      .matches("\"#{\"")
 
       .notMatches("\"\"\"")
       .notMatches("\"\\\"")
