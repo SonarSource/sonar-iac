@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -53,6 +52,9 @@ class LiteralImplTest {
       .matches("ab=cd")
       .matches("ke\\\"y")
       .matches("foo}")
+      .matches("\"{\"")
+      .matches("\"$\"")
+      .matches("\"#{\"")
 
       .notMatches("\"\"\"")
       .notMatches("\"\\\"")

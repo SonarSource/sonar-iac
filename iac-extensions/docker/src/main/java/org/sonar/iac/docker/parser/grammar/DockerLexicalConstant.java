@@ -51,7 +51,7 @@ public class DockerLexicalConstant {
    */
   private static final String PERMITTED_EMBEDDED_DOLAR = "(?:\\$(?!\\{|" + VAR_IDENTIFIER_START + "))";
 
-  private static final String NON_SPECIAL_CHARACTERS = "(?:[^\"\\\\$\\{])";
+  private static final String NON_SPECIAL_CHARACTERS = "(?:[^\"\\\\$]|(?<!$)\\{)";
 
   // TODO: Handle custom escaping for escaped characters in strings
   private static final String ESCAPED_CHARACTER_OR_STANDALONE_BACKSLASH = "(?:\\\\[\\s\\S]?)";
