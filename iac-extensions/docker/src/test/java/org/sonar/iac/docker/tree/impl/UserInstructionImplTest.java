@@ -55,10 +55,11 @@ class UserInstructionImplTest {
       .matches("USER $var with space")
       .matches("USER bob:group bob2")
       .matches("USER bob:group:something")
+      .matches("USER dollar$")
+      .matches("USER $(var)")
+
       .notMatches("USER ${var with space}")
       .notMatches("USER $user:${group with space}")
-      .notMatches("USER dollar$")
-      .notMatches("USER $(var)")
       .notMatches("USER")
       .notMatches("USERR bob")
       .notMatches("USER ")
