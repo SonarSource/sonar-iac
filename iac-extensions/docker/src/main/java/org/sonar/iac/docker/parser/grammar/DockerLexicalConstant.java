@@ -70,7 +70,7 @@ public class DockerLexicalConstant {
   public static final String ESCAPED_UNQUOTED_STRING_CHARACTERS = "\\\\$|\\\\'|\\\\\"";
 
   public static final String UNQUOTED_STRING_LITERAL = "(?:"
-    + "(?:" + ESCAPED_UNQUOTED_STRING_CHARACTERS + "|[^\\s'\"$])++"
+    + "(?:" + ESCAPED_UNQUOTED_STRING_CHARACTERS + "|[^\\s'\"\\$]|\\$(?![a-zA-Z_0-9{]))++"
     + ")";
 
   public static final String UNQUOTED_VARIABLE_MODIFIER = "(?:"

@@ -2,7 +2,4 @@
 'docker-project:ruling/src/test/resources/sources/docker/parsingError/Dockerfile':[
 1,
 ],
-'docker-project:sources/docker/dockerfile-examples/ubuntu/Dockerfile':[
-14,
-],
 }
