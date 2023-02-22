@@ -1,11 +1,12 @@
-<p>Using ENV to handle secrets can lead to sensitive information being disclosed to an inappropriate sphere.</p>
-<p>The <code>ENV</code> commands in a Dockerfile are used to configure the container environment. The variables set that way can be used at image
-build time, during the execution of commands in the container, or at run time.</p>
-<p>In most cases, environment variables are used to propagate configuration items from the host to the container. A typical example is the
-<code>PATH</code> variable, used to configure where system executables are searched for.</p>
-<p>Using <code>ENV</code> to propagate configuration entries that contain secrets causes a security risk. Indeed, in most cases, artifacts of those
-values are kept in the final container image and, thus, disclosed to its users. The secret information leak can happen either in the container
-environment itself, the image metadata or the build environment logs.</p>
+<p>Using <code>ENV</code> and <code>ARG</code> to handle secrets can lead to sensitive information being disclosed to an inappropriate sphere.</p>
+<p>The <code>ARG</code> and <code>ENV</code> instructions in a Dockerfile are used to configure the image build and the container environment
+respectively. Both can be used at image build time, during the execution of commands in the container, and <code>ENV</code> can also be used at
+runtime.</p>
+<p>In most cases, build-time and environment variables are used to propagate configuration items from the host to the image or container. A typical
+example for an environmental variable is the <code>PATH</code> variable, used to configure where system executables are searched for.</p>
+<p>Using <code>ARG</code> and <code>ENV</code> to propagate configuration entries that contain secrets causes a security risk. Indeed, in most cases,
+artifacts of those values are kept in the final image. The secret information leak can happen either in the container environment itself, the image
+metadata or the build environment logs.</p>
 <p>The concrete impact of such an issue highly depends on the secret’s purpose and the exposure sphere:</p>
 <ul>
   <li> Financial impact if a paid service API key is disclosed and used. </li>
@@ -14,7 +15,7 @@ environment itself, the image metadata or the build environment logs.</p>
 </ul>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The environment variable contains a value that should be kept confidential. </li>
+  <li> The variable contains a value that should be kept confidential. </li>
   <li> The container image or Dockerfile will be distributed to users who do not need to know the secret value. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
@@ -30,6 +31,7 @@ can be used to handle most confidential data.</p>
 <h2>Sensitive Code Example</h2>
 <pre>
 FROM example
+# Sensitive
 ARG ACCESS_TOKEN
 # Sensitive
 ENV ACCESS_TOKEN=${ACCESS_TOKEN}
@@ -58,6 +60,7 @@ docker run --env-file .env myImage
 <h2>See</h2>
 <ul>
   <li> <a href="https://docs.docker.com/engine/reference/builder/#env">Dockerfile reference</a> - ENV command </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#arg">Dockerfile reference</a> - ARG command </li>
   <li> <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN command secrets mount points
   </li>
   <li> <a href="https://docs.docker.com/engine/swarm/secrets/">Docker documentation</a> - Manage sensitive data with Docker secrets </li>

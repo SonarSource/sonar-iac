@@ -1,5 +1,5 @@
 {
-  "title": "Using ENV to handle secrets is security-sensitive",
+  "title": "Using ENV or ARG to handle secrets is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
