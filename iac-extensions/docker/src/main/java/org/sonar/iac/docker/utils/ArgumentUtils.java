@@ -47,6 +47,7 @@ public class ArgumentUtils {
 
   /**
    * Resolve a list of Argument as a single string, used by some instructions like USER.
+   * Will return an empty {@link ArgumentResolution} when it is not possible to resolve the argument expressions.
    */
   public static ArgumentResolution resolveAndMerge(HasArguments hasArguments) {
     StringBuilder sb = new StringBuilder();
@@ -57,7 +58,7 @@ public class ArgumentUtils {
     return new ArgumentResolution(sb.toString());
   }
 
-  public static ArgumentResolution resolve(Argument argument) {
+  public static ArgumentResolution resolve(@Nullable Argument argument) {
     return ArgumentResolver.resolve(argument);
   }
 
@@ -65,7 +66,10 @@ public class ArgumentUtils {
 
     Set<Expression> visitedExpressions = new HashSet<>();
 
-    private static ArgumentResolution resolve(Argument argument) {
+    private static ArgumentResolution resolve(@Nullable Argument argument) {
+      if (argument == null) {
+        return ArgumentResolution.EMPTY;
+      }
       return new ArgumentResolver().resolveExpressions(argument.expressions());
     }
 
