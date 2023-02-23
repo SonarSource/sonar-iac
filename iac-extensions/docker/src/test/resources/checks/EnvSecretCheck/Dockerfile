@@ -48,3 +48,5 @@ ENV FtpMyPassword=AAAA
 
 # FN hard to do a PascalCase split with numbers
 ENV Oauth2Pass=AAAA
+
+ENV API_KEY=
