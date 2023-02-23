@@ -65,7 +65,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       setParents(tree);
       return tree;
     } catch (RecognitionException e) {
-      throw RecognitionExceptionAdjuster.adjustLineAndColumnNumber(e, preprocessorResult);
+      throw RecognitionExceptionAdjuster.adjustLineAndColumnNumber(e, preprocessorResult.processedSourceCode(), preprocessorResult.sourceOffset());
     }
   }
 
@@ -83,31 +83,30 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
   }
 
   static class RecognitionExceptionAdjuster {
-    private static final String LINE_MESSAGE = "Parse error at line ";
-    private static final String COLUMN_MESSAGE = " column ";
-    private static final Pattern RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN = Pattern.compile(LINE_MESSAGE + "(?<line>\\d+)" + COLUMN_MESSAGE + "(?<column>\\d+)(?<rest>.*)");
+    private static final String PARSING_ERROR_MESSAGE = "Parse error at line %d column %d %s";
+    private static final Pattern RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN = Pattern.compile("Parse error at line (?<line>\\d+) column (?<column>\\d+)(?<rest>.*)");
 
     private RecognitionExceptionAdjuster() {}
 
-    public static RecognitionException adjustLineAndColumnNumber(RecognitionException originalException, DockerPreprocessor.PreprocessorResult preprocessorResult) {
+    public static RecognitionException adjustLineAndColumnNumber(RecognitionException originalException, String sourceCode, DockerPreprocessor.SourceOffset sourceOffset) {
       Matcher m = RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN.matcher(originalException.getMessage());
       if (m.find()) {
         int line = Integer.parseInt(m.group("line"));
         int column = Integer.parseInt(m.group("column"));
         String rest = m.group("rest");
-        int index = computeIndexFromLineAndColumn(preprocessorResult.processedSourceCode(), line, column);
-        int[] correctedLineAndColumn = preprocessorResult.sourceOffset().sourceLineAndColumnAt(index);
-        String newErrorMessage = buildNewErrorMessage(correctedLineAndColumn[0], correctedLineAndColumn[1], rest);
-        throw new RecognitionException(correctedLineAndColumn[0], newErrorMessage, originalException.getCause());
+        int index = computeIndexFromLineAndColumn(sourceCode, line, column);
+        int[] correctedLineAndColumn = sourceOffset.sourceLineAndColumnAt(index);
+        String newErrorMessage = String.format(PARSING_ERROR_MESSAGE, correctedLineAndColumn[0], correctedLineAndColumn[1], rest);
+        return new RecognitionException(correctedLineAndColumn[0], newErrorMessage, originalException.getCause());
       } else {
         return originalException;
       }
     }
 
-    private static String buildNewErrorMessage(int line, int column, String rest) {
-      return LINE_MESSAGE + line + COLUMN_MESSAGE + column + rest;
-    }
-
+    /**
+     * Method computeIndexFromLineAndColumn was heavily inspired from Input class of SSLR library.
+     * Method isNewLine was directly copy/pasted from the same library.
+     */
     private static int computeIndexFromLineAndColumn(String code, int line, int column) {
       char[] chars = code.toCharArray();
       int currentLine = 1;

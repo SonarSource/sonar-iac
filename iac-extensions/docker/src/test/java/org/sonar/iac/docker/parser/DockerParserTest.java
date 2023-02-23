@@ -62,5 +62,10 @@ class DockerParserTest {
     assertThat(exception.getMessage()).startsWith("Parse error at line 3 column 1");
   }
 
+  @Test
+  void shouldNotCreateNewExceptionOnInvalidMessageFormat() {
+    RecognitionException exception = new RecognitionException(0, "InvalidMessage");
+    assertThat(DockerParser.RecognitionExceptionAdjuster.adjustLineAndColumnNumber(exception, null, null)).isSameAs(exception);
+  }
 }
 
