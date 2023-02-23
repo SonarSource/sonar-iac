@@ -19,8 +19,11 @@
  */
 package org.sonar.iac.docker.parser;
 
+import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
@@ -57,9 +60,13 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
   public DockerTree parse(String source) {
     DockerPreprocessor.PreprocessorResult preprocessorResult = preprocessor.process(source);
     nodeBuilder.setPreprocessorResult(preprocessorResult);
-    DockerTree tree = super.parse(preprocessorResult.processedSourceCode());
-    setParents(tree);
-    return tree;
+    try {
+      DockerTree tree = super.parse(preprocessorResult.processedSourceCode());
+      setParents(tree);
+      return tree;
+    } catch (RecognitionException e) {
+      throw RecognitionExceptionAdjuster.adjustLineAndColumnNumber(e, preprocessorResult.processedSourceCode(), preprocessorResult.sourceOffset());
+    }
   }
 
   @Override
@@ -72,6 +79,53 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       DockerTree child = (DockerTree) children;
       child.setParent(tree);
       setParents(child);
+    }
+  }
+
+  static class RecognitionExceptionAdjuster {
+    private static final String PARSING_ERROR_MESSAGE = "Parse error at line %d column %d %s";
+    private static final Pattern RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN = Pattern.compile("Parse error at line (?<line>\\d+) column (?<column>\\d+)(?<rest>.*)");
+
+    private RecognitionExceptionAdjuster() {}
+
+    public static RecognitionException adjustLineAndColumnNumber(RecognitionException originalException, String sourceCode, DockerPreprocessor.SourceOffset sourceOffset) {
+      Matcher m = RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN.matcher(originalException.getMessage());
+      if (m.find()) {
+        int line = Integer.parseInt(m.group("line"));
+        int column = Integer.parseInt(m.group("column"));
+        String rest = m.group("rest");
+        int index = computeIndexFromLineAndColumn(sourceCode, line, column);
+        int[] correctedLineAndColumn = sourceOffset.sourceLineAndColumnAt(index);
+        String newErrorMessage = String.format(PARSING_ERROR_MESSAGE, correctedLineAndColumn[0], correctedLineAndColumn[1], rest);
+        return new RecognitionException(correctedLineAndColumn[0], newErrorMessage, originalException.getCause());
+      } else {
+        return originalException;
+      }
+    }
+
+    /**
+     * Method computeIndexFromLineAndColumn was heavily inspired from Input class of SSLR library.
+     * Method isNewLine was directly copy/pasted from the same library.
+     */
+    private static int computeIndexFromLineAndColumn(String code, int line, int column) {
+      char[] chars = code.toCharArray();
+      int currentLine = 1;
+      int currentColumn = 0;
+      int index = -1;
+      while (index+1 < chars.length && (line != currentLine || column != currentColumn)) {
+        index++;
+        if (isNewLine(chars, index)) {
+          currentLine++;
+          currentColumn = 0;
+        } else {
+          currentColumn++;
+        }
+      }
+      return index;
+    }
+
+    private static boolean isNewLine(char[] input, int i) {
+      return input[i] == '\n' || (input[i] == '\r' && (i + 1 == input.length || input[i + 1] != '\n'));
     }
   }
 }

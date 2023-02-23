@@ -141,7 +141,7 @@ public class DockerPreprocessor {
       return input.lineAndColumnAt(adjustIndex(index));
     }
 
-    private int adjustIndex(int index) {
+    public int adjustIndex(int index) {
       while (nextIndexOffset <= index) {
         currentOffsetAdjustment = nextOffsetAdjustment;
         if (shiftedOffsetIterator.hasNext()) {
