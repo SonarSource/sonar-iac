@@ -77,8 +77,7 @@ public class EnvSecretCheck implements IacCheck {
   }
 
   private static void checkEnvVariableAssignment(CheckContext ctx, KeyValuePair envVarAssignment) {
-    if (isSensitiveName(ArgumentUtils.resolve(envVarAssignment.key()).value())
-      && envVarAssignment.value() != null && isSensitiveValue(ArgumentUtils.resolve(envVarAssignment.value()).value())) {
+    if (isSensitiveName(ArgumentUtils.resolve(envVarAssignment.key()).value()) && isSensitiveValue(ArgumentUtils.resolve(envVarAssignment.value()).value())) {
       ctx.reportIssue(envVarAssignment.key(), MESSAGE);
     }
   }
