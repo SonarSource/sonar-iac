@@ -25,6 +25,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -45,7 +46,7 @@ class CloudformationParserTest {
   void test_parse_comments_for_yaml() {
     when(inputFile.filename()).thenReturn("foo.yaml");
     FileTree tree = parser.parse("# Comment\na: 1", inputFileContext);
-    assertThat(tree.documents().get(0).metadata().comments()).hasSize(1);
+    assertThat(((MappingTreeImpl)tree.documents().get(0)).elements().get(0).key().metadata().comments()).hasSize(1);
   }
 
   @Test
