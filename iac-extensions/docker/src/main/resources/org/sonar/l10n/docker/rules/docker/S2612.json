@@ -1,0 +1,29 @@
+{
+  "title": "Setting loose POSIX file permissions is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "docker"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2612",
+  "sqKey": "S2612",
+  "scope": "Main",
+  "securityStandards": {
+    "CERT": [],
+    "CWE": [
+      732
+    ],
+    "OWASP": [],
+    "OWASP Top 10 2021": [],
+    "PCI DSS 3.2": [],
+    "PCI DSS 4.0": [],
+    "ASVS 4.0": []
+  },
+  "quickfix": "unknown"
+}
