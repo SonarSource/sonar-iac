@@ -25,6 +25,9 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
+import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
+import org.sonar.iac.common.yaml.tree.TupleTreeImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -45,7 +48,7 @@ class CloudformationParserTest {
   void test_parse_comments_for_yaml() {
     when(inputFile.filename()).thenReturn("foo.yaml");
     FileTree tree = parser.parse("# Comment\na: 1", inputFileContext);
-    assertThat(tree.documents().get(0).metadata().comments()).hasSize(1);
+    assertThat(((MappingTreeImpl)tree.documents().get(0)).elements().get(0).key().metadata().comments()).hasSize(1);
   }
 
   @Test
@@ -53,5 +56,17 @@ class CloudformationParserTest {
     when(inputFile.filename()).thenReturn("foo.json");
     FileTree tree = parser.parse("# Comment\na: 1", inputFileContext);
     assertThat(tree.documents().get(0).metadata().comments()).isEmpty();
+  }
+
+  @Test
+  void shouldNotFailInImplicitNullInYaml() {
+    when(inputFile.filename()).thenReturn("foo.yaml");
+    FileTree tree = parser.parse("foo:\n" +
+      "    a: null\n" +
+      "    c: ~\n" +
+      "    d:  # implicit null --> parsing error", inputFileContext);
+    MappingTreeImpl foo = (MappingTreeImpl) tree.documents().get(0);
+    TupleTreeImpl d = (TupleTreeImpl) (foo.elements().get(0).value().children().get(2));
+    assertThat(((ScalarTreeImpl)d.value()).value()).isEmpty();
   }
 }
