@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.api.tree.impl;
 
+import java.util.Objects;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 
@@ -47,5 +48,20 @@ public class CommentImpl implements Comment {
   @Override
   public TextRange textRange() {
     return textRange;
+  }
+
+  //TODO MS check if needed
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    CommentImpl comment = (CommentImpl) o;
+    return Objects.equals(value, comment.value) && Objects.equals(contentText, comment.contentText) && Objects.equals(textRange, comment.textRange);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(value, contentText, textRange);
   }
 }

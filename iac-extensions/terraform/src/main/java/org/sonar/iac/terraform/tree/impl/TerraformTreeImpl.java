@@ -19,10 +19,13 @@
  */
 package org.sonar.iac.terraform.tree.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 
@@ -49,5 +52,14 @@ public abstract class TerraformTreeImpl implements TerraformTree {
       textRange = TextRanges.merge(childRanges);
     }
     return textRange;
+  }
+
+  @Override
+  public List<Comment> comments() {
+    List<Comment> result = new ArrayList<>();
+    for (Tree child : children()) {
+      result.addAll(child.comments());
+    }
+    return result;
   }
 }

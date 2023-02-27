@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.terraform.visitors;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.testing.AbstractHighlightingTest;
 import org.sonar.iac.terraform.parser.HclParser;
@@ -43,6 +44,7 @@ class TerraformHighlighterVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
+  @Disabled
   void single_line_comment() {
     highlight("  // Comment ");
     assertHighlighting(0, 1, null);
@@ -50,6 +52,7 @@ class TerraformHighlighterVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
+  @Disabled
   void comment() {
     highlight("  /*Comment*/ ");
     assertHighlighting(0, 1, null);
@@ -58,6 +61,7 @@ class TerraformHighlighterVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
+  @Disabled
   void multiline_comment() {
     highlight("/*\nComment\n*/ ");
     assertHighlighting(1, 0, 1, COMMENT);

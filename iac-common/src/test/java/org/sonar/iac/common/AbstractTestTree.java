@@ -22,6 +22,7 @@ package org.sonar.iac.common;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 
 public abstract class AbstractTestTree implements Tree {
@@ -33,6 +34,11 @@ public abstract class AbstractTestTree implements Tree {
 
   @Override
   public List<Tree> children() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<Comment> comments() {
     return Collections.emptyList();
   }
 }
