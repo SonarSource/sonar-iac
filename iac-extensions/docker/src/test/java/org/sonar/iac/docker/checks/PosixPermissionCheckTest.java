@@ -21,15 +21,15 @@ package org.sonar.iac.docker.checks;
 
 import org.junit.jupiter.api.Test;
 
-class AddAndCopyPermissionCheckTest {
+class PosixPermissionCheckTest {
 
   @Test
   void test_add() {
-    DockerVerifier.verify("AddAndCopyPermissionCheckTest/Dockerfile_add", new AddAndCopyPermissionCheck());
+    DockerVerifier.verify("PosixPermissionCheck/Dockerfile_add", new PosixPermissionCheck());
   }
 
   @Test
   void test_copy() {
-    DockerVerifier.verify("AddAndCopyPermissionCheckTest/Dockerfile_copy", new AddAndCopyPermissionCheck());
+    DockerVerifier.verify("PosixPermissionCheck/Dockerfile_copy", new PosixPermissionCheck());
   }
 }

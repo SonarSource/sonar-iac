@@ -31,18 +31,18 @@ import org.sonar.iac.docker.tree.api.TransferInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S2612")
-public class AddAndCopyPermissionCheck implements IacCheck {
+public class PosixPermissionCheck implements IacCheck {
 
   private static final String MESSAGE = "Make sure this permission is safe.";
   private static final Pattern PERMISSION_FORMAT_CHECKER = Pattern.compile("[0-7]{3,4}");
 
   @Override
   public void initialize(InitContext init) {
-    init.register(AddInstruction.class, AddAndCopyPermissionCheck::checkAdd);
-    init.register(CopyInstruction.class, AddAndCopyPermissionCheck::checkAdd);
+    init.register(AddInstruction.class, PosixPermissionCheck::checkChmodPermission);
+    init.register(CopyInstruction.class, PosixPermissionCheck::checkChmodPermission);
   }
 
-  private static void checkAdd(CheckContext ctx, TransferInstruction transferInstruction) {
+  private static void checkChmodPermission(CheckContext ctx, TransferInstruction transferInstruction) {
     transferInstruction.options().stream()
       .filter(flag -> flag.name().equals("chmod"))
       .forEach(flag -> {
