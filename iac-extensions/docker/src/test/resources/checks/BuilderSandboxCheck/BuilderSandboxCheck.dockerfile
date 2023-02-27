@@ -9,5 +9,6 @@ RUN --security=insecure cat /proc/self/status > /output.txt
 RUN --security=insecure ["cat", "/proc/self/status > /output.txt"]
 
 RUN --security=sandbox cat /proc/self/status > /output.txt
-
+RUN cat /proc/self/status > /output.txt
+RUN --network=none pip install --find-links wheels mypackage
 
