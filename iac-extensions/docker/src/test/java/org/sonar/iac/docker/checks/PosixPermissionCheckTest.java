@@ -32,4 +32,9 @@ class PosixPermissionCheckTest {
   void test_copy() {
     DockerVerifier.verify("PosixPermissionCheck/Dockerfile_copy", new PosixPermissionCheck());
   }
+
+  @Test
+  void test_run() {
+    DockerVerifier.verify("PosixPermissionCheck/Dockerfile_run", new PosixPermissionCheck());
+  }
 }
