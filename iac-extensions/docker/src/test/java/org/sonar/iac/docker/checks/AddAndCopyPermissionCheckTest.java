@@ -19,26 +19,17 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+class AddAndCopyPermissionCheckTest {
 
+  @Test
+  void test_add() {
+    DockerVerifier.verify("AddAndCopyPermissionCheckTest/Dockerfile_add", new AddAndCopyPermissionCheck());
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      AddAndCopyPermissionCheck.class,
-      DirectoryCopySourceCheck.class,
-      EnvSecretCheck.class,
-      ExposePortCheck.class,
-      InstructionFormatCheck.class,
-      MountWorldPermissionCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegedUserCheck.class,
-      UnencryptedProtocolCheck.class
-    );
+  @Test
+  void test_copy() {
+    DockerVerifier.verify("AddAndCopyPermissionCheckTest/Dockerfile_copy", new AddAndCopyPermissionCheck());
   }
 }

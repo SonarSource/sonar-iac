@@ -1,0 +1,59 @@
+FROM scratch
+ARG sensitive_right=002
+ARG compliant_right=000
+ARG sensitive_digit=2
+ARG compliant_digit=0
+
+## All non compliant number
+# Noncompliant@+1 {{Make sure this permission is safe.}}
+COPY --chmod=002 orig dest
+#    ^^^^^^^^^^^
+# Noncompliant@+1
+COPY --chmod=003 orig dest
+# Noncompliant@+1
+COPY --chmod=006 orig dest
+# Noncompliant@+1
+COPY --chmod=007 orig dest
+
+## All compliant number
+COPY --chmod=000 orig dest
+COPY --chmod=001 orig dest
+COPY --chmod=004 orig dest
+COPY --chmod=005 orig dest
+
+## Others diverse cases
+# Noncompliant@+1
+COPY --chmod=0002 orig dest
+# Noncompliant@+1
+COPY --other_option=value --chmod=002 orig dest
+# Noncompliant@+1
+COPY --chmod=002 --other_option=value orig dest
+# Noncompliant@+1
+COPY --chmod=242 orig dest
+# Noncompliant@+1
+COPY --chmod=002 --chmod=000 orig dest
+#    ^^^^^^^^^^^
+# Noncompliant@+1
+COPY --chmod=000 --chmod=002 orig dest
+#                ^^^^^^^^^^^
+# Noncompliant@+1
+COPY --chmod=$sensitive_right orig dest
+# Noncompliant@+1
+COPY --chmod=0$sensitive_right orig dest
+# Noncompliant@+1
+COPY --chmod=00$sensitive_digit orig dest
+
+COPY --chmod=000 --other_option=value orig dest
+COPY --chmod=0000 orig dest
+COPY --chmod=0020 orig dest
+COPY --chmod=320 orig dest
+COPY --chmod=008 orig dest
+COPY --chmod=009 orig dest
+COPY --chmod=00A orig dest
+COPY --cOmod=002 orig dest
+COPY --chmod=$compliant_right orig dest
+COPY --chmod=0$compliant_right orig dest
+COPY --chmod=00$compliant_digit orig dest
+COPY --chmod= orig dest
+COPY --chmod orig dest
+COPY --CHMOD=0002 orig dest
