@@ -20,6 +20,8 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.List;
+import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 public final class KubernetesCheckList {
 
@@ -33,7 +35,9 @@ public final class KubernetesCheckList {
       DockerSocketCheck.class,
       HostNamespacesCheck.class,
       MountingFileSystemPathsCheck.class,
-      PrivilegeEscalationCheck.class
+      PrivilegeEscalationCheck.class,
+      ParsingErrorCheck.class,
+      ToDoCommentCheck.class
     );
   }
 }

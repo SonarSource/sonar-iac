@@ -28,7 +28,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.checks.CommonCheckList;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -49,7 +48,6 @@ public class TerraformSensor extends IacSensor {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(TerraformCheckList.checks());
-    checks.addAnnotatedChecks(CommonCheckList.checks());
     this.providerVersions = providerVersions;
   }
 

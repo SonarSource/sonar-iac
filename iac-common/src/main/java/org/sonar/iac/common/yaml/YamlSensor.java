@@ -38,7 +38,6 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.CommonCheckList;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.ParseException;
@@ -61,7 +60,6 @@ public abstract class YamlSensor extends IacSensor {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     this.checks = checkFactory.create(repositoryKey());
     this.checks.addAnnotatedChecks(checks);
-    this.checks.addAnnotatedChecks(CommonCheckList.checks());
   }
 
   @Override

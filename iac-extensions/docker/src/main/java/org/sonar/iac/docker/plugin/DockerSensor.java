@@ -33,7 +33,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.checks.CommonCheckList;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
@@ -54,7 +53,6 @@ public class DockerSensor extends IacSensor {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(DockerCheckList.checks());
-    checks.addAnnotatedChecks(CommonCheckList.checks());
   }
 
   @Override
