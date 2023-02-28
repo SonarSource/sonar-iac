@@ -242,6 +242,21 @@ public class TreeFactory {
     return new ShellFormImpl(arguments);
   }
 
+  public ShellForm shellFormGeneric(Argument firstArgument, Optional<List<Argument>> otherArguments) {
+    List<Argument> arguments = new ArrayList<>();
+    arguments.add(firstArgument);
+    if (otherArguments.isPresent()) {
+      arguments.addAll(otherArguments.get());
+    }
+    return new ShellFormImpl(arguments);
+  }
+
+  public Argument whitespaceArgument(SyntaxToken whitespace) {
+    List<Expression> expressions = new ArrayList<>();
+    expressions.add(new LiteralImpl(whitespace));
+    return new ArgumentImpl(expressions);
+  }
+
   public <T, U> Tuple<T, U> tuple(T first, U second) {
     return new Tuple<>(first, second);
   }

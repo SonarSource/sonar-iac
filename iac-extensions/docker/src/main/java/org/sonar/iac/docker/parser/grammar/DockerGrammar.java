@@ -411,10 +411,19 @@ public class DockerGrammar {
    */
   public ShellForm SHELL_FORM_GENERIC() {
     return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM_GENERIC).is(
-      f.shellForm(
-        b.oneOrMore(
-          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC())
+      f.shellFormGeneric(
+        f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC()),
+        b.zeroOrMore(
+          b.firstOf(WHITESPACE_ARGUMENT(), ARGUMENT_GENERIC())
         )
+      )
+    );
+  }
+
+  public Argument WHITESPACE_ARGUMENT() {
+    return b.<Argument>nonterminal().is(
+      f.whitespaceArgument(
+        b.token(DockerLexicalGrammar.WHITESPACE)
       )
     );
   }

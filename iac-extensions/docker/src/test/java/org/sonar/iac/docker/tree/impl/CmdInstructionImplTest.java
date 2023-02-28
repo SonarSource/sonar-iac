@@ -101,7 +101,7 @@ class CmdInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,1,28);
 
     assertThat(tree.arguments()).isNotNull();
-    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    assertArgumentsValue(tree.arguments(), "executable", " ", "param1", " ", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);

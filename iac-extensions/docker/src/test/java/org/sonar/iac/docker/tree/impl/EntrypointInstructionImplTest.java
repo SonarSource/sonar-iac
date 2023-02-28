@@ -96,7 +96,7 @@ class EntrypointInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
     assertTextRange(tree.textRange()).hasRange(1,0,1,35);
 
-    assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
+    assertArgumentsValue(tree.arguments(), "executable", " ", "param1", " ", "param2");
   }
 
   @Test
