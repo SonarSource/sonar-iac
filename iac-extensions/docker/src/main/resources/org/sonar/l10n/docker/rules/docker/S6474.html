@@ -1,0 +1,168 @@
+<p>Using remote artifacts without authenticity and integrity checks can lead to the unexpected installation of malicious software in the built
+container image.</p>
+<p>In the build environment, where Dockerfiles are compiled into container images, malicious code could gain access to sensitive data, such as build
+secrets or source code, and durably poison the resulting image.</p>
+<p>In the runtime environments where the container images are executed, malicious code could access and modify all runtime data and use the container
+as a pivot to attack the surrounding network environment.</p>
+<p>By ensuring that a remote artifact is exactly what it is supposed to be before it is used, the environment is protected from unexpected changes
+before or after it is downloaded.<br> That is to say if it has been replaced by malware:</p>
+<ul>
+  <li> on the website where it is published. </li>
+  <li> in the environment where it is used. </li>
+</ul>
+<p>Important note: HTTPS protects data in transit from one host to another. It provides authenticity and integrity checks <strong>for the network
+stream</strong>, not for the downloaded artifact itself.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The artifact is a file intended to execute code. </li>
+  <li> The artifact is a file that is intended to configure or affect running code in some way. </li>
+</ul>
+<p>There is a risk if you answer yes to any of these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>To check the authenticity and integrity of a remote artifact, <code>gpg</code> is the preferred method, except on Windows hosts, since it is not
+available by default. In this case, <strong>authenticode</strong> is the method of choice.</p>
+<p>If the remote publisher does not provide a signature for the desired artifact, hash verification is the most reliable solution. While it does not
+prove who the creator of the artifact is, it does ensure that the file has not been modified since the fingerprint was computed.</p>
+<p>In this case, the artifact’s hash must:</p>
+<ul>
+  <li> Be computed with a secure hash algorithm such as <code>SHA512</code>, <code>SHA384</code>, or <code>SHA256</code>. </li>
+  <li> Be compared with a secure hash that was <strong>not</strong> downloaded from the same source.
+    <ul>
+      <li> To do so, the best option is to compute the hash before and add it in the code explicitly. </li>
+    </ul>  </li>
+</ul>
+<p><strong>Note: Use the hash fix together with version binding. Avoid using tags like "latest" or similar, so that container builds are not corrupted
+when the version of the remote artifact changes.</strong></p>
+<h2>Sensitive Code Example</h2>
+<p>For Linux-based images:</p>
+<pre>
+FROM debian
+
+RUN curl https://example.com/installer.sh | bash # Sensitive
+
+RUN curl https://example.com/installer.py -o installer.py; \
+    python3 installer.py # Sensitive
+</pre>
+<p>For Windows-based images:</p>
+<pre>
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+RUN Invoke-Expression ((new-object net.webclient).DownloadString('https://example.com/installer.ps1')) # Sensitive
+
+RUN Invoke-WebRequest 'https://example.com/installer.ps1' -OutFile 'installer.ps1' -UseBasicParsing ; \
+    python script.ps1 # Sensitive
+</pre>
+<p>For <code>ADD</code>-originating artifacts:</p>
+<pre>
+FROM alpine
+
+ADD https://example.com/Makefile / # Sensitive
+
+RUN make install
+</pre>
+<h2>Compliant Solution</h2>
+<p>Note that the compliant solutions can also be used with artifacts originating from an <code>ADD https://example.com/artifact</code>
+instruction.</p>
+<p>GPG solution for Linux-based images:</p>
+<pre>
+FROM debian
+
+ENV GPG_KEY_SERVER "hkps://keys.openpgp.org"
+ENV GPG_KEY_ID     "A035C8C19219BA821ECEA86B64E628F8D684696D"
+
+RUN set -eux; \
+    \
+    wget -O installer.tar.xz     "https://example.com/installer.tar.xz"; \
+    wget -O installer.tar.xz.asc "https://example.com/installer.tar.xz.asc"; \
+    \
+    GNUPGHOME="$(mktemp -d)"; export GNUPGHOME; \
+    gpg --batch --keyserver ${GPG_KEY_SERVER} --recv-keys "${GPG_KEY_ID}"; \
+    gpg --batch --verify installer.tar.xz.asc installer.tar.xz
+</pre>
+<p>For Windows-based images, GPG is not available by default, so it needs to be downloaded beforehand. Thus, it is required to be checked before use.
+To verify <code>GPG4Win</code>, use Authenticode.</p>
+<p>It is recommended to avoid using software to verify itself. Compromised verification software might always validate itself.</p>
+<p>Here is an example of using GPG to verify a software on Windows:</p>
+<pre>
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+ENV GPG4WIN_VERSION      "2.3.4"
+ENV GPG4WIN_AUTHENTICODE "DE16D5972F0B7395F7D91EDC1F219B0FFE89FAB3"
+
+# Download and verify gpg4win - Using Authenticode
+RUN Invoke-WebRequest \
+        -Uri $('http://files.gpg4win.org/gpg4win-vanilla-{}.exe' -f $env:GPG4WIN_VERSION) \
+        -OutFile 'gpg4win.exe' \
+        -UseBasicParsing; \
+    \
+    $authenticode = Get-AuthenticodeSignature 'gpg4win.exe'; \
+    if ( $authenticode.Status -ne 'Valid' ) \
+        { Write-Error 'Authenticode check failed.'; }; \
+    if ( $authenticode.SignerCertificate.Thumbprint -ne $env:GPG4WIN_AUTHENTICODE ) \
+        { Write-Error 'Authenticode signer check failed.'; }; \
+    \
+    Start-Process .\gpg4win.exe -ArgumentList '/S' -NoNewWindow -Wait
+
+ENV SOFTWARE_VERSION                 "3.10.8"
+ENV SOFTWARE_AUTHENTICODE_THUMBPRINT "36168EE17C1A240517388540C903BB6717DD2563"
+ENV SOFTWARE_GPG_KEYSERVER           "hkps://keys.openpgp.org"
+ENV SOFTWARE_GPG_KEY_ID              "A035C8C19219BA821ECEA86B64E628F8D684696D"
+
+# Download and verify software - Using gpg4win
+# You can use gpg4win and Authenticode.
+RUN $url = $('https://example.com/software-${}.exe' -f $env:SOFTWARE_VERSION); \
+    \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+    Invoke-WebRequest -Uri $url     -OutFile 'software.exe'     -UseBasicParsing; \
+    Invoke-WebRequest -Uri $url.asc -OutFile 'software.exe.asc' -UseBasicParsing; \
+    \
+    if ( (Get-AuthenticodeSignature 'software.exe').Status -ne 'Valid' ) \
+        { Write-Error 'Authenticode check failed.' } ; \
+    if ( (Get-AuthenticodeSignature "software.exe").SignerCertificate.Thumbprint -ne $env:GPG_SIGNER ) \
+        { Write-Error 'Authenticode signer check failed.'; }; \
+    \
+    gpg --batch --keyserver "${SOFTWARE_GPG_KEYSERVER}" --recv-keys $env:SOFTWARE_GPG_KEY_ID; \
+    gpg --batch --verify software.exe.asc software.exe;
+</pre>
+<p>SHA256 solution for Linux-based images:</p>
+<pre>
+FROM debian
+
+ENV ARTIFACT_SHA256 "f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2"
+
+RUN set -eux; \
+    \
+    wget -O installer.py "https://example.com/installer.py"; \
+    echo "$ARTIFACT_SHA256 *installer.py" | sha256sum -c -
+</pre>
+<p>SHA256 solution for Windows-based images:</p>
+<pre>
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+ENV SOFTWARE_SHA256 "f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2"
+
+RUN Invoke-WebRequest 'https://example.com/software.exe' -OutFile 'software.exe' -UseBasicParsing ; \
+    $fileHash = Get-FileHash 'software.exe' -Algorithm sha256; \
+    if ( $fileHash.Hash -ne $env:SOFTWARE_SHA256 ) \
+        { Write-Error 'Integrity check failed.'; }; \
+    Start-Process .\software.exe;
+</pre>
+<p>SHA256 version on <code>ADD</code> instructions, for Dockerfiles using a non-stable syntax:</p>
+<pre>
+# syntax=docker/dockerfile:1-labs
+FROM alpine
+
+ADD \
+    --checksum=sha256:24454f830cdb571e2c4ad15481119c43b3cafd48dd869a9b2945d1036d1dc68d \
+    https://example.com/Makefile /
+
+RUN make install
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/384.html">MITRE, CWE-345</a> - Insufficient Verification of Data Authenticity </li>
+  <li> <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/install/authenticode">Microsoft, Authenticode Digital Signatures</a> </li>
+  <li> <a href="https://www.linux.com/training-tutorials/pgp-web-trust-core-concepts-behind-trusted-communication/">Linux.com, PGP Web of Trust: Core
+  Concepts Behind Trusted Communication</a> </li>
+</ul>
+

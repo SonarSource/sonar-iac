@@ -19,28 +19,26 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+@Rule(key = "S6474")
+public class HostNetworkNamespaceCheck implements IacCheck {
 
+  private static final String MESSAGE = "Do not use host operating system namespaces.";
+
+  @Override
+  public void initialize(InitContext init) {
+    init.register(RunInstruction.class, HostNetworkNamespaceCheck::checkHostNetwork);
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      BuilderSandboxCheck.class,
-      PosixPermissionCheck.class,
-      DirectoryCopySourceCheck.class,
-      EnvSecretCheck.class,
-      ExposePortCheck.class,
-      HostNetworkNamespaceCheck.class,
-      InstructionFormatCheck.class,
-      MountWorldPermissionCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegedUserCheck.class,
-      UnencryptedProtocolCheck.class
-    );
+  private static void checkHostNetwork(CheckContext ctx, RunInstruction runInstruction) {
+    runInstruction.options().stream()
+      .filter(flag -> flag.name().equals("network") && "host".equals(ArgumentUtils.resolve(flag.value()).value()))
+      .forEach(flag -> ctx.reportIssue(flag, MESSAGE));
   }
 }
