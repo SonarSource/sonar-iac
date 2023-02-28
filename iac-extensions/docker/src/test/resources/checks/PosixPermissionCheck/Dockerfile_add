@@ -1,0 +1,59 @@
+FROM scratch
+ARG sensitive_right=002
+ARG compliant_right=000
+ARG sensitive_digit=2
+ARG compliant_digit=0
+
+## All non compliant number
+# Noncompliant@+1 {{Make sure this permission is safe.}}
+ADD --chmod=002 orig dest
+#   ^^^^^^^^^^^
+# Noncompliant@+1
+ADD --chmod=003 orig dest
+# Noncompliant@+1
+ADD --chmod=006 orig dest
+# Noncompliant@+1
+ADD --chmod=007 orig dest
+
+## All compliant number
+ADD --chmod=000 orig dest
+ADD --chmod=001 orig dest
+ADD --chmod=004 orig dest
+ADD --chmod=005 orig dest
+
+## Others diverse cases
+# Noncompliant@+1
+ADD --chmod=0002 orig dest
+# Noncompliant@+1
+ADD --other_option=value --chmod=002 orig dest
+# Noncompliant@+1
+ADD --chmod=002 --other_option=value orig dest
+# Noncompliant@+1
+ADD --chmod=242 orig dest
+# Noncompliant@+1
+ADD --chmod=002 --chmod=000 orig dest
+#   ^^^^^^^^^^^
+# Noncompliant@+1
+ADD --chmod=000 --chmod=002 orig dest
+#               ^^^^^^^^^^^
+# Noncompliant@+1
+ADD --chmod=$sensitive_right orig dest
+# Noncompliant@+1
+ADD --chmod=0$sensitive_right orig dest
+# Noncompliant@+1
+ADD --chmod=00$sensitive_digit orig dest
+
+ADD --chmod=000 --other_option=value orig dest
+ADD --chmod=0000 orig dest
+ADD --chmod=0020 orig dest
+ADD --chmod=320 orig dest
+ADD --chmod=008 orig dest
+ADD --chmod=009 orig dest
+ADD --chmod=00A orig dest
+ADD --cOmod=002 orig dest
+ADD --chmod=$compliant_right orig dest
+ADD --chmod=0$compliant_right orig dest
+ADD --chmod=00$compliant_digit orig dest
+ADD --chmod= orig dest
+ADD --chmod orig dest
+ADD --CHMOD=0002 orig dest

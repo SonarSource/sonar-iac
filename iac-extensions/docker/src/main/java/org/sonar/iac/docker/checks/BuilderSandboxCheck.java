@@ -19,29 +19,26 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.tree.api.Flag;
+import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+@Rule(key = "S6502")
+public class BuilderSandboxCheck implements IacCheck {
 
-  }
+  private static final String MESSAGE = "Make sure that disabling the builder sandbox is safe here.";
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      BuilderSandboxCheck.class,
-      PosixPermissionCheck.class,
-      DirectoryCopySourceCheck.class,
-      EnvSecretCheck.class,
-      ExposePortCheck.class,
-      InstructionFormatCheck.class,
-      MountWorldPermissionCheck.class,
-      PrivilegedUserCheck.class,
-      ParsingErrorCheck.class,
-      ToDoCommentCheck.class,
-      UnencryptedProtocolCheck.class
-    );
+  @Override
+  public void initialize(InitContext init) {
+    init.register(RunInstruction.class, (ctx, instruction) -> {
+      for (Flag option : instruction.options()) {
+        if ("security".equals(option.name()) && "insecure".equals(ArgumentUtils.resolve(option.value()).value())) {
+          ctx.reportIssue(option, MESSAGE);
+        }
+      }
+    });
   }
 }

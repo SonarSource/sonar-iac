@@ -1,0 +1,40 @@
+<p>In Unix file system permissions, the "<code>others</code>" category refers to all users except the owner of the file system resource and the
+members of the group assigned to this resource.</p>
+<p>Granting permissions to this category can lead to unintended access to files or directories that could allow attackers to obtain sensitive
+information, disrupt services or elevate privileges.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The container is designed to be a multi-user environment. </li>
+  <li> Removing permissions to <code>others</code> does not bring instability. </li>
+</ul>
+<p>There is a risk if you answered yes to the question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>The most restrictive possible permissions should be assigned to files and directories.</p>
+<p>To be secure, remove the unnecessary permissions. If required, use <code>--chown</code> to set the target user and group.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+# Sensitive
+ADD --chmod=777 src dst
+# Sensitive
+COPY --chmod=777 src dst
+# Sensitive
+RUN chmod +x resource
+# Sensitive
+RUN chmod u+s resource
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+ADD --chmod=754 src dst
+COPY --chown=user:user --chmod=744 src dst
+RUN chmod u+x resource
+RUN chmod +t resource
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#add">ADD</a> - Docker ADD command </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#copy">COPY</a> - Docker COPY command </li>
+  <li> <a href="https://man.archlinux.org/man/core/man-pages/chmod.1p.en">chmod reference</a> - <code>chmod</code> command </li>
+  <li> <a href="https://man.archlinux.org/man/chown.1.en">chown reference</a> - <code>chown</code> command </li>
+</ul>
+

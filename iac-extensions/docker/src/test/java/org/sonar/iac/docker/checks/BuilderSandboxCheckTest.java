@@ -19,29 +19,14 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+import org.junit.jupiter.api.Test;
 
+class BuilderSandboxCheckTest {
+
+  @Test
+  void test() {
+    DockerVerifier.verify("BuilderSandboxCheck/BuilderSandboxCheck.dockerfile", new BuilderSandboxCheck());
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      BuilderSandboxCheck.class,
-      PosixPermissionCheck.class,
-      DirectoryCopySourceCheck.class,
-      EnvSecretCheck.class,
-      ExposePortCheck.class,
-      InstructionFormatCheck.class,
-      MountWorldPermissionCheck.class,
-      PrivilegedUserCheck.class,
-      ParsingErrorCheck.class,
-      ToDoCommentCheck.class,
-      UnencryptedProtocolCheck.class
-    );
-  }
 }

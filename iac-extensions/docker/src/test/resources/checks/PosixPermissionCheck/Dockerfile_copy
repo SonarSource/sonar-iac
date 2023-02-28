@@ -1,0 +1,19 @@
+FROM scratch
+
+# Noncompliant@+1 {{Make sure this permission is safe.}}
+COPY --chmod=002 orig dest
+#    ^^^^^^^^^^^
+# Noncompliant@+1
+COPY --chmod=003 orig dest
+# Noncompliant@+1
+COPY --chmod=006 orig dest
+# Noncompliant@+1
+COPY --chmod=007 orig dest
+
+## All compliant number
+COPY --chmod=000 orig dest
+COPY --chmod=001 orig dest
+COPY --chmod=004 orig dest
+COPY --chmod=005 orig dest
+
+## More test cases in Dockerfile_add
