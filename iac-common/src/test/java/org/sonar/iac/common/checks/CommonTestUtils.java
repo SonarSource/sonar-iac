@@ -21,13 +21,16 @@ package org.sonar.iac.common.checks;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.iac.common.AbstractTestTree;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.CommentImpl;
 
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
 
@@ -46,19 +49,30 @@ public class CommonTestUtils {
 
   public static class TestTextTree extends AbstractTestTree implements TextTree {
 
+    private final String value;
+    private final List<Comment> comments;
+
     public static TextTree text(String value) {
-      return new TestTextTree(value);
+      return new TestTextTree(value, Collections.emptyList());
     }
 
-    private final String value;
+    public static TextTree text(String value, Comment comment) {
+      return new TestTextTree(value, List.of(comment));
+    }
 
-    public TestTextTree(String value) {
+    public TestTextTree(String value, List<Comment> comments) {
       this.value = value;
+      this.comments = comments;
     }
 
     @Override
     public String value() {
       return value;
+    }
+
+    @Override
+    public List<Comment> comments() {
+      return comments;
     }
   }
 
