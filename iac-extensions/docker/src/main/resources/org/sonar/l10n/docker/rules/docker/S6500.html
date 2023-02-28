@@ -1,0 +1,40 @@
+<p>Installing unnecessary dependencies can lead to additional vulnerabilities in the Docker image.</p>
+<p>Unnecessary dependencies are installed via a known Debian package manager. These unused dependencies might contain vulnerabilities, thus weakening
+the overall security posture of the created containers.<br> Depending on the introduced vulnerabilities, a malicious actor accessing such a container
+could use these for privilege escalation.<br> Removing the unused dependencies can also significantly reduce your Docker image size.</p>
+<p>To be secure, remove the unused dependencies where possible and ensure images are subject to routine vulnerability scans.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> Container vulnerability scans are not performed. </li>
+</ul>
+<p>There is a risk if you answered yes to the question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Avoid installing package dependencies that are not strictly required. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<pre>
+# Sensitive
+RUN apt install -y build-essential
+
+# Sensitive
+RUN apt-get install -y build-essential
+
+# Sensitive
+RUN aptitude install -y build-essential
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+RUN apt install -y --no-install-recommends build-essential
+
+RUN apt-get install -y --no-install-recommends build-essential
+
+RUN aptitude install -y --without-recommends build-essential
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.debian.org/doc/debian-policy/ch-relationships.html">Debian Documentation</a> - Binary Dependencies </li>
+  <li> <a href="https://ubuntu.com/blog/we-reduced-our-docker-images-by-60-with-no-install-recommends">Ubuntu Blog</a> - Container size reduction
+  </li>
+</ul>
+

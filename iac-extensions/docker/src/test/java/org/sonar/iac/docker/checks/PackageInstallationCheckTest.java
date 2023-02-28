@@ -19,28 +19,12 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+class PackageInstallationCheckTest {
 
-  }
-
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      BuilderSandboxCheck.class,
-      DirectoryCopySourceCheck.class,
-      EnvSecretCheck.class,
-      ExposePortCheck.class,
-      InstructionFormatCheck.class,
-      MountWorldPermissionCheck.class,
-      PackageInstallationCheck.class,
-      ParsingErrorCheck.class,
-      PosixPermissionCheck.class,
-      PrivilegedUserCheck.class,
-      UnencryptedProtocolCheck.class
-    );
+  @Test
+  void test() {
+    DockerVerifier.verify("PackageInstallationCheck/PackageInstallationCheck.dockerfile", new PackageInstallationCheck());
   }
 }
