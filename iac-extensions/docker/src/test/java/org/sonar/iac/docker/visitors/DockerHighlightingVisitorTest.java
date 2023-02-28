@@ -43,7 +43,6 @@ class DockerHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  @Disabled
   void comment_before_instruction() {
     highlight(code("# Comment",
       "FROM foo"
