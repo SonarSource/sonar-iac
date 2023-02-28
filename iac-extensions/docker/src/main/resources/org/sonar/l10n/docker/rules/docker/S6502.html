@@ -1,0 +1,36 @@
+<p>Disabling builder sandboxes can lead to unauthorized access of the host system by malicious programs.</p>
+<p>By default, programs that are executed by a <code>RUN</code> instruction are in a sandbox mode that limits the capabilities of the according
+process. Explicitly disabling the sandbox grants the process additional capabilities that might allow it to escalate privileges and access the host
+system.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The program is controlled by an external entity. </li>
+  <li> The program is part of a supply chain that could be a victim of a supply chain attack. </li>
+</ul>
+<p>There is a risk if you answered yes to the question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Whenever possible, the sandbox should stay enabled to reduce unnecessary risk. </li>
+  <li> If elevated capabilities are absolutely necessary, make sure to verify the integrity of the program before executing it. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<pre>
+# syntax=docker/dockerfile:1-labs
+FROM ubuntu:22.04
+# Sensitive
+RUN --security=insecure ./example.sh
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+# syntax=docker/dockerfile:1-labs
+FROM ubuntu:22.04
+RUN ./example.sh
+RUN --security=sandbox ./example.sh
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/250">MITRE, CWE-250</a> - Execution with Unnecessary Privileges </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-284</a> - Improper Access Control </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#run---security">Dockerfile reference</a> - RUN </li>
+</ul>
+
