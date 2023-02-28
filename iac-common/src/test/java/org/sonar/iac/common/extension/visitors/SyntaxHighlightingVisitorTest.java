@@ -25,9 +25,11 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.checks.CommonTestUtils;
 import org.sonar.iac.common.testing.AbstractHighlightingTest;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
@@ -47,11 +49,23 @@ class SyntaxHighlightingVisitorTest extends AbstractHighlightingTest {
   }
 
   @Test
-  void test_highlighting() {
+  void shouldHighlight() {
     highlight("foo #comment");
     assertHighlighting(0, 2, KEYWORD);
     assertHighlighting(3, 3, null);
     assertHighlighting(4, 11, COMMENT);
+  }
+
+  @Test
+  void shouldNotHighlightCommentTwice() {
+    Comment comment = new CommentImpl("# bar" , " bar", TextRanges.range(2, 0, "# bar"));
+    TextTree tree = CommonTestUtils.TestTextTree.text("foo", List.of(comment, comment));
+
+    highlight(tree);
+
+    assertHighlighting(0, 2, KEYWORD);
+    assertHighlighting(3, 3, null);
+    assertHighlighting(2, 0, 4, COMMENT);
   }
 
   static class TestTree implements Tree, HasComments {

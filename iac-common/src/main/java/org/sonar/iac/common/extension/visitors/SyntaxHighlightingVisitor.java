@@ -24,7 +24,6 @@ import java.util.Set;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -37,16 +36,7 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
   private Set<TextRange> commentTextRanges = new HashSet<>();
 
   protected SyntaxHighlightingVisitor() {
-    register(Tree.class, (ctx, tree) -> {
-      if (tree instanceof HasComments) {
-        ((HasComments) tree).comments().forEach(comment -> {
-          if(!commentTextRanges.contains(comment.textRange())) {
-            commentTextRanges.add(comment.textRange());
-            highlight(comment, COMMENT);
-          }
-        });
-      }
-    });
+    register(Tree.class, (ctx, tree) -> highlightComments(tree));
     languageSpecificHighlighting();
   }
 
@@ -65,5 +55,14 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
 
   protected void highlight(HasTextRange range, TypeOfText typeOfText) {
     newHighlighting.highlight(range.textRange(), typeOfText);
+  }
+
+  private void highlightComments(Tree tree) {
+    tree.comments().forEach(comment -> {
+      if(!commentTextRanges.contains(comment.textRange())) {
+        commentTextRanges.add(comment.textRange());
+        highlight(comment, COMMENT);
+      }
+    });
   }
 }

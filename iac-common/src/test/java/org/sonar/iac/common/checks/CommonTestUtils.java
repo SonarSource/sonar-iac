@@ -24,13 +24,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.CommentImpl;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
 
@@ -60,6 +61,10 @@ public class CommonTestUtils {
       return new TestTextTree(value, List.of(comment));
     }
 
+    public static TextTree text(String value, List<Comment> comments) {
+      return new TestTextTree(value, comments);
+    }
+
     public TestTextTree(String value, List<Comment> comments) {
       this.value = value;
       this.comments = comments;
@@ -73,6 +78,11 @@ public class CommonTestUtils {
     @Override
     public List<Comment> comments() {
       return comments;
+    }
+
+    @Override
+    public TextRange textRange() {
+      return TextRanges.range(1,0, value);
     }
   }
 
