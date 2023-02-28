@@ -12,3 +12,9 @@ RUN --security=sandbox cat /proc/self/status > /output.txt
 RUN cat /proc/self/status > /output.txt
 RUN --network=none pip install --find-links wheels mypackage
 
+RUN --SECURITY=insecure cat /proc/self/status > /output.txt
+RUN --security=INSECURE cat /proc/self/status > /output.txt
+
+ARG security=insecure
+# Noncompliant@+1
+RUN --security=$security cat /proc/self/status > /output.txt
