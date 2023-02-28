@@ -21,7 +21,6 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
 
 public class CloudformationCheckList {
 
@@ -46,7 +45,6 @@ public class CloudformationCheckList {
       DisabledSNSTopicEncryptionCheck.class,
       LogGroupDeclarationCheck.class,
       LogGroupRetentionPolicyCheck.class,
-      ParsingErrorCheck.class,
       PrivilegeEscalationCheck.class,
       PrivilegePolicyCheck.class,
       PublicApiCheck.class,

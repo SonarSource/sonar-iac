@@ -21,7 +21,6 @@ package org.sonar.iac.docker.checks;
 
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
 
 public class DockerCheckList {
   private DockerCheckList() {
@@ -35,7 +34,6 @@ public class DockerCheckList {
       ExposePortCheck.class,
       InstructionFormatCheck.class,
       MountWorldPermissionCheck.class,
-      ParsingErrorCheck.class,
       PrivilegedUserCheck.class,
       UnencryptedProtocolCheck.class
     );

@@ -17,15 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
+package org.sonar.iac.common.checks;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import java.io.File;
+import java.util.List;
+import org.sonar.iac.common.testing.AbstractCheckListTest;
 
-class DockerToDoCommentCheckTest {
-  
-  @Test
-  void test() {
-    DockerVerifier.verify("ToDoCommentCheck/Dockerfile", new ToDoCommentCheck());
+class CommonCheckListTest extends AbstractCheckListTest {
+
+  @Override
+  protected List<Class<?>> checks() {
+    return CommonCheckList.checks();
+  }
+
+  @Override
+  protected File checkClassDir() {
+    return new File("src/main/java/org/sonar/iac/common/checks/");
   }
 }

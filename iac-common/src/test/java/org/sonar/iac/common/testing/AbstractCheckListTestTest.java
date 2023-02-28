@@ -21,16 +21,12 @@ package org.sonar.iac.common.testing;
 
 import java.io.File;
 import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
 
 public class AbstractCheckListTestTest extends AbstractCheckListTest {
 
   @Override
   protected List<Class<?>> checks() {
-    return List.of(
-      TestCheck.class,
-      ParsingErrorCheck.class
-    );
+    return List.of(TestCheck.class);
   }
 
   @Override

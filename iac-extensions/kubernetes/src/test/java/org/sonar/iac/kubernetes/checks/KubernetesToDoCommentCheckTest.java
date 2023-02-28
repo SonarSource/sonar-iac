@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
+package org.sonar.iac.kubernetes.checks;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
 
-class DockerToDoCommentCheckTest {
+class KubernetesToDoCommentCheckTest {
   
   @Test
   void test() {
-    DockerVerifier.verify("ToDoCommentCheck/Dockerfile", new ToDoCommentCheck());
+    KubernetesVerifier.verify("ToDoCommentCheck/todo.yaml", new ToDoCommentCheck());
   }
 }

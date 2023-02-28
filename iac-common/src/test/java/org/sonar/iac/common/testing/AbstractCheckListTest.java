@@ -39,11 +39,6 @@ public abstract class AbstractCheckListTest {
   protected abstract List<Class<?>> checks();
   protected abstract File checkClassDir();
 
-  @Test
-  void containsParsingErrorCheck() {
-    assertThat(checks()).contains(ParsingErrorCheck.class);
-  }
-
   /**
    * Enforces that each check is declared in the list.
    */
@@ -51,8 +46,7 @@ public abstract class AbstractCheckListTest {
   void count() {
     IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
     Collection<File> files = FileUtils.listFiles(checkClassDir(), filter, trueFileFilter());
-    // We can increase the files size by 1 because the ParsingErrorCheck is located in iac-commons
-    assertThat(checks()).hasSize(files.size() + 1);
+    assertThat(checks()).hasSize(files.size());
   }
 
   /**

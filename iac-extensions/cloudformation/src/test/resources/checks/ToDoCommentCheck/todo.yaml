@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+# NonCompliant@+1
+# TODO foo bar
+  DBInstanceTooLowPeriod:
+    Type: AWS::RDS::DBInstance
+    # comment
+    Properties:
+      # NonCompliant@+1
+      DBName: MyDb  #TODO fix me
+      BackupRetentionPeriod: 1
+
+  # NonCompliant@+1
+  # foo TODO bar
+  DBInstanceMissingPeriod:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: NonCompliantDatabase

@@ -27,6 +27,9 @@ public class CommonCheckList {
   }
 
   public static List<Class<?>> checks() {
-    return Arrays.asList(ToDoCommentCheck.class);
+    return Arrays.asList(
+      ParsingErrorCheck.class,
+      ToDoCommentCheck.class
+    );
   }
 }
