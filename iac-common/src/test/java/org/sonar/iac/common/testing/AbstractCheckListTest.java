@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 import static org.apache.commons.io.filefilter.FileFilterUtils.and;
 import static org.apache.commons.io.filefilter.FileFilterUtils.notFileFilter;
@@ -41,7 +42,7 @@ public abstract class AbstractCheckListTest {
 
   @Test
   void containsParsingErrorCheck() {
-    assertThat(checks()).contains(ParsingErrorCheck.class);
+    assertThat(checks()).contains(ParsingErrorCheck.class, ToDoCommentCheck.class);
   }
 
   /**
@@ -51,8 +52,8 @@ public abstract class AbstractCheckListTest {
   void count() {
     IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
     Collection<File> files = FileUtils.listFiles(checkClassDir(), filter, trueFileFilter());
-    // We can increase the files size by 1 because the ParsingErrorCheck is located in iac-commons
-    assertThat(checks()).hasSize(files.size() + 1);
+    // We can increase the files size by 2 because the ParsingErrorCheck and ToDoCommentCheck is located in iac-commons
+    assertThat(checks()).hasSize(files.size() + 2);
   }
 
   /**

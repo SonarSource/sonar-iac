@@ -32,11 +32,7 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
   private NewHighlighting newHighlighting;
 
   protected SyntaxHighlightingVisitor() {
-    register(Tree.class, (ctx, tree) -> {
-      if (tree instanceof HasComments) {
-        ((HasComments) tree).comments().forEach(comment -> highlight(comment, COMMENT));
-      }
-    });
+    register(Tree.class, (ctx, tree) -> highlightComments(tree));
     languageSpecificHighlighting();
   }
 
@@ -55,5 +51,11 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
 
   protected void highlight(HasTextRange range, TypeOfText typeOfText) {
     newHighlighting.highlight(range.textRange(), typeOfText);
+  }
+
+  private void highlightComments(Tree tree) {
+    if (tree instanceof HasComments) {
+      ((HasComments) tree).comments().forEach(comment -> highlight(comment, COMMENT));
+    }
   }
 }

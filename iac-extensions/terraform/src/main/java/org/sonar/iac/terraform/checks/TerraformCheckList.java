@@ -22,6 +22,7 @@ package org.sonar.iac.terraform.checks;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
 import org.sonar.iac.terraform.checks.azure.AnonymousAccessToResourceCheck;
 import org.sonar.iac.terraform.checks.azure.CertificateBasedAuthenticationCheck;
 import org.sonar.iac.terraform.checks.azure.HighPrivilegedRoleCheck;
@@ -68,7 +69,6 @@ public class TerraformCheckList {
       DisabledS3EncryptionCheck.class,
       DisabledLoggingCheck.class,
       DisabledSNSTopicEncryptionCheck.class,
-      ParsingErrorCheck.class,
       PrivilegeEscalationCheck.class,
       PrivilegePolicyCheck.class,
       PublicApiCheck.class,
@@ -107,7 +107,11 @@ public class TerraformCheckList {
       LoadBalancerSslPolicyCheck.class,
       PublicAccessCheck.class,
       ShortLogRetentionCheck.class,
-      UnversionedStorageBucketCheck.class
+      UnversionedStorageBucketCheck.class,
+
+      // commons
+      ParsingErrorCheck.class,
+      ToDoCommentCheck.class
     );
   }
 }

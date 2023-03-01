@@ -19,25 +19,13 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
 
-public final class KubernetesCheckList {
-
-  private KubernetesCheckList() {
-  }
-
-  public static List<Class<?>> checks() {
-    return List.of(
-      CapabilitiesCheck.class,
-      ContainerPrivilegedModeCheck.class,
-      DockerSocketCheck.class,
-      HostNamespacesCheck.class,
-      MountingFileSystemPathsCheck.class,
-      ParsingErrorCheck.class,
-      PrivilegeEscalationCheck.class,
-      ToDoCommentCheck.class
-    );
+class KubernetesToDoCommentCheckTest {
+  
+  @Test
+  void test() {
+    KubernetesVerifier.verify("ToDoCommentCheck/todo.yaml", new ToDoCommentCheck());
   }
 }

@@ -38,9 +38,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractHighlightingTest {
 
-  private final SyntaxHighlightingVisitor highlightingVisitor;
+  protected final SyntaxHighlightingVisitor highlightingVisitor;
   private final TreeParser<Tree> parser;
-  private SensorContextTester sensorContext;
+  protected SensorContextTester sensorContext;
   private DefaultInputFile inputFile;
 
   protected AbstractHighlightingTest(SyntaxHighlightingVisitor highlightingVisitor, TreeParser<Tree> parser) {
@@ -59,9 +59,19 @@ public abstract class AbstractHighlightingTest {
   protected void highlight(String code) {
     inputFile = new TestInputFileBuilder("moduleKey", tempFolder.getName())
       .setCharset(StandardCharsets.UTF_8)
-      .initMetadata(code).build();
+      .initMetadata(code)
+      .build();
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
     highlightingVisitor.scan(ctx, parser.parse(code, null));
+  }
+
+  protected void highlight(Tree root) {
+    inputFile = new TestInputFileBuilder("moduleKey", tempFolder.getName())
+      .setCharset(StandardCharsets.UTF_8)
+      .initMetadata("dummy")
+      .build();
+    InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
+    highlightingVisitor.scan(ctx, root);
   }
 
   protected void assertHighlighting(int columnFirst, int columnLast, @Nullable TypeOfText type) {

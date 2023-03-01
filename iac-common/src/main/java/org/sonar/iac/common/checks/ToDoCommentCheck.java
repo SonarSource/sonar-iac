@@ -17,33 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.testing;
+package org.sonar.iac.common.checks;
 
-import java.io.File;
 import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.HasComments;
+import org.sonar.iac.common.api.tree.Tree;
 
-public class AbstractCheckListTestTest extends AbstractCheckListTest {
+@Rule(key = "S1135")
+public class ToDoCommentCheck implements IacCheck {
 
-  @Override
-  protected List<Class<?>> checks() {
-    return List.of(
-      TestCheck.class,
-      ParsingErrorCheck.class,
-      ToDoCommentCheck.class
-    );
-  }
+  private static final String MESSAGE = "Complete the task associated to this \"TODO\" comment.";
 
   @Override
-  protected File checkClassDir() {
-    return new File("src/test/resources/org/sonar/iac/common/checks/");
+  public void initialize(InitContext context) {
+    context.register(Tree.class, (ctx, tree) -> {
+      if (tree instanceof HasComments) {
+        List<Comment> comments = ((HasComments) tree).comments();
+        for (Comment comment : comments) {
+          if (comment.value().contains("TODO")) {
+            ctx.reportIssue(comment.textRange(), MESSAGE);
+          }
+        }
+      }
+    });
   }
-
-  @Override
-  void test() {
-    // overridden for test purpose
-  }
-
-  static class TestCheck {}
 }
