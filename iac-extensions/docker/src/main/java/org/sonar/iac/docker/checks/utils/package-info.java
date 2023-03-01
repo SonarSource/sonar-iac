@@ -17,24 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
-
-import org.junit.jupiter.api.Test;
-
-class PosixPermissionCheckTest {
-
-  @Test
-  void test_add() {
-    DockerVerifier.verify("PosixPermissionCheck/Dockerfile_add", new PosixPermissionCheck());
-  }
-
-  @Test
-  void test_copy() {
-    DockerVerifier.verify("PosixPermissionCheck/Dockerfile_copy", new PosixPermissionCheck());
-  }
-
-  @Test
-  void test_run() {
-    DockerVerifier.verify("PosixPermissionCheck/Dockerfile_run", new PosixPermissionCheck());
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.docker.checks.utils;

@@ -19,14 +19,16 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.regex.Pattern;
+import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.docker.tree.api.AddInstruction;
-import org.sonar.iac.docker.tree.api.CopyInstruction;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.checks.utils.Chmod;
+import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.TransferInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
@@ -34,41 +36,34 @@ import org.sonar.iac.docker.utils.ArgumentUtils;
 public class PosixPermissionCheck implements IacCheck {
 
   private static final String MESSAGE = "Make sure this permission is safe.";
-  private static final Pattern PERMISSION_FORMAT_CHECKER = Pattern.compile("[0-7]{3,4}");
 
   @Override
   public void initialize(InitContext init) {
-    init.register(AddInstruction.class, PosixPermissionCheck::checkChmodPermission);
-    init.register(CopyInstruction.class, PosixPermissionCheck::checkChmodPermission);
+    init.register(TransferInstruction.class, PosixPermissionCheck::checkTransferChmodPermission);
+    init.register(RunInstruction.class, PosixPermissionCheck::checkRunChmodPermission);
   }
 
-  private static void checkChmodPermission(CheckContext ctx, TransferInstruction transferInstruction) {
+  private static void checkRunChmodPermission(CheckContext ctx, RunInstruction runInstruction) {
+    for (Chmod chmod : Chmod.extractChmodsFromArguments(runInstruction.arguments())) {
+      if (chmod.hasPermission("o+w") || chmod.hasPermission("g+s") || chmod.hasPermission("u+s")) {
+        TextRange textRange = TextRanges.merge(List.of(chmod.chmodArg.textRange(), chmod.permissionsArg.textRange()));
+        ctx.reportIssue(textRange, MESSAGE);
+      }
+    }
+  }
+
+  private static void checkTransferChmodPermission(CheckContext ctx, TransferInstruction transferInstruction) {
     transferInstruction.options().stream()
       .filter(flag -> flag.name().equals("chmod"))
-      .forEach(flag -> {
-        if (isPermissionSensitive(ArgumentUtils.resolve(flag.value()).value())) {
-          ctx.reportIssue(flag, MESSAGE);
-        }
-      });
+      .filter(flag -> isPermissionSensitive(ArgumentUtils.resolve(flag.value()).value()))
+      .forEach(flag -> ctx.reportIssue(flag, MESSAGE));
   }
 
-  private static boolean isPermissionSensitive(@Nullable String permission) {
-    if (permission == null) {
+  private static boolean isPermissionSensitive(@Nullable String permissionString) {
+    if (permissionString == null) {
       return false;
     }
-    if (PERMISSION_FORMAT_CHECKER.matcher(permission).find()) {
-      char lastDigit = permission.charAt(permission.length()-1);
-      return isDigitRightSensitive(lastDigit);
-    }
-    return false;
+    Chmod.Permission permissions = Chmod.Permission.fromNumeric(permissionString);
+    return permissions.hasRight("o+w");
   }
-
-  /**
-   * Check if the provided digit is sensitive : 'write' bit is set to 1 (rwx)
-   * <a href="https://en.wikipedia.org/wiki/Chmod#:~:text=The%20chmod%20numerical%20format%20accepts,%2C%20setgid%2C%20and%20sticky%20flags">Wiki chmod</a>
-   */
-  private static boolean isDigitRightSensitive(char digit) {
-    return ((digit - '0') & 0b10) > 0;
-  }
-
 }
