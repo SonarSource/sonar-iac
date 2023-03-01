@@ -38,7 +38,7 @@ public class HostNetworkNamespaceCheck implements IacCheck {
 
   private static void checkHostNetwork(CheckContext ctx, RunInstruction runInstruction) {
     runInstruction.options().stream()
-      .filter(flag -> flag.name().equals("network") && "host".equals(ArgumentUtils.resolve(flag.value()).value()))
+      .filter(flag -> "network".equals(flag.name()) && "host".equals(ArgumentUtils.resolve(flag.value()).value()))
       .forEach(flag -> ctx.reportIssue(flag, MESSAGE));
   }
 }
