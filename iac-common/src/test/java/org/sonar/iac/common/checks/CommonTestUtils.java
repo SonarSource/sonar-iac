@@ -118,6 +118,11 @@ public class CommonTestUtils {
     public Tree value() {
       return value;
     }
+
+    @Override
+    public TextRange textRange() {
+      return TextRanges.merge(List.of(key.textRange(), value.textRange()));
+    }
   }
 
   public static class TestPropertiesTree extends AbstractTestTree implements HasProperties {

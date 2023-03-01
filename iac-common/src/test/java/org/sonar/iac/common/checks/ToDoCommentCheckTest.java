@@ -73,6 +73,19 @@ class ToDoCommentCheckTest {
     verifyNoInteractions(issueBuilder);
   }
 
+  @Test
+  void shouldNotReportIssueWhenTreeDoNotHaveComment() {
+    TextTree key = CommonTestUtils.TestTextTree.text("key");
+    TextTree value = CommonTestUtils.TestTextTree.text("value");
+    CommonTestUtils.TestAttributeTree tree = (CommonTestUtils.TestAttributeTree) CommonTestUtils.TestAttributeTree.attribute(key, value);
+
+    initContext();
+
+    context.scan(tree);
+
+    verifyNoInteractions(verifier);
+    verifyNoInteractions(issueBuilder);
+  }
 
   private static TextTree createTreeWithComment(String commentText) {
     Comment comment = new CommentImpl("# " + commentText, commentText, TextRanges.range(1, 0, "# " + commentText));
