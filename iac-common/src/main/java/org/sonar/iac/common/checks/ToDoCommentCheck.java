@@ -37,11 +37,9 @@ public class ToDoCommentCheck implements IacCheck {
     context.register(Tree.class, (ctx, tree) -> {
       if (tree instanceof HasComments) {
         List<Comment> comments = ((HasComments) tree).comments();
-        if (!comments.isEmpty()) {
-          for (Comment comment : comments) {
-            if (comment.value().contains("TODO")) {
-              ctx.reportIssue(comment.textRange(), MESSAGE);
-            }
+        for (Comment comment : comments) {
+          if (comment.value().contains("TODO")) {
+            ctx.reportIssue(comment.textRange(), MESSAGE);
           }
         }
       }
