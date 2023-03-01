@@ -27,6 +27,7 @@ import java.util.List;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
@@ -48,7 +49,7 @@ public class CommonTestUtils {
     }
   }
 
-  public static class TestTextTree extends AbstractTestTree implements TextTree {
+  public static class TestTextTree extends AbstractTestTree implements TextTree, HasComments {
 
     private final String value;
     private final List<Comment> comments;

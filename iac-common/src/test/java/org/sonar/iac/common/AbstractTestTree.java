@@ -36,9 +36,4 @@ public abstract class AbstractTestTree implements Tree {
   public List<Tree> children() {
     return Collections.emptyList();
   }
-
-  @Override
-  public List<Comment> comments() {
-    return Collections.emptyList();
-  }
 }

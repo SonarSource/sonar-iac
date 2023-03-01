@@ -19,13 +19,10 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.tree.api.DockerTree;
 
@@ -61,14 +58,5 @@ public abstract class AbstractDockerTreeImpl implements DockerTree {
   @Override
   public void setParent(DockerTree parent) {
     this.parent = parent;
-  }
-
-  @Override
-  public List<Comment> comments() {
-    List<Comment> result = new ArrayList<>();
-    for (Tree child : children()) {
-      result.addAll(child.comments());
-    }
-    return result;
   }
 }
