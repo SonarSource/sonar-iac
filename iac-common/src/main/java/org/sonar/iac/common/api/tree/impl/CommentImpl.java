@@ -48,5 +48,4 @@ public class CommentImpl implements Comment {
   public TextRange textRange() {
     return textRange;
   }
-
 }

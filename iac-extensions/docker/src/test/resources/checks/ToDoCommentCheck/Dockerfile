@@ -9,6 +9,12 @@ MAINTAINER bob
 #foo TODO bar
 ADD a.jar /foo
 
+# Noncompliant@+1
+# TODOfix
+USER bob
+
+# Noncompliant@+1
+#TODO
 MAINTAINER bob
 
 RUN apk update && \

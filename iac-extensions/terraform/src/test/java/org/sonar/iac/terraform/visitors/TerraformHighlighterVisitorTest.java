@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.terraform.visitors;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.testing.AbstractHighlightingTest;
 import org.sonar.iac.terraform.parser.HclParser;

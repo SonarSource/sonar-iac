@@ -38,8 +38,8 @@ public class DockerCheckList {
       ExposePortCheck.class,
       InstructionFormatCheck.class,
       MountWorldPermissionCheck.class,
-      PrivilegedUserCheck.class,
       ParsingErrorCheck.class,
+      PrivilegedUserCheck.class,
       ToDoCommentCheck.class,
       UnencryptedProtocolCheck.class
     );
