@@ -1,0 +1,22 @@
+{
+  "title": "Pulling an image based on its digest is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "dockerfile",
+    "cwe"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6497",
+  "sqKey": "S6497",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      1329
+    ]
+  }
+}

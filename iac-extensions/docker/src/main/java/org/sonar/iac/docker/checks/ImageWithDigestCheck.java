@@ -19,33 +19,27 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-import org.sonar.iac.common.checks.ToDoCommentCheck;
+import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.tree.api.FromInstruction;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
-public class DockerCheckList {
-  private DockerCheckList() {
+@Rule(key = "S6497")
+public class ImageWithDigestCheck implements IacCheck {
 
+  private static final String MESSAGE = "Setting a digest will prevent receiving updates of the base image. Make sure it is safe here.";
+
+  @Override
+  public void initialize(InitContext init) {
+    init.register(FromInstruction.class, ImageWithDigestCheck::checkFrom);
   }
 
-  public static List<Class<?>> checks() {
-    return Arrays.asList(
-      BuilderSandboxCheck.class,
-      DebugModeCheck.class,
-      DirectoryCopySourceCheck.class,
-      EnvSecretCheck.class,
-      ExposePortCheck.class,
-      HostNetworkNamespaceCheck.class,
-      ImageWithDigestCheck.class,
-      InstructionFormatCheck.class,
-      MountWorldPermissionCheck.class,
-      PackageInstallationCheck.class,
-      ParsingErrorCheck.class,
-      PosixPermissionCheck.class,
-      PrivilegedUserCheck.class,
-      ToDoCommentCheck.class,
-      UnencryptedProtocolCheck.class
-    );
+  private static void checkFrom(CheckContext ctx, FromInstruction fromInstruction) {
+    String image = ArgumentUtils.resolve(fromInstruction.image()).value();
+    if (image != null && image.contains("@")) {
+      ctx.reportIssue(fromInstruction.image(), MESSAGE);
+    }
   }
 }
