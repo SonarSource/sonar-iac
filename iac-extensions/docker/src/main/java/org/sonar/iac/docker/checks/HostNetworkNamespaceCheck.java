@@ -19,10 +19,12 @@
  */
 package org.sonar.iac.docker.checks;
 
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
@@ -38,7 +40,11 @@ public class HostNetworkNamespaceCheck implements IacCheck {
 
   private static void checkHostNetwork(CheckContext ctx, RunInstruction runInstruction) {
     runInstruction.options().stream()
-      .filter(flag -> "network".equals(flag.name()) && "host".equals(ArgumentUtils.resolve(flag.value()).value()))
+      .filter(flag -> "network".equals(flag.name()) && isArgValue(flag.value(), "host"))
       .forEach(flag -> ctx.reportIssue(flag, MESSAGE));
+  }
+
+  private static boolean isArgValue(@Nullable Argument argument, String expectedValue) {
+    return argument != null && expectedValue.equals(ArgumentUtils.resolve(argument).value());
   }
 }

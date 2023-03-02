@@ -58,7 +58,7 @@ public class ArgumentUtils {
     return new ArgumentResolution(sb.toString());
   }
 
-  public static ArgumentResolution resolve(@Nullable Argument argument) {
+  public static ArgumentResolution resolve(Argument argument) {
     return ArgumentResolver.resolve(argument);
   }
 
@@ -66,10 +66,7 @@ public class ArgumentUtils {
 
     Set<Expression> visitedExpressions = new HashSet<>();
 
-    private static ArgumentResolution resolve(@Nullable Argument argument) {
-      if (argument == null) {
-        return ArgumentResolution.EMPTY;
-      }
+    private static ArgumentResolution resolve(Argument argument) {
       return new ArgumentResolver().resolveExpressions(argument.expressions());
     }
 

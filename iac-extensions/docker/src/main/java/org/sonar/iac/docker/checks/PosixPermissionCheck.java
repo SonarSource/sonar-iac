@@ -28,6 +28,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.checks.utils.Chmod;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.TransferInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
@@ -54,16 +55,19 @@ public class PosixPermissionCheck implements IacCheck {
 
   private static void checkTransferChmodPermission(CheckContext ctx, TransferInstruction transferInstruction) {
     transferInstruction.options().stream()
-      .filter(flag -> flag.name().equals("chmod"))
-      .filter(flag -> isPermissionSensitive(ArgumentUtils.resolve(flag.value()).value()))
+      .filter(flag -> "chmod".equals(flag.name()))
+      .filter(flag -> isPermissionSensitive(flag.value()))
       .forEach(flag -> ctx.reportIssue(flag, MESSAGE));
   }
 
-  private static boolean isPermissionSensitive(@Nullable String permissionString) {
+  private static boolean isPermissionSensitive(@Nullable Argument permission) {
+    if (permission == null) {
+      return false;
+    }
+    String permissionString = ArgumentUtils.resolve(permission).value();
     if (permissionString == null) {
       return false;
     }
-    Chmod.Permission permissions = Chmod.Permission.fromNumeric(permissionString);
-    return permissions.hasRight("o+w");
+    return Chmod.Permission.fromNumeric(permissionString).hasRight("o+w");
   }
 }
