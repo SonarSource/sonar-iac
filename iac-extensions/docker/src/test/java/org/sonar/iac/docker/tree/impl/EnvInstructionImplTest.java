@@ -127,7 +127,6 @@ class EnvInstructionImplTest {
       .hasValue("value1 still_value1 again_value1");
   }
 
-  // SONARIAC-503
   @Test
   void shouldParseMultiline() {
     EnvInstruction tree = parse("ENV JAVA_OPTS -Duser.timezone=\\$TIMEZONE -XX:+UseParallelGC\\\n" +

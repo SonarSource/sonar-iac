@@ -81,6 +81,7 @@ class ArgumentUtilsTest {
     "FROM foo\nARG foo=bar\nLABEL label=${foo:-notbar}",
     "FROM foo\nARG foo=notbar\nARG foo=bar\nLABEL label=$foo",
     "FROM foo\nARG foo=ar\nLABEL label=b$foo",
+    "FROM foo\nENV foo=bar\nLABEL label=$foo",
   })
   void shouldResolveLabelValue(String input) {
     File file = parseFileAndAnalyzeSymbols(input);
