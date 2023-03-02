@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
@@ -210,8 +211,16 @@ public class TreeFactory {
     }
   }
 
-  public HereDocument hereDocument(Expression argument) {
-    return new HereDocumentImpl(newArgument(List.of(argument)));
+  private static final DockerParser heredocParser = DockerParser.create(DockerLexicalGrammar.HEREDOC_FORM_CONTENT);
+  public HereDocument hereDocument(SyntaxToken token) {
+    return (HereDocument) heredocParser.parse(token.value());
+  }
+
+  public HereDocument hereDocumentContent(Argument firstArgument, Optional<List<Argument>> otherArguments) {
+    List<Argument> arguments = new ArrayList<>();
+    arguments.add(firstArgument);
+    arguments.addAll(otherArguments.or(Collections.emptyList()));
+    return new HereDocumentImpl(arguments);
   }
 
   public Argument singleExpressionArgument(Expression expression) {
@@ -289,6 +298,10 @@ public class TreeFactory {
 
   public Argument newArgument(List<Expression> expressions) {
     return new ArgumentImpl(expressions);
+  }
+
+  public Argument asArgument(Expression expressions) {
+    return new ArgumentImpl(List.of(expressions));
   }
 
   public KeyValuePair keyValuePair(Argument key, SyntaxToken equalSign, Argument value) {

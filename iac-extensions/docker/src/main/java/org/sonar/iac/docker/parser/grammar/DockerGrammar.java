@@ -422,7 +422,35 @@ public class DockerGrammar {
   public HereDocument HEREDOC_FORM() {
     return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM).is(
       f.hereDocument(
-        f.regularStringLiteral(b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION))
+        b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)
+      )
+    );
+  }
+
+  public HereDocument HEREDOC_FORM_CONTENT() {
+    return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM_CONTENT).is(
+      f.hereDocumentContent(
+        HEREDOC_ELEMENT(),
+        b.zeroOrMore(
+          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE_OR_LINE_BREAK), HEREDOC_ELEMENT())
+        )
+      )
+    );
+  }
+
+  public Argument HEREDOC_ELEMENT() {
+    return b.<Argument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM_ELEMENT).is(
+      b.firstOf(
+        HEREDOC_NAME(),
+        ARGUMENT()
+      )
+    );
+  }
+
+  public Argument HEREDOC_NAME() {
+    return b.<Argument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM_NAME).is(
+      f.asArgument(
+        f.regularStringLiteral(b.token(DockerLexicalGrammar.HEREDOC_NAME))
       )
     );
   }

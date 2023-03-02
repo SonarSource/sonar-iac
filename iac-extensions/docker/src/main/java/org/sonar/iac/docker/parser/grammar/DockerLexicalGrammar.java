@@ -90,6 +90,9 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   SHELL_FORM,
   SHELL_FORM_GENERIC,
   HEREDOC_FORM,
+  HEREDOC_FORM_NAME,
+  HEREDOC_FORM_CONTENT,
+  HEREDOC_FORM_ELEMENT,
 
   ALIAS,
   ALIAS_AS,
@@ -102,6 +105,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   UNQUOTED_STRING_LITERAL,
 
   UNQUOTED_KEY_LITERAL,
+
+  HEREDOC_NAME,
 
   ARGUMENT,
   ARGUMENT_GENERIC,
@@ -170,6 +175,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(QUOTED_STRING_LITERAL).is(b.regexp(DockerLexicalConstant.QUOTED_STRING_LITERAL));
     b.rule(UNQUOTED_STRING_LITERAL).is(b.regexp(DockerLexicalConstant.UNQUOTED_STRING_LITERAL));
     b.rule(UNQUOTED_KEY_LITERAL).is(b.regexp(DockerLexicalConstant.UNQUOTED_KEY_LITERAL));
+    b.rule(HEREDOC_NAME).is(b.regexp(DockerLexicalConstant.HEREDOC_NAME));
 
     b.rule(STRING_WITH_ENCAPS_VAR_CHARACTERS).is(b.regexp(DockerLexicalConstant.STRING_WITH_ENCAPS_VAR_CHARACTERS));
     b.rule(UNQUOTED_VARIABLE_MODIFIER).is(b.regexp(DockerLexicalConstant.UNQUOTED_VARIABLE_MODIFIER));

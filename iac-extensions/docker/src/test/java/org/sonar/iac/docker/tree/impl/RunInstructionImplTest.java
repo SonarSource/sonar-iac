@@ -268,8 +268,8 @@ class RunInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,4,5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(1);
-    assertThat(((Literal)tree.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<FILE1\nline 1\nline 2\nFILE1");
+    assertThat(tree.arguments()).hasSize(6);
+    assertArgumentsValue(tree.arguments(), "<<FILE1", "line", "1", "line", "2", "FILE1");
   }
 
   @Test
@@ -283,8 +283,8 @@ class RunInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,4,5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(1);
-    assertThat(((Literal)tree.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<-FILE1 line 0\nline 1\nline 2\nFILE1");
+    assertThat(tree.arguments()).hasSize(8);
+    assertArgumentsValue(tree.arguments(), "<<-FILE1", "line", "0", "line", "1", "line", "2", "FILE1");
   }
 
   @Test
@@ -299,8 +299,8 @@ class RunInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,5,5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertThat(tree.arguments()).hasSize(1);
-    assertThat(((LiteralImpl)tree.arguments().get(0).expressions().get(0)).value()).isEqualTo("<<FILE1 <<FILE2\nline file 1\nFILE1\nline file 2\nFILE2");
+    assertThat(tree.arguments()).hasSize(10);
+    assertArgumentsValue(tree.arguments(), "<<FILE1", "<<FILE2", "line", "file", "1", "FILE1", "line", "file", "2", "FILE2");
   }
 
   @ParameterizedTest
