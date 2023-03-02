@@ -1,0 +1,36 @@
+<p>Development tools and frameworks usually have options to make debugging easier for developers. Although these features are useful during
+development, they should never be enabled for applications deployed in production. Debug instructions or error messages can leak detailed information
+about the system, like the application’s path or file names.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The code or configuration enabling the application debug features is deployed on production servers or distributed to end users. </li>
+  <li> The application runs by default with debug features activated. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Do not enable debugging features on production servers or applications distributed to end users.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+FROM example
+# Sensitive
+ENV APP_DEBUG=true
+# Sensitive
+ENV ENV=development
+CMD /run.sh
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+FROM example
+ENV APP_DEBUG=false
+ENV ENV=production
+CMD /run.sh
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
+  <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
+  Exposure </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/489">MITRE, CWE-489</a> - Active Debug Code </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/215">MITRE, CWE-215</a> - Information Exposure Through Debug Information </li>
+</ul>
+
