@@ -48,10 +48,14 @@ public class DebugModeCheck implements IacCheck {
     for (KeyValuePair variable : envInstruction.environmentVariables()) {
       String name = ArgumentUtils.resolve(variable.key()).value();
       String value = ArgumentUtils.resolve(variable.value()).value();
-      if (name != null && value != null && (isDevEnv(name, value) || isDebugMode(name, value) || isPhpXDebugMode(name, value))) {
+      if (name != null && value != null && isVariableSensitive(name, value)) {
         ctx.reportIssue(variable, MESSAGE);
       }
     }
+  }
+
+  private static boolean isVariableSensitive(String name, String value) {
+    return isDevEnv(name, value) || isDebugMode(name, value) || isPhpXDebugMode(name, value);
   }
 
   private static boolean isDevEnv(String name, String value) {

@@ -14,6 +14,8 @@ ARG prd_env=prd
   ENV another=var env=dev
 #                 ^^^^^^^
 # Noncompliant@+1
+ENV env dev
+# Noncompliant@+1
 ENV ENV=DEV
 # Noncompliant@+1
 ENV environment=dev
@@ -42,6 +44,7 @@ ENV $env=dev
 
 # Compliant
 ENV env=devmode
+ENV env dev mode
 ENV envir=dev
 ENV env=develo
 ENV env=val var=dev
@@ -67,6 +70,8 @@ ARG other=other
   ENV var=val debug=true
 #             ^^^^^^^^^^
 # Noncompliant@+1
+ENV DEBUG true
+# Noncompliant@+1
 ENV DEBUG=true
 # Noncompliant@+1
 ENV debug=TRUE
@@ -89,6 +94,7 @@ ENV $debug=true
 
 # Compliant
 ENV debug=0
+ENV DEBUG true 1
 ENV debug=false
 ENV debug=no
 ENV debug_mode=true
@@ -115,6 +121,10 @@ ARG php_disabled=OFF
 # Noncompliant@+1
 ENV xdebug_mode=ON
 # Noncompliant@+1
+ENV xdebug_mode ON
+# Noncompliant@+1
+ENV xdebug_mode off off
+# Noncompliant@+1
 ENV XDEBUG_MODE=on
 # Noncompliant@+1
 ENV php_xdebug_mode=on
@@ -133,6 +143,7 @@ ENV $xdebug_mode=1
 
 # Compliant
 ENV xdebug_mode=off
+ENV xdebug_mode off
 ENV notx_debug_mode=on
 ENV phpxdebug_mode=off
 ENV php_xdebug_mode=off
