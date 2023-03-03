@@ -31,6 +31,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.utils.ArgumentUtils;
@@ -77,7 +78,7 @@ public class EnvSecretCheck implements IacCheck {
   }
 
   private static void checkEnvVariableAssignment(CheckContext ctx, KeyValuePair envVarAssignment) {
-    if (isSensitiveName(ArgumentUtils.resolve(envVarAssignment.key()).value()) && isSensitiveValue(ArgumentUtils.resolve(envVarAssignment.value()).value())) {
+    if (isSensitiveName(ArgumentUtils.resolve(envVarAssignment.key()).value()) && isSensitiveSecret(envVarAssignment.value())) {
       ctx.reportIssue(envVarAssignment.key(), MESSAGE);
     }
   }
@@ -120,6 +121,10 @@ public class EnvSecretCheck implements IacCheck {
       }
     }
     return false;
+  }
+
+  private static boolean isSensitiveSecret(@Nullable Argument secret) {
+    return secret != null && isSensitiveValue(ArgumentUtils.resolve(secret).value());
   }
 
   private static boolean isSensitiveValue(@Nullable String value) {
