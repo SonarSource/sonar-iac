@@ -19,14 +19,18 @@
  */
 package org.sonar.iac.docker.visitors;
 
+import java.util.Optional;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.symbols.Symbol;
 import org.sonar.iac.docker.symbols.Usage;
+import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonar.iac.docker.utils.ArgumentUtils;
@@ -63,9 +67,11 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
   }
 
   private void visitVariable(InputFileContext ctx, Variable variable) {
-    Symbol symbol = currentScope.getSymbol(variable.identifier());
+    Optional<Tree> parentFrom = TreeUtils.getParent(variable, tree -> ((DockerTree) tree).is(DockerTree.Kind.FROM));
+    Scope targetScope = parentFrom.isPresent() ? globalScope : currentScope;
+    Symbol symbol = targetScope.getSymbol(variable.identifier());
     if (symbol != null) {
-      symbol.addUsage(currentScope, variable, Usage.Kind.ACCESS);
+      symbol.addUsage(targetScope, variable, Usage.Kind.ACCESS);
     }
   }
 }

@@ -21,12 +21,20 @@ package org.sonar.iac.docker.tree;
 
 import java.util.Optional;
 import java.util.function.Predicate;
+import javax.print.Doc;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.DockerTree;
 
 public class TreeUtils {
 
   private TreeUtils() {}
+
+  public static Optional<Tree> getParent(Tree tree, Predicate<Tree> predicate) {
+    do {
+      tree = ((DockerTree) tree).parent();
+    } while(tree != null && !predicate.test(tree));
+    return Optional.ofNullable(tree);
+  }
 
   public static Optional<Tree> getLastDescendant(Tree tree, Predicate<Tree> predicate) {
     Tree last = null;

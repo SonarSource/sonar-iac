@@ -147,6 +147,12 @@ class DockerSymbolVisitorTest {
     assertThat(image2Scope.getSymbol("foo").usages()).hasSize(1);
   }
 
+  @Test
+  void globalVariableShouldBeAccessibleToFromInstruction() {
+    Body body = scanBody("ARG image=scratch\nFROM $image");
+
+  }
+
   @ParameterizedTest
   @CsvSource({
     "$foo",
