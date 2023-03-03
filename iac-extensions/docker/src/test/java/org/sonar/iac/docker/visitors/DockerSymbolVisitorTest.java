@@ -30,11 +30,13 @@ import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.symbols.Symbol;
 import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.HasScope;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -148,9 +150,10 @@ class DockerSymbolVisitorTest {
   }
 
   @Test
-  void globalVariableShouldBeAccessibleToFromInstruction() {
+  void globalVariableShouldBeAccessibleInFromInstruction() {
     Body body = scanBody("ARG image=scratch\nFROM $image");
-
+    Argument arg = firstDescendant(body.dockerImages().get(0).from(), Argument.class);
+    assertThat(ArgumentUtils.resolve(arg).value()).isEqualTo("scratch");
   }
 
   @ParameterizedTest

@@ -21,16 +21,12 @@ package org.sonar.iac.docker.tree.impl;
 
 import com.sonar.sslr.api.RecognitionException;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.utils.ArgumentUtils;
-import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
@@ -83,18 +79,6 @@ class BodyImplTest {
   }
 
   @Test
-  void shouldParseFromInstructionWithGlobalVariableName() {
-    Body body = parseBody("ARG image=scratch\nFROM $image");
-    visitSymbol(body);
-
-    assertThat(body.globalArgs()).hasSize(1);
-    assertThat(body.dockerImages()).hasSize(1);
-    assertTextRange(body.textRange()).hasRange(1, 0, 2, 11);
-
-    assertThat(ArgumentUtils.resolve(body.dockerImages().get(0).from().image()).value()).isEqualTo("scratch");
-  }
-
-  @Test
   void checkIsKindMethod() {
     Body body = parseBody("FROM foobar");
     assertThat(body.is(DockerTree.Kind.BODY)).isTrue();
@@ -110,10 +94,5 @@ class BodyImplTest {
 
   private Body parseBody(String input) {
     return parse(input, DockerLexicalGrammar.BODY);
-  }
-
-  private void visitSymbol(Body body) {
-    DockerSymbolVisitor visitor = new DockerSymbolVisitor();
-    visitor.scan(mock(InputFileContext.class), body);
   }
 }

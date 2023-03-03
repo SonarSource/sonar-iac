@@ -52,6 +52,17 @@ class TreeVisitorTest {
   }
 
   @Test
+  void visit_tree_all_subscribing_methods() {
+    List<String> visited = new ArrayList<>();
+
+    visitor.register(Tree.class, (ctx, tree) -> visited.add(tree.getClass().getSimpleName() + "_visit"));
+    visitor.registerAfter(Tree.class, (ctx, tree) -> visited.add(tree.getClass().getSimpleName() + "_after"));
+    visitor.scan(new TreeContext(), tree2);
+
+    assertThat(visited).containsOnly("TestTree_visit", "SubTestTree_visit", "SubTestTree_after", "TestTree_after");
+  }
+
+  @Test
   void visit_without_tree() {
     List<Tree> visited = new ArrayList<>();
     visitor.register(Tree.class, (ctx, tree) -> visited.add(tree));
