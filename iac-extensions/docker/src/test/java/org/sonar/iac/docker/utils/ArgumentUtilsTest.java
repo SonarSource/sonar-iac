@@ -82,6 +82,10 @@ class ArgumentUtilsTest {
     "FROM foo\nARG foo=notbar\nARG foo=bar\nLABEL label=$foo",
     "FROM foo\nARG foo=ar\nLABEL label=b$foo",
     "FROM foo\nENV foo=bar\nLABEL label=$foo",
+    "FROM foo\nENV foo=bar\nLABEL label=${foo}",
+    "FROM foo\nENV foo=bar\nLABEL label=${foo:-notbar}",
+    "FROM foo\nENV foo=notbar\nENV foo=bar\nLABEL label=$foo",
+    "FROM foo\nENV foo=ar\nLABEL label=b$foo",
   })
   void shouldResolveLabelValue(String input) {
     File file = parseFileAndAnalyzeSymbols(input);
@@ -120,7 +124,6 @@ class ArgumentUtilsTest {
     assertThat(ArgumentUtils.resolve(argument).value()).isNull();
   }
 
-  // SONARIAC-601
   @Test
   void shouldNotDeadLoopWhenResolvingSelfAssignedVariable() {
     File file = parseFileAndAnalyzeSymbols(code(
