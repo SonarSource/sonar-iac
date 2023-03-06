@@ -167,6 +167,10 @@ RUN chmod o+w resource && chmod u+wr resource
 RUN chmod chmod o+w resource
 # Noncompliant@+1
 RUN chmod g=u,o+w resource
+# Noncompliant@+2
+RUN <<-SCRIPT
+  chmod +st
+SCRIPT
 
 # Compliant
 RUN chmod 0000
@@ -194,6 +198,9 @@ RUN chmod u+wr
 RUN chmod u=wr
 RUN chmod u+w,o-w
 RUN chmod u+w resource && chmod u+wr resource
+RUN <<-SCRIPT
+  chmod u+w
+SCRIPT
 
 ## Specific case which can cause parsing error
 RUN chmod
