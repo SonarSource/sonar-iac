@@ -27,8 +27,7 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class TreeVisitor<C extends TreeContext> {
 
-  private final List<ConsumerFilter<C, ?>> consumers = new ArrayList<>();
-  private final List<ConsumerFilter<C, ?>> consumersAfter = new ArrayList<>();
+  protected final List<ConsumerFilter<C, ?>> consumers = new ArrayList<>();
 
   public void scan(C ctx, @Nullable Tree root) {
     if (root != null) {
@@ -39,19 +38,14 @@ public class TreeVisitor<C extends TreeContext> {
     }
   }
 
-  private void visit(C ctx, @Nullable Tree node) {
+  protected void visit(C ctx, @Nullable Tree node) {
     if (node != null) {
       ctx.enter(node);
-      callConsumers(ctx, node, consumers);
+      for (ConsumerFilter<C, ?> consumer : consumers) {
+        consumer.accept(ctx, node);
+      }
       node.children().forEach(child -> visit(ctx, child));
-      callConsumers(ctx, node, consumersAfter);
       ctx.leave();
-    }
-  }
-
-  private void callConsumers(C ctx, Tree node, List<ConsumerFilter<C, ?>> consumerList) {
-    for (ConsumerFilter<C, ?> consumer : consumerList) {
-      consumer.accept(ctx, node);
     }
   }
 
@@ -68,23 +62,18 @@ public class TreeVisitor<C extends TreeContext> {
     return this;
   }
 
-  public <T extends Tree> TreeVisitor<C> registerAfter(Class<T> cls, BiConsumer<C, T> visitor) {
-    consumersAfter.add(new ConsumerFilter<>(cls, visitor));
-    return this;
-  }
-
-  private static class ConsumerFilter<C extends TreeContext, T extends Tree> {
+  protected static class ConsumerFilter<C extends TreeContext, T extends Tree> {
 
     private final Class<T> cls;
 
     private final BiConsumer<C, T> delegate;
 
-    private ConsumerFilter(Class<T> cls, BiConsumer<C, T> delegate) {
+    public ConsumerFilter(Class<T> cls, BiConsumer<C, T> delegate) {
       this.cls = cls;
       this.delegate = delegate;
     }
 
-    private void accept(C ctx, Tree node) {
+    public void accept(C ctx, Tree node) {
       if (cls.isAssignableFrom(node.getClass())) {
         delegate.accept(ctx, cls.cast(node));
       }
