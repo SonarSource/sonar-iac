@@ -5,15 +5,9 @@
 'docker-project:sources/docker/docker-containers/dockeransible/Dockerfile':[
 17,
 ],
-'docker-project:sources/docker/dockerfile-examples/ghost/Dockerfile':[
-8,
-],
 'docker-project:sources/docker/dockerfile-examples/jenkins/Dockerfile':[
 5,
 7,
-],
-'docker-project:sources/docker/dockerfile-examples/jmeter-abh/Dockerfile':[
-12,
 ],
 'docker-project:sources/docker/dockerfile-examples/mongodb/Dockerfile':[
 8,

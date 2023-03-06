@@ -66,7 +66,7 @@ class EnvInstructionImplTest {
     assertThat(tree.textRange().start().lineOffset()).isZero();
     assertThat(tree.textRange().end().line()).isEqualTo(1);
     assertThat(tree.textRange().end().lineOffset()).isEqualTo(15);
-    assertThat(tree.children()).hasSize(2);
+    assertThat(tree.children()).hasSize(3);
     assertThat(tree.environmentVariables()).hasSize(1);
 
     KeyValuePair keyValuePair = tree.environmentVariables().get(0);
@@ -83,7 +83,7 @@ class EnvInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
     assertThat(tree.keyword().value()).isEqualTo("ENV");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 38);
-    assertThat(tree.children()).hasSize(2);
+    assertThat(tree.children()).hasSize(4);
 
     assertThat(tree.environmentVariables()).hasSize(1);
 
@@ -101,7 +101,7 @@ class EnvInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
     assertThat(tree.keyword().value()).isEqualTo("ENV");
     assertTextRange(tree.textRange()).hasRange(1, 0, 1, 9);
-    assertThat(tree.children()).hasSize(2);
+    assertThat(tree.children()).hasSize(3);
     assertThat(tree.environmentVariables()).hasSize(1);
 
     KeyValuePair keyValuePair = tree.environmentVariables().get(0);
@@ -118,7 +118,7 @@ class EnvInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
     assertThat(tree.keyword().value()).isEqualTo("ENV");
     assertThat(tree.environmentVariables()).hasSize(1);
-    assertThat(tree.children()).hasSize(2);
+    assertThat(tree.children()).hasSize(3);
     KeyValuePair keyValuePair = tree.environmentVariables().get(0);
     KeyValuePairAssert.assertThat(keyValuePair)
       .hasKind(DockerTree.Kind.KEY_VALUE_PAIR)
@@ -127,6 +127,7 @@ class EnvInstructionImplTest {
       .hasValue("value1 still_value1 again_value1");
   }
 
+  // SONARIAC-503
   @Test
   void shouldParseMultiline() {
     EnvInstruction tree = parse("ENV JAVA_OPTS -Duser.timezone=\\$TIMEZONE -XX:+UseParallelGC\\\n" +
