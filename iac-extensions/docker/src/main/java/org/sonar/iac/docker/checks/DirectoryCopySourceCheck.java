@@ -36,8 +36,8 @@ import org.sonar.iac.docker.utils.ArgumentUtils;
 @Rule(key = "S6470")
 public class DirectoryCopySourceCheck implements IacCheck {
 
-  private static final String MESSAGE_CURRENT_OR_ROOT = "Make sure that recursively copying directories is safe here.";
-  private static final String MESSAGE_GLOBING = "Make sure that using globbing in a %s source is safe here.";
+  private static final String MESSAGE_CURRENT_OR_ROOT = "%s recursively might inadvertently add sensitive data to the container. Make sure it is safe here.";
+  private static final String MESSAGE_GLOBBING = "%s using a glob pattern might inadvertently add sensitive data to the container. Make sure it is safe here.";
   private static final Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[a-zA-Z]:$");
 
   @Override
@@ -50,31 +50,31 @@ public class DirectoryCopySourceCheck implements IacCheck {
     for (Argument src : add.srcs()) {
       String path = ArgumentUtils.resolve(src).value();
       if (path != null && !path.startsWith("http://") && !path.startsWith("https://")) {
-        reportIfSensitive(ctx, src, isSensitivePath(path), "ADD");
+        reportIfSensitive(ctx, src, isSensitivePath(path), "Adding files");
       }
     }
   }
 
   private static void checkCopy(CheckContext ctx, CopyInstruction copyInstruction) {
-    if (hasOption(copyInstruction.options(), "from")) return;
+    if (hasFromOption(copyInstruction.options())) return;
 
     for (Argument src : copyInstruction.srcs()) {
       String path = ArgumentUtils.resolve(src).value();
       if (path != null) {
-        reportIfSensitive(ctx, src, isSensitivePath(path), "COPY");
+        reportIfSensitive(ctx, src, isSensitivePath(path), "Copying");
       }
     }
   }
 
-  private static boolean hasOption(List<Flag> options, String key) {
-    return options.stream().anyMatch(param -> param.name().equals(key));
+  private static boolean hasFromOption(List<Flag> options) {
+    return options.stream().anyMatch(param -> param.name().equals("from"));
   }
 
-  private static void reportIfSensitive(CheckContext ctx, Argument src, PathSensitivity sensitivity, String instructionName) {
+  private static void reportIfSensitive(CheckContext ctx, Argument src, PathSensitivity sensitivity, String messagePrefix) {
     if(sensitivity == PathSensitivity.ROOT_OR_CURRENT) {
-      ctx.reportIssue(src, MESSAGE_CURRENT_OR_ROOT);
+      ctx.reportIssue(src, String.format(MESSAGE_CURRENT_OR_ROOT, messagePrefix));
     } else if (sensitivity == PathSensitivity.TOP_LEVEL_GLOBBING) {
-      ctx.reportIssue(src, String.format(MESSAGE_GLOBING, instructionName));
+      ctx.reportIssue(src, String.format(MESSAGE_GLOBBING, messagePrefix));
     }
   }
 

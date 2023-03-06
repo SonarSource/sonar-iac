@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-# Noncompliant@+1 {{Make sure that recursively copying directories is safe here.}}
+# Noncompliant@+1 {{Adding files recursively might inadvertently add sensitive data to the container. Make sure it is safe here.}}
 ADD . /example
 #   ^
 
@@ -64,7 +64,7 @@ ADD /source1 / /example
 # Noncompliant@+1
 ADD "/" /example
 
-# Noncompliant@+1
+# Noncompliant@+1 {{Adding files using a glob pattern might inadvertently add sensitive data to the container. Make sure it is safe here.}}
 ADD /a* /example
 
 # Noncompliant@+1
