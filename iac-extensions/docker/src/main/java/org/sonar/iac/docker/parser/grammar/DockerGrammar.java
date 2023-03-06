@@ -439,7 +439,7 @@ public class DockerGrammar {
   }
 
   public Argument HEREDOC_ELEMENT() {
-    return b.<Argument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM_ELEMENT).is(
+    return b.<Argument>nonterminal().is(
       b.firstOf(
         HEREDOC_NAME(),
         ARGUMENT()
@@ -448,7 +448,7 @@ public class DockerGrammar {
   }
 
   public Argument HEREDOC_NAME() {
-    return b.<Argument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM_NAME).is(
+    return b.<Argument>nonterminal().is(
       f.asArgument(
         f.regularStringLiteral(b.token(DockerLexicalGrammar.HEREDOC_NAME))
       )

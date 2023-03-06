@@ -103,6 +103,8 @@ import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 @SuppressWarnings("java:S1172")
 public class TreeFactory {
 
+  private static final DockerParser heredocParser = DockerParser.create(DockerLexicalGrammar.HEREDOC_FORM_CONTENT);
+
   public File file(Body body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileImpl(body, eof);
   }
@@ -211,7 +213,6 @@ public class TreeFactory {
     }
   }
 
-  private static final DockerParser heredocParser = DockerParser.create(DockerLexicalGrammar.HEREDOC_FORM_CONTENT);
   public HereDocument hereDocument(SyntaxToken token) {
     return (HereDocument) heredocParser.parse(token.value());
   }
