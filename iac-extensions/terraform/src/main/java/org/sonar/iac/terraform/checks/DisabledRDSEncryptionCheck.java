@@ -30,7 +30,7 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 @Rule(key = "S6303")
 public class DisabledRDSEncryptionCheck extends AbstractNewResourceCheck {
 
-  private static final String MESSAGE = "Make sure that using unencrypted databases is safe here.";
+  private static final String MESSAGE = "Make sure that using unencrypted RDS DB Instances is safe here.";
   private static final String OMITTING_MESSAGE = "Omitting \"storage_encrypted\" disables databases encryption. Make sure it is safe here.";
   private static final String SECONDARY_MESSAGE = "Related RDS DBInstance";
   private static final List<String> EXCLUDE_AURORA_ATTRIBUTE = List.of("aurora", "aurora-mysql", "aurora-postgresql");

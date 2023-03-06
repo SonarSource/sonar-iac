@@ -4,7 +4,7 @@ resource "aws_db_instance" "encrypted" {
 
 resource "aws_db_instance" "unencrypted1" {
 #        ^^^^^^^^^^^^^^^^^>
-  storage_encrypted = false # Noncompliant {{Make sure that using unencrypted databases is safe here.}}
+  storage_encrypted = false # Noncompliant {{Make sure that using unencrypted RDS DB Instances is safe here.}}
 # ^^^^^^^^^^^^^^^^^^^^^^^^^
 }
 
@@ -34,5 +34,5 @@ resource "aws_db_instance" "default3" {  # Compliant
 
 resource "aws_db_instance" "default4" {
   engine = "a"
-  storage_encrypted = false # Noncompliant {{Make sure that using unencrypted databases is safe here.}}
+  storage_encrypted = false # Noncompliant {{Make sure that using unencrypted RDS DB Instances is safe here.}}
 }

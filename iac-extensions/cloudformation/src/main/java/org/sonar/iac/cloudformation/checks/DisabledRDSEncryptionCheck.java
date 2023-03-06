@@ -29,7 +29,7 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S6303")
 public class DisabledRDSEncryptionCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Make sure that using unencrypted databases is safe here.";
+  private static final String MESSAGE = "Make sure that using unencrypted RDS DB Instances is safe here.";
   private static final String OMITTING_MESSAGE = "Omitting \"StorageEncrypted\" disables databases encryption. Make sure it is safe here.";
   private static final String SECONDARY_MESSAGE = "Related RDS DBInstance";
   private static final List<String> EXCLUDE_AURORA_ATTRIBUTE = List.of("aurora", "aurora-mysql", "aurora-postgresql");

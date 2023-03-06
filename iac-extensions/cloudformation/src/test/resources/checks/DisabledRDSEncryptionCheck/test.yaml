@@ -9,7 +9,7 @@ Resources:
     Type: AWS::RDS::DBInstance
     #     ^^^^^^^^^^^^^^^^^^^^> {{Related RDS DBInstance}}
     Properties:
-      StorageEncrypted: false # Noncompliant {{Make sure that using unencrypted databases is safe here.}}
+      StorageEncrypted: false # Noncompliant {{Make sure that using unencrypted RDS DB Instances is safe here.}}
     # ^^^^^^^^^^^^^^^^
 
   NoPropertiesDBInstance:
@@ -44,5 +44,5 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       Engine : a
-      StorageEncrypted: false  # Noncompliant {{Make sure that using unencrypted databases is safe here.}}
+      StorageEncrypted: false  # Noncompliant {{Make sure that using unencrypted RDS DB Instances is safe here.}}
     # ^^^^^^^^^^^^^^^^
