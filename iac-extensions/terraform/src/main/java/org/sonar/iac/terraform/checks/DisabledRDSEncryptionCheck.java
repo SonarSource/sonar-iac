@@ -22,9 +22,11 @@ package org.sonar.iac.terraform.checks;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
+import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualTo;
 
 
 @Rule(key = "S6303")
@@ -35,17 +37,28 @@ public class DisabledRDSEncryptionCheck extends AbstractNewResourceCheck {
   private static final String SECONDARY_MESSAGE = "Related RDS DBInstance";
   private static final List<String> EXCLUDE_AURORA_ATTRIBUTE = List.of("aurora", "aurora-mysql", "aurora-postgresql");
 
-  @Override
   protected void registerResourceConsumer() {
-    register("aws_db_instance",
-      resource -> {
-        AttributeSymbol engine = resource.attribute("engine");
-        if (EXCLUDE_AURORA_ATTRIBUTE.stream().anyMatch(auroraAttribute -> engine.is(equalTo(auroraAttribute)))) {
-          return;
-        }
-        resource.attribute("storage_encrypted")
-          .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
-          .reportIfAbsent(OMITTING_MESSAGE);
-      });
+    register("aws_db_instance", DisabledRDSEncryptionCheck::checkAwsDbInstance);
+    register("aws_rds_cluster", DisabledRDSEncryptionCheck::checkAwsRdsCluster);
+  }
+
+  private static void checkAwsDbInstance(ResourceSymbol resource) {
+    AttributeSymbol engine = resource.attribute("engine");
+    if (EXCLUDE_AURORA_ATTRIBUTE.stream().anyMatch(auroraAttribute -> engine.is(equalTo(auroraAttribute)))) {
+      return;
+    }
+    resource.attribute("storage_encrypted")
+      .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
+      .reportIfAbsent(OMITTING_MESSAGE);
+  }
+
+  private static void checkAwsRdsCluster(ResourceSymbol resource) {
+    AttributeSymbol engine = resource.attribute("engine");
+    AttributeSymbol storageEncrypted = resource.attribute("storage_encrypted");
+    storageEncrypted.reportIf(isFalse(), "Make sure that using an unencrypted RDS DB Cluster is safe here.", resource.toSecondary(SECONDARY_MESSAGE));
+
+    if (engine.is(notEqualTo("serverless"))) {
+      storageEncrypted.reportIfAbsent(OMITTING_MESSAGE);
+    }
   }
 }

@@ -36,3 +36,21 @@ resource "aws_db_instance" "default4" {
   engine = "a"
   storage_encrypted = false # Noncompliant {{Make sure that using unencrypted RDS DB Instances is safe here.}}
 }
+
+resource "aws_rds_cluster" "example1" {
+  engine                  = "aurora-mysql"
+  storage_encrypted       = false # Noncompliant
+}
+
+resource "aws_rds_cluster" "example2" { # Noncompliant
+  engine                  = "aurora-mysql"
+}
+
+resource "aws_rds_cluster" "example3" { # compliant
+  engine                  = "serverless"
+}
+
+resource "aws_rds_cluster" "example3" { # compliant
+  engine                  = "serverless"
+  storage_encrypted       = true # compliant
+}
