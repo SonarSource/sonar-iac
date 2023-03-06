@@ -39,6 +39,7 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
 
   public DockerSymbolVisitor() {
     register(Body.class, this::setGlobalScope);
+    register(FromInstruction.class, this::restoreGlobalScope);
     registerAfter(FromInstruction.class, this::setImageScope);
     register(ArgInstruction.class, this::visitArgInstruction);
     register(Variable.class, this::visitVariable);
@@ -46,6 +47,10 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
 
   public void setGlobalScope(InputFileContext ctx, Body body) {
     body.setScope(globalScope);
+  }
+
+  public void restoreGlobalScope(InputFileContext ctx, FromInstruction from) {
+    currentScope = globalScope;
   }
 
   public void setImageScope(InputFileContext ctx, FromInstruction from) {

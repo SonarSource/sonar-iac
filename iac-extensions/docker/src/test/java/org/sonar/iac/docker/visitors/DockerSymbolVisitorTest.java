@@ -156,6 +156,15 @@ class DockerSymbolVisitorTest {
     assertThat(ArgumentUtils.resolve(arg).value()).isEqualTo("scratch");
   }
 
+  @Test
+  void globalVariableShouldBeAccessibleInFromInstructionMultiple() {
+    Body body = scanBody("ARG image=scratch\nFROM first\nFROM $image");
+    Argument arg1 = firstDescendant(body.dockerImages().get(0).from(), Argument.class);
+    assertThat(ArgumentUtils.resolve(arg1).value()).isEqualTo("first");
+    Argument arg2 = firstDescendant(body.dockerImages().get(1).from(), Argument.class);
+    assertThat(ArgumentUtils.resolve(arg2).value()).isEqualTo("scratch");
+  }
+
   @ParameterizedTest
   @CsvSource({
     "$foo",
