@@ -1,4 +1,13 @@
 {
+'docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile':[
+3,
+],
+'docker-project:sources/docker/awesome-compose/react-java-mysql/backend/Dockerfile':[
+3,
+],
+'docker-project:sources/docker/awesome-compose/react-java-mysql/frontend/Dockerfile':[
+3,
+],
 'docker-project:sources/docker/compose-dev-env/backend/Dockerfile':[
 10,
 ],

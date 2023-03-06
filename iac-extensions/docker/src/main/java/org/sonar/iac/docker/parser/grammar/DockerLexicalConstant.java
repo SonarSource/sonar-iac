@@ -81,6 +81,10 @@ public class DockerLexicalConstant {
     + "(?:" + ESCAPED_UNQUOTED_STRING_CHARACTERS + "|[^\\s'\"$=])++"
     + ")";
 
+  public static final String HEREDOC_NAME = "(?:"
+    + "<<-?\"?[a-zA-Z0-9_]+\"?"
+    + ")";
+
   private DockerLexicalConstant() {
   }
 }

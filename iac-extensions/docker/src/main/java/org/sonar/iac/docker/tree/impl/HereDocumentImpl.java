@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -26,15 +27,15 @@ import org.sonar.iac.docker.tree.api.HereDocument;
 
 public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocument {
 
-  private final Argument argument;
+  private final List<Argument> arguments;
 
-  public HereDocumentImpl(Argument argument) {
-    this.argument = argument;
+  public HereDocumentImpl(List<Argument> arguments) {
+    this.arguments = arguments;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(argument);
+    return new ArrayList<>(arguments);
   }
 
   @Override
@@ -44,6 +45,6 @@ public class HereDocumentImpl extends AbstractDockerTreeImpl implements HereDocu
 
   @Override
   public List<Argument> arguments() {
-    return List.of(argument);
+    return arguments;
   }
 }
