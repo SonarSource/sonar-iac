@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.visitors;
 
-import java.util.List;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.docker.symbols.Scope;
@@ -28,7 +27,6 @@ import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonar.iac.docker.utils.ArgumentUtils;
@@ -42,7 +40,6 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
     register(Body.class, this::setGlobalScope);
     register(DockerImage.class, this::setImageScope);
     register(ArgInstruction.class, this::visitArgInstruction);
-    register(EnvInstruction.class, this::visitEnvInstruction);
     register(Variable.class, this::visitVariable);
   }
 
@@ -56,19 +53,11 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
   }
 
   public void visitArgInstruction(InputFileContext ctx, ArgInstruction argInstruction) {
-    analyzeSymbolDeclarations(argInstruction.keyValuePairs());
-  }
-
-  public void visitEnvInstruction(InputFileContext ctx, EnvInstruction envInstruction) {
-    analyzeSymbolDeclarations(envInstruction.environmentVariables());
-  }
-
-  public void analyzeSymbolDeclarations(List<KeyValuePair> declarations) {
-    for (KeyValuePair declaration : declarations) {
-      String identifier = ArgumentUtils.resolve(declaration.key()).value();
+    for (KeyValuePair keyValuePair : argInstruction.keyValuePairs()) {
+      String identifier = ArgumentUtils.resolve(keyValuePair.key()).value();
       if (identifier != null) {
         Symbol symbol = currentScope.addSymbol(identifier);
-        symbol.addUsage(currentScope, declaration, Usage.Kind.ASSIGNMENT);
+        symbol.addUsage(currentScope, keyValuePair, Usage.Kind.ASSIGNMENT);
       }
     }
   }
