@@ -37,6 +37,8 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
 
   private final DockerPreprocessor preprocessor = new DockerPreprocessor();
   private final DockerNodeBuilder nodeBuilder;
+  private Integer offsetLine = null;
+  private Integer offsetColumn = null;
 
   private DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule) {
     super(StandardCharsets.UTF_8,
@@ -63,6 +65,9 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
     try {
       DockerTree tree = super.parse(preprocessorResult.processedSourceCode());
       setParents(tree);
+      if (offsetLine != null) {
+        computeTextRangeOffset(tree);
+      }
       return tree;
     } catch (RecognitionException e) {
       throw RecognitionExceptionAdjuster.adjustLineAndColumnNumber(e, preprocessorResult.processedSourceCode(), preprocessorResult.sourceOffset());
@@ -74,11 +79,24 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
     return parse(source);
   }
 
+  public void setOffset(int line, int column) {
+    this.offsetLine = line;
+    this.offsetColumn = column;
+  }
+
   private static void setParents(DockerTree tree) {
     for (Tree children : tree.children()) {
       DockerTree child = (DockerTree) children;
       child.setParent(tree);
       setParents(child);
+    }
+  }
+
+  private void computeTextRangeOffset(DockerTree tree) {
+    for (Tree children : tree.children()) {
+      DockerTree child = (DockerTree) children;
+      child.computeTextRangeOffset(offsetLine, offsetColumn);
+      computeTextRangeOffset(child);
     }
   }
 

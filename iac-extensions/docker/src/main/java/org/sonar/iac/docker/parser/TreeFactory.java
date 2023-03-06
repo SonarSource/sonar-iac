@@ -214,6 +214,9 @@ public class TreeFactory {
   }
 
   public HereDocument hereDocument(SyntaxToken token) {
+    int lineOffset = token.textRange().start().line() - 1;
+    int columnOffset = token.textRange().start().lineOffset();
+    heredocParser.setOffset(lineOffset, columnOffset);
     return (HereDocument) heredocParser.parse(token.value());
   }
 
