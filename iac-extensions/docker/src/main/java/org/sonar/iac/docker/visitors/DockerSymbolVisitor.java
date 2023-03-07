@@ -19,6 +19,11 @@
  */
 package org.sonar.iac.docker.visitors;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.function.BiConsumer;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.docker.symbols.Scope;
@@ -27,27 +32,57 @@ import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
 public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
 
+  private final List<ConsumerFilter<InputFileContext, ?>> consumersAfter = new ArrayList<>();
   private final Scope globalScope = new Scope(Scope.Kind.GLOBAL);
   private Scope currentScope = globalScope;
 
   public DockerSymbolVisitor() {
     register(Body.class, this::setGlobalScope);
-    register(DockerImage.class, this::setImageScope);
+    register(FromInstruction.class, this::restoreGlobalScope);
+    registerAfter(FromInstruction.class, this::setImageScope);
     register(ArgInstruction.class, this::visitArgInstruction);
     register(Variable.class, this::visitVariable);
+  }
+
+  @Override
+  protected void visit(InputFileContext ctx, @Nullable Tree node) {
+    if (node != null) {
+      ctx.enter(node);
+      callConsumers(ctx, node, consumers);
+      node.children().forEach(child -> visit(ctx, child));
+      callConsumers(ctx, node, consumersAfter);
+      ctx.leave();
+    }
+  }
+
+  private static void callConsumers(InputFileContext ctx, Tree node, List<ConsumerFilter<InputFileContext, ?>> consumerList) {
+    for (ConsumerFilter<InputFileContext, ?> consumer : consumerList) {
+      consumer.accept(ctx, node);
+    }
+  }
+
+  public <T extends Tree> TreeVisitor<InputFileContext> registerAfter(Class<T> cls, BiConsumer<InputFileContext, T> visitor) {
+    consumersAfter.add(new ConsumerFilter<>(cls, visitor));
+    return this;
   }
 
   public void setGlobalScope(InputFileContext ctx, Body body) {
     body.setScope(globalScope);
   }
 
-  public void setImageScope(InputFileContext ctx, DockerImage dockerImage) {
+  public void restoreGlobalScope(InputFileContext ctx, FromInstruction from) {
+    currentScope = globalScope;
+  }
+
+  public void setImageScope(InputFileContext ctx, FromInstruction from) {
+    DockerImage dockerImage = (DockerImage) from.parent();
     currentScope = new Scope(Scope.Kind.IMAGE, globalScope);
     dockerImage.setScope(currentScope);
   }

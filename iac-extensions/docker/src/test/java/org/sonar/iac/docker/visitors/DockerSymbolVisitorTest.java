@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.visitors;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -30,11 +31,15 @@ import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.symbols.Symbol;
 import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Body;
+import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.HasScope;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Variable;
+import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -147,6 +152,22 @@ class DockerSymbolVisitorTest {
     assertThat(image2Scope.getSymbol("foo").usages()).hasSize(1);
   }
 
+  @Test
+  void globalVariableShouldBeAccessibleInFromInstruction() {
+    Body body = scanBody("ARG image=scratch\nFROM $image");
+    Argument arg = firstDescendant(body.dockerImages().get(0).from(), Argument.class);
+    assertThat(ArgumentUtils.resolve(arg).value()).isEqualTo("scratch");
+  }
+
+  @Test
+  void globalVariableShouldBeAccessibleInFromInstructionMultiple() {
+    Body body = scanBody("ARG image=scratch\nFROM first\nFROM $image");
+    Argument arg1 = firstDescendant(body.dockerImages().get(0).from(), Argument.class);
+    assertThat(ArgumentUtils.resolve(arg1).value()).isEqualTo("first");
+    Argument arg2 = firstDescendant(body.dockerImages().get(1).from(), Argument.class);
+    assertThat(ArgumentUtils.resolve(arg2).value()).isEqualTo("scratch");
+  }
+
   @ParameterizedTest
   @CsvSource({
     "$foo",
@@ -204,6 +225,22 @@ class DockerSymbolVisitorTest {
     }
   }
 
+  @Test
+  void visitWithAllSubscribingMethods() {
+    Body body = parse("FROM image\nONBUILD CMD", DockerLexicalGrammar.BODY);
+    DockerSymbolVisitor visitor = new DockerSymbolVisitor();
+    List<String> visited = new ArrayList<>();
+
+    visitor.register(DockerImage.class, (ctx, tree) -> visited.add("dockerimage_visit"));
+    visitor.registerAfter(DockerImage.class, (ctx, tree) -> visited.add("dockerimage_after"));
+    visitor.register(OnBuildInstruction.class, (ctx, tree) -> visited.add("onbuild_visit"));
+    visitor.registerAfter(OnBuildInstruction.class, (ctx, tree) -> visited.add("onbuild_after"));
+    visitor.register(CmdInstruction.class, (ctx, tree) -> visited.add("cmd_visit"));
+    visitor.registerAfter(CmdInstruction.class, (ctx, tree) -> visited.add("cmd_after"));
+    visitor.scan(inputFileContext, body);
+
+    assertThat(visited).containsExactly("dockerimage_visit", "onbuild_visit", "cmd_visit", "cmd_after", "onbuild_after", "dockerimage_after");
+  }
 
   private Body scanBody(String code) {
     Body body = parse(code, DockerLexicalGrammar.BODY);

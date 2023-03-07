@@ -75,7 +75,7 @@ class BodyImplTest {
     Body body = parseBody("ARG FOO\nFROM foobar");
     assertThat(body.globalArgs()).hasSize(1);
     assertThat(body.dockerImages()).hasSize(1);
-    assertTextRange(body.textRange()).hasRange(1, 0, 2, 11);;
+    assertTextRange(body.textRange()).hasRange(1, 0, 2, 11);
   }
 
   @Test
