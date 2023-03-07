@@ -65,7 +65,7 @@ import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 class IacSensorTest extends AbstractSensorTest {
 
   TreeParser<Tree> testParser = (source, inputFileContext) -> {
-    throw new RuntimeException();
+    throw new RuntimeException("Parse error at line 32 column 1...");
   };
 
   @Test
@@ -125,10 +125,13 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(textPointer.line()).isEqualTo(2);
     assertThat(textPointer.lineOffset()).isEqualTo(1);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains(String.format("Unable to parse file: %s. Parse error at position 2:1", inputFile.uri()))
-      .contains("Cannot parse 'file1.iac': null");
+      .containsExactly("Cannot parse 'file1.iac': Parse error at line 32 column 1...");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac': Parse error at line 32 column 1..." +
+        System.lineSeparator() +
+        "\tat org.sonar.iac.");
   }
 
   @Test
@@ -146,7 +149,7 @@ class IacSensorTest extends AbstractSensorTest {
   void test_parsing_error_should_raise_on_corrupted_file() throws IOException {
     InputFile inputFile = inputFile("fakeFile.iac", "\n{}");
     InputFile spyInputFile = spy(inputFile);
-    when(spyInputFile.contents()).thenThrow(IOException.class);
+    when(spyInputFile.contents()).thenThrow(new IOException("foo bar"));
     analyse(spyInputFile);
 
     Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();
@@ -156,7 +159,7 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(analysisError.message()).isEqualTo("Unable to parse file: fakeFile.iac");
     assertThat(analysisError.location()).isNull();
 
-    assertThat(logTester.logs()).contains(String.format("Unable to parse file: %s. ", inputFile.uri()));
+    assertThat(logTester.logs()).contains(String.format("Cannot read '%s': foo bar", inputFile.filename()));
   }
 
   @Test

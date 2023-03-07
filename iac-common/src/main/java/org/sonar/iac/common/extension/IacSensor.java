@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -159,7 +160,7 @@ public abstract class IacSensor implements Sensor {
         try {
           analyseFile(inputFileContext);
         } catch (ParseException e) {
-          logParsingError(inputFile, e);
+          logParsingError(e);
           inputFileContext.reportParseError(repositoryKey(), e.getPosition());
         }
         progressReport.nextFile();
@@ -207,14 +208,9 @@ public abstract class IacSensor implements Sensor {
       }
     }
 
-    private void logParsingError(InputFile inputFile, ParseException e) {
-      TextPointer position = e.getPosition();
-      String positionMessage = "";
-      if (position != null) {
-        positionMessage = String.format("Parse error at position %s:%s", position.line(), position.lineOffset());
-      }
-      LOG.error(String.format("Unable to parse file: %s. %s", inputFile.uri(), positionMessage));
+    private void logParsingError(ParseException e) {
       LOG.error(e.getMessage());
+      LOG.debug(ExceptionUtils.getStackTrace(e));
     }
   }
 }
