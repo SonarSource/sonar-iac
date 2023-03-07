@@ -71,21 +71,15 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   SHELL,
   HEALTHCHECK,
   HEALTHCHECK_NONE,
-  NONE,
 
   /**
    * EXPRESSIONS
    */
   ARGUMENTS,
-  PORT,
-  KEY_ONLY,
-  KEY_VALUE_PAIR_EQUALS,
-  KEY_VALUE_PAIR_SINGLE,
 
   FLAG,
   FLAG_PREFIX,
   FLAG_NAME,
-  ARG_NAME,
   EXEC_FORM,
   SHELL_FORM,
   SHELL_FORM_GENERIC,
