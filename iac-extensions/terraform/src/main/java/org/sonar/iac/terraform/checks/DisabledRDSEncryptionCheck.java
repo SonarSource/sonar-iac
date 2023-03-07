@@ -57,17 +57,15 @@ public class DisabledRDSEncryptionCheck extends AbstractNewResourceCheck {
   }
 
   private static void checkAwsRdsCluster(ResourceSymbol resource) {
-    AttributeSymbol engine_mode = resource.attribute("engine_mode");
+    AttributeSymbol engineMode = resource.attribute("engine_mode");
     AttributeSymbol storageEncrypted = resource.attribute("storage_encrypted");
     storageEncrypted.reportIf(isFalse(), MESSAGE_RDS_CLUSTER, resource.toSecondary(SECONDARY_MESSAGE_RDS_CLUSTER));
-
-    if (engine_mode.isAbsent() || engine_mode.is(notEqualTo("serverless"))) {
+    if (engineMode.isAbsent() || engineMode.is(notEqualTo("serverless"))) {
       storageEncrypted.reportIfAbsent(OMITTING_MESSAGE);
     }
   }
 
   private static void checkAwsDbInstanceBackupReplication(ResourceSymbol resource) {
-    resource.attribute("kms_key_id")
-      .reportIfAbsent(MESSAGE_DB_INSTANCE_BACKUP_REPLICATION);
+    resource.attribute("kms_key_id").reportIfAbsent(MESSAGE_DB_INSTANCE_BACKUP_REPLICATION);
   }
 }
