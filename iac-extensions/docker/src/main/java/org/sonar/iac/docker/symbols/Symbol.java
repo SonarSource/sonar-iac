@@ -44,7 +44,7 @@ public class Symbol {
     Usage usage = new Usage(scope, tree, kind);
     usages.add(usage);
     if (tree instanceof HasSymbol) {
-      ((HasSymbol) tree).setSymbol(this);
+      ((HasSymbol) tree).setSymbol(new Symbol(this));
     }
   }
 
