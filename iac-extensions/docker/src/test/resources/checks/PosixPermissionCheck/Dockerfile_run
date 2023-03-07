@@ -170,6 +170,7 @@ RUN chmod g=u,o+w resource
 # Noncompliant@+2
 RUN <<-SCRIPT
   chmod +st
+# ^^^^^^^^^
 SCRIPT
 
 # Compliant
