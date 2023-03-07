@@ -81,9 +81,12 @@ public class DockerLexicalConstant {
     + "(?:" + ESCAPED_UNQUOTED_STRING_CHARACTERS + "|[^\\s'\"$=])++"
     + ")";
 
-  public static final String HEREDOC_NAME = "(?:"
-    + "<<-?\"?[a-zA-Z0-9_]+\"?"
-    + ")";
+  public static final String HEREDOC_NAME = "<<-?\"?([a-zA-Z0-9_]++)\"?";
+
+  public static final String HEREDOC_EXPRESSION = "(?:" + HEREDOC_NAME + "\\s+)+[\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)";
+
+  public static final String IMAGE_ALIAS = "[-a-zA-Z0-9_\\.]+";
+
 
   private DockerLexicalConstant() {
   }
