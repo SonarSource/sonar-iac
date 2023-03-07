@@ -37,10 +37,8 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
 
   private final DockerPreprocessor preprocessor = new DockerPreprocessor();
   private final DockerNodeBuilder nodeBuilder;
-  private Integer offsetLine = null;
-  private Integer offsetColumn = null;
 
-  private DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule) {
+  protected DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule) {
     super(StandardCharsets.UTF_8,
       DockerLexicalGrammar.createGrammarBuilder(),
       DockerGrammar.class,
@@ -65,9 +63,6 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
     try {
       DockerTree tree = super.parse(preprocessorResult.processedSourceCode());
       setParents(tree);
-      if (offsetLine != null) {
-        computeTextRangeOffset(tree);
-      }
       return tree;
     } catch (RecognitionException e) {
       throw RecognitionExceptionAdjuster.adjustLineAndColumnNumber(e, preprocessorResult.processedSourceCode(), preprocessorResult.sourceOffset());
@@ -79,11 +74,6 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
     return parse(source);
   }
 
-  public void setOffset(int line, int column) {
-    this.offsetLine = line;
-    this.offsetColumn = column;
-  }
-
   private static void setParents(DockerTree tree) {
     for (Tree children : tree.children()) {
       DockerTree child = (DockerTree) children;
@@ -91,15 +81,6 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       setParents(child);
     }
   }
-
-  private void computeTextRangeOffset(DockerTree tree) {
-    for (Tree children : tree.children()) {
-      DockerTree child = (DockerTree) children;
-      child.computeTextRangeOffset(offsetLine, offsetColumn);
-      computeTextRangeOffset(child);
-    }
-  }
-
   static class RecognitionExceptionAdjuster {
     private static final String PARSING_ERROR_MESSAGE = "Parse error at line %d column %d %s";
     private static final Pattern RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN = Pattern.compile("Parse error at line (?<line>\\d+) column (?<column>\\d+)(?<rest>.*)");

@@ -59,13 +59,4 @@ public abstract class AbstractDockerTreeImpl implements DockerTree {
   public void setParent(DockerTree parent) {
     this.parent = parent;
   }
-
-  public void computeTextRangeOffset(int lineOffset, int columnOffset) {
-    TextRange objTextRange = textRange();
-    int startLine = objTextRange.start().line() + lineOffset;
-    int startColumn = objTextRange.start().lineOffset() + (objTextRange.start().line() == 1 ? columnOffset : 0);
-    int endLine = objTextRange.end().line() + lineOffset;
-    int endColumn = objTextRange.end().lineOffset() + (objTextRange.end().line() == 1 ? columnOffset : 0);
-    this.textRange = TextRanges.range(startLine, startColumn, endLine, endColumn);
-  }
 }
