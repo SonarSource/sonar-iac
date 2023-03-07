@@ -28,7 +28,7 @@ import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
-@Rule(key = "S6474")
+@Rule(key = "S6431")
 public class HostNetworkNamespaceCheck implements IacCheck {
 
   private static final String MESSAGE = "Do not use host operating system namespaces.";

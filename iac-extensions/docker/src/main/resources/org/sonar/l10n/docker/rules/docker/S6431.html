@@ -1,0 +1,32 @@
+<p>Using host operating system namespaces can lead to compromise of the host system.<br> Opening network services of the local host system to the
+container creates a new attack surface for attackers.</p>
+<p>Host network sharing could provide a significant performance advantage for workloads that require critical network performance. However, the
+successful exploitation of this attack vector could have a catastrophic impact on confidentiality within the host.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The host exposes sensitive network services. </li>
+  <li> The container’s services performances do <strong>not</strong> rely on operating system namespaces. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Do not use host operating system namespaces.</p>
+<h2>Sensitive Code Example</h2>
+<pre>
+# syntax=docker/dockerfile:1.3
+FROM example
+# Sensitive
+RUN --network=host wget -O /home/sessions http://127.0.0.1:9000/sessions
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+# syntax=docker/dockerfile:1.3
+FROM example
+RUN --network=none wget -O /home/sessions http://127.0.0.1:9000/sessions
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.docker.com/build/buildkit/dockerfile-frontend/">Dockerfile reference</a> - Custom Dockerfile syntax </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#run---network">Dockerfile reference</a> - RUN --network </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/653.html">MITRE, CWE-653</a> - Improper Isolation or Compartmentalization </li>
+</ul>
+
