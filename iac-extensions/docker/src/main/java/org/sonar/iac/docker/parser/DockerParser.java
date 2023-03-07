@@ -38,7 +38,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
   private final DockerPreprocessor preprocessor = new DockerPreprocessor();
   private final DockerNodeBuilder nodeBuilder;
 
-  private DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule) {
+  protected DockerParser(DockerNodeBuilder nodeBuilder, GrammarRuleKey rootRule) {
     super(StandardCharsets.UTF_8,
       DockerLexicalGrammar.createGrammarBuilder(),
       DockerGrammar.class,
@@ -81,7 +81,6 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       setParents(child);
     }
   }
-
   static class RecognitionExceptionAdjuster {
     private static final String PARSING_ERROR_MESSAGE = "Parse error at line %d column %d %s";
     private static final Pattern RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN = Pattern.compile("Parse error at line (?<line>\\d+) column (?<column>\\d+)(?<rest>.*)");

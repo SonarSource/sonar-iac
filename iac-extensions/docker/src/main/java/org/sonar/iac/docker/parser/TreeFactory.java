@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
@@ -49,10 +48,10 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 import org.sonar.iac.docker.tree.api.HereDocument;
 import org.sonar.iac.docker.tree.api.Instruction;
+import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
-import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.RunInstruction;
@@ -84,10 +83,10 @@ import org.sonar.iac.docker.tree.impl.FlagImpl;
 import org.sonar.iac.docker.tree.impl.FromInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HealthCheckInstructionImpl;
 import org.sonar.iac.docker.tree.impl.HereDocumentImpl;
+import org.sonar.iac.docker.tree.impl.KeyValuePairImpl;
 import org.sonar.iac.docker.tree.impl.LabelInstructionImpl;
 import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.tree.impl.MaintainerInstructionImpl;
-import org.sonar.iac.docker.tree.impl.KeyValuePairImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
 import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
@@ -103,7 +102,7 @@ import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 @SuppressWarnings("java:S1172")
 public class TreeFactory {
 
-  private static final DockerParser heredocParser = DockerParser.create(DockerLexicalGrammar.HEREDOC_FORM_CONTENT);
+  private static final DockerHeredocParser HEREDOC_PARSER = DockerHeredocParser.create();
 
   public File file(Body body, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileImpl(body, eof);
@@ -214,7 +213,7 @@ public class TreeFactory {
   }
 
   public HereDocument hereDocument(SyntaxToken token) {
-    return (HereDocument) heredocParser.parse(token.value());
+    return (HereDocument) HEREDOC_PARSER.parse(token.value(), token.textRange().start());
   }
 
   public HereDocument hereDocumentContent(Argument firstArgument, Optional<List<Argument>> otherArguments) {

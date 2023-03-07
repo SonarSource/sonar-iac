@@ -76,7 +76,7 @@ public class DockerNodeBuilder implements NodeBuilder {
     return new SyntaxTokenImpl(value, range, getCommentsForToken(range));
   }
 
-  private TextRange tokenRange(Input input, int startIndex, String value) {
+  protected TextRange tokenRange(Input input, int startIndex, String value) {
     int[] startLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex);
     int[] endLineAndColumn = sourceOffset.sourceLineAndColumnAt(startIndex + value.length());
     char[] fileChars = input.input();
