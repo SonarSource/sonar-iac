@@ -27,7 +27,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.issue.NewIssue;
@@ -54,7 +54,7 @@ public class InputFileContext extends TreeContext {
       NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
 
       if (textRange != null) {
-        issueLocation.at(textRange);
+        issueLocation.at(inputFile.newRange(textRange.start().line(), textRange.start().lineOffset(), textRange.end().line(), textRange.end().lineOffset()));
       }
 
       issue.forRule(ruleKey).at(issueLocation);
@@ -64,7 +64,7 @@ public class InputFileContext extends TreeContext {
         .forEach(secondary -> issue.addLocation(
           issue.newLocation()
             .on(inputFile)
-            .at(secondary.textRange)
+            .at(inputFile.newRange(secondary.textRange.start().line(), secondary.textRange.start().lineOffset(), secondary.textRange.end().line(), secondary.textRange.end().lineOffset()))
             .message(secondary.message)
         ));
 

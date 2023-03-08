@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.iac.common.api.tree.HasComments;
@@ -30,6 +31,7 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
 
   private NewHighlighting newHighlighting;
+  private InputFile inputFile;
 
   protected SyntaxHighlightingVisitor() {
     register(Tree.class, (ctx, tree) -> highlightComments(tree));
@@ -40,8 +42,9 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
 
   @Override
   protected void before(InputFileContext ctx, Tree root) {
+    inputFile = ctx.inputFile;
     newHighlighting = ctx.sensorContext.newHighlighting()
-      .onFile(ctx.inputFile);
+      .onFile(inputFile);
   }
 
   @Override
@@ -50,7 +53,12 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
   }
 
   protected void highlight(HasTextRange range, TypeOfText typeOfText) {
-    newHighlighting.highlight(range.textRange(), typeOfText);
+    if (range.textRange().start().equals(range.textRange().end())) {
+      return;
+    }
+
+    newHighlighting.highlight(inputFile.newRange(range.textRange().start().line(), range.textRange().start().lineOffset(), range.textRange().end().line(),
+        range.textRange().end().lineOffset()), typeOfText);
   }
 
   private void highlightComments(Tree tree) {

@@ -22,7 +22,7 @@ package org.sonar.iac.docker.checks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;

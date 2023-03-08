@@ -20,7 +20,7 @@
 package org.sonar.iac.common.yaml.tree;
 
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 
 public abstract class YamlTreeImpl implements YamlTree {

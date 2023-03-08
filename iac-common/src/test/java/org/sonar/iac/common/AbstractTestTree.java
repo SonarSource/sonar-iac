@@ -21,7 +21,7 @@ package org.sonar.iac.common;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 

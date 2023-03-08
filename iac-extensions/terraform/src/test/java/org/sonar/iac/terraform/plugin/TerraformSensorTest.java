@@ -33,6 +33,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.TextRangeAssert;
@@ -64,7 +65,8 @@ class TerraformSensorTest extends ExtensionSensorTest {
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Rename tag key \"anycompany:cost-center\" to match the regular expression \"^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\".");
-    TextRangeAssert.assertTextRange(location.textRange()).hasRange(2, 11, 2, 35);
+    TextRangeAssert.assertTextRange(TextRanges.range(location.textRange().start().line(), location.textRange().start().lineOffset(), location.textRange().end().line(),
+      location.textRange().end().lineOffset())).hasRange(2, 11, 2, 35);
   }
 
   @Test

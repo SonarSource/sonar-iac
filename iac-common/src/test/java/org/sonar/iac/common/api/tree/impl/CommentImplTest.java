@@ -20,7 +20,7 @@
 package org.sonar.iac.common.api.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 
 import static org.assertj.core.api.Assertions.assertThat;

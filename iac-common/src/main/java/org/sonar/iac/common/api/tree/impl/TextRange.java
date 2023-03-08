@@ -17,37 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.tree.impl;
+package org.sonar.iac.common.api.tree.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
+public class TextRange {
+  private final TextPointer start;
+  private final TextPointer end;
 
-public abstract class TerraformTreeImpl implements TerraformTree {
+  public TextRange(TextPointer start, TextPointer end) {
+    this.start = start;
+    this.end = end;
+  }
 
-  protected TextRange textRange;
+  public TextPointer start() {
+    return start;
+  }
 
-  @Override
-  public final boolean is(Kind... kind) {
-    if (getKind() != null) {
-      for (Kind kindIter : kind) {
-        if (getKind() == kindIter) {
-          return true;
-        }
-      }
-    }
-    return false;
+  public TextPointer end() {
+    return end;
   }
 
   @Override
-  public TextRange textRange() {
-    if (textRange == null) {
-      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).collect(Collectors.toList());
-      textRange = TextRanges.merge(childRanges);
+  public boolean equals(Object obj) {
+    if (obj == null || obj.getClass() != this.getClass()) {
+      return false;
     }
-    return textRange;
+    TextRange other = (TextRange) obj;
+    return start.equals(other.start) && end.equals(other.end);
+  }
+
+  @Override
+  public int hashCode() {
+    return start.hashCode() * 17 + end.hashCode();
   }
 }

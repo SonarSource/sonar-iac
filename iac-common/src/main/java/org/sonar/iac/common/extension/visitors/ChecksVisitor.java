@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.CheckContext;
