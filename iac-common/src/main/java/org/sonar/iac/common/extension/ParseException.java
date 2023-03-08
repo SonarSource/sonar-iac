@@ -36,7 +36,7 @@ public class ParseException extends RuntimeException {
     } else {
       message = String.format("Cannot %s '%s'", action, inputFile);
     }
-    throw new ParseException(message, position, cause.getMessage());
+    return new ParseException(message, position, cause.getMessage());
   }
 
   public ParseException(String message, @Nullable TextPointer position, @Nullable String details) {

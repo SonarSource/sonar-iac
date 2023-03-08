@@ -165,7 +165,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       " in reader, line 1, column 5:\n" +
       "    a: b: c\n" +
       "        ^\n";
-    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'k8.yaml:1:1'\n" +
+    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'k8.yaml:1:1'" +
+      System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo(message1);

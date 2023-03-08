@@ -136,7 +136,8 @@ class TerraformSensorTest extends ExtensionSensorTest {
       "      ^\n");
 
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
-      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'parserError.tf:1:1'\n" +
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'parserError.tf:1:1'" +
+        System.lineSeparator() +
         "\tat org.sonar.iac.common");
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);

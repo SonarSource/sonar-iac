@@ -131,7 +131,8 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo("RuntimeException message");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
-      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac\n" +
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac" +
+        System.lineSeparator() +
         "\tat org.sonar.iac");
   }
 
@@ -361,12 +362,12 @@ class IacSensorTest extends AbstractSensorTest {
       }
 
       @Override
-      protected void throwParseException(String action, InputFile inputFile, Exception cause) {
+      protected ParseException throwParseException(String action, InputFile inputFile, Exception cause) {
         if (!(cause instanceof IOException)) {
           TextPointer position = new DefaultTextPointer(2,1);
-          throw new ParseException("Cannot " + action + " '" + inputFile, position, cause.getMessage());
+          return new ParseException("Cannot " + action + " '" + inputFile, position, cause.getMessage());
         }
-        super.throwParseException(action, inputFile, cause);
+        return super.throwParseException(action, inputFile, cause);
       }
     };
   }

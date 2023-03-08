@@ -142,7 +142,8 @@ class CloudformationSensorTest extends ExtensionSensorTest {
       " in reader, line 1, column 4:\n" +
       "    \"a'\n" +
       "       ^\n";
-    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'\n" +
+    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'" +
+      System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).isEqualTo(message1);
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(1)).startsWith(message2);
