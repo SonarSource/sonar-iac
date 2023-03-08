@@ -127,12 +127,15 @@ public abstract class IacSensor implements Sensor {
     return sensorContext.runtime().getProduct() != SonarProduct.SONARLINT;
   }
 
-  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
+  protected void throwParseException(String action, InputFile inputFile, Exception cause) {
+    if (cause instanceof ParseException) {
+      throw (ParseException) cause;
+    }
     TextPointer position = null;
     if (cause instanceof RecognitionException) {
       position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
     }
-    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
+    ParseException.throwParseException(action, inputFile, cause, position);
   }
 
   private boolean isActive(SensorContext sensorContext) {
@@ -174,7 +177,8 @@ public abstract class IacSensor implements Sensor {
       try {
         content = inputFile.contents();
       } catch (IOException | RuntimeException e) {
-        throw toParseException("read", inputFile, e);
+        throwParseException("read", inputFile, e);
+        return;
       }
 
       if (EMPTY_FILE_CONTENT_PATTERN.matcher(content).matches()) {
@@ -185,7 +189,8 @@ public abstract class IacSensor implements Sensor {
         try {
           return parser.parse(content, inputFileContext);
         } catch (RuntimeException e) {
-          throw toParseException("parse", inputFile, e);
+          throwParseException("parse", inputFile, e);
+          return null;
         }
       });
 
@@ -209,7 +214,12 @@ public abstract class IacSensor implements Sensor {
     }
 
     private void logParsingError(ParseException e) {
-      LOG.error(e.getMessage());
+      String message = e.getMessage();
+      LOG.error(message);
+      String detailedMessage = e.getDetails();
+      if (detailedMessage != null) {
+        LOG.debug(detailedMessage);
+      }
       LOG.debug(ExceptionUtils.getStackTrace(e));
     }
   }

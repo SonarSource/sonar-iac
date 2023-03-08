@@ -20,6 +20,7 @@
 package org.sonar.iac.terraform.plugin;
 
 import java.util.Collection;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
@@ -32,6 +33,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
@@ -123,5 +125,20 @@ class TerraformSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFile("file.tf", "a {}");
+  }
+
+  @Override
+  protected void verifyDebugMessages(List<String> logs) {
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .isEqualTo("Parse error at line 1 column 4:\n" +
+      "\n" +
+      "1: a {\n" +
+      "      ^\n");
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'parserError.tf:1:1'\n" +
+        "\tat org.sonar.iac.common");
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
   }
 }

@@ -86,9 +86,9 @@ public abstract class YamlSensor extends IacSensor {
 
 
   @Override
-  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
+  protected void throwParseException(String action, InputFile inputFile, Exception cause) {
     if (!(cause instanceof MarkedYamlEngineException)) {
-      return super.toParseException(action, inputFile, cause);
+      super.throwParseException(action, inputFile, cause);
     }
 
     Optional<Mark> problemMark = ((MarkedYamlEngineException) cause).getProblemMark();
@@ -96,7 +96,7 @@ public abstract class YamlSensor extends IacSensor {
     if (problemMark.isPresent()) {
       position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);
     }
-    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
+    ParseException.throwParseException(action, inputFile, cause, position);
   }
 
   @Override

@@ -66,7 +66,7 @@ public class YamlConverter {
 
   public FileTree convertFile(List<Node> nodes) {
     if (nodes.isEmpty()) {
-      throw new ParseException("Unexpected empty nodes list while converting file", null);
+      throw new ParseException("Unexpected empty nodes list while converting file", null, null);
     }
     TextRange fileRange = TextRanges.merge(List.of(range(nodes.get(0)), range(ListUtils.getLast(nodes))));
     YamlTreeMetadata metadata = new YamlTreeMetadata("FILE", fileRange, Collections.emptyList());

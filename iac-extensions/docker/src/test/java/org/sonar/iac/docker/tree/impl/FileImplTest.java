@@ -19,9 +19,9 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import com.sonar.sslr.api.RecognitionException;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.File;
@@ -34,12 +34,12 @@ class FileImplTest {
 
   @Test
   void shouldFailOnEmptyFile() {
-    assertThrows(RecognitionException.class, () -> parseFile(""), "Parse error at line 1 column 1");
+    assertThrows(ParseException.class, () -> parseFile(""), "Parse error at line 1 column 1");
   }
 
   @Test
   void shouldFailOnFileWithGlobalArgOnly() {
-    assertThrows(RecognitionException.class, () -> parseFile("ARG test=val"), "Parse error at line 1 column 1");
+    assertThrows(ParseException.class, () -> parseFile("ARG test=val"), "Parse error at line 1 column 1");
   }
 
   @Test

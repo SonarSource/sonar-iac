@@ -25,6 +25,7 @@ import com.sonar.sslr.api.typed.ActionParser;
 import javax.annotation.Nullable;
 import org.fest.assertions.GenericAssert;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.parser.grammar.DockerKeyword;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
@@ -96,7 +97,7 @@ public class Assertions {
       isNotNull();
       try {
         parseTillEof(input);
-      } catch (RecognitionException e) {
+      } catch (RecognitionException | ParseException e) {
         // expected
         return this;
       }

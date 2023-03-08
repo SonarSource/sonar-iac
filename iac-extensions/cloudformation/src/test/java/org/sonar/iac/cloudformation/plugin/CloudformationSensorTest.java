@@ -20,6 +20,7 @@
 package org.sonar.iac.cloudformation.plugin;
 
 import java.time.Duration;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
@@ -28,6 +29,7 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -127,6 +129,24 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFile("comment.yaml", "# Some Comment");
+  }
+
+  @Override
+  protected void verifyDebugMessages(List<String> logs) {
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+    String message1 = "while scanning a quoted scalar\n" +
+      " in reader, line 1, column 1:\n" +
+      "    \"a'\n" +
+      "    ^\n" +
+      "found unexpected end of stream\n" +
+      " in reader, line 1, column 4:\n" +
+      "    \"a'\n" +
+      "       ^\n";
+    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'\n" +
+      "\tat org.sonar.iac.common";
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).isEqualTo(message1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1)).startsWith(message2);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
   }
 
   private String generateBigJson() {

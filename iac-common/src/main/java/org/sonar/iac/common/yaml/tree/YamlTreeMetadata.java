@@ -99,7 +99,7 @@ public final class YamlTreeMetadata implements HasTextRange {
 
   private static TextRange range(Optional<Mark> startMark, Optional<Mark> endMark) {
     if (startMark.isEmpty()) {
-      throw new ParseException("Nodes are expected to have a start mark during conversion", null);
+      throw new ParseException("Nodes are expected to have a start mark during conversion", null, null);
     }
 
     int startLine = startMark.get().getLine() + 1;

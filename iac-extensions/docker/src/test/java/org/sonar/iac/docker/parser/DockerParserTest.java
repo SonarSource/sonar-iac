@@ -21,10 +21,17 @@ package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.RecognitionException;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
@@ -33,24 +40,27 @@ class DockerParserTest {
   @Test
   void raiseParsingErrorWithoutComments() {
     String code = code("ONBUILD unknown");
-    Exception exception = assertThrows(RecognitionException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
-    assertThat(exception.getMessage()).startsWith("Parse error at line 1 column 9");
+    ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
+    assertThat(exception.getMessage()).isEqualTo("Cannot parse 'null'");
+    assertThat(exception.getDetails()).startsWith("Parse error at line 1 column 9");
   }
 
   @Test
   void raiseParsingErrorLeadingComments() {
     String code = code("# comment which will be removed",
       "ONBUILD unknown");
-    Exception exception = assertThrows(RecognitionException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
-    assertThat(exception.getMessage()).startsWith("Parse error at line 2 column 9");
+    ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
+    assertThat(exception.getMessage()).isEqualTo("Cannot parse 'null'");
+    assertThat(exception.getDetails()).startsWith("Parse error at line 2 column 9");
   }
 
   @Test
   void raiseParsingErrorMultilineInstruction() {
     String code = code("ONBUILD ",
       "unknown");
-    Exception exception = assertThrows(RecognitionException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
-    assertThat(exception.getMessage()).startsWith("Parse error at line 2 column 1");
+    ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
+    assertThat(exception.getMessage()).isEqualTo("Cannot parse 'null'");
+    assertThat(exception.getDetails()).startsWith("Parse error at line 2 column 1");
   }
 
   @Test
@@ -58,14 +68,22 @@ class DockerParserTest {
     String code = code("ONBUILD ",
       "# comment which will be removed",
       "unknown");
-    Exception exception = assertThrows(RecognitionException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION));
-    assertThat(exception.getMessage()).startsWith("Parse error at line 3 column 1");
+    InputFile inputFile = mock(InputFile.class);
+    Mockito.when(inputFile.toString()).thenReturn("filename.abc");
+    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION, inputFileContext));
+    assertThat(exception.getMessage()).isEqualTo("Cannot parse 'filename.abc'");
+    assertThat(exception.getDetails()).startsWith("Parse error at line 3 column 1");
   }
 
   @Test
-  void shouldNotCreateNewExceptionOnInvalidMessageFormat() {
+  void shouldCreateNewExceptionOnInvalidMessageFormat() {
     RecognitionException exception = new RecognitionException(0, "InvalidMessage");
-    assertThat(DockerParser.RecognitionExceptionAdjuster.adjustLineAndColumnNumber(exception, null, null)).isSameAs(exception);
+    Throwable throwable = catchThrowable(() -> DockerParser.RecognitionExceptionAdjuster.adjustLineAndColumnNumber(exception, null, null, null));
+    assertThat(throwable)
+      .isInstanceOf(ParseException.class)
+      .extracting(exp -> ((ParseException)exp).getDetails())
+      .isEqualTo("InvalidMessage");
   }
 }
 

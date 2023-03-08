@@ -20,6 +20,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.time.Duration;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -116,7 +117,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   protected InputFile inputFileWithIdentifiers(String content) {
-    return super.inputFile("k8.yaml", K8_IDENTIFIERS + content);
+    return super.inputFile("k8.yaml", content + "\n" + K8_IDENTIFIERS);
   }
 
   @Override
@@ -156,6 +157,21 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFileWithIdentifiers("");
+  }
+
+  @Override
+  protected void verifyDebugMessages(List<String> logs) {
+    String message1 = "mapping values are not allowed here\n" +
+      " in reader, line 1, column 5:\n" +
+      "    a: b: c\n" +
+      "        ^\n";
+    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'k8.yaml:1:1'\n" +
+      "\tat org.sonar.iac.common";
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .isEqualTo(message1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+      .startsWith(message2);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
   }
 
   private String generateBigJson() {

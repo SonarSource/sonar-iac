@@ -65,7 +65,7 @@ import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 class IacSensorTest extends AbstractSensorTest {
 
   TreeParser<Tree> testParser = (source, inputFileContext) -> {
-    throw new RuntimeException("Parse error at line 32 column 1...");
+    throw new RuntimeException("RuntimeException message");
   };
 
   @Test
@@ -126,12 +126,13 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(textPointer.lineOffset()).isEqualTo(1);
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
-      .containsExactly("Cannot parse 'file1.iac': Parse error at line 32 column 1...");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+      .containsExactly("Cannot parse 'file1.iac");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac': Parse error at line 32 column 1..." +
-        System.lineSeparator() +
-        "\tat org.sonar.iac.");
+      .isEqualTo("RuntimeException message");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac\n" +
+        "\tat org.sonar.iac");
   }
 
   @Test
@@ -159,7 +160,7 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(analysisError.message()).isEqualTo("Unable to parse file: fakeFile.iac");
     assertThat(analysisError.location()).isNull();
 
-    assertThat(logTester.logs()).contains(String.format("Cannot read '%s': foo bar", inputFile.filename()));
+    assertThat(logTester.logs()).contains(String.format("Cannot read '%s'", inputFile.filename()));
   }
 
   @Test
@@ -360,12 +361,12 @@ class IacSensorTest extends AbstractSensorTest {
       }
 
       @Override
-      protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
+      protected void throwParseException(String action, InputFile inputFile, Exception cause) {
         if (!(cause instanceof IOException)) {
           TextPointer position = new DefaultTextPointer(2,1);
-          return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
+          throw new ParseException("Cannot " + action + " '" + inputFile, position, cause.getMessage());
         }
-        return super.toParseException(action, inputFile, cause);
+        super.throwParseException(action, inputFile, cause);
       }
     };
   }

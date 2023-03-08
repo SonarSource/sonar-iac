@@ -20,12 +20,14 @@
 package org.sonar.iac.docker.plugin;
 
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.docker.parser.DockerParser;
 
@@ -122,6 +124,16 @@ class DockerSensorTest extends ExtensionSensorTest {
   @Override
   protected InputFile validFile() {
     return inputFile("Dockerfile", "FROM");
+  }
+
+  @Override
+  protected void verifyDebugMessages(List<String> logs) {
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .isEqualTo("Parse error at line 1 column 1 :");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'Dockerfile:1:1'\n" +
+        "\tat org.sonar.iac.common");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
   }
 
   private DockerSensor sensor(String... rules) {

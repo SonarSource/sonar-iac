@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -28,6 +30,13 @@ public class DockerTestUtils {
   public static <T extends DockerTree> T parse(String input, GrammarRuleKey rootRule) {
     DockerParser parser = DockerParser.create(rootRule);
     DockerTree tree = parser.parse(input);
+
+    return (T) tree;
+  }
+
+  public static <T extends DockerTree> T parse(String input, GrammarRuleKey rootRule, InputFileContext inputFileContext) {
+    DockerParser parser = DockerParser.create(rootRule);
+    Tree tree = parser.parse(input, inputFileContext);
 
     return (T) tree;
   }
