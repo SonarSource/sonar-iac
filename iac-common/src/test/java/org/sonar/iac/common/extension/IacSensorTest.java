@@ -68,6 +68,10 @@ class IacSensorTest extends AbstractSensorTest {
     throw new RuntimeException("RuntimeException message");
   };
 
+  TreeParser<Tree> testParserThrowsParseException = (source, inputFileContext) -> {
+    throw new ParseException("RuntimeException message", null, null);
+  };
+
   @Test
   void test_descriptor_sonarqube_8_9() {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
@@ -113,7 +117,7 @@ class IacSensorTest extends AbstractSensorTest {
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("A parsing error occurred in this file.");
-    assertTextRange(location.textRange()).hasRange(2, 0, 2, 2);
+    assertThat(location.textRange()).isNull();
 
     Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();
     assertThat(analysisErrors).hasSize(1);
@@ -121,17 +125,15 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(analysisError.inputFile()).isEqualTo(inputFile);
     assertThat(analysisError.message()).isEqualTo("Unable to parse file: file1.iac");
     TextPointer textPointer = analysisError.location();
-    assertThat(textPointer).isNotNull();
-    assertThat(textPointer.line()).isEqualTo(2);
-    assertThat(textPointer.lineOffset()).isEqualTo(1);
+    assertThat(textPointer).isNull();
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
-      .containsExactly("Cannot parse 'file1.iac");
+      .containsExactly("Cannot parse 'file1.iac'");
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo("RuntimeException message");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
-      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac" +
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac'" +
         System.lineSeparator() +
         "\tat org.sonar.iac");
   }
@@ -337,6 +339,7 @@ class IacSensorTest extends AbstractSensorTest {
     return sensor(SONAR_RUNTIME_8_9, checkFactory);
   }
 
+
   protected IacSensor sensor(SonarRuntime sonarRuntime, CheckFactory checkFactory) {
 
     return new IacSensor(sonarRuntime, fileLinesContextFactory, noSonarFilter, IacLanguage.IAC) {
@@ -359,15 +362,6 @@ class IacSensorTest extends AbstractSensorTest {
       @Override
       protected String getActivationSettingKey() {
         return "testsensor.active";
-      }
-
-      @Override
-      protected ParseException throwParseException(String action, InputFile inputFile, Exception cause) {
-        if (!(cause instanceof IOException)) {
-          TextPointer position = new DefaultTextPointer(2,1);
-          return new ParseException("Cannot " + action + " '" + inputFile, position, cause.getMessage());
-        }
-        return super.throwParseException(action, inputFile, cause);
       }
     };
   }
