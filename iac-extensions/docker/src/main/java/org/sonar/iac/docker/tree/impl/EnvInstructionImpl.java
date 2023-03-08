@@ -43,9 +43,7 @@ public class EnvInstructionImpl extends InstructionImpl implements EnvInstructio
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(keyword);
-    for (KeyValuePair keyValuePair : keyValuePairs) {
-      children.addAll(keyValuePair.children());
-    }
+    children.addAll(keyValuePairs);
     return children;
   }
 

@@ -1,7 +1,7 @@
 FROM scratch
 
 ## Dev environment
-ARG env=env
+ARG env_string=env
 ARG other=other
 ARG dev_env=dev
 ARG prd_env=prd
@@ -40,7 +40,7 @@ ENV env="dev"
 # Noncompliant@+1
 ENV env=$dev_env
 # Noncompliant@+1
-ENV $env=dev
+ENV $env_string=dev
 
 # Compliant
 ENV env=devmode
@@ -59,7 +59,7 @@ ENV $unknown=dev
 ## Debug mode
 ARG enabled=true
 ARG disabled=false
-ARG debug=debug
+ARG debug_string=debug
 ARG other=other
 
 # Sensitive
@@ -90,7 +90,7 @@ ENV _debug=true
 # Noncompliant@+1
 ENV debug=$enabled
 # Noncompliant@+1
-ENV $debug=true
+ENV $debug_string=true
 
 # Compliant
 ENV debug=0
@@ -106,7 +106,7 @@ ENV debug=val var=false
 
 
 ## PHPX debug mode
-ARG xdebug_mode=xdebug_mode
+ARG xdebug_mode_string=xdebug_mode
 ARG not_xdebug_mode=random
 ARG php_enabled=ON
 ARG php_disabled=OFF
@@ -139,7 +139,7 @@ ENV xdebug_mode=anything
 # Noncompliant@+1
 ENV xdebug_mode=$php_enabled
 # Noncompliant@+1
-ENV $xdebug_mode=1
+ENV $xdebug_mode_string=1
 
 # Compliant
 ENV xdebug_mode=off

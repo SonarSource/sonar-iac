@@ -32,6 +32,7 @@ import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
+import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
@@ -47,7 +48,8 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
     register(Body.class, this::setGlobalScope);
     register(FromInstruction.class, this::restoreGlobalScope);
     registerAfter(FromInstruction.class, this::setImageScope);
-    register(ArgInstruction.class, this::visitArgInstruction);
+    register(ArgInstruction.class, (ctx, argInstruction) -> visitAssignmentInstruction(argInstruction.keyValuePairs()));
+    register(EnvInstruction.class, (ctx, envInstruction) -> visitAssignmentInstruction(envInstruction.environmentVariables()));
     register(Variable.class, this::visitVariable);
   }
 
@@ -87,8 +89,8 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
     dockerImage.setScope(currentScope);
   }
 
-  public void visitArgInstruction(InputFileContext ctx, ArgInstruction argInstruction) {
-    for (KeyValuePair keyValuePair : argInstruction.keyValuePairs()) {
+  public void visitAssignmentInstruction(List<KeyValuePair> assignments) {
+    for (KeyValuePair keyValuePair : assignments) {
       String identifier = ArgumentUtils.resolve(keyValuePair.key()).value();
       if (identifier != null) {
         Symbol symbol = currentScope.addSymbol(identifier);
