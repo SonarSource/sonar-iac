@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  CompliantDBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      StorageEncrypted: true
+
+  SensitiveDBInstance:
+    Type: AWS::RDS::DBInstance
+    #     ^^^^^^^^^^^^^^^^^^^^> {{Related RDS DBInstance}}
+    Properties:
+      StorageEncrypted: false # Noncompliant {{Make sure that using unencrypted RDS DB Instances is safe here.}}
+    # ^^^^^^^^^^^^^^^^
+
+  NoPropertiesDBInstance:
+    # Noncompliant@+1 {{Omitting "StorageEncrypted" disables databases encryption. Make sure it is safe here.}}
+    Type: AWS::RDS::DBInstance
+    #     ^^^^^^^^^^^^^^^^^^^^
+
+  NoDBInstanceResource:
+    Type: Some::Other::Type
+    Properties:
+      StorageEncrypted: false
+
+  AuroraDBInstanceResource:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora
+      StorageEncrypted: false
+
+  AuroraMysqlDBInstanceResource:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora-mysql
+      StorageEncrypted: false
+
+  AuroraPostgresqlDBInstanceResource:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora-postgresql
+      StorageEncrypted: false
+
+  NonCompliantInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine : a
+      StorageEncrypted: false  # Noncompliant {{Make sure that using unencrypted RDS DB Instances is safe here.}}
+    # ^^^^^^^^^^^^^^^^
+  EncryptedDBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      StorageEncrypted: true
+  UnEncryptedDBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      StorageEncrypted: false # Noncompliant {{Make sure that using an unencrypted RDS DB Cluster is safe here.}}
+  NoPropertiesDBCluster:
+    Type: AWS::RDS::DBCluster # Noncompliant
+  MissingEncryptionButWithClusterIdDBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      SourceDBClusterIdentifier: "unique-db" # compliant
+  UnEncryptedWithClusterIdDBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      StorageEncrypted: false
+      SourceDBClusterIdentifier: "unique-db" # compliant
+  MissingEncryptionButWithSnapshotIdDBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      SnapshotIdentifier: "snapshot-identifier" # compliant
+  EncryptedGlobalCluster:
+    Type: AWS::RDS::GlobalCluster
+    Properties:
+      StorageEncrypted: true
+  UnEncryptedGlobalCluster:
+    Type: AWS::RDS::GlobalCluster
+    Properties:
+      StorageEncrypted: false # Noncompliant {{Make sure that using an unencrypted RDS DB GlobalCluster is safe here.}}
+  NoPropertiesGlobalCluster:
+    Type: AWS::RDS::GlobalCluster # Noncompliant
+  MissingEncryptionButWithClusterIdGlobalCluster:
+    Type: AWS::RDS::GlobalCluster
+    Properties:
+      SourceDBClusterIdentifier: "unique-db" # compliant
+  UnEncryptedWithClusterIdGlobalCluster:
+    Type: AWS::RDS::GlobalCluster
+    Properties:
+      StorageEncrypted: false
+      SourceDBClusterIdentifier: "unique-db" # compliant
