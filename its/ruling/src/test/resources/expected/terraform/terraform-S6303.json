@@ -11,6 +11,12 @@
 'terraform-project:sources/terraform/terragoat/terraform/aws/db-app.tf':[
 18,
 ],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/best-practices/rds_retention_period_set/main.tf':[
+1,
+],
+'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/rds_cluster_encrypt_at_rest_disabled/main.tf':[
+5,
+],
 'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-authentication/rds_without_authentication/main.tf':[
 1,
 ],

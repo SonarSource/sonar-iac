@@ -65,7 +65,7 @@ public class TerraformCheckList {
       DisabledEFSEncryptionCheck.class,
       DisabledESDomainEncryptionCheck.class,
       DisabledMfaBucketDeletionCheck.class,
-      DisabledRDSEncryptionCheck.class,
+      DisabledDBEncryptionCheck.class,
       DisabledS3EncryptionCheck.class,
       DisabledLoggingCheck.class,
       DisabledSNSTopicEncryptionCheck.class,

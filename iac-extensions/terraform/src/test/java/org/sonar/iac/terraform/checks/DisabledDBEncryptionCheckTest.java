@@ -21,10 +21,10 @@ package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
 
-class DisabledRDSEncryptionCheckTest {
+class DisabledDBEncryptionCheckTest {
 
   @Test
   void test() {
-    TerraformVerifier.verify("DisabledRDSEncryptionCheck/test.tf", new DisabledRDSEncryptionCheck());
+    TerraformVerifier.verify("DisabledRDSEncryptionCheck/test.tf", new DisabledDBEncryptionCheck());
   }
 }
