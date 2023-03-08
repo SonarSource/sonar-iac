@@ -30,7 +30,7 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualT
 
 
 @Rule(key = "S6303")
-public class DisabledRDSEncryptionCheck extends AbstractNewResourceCheck {
+public class DisabledDBEncryptionCheck extends AbstractNewResourceCheck {
 
   private static final String MESSAGE_DB_INSTANCE = "Make sure that using unencrypted RDS DB Instances is safe here.";
   private static final String MESSAGE_RDS_CLUSTER = "Make sure that using an unencrypted RDS DB Cluster is safe here.";
@@ -41,9 +41,9 @@ public class DisabledRDSEncryptionCheck extends AbstractNewResourceCheck {
   private static final List<String> EXCLUDE_AURORA_ATTRIBUTE = List.of("aurora", "aurora-mysql", "aurora-postgresql");
 
   protected void registerResourceConsumer() {
-    register("aws_db_instance", DisabledRDSEncryptionCheck::checkAwsDbInstance);
-    register("aws_rds_cluster", DisabledRDSEncryptionCheck::checkAwsRdsCluster);
-    register("aws_db_instance_automated_backups_replication", DisabledRDSEncryptionCheck::checkAwsDbInstanceBackupReplication);
+    register("aws_db_instance", DisabledDBEncryptionCheck::checkAwsDbInstance);
+    register("aws_rds_cluster", DisabledDBEncryptionCheck::checkAwsRdsCluster);
+    register("aws_db_instance_automated_backups_replication", DisabledDBEncryptionCheck::checkAwsDbInstanceBackupReplication);
   }
 
   private static void checkAwsDbInstance(ResourceSymbol resource) {
