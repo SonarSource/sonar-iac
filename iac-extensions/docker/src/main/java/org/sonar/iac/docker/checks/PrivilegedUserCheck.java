@@ -30,6 +30,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.TreeUtils;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -51,9 +52,10 @@ public class PrivilegedUserCheck implements IacCheck {
     "convertigo", "couchbase", "docker", "eclipse-mosquitto", "eggdrop", "ghost", "gradle", "mariadb", "mongo", "mongo-express", "mysql", "node",
     "postgres", "rabbitmq", "rakudo-star", "redis", "sonarqube", "storm", "swift", "teamspeak", "zookeeper");
   private static final Set<String> UNSAFE_USERS = Set.of("root", "containerAdministrator");
-  private static final String SAFE_IMAGES = "adminer, api-firewall, elasticsearch, emqx, flink, fluentd, geonetwork, groovy, haproxy,"+
-    " ibm-semeru-runtimes, irssi, jetty, jobber, kibana, kong, lightstreamer, logstash, memcached, neo4j, odoo, open-liberty, percona, "+
-    "rocket.chat, solr, swift, varnish, vault, websphere-liberty, znc, nginxinc/nginx-unprivileged";
+  private static final Set<String> SAFE_IMAGES = Set.of("adminer", "api-firewall", "elasticsearch", "emqx", "flink", "fluentd", "geonetwork", "groovy", "haproxy",
+    " ibm-semeru-runtimes", "irssi", "jetty", "jobber", "kibana", "kong", "lightstreamer", "logstash", "memcached", "neo4j", "odoo", "open-liberty", "percona",
+    "rocket.chat", "solr", "swift", "varnish", "vault", "websphere-liberty", "znc", "nginxinc/nginx-unprivileged");
+
   @RuleProperty(
     key = "safeImages",
     description = "Comma separated list of safe images (no default root user).",
@@ -84,27 +86,36 @@ public class PrivilegedUserCheck implements IacCheck {
     if(!isLastDockerImageInFile(dockerImage)) {
       return;
     }
-    String imageName = getImageName(dockerImage.from());
+
+    getLastUser(dockerImage).ifPresentOrElse(
+      lastUserInstruction -> checkLastUserInstruction(ctx, lastUserInstruction), 
+      () -> checkLastImageName(ctx, dockerImage.from())
+    );
+  }
+
+  private static void checkLastUserInstruction(CheckContext ctx, UserInstruction userInstruction) {
+    for(Argument user: userInstruction.arguments()) {
+      String userName = ArgumentUtils.resolve(user).value();
+      if (UNSAFE_USERS.contains(userName)) {
+        ctx.reportIssue(userInstruction, String.format(MESSAGE_ROOT_USER, userName));
+      }
+    }
+  }
+
+  private void checkLastImageName(CheckContext ctx, FromInstruction fromInstruction) {
+    String imageName = getImageName(fromInstruction);
     if (imageName == null) {
       return;
     }
 
-    Optional<UserInstruction> lastUser = getLastUser(dockerImage);
-    if (lastUser.isEmpty()) {
-      if (isScratchImage(imageName)) {
-        ctx.reportIssue(dockerImage.from(), MESSAGE_SCRATCH);
-      } else if (isUnsafeImage(imageName) && !isUserSafeImage(imageName)) {
-        ctx.reportIssue(dockerImage.from(), String.format(MESSAGE_UNSAFE_DEFAULT_ROOT, imageName));
-      } else if (isMicrosoftUnsafeImage(imageName)) {
-        ctx.reportIssue(dockerImage.from(), MESSAGE_MICROSOFT_DEFAULT_ROOT);
-      } else if (!isSafeImage(imageName)) {
-        ctx.reportIssue(dockerImage.from(), MESSAGE_OTHER_IMAGE);
-      }
-    } else {
-      String user = ArgumentUtils.resolveAndMerge(lastUser.get()).value();
-      if(UNSAFE_USERS.contains(user)) {
-        ctx.reportIssue(lastUser.get(), String.format(MESSAGE_ROOT_USER, user));
-      }
+    if (isScratchImage(imageName)) {
+      ctx.reportIssue(fromInstruction, MESSAGE_SCRATCH);
+    } else if (isUnsafeImage(imageName) && !isUserSafeImage(imageName)) {
+      ctx.reportIssue(fromInstruction, String.format(MESSAGE_UNSAFE_DEFAULT_ROOT, imageName));
+    } else if (isMicrosoftUnsafeImage(imageName)) {
+      ctx.reportIssue(fromInstruction, MESSAGE_MICROSOFT_DEFAULT_ROOT);
+    } else if (!isSafeImage(imageName)) {
+      ctx.reportIssue(fromInstruction, MESSAGE_OTHER_IMAGE);
     }
   }
 
