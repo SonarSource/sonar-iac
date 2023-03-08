@@ -34,7 +34,6 @@ import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.ExpandableStringCharacters;
 import org.sonar.iac.docker.tree.api.ExpandableStringLiteral;
 import org.sonar.iac.docker.tree.api.Expression;
-import org.sonar.iac.docker.tree.api.HasArguments;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.Variable;
@@ -43,19 +42,6 @@ public class ArgumentUtils {
 
   private ArgumentUtils() {
     // utils class
-  }
-
-  /**
-   * Resolve a list of Argument as a single string, used by some instructions like USER.
-   * Will return an empty {@link ArgumentResolution} when it is not possible to resolve the argument expressions.
-   */
-  public static ArgumentResolution resolveAndMerge(HasArguments hasArguments) {
-    StringBuilder sb = new StringBuilder();
-    for (Argument argument : hasArguments.arguments()) {
-      ArgumentResolution resolved = resolve(argument);
-      sb.append(resolved.value);
-    }
-    return new ArgumentResolution(sb.toString());
   }
 
   public static ArgumentResolution resolve(Argument argument) {
