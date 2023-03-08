@@ -83,6 +83,11 @@ public class DockerLexicalConstant {
 
   /**
    * Regexes to match Docker heredoc expression as described in the <a href="https://docs.docker.com/engine/reference/builder/#here-documents">Docker reference</a>.
+   * It starts with the heredoc indicator (2 Less-than signs), followed by an optional minus, followed by an optional double quote
+   * then the 1st capturing group (the heredoc block name), followed again by an optional double quote.
+   * In 1st capturing group: one or more (possessive) uppercase/lowercase letters, numbers, or underscore.
+   * The key part is the reference to the heredoc block name which end the heredoc block by having this element alone in a line.
+   * This regex also allow having multiple heredoc block name, it will then end until the last matched block.
    */
   public static final String HEREDOC_NAME = "<<-?\"?([a-zA-Z0-9_]++)\"?";
   public static final String HEREDOC_EXPRESSION = "(?:" + HEREDOC_NAME + "\\s+)+[\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)";
