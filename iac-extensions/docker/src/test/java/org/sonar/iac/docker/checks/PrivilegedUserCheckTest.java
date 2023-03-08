@@ -34,7 +34,7 @@ class PrivilegedUserCheckTest {
 
   @Test
   void testCompliant() {
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 10; i++) {
       DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile-Compliant." + i, check);
     }
   }

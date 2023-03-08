@@ -94,11 +94,13 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private static void checkLastUserInstruction(CheckContext ctx, UserInstruction userInstruction) {
-    for(Argument user: userInstruction.arguments()) {
-      String userName = ArgumentUtils.resolve(user).value();
-      if (UNSAFE_USERS.contains(userName)) {
-        ctx.reportIssue(userInstruction, String.format(MESSAGE_ROOT_USER, userName));
-      }
+    if (userInstruction.arguments().size() != 1) {
+      return;
+    }
+    Argument user = userInstruction.arguments().get(0);
+    String userName = ArgumentUtils.resolve(user).value();
+    if (UNSAFE_USERS.contains(userName)) {
+      ctx.reportIssue(userInstruction, String.format(MESSAGE_ROOT_USER, userName));
     }
   }
 
