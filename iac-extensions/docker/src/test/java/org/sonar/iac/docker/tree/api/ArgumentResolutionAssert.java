@@ -39,9 +39,9 @@ public class ArgumentResolutionAssert extends AbstractAssert<ArgumentResolutionA
 
   public ArgumentResolutionAssert isUnresolved() {
     isNotNull();
-    Assertions.assertThat(actual.value())
+    Assertions.assertThat(actual.status())
       .overridingErrorMessage("Expected ArgumentResolution to be unresolved but value was <%s>", actual.value())
-      .isNull();
+      .isEqualTo(ArgumentUtils.ArgumentResolution.Status.UNRESOLVED);
     return this;
   }
 }

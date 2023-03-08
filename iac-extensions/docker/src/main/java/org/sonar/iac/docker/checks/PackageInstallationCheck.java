@@ -32,6 +32,8 @@ import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
+import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.UNRESOLVED;
+
 @Rule(key = "S6500")
 public class PackageInstallationCheck implements IacCheck {
 
@@ -63,13 +65,14 @@ public class PackageInstallationCheck implements IacCheck {
     }
 
     void process(Argument argument) {
-      String argValue = ArgumentUtils.resolve(argument).value();
+      ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(argument);
 
       // stop analyzing apt statement when unresolved part is detected
-      if (argValue == null) {
+      if (resolution.is(UNRESOLVED)) {
         statement = null;
         return;
       }
+      String argValue = resolution.value();
 
       // if new apt statement starts report existing one and create new statement
       if (COMMAND_FLAG_MAP.containsKey(argValue)) {

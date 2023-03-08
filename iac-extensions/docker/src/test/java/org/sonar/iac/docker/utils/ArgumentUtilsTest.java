@@ -22,6 +22,7 @@ package org.sonar.iac.docker.utils;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.TestUtils;
@@ -39,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
+import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
 
 class ArgumentUtilsTest {
 
@@ -61,17 +63,17 @@ class ArgumentUtilsTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "${foo}",
-    "$foo",
-    "\"foo$bar\"",
-    "foo$bar",
-    "foo${bar}"
+  @CsvSource({
+    "${foo}, {{unresolved:foo}}",
+    "$foo, {{unresolved:foo}}",
+    "\"foo$bar\", foo{{unresolved:bar}}",
+    "foo$bar, foo{{unresolved:bar}}",
+    "foo${bar}, foo{{unresolved:bar}}"
   })
-  void shouldNotResolveVariableOrExpandableStrings(String input) {
+  void shouldPartyVariableOrExpandableStrings(String input, String expectedOutput) {
     Argument argument = parseArgument(input);
     assertThat(ArgumentUtils.resolve(argument)).extracting(ArgumentUtils.ArgumentResolution::value)
-      .isNull();
+      .isEqualTo(expectedOutput);
   }
 
   @ParameterizedTest
@@ -113,18 +115,19 @@ class ArgumentUtilsTest {
     KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
 
     ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
-    assertThat(resolution.value()).isNull();
+    assertThat(resolution.status()).isEqualTo(ArgumentUtils.ArgumentResolution.Status.UNRESOLVED);
   }
 
   @Test
   void shouldNotFailOnUnknownExpression() {
     Expression unknownExpression = new UnknownExpression();
     Argument argument = new ArgumentImpl(Collections.singletonList(unknownExpression));
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(argument);
 
-    assertThat(ArgumentUtils.resolve(argument).value()).isNull();
+    assertThat(resolution.value()).isEmpty();
+    assertThat(resolution.status()).isEqualTo(RESOLVED);
   }
 
-  // SONARIAC-601
   @Test
   void shouldNotDeadLoopWhenResolvingSelfAssignedVariable() {
     File file = parseFileAndAnalyzeSymbols(code(
@@ -135,7 +138,7 @@ class ArgumentUtilsTest {
 
     Argument label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0).value();
     assertThat(label).isNotNull();
-    assertThat(ArgumentUtils.resolve(label).value()).isNull();
+    assertThat(ArgumentUtils.resolve(label).value()).isEqualTo("{{unresolved:FOO}}");
   }
 
   private File parseFileAndAnalyzeSymbols(String input) {
@@ -156,7 +159,7 @@ class ArgumentUtilsTest {
 
     @Override
     public Kind getKind() {
-      return null;
+      return Kind.KEY_VALUE_PAIR;
     }
   }
 }

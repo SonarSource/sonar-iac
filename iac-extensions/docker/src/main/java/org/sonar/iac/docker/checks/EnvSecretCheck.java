@@ -36,6 +36,8 @@ import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
+import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.UNRESOLVED;
+
 @Rule(key = "S6472")
 public class EnvSecretCheck implements IacCheck {
 
@@ -124,12 +126,12 @@ public class EnvSecretCheck implements IacCheck {
   }
 
   private static boolean isSensitiveSecret(@Nullable Argument secret) {
-    return secret != null && isSensitiveValue(ArgumentUtils.resolve(secret).value());
+    return secret != null && isSensitiveValue(ArgumentUtils.resolve(secret));
   }
 
-  private static boolean isSensitiveValue(@Nullable String value) {
-    if(value == null) return false;
-
+  private static boolean isSensitiveValue(ArgumentUtils.ArgumentResolution valueResolution) {
+    if(valueResolution.is(UNRESOLVED)) return false;
+    String value = valueResolution.value();
     return !value.isBlank() && !isUrl(value) && !isPath(value);
   }
 
