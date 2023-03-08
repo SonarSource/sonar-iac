@@ -79,7 +79,7 @@ class DockerParserTest {
   @Test
   void shouldCreateNewExceptionOnInvalidMessageFormat() {
     RecognitionException exception = new RecognitionException(0, "InvalidMessage");
-    Throwable throwable = catchThrowable(() -> DockerParser.RecognitionExceptionAdjuster.adjustLineAndColumnNumber(exception, null, null, null));
+    Throwable throwable = DockerParser.RecognitionExceptionAdjuster.adjustLineAndColumnNumber(exception, null, null, null);
     assertThat(throwable)
       .isInstanceOf(ParseException.class)
       .extracting(exp -> ((ParseException)exp).getDetails())

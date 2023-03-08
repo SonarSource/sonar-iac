@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.extension;
 
+import com.sonar.sslr.api.RecognitionException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +31,6 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -69,7 +69,10 @@ class IacSensorTest extends AbstractSensorTest {
   };
 
   TreeParser<Tree> testParserThrowsParseException = (source, inputFileContext) -> {
-    throw new ParseException("RuntimeException message", null, null);
+    throw new ParseException("ParseException message", null, null);
+  };
+  TreeParser<Tree> testParserThrowsRecognitionException = (source, inputFileContext) -> {
+    throw new RecognitionException(1, "RecognitionException message");
   };
 
   @Test
@@ -129,13 +132,13 @@ class IacSensorTest extends AbstractSensorTest {
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .containsExactly("Cannot parse 'file1.iac'");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo("RuntimeException message");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
       .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac'" +
         System.lineSeparator() +
         "\tat org.sonar.iac");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
   }
 
   @Test
@@ -315,6 +318,50 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(issues).isEmpty();
   }
 
+  @Test
+  void shouldRethrowParseExceptionAndLogIt() {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks checks = mock(Checks.class);
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue"));
+    when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
+    when(checkFactory.create(repositoryKey())).thenReturn(checks);
+    when(checks.all()).thenReturn(Collections.singletonList(validCheck));
+    InputFile inputFile = inputFile("file1.iac", "foo");
+
+    analyse(sensorParseException(checkFactory), inputFile);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .containsExactly("ParseException message");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .startsWith("org.sonar.iac.common.extension.ParseException: ParseException message" +
+        System.lineSeparator() +
+        "\tat org.sonar.iac");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+  }
+
+  @Test
+  void shouldRethrowRecognitionExceptionAndLogIt() {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks checks = mock(Checks.class);
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue"));
+    when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
+    when(checkFactory.create(repositoryKey())).thenReturn(checks);
+    when(checks.all()).thenReturn(Collections.singletonList(validCheck));
+    InputFile inputFile = inputFile("file1.iac", "foo");
+
+    analyse(sensorRecognitionException(checkFactory), inputFile);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .containsExactly("Cannot parse 'file1.iac:1:1'");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .startsWith("RecognitionException message");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac:1:1'" +
+        System.lineSeparator() +
+        "\tat org.sonar.iac.common");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+  }
+
   @Override
   protected String repositoryKey() {
     return "iac";
@@ -339,7 +386,6 @@ class IacSensorTest extends AbstractSensorTest {
     return sensor(SONAR_RUNTIME_8_9, checkFactory);
   }
 
-
   protected IacSensor sensor(SonarRuntime sonarRuntime, CheckFactory checkFactory) {
 
     return new IacSensor(sonarRuntime, fileLinesContextFactory, noSonarFilter, IacLanguage.IAC) {
@@ -347,6 +393,54 @@ class IacSensorTest extends AbstractSensorTest {
       @Override
       protected TreeParser<Tree> treeParser() {
         return testParser;
+      }
+
+      @Override
+      protected String repositoryKey() {
+        return IacSensorTest.this.repositoryKey();
+      }
+
+      @Override
+      protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
+        return Collections.singletonList(new ChecksVisitor(checkFactory.create(repositoryKey()), statistics));
+      }
+
+      @Override
+      protected String getActivationSettingKey() {
+        return "testsensor.active";
+      }
+    };
+  }
+
+  private IacSensor sensorParseException(CheckFactory checkFactory) {
+    return new IacSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, noSonarFilter, IacLanguage.IAC) {
+      @Override
+      protected TreeParser<Tree> treeParser() {
+        return testParserThrowsParseException;
+      }
+
+      @Override
+      protected String repositoryKey() {
+        return IacSensorTest.this.repositoryKey();
+      }
+
+      @Override
+      protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
+        return Collections.singletonList(new ChecksVisitor(checkFactory.create(repositoryKey()), statistics));
+      }
+
+      @Override
+      protected String getActivationSettingKey() {
+        return "testsensor.active";
+      }
+    };
+  }
+
+  private IacSensor sensorRecognitionException(CheckFactory checkFactory) {
+    return new IacSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, noSonarFilter, IacLanguage.IAC) {
+      @Override
+      protected TreeParser<Tree> treeParser() {
+        return testParserThrowsRecognitionException;
       }
 
       @Override

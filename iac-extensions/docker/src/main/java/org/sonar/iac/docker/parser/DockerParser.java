@@ -72,13 +72,12 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       if (inputFileContext != null) {
         inputFile = inputFileContext.inputFile;
       }
-      RecognitionExceptionAdjuster.adjustLineAndColumnNumber(
+      throw RecognitionExceptionAdjuster.adjustLineAndColumnNumber(
         e,
         preprocessorResult.processedSourceCode(),
         preprocessorResult.sourceOffset(),
         inputFile);
     }
-    return null;
   }
 
   @Override
@@ -101,7 +100,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
     private RecognitionExceptionAdjuster() {
     }
 
-    public static void adjustLineAndColumnNumber(
+    public static ParseException adjustLineAndColumnNumber(
       RecognitionException originalException,
       String sourceCode,
       DockerPreprocessor.SourceOffset sourceOffset,
@@ -123,7 +122,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
         fixedException = new RecognitionException(correctedLineAndColumn[0], newErrorMessage, originalException.getCause());
       }
 
-      throw ParseException.throwParseException("parse", inputFile, fixedException, position);
+      return ParseException.throwParseException("parse", inputFile, fixedException, position);
     }
 
     /**

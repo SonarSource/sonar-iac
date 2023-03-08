@@ -21,12 +21,13 @@ package org.sonar.iac.common.extension;
 
 import com.sonar.sslr.api.RecognitionException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -218,7 +219,14 @@ public abstract class IacSensor implements Sensor {
       if (detailedMessage != null) {
         LOG.debug(detailedMessage);
       }
-      LOG.debug(ExceptionUtils.getStackTrace(e));
+      LOG.debug(getStackTrace(e));
+    }
+
+    private String getStackTrace(ParseException e) {
+      StringWriter sw = new StringWriter();
+      PrintWriter pw = new PrintWriter(sw, true);
+      e.printStackTrace(pw);
+      return sw.getBuffer().toString();
     }
   }
 }
