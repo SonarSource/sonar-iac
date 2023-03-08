@@ -129,9 +129,6 @@ public abstract class IacSensor implements Sensor {
   }
 
   protected ParseException throwParseException(String action, InputFile inputFile, Exception cause) {
-    if (cause instanceof ParseException) {
-      return (ParseException) cause;
-    }
     TextPointer position = null;
     if (cause instanceof RecognitionException) {
       position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
@@ -188,6 +185,8 @@ public abstract class IacSensor implements Sensor {
       Tree tree = statistics.time("Parse", () -> {
         try {
           return parser.parse(content, inputFileContext);
+        } catch (ParseException e) {
+          throw e;
         } catch (RuntimeException e) {
           throw throwParseException("parse", inputFile, e);
         }
