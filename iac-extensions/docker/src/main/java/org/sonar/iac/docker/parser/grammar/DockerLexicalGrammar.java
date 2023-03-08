@@ -177,7 +177,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
 
     b.rule(EQUALS_OPERATOR).is(b.regexp(DockerLexicalConstant.EQUALS_OPERATOR));
 
-    b.rule(IMAGE_ALIAS).is(SKIPPED_WHITESPACE, b.regexp("[-a-zA-Z0-9_\\.]+"));
+    b.rule(IMAGE_ALIAS).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.IMAGE_ALIAS));
 
     b.rule(FLAG_PREFIX).is(SKIPPED_WHITESPACE, b.regexp("--"));
     b.rule(FLAG_NAME).is(b.regexp(DockerLexicalConstant.FLAG_NAME));
@@ -185,7 +185,7 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
     b.rule(ALIAS_AS).is(SKIPPED_WHITESPACE, b.regexp("(?i)AS"));
     b.rule(HEALTHCHECK_NONE).is(SKIPPED_WHITESPACE, b.regexp("(?i)NONE"));
 
-    b.rule(HEREDOC_EXPRESSION).is(SKIPPED_WHITESPACE, b.regexp("(?:<<-?\"?([a-zA-Z_][a-zA-Z0-9_]*+)\"?\\s+)+[\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)"));
+    b.rule(HEREDOC_EXPRESSION).is(SKIPPED_WHITESPACE, b.regexp(DockerLexicalConstant.HEREDOC_EXPRESSION));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
