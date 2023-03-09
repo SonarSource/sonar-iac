@@ -22,6 +22,7 @@ package org.sonar.iac.common.api.tree.impl;
 import java.util.Objects;
 
 public class TextPointer implements Comparable<TextPointer> {
+
   private final int line;
   private final int lineOffset;
 

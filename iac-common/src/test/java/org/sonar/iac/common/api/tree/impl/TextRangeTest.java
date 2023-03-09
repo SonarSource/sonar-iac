@@ -19,36 +19,26 @@
  */
 package org.sonar.iac.common.api.tree.impl;
 
-import java.util.Objects;
+import org.junit.jupiter.api.Test;
 
-public class TextRange {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final TextPointer start;
-  private final TextPointer end;
+class TextRangeTest {
 
-  public TextRange(TextPointer start, TextPointer end) {
-    this.start = start;
-    this.end = end;
-  }
+  @Test
+  void equals() {
+    TextRange range = new TextRange(new TextPointer(1, 2), new TextPointer(3, 4));
+    TextRange sameRange = new TextRange(new TextPointer(1, 2), new TextPointer(3, 4));
+    TextRange sameStartOtherEnd = new TextRange(new TextPointer(1, 2), new TextPointer(7, 8));
+    TextRange otherStartSameEnd = new TextRange(new TextPointer(5, 6), new TextPointer(3, 4));
+    Object notATextRange = new Object();
 
-  public TextPointer start() {
-    return start;
-  }
-
-  public TextPointer end() {
-    return end;
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (this == other) return true;
-    if (other == null || getClass() != other.getClass()) return false;
-    TextRange otherRange = (TextRange) other;
-    return Objects.equals(start, otherRange.start) && Objects.equals(end, otherRange.end);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(start, end);
+    assertThat(range)
+      .isEqualTo(range)
+      .isNotEqualTo(null)
+      .isNotEqualTo(notATextRange)
+      .isEqualTo(sameRange)
+      .isNotEqualTo(sameStartOtherEnd)
+      .isNotEqualTo(otherStartSameEnd);
   }
 }
