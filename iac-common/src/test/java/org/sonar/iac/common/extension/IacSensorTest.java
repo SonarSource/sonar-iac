@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.extension;
 
+import com.sonar.sslr.api.RecognitionException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +31,6 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -41,6 +41,8 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
@@ -64,8 +66,15 @@ import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 
 class IacSensorTest extends AbstractSensorTest {
 
-  TreeParser<Tree> testParser = (source, inputFileContext) -> {
-    throw new RuntimeException();
+  TreeParser<Tree> testParserThrowsRuntimeException = (source, inputFileContext) -> {
+    throw new RuntimeException("RuntimeException message");
+  };
+
+  TreeParser<Tree> testParserThrowsParseException = (source, inputFileContext) -> {
+    throw new ParseException("ParseException message", null, null);
+  };
+  TreeParser<Tree> testParserThrowsRecognitionException = (source, inputFileContext) -> {
+    throw new RecognitionException(1, "RecognitionException message");
   };
 
   @Test
@@ -113,7 +122,7 @@ class IacSensorTest extends AbstractSensorTest {
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("A parsing error occurred in this file.");
-    assertTextRange(location.textRange()).hasRange(2, 0, 2, 2);
+    assertThat(location.textRange()).isNull();
 
     Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();
     assertThat(analysisErrors).hasSize(1);
@@ -121,14 +130,17 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(analysisError.inputFile()).isEqualTo(inputFile);
     assertThat(analysisError.message()).isEqualTo("Unable to parse file: file1.iac");
     TextPointer textPointer = analysisError.location();
-    assertThat(textPointer).isNotNull();
-    assertThat(textPointer.line()).isEqualTo(2);
-    assertThat(textPointer.lineOffset()).isEqualTo(1);
+    assertThat(textPointer).isNull();
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains(String.format("Unable to parse file: %s. Parse error at position 2:1", inputFile.uri()))
-      .contains("Cannot parse 'file1.iac': null");
+      .containsExactly("Cannot parse 'file1.iac'");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .isEqualTo("RuntimeException message");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac'" +
+        System.lineSeparator() +
+        "\tat org.sonar.iac");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
   }
 
   @Test
@@ -156,7 +168,7 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(analysisError.message()).isEqualTo("Unable to parse file: fakeFile.iac");
     assertThat(analysisError.location()).isNull();
 
-    assertThat(logTester.logs()).contains(String.format("Unable to parse file: %s. ", inputFile.uri()));
+    assertThat(logTester.logs()).contains(String.format("Cannot read '%s'", inputFile.filename()));
   }
 
   @Test
@@ -176,7 +188,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
-    testParser = (source, inputFileContext) -> new TestTree();
+    testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
     sensor(checkFactory).execute(context);
 
     InputFile inputFile = inputFile("file1.iac", "foo");
@@ -203,7 +215,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
-    testParser = (source, inputFileContext) -> new TestTree();
+    testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
     sensor(checkFactory).execute(context);
 
     InputFile inputFile = inputFile("file1.iac", "foo");
@@ -236,7 +248,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(validCheck));
-    testParser = (source, inputFileContext) -> new TestTree();
+    testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
     sensor(checkFactory).execute(context);
 
     InputFile inputFile = inputFile("file1.iac", "foo");
@@ -257,7 +269,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.ruleKey(failingCheck)).thenReturn(RuleKey.of(repositoryKey(), "failing"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(failingCheck));
-    testParser = (source, inputFileContext) -> new TestTree();
+    testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
 
     InputFile inputFile = inputFile("file1.iac", "foo");
     analyse(sensor(checkFactory), inputFile);
@@ -280,7 +292,7 @@ class IacSensorTest extends AbstractSensorTest {
     when(checks.ruleKey(failingCheck)).thenReturn(RuleKey.of(repositoryKey(), "failing"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(failingCheck));
-    testParser = (source, inputFileContext) -> new TestTree();
+    testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
 
     InputFile inputFile = inputFile("file1.iac", "foo");
     IacSensor sensor = sensor(checkFactory);
@@ -308,6 +320,50 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(issues).isEmpty();
   }
 
+  @Test
+  void shouldRethrowParseExceptionAndLogIt() {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks checks = mock(Checks.class);
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue"));
+    when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
+    when(checkFactory.create(repositoryKey())).thenReturn(checks);
+    when(checks.all()).thenReturn(Collections.singletonList(validCheck));
+    InputFile inputFile = inputFile("file1.iac", "foo");
+
+    analyse(sensorParseException(checkFactory), inputFile);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .containsExactly("ParseException message");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .startsWith("org.sonar.iac.common.extension.ParseException: ParseException message" +
+        System.lineSeparator() +
+        "\tat org.sonar.iac");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+  }
+
+  @Test
+  void shouldRethrowRecognitionExceptionAndLogIt() {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks checks = mock(Checks.class);
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue"));
+    when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
+    when(checkFactory.create(repositoryKey())).thenReturn(checks);
+    when(checks.all()).thenReturn(Collections.singletonList(validCheck));
+    InputFile inputFile = inputFile("file1.iac", "foo");
+
+    analyse(sensorRecognitionException(checkFactory), inputFile);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .containsExactly("Cannot parse 'file1.iac:1:1'");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .startsWith("RecognitionException message");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+      .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac:1:1'" +
+        System.lineSeparator() +
+        "\tat org.sonar.iac.common");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+  }
+
   @Override
   protected String repositoryKey() {
     return "iac";
@@ -333,38 +389,67 @@ class IacSensorTest extends AbstractSensorTest {
   }
 
   protected IacSensor sensor(SonarRuntime sonarRuntime, CheckFactory checkFactory) {
+    return new TestIacSensor(sonarRuntime,
+      fileLinesContextFactory,
+      noSonarFilter,
+      IacLanguage.IAC,
+      testParserThrowsRuntimeException,
+      checkFactory);
+  }
 
-    return new IacSensor(sonarRuntime, fileLinesContextFactory, noSonarFilter, IacLanguage.IAC) {
+  private IacSensor sensorParseException(CheckFactory checkFactory) {
+    return new TestIacSensor(SONAR_RUNTIME_8_9,
+      fileLinesContextFactory,
+      noSonarFilter,
+      IacLanguage.IAC,
+      testParserThrowsParseException,
+      checkFactory);
+  }
 
-      @Override
-      protected TreeParser<Tree> treeParser() {
-        return testParser;
-      }
+  private IacSensor sensorRecognitionException(CheckFactory checkFactory) {
+    return new TestIacSensor(SONAR_RUNTIME_8_9,
+      fileLinesContextFactory,
+      noSonarFilter,
+      IacLanguage.IAC,
+      testParserThrowsRecognitionException,
+      checkFactory);
+  }
 
-      @Override
-      protected String repositoryKey() {
-        return IacSensorTest.this.repositoryKey();
-      }
+  class TestIacSensor extends IacSensor {
+    private final TreeParser<Tree> treeParser;
+    private CheckFactory checkFactory;
 
-      @Override
-      protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
-        return Collections.singletonList(new ChecksVisitor(checkFactory.create(repositoryKey()), statistics));
-      }
+    protected TestIacSensor(SonarRuntime sonarRuntime,
+      FileLinesContextFactory fileLinesContextFactory,
+      NoSonarFilter noSonarFilter,
+      Language language,
+      TreeParser<Tree> treeParser,
+      CheckFactory checkFactory) {
 
-      @Override
-      protected String getActivationSettingKey() {
-        return "testsensor.active";
-      }
+      super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
+      this.treeParser = treeParser;
+      this.checkFactory = checkFactory;
+    }
 
-      @Override
-      protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
-        if (!(cause instanceof IOException)) {
-          TextPointer position = new DefaultTextPointer(2,1);
-          return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
-        }
-        return super.toParseException(action, inputFile, cause);
-      }
-    };
+    @Override
+    protected TreeParser<Tree> treeParser() {
+      return treeParser;
+    }
+
+    @Override
+    protected String repositoryKey() {
+      return IacSensorTest.this.repositoryKey();
+    }
+
+    @Override
+    protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
+      return Collections.singletonList(new ChecksVisitor(checkFactory.create(repositoryKey()), statistics));
+    }
+
+    @Override
+    protected String getActivationSettingKey() {
+      return "testsensor.active";
+    }
   }
 
   enum IacLanguage implements Language {

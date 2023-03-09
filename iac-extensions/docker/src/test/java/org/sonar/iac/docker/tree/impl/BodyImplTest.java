@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import com.sonar.sslr.api.RecognitionException;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerTree;
@@ -34,7 +34,7 @@ class BodyImplTest {
 
   @Test
   void shouldFailOnEmptyBody() {
-    assertThrows(RecognitionException.class, () -> parseBody(""), "Parse error at line 1 column 1");
+    assertThrows(ParseException.class, () -> parseBody(""), "Parse error at line 1 column 1");
   }
 
   @Test
@@ -67,7 +67,7 @@ class BodyImplTest {
 
   @Test
   void shouldFailWithArgInstructionOnly() {
-    assertThrows(RecognitionException.class, () -> parseBody("ARG FOO"), "Parse error at line 1 column 1");
+    assertThrows(ParseException.class, () -> parseBody("ARG FOO"), "Parse error at line 1 column 1");
   }
 
   @Test

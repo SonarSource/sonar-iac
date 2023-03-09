@@ -74,8 +74,10 @@ class YamlSensorTest extends AbstractSensorTest {
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
 
     ParseException e = sensor().toParseException("action", inputFile, yamlEngineException);
-    assertThat(e.getMessage()).isEqualTo("Cannot action 'TestFile': message");
-    assertThat(e.getPosition()).isEqualTo(new DefaultTextPointer(1, 0));
+    assertThat(e)
+      .hasMessage("Cannot action 'TestFile:1:1'")
+      .extracting(ParseException::getPosition)
+      .isEqualTo(new DefaultTextPointer(1, 0));
   }
 
   @Test
@@ -88,8 +90,10 @@ class YamlSensorTest extends AbstractSensorTest {
     when(inputFile.toString()).thenReturn("TestFile");
 
     ParseException e = sensor().toParseException("action", inputFile, yamlEngineException);
-    assertThat(e.getMessage()).isEqualTo("Cannot action 'TestFile': message");
-    assertThat(e.getPosition()).isNull();
+    assertThat(e)
+      .hasMessage("Cannot action 'TestFile'")
+      .extracting(ParseException::getPosition)
+      .isNull();
   }
 
   @Test
@@ -102,8 +106,10 @@ class YamlSensorTest extends AbstractSensorTest {
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
 
     ParseException e = sensor().toParseException("action", inputFile, exception);
-    assertThat(e.getMessage()).isEqualTo("Cannot action 'TestFile': message");
-    assertThat(e.getPosition()).isNull();
+    assertThat(e)
+      .hasMessage("Cannot action 'TestFile'")
+      .extracting(ParseException::getPosition)
+      .isNull();
   }
 
   @Test

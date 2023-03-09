@@ -21,6 +21,8 @@ package org.sonar.iac.common.extension;
 
 import com.sonar.sslr.api.RecognitionException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -131,7 +133,7 @@ public abstract class IacSensor implements Sensor {
     if (cause instanceof RecognitionException) {
       position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
     }
-    return new ParseException("Cannot " + action + " '" + inputFile + "': " + cause.getMessage(), position);
+    return ParseException.throwParseException(action, inputFile, cause, position);
   }
 
   private boolean isActive(SensorContext sensorContext) {
@@ -159,7 +161,7 @@ public abstract class IacSensor implements Sensor {
         try {
           analyseFile(inputFileContext);
         } catch (ParseException e) {
-          logParsingError(inputFile, e);
+          logParsingError(e);
           inputFileContext.reportParseError(repositoryKey(), e.getPosition());
         }
         progressReport.nextFile();
@@ -183,6 +185,8 @@ public abstract class IacSensor implements Sensor {
       Tree tree = statistics.time("Parse", () -> {
         try {
           return parser.parse(content, inputFileContext);
+        } catch (ParseException e) {
+          throw e;
         } catch (RuntimeException e) {
           throw toParseException("parse", inputFile, e);
         }
@@ -207,14 +211,20 @@ public abstract class IacSensor implements Sensor {
       }
     }
 
-    private void logParsingError(InputFile inputFile, ParseException e) {
-      TextPointer position = e.getPosition();
-      String positionMessage = "";
-      if (position != null) {
-        positionMessage = String.format("Parse error at position %s:%s", position.line(), position.lineOffset());
-      }
-      LOG.error(String.format("Unable to parse file: %s. %s", inputFile.uri(), positionMessage));
+    private void logParsingError(ParseException e) {
       LOG.error(e.getMessage());
+      String detailedMessage = e.getDetails();
+      if (detailedMessage != null) {
+        LOG.debug(detailedMessage);
+      }
+      LOG.debug(getStackTrace(e));
+    }
+
+    private String getStackTrace(ParseException e) {
+      StringWriter sw = new StringWriter();
+      PrintWriter pw = new PrintWriter(sw, true);
+      e.printStackTrace(pw);
+      return sw.getBuffer().toString();
     }
   }
 }

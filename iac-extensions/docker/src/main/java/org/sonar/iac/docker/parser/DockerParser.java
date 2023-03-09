@@ -25,7 +25,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.grammar.DockerGrammar;
@@ -57,7 +60,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
   }
 
   @Override
-  public DockerTree parse(String source) {
+  public DockerTree parse(String source, @Nullable InputFileContext inputFileContext) {
     DockerPreprocessor.PreprocessorResult preprocessorResult = preprocessor.process(source);
     nodeBuilder.setPreprocessorResult(preprocessorResult);
     try {
@@ -65,13 +68,21 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       setParents(tree);
       return tree;
     } catch (RecognitionException e) {
-      throw RecognitionExceptionAdjuster.adjustLineAndColumnNumber(e, preprocessorResult.processedSourceCode(), preprocessorResult.sourceOffset());
+      InputFile inputFile = null;
+      if (inputFileContext != null) {
+        inputFile = inputFileContext.inputFile;
+      }
+      throw RecognitionExceptionAdjuster.adjustLineAndColumnNumber(
+        e,
+        preprocessorResult.processedSourceCode(),
+        preprocessorResult.sourceOffset(),
+        inputFile);
     }
   }
 
   @Override
-  public Tree parse(String source, @Nullable InputFileContext inputFileContext) {
-    return parse(source);
+  public DockerTree parse(String source) {
+    return parse(source, null);
   }
 
   private static void setParents(DockerTree tree) {
@@ -81,25 +92,37 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       setParents(child);
     }
   }
+
   static class RecognitionExceptionAdjuster {
     private static final String PARSING_ERROR_MESSAGE = "Parse error at line %d column %d %s";
     private static final Pattern RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN = Pattern.compile("Parse error at line (?<line>\\d+) column (?<column>\\d+)(?<rest>.*)");
 
-    private RecognitionExceptionAdjuster() {}
+    private RecognitionExceptionAdjuster() {
+    }
 
-    public static RecognitionException adjustLineAndColumnNumber(RecognitionException originalException, String sourceCode, DockerPreprocessor.SourceOffset sourceOffset) {
+    public static ParseException adjustLineAndColumnNumber(
+      RecognitionException originalException,
+      String sourceCode,
+      DockerPreprocessor.SourceOffset sourceOffset,
+      @Nullable InputFile inputFile) {
+
       Matcher m = RECOGNITION_EXCEPTION_LINE_COLUMN_PATTERN.matcher(originalException.getMessage());
+      TextPointer position = null;
+      RecognitionException fixedException = originalException;
       if (m.find()) {
         int line = Integer.parseInt(m.group("line"));
         int column = Integer.parseInt(m.group("column"));
         String rest = m.group("rest");
         int index = computeIndexFromLineAndColumn(sourceCode, line, column);
         int[] correctedLineAndColumn = sourceOffset.sourceLineAndColumnAt(index);
+        if (inputFile != null) {
+          position = inputFile.newPointer(correctedLineAndColumn[0], correctedLineAndColumn[1] - 1);
+        }
         String newErrorMessage = String.format(PARSING_ERROR_MESSAGE, correctedLineAndColumn[0], correctedLineAndColumn[1], rest);
-        return new RecognitionException(correctedLineAndColumn[0], newErrorMessage, originalException.getCause());
-      } else {
-        return originalException;
+        fixedException = new RecognitionException(correctedLineAndColumn[0], newErrorMessage, originalException.getCause());
       }
+
+      return ParseException.throwParseException("parse", inputFile, fixedException, position);
     }
 
     /**
@@ -111,7 +134,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
       int currentLine = 1;
       int currentColumn = 0;
       int index = -1;
-      while (index+1 < chars.length && (line != currentLine || column != currentColumn)) {
+      while (index + 1 < chars.length && (line != currentLine || column != currentColumn)) {
         index++;
         if (isNewLine(chars, index)) {
           currentLine++;

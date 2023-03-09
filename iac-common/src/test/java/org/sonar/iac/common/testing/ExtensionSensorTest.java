@@ -21,6 +21,7 @@ package org.sonar.iac.common.testing;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -43,6 +44,8 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
   protected abstract InputFile fileWithParsingError();
 
   protected abstract InputFile validFile();
+
+  protected abstract void verifyDebugMessages(List<String> logs);
 
   @Test
   void emptyFileShouldRaiseNoIssue() {
@@ -74,10 +77,12 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     assertThat(analysisError.message()).startsWith("Unable to parse file:");
 
     // Test logging
-    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).extracting(s -> s)
-      .anyMatch(s -> s.startsWith(String.format("Unable to parse file: %s.", inputFile.uri())))
-      .anyMatch(s -> s.startsWith(String.format("Cannot parse '%s':", inputFile.filename())));
+    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
+    String errorMessage = "Cannot parse '%s:1:1'";
+    assertThat(logTester.logs(LoggerLevel.ERROR).get(0))
+      .startsWith(String.format(errorMessage, inputFile.filename()));
+
+    verifyDebugMessages(logTester.logs(LoggerLevel.DEBUG));
   }
 
   @Test

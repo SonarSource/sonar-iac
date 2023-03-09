@@ -21,19 +21,37 @@ package org.sonar.iac.common.extension;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 
 public class ParseException extends RuntimeException {
 
   private final transient TextPointer position;
+  private final transient String details;
 
-  public ParseException(String message, @Nullable TextPointer position) {
+  public static ParseException throwParseException(String action, @Nullable InputFile inputFile, Exception cause, @Nullable TextPointer position) {
+    String message;
+    if (position != null) {
+      message = String.format("Cannot %s '%s:%s:%s'", action, inputFile, position.line(), position.lineOffset() + 1);
+    } else {
+      message = String.format("Cannot %s '%s'", action, inputFile);
+    }
+    return new ParseException(message, position, cause.getMessage());
+  }
+
+  public ParseException(String message, @Nullable TextPointer position, @Nullable String details) {
     super(message);
     this.position = position;
+    this.details = details;
   }
 
   @CheckForNull
   public TextPointer getPosition() {
     return position;
+  }
+
+  @CheckForNull
+  public String getDetails() {
+    return details;
   }
 }
