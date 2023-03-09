@@ -53,6 +53,15 @@ mvn clean install
 mvn clean install -DskipTests
 ```
 
+#### Fix code formatting issues
+During the `mvn install` the `spotless:check` is executed. 
+This phase checks is the code is correctly formatted using common Sonar rules.
+If your build failed, you can fix the formatting just by running:
+
+```shell
+mvn spotless:apply
+```
+
 #### Ruling integration tests
 These integration tests verify that, given a set of files, when the analyzer is run on them, all the expected issues get raised in a prepared SonarQube instance. 
 The expected findings are saved in `its/ruling/src/test/resources/expected`. To run the ruling ITS:
