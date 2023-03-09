@@ -17,16 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.utils;
+package org.sonar.iac.docker.symbols;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.iac.docker.symbols.Scope;
-import org.sonar.iac.docker.symbols.Symbol;
-import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
@@ -38,22 +35,61 @@ import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
 
-import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
-import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.UNRESOLVED;
+public class ArgumentResolution {
 
-public class ArgumentUtils {
-
-  private ArgumentUtils() {
-    // utils class
+  public enum Status {
+    RESOLVED,
+    UNRESOLVED,
+    EMPTY
   }
 
-  public static ArgumentResolution resolve(@Nullable Argument argument) {
+  static final ArgumentResolution EMPTY = new ArgumentResolution("", Status.EMPTY);
+
+  private final String value;
+  private final Status status;
+
+  private ArgumentResolution(String value, Status status) {
+    this.value = value;
+    this.status = status;
+  }
+
+  public static ArgumentResolution of(@Nullable Argument argument) {
     return ArgumentResolver.resolve(argument);
+  }
+
+  public String value() {
+    return value;
+  }
+
+  public Status status() {
+    return status;
+  }
+
+  public boolean is(Status status) {
+    return this.status == status;
+  }
+
+  private static class Builder {
+
+    private Status status = Status.RESOLVED;
+    private final StringBuilder sb = new StringBuilder();
+
+    private void addValue(String value) {
+      sb.append(value);
+    }
+
+    private void setUnresolved() {
+      status = Status.UNRESOLVED;
+    }
+
+    public ArgumentResolution build() {
+      return new ArgumentResolution(sb.toString(), status);
+    }
   }
 
   private static class ArgumentResolver {
 
-    ArgumentResolution.Builder resolution = new ArgumentResolution.Builder();
+    Builder resolution = new Builder();
     Set<Variable> visitedVariable = new HashSet<>();
 
     private static ArgumentResolution resolve(@Nullable Argument argument) {
@@ -77,13 +113,13 @@ public class ArgumentUtils {
     private void resolveExpression(Expression expression) {
       switch (expression.getKind()) {
         case STRING_LITERAL:
-          resolution.addValue(((Literal)expression).value());
+          resolution.addValue(((Literal) expression).value());
           break;
         case EXPANDABLE_STRING_CHARACTERS:
-          resolution.addValue(((ExpandableStringCharacters)expression).value());
+          resolution.addValue(((ExpandableStringCharacters) expression).value());
           break;
         case EXPANDABLE_STRING_LITERAL:
-          resolveExpressions(((ExpandableStringLiteral)expression).expressions());
+          resolveExpressions(((ExpandableStringLiteral) expression).expressions());
           break;
         case REGULAR_VARIABLE:
           resolveVariable((Variable) expression);
@@ -145,55 +181,6 @@ public class ArgumentUtils {
         }
       }
       return null;
-    }
-  }
-
-  public static class ArgumentResolution {
-
-    public enum Status {
-      RESOLVED,
-      UNRESOLVED,
-      EMPTY
-    }
-
-    static final ArgumentResolution EMPTY = new ArgumentResolution("", Status.EMPTY);
-
-    private final String value;
-    private final Status status;
-
-    private ArgumentResolution(String value, Status status) {
-      this.value = value;
-      this.status = status;
-    }
-
-    public String value() {
-      return value;
-    }
-
-    public Status status() {
-      return status;
-    }
-
-    public boolean is(Status status) {
-      return this.status == status;
-    }
-
-    private static class Builder {
-
-      private Status status = RESOLVED;
-      private final StringBuilder sb = new StringBuilder();
-
-      private void addValue(String value) {
-        sb.append(value);
-      }
-
-      private void setUnresolved() {
-        status = UNRESOLVED;
-      }
-
-      public ArgumentResolution build() {
-        return new ArgumentResolution(sb.toString(), status);
-      }
     }
   }
 }

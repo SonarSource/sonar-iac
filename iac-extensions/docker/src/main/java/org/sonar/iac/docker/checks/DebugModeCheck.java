@@ -24,9 +24,9 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S4507")
 public class DebugModeCheck implements IacCheck {
@@ -46,8 +46,8 @@ public class DebugModeCheck implements IacCheck {
 
   private static void checkEnvDebug(CheckContext ctx, EnvInstruction envInstruction) {
     for (KeyValuePair variable : envInstruction.environmentVariables()) {
-      String name = ArgumentUtils.resolve(variable.key()).value();
-      String value = ArgumentUtils.resolve(variable.value()).value();
+      String name = ArgumentResolution.of(variable.key()).value();
+      String value = ArgumentResolution.of(variable.value()).value();
       if (name != null && value != null && isVariableSensitive(name, value)) {
         ctx.reportIssue(variable, MESSAGE);
       }

@@ -27,6 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.symbols.Symbol;
 import org.sonar.iac.docker.symbols.Usage;
@@ -39,7 +40,6 @@ import org.sonar.iac.docker.tree.api.HasScope;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.Variable;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -174,16 +174,16 @@ class DockerSymbolVisitorTest {
   void globalVariableShouldBeAccessibleInFromInstruction() {
     Body body = scanBody("ARG image=scratch\nFROM $image");
     Argument arg = firstDescendant(body.dockerImages().get(0).from(), Argument.class);
-    assertThat(ArgumentUtils.resolve(arg).value()).isEqualTo("scratch");
+    assertThat(ArgumentResolution.of(arg).value()).isEqualTo("scratch");
   }
 
   @Test
   void globalVariableShouldBeAccessibleInFromInstructionMultiple() {
     Body body = scanBody("ARG image=scratch\nFROM first\nFROM $image");
     Argument arg1 = firstDescendant(body.dockerImages().get(0).from(), Argument.class);
-    assertThat(ArgumentUtils.resolve(arg1).value()).isEqualTo("first");
+    assertThat(ArgumentResolution.of(arg1).value()).isEqualTo("first");
     Argument arg2 = firstDescendant(body.dockerImages().get(1).from(), Argument.class);
-    assertThat(ArgumentUtils.resolve(arg2).value()).isEqualTo("scratch");
+    assertThat(ArgumentResolution.of(arg2).value()).isEqualTo("scratch");
   }
 
   @ParameterizedTest

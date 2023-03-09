@@ -26,10 +26,10 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.CommandInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.ADD;
 import static org.sonar.iac.docker.tree.api.DockerTree.Kind.CMD;
@@ -60,7 +60,7 @@ public class UnencryptedProtocolCheck implements IacCheck {
 
   private static void checkUnencryptedProtocols(CheckContext ctx, List<Argument> paths) {
     for (Argument path : paths) {
-      String resolvedPath = ArgumentUtils.resolve(path).value();
+      String resolvedPath = ArgumentResolution.of(path).value();
       if (resolvedPath != null) {
         Matcher matcher = UNENCRYPTED_PROTOCOLS.matcher(resolvedPath);
         if (matcher.find() && !LOOPBACK.matcher(matcher.group("rest")).find()) {

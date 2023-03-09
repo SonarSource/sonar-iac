@@ -24,11 +24,11 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
@@ -67,7 +67,7 @@ class ExecFormImplTest {
         if (t instanceof SyntaxToken) {
           return ((SyntaxToken) t).value();
         } else if (t instanceof Argument) {
-          return ArgumentUtils.resolve((Argument) t).value();
+          return ArgumentResolution.of((Argument) t).value();
         } else {
           throw new RuntimeException("Invalid cast from " + t.getClass());
         }
@@ -86,7 +86,7 @@ class ExecFormImplTest {
       assertThat(argument.expressions().get(0).getKind()).isEqualTo(DockerTree.Kind.EXPANDABLE_STRING_LITERAL);
     });
     assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.ARGUMENT);
-    assertThat(execForm.arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("executable", "param1", "param2");
+    assertThat(execForm.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2");
 
     assertThat(execForm.argumentsWithSeparators().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
 

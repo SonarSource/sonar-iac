@@ -22,9 +22,9 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
@@ -63,7 +63,7 @@ class ExposeInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.arguments()).hasSize(1);
-    assertThat(ArgumentUtils.resolve(tree.arguments().get(0)).value()).isEqualTo("80");
+    assertThat(ArgumentResolution.of(tree.arguments().get(0)).value()).isEqualTo("80");
   }
 
   @Test
@@ -72,7 +72,7 @@ class ExposeInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.arguments()).hasSize(1);
-    assertThat(ArgumentUtils.resolve(tree.arguments().get(0)).value()).isEqualTo("80/tcp");
+    assertThat(ArgumentResolution.of(tree.arguments().get(0)).value()).isEqualTo("80/tcp");
   }
 
   @Test
@@ -81,7 +81,7 @@ class ExposeInstructionImplTest {
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.EXPOSE);
     assertThat(tree.keyword().value()).isEqualTo("EXPOSE");
     assertThat(tree.arguments()).hasSize(2);
-    assertThat(ArgumentUtils.resolve(tree.arguments().get(0)).value()).isEqualTo("80");
-    assertThat(ArgumentUtils.resolve(tree.arguments().get(1)).value()).isEqualTo("89");
+    assertThat(ArgumentResolution.of(tree.arguments().get(0)).value()).isEqualTo("80");
+    assertThat(ArgumentResolution.of(tree.arguments().get(1)).value()).isEqualTo("89");
   }
 }

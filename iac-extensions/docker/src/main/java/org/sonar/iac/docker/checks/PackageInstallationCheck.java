@@ -28,11 +28,11 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
-import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.UNRESOLVED;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 @Rule(key = "S6500")
 public class PackageInstallationCheck implements IacCheck {
@@ -65,7 +65,7 @@ public class PackageInstallationCheck implements IacCheck {
     }
 
     void process(Argument argument) {
-      ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(argument);
+      ArgumentResolution resolution = ArgumentResolution.of(argument);
 
       // stop analyzing apt statement when unresolved part is detected
       if (resolution.is(UNRESOLVED)) {

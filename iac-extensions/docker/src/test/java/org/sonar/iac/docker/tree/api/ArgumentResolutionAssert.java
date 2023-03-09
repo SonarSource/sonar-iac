@@ -21,11 +21,11 @@ package org.sonar.iac.docker.tree.api;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
-import org.sonar.iac.docker.utils.ArgumentUtils;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 
-public class ArgumentResolutionAssert extends AbstractAssert<ArgumentResolutionAssert, ArgumentUtils.ArgumentResolution> {
+public class ArgumentResolutionAssert extends AbstractAssert<ArgumentResolutionAssert, ArgumentResolution> {
 
-  protected ArgumentResolutionAssert(ArgumentUtils.ArgumentResolution argumentResolution) {
+  protected ArgumentResolutionAssert(ArgumentResolution argumentResolution) {
     super(argumentResolution, ArgumentResolutionAssert.class);
   }
 
@@ -41,7 +41,7 @@ public class ArgumentResolutionAssert extends AbstractAssert<ArgumentResolutionA
     isNotNull();
     Assertions.assertThat(actual.status())
       .overridingErrorMessage("Expected ArgumentResolution to be unresolved but value was <%s>", actual.value())
-      .isEqualTo(ArgumentUtils.ArgumentResolution.Status.UNRESOLVED);
+      .isEqualTo(ArgumentResolution.Status.UNRESOLVED);
     return this;
   }
 }

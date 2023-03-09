@@ -22,11 +22,11 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -113,7 +113,7 @@ class CopyInstructionImplTest {
     Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("chown");
-    assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("55:mygroup");
+    assertThat(ArgumentResolution.of(option.value()).value()).isEqualTo("55:mygroup");
 
     assertThat(tree.srcs()).hasSize(1);
     ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("files*");

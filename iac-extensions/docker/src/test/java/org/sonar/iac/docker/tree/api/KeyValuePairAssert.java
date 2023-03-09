@@ -20,7 +20,7 @@
 package org.sonar.iac.docker.tree.api;
 
 import org.assertj.core.api.Assertions;
-import org.sonar.iac.docker.utils.ArgumentUtils;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 
 public class KeyValuePairAssert extends DockerTreeAssert<KeyValuePairAssert, KeyValuePair> {
 
@@ -34,7 +34,7 @@ public class KeyValuePairAssert extends DockerTreeAssert<KeyValuePairAssert, Key
 
   public KeyValuePairAssert hasKey(String key) {
     isNotNull();
-    String value = ArgumentUtils.resolve(actual.key()).value();
+    String value = ArgumentResolution.of(actual.key()).value();
     Assertions.assertThat(value)
       .overridingErrorMessage("Expected KeyValuePair key to be <%s> but was <%s>", key, value)
       .isEqualTo(key);
@@ -61,7 +61,7 @@ public class KeyValuePairAssert extends DockerTreeAssert<KeyValuePairAssert, Key
 
   public KeyValuePairAssert hasValue(String expectedValue) {
     isNotNull();
-    String value = ArgumentUtils.resolve(actual.value()).value();
+    String value = ArgumentResolution.of(actual.value()).value();
     Assertions.assertThat(value)
       .overridingErrorMessage("Expected KeyValuePair value to be <%s> but was <%s>", expectedValue, value)
       .isEqualTo(expectedValue);

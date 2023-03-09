@@ -23,8 +23,8 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.FromInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6497")
 public class ImageWithDigestCheck implements IacCheck {
@@ -37,7 +37,7 @@ public class ImageWithDigestCheck implements IacCheck {
   }
 
   private static void checkFrom(CheckContext ctx, FromInstruction fromInstruction) {
-    String image = ArgumentUtils.resolve(fromInstruction.image()).value();
+    String image = ArgumentResolution.of(fromInstruction.image()).value();
     if (image != null && image.contains("@")) {
       ctx.reportIssue(fromInstruction.image(), MESSAGE);
     }
