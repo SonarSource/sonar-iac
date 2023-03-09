@@ -32,16 +32,20 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
+import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.Variable;
 
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
 import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 @Rule(key = "S6472")
-public class EnvSecretCheck implements IacCheck {
+public class SecretsHandlingCheck implements IacCheck {
 
-  private static final String MESSAGE = "Make sure that using ENV to handle a secret is safe here.";
+  private static final String MESSAGE = "Make sure that using %s to handle a secret is safe here.";
 
   private static final Set<String> ENTITIES = Set.of("ACCESS", "AMPLITUDE", "ANSIBLE", "ADMIN", "API",
     "APP", "AUTH", "CLIENT", "CONFIG", "DATABASE", "DB", "ENCRYPTION", "ENV", "FACEBOOK", "FIREBASE", "FTP", "GIT",
@@ -55,15 +59,16 @@ public class EnvSecretCheck implements IacCheck {
   private static final Set<String> EXCLUSIONS = Set.of("ALLOW", "DIR", "EXPIRE", "EXPIRY", "FILE", "ID",
     "LOCATION", "NAME", "OWNER", "PATH", "URL");
 
+  // Patterns to split the identifier of a variable into separate words
   private static final Pattern UNDERSCORE_NAME_PATTERN = Pattern.compile("^\\w+$");
   private static final Pattern DASH_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9-]+$");
-
   private static final Pattern CAMELCASE_NAME_PATTERN = Pattern.compile("^[A-Za-z]+$");
-
   private static final Pattern CAMELCASE_SPLIT_PATTERN = Pattern.compile("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
 
+  // Pattern to identify a URL
   private static final Pattern URL_PATTERN = Pattern.compile("^(http|ftp)s?://");
 
+  // Pattern to identify a path
   private static final String ROOT_PATH_PATTERN = "^/[a-z]*+($|/)";
   private static final String RELATIVE_PATH_PATTERN = "^./[a-zA-Z_-]*+($|/)";
   private static final String EXPANSION_PATH_PATTERN = "^\\$\\{[^}]+}/";
@@ -75,37 +80,64 @@ public class EnvSecretCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(EnvInstruction.class, (ctx, instruction) -> instruction
-      .environmentVariables().forEach(envVarAssignment -> checkEnvVariableAssignment(ctx, envVarAssignment)));
+    init.register(EnvInstruction.class, (ctx, envInstruction) -> checkAssignments(ctx, envInstruction.environmentVariables(), "ENV"));
+    init.register(ArgInstruction.class, (ctx, argInstruction) -> checkAssignments(ctx, argInstruction.keyValuePairs(), "ARG"));
   }
 
-  private static void checkEnvVariableAssignment(CheckContext ctx, KeyValuePair envVarAssignment) {
-    if (isSensitiveName(ArgumentResolution.of(envVarAssignment.key()).value()) && isSensitiveSecret(envVarAssignment.value())) {
-      ctx.reportIssue(envVarAssignment.key(), MESSAGE);
+  private static void checkAssignments(CheckContext ctx, List<KeyValuePair> assignments, String type) {
+    for (KeyValuePair assignment : assignments) {
+      if (isSensitiveName(assignment.key()) && isSensitiveValue(assignment.value())) {
+        ctx.reportIssue(assignment.key(), String.format(MESSAGE, type));
+      }
     }
   }
 
-  private static boolean isSensitiveName(@Nullable String name) {
-    if (name == null) return false;
-    List<String> words = splitEnvVarName(name);
+  /**
+   * Check if the left hand of the assignment is a sensitive
+   */
+  private static boolean isSensitiveName(Argument nameArgument) {
+    ArgumentResolution nameResolution = ArgumentResolution.of(nameArgument);
+    if (!nameResolution.is(RESOLVED)) {
+      return false;
+    }
+    return isSensitiveVariableName(nameResolution.value());
+  }
+
+  /**
+   * Check if the right hand of the assignment is sensitive
+   */
+  private static boolean isSensitiveValue(@Nullable Argument value) {
+    return value != null && isSensitiveSecret(value);
+  }
+
+  private static boolean isSensitiveSecret(Argument secret) {
+    ArgumentResolution valueResolution = ArgumentResolution.of(secret);
+    if(valueResolution.is(UNRESOLVED)) {
+      return isSensitiveVariableName(secret);
+    }
+    String value = valueResolution.value();
+    return !value.isBlank() && !isUrl(value) && !isPath(value);
+  }
+
+
+  /**
+   * Check if the argument contains of a single variable expression and check if its name is sensitive
+   */
+  private static boolean isSensitiveVariableName(Argument secret) {
+    List<Expression> expressions = secret.expressions();
+    if (expressions.size() == 1 && expressions.get(0) instanceof Variable) {
+      String identifier = ((Variable) expressions.get(0)).identifier();
+      return isSensitiveVariableName(identifier);
+    }
+    return false;
+  }
+
+  /**
+   * Check if the identifier of a variable is sensitive
+   */
+  private static boolean isSensitiveVariableName(String identifier) {
+    List<String> words = VarNameSplitter.split(identifier);
     return isSecretWordOnly(words) || containsSecretEntityWordCombination(words);
-  }
-
-  private static List<String> splitEnvVarName(String name) {
-    if (UNDERSCORE_NAME_PATTERN.matcher(name).matches() && name.contains("_")) {
-      return toUpperCase(name.split("_"));
-    }
-    if (DASH_NAME_PATTERN.matcher(name).matches() && name.contains("-")) {
-      return toUpperCase(name.split("-"));
-    }
-    if (CAMELCASE_NAME_PATTERN.matcher(name).matches()) {
-      return toUpperCase(CAMELCASE_SPLIT_PATTERN.split(name));
-    }
-    return Collections.emptyList();
-  }
-
-  private static List<String> toUpperCase(String[] strings) {
-    return Stream.of(strings).map(s -> s.toUpperCase(Locale.ROOT)).collect(Collectors.toList());
   }
 
   private static boolean isSecretWordOnly(List<String> words) {
@@ -125,16 +157,6 @@ public class EnvSecretCheck implements IacCheck {
     return false;
   }
 
-  private static boolean isSensitiveSecret(@Nullable Argument secret) {
-    return secret != null && isSensitiveValue(ArgumentResolution.of(secret));
-  }
-
-  private static boolean isSensitiveValue(ArgumentResolution valueResolution) {
-    if(valueResolution.is(UNRESOLVED)) return false;
-    String value = valueResolution.value();
-    return !value.isBlank() && !isUrl(value) && !isPath(value);
-  }
-
   private static boolean isUrl(String value) {
     return URL_PATTERN.matcher(value).find();
   }
@@ -142,4 +164,24 @@ public class EnvSecretCheck implements IacCheck {
   private static boolean isPath(String value) {
     return PATH_PATTERN.matcher(value).find();
   }
+
+  private static class VarNameSplitter {
+    private static List<String> split(String name) {
+      if (UNDERSCORE_NAME_PATTERN.matcher(name).matches() && name.contains("_")) {
+        return toUpperCase(name.split("_"));
+      }
+      if (DASH_NAME_PATTERN.matcher(name).matches() && name.contains("-")) {
+        return toUpperCase(name.split("-"));
+      }
+      if (CAMELCASE_NAME_PATTERN.matcher(name).matches()) {
+        return toUpperCase(CAMELCASE_SPLIT_PATTERN.split(name));
+      }
+      return Collections.emptyList();
+    }
+
+    private static List<String> toUpperCase(String[] strings) {
+      return Stream.of(strings).map(s -> s.toUpperCase(Locale.ROOT)).collect(Collectors.toList());
+    }
+  }
+
 }

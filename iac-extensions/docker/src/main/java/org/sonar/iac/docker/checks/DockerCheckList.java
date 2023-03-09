@@ -34,7 +34,6 @@ public class DockerCheckList {
       BuilderSandboxCheck.class,
       DebugModeCheck.class,
       DirectoryCopySourceCheck.class,
-      EnvSecretCheck.class,
       ExposePortCheck.class,
       HostNetworkNamespaceCheck.class,
       ImageWithDigestCheck.class,
@@ -45,6 +44,7 @@ public class DockerCheckList {
       PosixPermissionCheck.class,
       PrivilegedUserCheck.class,
       ToDoCommentCheck.class,
+      SecretsHandlingCheck.class,
       UnencryptedProtocolCheck.class
     );
   }

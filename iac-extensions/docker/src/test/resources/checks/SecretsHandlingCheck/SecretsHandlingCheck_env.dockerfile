@@ -1,13 +1,13 @@
 FROM foo
 
 
-ENV ACCESS_TOKEN=${ACCESS_TOKEN}
-ENV access_token=${ACCESS_TOKEN}
-ENV ACCESS_TOKEN=${access_token}
-ENV access_token=${access_token}
-ENV MY_ACCESS_TOKEN=${ACCESS_TOKEN}
-ENV MY-ACCESS-TOKEN=${ACCESS_TOKEN}
-ENV MyAccessToken=${ACCESS_TOKEN}
+ENV ACCESS_TOKEN=${RANDOM}
+ENV access_token=${RANDOM}
+ENV ACCESS_TOKEN=${RANDOM}
+ENV access_token=${RANDOM}
+ENV MY_ACCESS_TOKEN=${RANDOM}
+ENV MY-ACCESS-TOKEN=${RANDOM}
+ENV MyAccessToken=${RANDOM}
 
 # Noncompliant@+1 {{Make sure that using ENV to handle a secret is safe here.}}
 ENV ACCESS_TOKEN=ThisIsSomethingThatShouldProbablyBeSecret
@@ -19,6 +19,8 @@ ENV token=AAAA
 ENV ACCESS_TOKEN="hts://www.secrets.com"
 # Noncompliant@+1
 ENV MY_1_ACCESS_TOKEN=AAAA
+# Noncompliant@+1
+ENV ACCESS_TOKEN=${ACCESS_TOKEN}
 
 
 ARG CCC
@@ -27,12 +29,12 @@ ENV ${CCC}=BBB
 ENV ACCESS_TOKEN=""
 ENV ACCESS=AAAA
 ENV NOACCESS_TOKEN=whatever
-ENV ACCESS_TOKEN_PATH=${ACCESS_TOKEN}
+ENV ACCESS_TOKEN_PATH=${RANDOM}
 ENV ACCESS_TOKEN=/usr/bin/:/bin/:/sbin/
 ENV ACCESS_TOKEN="/run/secrets/token.json"
 ENV ACCESS_TOKEN="/root/path/"
 ENV ACCESS_TOKEN="./relative/path/"
-ENV ACCESS_TOKEN "/run/secrets/token.json"${ACCESS_TOKEN}
+ENV ACCESS_TOKEN "/run/secrets/token.json"${RANDOM}
 ENV ACCESS_TOKEN=${ARG:-"/run/secrets/token.json"}
 ENV ACCESS_MY_TOKEN=whatever
 ENV ACCESS_TOKEN="https://www.secrets.com"
@@ -45,6 +47,14 @@ ENV OAUTH2-PASS=AAAA
 ENV FtpPassword=AAAA
 ENV ExpireFtpPassword=AAAA
 ENV FtpMyPassword=AAAA
+
+# Noncompliant@+1
+ENV WEBHOOK_CREDENTIALS=$WEBHOOK_CREDENTIALS
+ENV WEBHOOK_CREDENTIALS=FOO$WEBHOOK_CREDENTIALS
+
+# Only raise on sensitive varaible name is not resolved to safe value
+ARG JWT_KEY="https://www.secrets.com"
+ENV WEBHOOK_CREDENTIALS=$JWT_KEY
 
 # FN hard to do a PascalCase split with numbers
 ENV Oauth2Pass=AAAA
