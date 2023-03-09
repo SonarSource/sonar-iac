@@ -22,7 +22,6 @@ package org.sonar.iac.common.api.tree.impl;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -58,6 +57,6 @@ class TextRangesTest {
   }
 
   public static TextRange range(int startLine, int startLineColumn, int endLine, int endLineColumn) {
-    return new org.sonar.iac.common.api.tree.impl.TextRange(new TextPointer(startLine, startLineColumn), new TextPointer(endLine, endLineColumn));
+    return new TextRange(new TextPointer(startLine, startLineColumn), new TextPointer(endLine, endLineColumn));
   }
 }

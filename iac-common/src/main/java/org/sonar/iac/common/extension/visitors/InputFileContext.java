@@ -54,7 +54,7 @@ public class InputFileContext extends TreeContext {
       NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
 
       if (textRange != null) {
-        issueLocation.at(inputFile.newRange(textRange.start().line(), textRange.start().lineOffset(), textRange.end().line(), textRange.end().lineOffset()));
+        issueLocation.at(toInputFileRange(textRange));
       }
 
       issue.forRule(ruleKey).at(issueLocation);
@@ -64,7 +64,7 @@ public class InputFileContext extends TreeContext {
         .forEach(secondary -> issue.addLocation(
           issue.newLocation()
             .on(inputFile)
-            .at(inputFile.newRange(secondary.textRange.start().line(), secondary.textRange.start().lineOffset(), secondary.textRange.end().line(), secondary.textRange.end().lineOffset()))
+            .at(toInputFileRange(secondary.textRange))
             .message(secondary.message)
         ));
 
@@ -106,6 +106,10 @@ public class InputFileContext extends TreeContext {
     }
 
     error.save();
+  }
+
+  private org.sonar.api.batch.fs.TextRange toInputFileRange(TextRange textRange) {
+    return inputFile.newRange(textRange.start().line(), textRange.start().lineOffset(), textRange.end().line(), textRange.end().lineOffset());
   }
 
   private static int issueHash(RuleKey ruleKey, @Nullable TextRange textRange, List<SecondaryLocation> secondaryLocations) {

@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.common.api.tree.impl;
 
+import java.util.Objects;
+
 public class TextRange {
   private final TextPointer start;
   private final TextPointer end;
@@ -37,16 +39,15 @@ public class TextRange {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == null || obj.getClass() != this.getClass()) {
-      return false;
-    }
-    TextRange other = (TextRange) obj;
-    return start.equals(other.start) && end.equals(other.end);
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (other == null || getClass() != other.getClass()) return false;
+    TextRange otherRange = (TextRange) other;
+    return Objects.equals(start, otherRange.start) && Objects.equals(end, otherRange.end);
   }
 
   @Override
   public int hashCode() {
-    return start.hashCode() * 17 + end.hashCode();
+    return Objects.hash(start, end);
   }
 }
