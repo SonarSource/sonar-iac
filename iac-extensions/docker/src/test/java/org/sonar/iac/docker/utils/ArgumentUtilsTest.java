@@ -86,6 +86,7 @@ class ArgumentUtilsTest {
     "FROM foo\nARG foo=bar\nLABEL label=${foo:-notbar}",
     "FROM foo\nARG foo=notbar\nARG foo=bar\nLABEL label=$foo",
     "FROM foo\nARG foo=ar\nLABEL label=b$foo",
+    "FROM foo\nARG foo=barKey\nARG $foo=bar\nLABEL label=$barKey",
     "FROM foo\nENV foo=bar\nLABEL label=$foo",
     "FROM foo\nENV foo=bar\nLABEL label=${foo}",
     "FROM foo\nENV foo=bar\nLABEL label=${foo:-notbar}",
@@ -105,7 +106,6 @@ class ArgumentUtilsTest {
   @ValueSource(strings = {
     "FROM foo\nLABEL label=$foo",
     "FROM foo\nARG foo\nLABEL label=$foo",
-    "FROM foo\nARG foo=barKey\nARG $foo=barValue\nLABEL label=$barKey",
     "ARG foo=bar\nFROM foo\nLABEL label=$foo",
     // TODO SONARIAC-596 Include default value when resolving an encapsulated variable
     "FROM foo\nLABEL label=${foo:-bar}",

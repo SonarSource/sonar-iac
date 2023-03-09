@@ -22,7 +22,6 @@ package org.sonar.iac.docker.visitors;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -219,15 +218,16 @@ class DockerSymbolVisitorTest {
 
   @Test
   void shouldNotCreateSymbolForEmptyName() {
-    DockerImage image = scanImage("ARG FOO=\"\"\nARG FOO=bar");
-    assertThat(image.scope().getSymbols()).hasSize(1);
+    DockerImage image = scanImage("ARG FOO=\"\"\nARG $FOO=bar");
+    assertThat(image.scope().getSymbols()).extracting(Symbol::name)
+      .containsExactly("FOO");
   }
 
   @Test
-  @Disabled("We are not resolving variables as identifier, should be fixed with SONARIAC-646")
   void shouldCreateSymbolForResolvedName() {
     DockerImage image = scanImage("ARG FOO=BAR\nARG $FOO=bar");
-    assertThat(image.scope().getSymbols()).hasSize(2);
+    assertThat(image.scope().getSymbols()).extracting(Symbol::name)
+      .containsExactly("BAR", "FOO");
   }
 
   @ParameterizedTest
