@@ -226,7 +226,7 @@ class RunInstructionImplTest {
     Flag option = tree.options().get(0);
     assertThat(((SyntaxToken)option.children().get(0)).value()).isEqualTo("--");
     assertThat(option.name()).isEqualTo("mount");
-    assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("type={{unresolved:mount_type}}");
+    assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("type=");
     assertTextRange(option.textRange()).hasRange(1,4,1,35);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");

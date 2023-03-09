@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.utils;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +36,7 @@ import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.Variable;
+import org.sonarsource.analyzer.commons.collections.ListUtils;
 
 import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
 import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.UNRESOLVED;
@@ -93,7 +93,7 @@ public class ArgumentUtils {
           if (!":+".equals((encapsulatedVariable).modifierSeparator())) {
             resolveVariable(encapsulatedVariable);
           } else {
-            resolution.addPlaceholder(encapsulatedVariable);
+            resolution.setUnresolved();
           }
           break;
         default:
@@ -107,13 +107,11 @@ public class ArgumentUtils {
     private void resolveVariable(Variable variable) {
       Symbol symbol = variable.symbol();
       if (!visitedVariable.add(variable) || symbol == null) {
-        resolution.addPlaceholder(variable);
+        resolution.setUnresolved();
         return;
       }
 
-      List<Usage> usages = symbol.usages();
-      Collections.reverse(usages);
-
+      List<Usage> usages = ListUtils.reverse(symbol.usages());
       List<Usage> reversedAssignments = usages.stream()
         .filter(usage -> usage.kind().equals(Usage.Kind.ASSIGNMENT))
         .collect(Collectors.toList());
@@ -123,7 +121,7 @@ public class ArgumentUtils {
       if (lastAssignedValue != null) {
         resolveExpressions(lastAssignedValue.expressions());
       } else {
-        resolution.addPlaceholder(variable);
+        resolution.setUnresolved();
       }
     }
 
@@ -182,8 +180,6 @@ public class ArgumentUtils {
 
     private static class Builder {
 
-      private static final String VAR_PLACEHOLDER = "{{unresolved:%s}}";
-
       private Status status = RESOLVED;
       private final StringBuilder sb = new StringBuilder();
 
@@ -191,8 +187,7 @@ public class ArgumentUtils {
         sb.append(value);
       }
 
-      private void addPlaceholder(Variable variable) {
-        sb.append(String.format(VAR_PLACEHOLDER, variable.identifier()));
+      private void setUnresolved() {
         status = UNRESOLVED;
       }
 

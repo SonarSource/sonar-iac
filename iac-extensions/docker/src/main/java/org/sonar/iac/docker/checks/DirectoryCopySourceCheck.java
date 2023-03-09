@@ -33,6 +33,8 @@ import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.utils.ArgumentUtils;
 
+import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
+
 @Rule(key = "S6470")
 public class DirectoryCopySourceCheck implements IacCheck {
 
@@ -48,8 +50,9 @@ public class DirectoryCopySourceCheck implements IacCheck {
 
   private static void checkAdd(CheckContext ctx, AddInstruction add) {
     for (Argument src : add.srcs()) {
+      ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(src);
       String path = ArgumentUtils.resolve(src).value();
-      if (path != null && !path.startsWith("http://") && !path.startsWith("https://")) {
+      if (resolution.is(RESOLVED) && path != null && !path.startsWith("http://") && !path.startsWith("https://")) {
         reportIfSensitive(ctx, src, isSensitivePath(path), "Adding files");
       }
     }
@@ -59,8 +62,9 @@ public class DirectoryCopySourceCheck implements IacCheck {
     if (hasFromOption(copyInstruction.options())) return;
 
     for (Argument src : copyInstruction.srcs()) {
+      ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(src);
       String path = ArgumentUtils.resolve(src).value();
-      if (path != null) {
+      if (resolution.is(RESOLVED) && path != null) {
         reportIfSensitive(ctx, src, isSensitivePath(path), "Copying");
       }
     }

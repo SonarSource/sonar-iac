@@ -42,6 +42,7 @@ import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.EMPTY;
 import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
+import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.UNRESOLVED;
 
 class ArgumentUtilsTest {
 
@@ -65,16 +66,17 @@ class ArgumentUtilsTest {
 
   @ParameterizedTest
   @CsvSource({
-    "${foo}, {{unresolved:foo}}",
-    "$foo, {{unresolved:foo}}",
-    "\"foo$bar\", foo{{unresolved:bar}}",
-    "foo$bar, foo{{unresolved:bar}}",
-    "foo${bar}, foo{{unresolved:bar}}"
+    "'${foo}', ''",
+    "'$foo', ''",
+    "'\"foo$bar\"', 'foo'",
+    "'foo$bar', 'foo'",
+    "'foo${bar}', 'foo'"
   })
   void shouldPartyVariableOrExpandableStrings(String input, String expectedOutput) {
     Argument argument = parseArgument(input);
-    assertThat(ArgumentUtils.resolve(argument)).extracting(ArgumentUtils.ArgumentResolution::value)
-      .isEqualTo(expectedOutput);
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(argument);
+    assertThat(resolution.value()).isEqualTo(expectedOutput);
+    assertThat(resolution.status()).isEqualTo(UNRESOLVED);
   }
 
   @ParameterizedTest
@@ -147,7 +149,9 @@ class ArgumentUtilsTest {
 
     Argument label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0).value();
     assertThat(label).isNotNull();
-    assertThat(ArgumentUtils.resolve(label).value()).isEqualTo("{{unresolved:FOO}}");
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label);
+    assertThat(resolution.value()).isEmpty();
+    assertThat(resolution.status()).isEqualTo(UNRESOLVED);
   }
 
   private File parseFileAndAnalyzeSymbols(String input) {

@@ -81,7 +81,7 @@ class ShellFormImplTest {
     ShellForm shellForm = DockerTestUtils.parse(" executable $var", DockerLexicalGrammar.SHELL_FORM);
 
     assertThat(shellForm.getKind()).isEqualTo(DockerTree.Kind.SHELL_FORM);
-    assertArgumentsValue(shellForm.arguments(), "executable", "{{unresolved:var}}");
+    assertArgumentsValue(shellForm.arguments(), "executable", "");
   }
 
   @Test
