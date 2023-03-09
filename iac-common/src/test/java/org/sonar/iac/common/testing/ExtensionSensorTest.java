@@ -45,6 +45,8 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
 
   protected abstract InputFile validFile();
 
+  protected abstract void verifyDebugMessages(List<String> logs);
+
   @Test
   void emptyFileShouldRaiseNoIssue() {
     analyse(sensor(checkFactory(PARSING_ERROR_RULE_KEY)), emptyFile());
@@ -82,8 +84,6 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
 
     verifyDebugMessages(logTester.logs(LoggerLevel.DEBUG));
   }
-
-  protected abstract void verifyDebugMessages(List<String> logs);
 
   @Test
   void shouldRaiseNoIssueOnParsingErrorWhenIssueInactive() {
