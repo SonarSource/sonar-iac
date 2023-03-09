@@ -34,11 +34,11 @@ import org.sonar.iac.docker.tree.api.TransferInstruction;
  * {@code MY_CMD --param=value src1 src2 dest}
  * {@code MY_CMD --param=value ["src1", "src2", "dest"]}
  */
-public abstract class AbstractTransferImpl extends InstructionImpl implements TransferInstruction {
+public abstract class AbstractTransferInstructionImpl extends InstructionImpl implements TransferInstruction {
   protected final List<Flag> options;
   protected final ArgumentList srcsAndDest;
 
-  protected AbstractTransferImpl(SyntaxToken add, List<Flag> options, ArgumentList srcsAndDest) {
+  protected AbstractTransferInstructionImpl(SyntaxToken add, List<Flag> options, ArgumentList srcsAndDest) {
     super(add);
     this.options = options;
     this.srcsAndDest = srcsAndDest;

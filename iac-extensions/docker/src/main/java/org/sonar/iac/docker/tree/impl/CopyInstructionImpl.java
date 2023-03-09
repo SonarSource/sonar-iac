@@ -26,7 +26,7 @@ import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class CopyInstructionImpl extends AbstractTransferImpl implements CopyInstruction {
+public class CopyInstructionImpl extends AbstractTransferInstructionImpl implements CopyInstruction {
 
   public CopyInstructionImpl(SyntaxToken add, List<Flag> options, ArgumentList srcsAndDest) {
     super(add, options, srcsAndDest);

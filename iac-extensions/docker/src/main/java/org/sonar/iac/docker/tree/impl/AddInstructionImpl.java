@@ -25,7 +25,7 @@ import org.sonar.iac.docker.tree.api.ArgumentList;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
-public class AddInstructionImpl extends AbstractTransferImpl implements AddInstruction {
+public class AddInstructionImpl extends AbstractTransferInstructionImpl implements AddInstruction {
 
   public AddInstructionImpl(SyntaxToken add, List<Flag> options, ArgumentList srcsAndDest) {
     super(add, options, srcsAndDest);
