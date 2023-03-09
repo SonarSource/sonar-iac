@@ -23,11 +23,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -98,8 +97,8 @@ class HealthCheckInstructionImplTest {
 
     List<Flag> options = tree.options();
     assertThat(options.get(0).name()).isEqualTo("interval");
-    assertThat(ArgumentUtils.resolve(options.get(0).value()).value()).isEqualTo("30s");
+    assertThat(ArgumentResolution.of(options.get(0).value()).value()).isEqualTo("30s");
     assertThat(options.get(1).name()).isEqualTo("timeout");
-    assertThat(ArgumentUtils.resolve(options.get(1).value()).value()).isEqualTo("5s");
+    assertThat(ArgumentResolution.of(options.get(1).value()).value()).isEqualTo("5s");
   }
 }

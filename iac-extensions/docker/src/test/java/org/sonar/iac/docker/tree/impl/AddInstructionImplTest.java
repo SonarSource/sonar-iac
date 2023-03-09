@@ -23,12 +23,12 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -168,7 +168,7 @@ class AddInstructionImplTest {
     Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("chown");
-    assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("55:mygroup");
+    assertThat(ArgumentResolution.of(option.value()).value()).isEqualTo("55:mygroup");
 
     assertThat(tree.srcs()).hasSize(1);
 
@@ -186,12 +186,12 @@ class AddInstructionImplTest {
     Flag option1 = tree.options().get(0);
     assertThat(option1.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option1.name()).isEqualTo("option-one");
-    assertThat(ArgumentUtils.resolve(option1.value()).value()).isEqualTo("value1");
+    assertThat(ArgumentResolution.of(option1.value()).value()).isEqualTo("value1");
 
     Flag option2 = tree.options().get(1);
     assertThat(option2.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option2.name()).isEqualTo("option-two");
-    assertThat(ArgumentUtils.resolve(option2.value()).value()).isEqualTo("value2");
+    assertThat(ArgumentResolution.of(option2.value()).value()).isEqualTo("value2");
 
     assertThat(tree.srcs()).hasSize(1);
     ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");

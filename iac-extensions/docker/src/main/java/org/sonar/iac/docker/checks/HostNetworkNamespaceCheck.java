@@ -24,9 +24,9 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6431")
 public class HostNetworkNamespaceCheck implements IacCheck {
@@ -45,6 +45,6 @@ public class HostNetworkNamespaceCheck implements IacCheck {
   }
 
   private static boolean isArgValue(@Nullable Argument argument, String expectedValue) {
-    return argument != null && expectedValue.equals(ArgumentUtils.resolve(argument).value());
+    return argument != null && expectedValue.equals(ArgumentResolution.of(argument).value());
   }
 }

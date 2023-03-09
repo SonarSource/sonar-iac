@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.utils;
+package org.sonar.iac.docker.symbols;
 
 import java.util.Collections;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -39,12 +40,12 @@ import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.EMPTY;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
-import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.EMPTY;
-import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
-import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.UNRESOLVED;
 
-class ArgumentUtilsTest {
+class ArgumentResolutionTest {
 
   private final InputFileContext inputFileContext = mock(InputFileContext.class);
 
@@ -59,7 +60,7 @@ class ArgumentUtilsTest {
   })
   void resolveArgument(String input) {
     Argument argument = parseArgument(input);
-    assertThat(ArgumentUtils.resolve(argument)).extracting(ArgumentUtils.ArgumentResolution::value)
+    Assertions.assertThat(ArgumentResolution.of(argument)).extracting(ArgumentResolution::value)
       .isNotNull()
       .isEqualTo("foo");
   }
@@ -74,7 +75,7 @@ class ArgumentUtilsTest {
   })
   void shouldPartyVariableOrExpandableStrings(String input, String expectedOutput) {
     Argument argument = parseArgument(input);
-    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(argument);
+    ArgumentResolution resolution = ArgumentResolution.of(argument);
     assertThat(resolution.value()).isEqualTo(expectedOutput);
     assertThat(resolution.status()).isEqualTo(UNRESOLVED);
   }
@@ -98,7 +99,7 @@ class ArgumentUtilsTest {
 
     KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
 
-    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
+    ArgumentResolution resolution = ArgumentResolution.of(label.value());
     assertThat(resolution.value()).isEqualTo("bar");
   }
 
@@ -117,15 +118,15 @@ class ArgumentUtilsTest {
 
     KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
 
-    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label.value());
-    assertThat(resolution.status()).isEqualTo(ArgumentUtils.ArgumentResolution.Status.UNRESOLVED);
+    ArgumentResolution resolution = ArgumentResolution.of(label.value());
+    assertThat(resolution.status()).isEqualTo(ArgumentResolution.Status.UNRESOLVED);
   }
 
   @Test
   void shouldNotFailOnUnknownExpression() {
     Expression unknownExpression = new UnknownExpression();
     Argument argument = new ArgumentImpl(Collections.singletonList(unknownExpression));
-    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(argument);
+    ArgumentResolution resolution = ArgumentResolution.of(argument);
 
     assertThat(resolution.value()).isEmpty();
     assertThat(resolution.status()).isEqualTo(RESOLVED);
@@ -133,7 +134,7 @@ class ArgumentUtilsTest {
 
   @Test
   void shouldNotFailNullAsArgument() {
-    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(null);
+    ArgumentResolution resolution = ArgumentResolution.of(null);
 
     assertThat(resolution.value()).isEmpty();
     assertThat(resolution.status()).isEqualTo(EMPTY);
@@ -149,7 +150,7 @@ class ArgumentUtilsTest {
 
     Argument label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0).value();
     assertThat(label).isNotNull();
-    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(label);
+    ArgumentResolution resolution = ArgumentResolution.of(label);
     assertThat(resolution.value()).isEmpty();
     assertThat(resolution.status()).isEqualTo(UNRESOLVED);
   }

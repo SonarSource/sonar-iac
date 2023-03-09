@@ -22,13 +22,13 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -65,7 +65,7 @@ class DockerImageImplTest {
     MaintainerInstruction maintainer = (MaintainerInstruction) dockerImage.instructions().get(0);
     assertThat(maintainer.authors()).extracting(TextTree::value).containsExactly("bob");
     ExposeInstruction expose = (ExposeInstruction) dockerImage.instructions().get(1);
-    assertThat(expose.arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("80");
+    assertThat(expose.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("80");
   }
 
   @Test

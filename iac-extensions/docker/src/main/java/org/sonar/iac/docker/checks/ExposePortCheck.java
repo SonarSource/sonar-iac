@@ -29,9 +29,9 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExposeInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6473")
 public class ExposePortCheck implements IacCheck {
@@ -65,7 +65,7 @@ public class ExposePortCheck implements IacCheck {
   }
 
   private void checkPort(CheckContext ctx, Argument arg) {
-    String portStr = ArgumentUtils.resolve(arg).value();
+    String portStr = ArgumentResolution.of(arg).value();
     if (portStr == null) return;
     try {
       Port port = new Port.PortParser(portStr).parsePort().parseProtocol().build();

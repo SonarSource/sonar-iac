@@ -22,9 +22,9 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -60,7 +60,7 @@ class FlagImplTest {
     Flag param = parse(" --platform=foo", DockerLexicalGrammar.FLAG);
     assertThat(param.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(param.name()).isEqualTo("platform");
-    assertThat(ArgumentUtils.resolve(param.value()).value()).isEqualTo("foo");
+    assertThat(ArgumentResolution.of(param.value()).value()).isEqualTo("foo");
     assertTextRange(param.textRange()).hasRange(1, 1, 1, 15);
   }
 

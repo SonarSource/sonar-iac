@@ -22,9 +22,9 @@ package org.sonar.iac.docker.checks;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S6502")
 public class BuilderSandboxCheck implements IacCheck {
@@ -35,7 +35,7 @@ public class BuilderSandboxCheck implements IacCheck {
   public void initialize(InitContext init) {
     init.register(RunInstruction.class, (ctx, instruction) -> {
       for (Flag option : instruction.options()) {
-        if ("security".equals(option.name()) && "insecure".equals(ArgumentUtils.resolve(option.value()).value())) {
+        if ("security".equals(option.name()) && "insecure".equals(ArgumentResolution.of(option.value()).value())) {
           ctx.reportIssue(option, MESSAGE);
         }
       }

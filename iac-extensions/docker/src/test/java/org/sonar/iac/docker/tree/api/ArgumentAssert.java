@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import org.sonar.iac.docker.utils.ArgumentUtils;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 
 public class ArgumentAssert extends DockerTreeAssert<ArgumentAssert, Argument> {
 
@@ -32,7 +32,7 @@ public class ArgumentAssert extends DockerTreeAssert<ArgumentAssert, Argument> {
   }
 
   public ArgumentResolutionAssert resolve() {
-    return new ArgumentResolutionAssert(ArgumentUtils.resolve(actual));
+    return new ArgumentResolutionAssert(ArgumentResolution.of(actual));
   }
 
   public ArgumentAssert hasValue(String value) {

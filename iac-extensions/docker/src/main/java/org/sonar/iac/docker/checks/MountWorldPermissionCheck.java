@@ -30,10 +30,10 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 import org.sonar.iac.docker.utils.CheckUtils;
 
 @Rule(key = "S6469")
@@ -60,7 +60,7 @@ public class MountWorldPermissionCheck implements IacCheck {
   }
 
   private static void checkMountParam(CheckContext ctx, Argument mountOptions) {
-    String value = ArgumentUtils.resolve(mountOptions).value();
+    String value = ArgumentResolution.of(mountOptions).value();
     TextPointer start = mountOptions.textRange().start();
     MountOption type = MountOption.creatFromMatcher(MOUNT_TYPE_PATTERN.matcher(value), start);
     MountOption mode = MountOption.creatFromMatcher(MOUNT_MODE_PATTERN.matcher(value), start);

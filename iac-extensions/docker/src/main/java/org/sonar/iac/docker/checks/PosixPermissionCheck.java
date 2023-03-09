@@ -28,10 +28,10 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.checks.utils.Chmod;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.TransferInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 @Rule(key = "S2612")
 public class PosixPermissionCheck implements IacCheck {
@@ -64,7 +64,7 @@ public class PosixPermissionCheck implements IacCheck {
     if (permission == null) {
       return false;
     }
-    String permissionString = ArgumentUtils.resolve(permission).value();
+    String permissionString = ArgumentResolution.of(permission).value();
     if (permissionString == null) {
       return false;
     }

@@ -31,12 +31,12 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
-import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.UNRESOLVED;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 @Rule(key = "S6472")
 public class EnvSecretCheck implements IacCheck {
@@ -80,7 +80,7 @@ public class EnvSecretCheck implements IacCheck {
   }
 
   private static void checkEnvVariableAssignment(CheckContext ctx, KeyValuePair envVarAssignment) {
-    if (isSensitiveName(ArgumentUtils.resolve(envVarAssignment.key()).value()) && isSensitiveSecret(envVarAssignment.value())) {
+    if (isSensitiveName(ArgumentResolution.of(envVarAssignment.key()).value()) && isSensitiveSecret(envVarAssignment.value())) {
       ctx.reportIssue(envVarAssignment.key(), MESSAGE);
     }
   }
@@ -126,10 +126,10 @@ public class EnvSecretCheck implements IacCheck {
   }
 
   private static boolean isSensitiveSecret(@Nullable Argument secret) {
-    return secret != null && isSensitiveValue(ArgumentUtils.resolve(secret));
+    return secret != null && isSensitiveValue(ArgumentResolution.of(secret));
   }
 
-  private static boolean isSensitiveValue(ArgumentUtils.ArgumentResolution valueResolution) {
+  private static boolean isSensitiveValue(ArgumentResolution valueResolution) {
     if(valueResolution.is(UNRESOLVED)) return false;
     String value = valueResolution.value();
     return !value.isBlank() && !isUrl(value) && !isPath(value);

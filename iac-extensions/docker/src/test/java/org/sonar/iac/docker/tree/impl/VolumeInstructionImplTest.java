@@ -22,9 +22,9 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
@@ -62,7 +62,7 @@ class VolumeInstructionImplTest {
   @Test
   void volumeInstructionExec() {
     VolumeInstruction tree = parse("VOLUME [\"/var/log\", \"/var/db\"]", DockerLexicalGrammar.VOLUME);
-    assertThat(tree.arguments().stream().map(arg -> ArgumentUtils.resolve(arg).value())).containsExactly("/var/log", "/var/db");
+    assertThat(tree.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("/var/log", "/var/db");
   }
 
   @Test

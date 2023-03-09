@@ -27,8 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 /**
  * Represent chmod call instruction in RUN Arguments, with parsed permissions ready to be checked
@@ -66,7 +66,7 @@ public class Chmod {
   public static List<Chmod> extractChmodsFromArguments(List<Argument> arguments) {
     List<Chmod> chmods = new ArrayList<>();
     List<String> argumentsStrings = arguments.stream()
-      .map(arg -> ArgumentUtils.resolve(arg).value())
+      .map(arg -> ArgumentResolution.of(arg).value())
       .collect(Collectors.toList());
 
     List<Integer> chmodIndexes = findChmodIndexes(argumentsStrings);

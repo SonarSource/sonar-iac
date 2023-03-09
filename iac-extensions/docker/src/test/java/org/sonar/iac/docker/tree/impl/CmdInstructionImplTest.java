@@ -22,12 +22,12 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
@@ -86,7 +86,7 @@ class CmdInstructionImplTest {
     assertTextRange(tree.textRange()).hasRange(1,0,1,36);
 
     assertThat(tree.arguments()).isNotNull();
-    assertThat(tree.arguments().stream().map(t -> ArgumentUtils.resolve(t).value())).containsExactly("executable", "param1", "param2");
+    assertThat(tree.arguments().stream().map(t -> ArgumentResolution.of(t).value())).containsExactly("executable", "param1", "param2");
 
     assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);

@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.symbols.Symbol;
 import org.sonar.iac.docker.symbols.Usage;
@@ -37,9 +38,8 @@ import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
-import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
 
 public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
 
@@ -96,7 +96,7 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
     for (KeyValuePair keyValuePair : assignments) {
       Argument identifier = keyValuePair.key();
       visitPossibleVariablesInIdentifier(identifier);
-      ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(identifier);
+      ArgumentResolution resolution = ArgumentResolution.of(identifier);
       if (resolution.is(RESOLVED) && !resolution.value().isBlank()) {
         Symbol symbol = currentScope.addSymbol(resolution.value());
         symbol.addUsage(currentScope, keyValuePair, Usage.Kind.ASSIGNMENT);
