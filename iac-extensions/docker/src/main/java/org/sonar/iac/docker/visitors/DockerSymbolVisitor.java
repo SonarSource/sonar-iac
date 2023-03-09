@@ -30,6 +30,7 @@ import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.symbols.Symbol;
 import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
@@ -52,7 +53,7 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
     registerAfter(FromInstruction.class, this::setImageScope);
     register(ArgInstruction.class, (ctx, argInstruction) -> visitAssignmentInstruction(argInstruction.keyValuePairs()));
     register(EnvInstruction.class, (ctx, envInstruction) -> visitAssignmentInstruction(envInstruction.environmentVariables()));
-    register(Variable.class, this::visitVariable);
+    register(Variable.class, (ctx, variable) -> visitVariable(variable));
   }
 
   @Override
@@ -91,17 +92,31 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
     dockerImage.setScope(currentScope);
   }
 
-  public void visitAssignmentInstruction(List<KeyValuePair> assignments) {
+  private void visitAssignmentInstruction(List<KeyValuePair> assignments) {
     for (KeyValuePair keyValuePair : assignments) {
-      ArgumentUtils.ArgumentResolution identifier = ArgumentUtils.resolve(keyValuePair.key());
-      if (identifier.is(RESOLVED) && !identifier.value().isBlank()) {
-        Symbol symbol = currentScope.addSymbol(identifier.value());
+      Argument identifier = keyValuePair.key();
+      visitPossibleVariablesInIdentifier(identifier);
+      ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(identifier);
+      if (resolution.is(RESOLVED) && !resolution.value().isBlank()) {
+        Symbol symbol = currentScope.addSymbol(resolution.value());
         symbol.addUsage(currentScope, keyValuePair, Usage.Kind.ASSIGNMENT);
       }
     }
   }
 
-  private void visitVariable(InputFileContext ctx, Variable variable) {
+  private void visitPossibleVariablesInIdentifier(Argument identifier) {
+    identifier.expressions().stream()
+      .filter(Variable.class::isInstance)
+      .map(Variable.class::cast)
+      .forEach(this::visitVariable);
+  }
+
+  private void visitVariable(Variable variable) {
+    if (variable.symbol() != null) {
+      // Variable is already visited
+      return;
+    }
+
     Symbol symbol = currentScope.getSymbol(variable.identifier());
     if (symbol != null) {
       symbol.addUsage(currentScope, variable, Usage.Kind.ACCESS);
