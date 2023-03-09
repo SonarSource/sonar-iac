@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.docker.visitors;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;

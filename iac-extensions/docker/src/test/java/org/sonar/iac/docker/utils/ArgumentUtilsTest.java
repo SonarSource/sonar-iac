@@ -40,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
+import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.EMPTY;
 import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
 
 class ArgumentUtilsTest {
@@ -126,6 +127,14 @@ class ArgumentUtilsTest {
 
     assertThat(resolution.value()).isEmpty();
     assertThat(resolution.status()).isEqualTo(RESOLVED);
+  }
+
+  @Test
+  void shouldNotFailNullAsArgument() {
+    ArgumentUtils.ArgumentResolution resolution = ArgumentUtils.resolve(null);
+
+    assertThat(resolution.value()).isEmpty();
+    assertThat(resolution.status()).isEqualTo(EMPTY);
   }
 
   @Test
