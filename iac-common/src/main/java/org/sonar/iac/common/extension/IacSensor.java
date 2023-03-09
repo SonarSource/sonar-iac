@@ -128,7 +128,7 @@ public abstract class IacSensor implements Sensor {
     return sensorContext.runtime().getProduct() != SonarProduct.SONARLINT;
   }
 
-  protected ParseException throwParseException(String action, InputFile inputFile, Exception cause) {
+  protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
     TextPointer position = null;
     if (cause instanceof RecognitionException) {
       position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
@@ -175,7 +175,7 @@ public abstract class IacSensor implements Sensor {
       try {
         content = inputFile.contents();
       } catch (IOException | RuntimeException e) {
-        throw throwParseException("read", inputFile, e);
+        throw toParseException("read", inputFile, e);
       }
 
       if (EMPTY_FILE_CONTENT_PATTERN.matcher(content).matches()) {
@@ -188,7 +188,7 @@ public abstract class IacSensor implements Sensor {
         } catch (ParseException e) {
           throw e;
         } catch (RuntimeException e) {
-          throw throwParseException("parse", inputFile, e);
+          throw toParseException("parse", inputFile, e);
         }
       });
 
@@ -212,8 +212,7 @@ public abstract class IacSensor implements Sensor {
     }
 
     private void logParsingError(ParseException e) {
-      String message = e.getMessage();
-      LOG.error(message);
+      LOG.error(e.getMessage());
       String detailedMessage = e.getDetails();
       if (detailedMessage != null) {
         LOG.debug(detailedMessage);

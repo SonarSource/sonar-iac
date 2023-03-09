@@ -156,7 +156,7 @@ class IacSensorTest extends AbstractSensorTest {
   void test_parsing_error_should_raise_on_corrupted_file() throws IOException {
     InputFile inputFile = inputFile("fakeFile.iac", "\n{}");
     InputFile spyInputFile = spy(inputFile);
-    when(spyInputFile.contents()).thenThrow(new IOException("foo bar"));
+    when(spyInputFile.contents()).thenThrow(IOException.class);
     analyse(spyInputFile);
 
     Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();
