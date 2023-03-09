@@ -26,7 +26,6 @@ import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.ShellForm;
-import org.sonar.iac.docker.utils.ArgumentUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
@@ -82,14 +81,7 @@ class ShellFormImplTest {
     ShellForm shellForm = DockerTestUtils.parse(" executable $var", DockerLexicalGrammar.SHELL_FORM);
 
     assertThat(shellForm.getKind()).isEqualTo(DockerTree.Kind.SHELL_FORM);
-    assertArgumentsValue(shellForm.arguments(), "executable", null);
-
-    ArgumentUtils.ArgumentResolution argResolved1 = ArgumentUtils.resolve(shellForm.arguments().get(0));
-    assertThat(argResolved1.value()).isEqualTo("executable");
-
-    ArgumentUtils.ArgumentResolution argResolved2 = ArgumentUtils.resolve(shellForm.arguments().get(1));
-    assertThat(argResolved2.value()).isNull();
-    ArgumentAssert.assertThat(shellForm.arguments().get(1)).isUnresolved();
+    assertArgumentsValue(shellForm.arguments(), "executable", "");
   }
 
   @Test

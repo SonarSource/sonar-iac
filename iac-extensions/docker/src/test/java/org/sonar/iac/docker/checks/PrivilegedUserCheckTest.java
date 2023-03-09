@@ -19,40 +19,62 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.sonar.iac.docker.checks.DockerVerifier.BASE_DIR;
 
 class PrivilegedUserCheckTest {
 
   private final PrivilegedUserCheck check = new PrivilegedUserCheck();
 
-  @Test
-  void testNonCompliant() {
-    for (int i = 0; i < 14; i++) {
-      DockerVerifier.verify("PrivilegedUserCheck/Dockerfile." + i, check);
-    }
+  @ParameterizedTest()
+  @MethodSource
+  void testNonCompliant(String testFile) {
+    DockerVerifier.verify(testFile, check);
   }
 
-  @Test
-  void testCompliant() {
-    for (int i = 0; i < 10; i++) {
-      DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile-Compliant." + i, check);
-    }
+  static List<String> testNonCompliant() {
+    return provideTestFiles("PrivilegedUserCheck/Noncompliant");
   }
 
-  @Test
-  void testCustomSafeList() {
+  @ParameterizedTest()
+  @MethodSource
+  void testCompliant(String testFile) {
+    DockerVerifier.verifyNoIssue(testFile, check);
+  }
+
+  static List<String> testCompliant() {
+    return provideTestFiles("PrivilegedUserCheck/Compliant");
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testCustomSafeList(String testFile) {
     check.safeImages = "custom_image1, custom_image2, golang";
-    for (int i = 0; i < 3; i++) {
-      DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_customSafeImages." + i, check);
-    }
+    DockerVerifier.verify(testFile, check);
   }
 
-  @Test
-  void testCustomSafeListCompliant() {
+  static List<String> testCustomSafeList() {
+    return provideTestFiles("PrivilegedUserCheck/CustomSafeImages/Noncompliant");
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testCustomSafeListCompliant(String testFile) {
     check.safeImages = "custom_image1, custom_image2, golang";
-    for (int i = 0; i < 7; i++) {
-      DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile_customSafeImages-Compliant." + i, check);
-    }
+    DockerVerifier.verifyNoIssue(testFile, check);
+  }
+
+  static List<String> testCustomSafeListCompliant() {
+    return provideTestFiles("PrivilegedUserCheck/CustomSafeImages/Compliant");
   }
 
   @Test
@@ -62,5 +84,16 @@ class PrivilegedUserCheckTest {
   @Test
   void testMultiStageBuildCompliant() {
     DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile_multi_stage_build-Compliant", check);
+  }
+
+  private static List<String> provideTestFiles(String testFileDir)  {
+    try(Stream<Path> pathStream = Files.list(BASE_DIR.resolve(testFileDir))) {
+      return pathStream
+        .map(Path::getFileName)
+        .map(fileName -> testFileDir + "/" + fileName)
+        .collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new AssertionError("Can not load test files from " + testFileDir);
+    }
   }
 }

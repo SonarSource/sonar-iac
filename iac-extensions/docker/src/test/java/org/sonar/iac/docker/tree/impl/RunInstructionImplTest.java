@@ -22,14 +22,13 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
+import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.ExecForm;
-import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Flag;
-import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
@@ -227,7 +226,7 @@ class RunInstructionImplTest {
     Flag option = tree.options().get(0);
     assertThat(((SyntaxToken)option.children().get(0)).value()).isEqualTo("--");
     assertThat(option.name()).isEqualTo("mount");
-    assertThat(ArgumentUtils.resolve(option.value()).value()).isNull();
+    assertThat(ArgumentUtils.resolve(option.value()).value()).isEqualTo("type=");
     assertTextRange(option.textRange()).hasRange(1,4,1,35);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");

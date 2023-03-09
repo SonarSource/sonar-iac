@@ -36,7 +36,7 @@ public class DockerVerifier {
 
   }
 
-  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
   private static final DockerParser PARSER = DockerParser.create();
 
   public static void verify(String fileName, IacCheck check) {
@@ -48,6 +48,10 @@ public class DockerVerifier {
   }
 
   public static void verifyNoIssue(String fileName, IacCheck check) {
-    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+    Path path = BASE_DIR.resolve(fileName);
+    Tree root = Verifier.parse(PARSER, path);
+    DockerSymbolVisitor symbolVisitor = new DockerSymbolVisitor();
+    symbolVisitor.scan(mock(InputFileContext.class), root);
+    Verifier.verifyNoIssue(root, path, check, Verifier.TestContext::new);
   }
 }

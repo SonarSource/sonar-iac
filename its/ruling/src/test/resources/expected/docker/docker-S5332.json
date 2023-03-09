@@ -1,4 +1,10 @@
 {
+'docker-project:sources/docker/aspnet-monitoring/prometheus/Dockerfile':[
+7,
+],
+'docker-project:sources/docker/aspnet-monitoring/prometheus/Dockerfile.ltsc2019':[
+7,
+],
 'docker-project:sources/docker/docker-containers/alpine3.7_py3.5.5_analytics/Dockerfile':[
 125,
 ],

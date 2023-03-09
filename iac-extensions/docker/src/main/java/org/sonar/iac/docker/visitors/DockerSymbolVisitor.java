@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.docker.visitors;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
@@ -37,6 +37,8 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonar.iac.docker.utils.ArgumentUtils;
+
+import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
 
 public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
 
@@ -91,9 +93,9 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
 
   public void visitAssignmentInstruction(List<KeyValuePair> assignments) {
     for (KeyValuePair keyValuePair : assignments) {
-      String identifier = ArgumentUtils.resolve(keyValuePair.key()).value();
-      if (identifier != null) {
-        Symbol symbol = currentScope.addSymbol(identifier);
+      ArgumentUtils.ArgumentResolution identifier = ArgumentUtils.resolve(keyValuePair.key());
+      if (identifier.is(RESOLVED) && !identifier.value().isBlank()) {
+        Symbol symbol = currentScope.addSymbol(identifier.value());
         symbol.addUsage(currentScope, keyValuePair, Usage.Kind.ASSIGNMENT);
       }
     }

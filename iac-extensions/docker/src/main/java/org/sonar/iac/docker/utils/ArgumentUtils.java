@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.utils;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +36,10 @@ import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.Variable;
+import org.sonarsource.analyzer.commons.collections.ListUtils;
+
+import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.RESOLVED;
+import static org.sonar.iac.docker.utils.ArgumentUtils.ArgumentResolution.Status.UNRESOLVED;
 
 public class ArgumentUtils {
 
@@ -44,73 +47,82 @@ public class ArgumentUtils {
     // utils class
   }
 
-  public static ArgumentResolution resolve(Argument argument) {
+  public static ArgumentResolution resolve(@Nullable Argument argument) {
     return ArgumentResolver.resolve(argument);
   }
 
   private static class ArgumentResolver {
 
-    Set<Expression> visitedExpressions = new HashSet<>();
+    ArgumentResolution.Builder resolution = new ArgumentResolution.Builder();
+    Set<Variable> visitedVariable = new HashSet<>();
 
-    private static ArgumentResolution resolve(Argument argument) {
-      return new ArgumentResolver().resolveExpressions(argument.expressions());
+    private static ArgumentResolution resolve(@Nullable Argument argument) {
+      return new ArgumentResolver().resolveArgument(argument);
     }
 
-    private ArgumentResolution resolveExpressions(List<Expression> expressions) {
-      StringBuilder sb = new StringBuilder();
+    private ArgumentResolution resolveArgument(@Nullable Argument argument) {
+      if (argument == null) {
+        return ArgumentResolution.EMPTY;
+      }
+      resolveExpressions(argument.expressions());
+      return resolution.build();
+    }
+
+    private void resolveExpressions(List<Expression> expressions) {
       for (Expression expression : expressions) {
-        if (!visitedExpressions.add(expression)) {
-          return ArgumentResolution.EMPTY;
-        }
-
-        String expressionResolution = resolveExpression(expression);
-        if (expressionResolution == null) {
-          return ArgumentResolution.EMPTY;
-        }
-        sb.append(expressionResolution);
+        resolveExpression(expression);
       }
-      return new ArgumentResolution(sb.toString());
     }
 
-    @Nullable
-    private String resolveExpression(Expression expression) {
-      if (expression.is(DockerTree.Kind.STRING_LITERAL)) {
-        return ((Literal)expression).value();
+    private void resolveExpression(Expression expression) {
+      switch (expression.getKind()) {
+        case STRING_LITERAL:
+          resolution.addValue(((Literal)expression).value());
+          break;
+        case EXPANDABLE_STRING_CHARACTERS:
+          resolution.addValue(((ExpandableStringCharacters)expression).value());
+          break;
+        case EXPANDABLE_STRING_LITERAL:
+          resolveExpressions(((ExpandableStringLiteral)expression).expressions());
+          break;
+        case REGULAR_VARIABLE:
+          resolveVariable((Variable) expression);
+          break;
+        case ENCAPSULATED_VARIABLE:
+          EncapsulatedVariable encapsulatedVariable = (EncapsulatedVariable) expression;
+          if (!":+".equals((encapsulatedVariable).modifierSeparator())) {
+            resolveVariable(encapsulatedVariable);
+          } else {
+            resolution.setUnresolved();
+          }
+          break;
+        default:
       }
-      if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_LITERAL)) {
-        return resolveExpressions(((ExpandableStringLiteral)expression).expressions()).value();
-      }
-      if (expression.is(DockerTree.Kind.EXPANDABLE_STRING_CHARACTERS)) {
-        return ((ExpandableStringCharacters)expression).value();
-      }
-      if (expression.is(DockerTree.Kind.REGULAR_VARIABLE)
-        || (expression.is(DockerTree.Kind.ENCAPSULATED_VARIABLE) && !":+".equals(((EncapsulatedVariable) expression).modifierSeparator()))) {
-        return resolveVariable((Variable) expression).value();
-      }
-      return null;
-    }
-
-    private ArgumentResolution resolveVariable(Variable variable) {
-      Symbol symbol = variable.symbol();
-      return symbol != null ? resolveSymbol(symbol) : ArgumentResolution.EMPTY;
     }
 
     /**
      * To resolve the value of a symbol at a given state, the last assigned value is considered.
      * There for all symbol usages are analyzed for the last assignment with value before the access.
      */
-    private ArgumentResolution resolveSymbol(Symbol symbol) {
-      List<Usage> usages = symbol.usages();
-      Collections.reverse(usages);
+    private void resolveVariable(Variable variable) {
+      Symbol symbol = variable.symbol();
+      if (!visitedVariable.add(variable) || symbol == null) {
+        resolution.setUnresolved();
+        return;
+      }
 
+      List<Usage> usages = ListUtils.reverse(symbol.usages());
       List<Usage> reversedAssignments = usages.stream()
         .filter(usage -> usage.kind().equals(Usage.Kind.ASSIGNMENT))
         .collect(Collectors.toList());
       Scope.Kind accessScopeKind = usages.get(0).scope().kind();
 
       Argument lastAssignedValue = findLastAccessibleAssignedValue(reversedAssignments, accessScopeKind);
-
-      return lastAssignedValue != null ? resolveExpressions(lastAssignedValue.expressions()) : ArgumentResolution.EMPTY;
+      if (lastAssignedValue != null) {
+        resolveExpressions(lastAssignedValue.expressions());
+      } else {
+        resolution.setUnresolved();
+      }
     }
 
     /**
@@ -138,17 +150,50 @@ public class ArgumentUtils {
 
   public static class ArgumentResolution {
 
-    static final ArgumentResolution EMPTY = new ArgumentResolution(null);
-
-    private final String value;
-
-    ArgumentResolution(@Nullable String value) {
-      this.value = value;
+    public enum Status {
+      RESOLVED,
+      UNRESOLVED,
+      EMPTY
     }
 
-    @Nullable
+    static final ArgumentResolution EMPTY = new ArgumentResolution("", Status.EMPTY);
+
+    private final String value;
+    private final Status status;
+
+    private ArgumentResolution(String value, Status status) {
+      this.value = value;
+      this.status = status;
+    }
+
     public String value() {
       return value;
+    }
+
+    public Status status() {
+      return status;
+    }
+
+    public boolean is(Status status) {
+      return this.status == status;
+    }
+
+    private static class Builder {
+
+      private Status status = RESOLVED;
+      private final StringBuilder sb = new StringBuilder();
+
+      private void addValue(String value) {
+        sb.append(value);
+      }
+
+      private void setUnresolved() {
+        status = UNRESOLVED;
+      }
+
+      public ArgumentResolution build() {
+        return new ArgumentResolution(sb.toString(), status);
+      }
     }
   }
 }
