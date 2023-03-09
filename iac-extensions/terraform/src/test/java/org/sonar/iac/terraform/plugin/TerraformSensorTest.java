@@ -33,8 +33,8 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.Version;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
