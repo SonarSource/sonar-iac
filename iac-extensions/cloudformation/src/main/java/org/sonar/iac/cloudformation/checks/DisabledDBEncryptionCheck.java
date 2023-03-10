@@ -21,7 +21,6 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -43,17 +42,11 @@ public class DisabledDBEncryptionCheck extends AbstractResourceCheck {
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
-    if (!(resource.isType("AWS::RDS::DBInstance")
-      || resource.isType("AWS::RDS::DBCluster")
-      || resource.isType("AWS::RDS::GlobalCluster"))) {
-      return;
-    }
-
     if (resource.isType("AWS::RDS::DBCluster")) {
       checkForDBClusterProperties(ctx, resource);
     } else if (resource.isType("AWS::RDS::GlobalCluster")) {
       checkForGlobalClusterProperties(ctx, resource);
-    } else {
+    } else if (resource.isType("AWS::RDS::DBInstance")) {
       // S6303 should not raise an issue if the property Engine of the resource AWS::RDS::DBInstance is one of EXCLUDE_AURORA_ATTRIBUTE
       if (PropertyUtils.get(resource.properties(), "Engine").stream()
         .anyMatch(engine -> TextUtils.matchesValue(engine.value(), EXCLUDE_AURORA_ATTRIBUTE::contains).isTrue())) {
@@ -64,18 +57,14 @@ public class DisabledDBEncryptionCheck extends AbstractResourceCheck {
   }
 
   private static void checkForGlobalClusterProperties(CheckContext ctx, Resource resource) {
-    Optional<PropertyTree> maybeEncryption = PropertyUtils.get(resource.properties(), KEY_STORAGE_ENCRYPTED);
-    if ((maybeEncryption.isPresent() && TextUtils.isValueTrue(maybeEncryption.get().value()))
-      || PropertyUtils.get(resource.properties(), "SourceDBClusterIdentifier").isPresent()) {
+    if (PropertyUtils.get(resource.properties(), "SourceDBClusterIdentifier").isPresent()) {
       return;
     }
     checkStorageEncrypted(ctx, resource, MESSAGE_RDS_DB_GLOBAL_CLUSTER);
   }
 
   private static void checkForDBClusterProperties(CheckContext ctx, Resource resource) {
-    Optional<PropertyTree> maybeEncryption = PropertyUtils.get(resource.properties(), KEY_STORAGE_ENCRYPTED);
-    if ((maybeEncryption.isPresent() && TextUtils.isValueTrue(maybeEncryption.get().value()))
-      || PropertyUtils.get(resource.properties(), "SourceDBClusterIdentifier").isPresent()
+    if (PropertyUtils.get(resource.properties(), "SourceDBClusterIdentifier").isPresent()
       || PropertyUtils.get(resource.properties(), "SnapshotIdentifier").isPresent()) {
       return;
     }
@@ -88,7 +77,7 @@ public class DisabledDBEncryptionCheck extends AbstractResourceCheck {
       encryption -> {
         if (TextUtils.isValueFalse(encryption.value())) {
           ctx.reportIssue(encryption.key(), message, new SecondaryLocation(resource.type(), SECONDARY_MESSAGE));
-        }}, () -> ctx.reportIssue(resource.type(), OMITTING_MESSAGE)
-    );
+        }
+      }, () -> ctx.reportIssue(resource.type(), OMITTING_MESSAGE));
   }
 }
