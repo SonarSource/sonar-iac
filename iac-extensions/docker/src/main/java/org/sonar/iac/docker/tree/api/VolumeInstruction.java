@@ -19,5 +19,12 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * VolumeInstruction
+ * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#volume">VOLUME</> instruction.
+ * <pre>
+ *   {@link #keyword()} {@link #arguments()}
+ * </pre>
+ */
 public interface VolumeInstruction extends Instruction, HasArguments {
 }

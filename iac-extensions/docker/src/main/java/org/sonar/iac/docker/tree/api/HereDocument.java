@@ -19,5 +19,24 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * This interface define the contract of <a href="https://docs.docker.com/engine/reference/builder/#here-documents">Here-Documents</a> form.
+ * It is a way to structure and provide {@link Argument} to compatible instruction.
+ * It extends from {@code ArgumentList}, it is a common interface from which extends any form that provide a list of argument, they are interchangeable.
+ * This form is the most complex, as it expect keys with <<-? as prefix and can last over several lines, until we find a line with that key only.
+ * Examples :
+ * <pre>
+ *   <<KEY val1
+ *   val2
+ *   KEY
+ * </pre>
+ * <pre>
+ *   <<KEY1 val1 KEY2 val2
+ *   val3
+ *   KEY1
+ *   val4
+ *   KEY2
+ * <pre/>
+ */
 public interface HereDocument extends ArgumentList {
 }

@@ -21,6 +21,14 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
+/**
+ * DockerImage
+ * This interface define the contract of the DockerImage, with its {@link FromInstruction} and the list of {@link Instruction}.
+ * <pre>
+ *   {@link #from()}
+ *   {@link #instructions()}
+ * </pre>
+ */
 public interface DockerImage extends DockerTree, HasScope {
 
   FromInstruction from();

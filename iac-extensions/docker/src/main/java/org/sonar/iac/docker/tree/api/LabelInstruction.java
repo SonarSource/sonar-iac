@@ -21,6 +21,13 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
+/**
+ * LabelInstruction
+ * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#label">LABEL</> instruction.
+ * <pre>
+ *   {@link #keyword()} {@link #labels()}
+ * </pre>
+ */
 public interface LabelInstruction extends Instruction {
   List<KeyValuePair> labels();
 }

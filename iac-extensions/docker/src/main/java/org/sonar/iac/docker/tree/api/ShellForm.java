@@ -19,5 +19,14 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * This interface define the contract of ShellForm.
+ * It is a way to structure and provide {@link Argument} to compatible instruction.
+ * It extends from {@code ArgumentList}, it is a common interface from which extends any form that provide a list of argument, they are interchangeable.
+ * This form is the simpler as there is no format at all, Argument must just be provided separated by whitespace.
+ * Examples :
+ * {@code val}
+ * {@code val1 val2}
+ */
 public interface ShellForm extends ArgumentList {
 }

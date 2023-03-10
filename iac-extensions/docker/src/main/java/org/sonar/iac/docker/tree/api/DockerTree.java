@@ -22,6 +22,10 @@ package org.sonar.iac.docker.tree.api;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
+/**
+ * Base interface for the tree elements related to the Docker analyzer.
+ * All node element related to it should inherit/implement this interface.
+ */
 public interface DockerTree extends Tree {
 
   boolean is(Kind... kind);

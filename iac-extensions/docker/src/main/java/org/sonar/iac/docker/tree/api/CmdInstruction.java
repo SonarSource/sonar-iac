@@ -19,7 +19,14 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-
+/**
+ * CmdInstruction
+ * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#cmd">CMD</> instruction.
+ * It is a strict implementation of the {@link CommandInstruction} interface.
+ * <pre>
+ *   {@link #keyword()} {@link #arguments()}
+ * </pre>
+ */
 public interface CmdInstruction extends CommandInstruction {
 
 }

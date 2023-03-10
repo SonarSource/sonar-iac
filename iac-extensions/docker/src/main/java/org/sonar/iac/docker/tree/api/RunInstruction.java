@@ -21,6 +21,13 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
+/**
+ * RunInstruction
+ * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#run">RUN</> instruction.
+ * <pre>
+ *   {@link #keyword()} {@link #options()} {@link #arguments()}
+ * </pre>
+ */
 public interface RunInstruction extends CommandInstruction {
   List<Flag> options();
 }

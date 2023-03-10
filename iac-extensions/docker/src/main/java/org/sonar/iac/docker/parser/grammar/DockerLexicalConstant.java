@@ -73,6 +73,10 @@ public class DockerLexicalConstant {
     + "(?:" + ESCAPED_UNQUOTED_STRING_CHARACTERS + "|[^\\s'\"\\$]|\\$(?![a-zA-Z_0-9{]))++"
     + ")";
 
+  /**
+   * Allow to match the modifier of a variable in a dockerfile. Currently more permissive as it allow to match any characters except unescaped $, ' and "
+   * until it find a }. There is also a lookahead in the end to ensure the match is followed by a closing } without matching it.
+   */
   public static final String UNQUOTED_VARIABLE_MODIFIER = "(?:"
     + "(?:" + ESCAPED_UNQUOTED_STRING_CHARACTERS + "|[^\\s'\"$}])++(?<!})"
     + ")";

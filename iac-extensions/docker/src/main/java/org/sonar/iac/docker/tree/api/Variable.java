@@ -19,6 +19,12 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * Interface to represent variable element reference in {@link Argument} objects.
+ * Examples :
+ * - RUN command prestr$myvar
+ *                     ^^^^^^
+ */
 public interface Variable extends Expression, HasSymbol {
   String identifier();
 }

@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 /**
  * KeyValuePair
- *
+ * This interface define the contract of KeyValuePair elements, used by several instructions such as {@link ArgInstruction}
  * <pre>
  *   {@link #key()}
  *   {@link #key()}={@link #value()}

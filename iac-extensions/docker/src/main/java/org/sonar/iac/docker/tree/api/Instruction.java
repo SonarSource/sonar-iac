@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * This is the base interface for instruction in Dockerfile.
+ * It defines a method to provide the keyword of the related instruction.
+ */
 public interface Instruction extends DockerTree {
   SyntaxToken keyword();
 }

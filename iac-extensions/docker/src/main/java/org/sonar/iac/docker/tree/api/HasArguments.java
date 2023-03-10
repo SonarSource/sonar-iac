@@ -21,6 +21,13 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
+/**
+ * HasArguments
+ * This interface define the contract for any instructions with arguments.
+ * <pre>
+ *   {@link #arguments()}
+ * </pre>
+ */
 public interface HasArguments {
 
   List<Argument> arguments();

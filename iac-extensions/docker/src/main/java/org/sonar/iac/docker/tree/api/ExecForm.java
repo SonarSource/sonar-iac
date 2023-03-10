@@ -19,6 +19,15 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * This interface define the contract of ExecForm.
+ * It is a way to structure and provide {@link Argument} to compatible instruction.
+ * It extends from {@code ArgumentList}, it is a common interface from which extends any form that provide a list of argument, they are interchangeable.
+ * This form use brackets, each argument much be separated by comma and be surrounded by double-quotes.
+ * Examples :
+ * {@code ["val"]}
+ * {@code ["val1", "val2"]}
+ */
 public interface ExecForm extends ArgumentList {
   SyntaxToken leftBracket();
   SeparatedList<Argument> argumentsWithSeparators();
