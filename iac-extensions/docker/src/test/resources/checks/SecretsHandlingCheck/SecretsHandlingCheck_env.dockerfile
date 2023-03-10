@@ -16,8 +16,6 @@ ENV TOKEN=AAAA
 # Noncompliant@+1
 ENV token=AAAA
 # Noncompliant@+1
-ENV ACCESS_TOKEN="hts://www.secrets.com"
-# Noncompliant@+1
 ENV MY_1_ACCESS_TOKEN=AAAA
 # Noncompliant@+1
 ENV ACCESS_TOKEN=${ACCESS_TOKEN}
@@ -38,6 +36,7 @@ ENV ACCESS_TOKEN "/run/secrets/token.json"${RANDOM}
 ENV ACCESS_TOKEN=${ARG:-"/run/secrets/token.json"}
 ENV ACCESS_MY_TOKEN=whatever
 ENV ACCESS_TOKEN="https://www.secrets.com"
+ENV ACCESS_TOKEN="hts://www.secrets.com"
 
 # Noncompliant@+1
 ENV WEBHOOK_CREDENTIALS=AAAA
@@ -53,8 +52,8 @@ ENV WEBHOOK_CREDENTIALS=$WEBHOOK_CREDENTIALS
 ENV WEBHOOK_CREDENTIALS=FOO$WEBHOOK_CREDENTIALS
 
 # Only raise on sensitive varaible name is not resolved to safe value
-ARG JWT_KEY="https://www.secrets.com"
-ENV WEBHOOK_CREDENTIALS=$JWT_KEY
+ARG FOO="https://www.secrets.com"
+ENV WEBHOOK_CREDENTIALS=$FOO
 
 # FN hard to do a PascalCase split with numbers
 ENV Oauth2Pass=AAAA

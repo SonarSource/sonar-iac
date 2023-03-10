@@ -66,7 +66,7 @@ public class SecretsHandlingCheck implements IacCheck {
   private static final Pattern CAMELCASE_SPLIT_PATTERN = Pattern.compile("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
 
   // Pattern to identify a URL
-  private static final Pattern URL_PATTERN = Pattern.compile("^(http|ftp)s?://");
+  private static final Pattern URL_PATTERN = Pattern.compile("^[a-zA-Z][-a-zA-Z0-9+.]*://");
 
   // Pattern to identify a path
   private static final String ROOT_PATH_PATTERN = "^/[a-z]*+($|/)";
@@ -78,16 +78,21 @@ public class SecretsHandlingCheck implements IacCheck {
   private static final Pattern PATH_PATTERN = Pattern.compile("(" + ROOT_PATH_PATTERN + "|" + RELATIVE_PATH_PATTERN
     + "|" + EXPANSION_PATH_PATTERN + "|" + PATH_WITH_EXPANSION_PATTERN + ")");
 
-  @Override
-  public void initialize(InitContext init) {
-    init.register(EnvInstruction.class, (ctx, envInstruction) -> checkAssignments(ctx, envInstruction.environmentVariables(), "ENV"));
-    init.register(ArgInstruction.class, (ctx, argInstruction) -> checkAssignments(ctx, argInstruction.keyValuePairs(), "ARG"));
+  enum AssignmentType {
+    ARG,
+    ENV
   }
 
-  private static void checkAssignments(CheckContext ctx, List<KeyValuePair> assignments, String type) {
+  @Override
+  public void initialize(InitContext init) {
+    init.register(EnvInstruction.class, (ctx, envInstruction) -> checkAssignments(ctx, envInstruction.environmentVariables(), AssignmentType.ENV));
+    init.register(ArgInstruction.class, (ctx, argInstruction) -> checkAssignments(ctx, argInstruction.keyValuePairs(), AssignmentType.ARG));
+  }
+
+  private static void checkAssignments(CheckContext ctx, List<KeyValuePair> assignments, AssignmentType type) {
     for (KeyValuePair assignment : assignments) {
-      if (isSensitiveName(assignment.key()) && isSensitiveValue(assignment.value())) {
-        ctx.reportIssue(assignment.key(), String.format(MESSAGE, type));
+      if (isSensitiveName(assignment.key()) && isSensitiveValue(assignment.value(), type)) {
+        ctx.reportIssue(assignment.key(), String.format(MESSAGE, type.name()));
       }
     }
   }
@@ -97,26 +102,31 @@ public class SecretsHandlingCheck implements IacCheck {
    */
   private static boolean isSensitiveName(Argument nameArgument) {
     ArgumentResolution nameResolution = ArgumentResolution.of(nameArgument);
-    if (!nameResolution.is(RESOLVED)) {
-      return false;
+    if (nameResolution.is(RESOLVED)) {
+      return isSensitiveVariableName(nameResolution.value());
     }
-    return isSensitiveVariableName(nameResolution.value());
+    return false;
   }
 
   /**
    * Check if the right hand of the assignment is sensitive
    */
-  private static boolean isSensitiveValue(@Nullable Argument value) {
-    return value != null && isSensitiveSecret(value);
-  }
-
-  private static boolean isSensitiveSecret(Argument secret) {
-    ArgumentResolution valueResolution = ArgumentResolution.of(secret);
-    if(valueResolution.is(UNRESOLVED)) {
-      return isSensitiveVariableName(secret);
+  private static boolean isSensitiveValue(@Nullable Argument secret, AssignmentType type) {
+    if (secret == null) {
+      return type.equals(AssignmentType.ARG);
     }
+
+    ArgumentResolution valueResolution = ArgumentResolution.of(secret);
+    if (valueResolution.is(UNRESOLVED)) {
+      return type.equals(AssignmentType.ARG) || isSensitiveVariableName(secret);
+    }
+
     String value = valueResolution.value();
-    return !value.isBlank() && !isUrl(value) && !isPath(value);
+    if (value.isBlank()) {
+      return type.equals(AssignmentType.ARG);
+    }
+
+    return !isUrl(value) && !isPath(value);
   }
 
 
