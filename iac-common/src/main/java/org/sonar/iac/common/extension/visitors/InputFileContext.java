@@ -34,6 +34,7 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 public class InputFileContext extends TreeContext {
 
@@ -53,14 +54,14 @@ public class InputFileContext extends TreeContext {
       NewIssue issue = sensorContext.newIssue();
       NewIssueLocation issueLocation = issue.newLocation().on(inputFile).message(message);
 
-      if (textRange != null) {
+      if (textRange != null && TextRanges.isValidAndNotEmpty(textRange)) {
         issueLocation.at(toInputFileRange(textRange));
       }
 
       issue.forRule(ruleKey).at(issueLocation);
 
       secondaryLocations.stream()
-        .filter(Objects::nonNull)
+        .filter(l -> l != null && TextRanges.isValidAndNotEmpty(l.textRange))
         .forEach(secondary -> issue.addLocation(
           issue.newLocation()
             .on(inputFile)

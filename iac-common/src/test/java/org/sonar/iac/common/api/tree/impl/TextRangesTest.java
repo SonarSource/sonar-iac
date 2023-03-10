@@ -56,6 +56,13 @@ class TextRangesTest {
       .withMessage("Can't merge 0 ranges");
   }
 
+  @Test
+  void isValidAndNotEmpty() {
+    assertThat(TextRanges.isValidAndNotEmpty(range(1, 1, 1, 1))).isFalse();
+    assertThat(TextRanges.isValidAndNotEmpty(range(2, 1, 1, 1))).isFalse();
+    assertThat(TextRanges.isValidAndNotEmpty(range(1, 2, 3, 4))).isTrue();
+  }
+
   public static TextRange range(int startLine, int startLineColumn, int endLine, int endLineColumn) {
     return new TextRange(new TextPointer(startLine, startLineColumn), new TextPointer(endLine, endLineColumn));
   }
