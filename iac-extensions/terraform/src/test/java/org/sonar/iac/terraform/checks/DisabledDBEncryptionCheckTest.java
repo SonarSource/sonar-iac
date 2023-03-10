@@ -25,6 +25,6 @@ class DisabledDBEncryptionCheckTest {
 
   @Test
   void test() {
-    TerraformVerifier.verify("DisabledRDSEncryptionCheck/test.tf", new DisabledDBEncryptionCheck());
+    TerraformVerifier.verify("DisabledDBEncryptionCheck/test.tf", new DisabledDBEncryptionCheck());
   }
 }

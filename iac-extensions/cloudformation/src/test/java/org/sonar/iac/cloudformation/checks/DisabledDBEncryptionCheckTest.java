@@ -25,17 +25,17 @@ import org.sonar.iac.common.testing.Verifier;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
-class DisabledRDSEncryptionCheckTest {
+class DisabledDBEncryptionCheckTest {
 
   @Test
   void test_yaml() {
-    CloudformationVerifier.verify("DisabledRDSEncryptionCheck/test.yaml", new DisabledRDSEncryptionCheck());
+    CloudformationVerifier.verify("DisabledDBEncryptionCheck/test.yaml", new DisabledDBEncryptionCheck());
   }
 
   @Test
   void test_json() {
     String message = "Make sure that using unencrypted RDS DB Instances is safe here.";
-    CloudformationVerifier.verify("DisabledRDSEncryptionCheck/test.json", new DisabledRDSEncryptionCheck(),
+    CloudformationVerifier.verify("DisabledDBEncryptionCheck/test.json", new DisabledDBEncryptionCheck(),
       new Verifier.Issue(range(13, 8, 13, 26),
         message,
         new SecondaryLocation(range(11, 14, 11, 36), "Related RDS DBInstance")),
@@ -43,7 +43,15 @@ class DisabledRDSEncryptionCheckTest {
         "Omitting \"StorageEncrypted\" disables databases encryption. Make sure it is safe here."),
       new Verifier.Issue(range(52, 8, 52, 26),
         message,
-        new SecondaryLocation(range(49, 14, 49, 36), "Related RDS DBInstance")));
+        new SecondaryLocation(range(49, 14, 49, 36), "Related RDS DBInstance")),
+      new Verifier.Issue(range(64, 8, 64, 26),
+        "Make sure that using an unencrypted RDS DB Cluster is safe here."),
+      new Verifier.Issue(range(68, 14, 68, 35),
+        "Omitting \"StorageEncrypted\" disables databases encryption. Make sure it is safe here."),
+      new Verifier.Issue(range(98, 8, 98, 26),
+        "Make sure that using an unencrypted RDS DB GlobalCluster is safe here."),
+      new Verifier.Issue(range(102, 14, 102, 39),
+        "Omitting \"StorageEncrypted\" disables databases encryption. Make sure it is safe here."));
   }
 
 }

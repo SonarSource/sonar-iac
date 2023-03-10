@@ -1,0 +1,118 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "CompliantDBInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "StorageEncrypted": true
+      }
+    },
+    "SensitiveDBInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "StorageEncrypted": false
+      }
+    },
+    "NoPropertiesDBInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+      }
+    },
+    "NoDBInstanceResource": {
+      "Type": "Some::Other::Type",
+      "Properties": {
+        "StorageEncrypted": false
+      }
+    },
+    "AuroraDBInstanceResource:": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "aurora",
+        "StorageEncrypted": false
+      }
+    },
+    "AuroraMysqlDBInstanceResource:": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "aurora-mysql",
+        "StorageEncrypted": false
+      }
+    },
+    "AuroraPostgresqlDBInstanceResource:": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "aurora-postgresql",
+        "StorageEncrypted": false
+      }
+    },
+    "NonCompliantDBInstanceResource:": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "a",
+        "StorageEncrypted": false
+      }
+    },
+    "EncryptedDBCluster:": {
+      "Type": "AWS::RDS::DBCluster",
+      "Properties": {
+        "StorageEncrypted": true
+      }
+    },
+    "UnEncryptedDBCluster:": {
+      "Type": "AWS::RDS::DBCluster",
+      "Properties": {
+        "StorageEncrypted": false
+      }
+    },
+    "NoPropertiesDBCluster:": {
+      "Type": "AWS::RDS::DBCluster"
+    },
+    "MissingEncryptionButWithClusterIdDBCluster:": {
+      "Type": "AWS::RDS::DBCluster",
+      "Properties": {
+        "SourceDBClusterIdentifier": "unique-db"
+      }
+    },
+    "UnEncryptedWithClusterIdDBCluster:": {
+      "Type": "AWS::RDS::DBCluster",
+      "Properties": {
+        "StorageEncrypted": false,
+        "SourceDBClusterIdentifier": "unique-db"
+      }
+    },
+    "MissingEncryptionButWithSnapshotIdDBCluster:": {
+      "Type": "AWS::RDS::DBCluster",
+      "Properties": {
+        "SnapshotIdentifier": "snapshot-identifier"
+      }
+    },
+    "EncryptedGlobalCluster:": {
+      "Type": "AWS::RDS::GlobalCluster",
+      "Properties": {
+        "StorageEncrypted": true
+      }
+    },
+    "UnEncryptedGlobalCluster:": {
+      "Type": "AWS::RDS::GlobalCluster",
+      "Properties": {
+        "StorageEncrypted": false
+      }
+    },
+    "NoPropertiesGlobalCluster:": {
+      "Type": "AWS::RDS::GlobalCluster"
+    },
+    "MissingEncryptionButWithClusterIdGlobalCluster:": {
+      "Type": "AWS::RDS::GlobalCluster",
+      "Properties": {
+        "SourceDBClusterIdentifier": "unique-db"
+      }
+    },
+    "UnEncryptedWithClusterIdGlobalCluster:": {
+      "Type": "AWS::RDS::GlobalCluster",
+      "Properties": {
+        "StorageEncrypted": false,
+        "SourceDBClusterIdentifier": "unique-db"
+      }
+    }
+  }
+}
