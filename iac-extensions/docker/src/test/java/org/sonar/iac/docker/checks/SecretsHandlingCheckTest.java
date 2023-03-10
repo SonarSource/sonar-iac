@@ -20,16 +20,24 @@
 package org.sonar.iac.docker.checks;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-class EnvSecretCheckTest {
+class SecretsHandlingCheckTest {
+
+  final IacCheck check = new SecretsHandlingCheck();
 
   @Test
-  void test() {
-    DockerVerifier.verify("EnvSecretCheck/Dockerfile", new EnvSecretCheck());
+  void test_env() {
+    DockerVerifier.verify("SecretsHandlingCheck/SecretsHandlingCheck_env.dockerfile", check);
+  }
+
+  @Test
+  void test_arg() {
+    DockerVerifier.verify("SecretsHandlingCheck/SecretsHandlingCheck_arg.dockerfile", check);
   }
 
   @Test
   void alternative_escaping() {
-    DockerVerifier.verify("EnvSecretCheck/Dockerfile.alternative_escaping", new EnvSecretCheck());
+    DockerVerifier.verify("SecretsHandlingCheck/SecretsHandlingCheck_alternative_escaping.dockerfile", check);
   }
 }
