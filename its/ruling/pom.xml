@@ -5,7 +5,7 @@
   <parent>
     <artifactId>iac-its</artifactId>
     <groupId>org.sonarsource.iac</groupId>
-    <version>1.13-SNAPSHOT</version>
+    <version>1.14-SNAPSHOT</version>
   </parent>
 
   <artifactId>iac-its-ruling</artifactId>
