@@ -111,7 +111,6 @@ public class TerraformCheckList {
 
       // commons
       ParsingErrorCheck.class,
-      ToDoCommentCheck.class
-    );
+      ToDoCommentCheck.class);
   }
 }

@@ -31,7 +31,7 @@ public class TerraformExtension {
 
   public static void define(Plugin.Context context) {
     context.addExtensions(
-      //Language
+      // Language
       TerraformLanguage.class,
       // Sensor
       TerraformSensor.class,
@@ -39,8 +39,7 @@ public class TerraformExtension {
       TerraformRulesDefinition.class,
       TerraformProfileDefinition.class,
       // Additional extensions
-      TerraformProviders.class
-    );
+      TerraformProviders.class);
 
     context.addExtensions(TerraformSettings.getProperties());
   }

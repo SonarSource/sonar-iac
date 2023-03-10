@@ -21,5 +21,6 @@ package org.sonar.iac.docker.tree.api;
 
 public interface Alias extends DockerTree {
   SyntaxToken keyword();
+
   SyntaxToken alias();
 }

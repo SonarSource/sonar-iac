@@ -50,7 +50,6 @@ public class DisabledRDSEncryptionCheck extends AbstractResourceCheck {
         if (TextUtils.isValueFalse(encryption.value())) {
           ctx.reportIssue(encryption.key(), MESSAGE, new SecondaryLocation(resource.type(), SECONDARY_MESSAGE));
         }
-      }, () -> ctx.reportIssue(resource.type(), OMITTING_MESSAGE)
-    );
+      }, () -> ctx.reportIssue(resource.type(), OMITTING_MESSAGE));
   }
 }

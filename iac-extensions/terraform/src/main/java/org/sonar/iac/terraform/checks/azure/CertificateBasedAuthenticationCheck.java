@@ -32,7 +32,6 @@ import java.util.function.Predicate;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.sonar.iac.terraform.checks.utils.PredicateUtils.exactMatchStringPredicate;
 
-
 @Rule(key = "S6382")
 public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
 

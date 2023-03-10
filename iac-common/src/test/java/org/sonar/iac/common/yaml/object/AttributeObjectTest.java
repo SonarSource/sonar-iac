@@ -61,7 +61,7 @@ class AttributeObjectTest extends YamlTreeTest {
 
   @Test
   void fromAbsent() {
-    AttributeObject attr = AttributeObject.fromAbsent(ctx,"a");
+    AttributeObject attr = AttributeObject.fromAbsent(ctx, "a");
     assertThat(attr.key).isEqualTo("a");
     assertThat(attr.status).isEqualTo(YamlObject.Status.ABSENT);
     assertThat(attr.tree).isNull();
@@ -81,7 +81,6 @@ class AttributeObjectTest extends YamlTreeTest {
   }
 
   private static class TestContext implements CheckContext {
-
 
     @Override
     public void reportIssue(TextRange textRange, String message) {

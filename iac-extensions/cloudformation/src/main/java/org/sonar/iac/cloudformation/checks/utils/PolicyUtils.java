@@ -60,7 +60,7 @@ public class PolicyUtils {
     }
 
     private static boolean isPolicyDocument(TupleTree tree) {
-      return TextUtils.getValue(tree.key()).filter(v -> v.toLowerCase(Locale.ROOT).contains("policy")).isPresent() 
+      return TextUtils.getValue(tree.key()).filter(v -> v.toLowerCase(Locale.ROOT).contains("policy")).isPresent()
         && !XPathUtils.getTrees(tree.value(), "/Statement[]").isEmpty();
     }
   }

@@ -115,6 +115,5 @@ public abstract class TerraformTreeModelTest {
       }
     }
 
-
   }
 }

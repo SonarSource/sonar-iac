@@ -39,12 +39,12 @@ public class ExcessivePermissionsCheck extends AbstractNewResourceCheck {
   public static final int DEFAULT = 5;
 
   private static final List<String> SENSITIVE_ACTION_PREFIXES = List.of("abort", "access", "add", "allocate", "analyze", "apply", "approve", "associate", "attach", "begin",
-      "bind", "call", "cancel", "clear", "close", "compute", "connect", "create", "delete", "deploy", "destroy", "detach",
-      "disable", "drop", "enable", "evict", "exec", "import", "install", "invoke", "listVulnerabilities", "manage",
-      "migrate", "move", "mutate", "patch", "pause", "proxy", "publish", "purchase", "purge", "put", "reject", "remove",
-      "reopen", "replace", "rerun", "reset", "resize", "restart", "restore", "resume", "rollback", "rotate", "run",
-      "sample", "scan", "send", "set", "sign", "sourceCodeGet", "sourceCodeSet", "start", "stop", "suspend", "undelete",
-      "undeploy", "update", "upload", "use", "validate", "write");
+    "bind", "call", "cancel", "clear", "close", "compute", "connect", "create", "delete", "deploy", "destroy", "detach",
+    "disable", "drop", "enable", "evict", "exec", "import", "install", "invoke", "listVulnerabilities", "manage",
+    "migrate", "move", "mutate", "patch", "pause", "proxy", "publish", "purchase", "purge", "put", "reject", "remove",
+    "reopen", "replace", "rerun", "reset", "resize", "restart", "restore", "resume", "rollback", "rotate", "run",
+    "sample", "scan", "send", "set", "sign", "sourceCodeGet", "sourceCodeSet", "start", "stop", "suspend", "undelete",
+    "undeploy", "update", "upload", "use", "validate", "write");
 
   private static final List<String> SENSITIVE_ACTION_ELEMENTS = List.of("login", "create", "delete", "set");
 

@@ -82,8 +82,7 @@ class DockerParserTest {
     Throwable throwable = DockerParser.RecognitionExceptionAdjuster.adjustLineAndColumnNumber(exception, null, null, null);
     assertThat(throwable)
       .isInstanceOf(ParseException.class)
-      .extracting(exp -> ((ParseException)exp).getDetails())
+      .extracting(exp -> ((ParseException) exp).getDetails())
       .isEqualTo("InvalidMessage");
   }
 }
-

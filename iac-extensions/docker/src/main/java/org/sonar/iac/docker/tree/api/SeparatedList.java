@@ -24,6 +24,8 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public interface SeparatedList<T extends Tree> {
   List<T> elements();
+
   List<SyntaxToken> separators();
+
   List<Tree> elementsAndSeparators();
 }

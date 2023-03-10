@@ -118,14 +118,14 @@ class DockerSymbolVisitorTest {
 
   @Test
   void twoArgInstructionShouldCreateTwoSymbols() {
-    DockerImage image = scanImage( "ARG foo1=bar\nARG foo2=bar");
+    DockerImage image = scanImage("ARG foo1=bar\nARG foo2=bar");
     assertThat(image.scope().getSymbols())
       .extracting(Symbol::name).containsExactly("foo1", "foo2");
   }
 
   @Test
   void bodyScopeShouldNotBeAffectedByImage() {
-    Body body = scanBody( IMAGE_PREFIX +"ARG foo=bar");
+    Body body = scanBody(IMAGE_PREFIX + "ARG foo=bar");
     Scope bodyScope = body.scope();
     Scope imageScope = body.dockerImages().get(0).scope();
 
@@ -135,7 +135,7 @@ class DockerSymbolVisitorTest {
 
   @Test
   void bodyScopeShouldNotBeOverrideByImage() {
-    Body body = scanBody( "ARG foo=bar\n" + IMAGE_PREFIX + "ARG foo=bar");
+    Body body = scanBody("ARG foo=bar\n" + IMAGE_PREFIX + "ARG foo=bar");
     Scope bodyScope = body.scope();
     Scope imageScope = body.dockerImages().get(0).scope();
 
@@ -152,7 +152,7 @@ class DockerSymbolVisitorTest {
 
   @Test
   void imageScopesDontShareSymbols() {
-    Body body = scanBody( IMAGE_PREFIX + "ARG foo=bar\n" + IMAGE_PREFIX);
+    Body body = scanBody(IMAGE_PREFIX + "ARG foo=bar\n" + IMAGE_PREFIX);
     Scope image1Scope = body.dockerImages().get(0).scope();
     Scope image2Scope = body.dockerImages().get(1).scope();
 
@@ -162,7 +162,7 @@ class DockerSymbolVisitorTest {
 
   @Test
   void imageScopesAreIndependent() {
-    Body body = scanBody( IMAGE_PREFIX + "ARG foo=bar\n" + IMAGE_PREFIX + "ARG foo=bar");
+    Body body = scanBody(IMAGE_PREFIX + "ARG foo=bar\n" + IMAGE_PREFIX + "ARG foo=bar");
     Scope image1Scope = body.dockerImages().get(0).scope();
     Scope image2Scope = body.dockerImages().get(1).scope();
 
@@ -243,7 +243,6 @@ class DockerSymbolVisitorTest {
     Throwable t = Assert.assertThrows(IllegalArgumentException.class, () -> variable.setSymbol(newSymbol));
     assertThat(t.getMessage()).isEqualTo("A symbol is already set");
   }
-
 
   @Test
   void multiScopeShouldNotBeAllowed() throws RuntimeException {

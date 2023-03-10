@@ -32,17 +32,12 @@ public class HostNamespacesCheck extends AbstractKubernetesObjectCheck {
 
   @Override
   void registerObjectCheck() {
-    register("Pod", pod ->
-      HOST_NAMESPACES_ATTRIBUTES.forEach(name ->
-        pod.attribute(name)
-          .reportIfValue(isTrue(), MESSAGE))
-    );
+    register("Pod", pod -> HOST_NAMESPACES_ATTRIBUTES.forEach(name -> pod.attribute(name)
+      .reportIfValue(isTrue(), MESSAGE)));
 
-    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      HOST_NAMESPACES_ATTRIBUTES.forEach(name ->
-        obj.block("template").block("spec")
-          .attribute(name)
-            .reportIfValue(isTrue(), MESSAGE))
-    );
+    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"),
+      obj -> HOST_NAMESPACES_ATTRIBUTES.forEach(name -> obj.block("template").block("spec")
+        .attribute(name)
+        .reportIfValue(isTrue(), MESSAGE)));
   }
 }

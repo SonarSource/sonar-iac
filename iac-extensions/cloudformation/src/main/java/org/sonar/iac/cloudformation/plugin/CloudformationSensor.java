@@ -48,7 +48,7 @@ public class CloudformationSensor extends YamlSensor {
   private final AnalysisWarnings analysisWarnings;
 
   public CloudformationSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-                              NoSonarFilter noSonarFilter, CloudformationLanguage language, AnalysisWarnings analysisWarnings) {
+    NoSonarFilter noSonarFilter, CloudformationLanguage language, AnalysisWarnings analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks());
     this.analysisWarnings = analysisWarnings;
   }
@@ -78,7 +78,6 @@ public class CloudformationSensor extends YamlSensor {
   protected String getActivationSettingKey() {
     return CloudformationSettings.ACTIVATION_KEY;
   }
-
 
   private static class FileIdentificationPredicate implements FilePredicate {
     private static final Logger LOG = Loggers.get(FileIdentificationPredicate.class);

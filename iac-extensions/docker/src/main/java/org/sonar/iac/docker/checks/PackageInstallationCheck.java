@@ -42,8 +42,7 @@ public class PackageInstallationCheck implements IacCheck {
   private static final Map<String, String> COMMAND_FLAG_MAP = Map.of(
     "apt", "--no-install-recommends",
     "apt-get", "--no-install-recommends",
-    "aptitude", "--without-recommends"
-  );
+    "aptitude", "--without-recommends");
 
   @Override
   public void initialize(InitContext init) {
@@ -86,11 +85,11 @@ public class PackageInstallationCheck implements IacCheck {
           } else {
             statement.add(argument);
           }
-        // detect if statement is installed command
+          // detect if statement is installed command
         } else if ("install".equals(argValue)) {
           statement.isInstallStatement = true;
           statement.add(argument);
-        // report statement if install statement without required flag
+          // report statement if install statement without required flag
         } else {
           reportSensitiveStatement();
         }

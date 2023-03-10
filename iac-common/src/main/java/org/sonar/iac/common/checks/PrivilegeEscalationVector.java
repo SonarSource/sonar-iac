@@ -53,7 +53,7 @@ public enum PrivilegeEscalationVector {
   private final List<Permission.SimplePermission> permissions;
 
   PrivilegeEscalationVector(String... permissions) {
-    this.permissions =  Stream.of(permissions).map(Permission.SimplePermission::new).collect(Collectors.toList());
+    this.permissions = Stream.of(permissions).map(Permission.SimplePermission::new).collect(Collectors.toList());
   }
 
   public boolean isSubsetOf(Collection<Permission> actionPermissions) {

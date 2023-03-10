@@ -158,10 +158,10 @@ class RunInstructionImplTest {
   @Test
   void shouldParseMultiline() {
     RunInstruction tree = DockerTestUtils.parse("RUN  \\\n" +
-        "        TEST=test && \\\n" +
-        "        ls && \\\n" +
-        "        curl sLO https://google.com &&\\\n" +
-        "        echo TEST | sha256sum --check",
+      "        TEST=test && \\\n" +
+      "        ls && \\\n" +
+      "        curl sLO https://google.com &&\\\n" +
+      "        echo TEST | sha256sum --check",
       DockerLexicalGrammar.RUN);
 
     assertThat(tree.options()).isEmpty();
@@ -173,11 +173,11 @@ class RunInstructionImplTest {
     RunInstruction tree = DockerTestUtils.parse("RUN [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.RUN);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertTextRange(tree.textRange()).hasRange(1,0,1,36);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 36);
 
     assertThat(tree.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2");
 
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
   }
 
@@ -187,11 +187,11 @@ class RunInstructionImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertTextRange(tree.textRange()).hasRange(1,0,1,28);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 28);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
 
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);
   }
 
@@ -200,17 +200,17 @@ class RunInstructionImplTest {
     RunInstruction tree = DockerTestUtils.parse("RUN --mount=type=cache,target=/root/.cache/pip [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.RUN);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertTextRange(tree.textRange()).hasRange(1,0,1,79);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 79);
 
     Flag option = tree.options().get(0);
-    assertThat(((SyntaxToken)option.children().get(0)).value()).isEqualTo("--");
+    assertThat(((SyntaxToken) option.children().get(0)).value()).isEqualTo("--");
     assertThat(option.name()).isEqualTo("mount");
     assertThat(ArgumentResolution.of(option.value()).value()).isEqualTo("type=cache,target=/root/.cache/pip");
-    assertTextRange(option.textRange()).hasRange(1,4,1,46);
+    assertTextRange(option.textRange()).hasRange(1, 4, 1, 46);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
 
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(Flag.class);
     assertThat(tree.children().get(2)).isInstanceOf(ExecForm.class);
   }
@@ -221,17 +221,17 @@ class RunInstructionImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.RUN);
     assertThat(tree.keyword().value()).isEqualTo("RUN");
-    assertTextRange(tree.textRange()).hasRange(1,0,1,60);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 60);
 
     Flag option = tree.options().get(0);
-    assertThat(((SyntaxToken)option.children().get(0)).value()).isEqualTo("--");
+    assertThat(((SyntaxToken) option.children().get(0)).value()).isEqualTo("--");
     assertThat(option.name()).isEqualTo("mount");
     assertThat(ArgumentResolution.of(option.value()).value()).isEqualTo("type=");
-    assertTextRange(option.textRange()).hasRange(1,4,1,35);
+    assertTextRange(option.textRange()).hasRange(1, 4, 1, 35);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
 
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("RUN");
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("RUN");
     assertThat(tree.children().get(1)).isInstanceOf(Flag.class);
     assertThat(tree.children().get(2)).isInstanceOf(ShellForm.class);
   }
@@ -264,7 +264,7 @@ class RunInstructionImplTest {
       "line 2\n" +
       "FILE1";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertTextRange(tree.textRange()).hasRange(1,0,4,5);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 4, 5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).hasSize(6);
@@ -279,7 +279,7 @@ class RunInstructionImplTest {
       "FILE1\n" +
       "HEALTHCHECK NONE";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertTextRange(tree.textRange()).hasRange(1,0,4,5);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 4, 5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).hasSize(8);
@@ -295,7 +295,7 @@ class RunInstructionImplTest {
       "FILE2\n" +
       "HEALTHCHECK NONE";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertTextRange(tree.textRange()).hasRange(1,0,5,5);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 5, 5);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).hasSize(10);
@@ -331,7 +331,7 @@ class RunInstructionImplTest {
       "# my comment\n" +
       "     parameters";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertTextRange(tree.textRange()).hasRange(1,0,3,15);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 3, 15);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).hasSize(2);
@@ -344,7 +344,7 @@ class RunInstructionImplTest {
     Comment comment = syntaxToken.comments().get(0);
     assertThat(comment.value()).isEqualTo("# my comment");
     assertThat(comment.contentText()).isEqualTo("my comment");
-    assertTextRange(comment.textRange()).hasRange(2,0,2,12);
+    assertTextRange(comment.textRange()).hasRange(2, 0, 2, 12);
   }
 
   @Test
@@ -353,7 +353,7 @@ class RunInstructionImplTest {
       "# my comment\n" +
       "parameters";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertTextRange(tree.textRange()).hasRange(1,0,3,10);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 3, 10);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).hasSize(1);
@@ -373,7 +373,7 @@ class RunInstructionImplTest {
       "    # my comment 2\n" +
       "parameters";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertTextRange(tree.textRange()).hasRange(1,0,4,10);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 4, 10);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).hasSize(1);
@@ -391,7 +391,7 @@ class RunInstructionImplTest {
     String toParse = "RUN executable\\\n" +
       "# my comment";
     RunInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.RUN);
-    assertTextRange(tree.textRange()).hasRange(1,0,2,12);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 2, 12);
 
     assertThat(tree.keyword().value()).isEqualTo("RUN");
     assertThat(tree.arguments()).hasSize(1);

@@ -23,12 +23,11 @@ import org.sonar.iac.common.parser.grammar.LexicalConstant;
 
 public class DockerLexicalConstant {
 
-
   public static final String COMMENT = "(?:" + LexicalConstant.SINGLE_LINE_COMMENT_HASH + ")";
   public static final String EOL = "(?:\\r\\n|[" + LexicalConstant.LINE_TERMINATOR + "])";
   public static final String LINE_BREAK = "(?:\\\\[" + LexicalConstant.WHITESPACE + "]*+" + EOL + ")";
   public static final String STRING_LITERAL_WITH_QUOTES = "\"(?:[^\"\\\\]*+(?:\\\\[\\s\\S])?+)*+\"";
-  public static final String STRING_LITERAL_WITHOUT_QUOTES = "(?:(?!" + LINE_BREAK+ ")[^\\s])++";
+  public static final String STRING_LITERAL_WITHOUT_QUOTES = "(?:(?!" + LINE_BREAK + ")[^\\s])++";
   public static final String STRING_LITERAL_OLD = "(?:(?:" + STRING_LITERAL_WITH_QUOTES + ")|(?:" + STRING_LITERAL_WITHOUT_QUOTES + "))+";
   public static final String EQUALS_OPERATOR = "=";
 
@@ -40,7 +39,6 @@ public class DockerLexicalConstant {
   public static final String ENCAPS_VAR_MODIFIER_SEPARATOR = ":(-|\\+)";
   public static final String ENCAPS_VAR_MODIFIER_GENERIC = "(\\\\}|[^}])+";
   public static final String FLAG_NAME = "[a-z][-a-z]*+";
-
 
   /**
    * LITERAL
@@ -93,7 +91,6 @@ public class DockerLexicalConstant {
   public static final String HEREDOC_EXPRESSION = "(?:" + HEREDOC_NAME + "\\s+)+[\\s\\S]*?([\\n\\r])\\1(?=[\\n\\r]|$)";
 
   public static final String IMAGE_ALIAS = "[-a-zA-Z0-9_\\.]+";
-
 
   private DockerLexicalConstant() {
   }

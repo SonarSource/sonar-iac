@@ -80,13 +80,15 @@ class CfnLintImporterTest {
   }
 
   @Test
-  void reading_issue(){
+  void reading_issue() {
     String path = "src\\test\\resources\\cfn-lint\\throwsIOException.json";
     File reportFile = Mockito.mock(File.class);
     String logMessage = String.format("Cfn-lint report importing: could not read report file %s", path);
     when(reportFile.getPath()).thenReturn(path);
     when(reportFile.isFile()).thenReturn(true);
-    doAnswer((invocation) -> {throw new IOException();}).when(reportFile).toPath();
+    doAnswer((invocation) -> {
+      throw new IOException();
+    }).when(reportFile).toPath();
 
     importReport(reportFile);
     assertThat(logTester.logs(LoggerLevel.WARN))

@@ -24,5 +24,6 @@ import java.util.List;
 public interface DockerImage extends DockerTree, HasScope {
 
   FromInstruction from();
+
   List<Instruction> instructions();
 }

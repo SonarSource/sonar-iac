@@ -22,7 +22,7 @@ package org.sonar.iac.cloudformation.checks;
 import org.junit.jupiter.api.Test;
 
 class ResourceAccessPolicyCheckTest {
-  
+
   @Test
   void test() {
     CloudformationVerifier.verify("ResourceAccessPolicyCheck/test.yaml", new ResourceAccessPolicyCheck());

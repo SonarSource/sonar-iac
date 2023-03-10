@@ -41,8 +41,7 @@ public class UnencryptedEbsVolumeCheck extends AbstractResourceCheck {
         if (TextUtils.isValueFalse(encryptedValue)) {
           ctx.reportIssue(encryptedValue, MESSAGE);
         }
-      }, () -> reportResource(ctx, resource, OMITTING_MESSAGE)
-    );
+      }, () -> reportResource(ctx, resource, OMITTING_MESSAGE));
   }
 
 }

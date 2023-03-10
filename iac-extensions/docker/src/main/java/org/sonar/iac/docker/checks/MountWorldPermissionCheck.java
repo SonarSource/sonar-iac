@@ -44,19 +44,15 @@ public class MountWorldPermissionCheck implements IacCheck {
   private static final Pattern MOUNT_TYPE_PATTERN = Pattern.compile("type=(secret|ssh)");
   private static final Pattern MOUNT_MODE_PATTERN = Pattern.compile("mode=(\\d+)");
 
-
-
   private static final Map<String, String> DENOMINATION_BY_TYPE = Map.of(
     "secret", "file",
-    "ssh", "agent"
-  );
+    "ssh", "agent");
 
   @Override
   public void initialize(InitContext init) {
-    init.register(RunInstruction.class, (ctx, run) ->
-      CheckUtils.getParamByName(run.options(), "mount")
-        .map(Flag::value)
-        .ifPresent(mount -> checkMountParam(ctx, mount)));
+    init.register(RunInstruction.class, (ctx, run) -> CheckUtils.getParamByName(run.options(), "mount")
+      .map(Flag::value)
+      .ifPresent(mount -> checkMountParam(ctx, mount)));
   }
 
   private static void checkMountParam(CheckContext ctx, Argument mountOptions) {
@@ -73,6 +69,7 @@ public class MountWorldPermissionCheck implements IacCheck {
   static class MountOption {
     final String value;
     final TextRange textRange;
+
     private MountOption(String value, TextRange textRange) {
       this.value = value;
       this.textRange = textRange;
@@ -97,7 +94,7 @@ public class MountWorldPermissionCheck implements IacCheck {
    * Concretely, it is simply checking that the last character is a digit which is not 0.
    */
   private static boolean isModeSensitive(String mode) {
-    char lastChar = mode.charAt(mode.length()-1);
+    char lastChar = mode.charAt(mode.length() - 1);
     return lastChar != '0';
   }
 }

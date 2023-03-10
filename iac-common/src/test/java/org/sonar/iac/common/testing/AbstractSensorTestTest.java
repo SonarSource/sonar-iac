@@ -73,8 +73,8 @@ class AbstractSensorTestTest {
     Collection<ActiveRule> rules = SENSOR.context.activeRules().findAll();
     assertThat(rules)
       .hasSize(3)
-      .allMatch(rule ->  rule.ruleKey().rule().matches("S[1-3]"))
-      .allMatch(rule ->  rule.ruleKey().repository().equals("myRepo"));
+      .allMatch(rule -> rule.ruleKey().rule().matches("S[1-3]"))
+      .allMatch(rule -> rule.ruleKey().repository().equals("myRepo"));
   }
 
   @Test

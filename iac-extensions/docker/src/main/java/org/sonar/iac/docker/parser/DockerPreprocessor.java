@@ -99,11 +99,10 @@ public class DockerPreprocessor {
     return new CommentImpl(value, contentText, range);
   }
 
-
   private static Matcher matchRemovableSequences(String source) {
     String escapeCharacter = determineEscapeCharacter(source);
 
-    String escapedLineBreaks = "(?<escapedLineBreaks>(?<!escape=)" + escapeCharacter + "[" + WHITESPACE + "]*+" + EOL +  ")";
+    String escapedLineBreaks = "(?<escapedLineBreaks>(?<!escape=)" + escapeCharacter + "[" + WHITESPACE + "]*+" + EOL + ")";
     String multiLineInstruction = escapedLineBreaks + INLINE_COMMENT_OR_EMPTY_LINE;
 
     String pattern = "(?:" + multiLineInstruction + "|" + COMMENT_LINE + ")";

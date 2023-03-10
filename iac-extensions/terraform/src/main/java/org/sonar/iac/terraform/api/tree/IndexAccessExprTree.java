@@ -21,5 +21,6 @@ package org.sonar.iac.terraform.api.tree;
 
 public interface IndexAccessExprTree extends ExpressionTree {
   ExpressionTree subject();
+
   ExpressionTree index();
 }

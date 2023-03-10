@@ -83,7 +83,7 @@ public class CommonTestUtils {
 
     @Override
     public TextRange textRange() {
-      return TextRanges.range(1,0, value);
+      return TextRanges.range(1, 0, value);
     }
   }
 

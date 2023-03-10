@@ -25,6 +25,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 class UnversionedS3BucketCheckTest {
 
   private IacCheck check = new UnversionedS3BucketCheck();
+
   @Test
   void aws_provider_v3() {
     TerraformVerifier.verifyWithProviderVersion("UnversionedS3BucketCheck/test_v3.tf", check, "3");

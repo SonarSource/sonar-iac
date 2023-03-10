@@ -59,7 +59,6 @@ public class CloudformationCheckList {
       UnencryptedSqsQueueCheck.class,
       UnrestrictedAdministrationCheck.class,
       UnversionedS3BucketCheck.class,
-      WeakSSLProtocolCheck.class
-    );
+      WeakSSLProtocolCheck.class);
   }
 }

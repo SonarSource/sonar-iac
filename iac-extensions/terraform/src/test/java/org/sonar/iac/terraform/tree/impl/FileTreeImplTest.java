@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FileTreeImplTest extends TerraformTreeModelTest {
-  
+
   @Test
   void empty_file() {
     FileTree tree = parse("", HclLexicalGrammar.FILE);

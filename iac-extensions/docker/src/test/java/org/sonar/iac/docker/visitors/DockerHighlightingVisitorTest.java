@@ -28,7 +28,6 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-
 class DockerHighlightingVisitorTest extends AbstractHighlightingTest {
 
   protected DockerHighlightingVisitorTest() {
@@ -45,8 +44,7 @@ class DockerHighlightingVisitorTest extends AbstractHighlightingTest {
   @Test
   void comment_before_instruction() {
     highlight(code("# Comment",
-      "FROM foo"
-      ));
+      "FROM foo"));
     assertHighlighting(1, 0, 8, COMMENT);
     assertHighlighting(2, 0, 3, KEYWORD);
     assertHighlighting(2, 4, 7, null);
@@ -58,8 +56,7 @@ class DockerHighlightingVisitorTest extends AbstractHighlightingTest {
   void comment_inside_instruction() {
     highlight(code("FROM \\",
       "# Comment",
-      "foo"
-    ));
+      "foo"));
     assertHighlighting(1, 0, 3, KEYWORD);
     assertHighlighting(1, 4, 5, null);
     assertHighlighting(2, 0, 8, COMMENT);
@@ -74,7 +71,5 @@ class DockerHighlightingVisitorTest extends AbstractHighlightingTest {
     assertHighlighting(11, 12, KEYWORD);
     assertHighlighting(13, 16, null);
   }
-
-
 
 }

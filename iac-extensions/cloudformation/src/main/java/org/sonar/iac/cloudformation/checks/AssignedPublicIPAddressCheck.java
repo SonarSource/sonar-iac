@@ -54,9 +54,8 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
 
   private static void checkDMSReplicationInstance(CheckContext ctx, Resource resource) {
     value(resource.properties(), "PubliclyAccessible", ScalarTree.class)
-        .ifPresentOrElse(publiclyAccessible ->
-            reportIfTrue(ctx, publiclyAccessible, SecondaryLocation.of(resource.type(), SECONDARY_DMS_MESSAGE)),
-          () -> reportIfAbsent(ctx, resource, "PubliclyAccessible"));
+      .ifPresentOrElse(publiclyAccessible -> reportIfTrue(ctx, publiclyAccessible, SecondaryLocation.of(resource.type(), SECONDARY_DMS_MESSAGE)),
+        () -> reportIfAbsent(ctx, resource, "PubliclyAccessible"));
   }
 
   private static void checkEC2Instance(CheckContext ctx, Resource resource) {
@@ -67,13 +66,13 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
 
   private static void checkEC2LaunchTemplate(CheckContext ctx, Resource resource) {
     get(resource.properties(), "LaunchTemplateData")
-        .ifPresentOrElse(launchTemplateData -> get(launchTemplateData.value(), "NetworkInterfaces")
-          .ifPresentOrElse(networkInterfaces -> checkNetworkInterfaces(ctx, networkInterfaces, SecondaryLocation.of(resource.type(), SECONDARY_EC2_TEMPLATE_MESSAGE)),
-            () -> reportIfAbsent(ctx, launchTemplateData, "NetworkInterfaces.AssociatePublicIpAddress", resource, SECONDARY_EC2_TEMPLATE_MESSAGE)),
-          () -> reportIfAbsent(ctx, resource, "LaunchTemplateData.NetworkInterfaces.AssociatePublicIpAddress"));
+      .ifPresentOrElse(launchTemplateData -> get(launchTemplateData.value(), "NetworkInterfaces")
+        .ifPresentOrElse(networkInterfaces -> checkNetworkInterfaces(ctx, networkInterfaces, SecondaryLocation.of(resource.type(), SECONDARY_EC2_TEMPLATE_MESSAGE)),
+          () -> reportIfAbsent(ctx, launchTemplateData, "NetworkInterfaces.AssociatePublicIpAddress", resource, SECONDARY_EC2_TEMPLATE_MESSAGE)),
+        () -> reportIfAbsent(ctx, resource, "LaunchTemplateData.NetworkInterfaces.AssociatePublicIpAddress"));
   }
 
-  private static  void checkNetworkInterfaces(CheckContext ctx, PropertyTree networkInterfaces, SecondaryLocation resourceSecondary) {
+  private static void checkNetworkInterfaces(CheckContext ctx, PropertyTree networkInterfaces, SecondaryLocation resourceSecondary) {
     Optional.of(networkInterfaces.value())
       // `NetworkInterfaces` has to be a sequence
       .filter(SequenceTree.class::isInstance)
@@ -84,7 +83,8 @@ public class AssignedPublicIPAddressCheck extends AbstractResourceCheck {
       .map(element -> value(element, "AssociatePublicIpAddress"))
       .flatMap(Optional::stream)
       .findAny()
-      // Report if `AssociatePublicIpAddress` sequence element's value is true, or if it does not exist, or if `NetworkInterfaces` is not a sequence
+      // Report if `AssociatePublicIpAddress` sequence element's value is true, or if it does not exist, or if `NetworkInterfaces` is not a
+      // sequence
       .ifPresentOrElse(associatePublicIpAddress -> reportIfTrue(ctx, associatePublicIpAddress, resourceSecondary),
         () -> reportIfAbsent(ctx, networkInterfaces, "AssociatePublicIpAddress", resourceSecondary));
   }

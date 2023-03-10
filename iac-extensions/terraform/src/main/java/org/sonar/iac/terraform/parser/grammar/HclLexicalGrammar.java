@@ -66,8 +66,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
   BOOLEAN_LITERAL,
   NULL,
 
-  QUOTED_TEMPLATE_STRING_CHARACTERS
-  ;
+  QUOTED_TEMPLATE_STRING_CHARACTERS;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -90,8 +89,8 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
       b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
       b.zeroOrMore(
         b.commentTrivia(b.regexp(HclLexicalConstant.COMMENT)),
-        b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")))
-    ).skip();
+        b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))))
+      .skip();
 
     b.rule(NEWLINE).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.WHITESPACE + "]*+")),
@@ -110,7 +109,7 @@ public enum HclLexicalGrammar implements GrammarRuleKey {
     b.rule(HEREDOC_LITERAL).is(SPACING, b.regexp(LexicalConstant.HEREDOC_LITERAL));
 
     b.rule(BOOLEAN_LITERAL).is(b.firstOf(word(b, "TRUE"), word(b, "FALSE")));
-    b.rule(NULL).is(word(b,"NULL")).skip();
+    b.rule(NULL).is(word(b, "NULL")).skip();
 
     b.rule(QUOTED_TEMPLATE_STRING_CHARACTERS).is(b.regexp(LexicalConstant.QUOTED_TEMPLATE_STRING_CHARACTERS));
   }

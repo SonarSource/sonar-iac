@@ -28,7 +28,6 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class LiteralImpl extends AbstractDockerTreeImpl implements Literal {
 
-
   private final SyntaxToken token;
 
   public LiteralImpl(SyntaxToken token) {

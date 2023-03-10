@@ -26,7 +26,8 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 
 public class TreeUtils {
 
-  private TreeUtils() {}
+  private TreeUtils() {
+  }
 
   public static Optional<Tree> getLastDescendant(Tree tree, Predicate<Tree> predicate) {
     Tree last = null;

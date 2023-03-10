@@ -23,6 +23,8 @@ import org.sonar.iac.common.api.tree.PropertyTree;
 
 public interface ObjectElementTree extends TerraformTree, PropertyTree {
   ExpressionTree key();
+
   SyntaxToken equalOrColonSign();
+
   ExpressionTree value();
 }

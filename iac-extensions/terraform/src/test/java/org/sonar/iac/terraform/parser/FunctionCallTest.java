@@ -36,7 +36,6 @@ class FunctionCallTest {
       .notMatches("a(1")
       .notMatches("a(,)")
       .notMatches("a(...)")
-      .notMatches("a(1 2)")
-    ;
+      .notMatches("a(1 2)");
   }
 }

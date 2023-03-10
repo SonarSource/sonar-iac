@@ -48,8 +48,7 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
   }
 
   private static void checkApiGatewayV2DomainName(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class).ifPresentOrElse(config ->
-        checkDomainNameConfiguration(ctx, config),
+    PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class).ifPresentOrElse(config -> checkDomainNameConfiguration(ctx, config),
       () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, "domain_name_configuration.security_policy")));
   }
 

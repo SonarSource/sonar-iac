@@ -57,7 +57,7 @@ public class BlockObject extends YamlObject<BlockObject, MappingTree> {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.value(tree, key, SequenceTree.class))
       .map(sequence -> sequence.elements().stream()
-          .map(block -> BlockObject.fromPresent(ctx, block, key)))
+        .map(block -> BlockObject.fromPresent(ctx, block, key)))
       .orElse(Stream.empty());
   }
 
@@ -76,7 +76,7 @@ public class BlockObject extends YamlObject<BlockObject, MappingTree> {
   }
 
   public ListObject list(String key) {
-    return  Optional.ofNullable(tree)
+    return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.get(tree, key, TupleTree.class))
       .map(attribute -> ListObject.fromPresent(ctx, attribute, key, null))
       .orElse(ListObject.fromAbsent(ctx, key));

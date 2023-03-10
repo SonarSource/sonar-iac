@@ -47,7 +47,8 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter) {};
+    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter) {
+    };
   }
 
   @Test
@@ -62,14 +63,14 @@ class MetricsVisitorTest extends AbstractMetricsTest {
   }
 
   @Test
-  void  test_empty_token() {
+  void test_empty_token() {
     parser = (source, inputFileContext) -> new TestToken("");
     MetricsVisitor visitor = scan("");
     assertThat(visitor.linesOfCode()).isEmpty();
   }
 
   @Test
-  void  test_whitespace_token() {
+  void test_whitespace_token() {
     parser = (source, inputFileContext) -> new TestToken(" ");
     MetricsVisitor visitor = scan(" ");
     assertThat(visitor.linesOfCode()).isEmpty();
@@ -88,13 +89,12 @@ class MetricsVisitorTest extends AbstractMetricsTest {
       return Arrays.asList(
         new CommentImpl("#comment", "comment", TextRanges.range(1, 0, "#comment")),
         new CommentImpl("#NOSONAR", "NOSONAR", TextRanges.range(3, 0, "#NOSONAR")),
-        new CommentImpl("#", "", TextRanges.range(4, 0, "#"))
-      );
+        new CommentImpl("#", "", TextRanges.range(4, 0, "#")));
     }
 
     @Override
     public TextRange textRange() {
-      return TextRanges.range(2,0,"foo");
+      return TextRanges.range(2, 0, "foo");
     }
 
     @Override

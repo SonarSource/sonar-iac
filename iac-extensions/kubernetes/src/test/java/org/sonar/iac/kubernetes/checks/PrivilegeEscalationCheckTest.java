@@ -24,7 +24,6 @@ import org.sonar.iac.common.api.checks.IacCheck;
 
 class PrivilegeEscalationCheckTest {
 
-
   IacCheck check = new PrivilegeEscalationCheck();
 
   @Test
@@ -37,4 +36,3 @@ class PrivilegeEscalationCheckTest {
     KubernetesVerifier.verify("PrivilegeEscalationCheck/test_template_object.yaml", check);
   }
 }
-

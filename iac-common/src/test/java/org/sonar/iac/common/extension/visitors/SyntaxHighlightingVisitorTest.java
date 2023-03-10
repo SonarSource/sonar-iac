@@ -72,12 +72,12 @@ class SyntaxHighlightingVisitorTest extends AbstractHighlightingTest {
 
     @Override
     public List<Comment> comments() {
-      return Collections.singletonList(new CommentImpl("#comment", "comment", TextRanges.range(1,4,"#comment")));
+      return Collections.singletonList(new CommentImpl("#comment", "comment", TextRanges.range(1, 4, "#comment")));
     }
 
     @Override
     public TextRange textRange() {
-      return TextRanges.range(1,0,"foo");
+      return TextRanges.range(1, 0, "foo");
     }
 
     @Override

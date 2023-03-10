@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 class CloudFormationToDoCommentCheckTest {
-  
+
   @Test
   void test() {
     CloudformationVerifier.verify("ToDoCommentCheck/todo.yaml", new ToDoCommentCheck());

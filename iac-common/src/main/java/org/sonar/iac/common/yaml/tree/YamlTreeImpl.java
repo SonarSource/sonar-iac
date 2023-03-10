@@ -30,6 +30,7 @@ public abstract class YamlTreeImpl implements YamlTree {
   protected YamlTreeImpl(YamlTreeMetadata metadata) {
     this.metadata = metadata;
   }
+
   @Override
   public YamlTreeMetadata metadata() {
     return metadata;

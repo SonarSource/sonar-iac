@@ -104,6 +104,4 @@ class DockerNodeBuilderTest {
     return commentMap;
   }
 
-
-
 }

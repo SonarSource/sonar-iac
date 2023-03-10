@@ -123,7 +123,7 @@ public final class Verifier {
       }).scan(new TreeContext(), root);
 
     commentsByLine.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue)
-      .forEach(comments -> comments.forEach(comment  -> {
+      .forEach(comments -> comments.forEach(comment -> {
         TextPointer start = comment.textRange().start();
         verifier.addComment(start.line(), start.lineOffset() + 1, comment.value(), 2, 0);
       }));
@@ -138,6 +138,7 @@ public final class Verifier {
       throw new IllegalStateException("Cannot read " + path, e);
     }
   }
+
   public static class TestContext extends TreeContext implements InitContext, CheckContext {
 
     private final TreeVisitor<TestContext> visitor;
@@ -222,8 +223,10 @@ public final class Verifier {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o)
+        return true;
+      if (o == null || getClass() != o.getClass())
+        return false;
       Issue other = (Issue) o;
       return this.textRange.equals(other.textRange)
         && Objects.equals(this.message, other.message)

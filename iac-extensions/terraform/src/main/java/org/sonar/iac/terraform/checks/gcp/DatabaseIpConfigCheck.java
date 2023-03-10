@@ -36,9 +36,9 @@ public class DatabaseIpConfigCheck extends AbstractNewResourceCheck {
       resource -> resource.block("settings")
         .reportIfAbsent(OMITTING_MESSAGE)
         .block("ip_configuration")
-          .reportIfAbsent(OMITTING_MESSAGE)
-          .attribute("require_ssl")
-            .reportIfAbsent(OMITTING_MESSAGE)
-            .reportIf(isFalse(), MESSAGE));
+        .reportIfAbsent(OMITTING_MESSAGE)
+        .attribute("require_ssl")
+        .reportIfAbsent(OMITTING_MESSAGE)
+        .reportIf(isFalse(), MESSAGE));
   }
 }

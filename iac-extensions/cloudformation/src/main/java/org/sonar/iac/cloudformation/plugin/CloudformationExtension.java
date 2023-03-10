@@ -31,15 +31,14 @@ public class CloudformationExtension {
 
   public static void define(Plugin.Context context) {
     context.addExtensions(
-      //Language
+      // Language
       CloudformationLanguage.class,
       // Sensor
       CloudformationSensor.class,
       // Rules and profiles
       CloudformationRulesDefinition.class,
       CloudformationProfileDefinition.class,
-      CfnLintRulesDefinition.class
-    );
+      CfnLintRulesDefinition.class);
     context.addExtensions(CloudformationSettings.getProperties());
   }
 }

@@ -49,6 +49,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo(PARSING_ERROR_KEY);
   }
+
   @Test
   void should_return_cloudformation_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();

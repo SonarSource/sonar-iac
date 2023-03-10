@@ -52,7 +52,7 @@ class TerraformProvidersTest {
   @Test
   void provider_with_valid_version() {
     TerraformProviders providers = providers(context(AWS_KEY, "1.3.4"));
-    Provider provider =  providers.provider(Provider.Identifier.AWS);
+    Provider provider = providers.provider(Provider.Identifier.AWS);
     assertThat(provider.providerVersion).isEqualTo(Version.parse("1.3.4"));
     verifyNoInteractions(analysisWarnings);
   }
@@ -60,7 +60,7 @@ class TerraformProvidersTest {
   @Test
   void provider_with_invalid_version() {
     TerraformProviders providers = providers(context(AWS_KEY, "v1.3.4"));
-    Provider provider =  providers.provider(Provider.Identifier.AWS);
+    Provider provider = providers.provider(Provider.Identifier.AWS);
 
     assertThat(provider.providerVersion).isNull();
     assertThat(logTester.logs(LoggerLevel.WARN))
@@ -73,7 +73,7 @@ class TerraformProvidersTest {
   @Test
   void provider_with_empty_version() {
     TerraformProviders providers = providers(context(AWS_KEY, ""));
-    Provider provider =  providers.provider(Provider.Identifier.AWS);
+    Provider provider = providers.provider(Provider.Identifier.AWS);
     assertThat(provider.providerVersion).isNull();
     verify(analysisWarnings, times(1))
       .addUnique("Provide the used AWS provider version via the \"sonar.terraform.provider.aws.version\" " +

@@ -91,8 +91,7 @@ public class ManagedIdentityCheck extends AbstractResourceCheck {
   }
 
   private static void checkDataFactory(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "use_managed_identity", AttributeTree.class).ifPresent(m ->
-      reportOnFalse(ctx, m, DATA_FACTORY_MESSAGE));
+    PropertyUtils.get(resource, "use_managed_identity", AttributeTree.class).ifPresent(m -> reportOnFalse(ctx, m, DATA_FACTORY_MESSAGE));
   }
 
   private static void checkManagedIdentity(CheckContext ctx, BlockTree resource) {

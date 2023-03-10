@@ -58,7 +58,7 @@ class BlockObjectTest extends YamlTreeTest {
 
   @Test
   void fromAbsent() {
-    BlockObject block = BlockObject.fromAbsent(ctx,"a");
+    BlockObject block = BlockObject.fromAbsent(ctx, "a");
     assertThat(block.key).isEqualTo("a");
     assertThat(block.status).isEqualTo(YamlObject.Status.ABSENT);
     assertThat(block.tree).isNull();
@@ -101,7 +101,7 @@ class BlockObjectTest extends YamlTreeTest {
     assertThat(listPresent.status).isEqualTo(YamlObject.Status.PRESENT);
     assertThat(listPresent.items.stream()
       .map(tree -> ((ScalarTree) tree).value()))
-      .containsExactly("bar", "car");
+        .containsExactly("bar", "car");
 
     ListObject listAbsent = block.list("bar");
     assertThat(listAbsent.items).isEmpty();

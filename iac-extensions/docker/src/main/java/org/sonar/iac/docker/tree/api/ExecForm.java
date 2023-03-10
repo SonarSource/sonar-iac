@@ -21,6 +21,8 @@ package org.sonar.iac.docker.tree.api;
 
 public interface ExecForm extends ArgumentList {
   SyntaxToken leftBracket();
+
   SeparatedList<Argument> argumentsWithSeparators();
+
   SyntaxToken rightBracket();
 }

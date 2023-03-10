@@ -62,8 +62,7 @@ class UserInstructionImplTest {
       .notMatches("USER $user:${group with space}")
       .notMatches("USER")
       .notMatches("USERR bob")
-      .notMatches("USER ")
-    ;
+      .notMatches("USER ");
   }
 
   @Test

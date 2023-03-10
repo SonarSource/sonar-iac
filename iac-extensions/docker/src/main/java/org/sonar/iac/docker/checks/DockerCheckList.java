@@ -45,7 +45,6 @@ public class DockerCheckList {
       PrivilegedUserCheck.class,
       ToDoCommentCheck.class,
       SecretsHandlingCheck.class,
-      UnencryptedProtocolCheck.class
-    );
+      UnencryptedProtocolCheck.class);
   }
 }

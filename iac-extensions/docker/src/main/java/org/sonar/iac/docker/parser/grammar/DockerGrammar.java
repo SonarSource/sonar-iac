@@ -74,26 +74,21 @@ public class DockerGrammar {
       f.file(
         BODY(),
         b.optional(b.token(DockerLexicalGrammar.SPACING)),
-        b.token(DockerLexicalGrammar.EOF))
-    );
+        b.token(DockerLexicalGrammar.EOF)));
   }
 
   public Body BODY() {
     return b.<Body>nonterminal(DockerLexicalGrammar.BODY).is(
       f.body(
         b.zeroOrMore(ARG()),
-        b.oneOrMore(DOCKERIMAGE())
-      )
-    );
+        b.oneOrMore(DOCKERIMAGE())));
   }
 
   public DockerImage DOCKERIMAGE() {
     return b.<DockerImage>nonterminal(DockerLexicalGrammar.DOCKERIMAGE).is(
       f.dockerImage(
         FROM(),
-        b.zeroOrMore(INSTRUCTION())
-      )
-    );
+        b.zeroOrMore(INSTRUCTION())));
   }
 
   public Instruction INSTRUCTION() {
@@ -116,19 +111,14 @@ public class DockerGrammar {
           USER(),
           VOLUME(),
           SHELL(),
-          HEALTHCHECK()
-        )
-      )
-    );
+          HEALTHCHECK())));
   }
 
   public OnBuildInstruction ONBUILD() {
     return b.<OnBuildInstruction>nonterminal(DockerLexicalGrammar.ONBUILD).is(
       f.onbuild(
         b.token(DockerKeyword.ONBUILD),
-        INSTRUCTION()
-      )
-    );
+        INSTRUCTION()));
   }
 
   public FromInstruction FROM() {
@@ -137,9 +127,7 @@ public class DockerGrammar {
         b.token(DockerKeyword.FROM),
         b.optional(FLAG()),
         f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT()),
-        b.optional(ALIAS())
-      )
-    );
+        b.optional(ALIAS())));
   }
 
   public Flag FLAG() {
@@ -148,33 +136,26 @@ public class DockerGrammar {
         b.token(DockerLexicalGrammar.FLAG_PREFIX),
         b.token(DockerLexicalGrammar.FLAG_NAME),
         b.optional(b.token(DockerLexicalGrammar.EQUALS_OPERATOR)),
-        b.optional(ARGUMENT())
-      )
-    );
+        b.optional(ARGUMENT())));
   }
 
   public Alias ALIAS() {
     return b.<Alias>nonterminal(DockerLexicalGrammar.ALIAS).is(
       f.alias(
         b.token(DockerLexicalGrammar.ALIAS_AS),
-        b.token(DockerLexicalGrammar.IMAGE_ALIAS)
-      )
-    );
+        b.token(DockerLexicalGrammar.IMAGE_ALIAS)));
   }
 
   public MaintainerInstruction MAINTAINER() {
     return b.<MaintainerInstruction>nonterminal(DockerLexicalGrammar.MAINTAINER).is(
-      f.maintainer(b.token(DockerKeyword.MAINTAINER), ARGUMENTS())
-    );
+      f.maintainer(b.token(DockerKeyword.MAINTAINER), ARGUMENTS()));
   }
 
   // TODO get rid of this method or even rename the method and token grammar because it will only remain for MAINTAINER
   public List<SyntaxToken> ARGUMENTS() {
     return b.<List<SyntaxToken>>nonterminal(DockerLexicalGrammar.ARGUMENTS).is(
       b.oneOrMore(
-        f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL))
-      )
-    );
+        f.argument(b.token(DockerLexicalGrammar.STRING_LITERAL))));
   }
 
   public StopSignalInstruction STOPSIGNAL() {
@@ -182,9 +163,7 @@ public class DockerGrammar {
       f.stopSignal(
         b.token(DockerKeyword.STOPSIGNAL),
         b.token(DockerLexicalGrammar.WHITESPACE),
-        ARGUMENT()
-      )
-    );
+        ARGUMENT()));
   }
 
   public WorkdirInstruction WORKDIR() {
@@ -193,10 +172,7 @@ public class DockerGrammar {
         b.token(DockerKeyword.WORKDIR),
         b.oneOrMore(f.ignoreFirst(
           b.token(DockerLexicalGrammar.WHITESPACE),
-          ARGUMENT())
-        )
-      )
-    );
+          ARGUMENT()))));
   }
 
   public ExposeInstruction EXPOSE() {
@@ -205,10 +181,7 @@ public class DockerGrammar {
         b.token(DockerKeyword.EXPOSE),
         b.oneOrMore(f.ignoreFirst(
           b.token(DockerLexicalGrammar.WHITESPACE),
-          ARGUMENT()
-        ))
-      )
-    );
+          ARGUMENT()))));
   }
 
   public LabelInstruction LABEL() {
@@ -224,9 +197,7 @@ public class DockerGrammar {
           b.token(DockerKeyword.LABEL),
           f.ignoreFirst(
             b.token(DockerLexicalGrammar.WHITESPACE),
-            KEY_VALUE_PAIR_WITHOUT_EQUAL()))
-      )
-    );
+            KEY_VALUE_PAIR_WITHOUT_EQUAL()))));
   }
 
   public EnvInstruction ENV() {
@@ -236,11 +207,7 @@ public class DockerGrammar {
         b.oneOrMore(
           f.ignoreFirst(
             b.token(DockerLexicalGrammar.WHITESPACE),
-            KEY_VALUE_PAIR()
-          )
-        )
-      )
-    );
+            KEY_VALUE_PAIR()))));
   }
 
   public UserInstruction USER() {
@@ -249,10 +216,7 @@ public class DockerGrammar {
         b.token(DockerKeyword.USER),
         b.oneOrMore(f.ignoreFirst(
           b.token(DockerLexicalGrammar.WHITESPACE),
-          ARGUMENT()
-        ))
-      )
-    );
+          ARGUMENT()))));
   }
 
   public ArgInstruction ARG() {
@@ -264,12 +228,7 @@ public class DockerGrammar {
             b.token(DockerLexicalGrammar.WHITESPACE),
             b.firstOf(
               KEY_VALUE_PAIR_WITH_EQUAL(),
-              KEY_VALUE_PAIR_KEY_ONLY()
-            )
-          )
-        )
-      )
-    );
+              KEY_VALUE_PAIR_KEY_ONLY())))));
   }
 
   public AddInstruction ADD() {
@@ -277,14 +236,10 @@ public class DockerGrammar {
       f.add(
         b.token(DockerKeyword.ADD),
         b.zeroOrMore(
-          FLAG()
-        ),
+          FLAG()),
         b.firstOf(
           EXEC_FORM(),
-          SHELL_FORM()
-        )
-      )
-    );
+          SHELL_FORM())));
   }
 
   public CopyInstruction COPY() {
@@ -292,15 +247,11 @@ public class DockerGrammar {
       f.copy(
         b.token(DockerKeyword.COPY),
         b.zeroOrMore(
-          FLAG()
-        ),
+          FLAG()),
         b.firstOf(
           HEREDOC_FORM(),
           EXEC_FORM(),
-          SHELL_FORM()
-        )
-      )
-    );
+          SHELL_FORM())));
   }
 
   public CmdInstruction CMD() {
@@ -310,11 +261,7 @@ public class DockerGrammar {
         b.optional(
           b.firstOf(
             EXEC_FORM(),
-            SHELL_FORM_GENERIC()
-          )
-        )
-      )
-    );
+            SHELL_FORM_GENERIC()))));
   }
 
   public EntrypointInstruction ENTRYPOINT() {
@@ -324,11 +271,7 @@ public class DockerGrammar {
         b.optional(
           b.firstOf(
             EXEC_FORM(),
-            SHELL_FORM_GENERIC()
-          )
-        )
-      )
-    );
+            SHELL_FORM_GENERIC()))));
   }
 
   public RunInstruction RUN() {
@@ -336,17 +279,12 @@ public class DockerGrammar {
       f.run(
         b.token(DockerKeyword.RUN),
         b.zeroOrMore(
-          FLAG()
-        ),
+          FLAG()),
         b.optional(
           b.firstOf(
             HEREDOC_FORM(),
             EXEC_FORM(),
-            SHELL_FORM_GENERIC()
-          )
-        )
-      )
-    );
+            SHELL_FORM_GENERIC()))));
   }
 
   public HealthCheckInstruction HEALTHCHECK() {
@@ -356,19 +294,14 @@ public class DockerGrammar {
         b.zeroOrMore(FLAG()),
         b.firstOf(
           b.token(DockerLexicalGrammar.HEALTHCHECK_NONE),
-          CMD()
-        )
-      )
-    );
+          CMD())));
   }
 
   public ShellInstruction SHELL() {
     return b.<ShellInstruction>nonterminal(DockerLexicalGrammar.SHELL).is(
       f.shell(
         b.token(DockerKeyword.SHELL),
-        EXEC_FORM()
-      )
-    );
+        EXEC_FORM()));
   }
 
   /**
@@ -388,9 +321,7 @@ public class DockerGrammar {
             b.token(Punctuator.COMMA),
             f.ignoreFirst(b.optional(b.token(DockerLexicalGrammar.WHITESPACE)),
               f.singleExpressionArgument(EXPANDABLE_STRING_LITERAL())))),
-        b.token(Punctuator.RBRACKET)
-      )
-    );
+        b.token(Punctuator.RBRACKET)));
   }
 
   /**
@@ -400,10 +331,7 @@ public class DockerGrammar {
     return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM).is(
       f.shellForm(
         b.oneOrMore(
-          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT())
-        )
-      )
-    );
+          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT()))));
   }
 
   /**
@@ -413,18 +341,13 @@ public class DockerGrammar {
     return b.<ShellForm>nonterminal(DockerLexicalGrammar.SHELL_FORM_GENERIC).is(
       f.shellForm(
         b.oneOrMore(
-          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC())
-        )
-      )
-    );
+          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE), ARGUMENT_GENERIC()))));
   }
 
   public HereDocument HEREDOC_FORM() {
     return b.<HereDocument>nonterminal(DockerLexicalGrammar.HEREDOC_FORM).is(
       f.hereDocument(
-        b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)
-      )
-    );
+        b.token(DockerLexicalGrammar.HEREDOC_EXPRESSION)));
   }
 
   public HereDocument HEREDOC_FORM_CONTENT() {
@@ -432,27 +355,20 @@ public class DockerGrammar {
       f.hereDocumentContent(
         HEREDOC_ELEMENT(),
         b.zeroOrMore(
-          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE_OR_LINE_BREAK), HEREDOC_ELEMENT())
-        )
-      )
-    );
+          f.ignoreFirst(b.token(DockerLexicalGrammar.WHITESPACE_OR_LINE_BREAK), HEREDOC_ELEMENT()))));
   }
 
   public Argument HEREDOC_ELEMENT() {
     return b.<Argument>nonterminal().is(
       b.firstOf(
         HEREDOC_NAME(),
-        ARGUMENT()
-      )
-    );
+        ARGUMENT()));
   }
 
   public Argument HEREDOC_NAME() {
     return b.<Argument>nonterminal().is(
       f.asArgument(
-        f.regularStringLiteral(b.token(DockerLexicalGrammar.HEREDOC_NAME))
-      )
-    );
+        f.regularStringLiteral(b.token(DockerLexicalGrammar.HEREDOC_NAME))));
   }
 
   public VolumeInstruction VOLUME() {
@@ -461,10 +377,7 @@ public class DockerGrammar {
         b.token(DockerKeyword.VOLUME),
         b.firstOf(
           EXEC_FORM(),
-          SHELL_FORM()
-        )
-      )
-    );
+          SHELL_FORM())));
   }
 
   public Argument ARGUMENT() {
@@ -473,11 +386,7 @@ public class DockerGrammar {
         b.oneOrMore(
           b.firstOf(
             STRING_LITERAL(),
-            VARIABLE()
-          )
-        )
-      )
-    );
+            VARIABLE()))));
   }
 
   public Argument ARGUMENT_GENERIC() {
@@ -486,11 +395,7 @@ public class DockerGrammar {
         b.oneOrMore(
           b.firstOf(
             STRING_LITERAL_GENERIC(),
-            VARIABLE_GENERIC()
-          )
-        )
-      )
-    );
+            VARIABLE_GENERIC()))));
   }
 
   public Argument KEY_ARGUMENT() {
@@ -501,29 +406,21 @@ public class DockerGrammar {
             f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL)),
             f.regularStringLiteral(b.token(DockerLexicalGrammar.UNQUOTED_KEY_LITERAL)),
             EXPANDABLE_STRING_LITERAL(),
-            VARIABLE()
-          )
-        )
-      )
-    );
+            VARIABLE()))));
   }
 
   public Expression STRING_LITERAL() {
     return b.<Expression>nonterminal().is(
       b.firstOf(
         REGULAR_STRING_LITERAL(),
-        EXPANDABLE_STRING_LITERAL()
-      )
-    );
+        EXPANDABLE_STRING_LITERAL()));
   }
 
   public Expression STRING_LITERAL_GENERIC() {
     return b.<Expression>nonterminal().is(
       b.firstOf(
         REGULAR_STRING_LITERAL(),
-        EXPANDABLE_STRING_LITERAL_GENERIC()
-      )
-    );
+        EXPANDABLE_STRING_LITERAL_GENERIC()));
   }
 
   public KeyValuePair KEY_VALUE_PAIR() {
@@ -531,9 +428,7 @@ public class DockerGrammar {
       b.firstOf(
         KEY_VALUE_PAIR_WITH_EQUAL(),
         KEY_VALUE_PAIR_WITHOUT_EQUAL(),
-        KEY_VALUE_PAIR_KEY_ONLY()
-      )
-    );
+        KEY_VALUE_PAIR_KEY_ONLY()));
   }
 
   public KeyValuePair KEY_VALUE_PAIR_WITH_EQUAL() {
@@ -541,9 +436,7 @@ public class DockerGrammar {
       f.keyValuePair(
         KEY_ARGUMENT(),
         b.token(DockerLexicalGrammar.EQUALS_OPERATOR),
-        ARGUMENT()
-      )
-    );
+        ARGUMENT()));
   }
 
   public KeyValuePair KEY_VALUE_PAIR_WITHOUT_EQUAL() {
@@ -552,34 +445,25 @@ public class DockerGrammar {
         KEY_ARGUMENT(),
         f.ignoreFirst(
           b.token(DockerLexicalGrammar.WHITESPACE),
-          ARGUMENT()
-        ),
+          ARGUMENT()),
         b.zeroOrMore(
           f.tuple(
             b.token(DockerLexicalGrammar.WHITESPACE),
-            ARGUMENT()
-          )
-        )
-      )
-    );
+            ARGUMENT()))));
   }
 
   public KeyValuePair KEY_VALUE_PAIR_KEY_ONLY() {
     return b.<KeyValuePair>nonterminal().is(
       f.keyValuePair(
         KEY_ARGUMENT(),
-        b.optional(b.token(DockerLexicalGrammar.EQUALS_OPERATOR))
-      )
-    );
+        b.optional(b.token(DockerLexicalGrammar.EQUALS_OPERATOR))));
   }
 
   public Literal REGULAR_STRING_LITERAL() {
     return b.<Literal>nonterminal(DockerLexicalGrammar.REGULAR_STRING_LITERAL).is(
       b.firstOf(
         f.regularStringLiteral(b.token(DockerLexicalGrammar.UNQUOTED_STRING_LITERAL)),
-        f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL))
-      )
-    );
+        f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL))));
   }
 
   public ExpandableStringLiteral EXPANDABLE_STRING_LITERAL() {
@@ -613,27 +497,21 @@ public class DockerGrammar {
     return b.<Expression>nonterminal().is(
       b.firstOf(
         REGULAR_VARIABLE(),
-        ENCAPS_VARIABLE()
-      )
-    );
+        ENCAPS_VARIABLE()));
   }
 
   public Expression VARIABLE_GENERIC() {
     return b.<Expression>nonterminal().is(
       b.firstOf(
         REGULAR_VARIABLE(),
-        ENCAPS_VARIABLE_GENERIC()
-      )
-    );
+        ENCAPS_VARIABLE_GENERIC()));
   }
 
   public Expression REGULAR_VARIABLE() {
     return b.<Expression>nonterminal(DockerLexicalGrammar.REGULAR_VARIABLE).is(
       f.regularVariable(
         b.token(Punctuator.DOLLAR),
-        b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER)
-      )
-    );
+        b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER)));
   }
 
   public Expression ENCAPS_VARIABLE() {
@@ -644,12 +522,8 @@ public class DockerGrammar {
         b.optional(
           f.tuple(
             b.token(DockerLexicalGrammar.ENCAPS_VAR_MODIFIER_SEPARATOR),
-            ENCAPS_VARIABLE_MODIFIER()
-          )
-        ),
-        b.token(Punctuator.RCURLYBRACE)
-      )
-    );
+            ENCAPS_VARIABLE_MODIFIER())),
+        b.token(Punctuator.RCURLYBRACE)));
   }
 
   public Expression ENCAPS_VARIABLE_GENERIC() {
@@ -658,11 +532,8 @@ public class DockerGrammar {
         b.token(Punctuator.DOLLAR_LCURLY),
         b.token(DockerLexicalGrammar.REGULAR_VAR_IDENTIFIER),
         b.optional(
-          b.token(DockerLexicalGrammar.ENCAPS_VAR_MODIFIER_GENERIC)
-        ),
-        b.token(Punctuator.RCURLYBRACE)
-      )
-    );
+          b.token(DockerLexicalGrammar.ENCAPS_VAR_MODIFIER_GENERIC)),
+        b.token(Punctuator.RCURLYBRACE)));
   }
 
   public Argument ENCAPS_VARIABLE_MODIFIER() {
@@ -673,10 +544,6 @@ public class DockerGrammar {
             EXPANDABLE_STRING_LITERAL(),
             VARIABLE(),
             f.regularStringLiteral(b.token(DockerLexicalGrammar.UNQUOTED_VARIABLE_MODIFIER)),
-            f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL))
-          )
-        )
-      )
-    );
+            f.regularStringLiteral(b.token(DockerLexicalGrammar.QUOTED_STRING_LITERAL))))));
   }
 }

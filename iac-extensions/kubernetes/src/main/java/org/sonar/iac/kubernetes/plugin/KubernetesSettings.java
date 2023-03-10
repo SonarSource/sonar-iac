@@ -46,8 +46,7 @@ public class KubernetesSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(KUBERNETES_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
-        .build()
-    );
+        .build());
   }
 
 }

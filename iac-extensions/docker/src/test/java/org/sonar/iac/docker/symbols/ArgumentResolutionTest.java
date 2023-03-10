@@ -145,8 +145,7 @@ class ArgumentResolutionTest {
     File file = parseFileAndAnalyzeSymbols(code(
       "FROM foo",
       "ARG FOO=${FOO}",
-      "LABEL MY_LABEL=${FOO}"
-    ));
+      "LABEL MY_LABEL=${FOO}"));
 
     Argument label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0).value();
     assertThat(label).isNotNull();

@@ -24,7 +24,10 @@ import java.util.List;
 public interface HealthCheckInstruction extends Instruction {
 
   boolean isNone();
+
   List<Flag> options();
+
   CmdInstruction cmdInstruction();
+
   SyntaxToken none();
 }

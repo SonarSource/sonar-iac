@@ -57,8 +57,7 @@ class HereDocumentImplTest {
       .notMatches("<<KEY\nline1\nKEY")
       .notMatches(" <<KEY\nline1\nKEY value")
       .notMatches(" <<KEY\nline1\nKEYS")
-      .notMatches("")
-    ;
+      .notMatches("");
   }
 
   @Test

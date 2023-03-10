@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 class KubernetesToDoCommentCheckTest {
-  
+
   @Test
   void test() {
     KubernetesVerifier.verify("ToDoCommentCheck/todo.yaml", new ToDoCommentCheck());

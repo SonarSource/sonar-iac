@@ -55,10 +55,10 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
   private static boolean allowsPrivilegeEscalation(Statement statement) {
     return statement.effect().filter(PrivilegeEscalationCheck::isAllowEffect).isPresent()
-        && statement.resource().filter(PrivilegeEscalationCheck::isSensitiveResource).isPresent()
-        && statement.action().filter(PrivilegeEscalationCheck::isSensitiveAction).isPresent()
-        && statement.condition().isEmpty()
-        && statement.principal().isEmpty();
+      && statement.resource().filter(PrivilegeEscalationCheck::isSensitiveResource).isPresent()
+      && statement.action().filter(PrivilegeEscalationCheck::isSensitiveAction).isPresent()
+      && statement.condition().isEmpty()
+      && statement.principal().isEmpty();
   }
 
   private static boolean isAllowEffect(Tree effect) {

@@ -47,7 +47,8 @@ class VerifierTest {
   private final static TreeParser<Tree> mockParser = mock(TreeParser.class);
   private final static Path path = Paths.get("src", "test", "resources", "emptyFile.ext");
   private final static IacCheck issueRaiseCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree.textRange(), "issue message"));
-  private final static IacCheck noIssueRaiseCheck = init -> init.register(Tree.class, (ctx, tree) -> {});
+  private final static IacCheck noIssueRaiseCheck = init -> init.register(Tree.class, (ctx, tree) -> {
+  });
 
   @BeforeAll
   static void beforeAll() {
@@ -112,7 +113,8 @@ class VerifierTest {
 
   @Test
   void issues_list_verifier_verifyNoIssue() {
-    IacCheck emptyCheck = init -> init.register(Tree.class, (ctx, tree) -> {});
+    IacCheck emptyCheck = init -> init.register(Tree.class, (ctx, tree) -> {
+    });
     TreeParser<Tree> parser = mock(TreeParser.class);
     when(parser.parse(any(), any())).thenReturn(new AbstractTestTree() {
       @Override

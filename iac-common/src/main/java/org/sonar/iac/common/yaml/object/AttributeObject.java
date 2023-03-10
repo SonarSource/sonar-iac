@@ -56,6 +56,4 @@ public class AttributeObject extends YamlObject<AttributeObject, TupleTree> {
     return tree;
   }
 
-
-
 }

@@ -87,7 +87,6 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(sensorDescriptor.name()).isEqualTo("IaC Common Sensor");
   }
 
-
   @Test
   void test_descriptor_sonarqube_9_3() {
     final boolean[] called = {false};
@@ -208,9 +207,7 @@ class IacSensorTest extends AbstractSensorTest {
   void test_valid_check_with_secondary() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
-    IacCheck validCheck = init ->
-      init.register(Tree.class, (ctx, tree) ->
-        ctx.reportIssue(tree, "testIssue", SecondaryLocation.of(tree, "testSecondary")));
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(tree, "testIssue", SecondaryLocation.of(tree, "testSecondary")));
 
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
@@ -226,24 +223,22 @@ class IacSensorTest extends AbstractSensorTest {
     Issue issue = issues.iterator().next();
 
     assertThat(issue.flows()).satisfies(flows -> {
-        assertThat(flows.size()).isOne();
-        assertThat(flows.get(0).locations()).satisfies(flow -> {
-          assertThat(flow.size()).isOne();
-          assertThat(flow.get(0).message()).isEqualTo("testSecondary");
-        });
-      }
-    );
+      assertThat(flows.size()).isOne();
+      assertThat(flows.get(0).locations()).satisfies(flow -> {
+        assertThat(flow.size()).isOne();
+        assertThat(flow.get(0).message()).isEqualTo("testSecondary");
+      });
+    });
   }
 
   @Test
   void test_issue_not_raised_twice_on_same_range() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
-    IacCheck validCheck = init ->
-      init.register(Tree.class, (ctx, tree) -> {
-        ctx.reportIssue(tree.textRange(), "testIssue");
-        ctx.reportIssue(tree.textRange(), "testIssue");
-      });
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> {
+      ctx.reportIssue(tree.textRange(), "testIssue");
+      ctx.reportIssue(tree.textRange(), "testIssue");
+    });
 
     when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
@@ -262,10 +257,9 @@ class IacSensorTest extends AbstractSensorTest {
   void test_failure_in_check() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
-    IacCheck failingCheck = init ->
-      init.register(Tree.class, (ctx, tree) -> {
-        throw new IllegalStateException("Crash");
-      });
+    IacCheck failingCheck = init -> init.register(Tree.class, (ctx, tree) -> {
+      throw new IllegalStateException("Crash");
+    });
     when(checks.ruleKey(failingCheck)).thenReturn(RuleKey.of(repositoryKey(), "failing"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(failingCheck));
@@ -285,10 +279,9 @@ class IacSensorTest extends AbstractSensorTest {
   void failure_in_check_stops_analysis_with_fail_fast_enabled() {
     CheckFactory checkFactory = mock(CheckFactory.class);
     Checks checks = mock(Checks.class);
-    IacCheck failingCheck = init ->
-      init.register(Tree.class, (ctx, tree) -> {
-        throw new IllegalStateException("Crash");
-      });
+    IacCheck failingCheck = init -> init.register(Tree.class, (ctx, tree) -> {
+      throw new IllegalStateException("Crash");
+    });
     when(checks.ruleKey(failingCheck)).thenReturn(RuleKey.of(repositoryKey(), "failing"));
     when(checkFactory.create(repositoryKey())).thenReturn(checks);
     when(checks.all()).thenReturn(Collections.singletonList(failingCheck));
@@ -467,14 +460,14 @@ class IacSensorTest extends AbstractSensorTest {
 
     @Override
     public String[] getFileSuffixes() {
-      return new String[]{".iac"};
+      return new String[] {".iac"};
     }
   }
 
   private static class TestTree extends AbstractTestTree {
     @Override
     public TextRange textRange() {
-      return TextRanges.range(1,0, 1, 2);
+      return TextRanges.range(1, 0, 1, 2);
     }
   }
 }

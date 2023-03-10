@@ -103,7 +103,7 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
     // look for LoggingInfo::BrokerLogs, raise issue on certain parent if property is not set
     PropertyUtils.get(resource.properties(), "LoggingInfo")
       .ifPresentOrElse(info -> PropertyUtils.get(info.value(), "BrokerLogs")
-          .ifPresentOrElse(logs -> checkMskLogs(ctx, logs), () -> ctx.reportIssue(info.key(), omittingMessage("BrokerLogs"))),
+        .ifPresentOrElse(logs -> checkMskLogs(ctx, logs), () -> ctx.reportIssue(info.key(), omittingMessage("BrokerLogs"))),
         () -> reportResource(ctx, resource, omittingMessage("LoggingInfo")));
   }
 
@@ -173,21 +173,18 @@ public class DisabledLoggingCheck extends AbstractResourceCheck {
   }
 
   private static void checkCloudFrontDistribution(CheckContext ctx, Resource resource) {
-    PropertyUtils.get(resource.properties(), "DistributionConfig").ifPresentOrElse(config ->
-        reportOnMissingProperty(ctx, config.value(), "Logging", config.key()),
+    PropertyUtils.get(resource.properties(), "DistributionConfig").ifPresentOrElse(config -> reportOnMissingProperty(ctx, config.value(), "Logging", config.key()),
       () -> reportResource(ctx, resource, omittingMessage("DistributionConfig")));
   }
 
   private static void checkElasticLoadBalancer(CheckContext ctx, Resource resource) {
-    PropertyUtils.value(resource.properties(), "AccessLoggingPolicy").ifPresentOrElse(policy ->
-        PropertyUtils.value(policy, ENABLED).ifPresent(e -> reportOnFalse(ctx, e)),
+    PropertyUtils.value(resource.properties(), "AccessLoggingPolicy").ifPresentOrElse(policy -> PropertyUtils.value(policy, ENABLED).ifPresent(e -> reportOnFalse(ctx, e)),
       () -> reportResource(ctx, resource, omittingMessage("AccessLoggingPolicy")));
   }
 
   private static void checkElasticLoadBalancerV2(CheckContext ctx, Resource resource) {
-    PropertyUtils.get(resource.properties(), "LoadBalancerAttributes").ifPresentOrElse(attributes ->
-        getAccessLogsAttribute(attributes.value()).ifPresentOrElse(value ->
-          reportOnFalse(ctx, value), () -> ctx.reportIssue(attributes.key(), MESSAGE)),
+    PropertyUtils.get(resource.properties(), "LoadBalancerAttributes").ifPresentOrElse(
+      attributes -> getAccessLogsAttribute(attributes.value()).ifPresentOrElse(value -> reportOnFalse(ctx, value), () -> ctx.reportIssue(attributes.key(), MESSAGE)),
       () -> reportResource(ctx, resource, omittingMessage("LoadBalancerAttributes")));
   }
 

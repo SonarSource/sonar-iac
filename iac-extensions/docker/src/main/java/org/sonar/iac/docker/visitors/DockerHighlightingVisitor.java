@@ -34,6 +34,4 @@ public class DockerHighlightingVisitor extends SyntaxHighlightingVisitor {
     register(FromInstruction.class, (ctx, tree) -> Optional.ofNullable(tree.alias()).ifPresent(alias -> highlight(alias.keyword(), KEYWORD)));
   }
 
-
-
 }
