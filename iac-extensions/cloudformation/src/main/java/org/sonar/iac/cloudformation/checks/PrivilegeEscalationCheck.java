@@ -19,23 +19,27 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
-import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.cloudformation.checks.utils.PolicyUtils;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.policy.Policy;
-import org.sonar.iac.common.checks.policy.Policy.Statement;
 import org.sonar.iac.common.checks.PrivilegeEscalationVector;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.policy.Policy;
+import org.sonar.iac.common.checks.policy.Policy.Statement;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
 
 @Rule(key = "S6317")
 public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
-  private static final String MESSAGE = "Narrow these permissions to a smaller set of resources to avoid privilege escalation.";
+  private static final String MESSAGE = "This policy is vulnerable to the %s privilege escalation vector. Remove " +
+    "permissions or restrict the set of resources they apply to";
   private static final Pattern RESOURCE_NAME_PATTERN = Pattern.compile("arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)/\\*");
 
   @Override
@@ -48,17 +52,42 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
   }
 
   private static void checkPrivilegeEscalation(CheckContext ctx, Policy policy) {
-    policy.statement().stream()
-      .filter(PrivilegeEscalationCheck::allowsPrivilegeEscalation)
-      .forEach(statement -> ctx.reportIssue(statement.resource().get(), MESSAGE));
+    for (Policy.Statement policyStatement : policy.statement()) {
+      Optional<PrivilegeEscalationVector> privilegeEscalationVector = allowsPrivilegeEscalation(policyStatement);
+      if (privilegeEscalationVector.isPresent()) {
+        PrivilegeEscalationVector privilegeEscalationVector1 = privilegeEscalationVector.get();
+        String vectorName = privilegeEscalationVector1.getVectorName(); // for the message content
+
+        List<SecondaryLocation> secondaryLocations = new ArrayList<>();
+        for (Tree actionElement : ((SequenceTree) policyStatement.action().get()).elements()) {
+          Optional<String> value = TextUtils.getValue(actionElement);
+          if (value.isPresent()) {
+            if (privilegeEscalationVector1.getStringPermissions().contains(value.get())) {
+              if (privilegeEscalationVector1.getStringPermissions().size() == 1) {
+                secondaryLocations.add(new SecondaryLocation(actionElement, "Single Permission"));
+              } else if (privilegeEscalationVector1.getStringPermissions().size() > 1) {
+                secondaryLocations.add(new SecondaryLocation(actionElement, "Multiple Permissions"));
+              }
+            }
+          }
+        }
+
+        ctx.reportIssue(policyStatement.resource().get(), String.format(MESSAGE, vectorName), secondaryLocations);
+      }
+    }
   }
 
-  private static boolean allowsPrivilegeEscalation(Statement statement) {
-    return statement.effect().filter(PrivilegeEscalationCheck::isAllowEffect).isPresent()
-        && statement.resource().filter(PrivilegeEscalationCheck::isSensitiveResource).isPresent()
-        && statement.action().filter(PrivilegeEscalationCheck::isSensitiveAction).isPresent()
-        && statement.condition().isEmpty()
-        && statement.principal().isEmpty();
+  private static Optional<PrivilegeEscalationVector> allowsPrivilegeEscalation(Statement statement) {
+    boolean testBoolean = statement.effect().filter(PrivilegeEscalationCheck::isAllowEffect).isPresent()
+      && statement.resource().filter(PrivilegeEscalationCheck::isSensitiveResource).isPresent()
+      && statement.condition().isEmpty()
+      && statement.principal().isEmpty();
+
+    if (testBoolean) {
+      return isSensitiveAction(statement.action().get());
+    }
+//    statement.action().filter(PrivilegeEscalationCheck::isSensitiveAction).isPresent()
+    return Optional.empty();
   }
 
   private static boolean isAllowEffect(Tree effect) {
@@ -69,12 +98,12 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
     return TextUtils.matchesValue(resource, rsc -> rsc.equals("*") || RESOURCE_NAME_PATTERN.matcher(rsc).matches()).isTrue();
   }
 
-  private static boolean isSensitiveAction(Tree action) {
+  private static Optional<PrivilegeEscalationVector> isSensitiveAction(Tree action) {
     if (!(action instanceof SequenceTree)) {
-      return false;
+      return Optional.empty();
     }
 
     Stream<String> actionPermissions = ((SequenceTree) action).elements().stream().map(TextUtils::getValue).flatMap(Optional::stream);
-    return PrivilegeEscalationVector.isSupersetOfAnEscalationVector(actionPermissions);
+    return PrivilegeEscalationVector.getEscalationVector(actionPermissions);
   }
 }

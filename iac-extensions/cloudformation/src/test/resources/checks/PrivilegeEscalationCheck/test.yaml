@@ -8,7 +8,9 @@ Resources:
           - Effect: Allow
             Action:
               - iam:CreatePolicyVersion
-            Resource: "*" # Noncompliant {{Narrow these permissions to a smaller set of resources to avoid privilege escalation.}}
+            #   ^^^^^^^^^^^^^^^^^^^^^^^> {{Single Permission}}
+            Resource: "*" # Noncompliant {{This policy is vulnerable to the Create Policy Version privilege escalation vector. Remove permissions or restrict the set of resources they apply to}}
+          #           ^^^
   NonCompliant2:
     Type: AWS::IAM::ManagedPolicy
     Properties: 

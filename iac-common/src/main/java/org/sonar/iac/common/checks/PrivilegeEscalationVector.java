@@ -21,39 +21,50 @@ package org.sonar.iac.common.checks;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum PrivilegeEscalationVector {
 
-  CREATE_POLICY_VERSION("iam:CreatePolicyVersion"),
-  SET_DEFAULT_POLICY_VERSION("iam:SetDefaultPolicyVersion"),
-  CREATE_ACCESS_KEY("iam:CreateAccessKey"),
-  CREATE_LOGIN_PROFILE("iam:CreateLoginProfile"),
-  UPDATE_LOGIN_PROFILE("iam:UpdateLoginProfile"),
-  ATTACH_USER_POLICY("iam:AttachUserPolicy"),
-  ATTACH_GROUP_POLICY("iam:AttachGroupPolicy"),
-  ATTACH_ROLE_POLICY("iam:AttachRolePolicy", "sts:AssumeRole"),
-  PUT_USER_POLICY("iam:PutUserPolicy"),
-  PUT_GROUP_POLICY("iam:PutGroupPolicy"),
-  PUT_ROLE_POLICY("iam:PutRolePolicy", "sts:AssumeRole"),
-  ADD_USER_TO_GROUP("iam:AddUserToGroup"),
-  UPDATE_ASSUME_ROLE_POLICY("iam:UpdateAssumeRolePolicy", "sts:AssumeRole"),
-  EC2("iam:PassRole", "ec2:RunInstances"),
-  LAMBDA_CREATE_AND_INVOKE("iam:PassRole", "lambda:CreateFunction", "lambda:InvokeFunction"),
-  LAMBDA_CREATE_AND_ADD_PERMISSION("iam:PassRole", "lambda:CreateFunction", "lambda:AddPermission"),
-  LAMBDA_TRIGGERED_WITH_AN_EXTERNAL_EVENT("iam:PassRole", "lambda:CreateFunction", "lambda:CreateEventSourceMapping"),
-  CLOUD_FORMATION("iam:PassRole", "cloudformation:CreateStack"),
-  DATA_PIPELINE("iam:PassRole", "datapipeline:CreatePipeline", "datapipeline:PutPipelineDefinition"),
-  GLUE_DEVELOPMENT_ENDPOINT("iam:PassRole", "glue:CreateDevEndpoint"),
-  UPDATE_GLUE_DEV_ENDPOINT("glue:UpdateDevEndpoint"),
-  UPDATE_LAMBDA_CODE("lambda:UpdateFunctionCode");
+  CREATE_POLICY_VERSION("Create Policy Version", List.of("iam:CreatePolicyVersion")),
+  SET_DEFAULT_POLICY_VERSION("Set Default Policy Version", List.of("iam:SetDefaultPolicyVersion")),
+  CREATE_ACCESS_KEY("Create Access Key", List.of("iam:CreateAccessKey")),
+  CREATE_LOGIN_PROFILE("Create Login Profile", List.of("iam:CreateLoginProfile")),
+  UPDATE_LOGIN_PROFILE("Update Login Profile", List.of("iam:UpdateLoginProfile")),
+  ATTACH_USER_POLICY("Attach User Policy", List.of("iam:AttachUserPolicy")),
+  ATTACH_GROUP_POLICY("Attach Group Policy", List.of("iam:AttachGroupPolicy")),
+  ATTACH_ROLE_POLICY("Attach Role Policy", List.of("iam:AttachRolePolicy", "sts:AssumeRole")),
+  PUT_USER_POLICY("Put User Policy", List.of("iam:PutUserPolicy")),
+  PUT_GROUP_POLICY("Put Group Policy", List.of("iam:PutGroupPolicy")),
+  PUT_ROLE_POLICY("Put Role Policy", List.of("iam:PutRolePolicy", "sts:AssumeRole")),
+  ADD_USER_TO_GROUP("Add User to Group", List.of("iam:AddUserToGroup")),
+  UPDATE_ASSUME_ROLE_POLICY("Update Assume role Policy", List.of("iam:UpdateAssumeRolePolicy", "sts:AssumeRole")),
+  EC2("EC2", List.of("iam:PassRole", "ec2:RunInstances")),
+  LAMBDA_CREATE_AND_INVOKE("Lambda Create and Invoke", List.of("iam:PassRole", "lambda:CreateFunction", "lambda:InvokeFunction")),
+  LAMBDA_CREATE_AND_ADD_PERMISSION("Lambda Create and Add Permission", List.of("iam:PassRole", "lambda:CreateFunction", "lambda:AddPermission")),
+  LAMBDA_TRIGGERED_WITH_AN_EXTERNAL_EVENT("Lambda triggered with an external event", List.of("iam:PassRole", "lambda:CreateFunction", "lambda:CreateEventSourceMapping")),
+  CLOUD_FORMATION("CloudFormation", List.of("iam:PassRole", "cloudformation:CreateStack")),
+  DATA_PIPELINE("Data Pipeline", List.of("iam:PassRole", "datapipeline:CreatePipeline", "datapipeline:PutPipelineDefinition")),
+  GLUE_DEVELOPMENT_ENDPOINT("Glue Development Endpoint", List.of("iam:PassRole", "glue:CreateDevEndpoint")),
+  UPDATE_GLUE_DEV_ENDPOINT("Update Glue Dev Endpoint", List.of("glue:UpdateDevEndpoint")),
+  UPDATE_LAMBDA_CODE("Update Lambda code", List.of("lambda:UpdateFunctionCode"));
 
   private final List<Permission.SimplePermission> permissions;
+  private final String vectorName;
 
-  PrivilegeEscalationVector(String... permissions) {
-    this.permissions =  Stream.of(permissions).map(Permission.SimplePermission::new).collect(Collectors.toList());
+  public String getVectorName() {
+    return vectorName;
+  }
+
+  public List<String> getStringPermissions() {
+    return permissions.stream().map(p -> p.permissionName).collect(Collectors.toList());
+  }
+
+  PrivilegeEscalationVector(String vectorName, List<String> permissions) {
+    this.vectorName = vectorName;
+    this.permissions = permissions.stream().map(Permission.SimplePermission::new).collect(Collectors.toList());
   }
 
   public boolean isSubsetOf(Collection<Permission> actionPermissions) {
@@ -61,8 +72,15 @@ public enum PrivilegeEscalationVector {
   }
 
   public static boolean isSupersetOfAnEscalationVector(Stream<String> actionPermissions) {
+    return getEscalationVector(actionPermissions).isPresent();
+  }
+
+  public static Optional<PrivilegeEscalationVector> getEscalationVector(Stream<String> actionPermissions) {
     Set<Permission> permissionVector = actionPermissions.map(Permission::of).collect(Collectors.toSet());
-    return Stream.of(PrivilegeEscalationVector.values()).anyMatch(vector -> vector.isSubsetOf(permissionVector));
+
+    return Stream.of(PrivilegeEscalationVector.values())
+      .filter(vector -> vector.isSubsetOf(permissionVector))
+      .findFirst();
   }
 
   public abstract static class Permission {
