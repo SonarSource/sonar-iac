@@ -19,10 +19,9 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
-import java.time.Duration;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
@@ -31,6 +30,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
+import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -79,17 +79,23 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     assertThat(context.allIssues()).hasSize(1);
   }
 
+  /**
+   * When identifying whether an input file is a Cloudformation file, a custom identifier is retrieved from the file.
+   * In order not to spend too much time on this verification in large files, it is only applied to the first 8kb.
+   * This test checks 2 files with valid identifiers. The identifiers are at the end of each file.
+   */
   @Test
   void shouldFastCheckFilePredicate() {
-    String content = generateBigJson();
-    for (int i = 0; i < 10; i++) {
-      InputFile inputFile = inputFile("temp" + i + ".json", content);
-      context.fileSystem().add(inputFile);
-    }
-    long start = System.currentTimeMillis();
-    Assertions.assertTimeout(Duration.ofSeconds(1), () -> sensor().execute(context));
-    long stop = System.currentTimeMillis();
-    System.out.println("shouldFastCheckFilePredicate took: " + (stop - start) + " ms");
+    InputFile largeFileWithIdentifier = IacTestUtils.inputFile("large_file_with_identifier.json", "json");
+    InputFile mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.json", "json");
+
+    MapSettings settings = new MapSettings();
+    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, CloudformationSettings.FILE_IDENTIFIER_DEFAULT_VALUE);
+    context.setSettings(settings);
+
+    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
+    assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
   }
 
   private CloudformationSensor sensor(String... rules) {
@@ -148,18 +154,5 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).isEqualTo(message1);
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(1)).startsWith(message2);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
-  }
-
-  private String generateBigJson() {
-    StringBuilder sb = new StringBuilder("{\"elements\":[");
-    for (int i = 0; i < 500000; i++) {
-      sb.append("\"lastName\": \"last name\", \"firstName\": \"first name\", \"streetAddress\": \"street address\", ")
-        .append("\"email\": \"email\", \"index\": \"")
-        .append(i)
-        .append("\"},");
-    }
-    sb.deleteCharAt(sb.length() - 1);
-    sb.append("]}");
-    return sb.toString();
   }
 }

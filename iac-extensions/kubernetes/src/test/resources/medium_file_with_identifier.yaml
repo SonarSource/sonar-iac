@@ -1,0 +1,121 @@
+foo:
+  - _id: 640f011cc9a97e5ca0c0ca18
+    index: 0
+    guid: c40cea46-1993-4a58-b24e-97f25d54ae44
+    isActive: true
+    balance: "$1,612.53"
+    picture: http://placehold.it/32x32
+    age: 28
+    eyeColor: brown
+    name: Carmen Dixon
+    gender: female
+    company: QIMONK
+    email: carmendixon@qimonk.com
+    phone: "+1 (969) 461-3274"
+    address: 379 Etna Street, Elliston, Ohio, 7686
+    about: "Laboris aliqua mollit exercitation incididunt laboris aute incididunt nulla
+      dolore do velit ut. Pariatur incididunt cupidatat qui ut. Dolor officia duis elit
+      consectetur enim id irure ullamco nisi.\r\n"
+    registered: '2021-02-21T02:09:00 -01:00'
+    latitude: 35.577482
+    longitude: -84.189169
+    tags:
+      - aliquip
+      - culpa
+      - aliquip
+      - ea
+      - tempor
+      - elit
+      - sunt
+    friends:
+      - id: 0
+        name: Latonya Browning
+      - id: 1
+        name: Luann Livingston
+      - id: 2
+        name: Mcintosh Patel
+    greeting: Hello, Carmen Dixon! You have 5 unread messages.
+    favoriteFruit: strawberry
+  - _id: 640f011c40f06999651612eb
+    index: 1
+    guid: '0946836e-17fa-4ca5-9e1d-1adf20521d99'
+    isActive: false
+    balance: "$2,447.08"
+    picture: http://placehold.it/32x32
+    age: 40
+    eyeColor: green
+    name: Violet Campbell
+    gender: female
+    company: STELAECOR
+    email: violetcampbell@stelaecor.com
+    phone: "+1 (813) 512-2452"
+    address: 719 Harman Street, Stewart, Alaska, 2063
+    about: "Occaecat magna est tempor ut sit excepteur ea nulla velit ea eu do nostrud
+      id. Ipsum dolore magna nulla dolore mollit deserunt nisi minim incididunt sit
+      non aliqua labore. Pariatur qui anim nulla mollit nisi proident excepteur. Eiusmod
+      mollit consectetur minim incididunt et do ad reprehenderit in deserunt exercitation
+      labore magna anim. Dolore commodo nulla sint ex exercitation nostrud non duis
+      veniam consequat ea amet commodo anim. Mollit eu fugiat nostrud minim mollit voluptate
+      officia Lorem.\r\n"
+    registered: '2019-07-18T08:46:43 -02:00'
+    latitude: -40.573063
+    longitude: 74.75241
+    tags:
+      - Lorem
+      - non
+      - commodo
+      - do
+      - enim
+      - veniam
+      - nostrud
+    friends:
+      - id: 0
+        name: Stacie Owen
+      - id: 1
+        name: Norris Patton
+      - id: 2
+        name: Hyde Walter
+    greeting: Hello, Violet Campbell! You have 4 unread messages.
+    favoriteFruit: banana
+  - _id: 640f011c2267d380387eb139
+    index: 2
+    guid: b1b7b5a5-6fba-4c60-80d6-25e38ae39b9c
+    isActive: false
+    balance: "$1,106.30"
+    picture: http://placehold.it/32x32
+    age: 28
+    eyeColor: green
+    name: Luz Bennett
+    gender: female
+    company: COMFIRM
+    email: luzbennett@comfirm.com
+    phone: "+1 (997) 491-2429"
+    address: 549 Rutherford Place, Benson, Pennsylvania, 2195
+    about: "Sint adipisicing occaecat est incididunt et eiusmod mollit eiusmod qui et
+      ea. Enim proident officia voluptate sit adipisicing eu enim aliquip. Nostrud aliqua
+      fugiat quis ad cillum.\r\n"
+    registered: '2014-09-10T09:46:22 -02:00'
+    latitude: 41.640001
+    longitude: 85.603198
+    tags:
+      - ipsum
+      - id
+      - et
+      - reprehenderit
+      - sint
+      - irure
+      - ea
+    friends:
+      - id: 0
+        name: Mathis Hensley
+      - id: 1
+        name: Claudine Deleon
+      - id: 2
+        name: Jarvis Dean
+    greeting: Hello, Luz Bennett! You have 4 unread messages.
+    favoriteFruit: banana
+apiVersion: ~
+kind: ~
+metadata: ~
+spec: ~
+
