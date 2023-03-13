@@ -32,8 +32,13 @@ public class ContainerPrivilegedModeCheck extends AbstractKubernetesObjectCheck 
 
   @Override
   void registerObjectCheck() {
+    checkOnPrivilegedModeWithKey("containers");
+    checkOnPrivilegedModeWithKey("initContainers");
+  }
+
+  private void checkOnPrivilegedModeWithKey(String key) {
     register("Pod", pod ->
-      pod.blocks("containers").forEach(container ->
+      pod.blocks(key).forEach(container ->
         container.block("securityContext")
           .attribute("privileged")
             .reportIfValue(isTrue(), MESSAGE)
@@ -41,7 +46,7 @@ public class ContainerPrivilegedModeCheck extends AbstractKubernetesObjectCheck 
     );
 
     register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      obj.block("template").block("spec").blocks("containers").forEach(container ->
+      obj.block("template").block("spec").blocks(key).forEach(container ->
         container.block("securityContext")
           .attribute("privileged")
             .reportIfValue(isTrue(), MESSAGE)
