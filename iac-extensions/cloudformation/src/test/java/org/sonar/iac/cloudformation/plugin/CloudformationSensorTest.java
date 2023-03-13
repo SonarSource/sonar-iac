@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
@@ -80,6 +81,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  @Timeout(20)
   void shouldFastCheckFilePredicate() {
     String content = generateBigJson();
     for (int i = 0; i < 10; i++) {
