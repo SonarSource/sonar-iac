@@ -19,11 +19,10 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
-import java.time.Duration;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
@@ -31,6 +30,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
+import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -91,17 +91,19 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(descriptor.languages()).containsExactly("json", "yaml");
   }
 
+  /**
+   * When identifying whether an input file is a Kubernetes file, various identifiers are retrieved from the file.
+   * In order not to spend too much time on this verification in large files, it is only applied to the first 8kb.
+   * This test checks 2 files with valid identifiers. The identifiers are at the end of each file.
+   */
   @Test
   void shouldFastCheckFilePredicate() {
-    String content = generateBigJson();
-    for (int i = 0; i < 10; i++) {
-      InputFile inputFile = inputFile("temp" + i + ".json", content);
-      context.fileSystem().add(inputFile);
-    }
-    long start = System.currentTimeMillis();
-    Assertions.assertTimeout(Duration.ofSeconds(1), () -> sensor().execute(context));
-    long stop = System.currentTimeMillis();
-    System.out.println("shouldFastCheckFilePredicate took: " + (stop - start) + " ms");
+    InputFile largeFileWithIdentifier = IacTestUtils.inputFile("large_file_with_identifier.yaml", "yaml");
+    InputFile mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.yaml", "yaml");
+
+    FilePredicate filePredicate = sensor().customFilePredicate(context);
+    assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
+    assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
   }
 
   private void asserNotSourceFileIsParsed() {
@@ -173,18 +175,5 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
       .startsWith(message2);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
-  }
-
-  private String generateBigJson() {
-    StringBuilder sb = new StringBuilder("{\"elements\":[");
-    for (int i = 0; i < 500000; i++) {
-      sb.append("\"lastName\": \"last name\", \"firstName\": \"first name\", \"streetAddress\": \"street address\", ")
-        .append("\"email\": \"email\", \"index\": \"")
-        .append(i)
-        .append("\"},");
-    }
-    sb.deleteCharAt(sb.length() - 1);
-    sb.append("]}");
-    return sb.toString();
   }
 }

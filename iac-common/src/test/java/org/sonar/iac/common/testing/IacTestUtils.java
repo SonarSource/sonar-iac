@@ -19,6 +19,11 @@
  */
 package org.sonar.iac.common.testing;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 
 public class IacTestUtils {
@@ -29,5 +34,17 @@ public class IacTestUtils {
 
   public static String code(String... lines) {
     return StringUtils.join(lines, System.getProperty("line.separator"));
+  }
+
+  public static DefaultInputFile inputFile(String fileName, String language) {
+    try {
+      return TestInputFileBuilder.create("moduleKey", fileName)
+        .setModuleBaseDir(new File("src/test/resources").toPath())
+        .setCharset(Charset.defaultCharset())
+        .setLanguage(language)
+        .initMetadata(java.nio.file.Files.readString(new File("src/test/resources/" + fileName).toPath())).build();
+    } catch (IOException e) {
+      throw new IllegalStateException("File not found", e);
+    }
   }
 }
