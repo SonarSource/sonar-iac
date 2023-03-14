@@ -7,15 +7,6 @@
 57,
 64,
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/etcd-controller-template.yaml':[
-16,
-],
-'kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/vtctld-controller-template.yaml':[
-54,
-],
-'kubernetes-project:sources/kubernetes/examples/staging/storage/vitess/vttablet-pod-template.yaml':[
-127,
-],
 'kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml':[
 21,
 31,
