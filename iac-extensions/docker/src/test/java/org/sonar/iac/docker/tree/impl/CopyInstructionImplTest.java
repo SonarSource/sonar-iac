@@ -29,6 +29,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammarTest.FORBIDDEN_CHARACTERS_AFTER_KEYWORD;
@@ -137,16 +138,17 @@ class CopyInstructionImplTest {
     ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
   }
 
+  @Test
   void copyInstructionHeredocForm() {
-    String toParse = "COPY <<FILE1\n" +
-      "line 1\n" +
-      "line 2\n" +
-      "FILE1";
+    String toParse = code("COPY <<FILE1",
+      "line 1",
+      "line 2",
+      "FILE1");
     CopyInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.COPY);
     assertTextRange(tree.textRange()).hasRange(1,0,4,5);
 
     assertThat(tree.keyword().value()).isEqualTo("COPY");
     assertThat(tree.arguments()).isNotNull();
-    assertArgumentsValue(tree.arguments(), "<<FILE1\nline 1\nline 2\nFILE1");
+    assertArgumentsValue(tree.arguments(), "<<FILE1", "line", "1", "line", "2", "FILE1");
   }
 }
