@@ -69,9 +69,15 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
     List<SecondaryLocation> secondaryLocations = new ArrayList<>();
 
     statement.action().ifPresent(tree -> ((SequenceTree) tree).elements().stream()
-      .filter(actionElement -> TextUtils.getValue(actionElement).isPresent() && vector.getStringPermissions().contains(TextUtils.getValue(actionElement).get()))
-      .forEach(actionElement -> {
-        String message = vector.getStringPermissions().size() == 1 ? String.format(SECONDARY_MSG_SINGLE, vectorName)
+      .filter(actionElement -> {
+        Optional<String> actionValue = TextUtils.getValue(actionElement);
+        if (actionValue.isEmpty()) {
+          return false;
+        }
+        PrivilegeEscalationVector.Permission permission = PrivilegeEscalationVector.Permission.of(actionValue.get());
+        return vector.permissions().stream().anyMatch(p -> p.isCoveredBy(permission));
+      }).forEach(actionElement -> {
+        String message = vector.permissions().size() == 1 ? String.format(SECONDARY_MSG_SINGLE, vectorName)
           : String.format(SECONDARY_MSG_MULTIPLE, vectorName);
         secondaryLocations.add(new SecondaryLocation(actionElement, String.format(message, vectorName)));
       }));

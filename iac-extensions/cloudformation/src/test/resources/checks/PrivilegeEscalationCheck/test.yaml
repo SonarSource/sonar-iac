@@ -32,7 +32,7 @@ Resources:
           - Effect: Allow
             Action:
               - lambda:*
-            #   TODO secondary doesn't work
+            #   ^^^^^^^^< {{This permission enables the "Update Lambda code" escalation vector.}}
             Resource: "arn:foo:bar:baz:bax:user/*"
   NonCompliant4:
     Type: AWS::IAM::ManagedPolicy # Noncompliant {{This policy is vulnerable to the "Put Role Policy" privilege escalation vector. Remove permissions or restrict the set of resources they apply to.}}

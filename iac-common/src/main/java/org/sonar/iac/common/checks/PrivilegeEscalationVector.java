@@ -58,10 +58,6 @@ public enum PrivilegeEscalationVector {
     return vectorName;
   }
 
-  public List<String> getStringPermissions() {
-    return permissions.stream().map(p -> p.permissionName).collect(Collectors.toList());
-  }
-
   PrivilegeEscalationVector(String vectorName, List<String> permissions) {
     this.vectorName = vectorName;
     this.permissions = permissions.stream().map(Permission.SimplePermission::new).collect(Collectors.toList());
@@ -83,7 +79,12 @@ public enum PrivilegeEscalationVector {
       .findFirst();
   }
 
+  public List<Permission.SimplePermission> permissions() {
+    return permissions;
+  }
+
   public abstract static class Permission {
+
     protected final String permissionName;
 
     protected Permission(String permissionName) {
@@ -94,7 +95,7 @@ public enum PrivilegeEscalationVector {
       return permissionName.endsWith("*") ? new Permission.WildCardPermission(permissionName) : new Permission.SimplePermission(permissionName);
     }
 
-    static class SimplePermission extends Permission {
+    public static class SimplePermission extends Permission {
 
       protected SimplePermission(String permissionName) {
         super(permissionName);
