@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;

@@ -22,9 +22,6 @@ package org.sonar.iac.common.api.tree.impl;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
-import org.sonar.api.batch.fs.internal.DefaultTextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -59,7 +56,14 @@ class TextRangesTest {
       .withMessage("Can't merge 0 ranges");
   }
 
+  @Test
+  void isValidAndNotEmpty() {
+    assertThat(TextRanges.isValidAndNotEmpty(range(1, 1, 1, 1))).isFalse();
+    assertThat(TextRanges.isValidAndNotEmpty(range(2, 1, 1, 1))).isFalse();
+    assertThat(TextRanges.isValidAndNotEmpty(range(1, 2, 3, 4))).isTrue();
+  }
+
   public static TextRange range(int startLine, int startLineColumn, int endLine, int endLineColumn) {
-    return new DefaultTextRange(new DefaultTextPointer(startLine, startLineColumn), new DefaultTextPointer(endLine, endLineColumn));
+    return new TextRange(new TextPointer(startLine, startLineColumn), new TextPointer(endLine, endLineColumn));
   }
 }

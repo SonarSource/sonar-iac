@@ -19,32 +19,48 @@
  */
 package org.sonar.iac.common.api.tree.impl;
 
-import org.sonar.iac.common.api.tree.Comment;
+import java.util.Objects;
 
-public class CommentImpl implements Comment {
+public class TextPointer implements Comparable<TextPointer> {
 
-  private final String value;
-  private final String contentText;
-  private final TextRange textRange;
+  private final int line;
+  private final int lineOffset;
 
-  public CommentImpl(String value, String contentText, TextRange textRange) {
-    this.value = value;
-    this.contentText = contentText;
-    this.textRange = textRange;
+  public TextPointer(int line, int lineOffset) {
+    this.line = line;
+    this.lineOffset = lineOffset;
+  }
+
+  public int line() {
+    return line;
+  }
+
+  public int lineOffset() {
+    return lineOffset;
   }
 
   @Override
-  public String value() {
-    return value;
+  public int compareTo(TextPointer other) {
+    if (this.line == other.line()) {
+      return Integer.compare(this.lineOffset, other.lineOffset());
+    }
+    return Integer.compare(this.line, other.line());
   }
 
   @Override
-  public String contentText() {
-    return contentText;
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
+    TextPointer otherPointer = (TextPointer) other;
+    return line == otherPointer.line && lineOffset == otherPointer.lineOffset;
   }
 
   @Override
-  public TextRange textRange() {
-    return textRange;
+  public int hashCode() {
+    return Objects.hash(line, lineOffset);
   }
 }

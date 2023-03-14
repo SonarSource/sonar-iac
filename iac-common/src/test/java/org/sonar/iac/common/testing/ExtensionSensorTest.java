@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
@@ -66,8 +66,7 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("A parsing error occurred in this file.");
-    TextRange range = issue.primaryLocation().textRange();
-    assertThat(range).isNotNull();
+    assertThat(issue.primaryLocation().textRange()).isNotNull();
 
     // Test analysis warning
     Collection<AnalysisError> analysisErrors = context.allAnalysisErrors();

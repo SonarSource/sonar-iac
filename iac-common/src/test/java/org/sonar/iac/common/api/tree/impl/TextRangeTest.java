@@ -17,12 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.api.tree;
+package org.sonar.iac.common.api.tree.impl;
 
-import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.junit.jupiter.api.Test;
 
-public interface HasTextRange {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  TextRange textRange();
+class TextRangeTest {
 
+  @Test
+  void equals() {
+    TextRange range = new TextRange(new TextPointer(1, 2), new TextPointer(3, 4));
+    TextRange sameRange = new TextRange(new TextPointer(1, 2), new TextPointer(3, 4));
+    TextRange sameStartOtherEnd = new TextRange(new TextPointer(1, 2), new TextPointer(7, 8));
+    TextRange otherStartSameEnd = new TextRange(new TextPointer(5, 6), new TextPointer(3, 4));
+    Object notATextRange = new Object();
+
+    assertThat(range)
+      .isEqualTo(range)
+      .isNotEqualTo(null)
+      .isNotEqualTo(notATextRange)
+      .isEqualTo(sameRange)
+      .isNotEqualTo(sameStartOtherEnd)
+      .isNotEqualTo(otherStartSameEnd);
+  }
 }

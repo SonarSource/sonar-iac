@@ -27,7 +27,7 @@ import com.sonar.sslr.api.typed.Input;
 import com.sonar.sslr.api.typed.NodeBuilder;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;

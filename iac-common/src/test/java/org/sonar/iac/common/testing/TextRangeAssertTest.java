@@ -21,8 +21,8 @@ package org.sonar.iac.common.testing;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;

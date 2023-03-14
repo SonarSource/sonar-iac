@@ -25,7 +25,7 @@ import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.fest.assertions.GenericAssert;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.parser.HclNodeBuilder;
 import org.sonar.iac.terraform.parser.TreeFactory;
@@ -67,7 +67,7 @@ public class Assertions {
     private void parseTillEof(String input) {
       TerraformTreeImpl tree = (TerraformTreeImpl) actual.parse(input);
       TokenLocation loc = new TokenLocation(1, 0, input);
-      if (!tree.textRange().end().equals(new DefaultTextPointer(loc.endLine(), loc.endLineOffset()))) {
+      if (!tree.textRange().end().equals(new TextPointer(loc.endLine(), loc.endLineOffset()))) {
         throw new RecognitionException(
           0, "Did not match till EOF, but till line " + tree.textRange().end().line());
       }

@@ -20,7 +20,7 @@
 package org.sonar.iac.common.api.checks;
 
 import java.util.List;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
 
 public interface CheckContext {

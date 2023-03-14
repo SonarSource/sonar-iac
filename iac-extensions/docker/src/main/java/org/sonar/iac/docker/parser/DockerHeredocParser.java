@@ -20,8 +20,8 @@
 package org.sonar.iac.docker.parser;
 
 import com.sonar.sslr.api.typed.Input;
-import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerTree;

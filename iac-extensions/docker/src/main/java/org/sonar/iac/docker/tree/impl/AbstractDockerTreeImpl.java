@@ -21,7 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.tree.api.DockerTree;

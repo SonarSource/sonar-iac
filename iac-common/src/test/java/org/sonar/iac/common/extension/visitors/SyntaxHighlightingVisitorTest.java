@@ -22,7 +22,7 @@ package org.sonar.iac.common.extension.visitors;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.TextTree;

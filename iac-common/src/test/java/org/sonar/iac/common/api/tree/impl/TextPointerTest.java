@@ -20,19 +20,39 @@
 package org.sonar.iac.common.api.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.Comment;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
-class CommentImplTest {
+class TextPointerTest {
 
   @Test
-  void simple_comment_creation_test() {
-    TextRange range = TextRanges.range(1, 2, "# comment");
-    Comment comment = new CommentImpl("# comment", "comment", range);
-    assertThat(comment.value()).isEqualTo("# comment");
-    assertThat(comment.contentText()).isEqualTo("comment");
-    assertThat(comment.textRange()).isEqualTo(range);
+  void equals() {
+    TextPointer pointer = new TextPointer(1, 2);
+    TextPointer samePointer = new TextPointer(1, 2);
+    TextPointer sameLineOtherOffset = new TextPointer(1, 3);
+    TextPointer otherLineSameOffset = new TextPointer(4, 2);
+    Object notATextPointer = new Object();
+
+    assertThat(pointer)
+      .isEqualTo(pointer)
+      .isNotEqualTo(null)
+      .isNotEqualTo(notATextPointer)
+      .isEqualTo(samePointer)
+      .isNotEqualTo(sameLineOtherOffset)
+      .isNotEqualTo(otherLineSameOffset);
+  }
+
+  @Test
+  void compareTo() {
+    TextPointer pointer = new TextPointer(1, 2);
+    TextPointer samePointer = new TextPointer(1, 2);
+    TextPointer smallerLine = new TextPointer(0, 2);
+    TextPointer smallerColumn = new TextPointer(1, 1);
+
+    assertThat(pointer)
+      .isEqualByComparingTo(samePointer)
+      .isGreaterThan(smallerLine)
+      .isGreaterThan(smallerColumn);
   }
 }

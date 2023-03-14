@@ -22,7 +22,7 @@ package org.sonar.iac.common.extension.visitors;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;

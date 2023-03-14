@@ -24,7 +24,7 @@ import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.typed.ActionParser;
 import javax.annotation.Nullable;
 import org.fest.assertions.GenericAssert;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.parser.grammar.DockerKeyword;
@@ -64,7 +64,7 @@ public class Assertions {
     private void parseTillEof(String input) {
       AbstractDockerTreeImpl tree = (AbstractDockerTreeImpl) actual.parse(input);
       TokenLocation loc = new TokenLocation(1, 0, input);
-      if (!tree.textRange().end().equals(new DefaultTextPointer(loc.endLine(), loc.endLineOffset()))) {
+      if (!tree.textRange().end().equals(new TextPointer(loc.endLine(), loc.endLineOffset()))) {
         throw new RecognitionException(
           0, "Did not match till EOF, but till line " + tree.textRange().end().line() + " line offset: " + tree.textRange().end().lineOffset());
       }

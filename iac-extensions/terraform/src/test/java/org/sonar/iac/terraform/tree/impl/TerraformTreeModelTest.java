@@ -21,8 +21,8 @@ package org.sonar.iac.terraform.tree.impl;
 
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
-import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;

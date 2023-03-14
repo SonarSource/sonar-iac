@@ -30,7 +30,6 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -51,6 +50,7 @@ import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -201,7 +201,8 @@ class IacSensorTest extends AbstractSensorTest {
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("testIssue");
-    assertTextRange(location.textRange()).hasRange(1, 0, 1, 2);
+    assertTextRange(TextRanges.range(location.textRange().start().line(), location.textRange().start().lineOffset(), location.textRange().end().line(),
+      location.textRange().end().lineOffset())).hasRange(1, 0, 1, 2);
   }
 
   @Test

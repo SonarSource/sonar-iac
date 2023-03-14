@@ -19,17 +19,24 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 
 public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
 
+  private static final Logger LOG = Loggers.get(SyntaxHighlightingVisitor.class);
+
   private NewHighlighting newHighlighting;
+  private InputFile inputFile;
 
   protected SyntaxHighlightingVisitor() {
     register(Tree.class, (ctx, tree) -> highlightComments(tree));
@@ -40,8 +47,9 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
 
   @Override
   protected void before(InputFileContext ctx, Tree root) {
+    inputFile = ctx.inputFile;
     newHighlighting = ctx.sensorContext.newHighlighting()
-      .onFile(ctx.inputFile);
+      .onFile(inputFile);
   }
 
   @Override
@@ -49,8 +57,15 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
     newHighlighting.save();
   }
 
-  protected void highlight(HasTextRange range, TypeOfText typeOfText) {
-    newHighlighting.highlight(range.textRange(), typeOfText);
+  protected void highlight(HasTextRange tree, TypeOfText typeOfText) {
+    if (!TextRanges.isValidAndNotEmpty(tree.textRange())) {
+      LOG.debug("Tried to highlight a tree with an empty or invalid range. Skipping it.");
+      return;
+    }
+
+    newHighlighting.highlight(
+      inputFile.newRange(tree.textRange().start().line(), tree.textRange().start().lineOffset(), tree.textRange().end().line(), tree.textRange().end().lineOffset()),
+      typeOfText);
   }
 
   private void highlightComments(Tree tree) {
