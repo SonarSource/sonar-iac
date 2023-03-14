@@ -28,6 +28,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.docker.TestUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.File;
@@ -97,7 +98,7 @@ class ArgumentResolutionTest {
   void shouldResolveLabelValue(String input) {
     File file = parseFileAndAnalyzeSymbols(input);
 
-    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+    KeyValuePair label = TreeUtils.firstDescendant(file, LabelInstruction.class).get().labels().get(0);
 
     ArgumentResolution resolution = ArgumentResolution.of(label.value());
     assertThat(resolution.value()).isEqualTo("bar");
@@ -116,7 +117,7 @@ class ArgumentResolutionTest {
   void shouldResolveLabelValueToNull(String input) {
     File file = parseFileAndAnalyzeSymbols(input);
 
-    KeyValuePair label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0);
+    KeyValuePair label = TreeUtils.firstDescendant(file, LabelInstruction.class).get().labels().get(0);
 
     ArgumentResolution resolution = ArgumentResolution.of(label.value());
     assertThat(resolution.status()).isEqualTo(ArgumentResolution.Status.UNRESOLVED);
@@ -148,7 +149,7 @@ class ArgumentResolutionTest {
       "LABEL MY_LABEL=${FOO}"
     ));
 
-    Argument label = TestUtils.firstDescendant(file, LabelInstruction.class).labels().get(0).value();
+    Argument label = TreeUtils.firstDescendant(file, LabelInstruction.class).get().labels().get(0).value();
     assertThat(label).isNotNull();
     ArgumentResolution resolution = ArgumentResolution.of(label);
     assertThat(resolution.value()).isEmpty();

@@ -317,10 +317,10 @@ class RunInstructionImplTest {
     assertArgumentsValue(tree.arguments(), "executable", "parameters");
 
     // Comments are associated to the whitespace which are not accessible from the tree because they are ignored/not stored on the grammar
-    SyntaxTokenImpl syntaxToken1 = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree.arguments().get(0), SyntaxTokenImpl.class::isInstance).get();
+    SyntaxTokenImpl syntaxToken1 = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree.arguments().get(0), SyntaxTokenImpl.class::isInstance).get();
     assertThat(syntaxToken1.value()).isEqualTo("executable");
     assertThat(syntaxToken1.comments()).isEmpty();
-    SyntaxTokenImpl syntaxToken2 = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree.arguments().get(1), SyntaxTokenImpl.class::isInstance).get();
+    SyntaxTokenImpl syntaxToken2 = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree.arguments().get(1), SyntaxTokenImpl.class::isInstance).get();
     assertThat(syntaxToken2.value()).isEqualTo("parameters");
     assertThat(syntaxToken2.comments()).isEmpty();
   }
@@ -337,7 +337,7 @@ class RunInstructionImplTest {
     assertThat(tree.arguments()).hasSize(2);
     assertArgumentsValue(tree.arguments(), "executable", "parameters");
 
-    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree.arguments().get(0), SyntaxTokenImpl.class::isInstance).get();
+    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree.arguments().get(0), SyntaxTokenImpl.class::isInstance).get();
     assertThat(syntaxToken.value()).isEqualTo("executable");
 
     assertThat(syntaxToken.comments()).hasSize(1);
@@ -359,7 +359,7 @@ class RunInstructionImplTest {
     assertThat(tree.arguments()).hasSize(1);
     assertArgumentsValue(tree.arguments(), "executableparameters");
 
-    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
+    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
     assertThat(syntaxToken.value()).isEqualTo("executableparameters");
     assertThat(syntaxToken.comments())
       .hasSize(1)
@@ -379,7 +379,7 @@ class RunInstructionImplTest {
     assertThat(tree.arguments()).hasSize(1);
     assertArgumentsValue(tree.arguments(), "executableparameters");
 
-    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
+    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
     assertThat(syntaxToken.value()).isEqualTo("executableparameters");
     assertThat(syntaxToken.comments())
       .hasSize(2)
@@ -397,7 +397,7 @@ class RunInstructionImplTest {
     assertThat(tree.arguments()).hasSize(1);
     assertArgumentsValue(tree.arguments(), "executable");
 
-    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.getLastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
+    SyntaxTokenImpl syntaxToken = (SyntaxTokenImpl) TreeUtils.lastDescendant(tree, SyntaxTokenImpl.class::isInstance).get();
     assertThat(syntaxToken.value()).isEqualTo("executable");
     assertThat(syntaxToken.comments()).isEmpty();
   }

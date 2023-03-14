@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.docker.TestUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
+import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.File;
@@ -82,7 +83,7 @@ class InstructionImplTest {
       "FROM foo"
     ), DockerLexicalGrammar.FILE);
 
-    DockerImage image = TestUtils.firstDescendant(file, DockerImage.class);
+    DockerImage image = TreeUtils.firstDescendant(file, DockerImage.class).get();
     List<Comment> comments = image.from().keyword().comments();
     assertThat(comments).extracting(Comment::contentText).containsExactly("foobar");
   }
@@ -94,7 +95,7 @@ class InstructionImplTest {
       "FROM foo"
     ), DockerLexicalGrammar.FILE);
 
-    DockerImage image = TestUtils.firstDescendant(file, DockerImage.class);
+    DockerImage image = TreeUtils.firstDescendant(file, DockerImage.class).get();
     List<Comment> comments = image.from().keyword().comments();
     assertThat(comments).extracting(Comment::contentText).containsExactly("");
   }
