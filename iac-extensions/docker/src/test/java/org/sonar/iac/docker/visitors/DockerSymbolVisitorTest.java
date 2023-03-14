@@ -43,7 +43,7 @@ import org.sonar.iac.docker.tree.api.Variable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.iac.docker.TestUtils.firstDescendant;
+import static org.sonar.iac.docker.tree.TreeUtils.firstDescendant;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class DockerSymbolVisitorTest {
@@ -54,7 +54,7 @@ class DockerSymbolVisitorTest {
   @Test
   void argInstructionShouldCreateSymbol() {
     DockerImage image = scanImage("ARG foo=bar");
-    KeyValuePair keyValuePair = firstDescendant(image, KeyValuePair.class);
+    KeyValuePair keyValuePair = firstDescendant(image, KeyValuePair.class).get();
 
     Scope scope = image.scope();
 
@@ -72,7 +72,7 @@ class DockerSymbolVisitorTest {
   @Test
   void envInstructionShouldCreateSymbol() {
     DockerImage image = scanImage("ENV foo=bar");
-    KeyValuePair keyValuePair = firstDescendant(image, KeyValuePair.class);
+    KeyValuePair keyValuePair = firstDescendant(image, KeyValuePair.class).get();
 
     Scope scope = image.scope();
 
@@ -90,7 +90,7 @@ class DockerSymbolVisitorTest {
   @Test
   void argInstructionShouldCreateTwoSymbols() {
     DockerImage image = scanImage("ARG foo1=bar foo2=bar");
-    List<KeyValuePair> keyValuePairs = firstDescendant(image, ArgInstruction.class).keyValuePairs();
+    List<KeyValuePair> keyValuePairs = firstDescendant(image, ArgInstruction.class).get().keyValuePairs();
 
     assertThat(image.scope().getSymbols()).hasSize(2);
 
@@ -173,16 +173,16 @@ class DockerSymbolVisitorTest {
   @Test
   void globalVariableShouldBeAccessibleInFromInstruction() {
     Body body = scanBody("ARG image=scratch\nFROM $image");
-    Argument arg = firstDescendant(body.dockerImages().get(0).from(), Argument.class);
+    Argument arg = firstDescendant(body.dockerImages().get(0).from(), Argument.class).get();
     assertThat(ArgumentResolution.of(arg).value()).isEqualTo("scratch");
   }
 
   @Test
   void globalVariableShouldBeAccessibleInFromInstructionMultiple() {
     Body body = scanBody("ARG image=scratch\nFROM first\nFROM $image");
-    Argument arg1 = firstDescendant(body.dockerImages().get(0).from(), Argument.class);
+    Argument arg1 = firstDescendant(body.dockerImages().get(0).from(), Argument.class).get();
     assertThat(ArgumentResolution.of(arg1).value()).isEqualTo("first");
-    Argument arg2 = firstDescendant(body.dockerImages().get(1).from(), Argument.class);
+    Argument arg2 = firstDescendant(body.dockerImages().get(1).from(), Argument.class).get();
     assertThat(ArgumentResolution.of(arg2).value()).isEqualTo("scratch");
   }
 
@@ -194,7 +194,7 @@ class DockerSymbolVisitorTest {
   void updateSymbolOnReadUsage(String varName) {
     DockerImage image = scanImage("ARG foo=bar\nLABEL my_label=" + varName);
     Symbol symbol = image.scope().getSymbol("foo");
-    Variable variable = firstDescendant(image, Variable.class);
+    Variable variable = firstDescendant(image, Variable.class).get();
 
     assertThat(symbol.usages()).extracting(Usage::kind).containsExactly(Usage.Kind.ASSIGNMENT, Usage.Kind.ACCESS);
     assertThat(symbol.usages().get(1).tree()).isEqualTo(variable);
@@ -204,7 +204,7 @@ class DockerSymbolVisitorTest {
   @Test
   void shouldNotCreateSymbolWithoutAssignment() {
     DockerImage image = scanImage("LABEL my_label=$foo");
-    Variable variable = firstDescendant(image, Variable.class);
+    Variable variable = firstDescendant(image, Variable.class).get();
 
     assertThat(image.scope().getSymbols()).isEmpty();
     assertThat(variable.symbol()).isNull();
@@ -237,13 +237,12 @@ class DockerSymbolVisitorTest {
   })
   void multiSymbolSetShouldNotBeAllowed(String varName) {
     DockerImage image = scanImage("ARG foo=bar\nLABEL my_label=" + varName);
-    Variable variable = firstDescendant(image, Variable.class);
+    Variable variable = firstDescendant(image, Variable.class).get();
 
     Symbol newSymbol = new Symbol("foobar");
     Throwable t = Assert.assertThrows(IllegalArgumentException.class, () -> variable.setSymbol(newSymbol));
     assertThat(t.getMessage()).isEqualTo("A symbol is already set");
   }
-
 
   @Test
   void multiScopeShouldNotBeAllowed() throws RuntimeException {
