@@ -49,8 +49,12 @@ public class TextPointer implements Comparable<TextPointer> {
 
   @Override
   public boolean equals(Object other) {
-    if (this == other) return true;
-    if (other == null || getClass() != other.getClass()) return false;
+    if (this == other) {
+      return true;
+    }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
     TextPointer otherPointer = (TextPointer) other;
     return line == otherPointer.line && lineOffset == otherPointer.lineOffset;
   }

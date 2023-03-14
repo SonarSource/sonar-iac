@@ -61,7 +61,7 @@ public class InputFileContext extends TreeContext {
       issue.forRule(ruleKey).at(issueLocation);
 
       secondaryLocations.stream()
-        .filter(l -> l != null && TextRanges.isValidAndNotEmpty(l.textRange))
+        .filter(location -> location != null && TextRanges.isValidAndNotEmpty(location.textRange))
         .forEach(secondary -> issue.addLocation(
           issue.newLocation()
             .on(inputFile)

@@ -41,8 +41,12 @@ public class TextRange {
 
   @Override
   public boolean equals(Object other) {
-    if (this == other) return true;
-    if (other == null || getClass() != other.getClass()) return false;
+    if (this == other) {
+      return true;
+    }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
     TextRange otherRange = (TextRange) other;
     return Objects.equals(start, otherRange.start) && Objects.equals(end, otherRange.end);
   }

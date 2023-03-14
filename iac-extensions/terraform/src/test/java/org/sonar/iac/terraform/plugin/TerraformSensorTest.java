@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -65,8 +66,10 @@ class TerraformSensorTest extends ExtensionSensorTest {
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Rename tag key \"anycompany:cost-center\" to match the regular expression \"^([A-Z][A-Za-z]*:)*([A-Z][A-Za-z]*)$\".");
-    TextRangeAssert.assertTextRange(TextRanges.range(location.textRange().start().line(), location.textRange().start().lineOffset(), location.textRange().end().line(),
-      location.textRange().end().lineOffset())).hasRange(2, 11, 2, 35);
+    org.sonar.api.batch.fs.TextRange issueTextRange = location.textRange();
+    TextRange treeTextRange = TextRanges.range(issueTextRange.start().line(), issueTextRange.start().lineOffset(),
+      issueTextRange.end().line(), issueTextRange.end().lineOffset());
+    TextRangeAssert.assertTextRange(treeTextRange).hasRange(2, 11, 2, 35);
   }
 
   @Test
