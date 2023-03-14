@@ -32,6 +32,7 @@
       <version>${version.snakeyaml}</version>
     </dependency>
 
+    <!-- unit tests -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-iac-common</artifactId>

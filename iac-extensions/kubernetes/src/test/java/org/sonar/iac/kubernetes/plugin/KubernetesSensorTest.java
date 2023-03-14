@@ -49,6 +49,18 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void yaml_file_with_hel_chart_template_should_not_be_parsed() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + "foo: {{ .bar }}"));
+    asserNotSourceFileIsParsed();
+  }
+
+  @Test
+  void yaml_file_with_incomplete_hel_chart_template_should_be_parsed() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + "foo: 23{{"));
+    assertOneSourceFileIsParsed();
+  }
+
+  @Test
   void yaml_file_without_identifiers_should_not_be_parsed() {
     analyse(sensor(), inputFile( ""));
     asserNotSourceFileIsParsed();

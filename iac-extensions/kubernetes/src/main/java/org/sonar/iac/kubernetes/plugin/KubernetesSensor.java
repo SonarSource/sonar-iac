@@ -78,21 +78,31 @@ public class KubernetesSensor extends YamlSensor {
         byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
         String text = new String(bytes, inputFile.charset());
         String[] lines = LINE_TERMINATOR.split(text);
+        boolean hasExpectedIdentifier = false;
         for (String line : lines) {
+          if (containsHelmChartTemplateDirective(line)) {
+            LOG.debug("Line contains help chart directive, file will not be analyzed.\n{}", line);
+            return false;
+          }
           if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
             identifierCount++;
           } else if (FILE_SEPERATOR.equals(line)) {
             identifierCount = 0;
           }
           if (identifierCount == 4) {
-            return true;
+            hasExpectedIdentifier = true;
           }
         }
+        return hasExpectedIdentifier;
       } catch (IOException e) {
         LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
         LOG.error(e.getMessage());
       }
       return false;
+    }
+
+    private static boolean containsHelmChartTemplateDirective(String line) {
+      return line.contains("{{") && line.contains("}}");
     }
   }
 }
