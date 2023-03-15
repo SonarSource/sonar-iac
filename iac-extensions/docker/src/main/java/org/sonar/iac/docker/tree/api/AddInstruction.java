@@ -20,11 +20,11 @@
 package org.sonar.iac.docker.tree.api;
 
 /**
- * AddInstruction
- * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#add">ADD</> instruction.
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#add">ADD</> instruction.
  * It is a strict implementation of the {@link TransferInstruction} interface.
  * <pre>
- *   {@link #keyword()} {@link #options()} {@link #srcs()} {@link #dest()}
+ *   ADD {@link #srcs()} {@link #dest()}
+ *   ADD {@link #options()} {@link #srcs()} {@link #dest()}
  * </pre>
  */
 public interface AddInstruction extends TransferInstruction {

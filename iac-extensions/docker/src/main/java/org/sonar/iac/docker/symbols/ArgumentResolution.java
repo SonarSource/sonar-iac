@@ -57,10 +57,10 @@ public class ArgumentResolution {
   }
 
   /**
-   * This is the main method of the class, the point of entry to resolve {@link Argument} in order to exploit the result in checks.
+   * Main method of the class, the point of entry to resolve {@link Argument} in order to exploit the result in checks.
    * In docker, most instruction can expect one or even multiple arguments, which can be a mix of strings, quotes string with spaces,
-   * variable reference with or without modifier, ect...
-   * This method will provide an ArgumentResolution object with the result of the tentative of resolution : the status and the String value.
+   * variable reference with or without modifier, ect.
+   * This method will provide an ArgumentResolution object with the result of the tentative of resolution: the status and the String value.
    */
   public static ArgumentResolution of(@Nullable Argument argument) {
     return ArgumentResolver.resolve(argument);

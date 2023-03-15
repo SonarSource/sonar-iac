@@ -20,7 +20,7 @@
 package org.sonar.iac.docker.tree.api;
 
 /**
- * This interface define the contract of ExecForm.
+ * Interface to define the contract of ExecForm.
  * It is a way to structure and provide {@link Argument} to compatible instruction.
  * It extends from {@code ArgumentList}, it is a common interface from which extends any form that provide a list of argument, they are interchangeable.
  * This form use brackets, each argument much be separated by comma and be surrounded by double-quotes.

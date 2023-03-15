@@ -22,7 +22,7 @@ package org.sonar.iac.docker.tree.api;
 import org.sonar.iac.docker.symbols.Scope;
 
 /**
- * This interface define any element that has a {@link Scope}, with methods to modify/access it.
+ * Interface to define any element that has a {@link Scope}, with methods to modify/access it.
  */
 public interface HasScope {
   Scope scope();

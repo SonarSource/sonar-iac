@@ -20,7 +20,7 @@
 package org.sonar.iac.docker.tree.api;
 
 /**
- * This is the common interface for the specifics form used by some instruction.
+ * Common interface for the specifics form used by some instruction.
  * It is currently implemented by {@link HereDocument}, {@link ExecForm} and {@link ShellForm}.
  * They all have in common that they provide a List of Argument, they just follow different format.
  * Examples :

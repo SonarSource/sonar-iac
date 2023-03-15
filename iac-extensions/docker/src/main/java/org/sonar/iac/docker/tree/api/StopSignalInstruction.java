@@ -20,10 +20,9 @@
 package org.sonar.iac.docker.tree.api;
 
 /**
- * StopSignalInstruction
- * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#stopsignal">STOPSIGNAL</> instruction.
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#stopsignal">STOPSIGNAL</> instruction.
  * <pre>
- *   {@link #keyword()} {@link #signal()}
+ *   STOPSIGNAL {@link #signal()}
  * </pre>
  */
 public interface StopSignalInstruction extends Instruction {

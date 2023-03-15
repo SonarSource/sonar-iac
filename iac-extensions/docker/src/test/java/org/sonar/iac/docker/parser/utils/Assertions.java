@@ -36,8 +36,7 @@ import org.sonar.sslr.tests.RuleAssert;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
 /**
- * Assertions
- * This class contain basic assertions methods that can be used in tests.
+ * Class which contain basic assertions methods that can be used in tests.
  * Custom assert classes should be created individually and put in the package {@link org.sonar.iac.docker.tree.api}.
  */
 public class Assertions {

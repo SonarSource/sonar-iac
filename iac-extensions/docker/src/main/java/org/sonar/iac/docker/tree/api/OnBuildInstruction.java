@@ -20,10 +20,9 @@
 package org.sonar.iac.docker.tree.api;
 
 /**
- * OnBuildInstruction
- * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#onbuild">ONBUILD</> instruction.
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#onbuild">ONBUILD</> instruction.
  * <pre>
- *   {@link #keyword()} {@link #instruction()}
+ *   ONBUILD {@link #instruction()}
  * </pre>
  */
 public interface OnBuildInstruction extends Instruction {

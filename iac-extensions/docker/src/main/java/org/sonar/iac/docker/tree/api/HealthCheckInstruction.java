@@ -22,14 +22,13 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 /**
- * HealthCheckInstruction
- * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#healthcheck">HEALTCHECK</> instruction.
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#healthcheck">HEALTCHECK</> instruction.
  * It can either be provided with NONE keyword or a {@link CmdInstruction}.
  * It can also have multiple {@link Flag}.
  * <pre>
- *   {@link #keyword()} {@link #none()}
- *   {@link #keyword()} {@link #cmdInstruction()}
- *   {@link #keyword()} {@link #options()} {@link #cmdInstruction()}
+ *   HEALTCHECK {@link #none()}
+ *   HEALTCHECK {@link #cmdInstruction()}
+ *   HEALTCHECK {@link #options()} {@link #cmdInstruction()}
  * </pre>
  */
 public interface HealthCheckInstruction extends Instruction {

@@ -35,7 +35,6 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * TestUtils
  * Define static methods that can be used to help writing tests.
  */
 public class TestUtils {

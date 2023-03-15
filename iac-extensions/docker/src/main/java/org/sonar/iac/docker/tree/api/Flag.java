@@ -22,8 +22,7 @@ package org.sonar.iac.docker.tree.api;
 import javax.annotation.CheckForNull;
 
 /**
- * Flag
- * This interface define the contract of Flag elements, used by several instruction.
+ * Interface to define the contract of Flag elements, used by several instruction.
  * It is generally optional and allow to enable flag or associate them with a value.
  * <pre>
  *   --{@link #name()}

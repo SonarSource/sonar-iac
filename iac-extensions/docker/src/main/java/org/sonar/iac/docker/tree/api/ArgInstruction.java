@@ -22,10 +22,9 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 /**
- * ArgInstruction
- * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#arg">ARG</> instruction.
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#arg">ARG</> instruction.
  * <pre>
- *   {@link #keyword()} {@link #keyValuePairs()}
+ *   ARG {@link #keyValuePairs()}
  * </pre>
  */
 public interface ArgInstruction extends Instruction {

@@ -20,10 +20,9 @@
 package org.sonar.iac.docker.tree.api;
 
 /**
- * WorkdirInstruction
- * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#workdir">WORKDIR</> instruction.
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#workdir">WORKDIR</> instruction.
  * <pre>
- *   {@link #keyword()} {@link #arguments()}
+ *   WORKDIR {@link #arguments()}
  * </pre>
  */
 public interface WorkdirInstruction extends Instruction, HasArguments {

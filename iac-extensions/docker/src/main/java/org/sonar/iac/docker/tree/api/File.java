@@ -20,7 +20,7 @@
 package org.sonar.iac.docker.tree.api;
 
 /**
- * The interface which represent the contract of a Dockerfile.
+ * Interface which represent the contract of a Dockerfile.
  * It is composed of a {@link Body} element, which itself contain every element and instruction related to the dockerfile.
  * <pre>
  *   {@link #body()}

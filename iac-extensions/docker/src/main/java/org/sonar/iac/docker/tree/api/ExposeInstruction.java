@@ -20,10 +20,9 @@
 package org.sonar.iac.docker.tree.api;
 
 /**
- * ExposeInstruction
- * This interface define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#expose">EXPOSE</> instruction.
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#expose">EXPOSE</> instruction.
  * <pre>
- *   {@link #keyword()} {@link #arguments()}
+ *   EXPOSE {@link #arguments()}
  * </pre>
  */
 public interface ExposeInstruction extends Instruction, HasArguments {

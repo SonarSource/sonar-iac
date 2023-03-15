@@ -24,8 +24,7 @@ import java.util.Optional;
 import org.sonar.iac.docker.tree.api.Flag;
 
 /**
- * CheckUtils
- * This class define global methods than can be used to help writing checks.
+ * Class to define global methods than can be used to help writing checks.
  * Any generalized method that can be used in multiple checks should be put there.
  */
 public class CheckUtils {

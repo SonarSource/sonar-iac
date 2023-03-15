@@ -23,7 +23,7 @@ import java.util.List;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
 /**
- * This is the main element used to represent most parameters provided to Docker instruction.
+ * Main element used to represent most parameters provided to Docker instruction.
  * An Argument consist of a list of {@link Expression}, which can be a mix of {@link Literal}, {@link Variable}, {@link ExpandableStringCharacters}
  * and {@link ExpandableStringLiteral}.
  * To resolve an Argument, please refer to the class {@link ArgumentResolution}.
@@ -31,6 +31,7 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
  * {@code value}
  * {@code "value with spaces"}
  * {@code $var}
+ * {@code ${var}}
  * {@code value$var"with quoted string"}
  */
 public interface Argument extends DockerTree {

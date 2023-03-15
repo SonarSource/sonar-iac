@@ -42,7 +42,7 @@ import org.sonar.iac.docker.tree.api.Variable;
 import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
 
 /**
- * The purpose of this class is to visit a DockerTree and build symbols and their usages for variables.
+ * Class used to visit a DockerTree and build symbols and their usages for variables.
  * Those Symbol/Usage can later be used in checks to resolve Argument or to report issue variable flow.
  */
 public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {

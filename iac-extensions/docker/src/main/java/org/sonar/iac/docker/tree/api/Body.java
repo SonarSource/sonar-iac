@@ -22,12 +22,12 @@ package org.sonar.iac.docker.tree.api;
 import java.util.List;
 
 /**
- * This represents the content of a Dockerfile.
+ * Represents the content of a Dockerfile.
  * A dockerfile currently contain a list of {@link ArgInstruction} followed by a list of {@link DockerImage}.
  * The ArgInstruction are considered to be global.
  * <pre>
- *   {@link #globalArgs()}
  *   {@link #dockerImages()}
+ *   {@link #globalArgs()} {@link #dockerImages()}
  * <pre/>
  */
 public interface Body extends DockerTree, HasScope {
