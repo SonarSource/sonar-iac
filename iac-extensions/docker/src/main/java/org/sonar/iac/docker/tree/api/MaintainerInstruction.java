@@ -21,6 +21,12 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
+/**
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#maintainer-deprecated">MAINTAINER</> instruction.
+ * <pre>
+ *   MAINTAINER {@link #authors()}
+ * </pre>
+ */
 public interface MaintainerInstruction extends Instruction {
   List<SyntaxToken> authors();
 }

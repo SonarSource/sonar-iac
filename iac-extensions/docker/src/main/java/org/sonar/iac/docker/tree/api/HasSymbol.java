@@ -22,6 +22,9 @@ package org.sonar.iac.docker.tree.api;
 import javax.annotation.Nullable;
 import org.sonar.iac.docker.symbols.Symbol;
 
+/**
+ * Interface to define an element which has a {@link Symbol}, with methods to modify/access it.
+ */
 public interface HasSymbol {
   @Nullable
   Symbol symbol();

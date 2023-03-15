@@ -22,8 +22,7 @@ package org.sonar.iac.docker.tree.api;
 import javax.annotation.Nullable;
 
 /**
- * KeyValuePair
- *
+ * Interface to define the contract of KeyValuePair elements, used by several instructions such as {@link ArgInstruction}
  * <pre>
  *   {@link #key()}
  *   {@link #key()}={@link #value()}

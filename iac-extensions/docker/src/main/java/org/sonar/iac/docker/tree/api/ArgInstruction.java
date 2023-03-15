@@ -21,6 +21,12 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
+/**
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#arg">ARG</> instruction.
+ * <pre>
+ *   ARG {@link #keyValuePairs()}
+ * </pre>
+ */
 public interface ArgInstruction extends Instruction {
   List<KeyValuePair> keyValuePairs();
 }

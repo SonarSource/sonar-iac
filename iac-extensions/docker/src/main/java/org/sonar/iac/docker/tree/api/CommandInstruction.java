@@ -19,5 +19,11 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * Interface to define the contract for command instruction, such as {@link RunInstruction}, {@link CmdInstruction} or {@link EntrypointInstruction}.
+ * <pre>
+ *   {@link #keyword()} {@link #arguments()}
+ * </pre>
+ */
 public interface CommandInstruction extends Instruction, HasArguments {
 }

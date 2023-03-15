@@ -19,5 +19,11 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#user">USER</> instruction.
+ * <pre>
+ *   USER {@link #arguments()}
+ * </pre>
+ */
 public interface UserInstruction extends Instruction, HasArguments {
 }

@@ -35,6 +35,9 @@ import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.Variable;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
 
+/**
+ * Class dedicated to resolving {@link Argument}, which is a complex object used to represent most parameters of instruction.
+ */
 public class ArgumentResolution {
 
   public enum Status {
@@ -53,6 +56,12 @@ public class ArgumentResolution {
     this.status = status;
   }
 
+  /**
+   * Main method of the class, the point of entry to resolve {@link Argument} in order to exploit the result in checks.
+   * In docker, most instruction can expect one or even multiple arguments, which can be a mix of strings, quotes string with spaces,
+   * variable reference with or without modifier, ect.
+   * This method will provide an ArgumentResolution object with the result of the tentative of resolution: the status and the String value.
+   */
   public static ArgumentResolution of(@Nullable Argument argument) {
     return ArgumentResolver.resolve(argument);
   }

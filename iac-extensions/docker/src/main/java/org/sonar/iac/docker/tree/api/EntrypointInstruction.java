@@ -19,5 +19,12 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#entrypoint">ENTRYPOINT</> instruction.
+ * It is a strict implementation of the {@link CommandInstruction} interface.
+ * <pre>
+ *   ENTRYPOINT {@link #arguments()}
+ * </pre>
+ */
 public interface EntrypointInstruction extends CommandInstruction {
 }

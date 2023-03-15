@@ -21,6 +21,12 @@ package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
 
+/**
+ * Interface to define the contract for transfer instruction, such as {@link AddInstruction} or {@link CopyInstruction}.
+ * <pre>
+ *   {@link #keyword()} {@link #options()} {@link #srcs()} {@link #dest()}
+ * </pre>
+ */
 public interface TransferInstruction extends Instruction {
   List<Flag> options();
   List<Argument> srcs();

@@ -21,6 +21,15 @@ package org.sonar.iac.docker.tree.api;
 
 import javax.annotation.CheckForNull;
 
+/**
+ * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#from">FROM</> instruction.
+ * <pre>
+ *   FROM {@link #image()}
+ *   FROM {@link #platform()} {@link #image()}
+ *   FROM {@link #image()} {@link #alias()}
+ *   FROM {@link #platform()} {@link #image()} {@link #alias()}
+ * </pre>
+ */
 public interface FromInstruction extends Instruction {
 
   @CheckForNull

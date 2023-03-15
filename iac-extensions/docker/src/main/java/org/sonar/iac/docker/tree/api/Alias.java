@@ -19,6 +19,13 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+/**
+ * Interface which represent the alias than can be defined for an image in a DockerImage.
+ * It is represented by the keyword "as" and the alias string.
+ * <pre>
+   * AS {@link #alias()}
+ * </pre>
+ */
 public interface Alias extends DockerTree {
   SyntaxToken keyword();
   SyntaxToken alias();
