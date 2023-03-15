@@ -20,6 +20,7 @@
 package org.sonar.iac.cloudformation.plugin;
 
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarProduct;
 
 public class CloudformationExtension {
 
@@ -37,9 +38,14 @@ public class CloudformationExtension {
       CloudformationSensor.class,
       // Rules and profiles
       CloudformationRulesDefinition.class,
-      CloudformationProfileDefinition.class,
-      CfnLintRulesDefinition.class
+      CloudformationProfileDefinition.class
     );
+
+    if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
+      // We do not import external reports in SonarLint so no need to define the CfnLint rules.
+      context.addExtension(CfnLintRulesDefinition.class);
+    }
+
     context.addExtensions(CloudformationSettings.getProperties());
   }
 }
