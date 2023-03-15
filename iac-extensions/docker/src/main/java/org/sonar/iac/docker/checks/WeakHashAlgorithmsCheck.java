@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -54,7 +53,7 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
     Command.parse(runInstruction.arguments()).stream()
       .filter(WeakHashAlgorithmsCheck::isOpenSslCallSensitive)
-      .forEach(cmd -> ctx.reportIssue(cmd.textRange, MESSAGE));
+      .forEach(cmd -> ctx.reportIssue(cmd, MESSAGE));
   }
 
   private static boolean isOpenSslCallSensitive(Command command) {
@@ -72,22 +71,22 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   }
 
   /**
-   * This class represent a bash/shell/powershell instruction.
+   * Class to represent a bash/shell/powershell instruction.
    * <pre>
    *   {@link #executable}? ({@link #options} | {@link #parameters})*
    * </pre>
    */
-  private static class Command {
+  private static class Command implements HasTextRange {
 
-    private static final Set<String> SEPARATOR = Set.of("&&", "|");
+    private static final Set<String> SEPARATOR = Set.of("&&", "|", ";");
 
     private final String executable;
-    private final Map<String, String> options;
-    private final List<String> parameters;
+    private final Map<String, String> options = new HashMap<>();
+    private final List<String> parameters = new ArrayList<>();
     private final TextRange textRange;
 
     /**
-     * This is the point of entry of the class, allowing to transform a list of {@link Argument} into a list of {@link #Command}, separating them using {@link #SEPARATOR}.
+     * Point of entry of the class, transform a list of {@link Argument} into a list of {@link #Command}, separating them using {@link #SEPARATOR}.
      */
     public static List<Command> parse(List<Argument> arguments) {
       return splitArgumentsPerGroup(arguments).stream()
@@ -97,24 +96,30 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
 
     /**
      * Divide the provided list of string per separator into sublist.
-     * The sublist are wrapped up in GroupStringWithTextRange to keep the original text range with them.
+     * The sublists are wrapped up in CommandArguments to keep the original arguments with them.
      * <pre>
      *   ["exe1", "param1", "&&", "exe2", "param2"]
      *   -> [["exe1", "param1"], ["exe2", "param2"]]
      * </pre>
      */
-    private static List<GroupStringWithTextRange> splitArgumentsPerGroup(List<Argument> arguments) {
+    private static List<CommandArguments> splitArgumentsPerGroup(List<Argument> arguments) {
       List<String> resolvedArguments = resolveArguments(arguments);
-      int[] indexesSeparator = Stream.of(IntStream.of(-1),
-          IntStream.range(0, resolvedArguments.size()).filter(i -> SEPARATOR.contains(resolvedArguments.get(i)))
-        ).flatMapToInt(s-> s).toArray();
-      return IntStream.range(0, indexesSeparator.length)
-        .mapToObj(i -> {
-          int indexFrom = indexesSeparator[i]+1;
-          int indexTo = i + 1 < indexesSeparator.length ? indexesSeparator[i + 1] : arguments.size();
-          return new GroupStringWithTextRange(arguments.subList(indexFrom, indexTo), resolvedArguments.subList(indexFrom, indexTo));
-        })
+      List<Integer> indexesSeparator = new ArrayList<>();
+      indexesSeparator.add(-1);
+      for (int i = 0; i < resolvedArguments.size(); i++) {
+        if (SEPARATOR.contains(resolvedArguments.get(i))) {
+          indexesSeparator.add(i);
+        }
+      }
+      return IntStream.range(0, indexesSeparator.size())
+        .mapToObj(i -> createCommandArguments(arguments, resolvedArguments, indexesSeparator, i))
         .collect(Collectors.toList());
+    }
+
+    private static CommandArguments createCommandArguments(List<Argument> arguments, List<String> resolvedArguments, List<Integer> indexesSeparator, int index) {
+      int indexFrom = indexesSeparator.get(index) + 1;
+      int indexTo = index + 1 < indexesSeparator.size() ? indexesSeparator.get(index + 1) : arguments.size();
+      return new CommandArguments(arguments.subList(indexFrom, indexTo), resolvedArguments.subList(indexFrom, indexTo));
     }
 
     private static List<String> resolveArguments(List<Argument> arguments) {
@@ -123,13 +128,11 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
         .collect(Collectors.toList());
     }
 
-    public Command(GroupStringWithTextRange elements) {
-      this.executable = elements.strings.isEmpty() ? null : elements.strings.get(0);
-      this.options = new HashMap<>();
-      this.parameters = new ArrayList<>();
-      this.textRange = elements.textRange;
+    public Command(CommandArguments elements) {
+      this.executable = elements.resolvedArguments.isEmpty() ? null : elements.resolvedArguments.get(0);
+      this.textRange = TextRanges.mergeRanges(elements.arguments);
 
-      elements.strings.stream()
+      elements.resolvedArguments.stream()
         .skip(1)
         .forEach(this::processElement);
     }
@@ -152,13 +155,18 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
       }
     }
 
-    private static class GroupStringWithTextRange {
-      private final List<String> strings;
-      private final TextRange textRange;
+    @Override
+    public TextRange textRange() {
+      return this.textRange;
+    }
 
-      public GroupStringWithTextRange(List<Argument> arguments, List<String> resolvedArguments) {
-        this.textRange = arguments.isEmpty() ? null : TextRanges.merge(arguments.stream().map(HasTextRange::textRange).collect(Collectors.toList()));
-        this.strings = resolvedArguments;
+    private static class CommandArguments {
+      private final List<String> resolvedArguments;
+      private final List<Argument> arguments;
+
+      public CommandArguments(List<Argument> arguments, List<String> resolvedArguments) {
+        this.arguments = arguments;
+        this.resolvedArguments = resolvedArguments;
       }
     }
   }

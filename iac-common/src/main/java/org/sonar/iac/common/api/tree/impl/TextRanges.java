@@ -22,6 +22,7 @@ package org.sonar.iac.common.api.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
@@ -57,6 +58,10 @@ public class TextRanges {
       textRanges.add(element.textRange());
     }
     return TextRanges.merge(textRanges);
+  }
+
+  public static TextRange mergeRanges(List<? extends HasTextRange> hasRanges) {
+    return hasRanges.isEmpty() ? null : merge(hasRanges.stream().map(HasTextRange::textRange).collect(Collectors.toList()));
   }
 
   public static boolean isValidAndNotEmpty(TextRange range) {

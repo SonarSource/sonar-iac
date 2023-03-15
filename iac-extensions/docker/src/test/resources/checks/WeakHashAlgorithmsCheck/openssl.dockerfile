@@ -41,17 +41,19 @@ RUN openssl dgst -md2=thing test.txt
 
 ## Multiple instruction in a single RUN instruction
 # Noncompliant@+1
-RUN openssl md5 test.txt && other command
+  RUN openssl md5 test.txt && other command
+#     ^^^^^^^^^^^^^^^^^^^^
 # Noncompliant@+1
-RUN other command && openssl md5 test.txt
-# Noncompliant@+1
-RUN openssl md5 test.txt | other command
-# Noncompliant@+1
-RUN other command | openssl md5 test.txt
+  RUN other command && openssl md5 test.txt
+#                      ^^^^^^^^^^^^^^^^^^^^
 # Noncompliant@+1
 RUN openssl md5 test.txt &&
 # Noncompliant@+1
 RUN && openssl md5 test.txt
+# Noncompliant@+1
+RUN openssl md5 test.txt | other command
+# Noncompliant@+1
+RUN openssl md5 test.txt ; other command
 
 ## Use case compliant
 RUN openssl
@@ -59,10 +61,12 @@ RUN openssl test.txt -md2 dgst
 RUN openssl something dgst -md2 test.txt
 RUN something openssl dgst -md2 test.txt
 RUN openssl digest -md2 test.txt
+RUN openssl && digest && -md2 && test.txt
 RUN openssl dgst md2 test.txt
 # FN : we don't support shell/bash/powershell languages, we only try to parse/extract commands
 RUN if ! [ "`openssl md5 test.txt | cut -d' ' -f2`" = "effc956eca1ae6e85e06670ca8e16e72" ]; then exit 1; fi
 RUN openssl sha256 test.txt
 RUN openssl test.txt
+RUN other command; openssl md5 test.txt
 
 
