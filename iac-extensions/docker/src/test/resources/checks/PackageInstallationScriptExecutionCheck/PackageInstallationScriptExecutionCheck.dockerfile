@@ -13,10 +13,10 @@ RUN yarn install
 # Noncompliant@+1
 RUN yarn
 
-# FN
-#RUN yarn && foo
+# FN current bash parser doesn't have needed capabilities
+RUN yarn && foo
 
-# FN SONARIAC-1234
+# FN current bash parser doesn't have needed capabilities
 RUN npm install;
 
 # Noncompliant@+1
@@ -27,6 +27,9 @@ RUN foobar && npm install
 
 # Noncompliant@+1
 RUN npm install --save --global
+
+# Noncompliant@+1
+RUN npm install $UNRESOLVED && npm install
 
 RUN npm install --ignore-scripts
 
@@ -52,4 +55,5 @@ RUN yarn init
 
 RUN foobar
 
+RUN npm install $UNRESOLVED
 
