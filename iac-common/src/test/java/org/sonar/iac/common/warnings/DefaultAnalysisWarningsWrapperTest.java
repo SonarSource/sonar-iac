@@ -22,6 +22,7 @@ package org.sonar.iac.common.warnings;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.notifications.AnalysisWarnings;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -34,5 +35,11 @@ class DefaultAnalysisWarningsWrapperTest {
     analysisWarningsWrapper.addWarning("Test");
 
     verify(analysisWarnings).addUnique("Test");
+  }
+
+  @Test
+  void addWarningOnNoopWrapper() {
+    AnalysisWarningsWrapper analysisWarningsWrapper = DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
+    assertDoesNotThrow(() -> analysisWarningsWrapper.addWarning("Test"));
   }
 }
