@@ -26,10 +26,10 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.terraform.plugin.TerraformProviders.Provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 class TerraformProvidersTest {
 
-  private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
+  private final AnalysisWarningsWrapper analysisWarnings = mock(AnalysisWarningsWrapper.class);
 
   private static final String AWS_KEY = "sonar.terraform.provider.aws.version";
   @TempDir
@@ -66,7 +66,7 @@ class TerraformProvidersTest {
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly("Can not parse provider version \"sonar.terraform.provider.aws.version\". Input: \"v1.3.4\"");
     verify(analysisWarnings, times(1))
-      .addUnique("Can not parse provider version for \"sonar.terraform.provider.aws.version\". " +
+      .addWarning("Can not parse provider version for \"sonar.terraform.provider.aws.version\". " +
         "Please check the format of your used AWS version in the project settings.");
   }
 
@@ -76,7 +76,7 @@ class TerraformProvidersTest {
     Provider provider =  providers.provider(Provider.Identifier.AWS);
     assertThat(provider.providerVersion).isNull();
     verify(analysisWarnings, times(1))
-      .addUnique("Provide the used AWS provider version via the \"sonar.terraform.provider.aws.version\" " +
+      .addWarning("Provide the used AWS provider version via the \"sonar.terraform.provider.aws.version\" " +
         "property to increase the accuracy of your results.");
   }
 
@@ -85,7 +85,7 @@ class TerraformProvidersTest {
     TerraformProviders providers = providers(SensorContextTester.create(baseDir));
     providers.provider(Provider.Identifier.AWS);
     verify(analysisWarnings, times(1))
-      .addUnique("Provide the used AWS provider version via the \"sonar.terraform.provider.aws.version\" " +
+      .addWarning("Provide the used AWS provider version via the \"sonar.terraform.provider.aws.version\" " +
         "property to increase the accuracy of your results.");
   }
 
@@ -95,7 +95,7 @@ class TerraformProvidersTest {
     providers.provider(Provider.Identifier.AWS);
     providers.provider(Provider.Identifier.AWS);
     verify(analysisWarnings, times(1))
-      .addUnique("Provide the used AWS provider version via the \"sonar.terraform.provider.aws.version\" " +
+      .addWarning("Provide the used AWS provider version via the \"sonar.terraform.provider.aws.version\" " +
         "property to increase the accuracy of your results.");
   }
 

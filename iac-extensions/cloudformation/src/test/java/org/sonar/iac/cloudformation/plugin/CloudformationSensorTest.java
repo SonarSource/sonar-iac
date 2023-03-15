@@ -27,13 +27,11 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
 
 class CloudformationSensorTest extends ExtensionSensorTest {
 
@@ -109,7 +107,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    return new CloudformationSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new CloudformationLanguage(), spy(AnalysisWarnings.class));
+    return new CloudformationSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new CloudformationLanguage());
   }
 
   @Override

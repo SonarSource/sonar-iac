@@ -32,11 +32,11 @@ import org.mockito.Mockito;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
+import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.doAnswer;
@@ -52,7 +52,7 @@ class CfnLintImporterTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private SensorContextTester context;
 
-  private final AnalysisWarnings mockAnalysisWarnings = mock(AnalysisWarnings.class);
+  private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
 
   @BeforeEach
   void setUp() throws IOException {
@@ -76,7 +76,7 @@ class CfnLintImporterTest {
     importReport(reportFile);
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addUnique(logMessage);
+    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
   @Test
@@ -91,7 +91,7 @@ class CfnLintImporterTest {
     importReport(reportFile);
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addUnique(logMessage);
+    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
   @Test
@@ -110,7 +110,7 @@ class CfnLintImporterTest {
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addUnique(logMessage);
+    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
   @Test
@@ -134,7 +134,7 @@ class CfnLintImporterTest {
     String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 2 issues from %s", reportFile.getPath());
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(logMessage);
-    verify(mockAnalysisWarnings, times(1)).addUnique(logMessage);
+    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
   @Test

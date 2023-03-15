@@ -29,10 +29,10 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.cloudformation.plugin.CfnLintRulesDefinition;
+import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.JSONParser;
@@ -48,7 +48,7 @@ public class CfnLintImporter {
   private CfnLintImporter() {
   }
 
-  public static void importReport(SensorContext context, File reportFile, AnalysisWarnings analysisWarnings) {
+  public static void importReport(SensorContext context, File reportFile, AnalysisWarningsWrapper analysisWarnings) {
     String path = reportFile.getPath();
     if (!reportFile.isFile()) {
       String message = String.format("Cfn-lint report importing: path does not seem to point to a file %s", path);
@@ -139,8 +139,8 @@ public class CfnLintImporter {
     return Math.toIntExact((long) o);
   }
 
-  private static void logWarnAndAddUnique(AnalysisWarnings analysisWarnings, String message) {
+  private static void logWarnAndAddUnique(AnalysisWarningsWrapper analysisWarnings, String message) {
     LOG.warn(message);
-    analysisWarnings.addUnique(message);
+    analysisWarnings.addWarning(message);
   }
 }

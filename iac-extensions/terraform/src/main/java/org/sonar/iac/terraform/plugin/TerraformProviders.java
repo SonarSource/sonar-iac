@@ -24,11 +24,13 @@ import java.util.EnumSet;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
+
+import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
 @ScannerSide
 public class TerraformProviders {
@@ -43,11 +45,15 @@ public class TerraformProviders {
 
   private final EnumMap<Provider.Identifier, Provider> providers = new EnumMap<>(Provider.Identifier.class);
 
-  private final AnalysisWarnings analysisWarnings;
+  private final AnalysisWarningsWrapper analysisWarnings;
 
   private final EnumSet<Provider.Identifier> raisedWarnings = EnumSet.noneOf(Provider.Identifier.class);
 
-  public TerraformProviders(SensorContext sensorContext, AnalysisWarnings analysisWarnings) {
+  public TerraformProviders(SensorContext sensorContext) {
+    this(sensorContext, NOOP_ANALYSIS_WARNINGS);
+  }
+
+  public TerraformProviders(SensorContext sensorContext, AnalysisWarningsWrapper analysisWarnings) {
     this.analysisWarnings = analysisWarnings;
     for (Provider.Identifier identifier : Provider.Identifier.values()) {
       sensorContext.config().get(identifier.key)
@@ -71,7 +77,7 @@ public class TerraformProviders {
 
   private void raiseWarning(Provider.Identifier identifier, String text) {
     if (raisedWarnings.add(identifier)) {
-      analysisWarnings.addUnique(text);
+      analysisWarnings.addWarning(text);
     }
   }
 
