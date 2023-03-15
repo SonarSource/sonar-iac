@@ -46,6 +46,7 @@ Resources:
             #   ^^^^^^^^^^^^^^^^^< {{When combined with others, this permission enables the "Put Role Policy" escalation vector.}}
               - sts:AssumeRole
             #   ^^^^^^^^^^^^^^< {{When combined with others, this permission enables the "Put Role Policy" escalation vector.}}
+              - randomName
             Resource: "*"
             #         ^^^< {{Permissions are granted on all resources.}}
   Compliant1:

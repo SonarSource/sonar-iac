@@ -52,15 +52,15 @@ public enum PrivilegeEscalationVector {
   UPDATE_LAMBDA_CODE("Update Lambda code", List.of("lambda:UpdateFunctionCode"));
 
   private final List<Permission.SimplePermission> permissions;
-  private final String vectorName;
+  private final String name;
 
-  public String getVectorName() {
-    return vectorName;
+  PrivilegeEscalationVector(String name, List<String> permissions) {
+    this.name = name;
+    this.permissions = permissions.stream().map(Permission.SimplePermission::new).collect(Collectors.toList());
   }
 
-  PrivilegeEscalationVector(String vectorName, List<String> permissions) {
-    this.vectorName = vectorName;
-    this.permissions = permissions.stream().map(Permission.SimplePermission::new).collect(Collectors.toList());
+  public String getName() {
+    return name;
   }
 
   public boolean isSubsetOf(Collection<Permission> actionPermissions) {
