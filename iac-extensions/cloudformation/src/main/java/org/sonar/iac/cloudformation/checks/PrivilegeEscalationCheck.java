@@ -55,13 +55,12 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
   private static void checkPrivilegeEscalation(CheckContext ctx, Policy policy, Resource resource) {
     for (Statement statement : policy.statement()) {
       Optional<PrivilegeEscalationVector> vectorOpt = getPrivilegeEscalationVector(statement);
-      if (vectorOpt.isEmpty()) {
-        continue;
+      if (vectorOpt.isPresent()) {
+        PrivilegeEscalationVector vector = vectorOpt.get();
+        String vectorName = vector.getVectorName();
+        List<SecondaryLocation> secondaryLocations = secondaryLocations(statement, vector, vectorName);
+        ctx.reportIssue(resource.type(), String.format(MESSAGE, vectorName), secondaryLocations);
       }
-      PrivilegeEscalationVector vector = vectorOpt.get();
-      String vectorName = vector.getVectorName();
-      List<SecondaryLocation> secondaryLocations = secondaryLocations(statement, vector, vectorName);
-      ctx.reportIssue(resource.type(), String.format(MESSAGE, vectorName), secondaryLocations);
     }
   }
 
@@ -69,14 +68,10 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
     List<SecondaryLocation> secondaryLocations = new ArrayList<>();
 
     statement.action().ifPresent(tree -> ((SequenceTree) tree).elements().stream()
-      .filter(actionElement -> {
-        Optional<String> actionValue = TextUtils.getValue(actionElement);
-        if (actionValue.isEmpty()) {
-          return false;
-        }
-        PrivilegeEscalationVector.Permission permission = PrivilegeEscalationVector.Permission.of(actionValue.get());
-        return vector.permissions().stream().anyMatch(p -> p.isCoveredBy(permission));
-      }).forEach(actionElement -> {
+      .filter(actionElement -> TextUtils.getValue(actionElement).isPresent())
+      .filter(actionElement -> vector.permissions().stream()
+        .anyMatch(p -> p.isCoveredBy(PrivilegeEscalationVector.Permission.of(TextUtils.getValue(actionElement).get()))))
+      .forEach(actionElement -> {
         String message = vector.permissions().size() == 1 ? String.format(SECONDARY_MSG_SINGLE, vectorName)
           : String.format(SECONDARY_MSG_MULTIPLE, vectorName);
         secondaryLocations.add(new SecondaryLocation(actionElement, String.format(message, vectorName)));

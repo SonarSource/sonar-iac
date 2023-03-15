@@ -19,10 +19,14 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sonar.iac.common.checks.PrivilegeEscalationVector.isSupersetOfAnEscalationVector;
 
 class PrivilegeEscalationVectorTest {
@@ -65,5 +69,18 @@ class PrivilegeEscalationVectorTest {
   @Test
   void escalationVectorApply_unexpected_permission_format() {
     assertThat(isSupersetOfAnEscalationVector(Stream.of("foo"))).isFalse();
+  }
+
+  @Test
+  void escalationVector_name_and_permission_getter() {
+    PrivilegeEscalationVector enumUnderTest = PrivilegeEscalationVector.EC2;
+    assertEquals("EC2", enumUnderTest.getVectorName());
+    assertEquals(2, enumUnderTest.permissions().size());
+
+    List<String> collect = enumUnderTest.permissions().stream().map(permission -> permission.permissionName)
+      .collect(Collectors.toList());
+
+    assertTrue(collect.contains("iam:PassRole"));
+    assertTrue(collect.contains("ec2:RunInstances"));
   }
 }
