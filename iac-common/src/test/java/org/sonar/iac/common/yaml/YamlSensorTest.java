@@ -20,6 +20,7 @@
 package org.sonar.iac.common.yaml;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.exceptions.Mark;
@@ -34,6 +35,10 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.resources.Language;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.MetricsVisitor;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +66,12 @@ class YamlSensorTest extends AbstractSensorTest {
   @Test
   void visitors() {
     assertThat(sensor().visitors(context, mock(DurationStatistics.class))).hasSize(3);
+  }
+
+  @Test
+  void should_not_return_highlighting_and_metrics_visitors_in_SonarLint_context() {
+    List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, mock(DurationStatistics.class));
+    assertThat(visitors).doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class);
   }
 
   @Test
