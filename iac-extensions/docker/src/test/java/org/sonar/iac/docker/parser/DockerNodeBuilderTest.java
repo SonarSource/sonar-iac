@@ -92,6 +92,16 @@ class DockerNodeBuilderTest {
     assertThat(nodeBuilder.getCommentsForToken(tokenRange)).containsExactly(firstComment, secondComment);
   }
 
+  @Test
+  void shouldResetComments() {
+    SortedMap<Integer, Comment> firstCommentMap = buildCommentMap(1);
+    setCommentMap(firstCommentMap);
+    SortedMap<Integer, Comment> secondCommentMap = buildCommentMap();
+    setCommentMap(secondCommentMap);
+    TextRange tokenRange = TextRanges.range(2, 1, 2, 3);
+    assertThat(nodeBuilder.getCommentsForToken(tokenRange)).isEmpty();
+  }
+
   private void setCommentMap(SortedMap<Integer, Comment> commentMap) {
     nodeBuilder.setPreprocessorResult(new DockerPreprocessor.PreprocessorResult(null, null, commentMap));
   }
@@ -103,7 +113,4 @@ class DockerNodeBuilderTest {
     }
     return commentMap;
   }
-
-
-
 }
