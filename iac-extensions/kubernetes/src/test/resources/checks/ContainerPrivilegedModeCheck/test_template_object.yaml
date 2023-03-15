@@ -31,3 +31,9 @@ spec:
 
         - name: compliant_unprivileged_by_default_2
             # securityContext is not defined
+      initContainers:
+        - name: init-myservice
+          image: busybox:1.28
+          command: [ 'sh', '-c', "dothings" ]
+          securityContext:
+            privileged: true # NonCompliant

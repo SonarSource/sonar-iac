@@ -29,22 +29,26 @@ public class ContainerPrivilegedModeCheck extends AbstractKubernetesObjectCheck 
 
   private static final String MESSAGE = "Ensure that enabling privileged mode is safe here.";
 
-
   @Override
   void registerObjectCheck() {
+    checkOnPrivilegedModeWithKey("containers");
+    checkOnPrivilegedModeWithKey("initContainers");
+  }
+
+  private void checkOnPrivilegedModeWithKey(String key) {
     register("Pod", pod ->
-      pod.blocks("containers").forEach(container ->
+      pod.blocks(key).forEach(container ->
         container.block("securityContext")
           .attribute("privileged")
-            .reportIfValue(isTrue(), MESSAGE)
+          .reportIfValue(isTrue(), MESSAGE)
       )
     );
 
     register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      obj.block("template").block("spec").blocks("containers").forEach(container ->
+      obj.block("template").block("spec").blocks(key).forEach(container ->
         container.block("securityContext")
           .attribute("privileged")
-            .reportIfValue(isTrue(), MESSAGE)
+          .reportIfValue(isTrue(), MESSAGE)
       )
     );
   }
