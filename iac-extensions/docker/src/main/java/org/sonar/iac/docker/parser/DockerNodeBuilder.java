@@ -117,6 +117,7 @@ public class DockerNodeBuilder implements NodeBuilder {
   public void setPreprocessorResult(PreprocessorResult preprocessorResult) {
     sourceOffset = preprocessorResult.sourceOffset();
     commentMapIterator = preprocessorResult.commentMap().entrySet().iterator();
+    nextComment = null;
     if (commentMapIterator.hasNext()) {
       nextComment = commentMapIterator.next();
     }
