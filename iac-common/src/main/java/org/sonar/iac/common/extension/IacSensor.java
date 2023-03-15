@@ -91,7 +91,9 @@ public abstract class IacSensor implements Sensor {
       return;
     }
 
-    importExternalReports(sensorContext);
+    if (isNotSonarLintContext(sensorContext)) {
+      importExternalReports(sensorContext);
+    }
 
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
     FileSystem fileSystem = sensorContext.fileSystem();
@@ -121,10 +123,10 @@ public abstract class IacSensor implements Sensor {
   }
 
   protected void importExternalReports(SensorContext sensorContext) {
-    // Default is to do nothing. An child-sensor that does require importing external reports should override this
+    // Default is to do nothing. A child-sensor that does require importing external reports should override this.
   }
 
-  protected boolean isSonarLintContext(SensorContext sensorContext) {
+  protected boolean isNotSonarLintContext(SensorContext sensorContext) {
     return sensorContext.runtime().getProduct() != SonarProduct.SONARLINT;
   }
 

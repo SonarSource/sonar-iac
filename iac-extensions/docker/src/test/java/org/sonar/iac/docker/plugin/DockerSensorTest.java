@@ -83,7 +83,7 @@ class DockerSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldReturnVisitors() {
-    assertThat(sensor().visitors(null, null)).hasSize(4);
+    assertThat(sensor().visitors(context, null)).hasSize(4);
   }
 
   @Override
