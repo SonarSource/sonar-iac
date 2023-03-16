@@ -17,24 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.common.warnings;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper;
-import org.sonar.iac.docker.plugin.DockerExtension;
-import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.notifications.AnalysisWarnings;
 
-public class IacPlugin implements Plugin {
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
-  @Override
-  public void define(Context context) {
-    TerraformExtension.define(context);
-    CloudformationExtension.define(context);
-    KubernetesExtension.define(context);
-    DockerExtension.define(context);
+class DefaultAnalysisWarningsWrapperTest {
 
-    context.addExtension(DefaultAnalysisWarningsWrapper.class);
+  @Test
+  void addWarning() {
+    AnalysisWarnings analysisWarnings = spy(AnalysisWarnings.class);
+    AnalysisWarningsWrapper analysisWarningsWrapper = new DefaultAnalysisWarningsWrapper(analysisWarnings);
+    analysisWarningsWrapper.addWarning("Test");
+
+    verify(analysisWarnings).addUnique("Test");
+  }
+
+  @Test
+  void addWarningOnNoopWrapper() {
+    AnalysisWarningsWrapper analysisWarningsWrapper = DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
+    assertDoesNotThrow(() -> analysisWarningsWrapper.addWarning("Test"));
   }
 }

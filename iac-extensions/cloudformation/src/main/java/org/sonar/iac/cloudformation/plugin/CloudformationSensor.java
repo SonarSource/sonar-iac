@@ -29,7 +29,6 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
@@ -37,18 +36,25 @@ import org.sonar.iac.cloudformation.parser.CloudformationConverter;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
+
+import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
 public class CloudformationSensor extends YamlSensor {
 
   private static final int DEFAULT_BUFFER_SIZE = 8192;
 
-  private final AnalysisWarnings analysisWarnings;
+  private final AnalysisWarningsWrapper analysisWarnings;
 
   public CloudformationSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-                              NoSonarFilter noSonarFilter, CloudformationLanguage language, AnalysisWarnings analysisWarnings) {
+                              NoSonarFilter noSonarFilter, CloudformationLanguage language) {
+    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, NOOP_ANALYSIS_WARNINGS);
+  }
+  public CloudformationSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+                              NoSonarFilter noSonarFilter, CloudformationLanguage language, AnalysisWarningsWrapper analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks());
     this.analysisWarnings = analysisWarnings;
   }

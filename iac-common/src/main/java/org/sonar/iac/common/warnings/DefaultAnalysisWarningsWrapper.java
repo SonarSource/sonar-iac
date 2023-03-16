@@ -17,24 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.common.warnings;
 
-import org.sonar.api.Plugin;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper;
-import org.sonar.iac.docker.plugin.DockerExtension;
-import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.api.notifications.AnalysisWarnings;
 
-public class IacPlugin implements Plugin {
+public class DefaultAnalysisWarningsWrapper implements AnalysisWarningsWrapper {
 
-  @Override
-  public void define(Context context) {
-    TerraformExtension.define(context);
-    CloudformationExtension.define(context);
-    KubernetesExtension.define(context);
-    DockerExtension.define(context);
+  private final AnalysisWarnings analysisWarnings;
 
-    context.addExtension(DefaultAnalysisWarningsWrapper.class);
+  public DefaultAnalysisWarningsWrapper(AnalysisWarnings analysisWarnings) {
+    this.analysisWarnings = analysisWarnings;
+  }
+
+  /**
+   * Noop instance which can be used as placeholder when {@link AnalysisWarnings} is not supported
+   */
+  public static final AnalysisWarningsWrapper NOOP_ANALYSIS_WARNINGS = new DefaultAnalysisWarningsWrapper(null) {
+    @Override
+    public void addWarning(String text) {
+      // no operation
+    }
+  };
+
+  public void addWarning(String text) {
+    this.analysisWarnings.addUnique(text);
   }
 }
