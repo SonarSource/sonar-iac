@@ -46,12 +46,21 @@ public class ArgumentResolution {
     EMPTY
   }
 
-  static final ArgumentResolution EMPTY = new ArgumentResolution("", Status.EMPTY);
+  static final ArgumentResolution EMPTY = new ArgumentResolution(null, "", Status.EMPTY) {
+    @Override
+    public Argument argument()  {
+      throw new IllegalStateException("The root argument should not be requested from an empty resolution");
+    }
+  };
 
   private final String value;
   private final Status status;
 
-  private ArgumentResolution(String value, Status status) {
+  @Nullable
+  private final Argument argument;
+
+  private ArgumentResolution(@Nullable Argument argument, String value, Status status) {
+    this.argument = argument;
     this.value = value;
     this.status = status;
   }
@@ -74,14 +83,23 @@ public class ArgumentResolution {
     return status;
   }
 
+  public Argument argument() {
+    return argument;
+  }
+
   public boolean is(Status status) {
     return this.status == status;
   }
 
   private static class Builder {
 
+    private final Argument argument;
     private Status status = Status.RESOLVED;
     private final StringBuilder sb = new StringBuilder();
+
+    public Builder(Argument argument) {
+      this.argument = argument;
+    }
 
     private void addValue(String value) {
       sb.append(value);
@@ -92,13 +110,13 @@ public class ArgumentResolution {
     }
 
     public ArgumentResolution build() {
-      return new ArgumentResolution(sb.toString(), status);
+      return new ArgumentResolution(argument, sb.toString(), status);
     }
   }
 
   private static class ArgumentResolver {
 
-    Builder resolution = new Builder();
+    Builder builder;
     Set<Variable> visitedVariable = new HashSet<>();
 
     private static ArgumentResolution resolve(@Nullable Argument argument) {
@@ -109,8 +127,9 @@ public class ArgumentResolution {
       if (argument == null) {
         return ArgumentResolution.EMPTY;
       }
+      builder = new Builder(argument);
       resolveExpressions(argument.expressions());
-      return resolution.build();
+      return builder.build();
     }
 
     private void resolveExpressions(List<Expression> expressions) {
@@ -122,10 +141,10 @@ public class ArgumentResolution {
     private void resolveExpression(Expression expression) {
       switch (expression.getKind()) {
         case STRING_LITERAL:
-          resolution.addValue(((Literal) expression).value());
+          builder.addValue(((Literal) expression).value());
           break;
         case EXPANDABLE_STRING_CHARACTERS:
-          resolution.addValue(((ExpandableStringCharacters) expression).value());
+          builder.addValue(((ExpandableStringCharacters) expression).value());
           break;
         case EXPANDABLE_STRING_LITERAL:
           resolveExpressions(((ExpandableStringLiteral) expression).expressions());
@@ -138,10 +157,11 @@ public class ArgumentResolution {
           if (!":+".equals((encapsulatedVariable).modifierSeparator())) {
             resolveVariable(encapsulatedVariable);
           } else {
-            resolution.setUnresolved();
+            builder.setUnresolved();
           }
           break;
         default:
+          builder.setUnresolved();
       }
     }
 
@@ -152,7 +172,7 @@ public class ArgumentResolution {
     private void resolveVariable(Variable variable) {
       Symbol symbol = variable.symbol();
       if (!visitedVariable.add(variable) || symbol == null) {
-        resolution.setUnresolved();
+        builder.setUnresolved();
         return;
       }
 
@@ -166,7 +186,7 @@ public class ArgumentResolution {
       if (lastAssignedValue != null) {
         resolveExpressions(lastAssignedValue.expressions());
       } else {
-        resolution.setUnresolved();
+        builder.setUnresolved();
       }
     }
 

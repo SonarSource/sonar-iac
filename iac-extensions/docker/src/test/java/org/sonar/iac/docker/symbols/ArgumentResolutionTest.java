@@ -39,10 +39,10 @@ import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.EMPTY;
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
 import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
@@ -130,7 +130,8 @@ class ArgumentResolutionTest {
     ArgumentResolution resolution = ArgumentResolution.of(argument);
 
     assertThat(resolution.value()).isEmpty();
-    assertThat(resolution.status()).isEqualTo(RESOLVED);
+    assertThat(resolution.status()).isEqualTo(UNRESOLVED);
+    assertThat(resolution.argument()).isSameAs(argument);
   }
 
   @Test
@@ -139,6 +140,8 @@ class ArgumentResolutionTest {
 
     assertThat(resolution.value()).isEmpty();
     assertThat(resolution.status()).isEqualTo(EMPTY);
+    Exception exception = assertThrows(IllegalStateException.class, resolution::argument);
+    assertThat(exception.getMessage()).isEqualTo("The root argument should not be requested from an empty resolution");
   }
 
   @Test
