@@ -21,9 +21,7 @@ package org.sonar.iac.common.api.tree.impl;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.HasTextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -33,58 +31,28 @@ class TextRangesTest {
   @Test
   void test_range() {
     TextRange range = TextRanges.range(1, 2, "value");
-    assertThat(range).isEqualTo(TextRangesTest.range(1, 2, 1, 7));
+    assertThat(range).isEqualTo(TextRangesTest.range(1,2, 1, 7));
   }
 
   @Test
   void test_merge() {
-    TextRange range1 = TextRangesTest.range(1, 2, 3, 4);
-    TextRange range2 = TextRangesTest.range(5, 6, 7, 8);
+    TextRange range1 = TextRangesTest.range(1,2, 3, 4);
+    TextRange range2 = TextRangesTest.range(5,6, 7, 8);
     assertThat(TextRanges.merge(Arrays.asList(range1, range2)))
-      .isEqualTo(TextRangesTest.range(1, 2, 7, 8));
+      .isEqualTo(TextRangesTest.range(1,2, 7, 8));
   }
 
   @Test
   void test_merge_single() {
-    TextRange range1 = TextRangesTest.range(1, 2, 3, 4);
+    TextRange range1 = TextRangesTest.range(1,2, 3, 4);
     assertThat(TextRanges.merge(Collections.singletonList(range1)))
-      .isEqualTo(TextRangesTest.range(1, 2, 3, 4));
+      .isEqualTo(TextRangesTest.range(1,2, 3, 4));
   }
 
   @Test
   void test_merge_no_range() {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> TextRanges.merge(Collections.emptyList()))
-      .withMessage("Can't merge 0 ranges");
-  }
-
-  @Test
-  void mergeElementsWithTextRange() {
-    TextRange range1 = TextRangesTest.range(1, 2, 3, 4);
-    TextRange range2 = TextRangesTest.range(5, 6, 7, 8);
-
-    HasTextRange hasTextRange1 = () -> range1;
-    HasTextRange hasTextRange2 = () -> range2;
-
-    TextRange expectedRange = TextRanges.merge(List.of(range1, range2));
-
-    assertThat(TextRanges.mergeElementsWithTextRange(List.of(hasTextRange1, hasTextRange2))).isEqualTo(expectedRange);
-  }
-
-  @Test
-  void mergeElementsWithTextRangeSingle() {
-    TextRange range1 = TextRangesTest.range(1, 2, 3, 4);
-    HasTextRange hasTextRange1 = () -> range1;
-
-    TextRange expectedRange = TextRanges.merge(Collections.singletonList(range1));
-
-    assertThat(TextRanges.mergeElementsWithTextRange(List.of(hasTextRange1))).isEqualTo(expectedRange);
-  }
-
-  @Test
-  void mergeElementsWithTextRangeNoRange() {
-    assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> TextRanges.mergeElementsWithTextRange(Collections.emptyList()))
       .withMessage("Can't merge 0 ranges");
   }
 
