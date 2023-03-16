@@ -69,7 +69,7 @@ class YamlSensorTest extends AbstractSensorTest {
   }
 
   @Test
-  void should_not_return_highlighting_and_metrics_visitors_in_SonarLint_context() {
+  void shouldNotReturnHighlightingAndMetricsVisitorsInSonarLintContext() {
     List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, mock(DurationStatistics.class));
     assertThat(visitors).doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class);
   }

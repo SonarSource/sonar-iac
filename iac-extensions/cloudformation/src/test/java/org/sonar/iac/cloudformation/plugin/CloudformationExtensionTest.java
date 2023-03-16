@@ -34,7 +34,7 @@ class CloudformationExtensionTest {
   private static final Version VERSION_8_9 = Version.create(8, 9);
 
   @Test
-  void sonarqube_extensions() {
+  void sonarqubeExtensions() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     CloudformationExtension.define(context);
@@ -42,7 +42,7 @@ class CloudformationExtensionTest {
   }
 
   @Test
-  void sonarlint_extensions() {
+  void sonarlintExtensions() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(Version.create(3, 14));
     Plugin.Context context = new Plugin.Context(runtime);
     CloudformationExtension.define(context);
