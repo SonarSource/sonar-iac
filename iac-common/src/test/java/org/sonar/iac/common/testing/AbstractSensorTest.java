@@ -59,15 +59,16 @@ public abstract class AbstractSensorTest {
   @TempDir
   protected File baseDir;
   protected SensorContextTester context;
+  protected SensorContextTester sonarLintContext;
 
   @BeforeEach
   void setup() {
     FileLinesContext fileLinesContext = Mockito.mock(FileLinesContext.class);
     Mockito.when(fileLinesContextFactory.createFor(ArgumentMatchers.any(InputFile.class))).thenReturn(fileLinesContext);
-    context = SensorContextTester.create(baseDir);
     MapSettings settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
-    context.setSettings(settings);
+    context = SensorContextTester.create(baseDir).setSettings(settings);
+    sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(3, 14))).setSettings(settings);
   }
 
   protected abstract String getActivationSettingKey();

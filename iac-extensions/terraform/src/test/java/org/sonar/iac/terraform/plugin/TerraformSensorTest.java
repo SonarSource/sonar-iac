@@ -36,6 +36,11 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.MetricsVisitor;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
@@ -87,6 +92,17 @@ class TerraformSensorTest extends ExtensionSensorTest {
     // No highlighting and metrics in SonarLint
     assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
     assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
+  }
+
+  @Test
+  void visitors() {
+    assertThat(sensor().visitors(context, mock(DurationStatistics.class))).hasSize(3);
+  }
+
+  @Test
+  void shouldNotReturnHighlightingAndMetricsVisitorsInSonarLintContext() {
+    List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, mock(DurationStatistics.class));
+    assertThat(visitors).doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class);
   }
 
   private TerraformSensor sensor(String... rules) {

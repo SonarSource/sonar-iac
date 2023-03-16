@@ -28,6 +28,10 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.MetricsVisitor;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.docker.parser.DockerParser;
 
@@ -83,7 +87,13 @@ class DockerSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldReturnVisitors() {
-    assertThat(sensor().visitors(null, null)).hasSize(4);
+    assertThat(sensor().visitors(context, null)).hasSize(4);
+  }
+
+  @Test
+  void shouldNotReturnHighlightingAndMetricsVisitorsInSonarLintContext() {
+    List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, null);
+    assertThat(visitors).doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class);
   }
 
   @Override

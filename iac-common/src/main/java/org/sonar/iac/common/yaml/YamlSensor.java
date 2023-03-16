@@ -77,8 +77,10 @@ public abstract class YamlSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    visitors.add(new YamlHighlightingVisitor());
-    visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+    if (isNotSonarLintContext(sensorContext)) {
+      visitors.add(new YamlHighlightingVisitor());
+      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+    }
     visitors.add(new ChecksVisitor(checks, statistics));
     return visitors;
   }
