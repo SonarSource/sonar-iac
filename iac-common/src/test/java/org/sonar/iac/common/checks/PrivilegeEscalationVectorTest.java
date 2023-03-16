@@ -66,4 +66,12 @@ class PrivilegeEscalationVectorTest {
   void escalationVectorApply_unexpected_permission_format() {
     assertThat(isSupersetOfAnEscalationVector(Stream.of("foo"))).isFalse();
   }
+
+  @Test
+  void all_vectors_have_a_non_empty_name_and_permissions_list() {
+    assertThat(PrivilegeEscalationVector.values()).allSatisfy(vector -> {
+      assertThat(vector.getName()).isNotEmpty();
+      assertThat(vector.getPermissions()).isNotEmpty();
+    });
+  }
 }

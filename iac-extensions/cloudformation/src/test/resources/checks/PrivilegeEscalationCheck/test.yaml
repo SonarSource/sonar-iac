@@ -1,42 +1,54 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   NonCompliant1:
-    Type: AWS::IAM::ManagedPolicy
+    Type: AWS::IAM::ManagedPolicy # Noncompliant {{This policy is vulnerable to the "Create Policy Version" privilege escalation vector. Remove permissions or restrict the set of resources they apply to.}}
+    #     ^^^^^^^^^^^^^^^^^^^^^^^
     Properties: 
       PolicyDocument: 
         Statement:
           - Effect: Allow
             Action:
               - iam:CreatePolicyVersion
-            Resource: "*" # Noncompliant {{Narrow these permissions to a smaller set of resources to avoid privilege escalation.}}
+            #   ^^^^^^^^^^^^^^^^^^^^^^^< {{This permission enables the "Create Policy Version" escalation vector.}}
+            Resource: "*"
+          #           ^^^< {{Permissions are granted on all resources.}}
   NonCompliant2:
-    Type: AWS::IAM::ManagedPolicy
+    Type: AWS::IAM::ManagedPolicy # Noncompliant
+    #     ^^^^^^^^^^^^^^^^^^^^^^^
     Properties: 
       PolicyDocument: 
         Statement:
           - Effect: Allow
             Action:
               - iam:CreatePolicyVersion
-            Resource: "arn:foo:bar:baz:bax:user/*" # Noncompliant
+            #   ^^^^^^^^^^^^^^^^^^^^^^^<
+            Resource: "arn:foo:bar:baz:bax:user/*"
   NonCompliant3:
-    Type: AWS::IAM::ManagedPolicy
+    Type: AWS::IAM::ManagedPolicy # Noncompliant {{This policy is vulnerable to the "Update Lambda code" privilege escalation vector. Remove permissions or restrict the set of resources they apply to.}}
+    #     ^^^^^^^^^^^^^^^^^^^^^^^
     Properties: 
       PolicyDocument: 
         Statement:
           - Effect: Allow
             Action:
               - lambda:*
-            Resource: "arn:foo:bar:baz:bax:user/*" # Noncompliant
+            #   ^^^^^^^^< {{This permission enables the "Update Lambda code" escalation vector.}}
+            Resource: "arn:foo:bar:baz:bax:user/*"
   NonCompliant4:
-    Type: AWS::IAM::ManagedPolicy
+    Type: AWS::IAM::ManagedPolicy # Noncompliant {{This policy is vulnerable to the "Put Role Policy" privilege escalation vector. Remove permissions or restrict the set of resources they apply to.}}
+    #     ^^^^^^^^^^^^^^^^^^^^^^^
     Properties:
       PolicyDocument:
         Statement:
           - Effect: Allow
             Action:
               - iam:PutRolePolicy
+            #   ^^^^^^^^^^^^^^^^^< {{When combined with others, this permission enables the "Put Role Policy" escalation vector.}}
               - sts:AssumeRole
-            Resource: "*" # Noncompliant
+            #   ^^^^^^^^^^^^^^< {{When combined with others, this permission enables the "Put Role Policy" escalation vector.}}
+              - randomName
+            Resource: "*"
+            #         ^^^< {{Permissions are granted on all resources.}}
   Compliant1:
     Type: AWS::IAM::ManagedPolicy
     Properties: 
