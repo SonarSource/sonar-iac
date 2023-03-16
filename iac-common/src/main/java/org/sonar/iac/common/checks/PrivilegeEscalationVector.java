@@ -79,7 +79,7 @@ public enum PrivilegeEscalationVector {
       .findFirst();
   }
 
-  public List<Permission.SimplePermission> permissions() {
+  public List<Permission.SimplePermission> getPermissions() {
     return permissions;
   }
 

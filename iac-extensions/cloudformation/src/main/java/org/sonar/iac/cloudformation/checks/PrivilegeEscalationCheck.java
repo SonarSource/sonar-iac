@@ -55,7 +55,7 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
   private static void checkPrivilegeEscalation(CheckContext ctx, Policy policy, Resource resource) {
     for (Statement statement : policy.statement()) {
-      Optional<PrivilegeEscalationVector> vectorOpt = getStatementEscalationVecotr(statement);
+      Optional<PrivilegeEscalationVector> vectorOpt = getStatementEscalationVector(statement);
       if (vectorOpt.isPresent()) {
         PrivilegeEscalationVector vector = vectorOpt.get();
         String vectorName = vector.getName();
@@ -67,7 +67,7 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
   private static List<SecondaryLocation> secondaryLocations(Statement statement, PrivilegeEscalationVector vector, String vectorName) {
     List<SecondaryLocation> secondaryLocations = new ArrayList<>();
-    String actionsMsg = vector.permissions().size() == 1 ? String.format(MESSAGE_ACTION_SINGLE, vectorName) :
+    String actionsMsg = vector.getPermissions().size() == 1 ? String.format(MESSAGE_ACTION_SINGLE, vectorName) :
       String.format(MESSAGE_ACTION_MULTIPLE, vectorName);
     statement.action().ifPresent(tree -> ((SequenceTree) tree).elements().stream()
       .filter(actionElement -> TextUtils.getValue(actionElement).map(value -> actionEnablesVector(vector, value)).orElse(false))
@@ -82,10 +82,10 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
   private static boolean actionEnablesVector(PrivilegeEscalationVector vector, String value) {
     PrivilegeEscalationVector.Permission permission = PrivilegeEscalationVector.Permission.of(value);
-    return vector.permissions().stream().anyMatch(p -> p.isCoveredBy(permission));
+    return vector.getPermissions().stream().anyMatch(p -> p.isCoveredBy(permission));
   }
 
-  private static Optional<PrivilegeEscalationVector> getStatementEscalationVecotr(Statement statement) {
+  private static Optional<PrivilegeEscalationVector> getStatementEscalationVector(Statement statement) {
     Optional<Tree> action = statement.action();
     if (statement.effect().filter(PrivilegeEscalationCheck::isAllowEffect).isPresent()
       && statement.resource().filter(PrivilegeEscalationCheck::isSensitiveResource).isPresent()
