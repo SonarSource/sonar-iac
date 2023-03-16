@@ -27,7 +27,6 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -43,8 +42,7 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
   private static final String REQUIRED_FLAG = "--ignore-scripts";
 
   private enum StatementType {
-    NPM,
-    YARN
+    NPM, YARN
   }
 
   private static final Map<String, StatementType> TRIGGER_COMMANDS_STATEMENT_TYPE_MAPPING = Map.of(
@@ -76,7 +74,7 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
     }
 
     void processArguments() {
-      if (arguments == null || arguments.isEmpty()) {
+      if (arguments.isEmpty()) {
         return;
       }
       arguments.forEach(this::process);
@@ -121,17 +119,9 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
       if (currentStatement != null && (currentStatement.isInstallStatement ||
         (StatementType.YARN == currentStatement.statementType && arguments.size() == 1))) {
         // also reports the statement if the statement consists only of the "yarn" command
-        ctx.reportIssue(mergeArgumentTextRange(currentStatement.arguments), MESSAGE);
+        ctx.reportIssue(TextRanges.mergeElementsWithTextRange(currentStatement.arguments), MESSAGE);
         currentStatement = null;
       }
-    }
-
-    private static TextRange mergeArgumentTextRange(List<Argument> arguments) {
-      List<TextRange> textRanges = new ArrayList<>();
-      for (Argument argument : arguments) {
-        textRanges.add(argument.textRange());
-      }
-      return TextRanges.merge(textRanges);
     }
 
     private static class PackageManagerStatement {

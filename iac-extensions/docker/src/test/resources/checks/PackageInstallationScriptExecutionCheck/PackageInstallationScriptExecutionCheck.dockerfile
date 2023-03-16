@@ -13,10 +13,10 @@ RUN yarn install
 # Noncompliant@+1
 RUN yarn
 
-# FN current bash parser doesn't have needed capabilities
+# FN current bash processing approach doesn't have the needed capabilities
 RUN yarn && foo
 
-# FN current bash parser doesn't have needed capabilities
+# FN current bash processing approach doesn't have the needed capabilities
 RUN npm install;
 
 # Noncompliant@+1
