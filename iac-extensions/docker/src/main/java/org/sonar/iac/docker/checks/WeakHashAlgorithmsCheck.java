@@ -20,17 +20,15 @@
 package org.sonar.iac.docker.checks;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -41,7 +39,7 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
 
   private static final String MESSAGE = "Using weak hashing algorithms is security-sensitive.";
   private static final Set<String> OPENSSL_SENSITIVE_SUBCOMMAND = Set.of("md5", "sha1", "rmd160", "ripemd160");
-  private static final Set<String> OPENSSL_SENSITIVE_DGST_OPTION  = Set.of("md2", "md4", "md5", "sha1", "ripemd160", "ripemd", "rmd160");
+  private static final Set<String> OPENSSL_SENSITIVE_DGST_OPTION  = Set.of("-md2", "-md4", "-md5", "-sha1", "-ripemd160", "-ripemd", "-rmd160");
 
   @Override
   public void initialize(InitContext init) {
@@ -49,113 +47,105 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   }
 
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
-    Command.parse(runInstruction.arguments()).stream()
-      .filter(WeakHashAlgorithmsCheck::isOpenSslCallSensitive)
-      .forEach(cmd -> ctx.reportIssue(cmd, MESSAGE));
+    CommandDetector sensitiveOpenSslSubcommand = CommandDetector.builder()
+      .with("openssl"::equals)
+      .with(OPENSSL_SENSITIVE_SUBCOMMAND::contains)
+      .build();
+    CommandDetector sensitiveOpenSslDgst = CommandDetector.builder()
+      .with("openssl"::equals)
+      .with("dgst"::equals)
+      .withOptional(s -> !OPENSSL_SENSITIVE_DGST_OPTION.contains(s) && s.startsWith("-"))
+      .with(OPENSSL_SENSITIVE_DGST_OPTION::contains)
+      .build();
+
+    sensitiveOpenSslSubcommand.search(runInstruction.arguments())
+      .forEach(sensitiveOpensslCall -> ctx.reportIssue(TextRanges.mergeRanges(sensitiveOpensslCall), MESSAGE));
+    sensitiveOpenSslDgst.search(runInstruction.arguments())
+      .forEach(sensitiveOpensslCall -> ctx.reportIssue(TextRanges.mergeRanges(sensitiveOpensslCall), MESSAGE));
   }
 
-  private static boolean isOpenSslCallSensitive(Command command) {
-    return "openssl".equals(command.executable) && !command.parameters.isEmpty()
-      && (isOpenSslSensitiveSubCommand(command) || isOpenSslSensitiveDgstSubCommand(command));
-  }
+  private static class CommandDetector {
 
-  private static boolean isOpenSslSensitiveSubCommand(Command command) {
-    return OPENSSL_SENSITIVE_SUBCOMMAND.contains(command.parameters.get(0));
-  }
+    List<Predicate<String>> predicates;
+    List<Boolean> isOptionalPredicates;
 
-  private static boolean isOpenSslSensitiveDgstSubCommand(Command command) {
-    return "dgst".equals(command.parameters.get(0))
-      && OPENSSL_SENSITIVE_DGST_OPTION.stream().anyMatch(command.options::containsKey);
-  }
+    private CommandDetector(List<Predicate<String>> predicates, List<Boolean> isOptionalPredicates) {
+      this.predicates = predicates;
+      this.isOptionalPredicates = isOptionalPredicates;
+    }
 
-  /**
-   * Class to represent a bash/shell/powershell instruction.
-   * <pre>
-   *   {@link #executable}? ({@link #options} | {@link #parameters})*
-   * </pre>
-   */
-  private static class Command implements HasTextRange {
-
-    private static final Set<String> SEPARATOR = Set.of("&&", "|", ";");
-
-    private final String executable;
-    private final Map<String, String> options = new HashMap<>();
-    private final List<String> parameters = new ArrayList<>();
-    private final TextRange textRange;
-
-    /**
-     * Point of entry of the class, transform a list of {@link Argument} into a list of {@link #Command}, separating them using {@link #SEPARATOR}.
-     */
-    private static List<Command> parse(List<Argument> arguments) {
-      List<ArgumentResolution> resolvedArguments = resolveArguments(arguments);
-      List<Integer> indexesCommandBlock = computeSeparatorIndexes(resolvedArguments);
-      List<Command> commands = new ArrayList<>();
-      for (int i = 0; i < indexesCommandBlock.size() - 1; i++) {
-        commands.add(createCommand(arguments, resolvedArguments, indexesCommandBlock, i));
-      }
-      return commands;
+    public static Builder builder() {
+      return new Builder();
     }
 
     /**
-     * Compute the list of indexes for each separator. Consider that we have a separator before the first element of the list, so first element is -1.
-     * <pre>
-     *   ["exe1", "param1", "&&", "exe2", "param2"] -> [-1, 2]
-     * </pre>
+     * Return all block of arguments which match the list of predicates.
      */
-    private static List<Integer> computeSeparatorIndexes(List<ArgumentResolution> resolvedArguments) {
-      List<Integer> indexesSeparator = new ArrayList<>();
-      indexesSeparator.add(-1);
-      for (int i = 0; i < resolvedArguments.size(); i++) {
-        if (SEPARATOR.contains(resolvedArguments.get(i).value())) {
-          indexesSeparator.add(i);
+    private List<List<Argument>> search(List<Argument> arguments) {
+      List<ArgumentResolution> resolvedArgument = arguments.stream().map(ArgumentResolution::of).collect(Collectors.toList());
+      List<List<Argument>> argumentBlockIssue = new ArrayList<>();
+
+      int argIndex = 0;
+      while (argIndex < arguments.size()) {
+        Integer sizeMatch = fullMatch(resolvedArgument, argIndex);
+        if (sizeMatch != null) {
+          argumentBlockIssue.add(arguments.subList(argIndex, argIndex + sizeMatch));
+          argIndex += sizeMatch;
+        } else {
+          argIndex++;
         }
       }
-      return indexesSeparator;
+      return argumentBlockIssue;
     }
 
-    private static Command createCommand(List<Argument> arguments, List<ArgumentResolution> resolvedArguments, List<Integer> indexesSeparator, int index) {
-      int indexFrom = indexesSeparator.get(index) + 1;
-      int indexTo = index + 1 < indexesSeparator.size() ? indexesSeparator.get(index + 1) : arguments.size();
-      return new Command(arguments.subList(indexFrom, indexTo), resolvedArguments.subList(indexFrom, indexTo));
-    }
+    /**
+     * If the provided list of resolved argument match with the list of predicates, return the size of matched predicates, ignoring optional predicates that didn't match.
+     * Otherwise, it will return null.
+     */
+    @CheckForNull
+    private Integer fullMatch(List<ArgumentResolution> resolvedArgument, int argIndex) {
+      int nbMatched = 0;
+      for (int predicateIndex = 0; predicateIndex < predicates.size(); predicateIndex++) {
+        if (resolvedArgument.size() <= argIndex + nbMatched) {
+          return null;
+        }
 
-    private static List<ArgumentResolution> resolveArguments(List<Argument> arguments) {
-      return arguments.stream()
-        .map(ArgumentResolution::of)
-        .collect(Collectors.toList());
-    }
+        Predicate<String> predicate = predicates.get(predicateIndex);
+        String argValue = resolvedArgument.get(argIndex + nbMatched).value();
+        boolean isOptional = isOptionalPredicates.get(predicateIndex);
 
-    public Command(List<Argument> arguments, List<ArgumentResolution> resolvedArguments) {
-      this.executable = resolvedArguments.isEmpty() ? null : resolvedArguments.get(0).value();
-      this.textRange = TextRanges.mergeRanges(arguments);
-
-      resolvedArguments.stream()
-        .skip(1)
-        .forEach(this::processElement);
-    }
-
-    private void processElement(ArgumentResolution resolvedArg) {
-      String value = resolvedArg.value();
-      if (value != null && value.startsWith("-")) {
-        addOption(value);
-      } else {
-        this.parameters.add(value);
+        if (predicate.test(argValue)) {
+          nbMatched++;
+        } else if (!isOptional) {
+          return null;
+        }
       }
+      return nbMatched;
     }
 
-    private void addOption(String option) {
-      option = option.replaceAll("^-++", "");
-      String[] split = option.split("=", 2);
-      if (split.length == 2) {
-        options.put(split[0], split[1]);
-      } else {
-        options.put(split[0], null);
+    public static class Builder {
+
+      List<Predicate<String>> predicates = new ArrayList<>();
+      List<Boolean> isOptionalPredicates = new ArrayList<>();
+
+      private void addPredicate(Predicate<String> predicate, boolean optional) {
+        predicates.add(predicate);
+        isOptionalPredicates.add(optional);
       }
-    }
 
-    @Override
-    public TextRange textRange() {
-      return this.textRange;
+      public Builder with(Predicate<String> predicate) {
+        addPredicate(predicate, false);
+        return this;
+      }
+
+      public Builder withOptional(Predicate<String> predicate) {
+        addPredicate(predicate, true);
+        return this;
+      }
+
+      public CommandDetector build() {
+        return new CommandDetector(predicates, isOptionalPredicates);
+      }
     }
   }
 }
