@@ -22,7 +22,6 @@ package org.sonar.iac.docker.checks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -99,17 +98,9 @@ public class PackageInstallationCheck implements IacCheck {
 
     private void reportSensitiveStatement() {
       if (statement != null && statement.isInstallStatement) {
-        ctx.reportIssue(mergeArgumentTextRange(statement.arguments), MESSAGE);
+        ctx.reportIssue(TextRanges.mergeElementsWithTextRange(statement.arguments), MESSAGE);
         statement = null;
       }
-    }
-
-    private static TextRange mergeArgumentTextRange(List<Argument> arguments) {
-      List<TextRange> textRanges = new ArrayList<>();
-      for (Argument argument : arguments) {
-        textRanges.add(argument.textRange());
-      }
-      return TextRanges.merge(textRanges);
     }
 
     private static class AptStatement {
