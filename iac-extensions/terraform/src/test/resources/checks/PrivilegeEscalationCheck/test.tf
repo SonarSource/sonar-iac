@@ -1,49 +1,56 @@
-resource "aws_iam_policy" "non_compliant_policy1" {
+resource "aws_iam_policy" "non_compliant_policy1" { # Noncompliant {{This policy is vulnerable to the "Create Policy Version" privilege escalation vector. Remove permissions or restrict the set of resources they apply to.}}
+  #      ^^^^^^^^^^^^^^^^
   policy = jsonencode({
     Statement = [
       {
         Effect = "Allow"
         Action = [ "iam:CreatePolicyVersion" ]
-        Resource = "*" # Noncompliant {{Narrow these permissions to a smaller set of resources to avoid privilege escalation.}}
-#                  ^^^
+        #          ^^^^^^^^^^^^^^^^^^^^^^^^^< {{This permission enables the "Create Policy Version" escalation vector.}}
+        Resource = "*"
+        #          ^^^< {{Permissions are granted on all resources.}}
       }
     ]
   })
 }
 
-resource "aws_iam_policy" "non_compliant_policy2" {
+resource "aws_iam_policy" "non_compliant_policy2" { # Noncompliant
+  #      ^^^^^^^^^^^^^^^^
   policy = jsonencode({
     Statement = [
       {
         Effect = "Allow"
         Action = [ "iam:CreatePolicyVersion" ]
-        Resource = "arn:foo:bar:baz:bax:user/*" # Noncompliant
-#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        #          ^^^^^^^^^^^^^^^^^^^^^^^^^<
+        Resource = "arn:foo:bar:baz:bax:user/*"
       }
     ]
   })
 }
 
-resource "aws_iam_policy" "non_compliant_policy2" {
+resource "aws_iam_policy" "non_compliant_policy2" { # Noncompliant {{This policy is vulnerable to the "Update Lambda code" privilege escalation vector. Remove permissions or restrict the set of resources they apply to.}}
+  #      ^^^^^^^^^^^^^^^^
   policy = jsonencode({
     Statement = [
       {
         Effect = "Allow"
         Action = [ "lambda:*" ]
-        Resource = "arn:foo:bar:baz:bax:user/*" # Noncompliant
-#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        #          ^^^^^^^^^^< {{This permission enables the "Update Lambda code" escalation vector.}}
+        Resource = "arn:foo:bar:baz:bax:user/*"
       }
     ]
   })
 }
 
-resource "aws_iam_policy" "non_compliant_policy3" {
+resource "aws_iam_policy" "non_compliant_policy3" { # Noncompliant {{This policy is vulnerable to the "Put Role Policy" privilege escalation vector. Remove permissions or restrict the set of resources they apply to.}}
+  #      ^^^^^^^^^^^^^^^^
   policy = jsonencode({
     Statement = [
       {
         Effect = "Allow"
         Action = [ "iam:PutRolePolicy", "sts:AssumeRole" ]
-        Resource = "*" # Noncompliant
+        #          ^^^^^^^^^^^^^^^^^^^< ^^^^^^^^^^^^^^^^< {{When combined with others, this permission enables the "Put Role Policy" escalation vector.}}
+        Resource = "*"
+        #          ^^^< {{Permissions are granted on all resources.}}
       }
     ]
   })
