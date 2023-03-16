@@ -29,9 +29,10 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 @Rule(key = "S4790")
@@ -41,37 +42,48 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   private static final Set<String> OPENSSL_SENSITIVE_SUBCOMMAND = Set.of("md5", "sha1", "rmd160", "ripemd160");
   private static final Set<String> OPENSSL_SENSITIVE_DGST_OPTION  = Set.of("-md2", "-md4", "-md5", "-sha1", "-ripemd160", "-ripemd", "-rmd160");
 
+  private static final CommandDetector sensitiveOpenSslSubcommand = CommandDetector.builder()
+    .with("openssl"::equals)
+    .with(OPENSSL_SENSITIVE_SUBCOMMAND::contains)
+    .build();
+  private static final CommandDetector sensitiveOpenSslDgst = CommandDetector.builder()
+    .with("openssl"::equals)
+    .with("dgst"::equals)
+    .withOptional(s -> !OPENSSL_SENSITIVE_DGST_OPTION.contains(s) && s.startsWith("-"))
+    .with(OPENSSL_SENSITIVE_DGST_OPTION::contains)
+    .build();
+
   @Override
   public void initialize(InitContext init) {
     init.register(RunInstruction.class, WeakHashAlgorithmsCheck::checkRun);
   }
 
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
-    CommandDetector sensitiveOpenSslSubcommand = CommandDetector.builder()
-      .with("openssl"::equals)
-      .with(OPENSSL_SENSITIVE_SUBCOMMAND::contains)
-      .build();
-    CommandDetector sensitiveOpenSslDgst = CommandDetector.builder()
-      .with("openssl"::equals)
-      .with("dgst"::equals)
-      .withOptional(s -> !OPENSSL_SENSITIVE_DGST_OPTION.contains(s) && s.startsWith("-"))
-      .with(OPENSSL_SENSITIVE_DGST_OPTION::contains)
-      .build();
+    List<ArgumentResolution> resolvedArgument = runInstruction.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
 
-    sensitiveOpenSslSubcommand.search(runInstruction.arguments())
-      .forEach(sensitiveOpensslCall -> ctx.reportIssue(TextRanges.mergeRanges(sensitiveOpensslCall), MESSAGE));
-    sensitiveOpenSslDgst.search(runInstruction.arguments())
-      .forEach(sensitiveOpensslCall -> ctx.reportIssue(TextRanges.mergeRanges(sensitiveOpensslCall), MESSAGE));
+    sensitiveOpenSslSubcommand.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    sensitiveOpenSslDgst.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+  }
+
+  static class Command implements HasTextRange {
+    List<ArgumentResolution> resolvedArguments;
+
+    public Command(List<ArgumentResolution> resolvedArguments) {
+      this.resolvedArguments = resolvedArguments;
+    }
+
+    @Override
+    public TextRange textRange() {
+      return TextRanges.mergeElementsWithTextRange(resolvedArguments.stream().map(ArgumentResolution::argument).collect(Collectors.toList()));
+    }
   }
 
   private static class CommandDetector {
 
-    List<Predicate<String>> predicates;
-    List<Boolean> isOptionalPredicates;
+    List<CommandPredicate> predicates;
 
-    private CommandDetector(List<Predicate<String>> predicates, List<Boolean> isOptionalPredicates) {
+    private CommandDetector(List<CommandPredicate> predicates) {
       this.predicates = predicates;
-      this.isOptionalPredicates = isOptionalPredicates;
     }
 
     public static Builder builder() {
@@ -81,21 +93,17 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
     /**
      * Return all block of arguments which match the list of predicates.
      */
-    private List<List<Argument>> search(List<Argument> arguments) {
-      List<ArgumentResolution> resolvedArgument = arguments.stream().map(ArgumentResolution::of).collect(Collectors.toList());
-      List<List<Argument>> argumentBlockIssue = new ArrayList<>();
+    private List<Command> search(List<ArgumentResolution> resolvedArguments) {
+      List<Command> commands = new ArrayList<>();
 
-      int argIndex = 0;
-      while (argIndex < arguments.size()) {
-        Integer sizeMatch = fullMatch(resolvedArgument, argIndex);
-        if (sizeMatch != null) {
-          argumentBlockIssue.add(arguments.subList(argIndex, argIndex + sizeMatch));
-          argIndex += sizeMatch;
-        } else {
-          argIndex++;
+      for (int argIndex = 0; argIndex < resolvedArguments.size(); argIndex++) {
+        Integer sizeCommand = fullMatch(resolvedArguments, argIndex);
+        if (sizeCommand != null) {
+          commands.add(new Command(resolvedArguments.subList(argIndex, argIndex + sizeCommand)));
+          argIndex += sizeCommand - 1;
         }
       }
-      return argumentBlockIssue;
+      return commands;
     }
 
     /**
@@ -104,33 +112,28 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
      */
     @CheckForNull
     private Integer fullMatch(List<ArgumentResolution> resolvedArgument, int argIndex) {
-      int nbMatched = 0;
-      for (int predicateIndex = 0; predicateIndex < predicates.size(); predicateIndex++) {
-        if (resolvedArgument.size() <= argIndex + nbMatched) {
+      int sizeCommand = 0;
+      for (CommandPredicate commandPredicate : predicates) {
+        if (resolvedArgument.size() <= argIndex + sizeCommand) {
           return null;
         }
 
-        Predicate<String> predicate = predicates.get(predicateIndex);
-        String argValue = resolvedArgument.get(argIndex + nbMatched).value();
-        boolean isOptional = isOptionalPredicates.get(predicateIndex);
-
-        if (predicate.test(argValue)) {
-          nbMatched++;
-        } else if (!isOptional) {
+        String argValue = resolvedArgument.get(argIndex + sizeCommand).value();
+        if (commandPredicate.predicate.test(argValue)) {
+          sizeCommand++;
+        } else if (!commandPredicate.optional) {
           return null;
         }
       }
-      return nbMatched;
+      return sizeCommand;
     }
 
     public static class Builder {
 
-      List<Predicate<String>> predicates = new ArrayList<>();
-      List<Boolean> isOptionalPredicates = new ArrayList<>();
+      List<CommandPredicate> predicates = new ArrayList<>();
 
       private void addPredicate(Predicate<String> predicate, boolean optional) {
-        predicates.add(predicate);
-        isOptionalPredicates.add(optional);
+        predicates.add(new CommandPredicate(predicate, optional));
       }
 
       public Builder with(Predicate<String> predicate) {
@@ -144,7 +147,17 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
       }
 
       public CommandDetector build() {
-        return new CommandDetector(predicates, isOptionalPredicates);
+        return new CommandDetector(predicates);
+      }
+    }
+
+    static class CommandPredicate {
+      Predicate<String> predicate;
+      boolean optional;
+
+      public CommandPredicate(Predicate<String> predicate, boolean optional) {
+        this.predicate = predicate;
+        this.optional = optional;
       }
     }
   }

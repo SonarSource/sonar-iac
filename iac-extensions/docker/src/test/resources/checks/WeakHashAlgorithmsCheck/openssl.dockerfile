@@ -41,6 +41,8 @@ RUN openssl dgst -rand rand1.txt rand2.txt -md2 test.txt
 RUN something openssl dgst -md2 test.txt
 # Noncompliant@+1
 RUN other command; openssl md5 test.txt
+# Noncompliant@+1 2
+  RUN openssl md5 test.txt openssl md5 test.txt
 
 ## Other formats
 # Noncompliant@+1
