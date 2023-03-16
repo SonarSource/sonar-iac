@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -88,60 +86,60 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
     /**
      * Point of entry of the class, transform a list of {@link Argument} into a list of {@link #Command}, separating them using {@link #SEPARATOR}.
      */
-    public static List<Command> parse(List<Argument> arguments) {
-      return splitArgumentsPerGroup(arguments).stream()
-        .map(Command::new)
-        .collect(Collectors.toList());
+    private static List<Command> parse(List<Argument> arguments) {
+      List<ArgumentResolution> resolvedArguments = resolveArguments(arguments);
+      List<Integer> indexesCommandBlock = computeSeparatorIndexes(resolvedArguments);
+      List<Command> commands = new ArrayList<>();
+      for (int i = 0; i < indexesCommandBlock.size() - 1; i++) {
+        commands.add(createCommand(arguments, resolvedArguments, indexesCommandBlock, i));
+      }
+      return commands;
     }
 
     /**
-     * Divide the provided list of string per separator into sublist.
-     * The sublists are wrapped up in CommandArguments to keep the original arguments with them.
+     * Compute the list of indexes for each separator. Consider that we have a separator before the first element of the list, so first element is -1.
      * <pre>
-     *   ["exe1", "param1", "&&", "exe2", "param2"]
-     *   -> [["exe1", "param1"], ["exe2", "param2"]]
+     *   ["exe1", "param1", "&&", "exe2", "param2"] -> [-1, 2]
      * </pre>
      */
-    private static List<CommandArguments> splitArgumentsPerGroup(List<Argument> arguments) {
-      List<String> resolvedArguments = resolveArguments(arguments);
+    private static List<Integer> computeSeparatorIndexes(List<ArgumentResolution> resolvedArguments) {
       List<Integer> indexesSeparator = new ArrayList<>();
       indexesSeparator.add(-1);
       for (int i = 0; i < resolvedArguments.size(); i++) {
-        if (SEPARATOR.contains(resolvedArguments.get(i))) {
+        if (SEPARATOR.contains(resolvedArguments.get(i).value())) {
           indexesSeparator.add(i);
         }
       }
-      return IntStream.range(0, indexesSeparator.size())
-        .mapToObj(i -> createCommandArguments(arguments, resolvedArguments, indexesSeparator, i))
-        .collect(Collectors.toList());
+      return indexesSeparator;
     }
 
-    private static CommandArguments createCommandArguments(List<Argument> arguments, List<String> resolvedArguments, List<Integer> indexesSeparator, int index) {
+    private static Command createCommand(List<Argument> arguments, List<ArgumentResolution> resolvedArguments, List<Integer> indexesSeparator, int index) {
       int indexFrom = indexesSeparator.get(index) + 1;
       int indexTo = index + 1 < indexesSeparator.size() ? indexesSeparator.get(index + 1) : arguments.size();
-      return new CommandArguments(arguments.subList(indexFrom, indexTo), resolvedArguments.subList(indexFrom, indexTo));
+      return new Command(arguments.subList(indexFrom, indexTo), resolvedArguments.subList(indexFrom, indexTo));
     }
 
-    private static List<String> resolveArguments(List<Argument> arguments) {
+    private static List<ArgumentResolution> resolveArguments(List<Argument> arguments) {
       return arguments.stream()
-        .map(arg -> ArgumentResolution.of(arg).value())
+        .map(ArgumentResolution::of)
         .collect(Collectors.toList());
     }
 
-    public Command(CommandArguments elements) {
-      this.executable = elements.resolvedArguments.isEmpty() ? null : elements.resolvedArguments.get(0);
-      this.textRange = TextRanges.mergeRanges(elements.arguments);
+    public Command(List<Argument> arguments, List<ArgumentResolution> resolvedArguments) {
+      this.executable = resolvedArguments.isEmpty() ? null : resolvedArguments.get(0).value();
+      this.textRange = TextRanges.mergeRanges(arguments);
 
-      elements.resolvedArguments.stream()
+      resolvedArguments.stream()
         .skip(1)
         .forEach(this::processElement);
     }
 
-    private void processElement(@Nullable String element) {
-      if (element != null && element.startsWith("-")) {
-        addOption(element);
+    private void processElement(ArgumentResolution resolvedArg) {
+      String value = resolvedArg.value();
+      if (value != null && value.startsWith("-")) {
+        addOption(value);
       } else {
-        this.parameters.add(element);
+        this.parameters.add(value);
       }
     }
 
@@ -158,16 +156,6 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
     @Override
     public TextRange textRange() {
       return this.textRange;
-    }
-
-    private static class CommandArguments {
-      private final List<String> resolvedArguments;
-      private final List<Argument> arguments;
-
-      public CommandArguments(List<Argument> arguments, List<String> resolvedArguments) {
-        this.arguments = arguments;
-        this.resolvedArguments = resolvedArguments;
-      }
     }
   }
 }
