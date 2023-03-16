@@ -19,17 +19,16 @@
  */
 package org.sonar.iac.common.api.tree.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonarsource.analyzer.commons.TokenLocation;
 
 import static java.util.Comparator.naturalOrder;
 
 public class TextRanges {
 
-  private static final Supplier<IllegalArgumentException> MERGE_EXCEPTION_SUPPLIER = () -> new IllegalArgumentException("Can't merge 0 ranges");
+  private static final Supplier<IllegalArgumentException> MERGE_EXCEPTION_SUPPLIER =
+    () -> new IllegalArgumentException("Can't merge 0 ranges");
 
   private TextRanges() {
   }
@@ -41,22 +40,15 @@ public class TextRanges {
   public static TextRange range(int line, int column, String value) {
     TokenLocation location = new TokenLocation(line, column, value);
     TextPointer startPointer = new TextPointer(location.startLine(), location.startLineOffset());
-    TextPointer endPointer = new TextPointer(location.endLine(), location.endLineOffset());
+    TextPointer endPointer =  new TextPointer(location.endLine(), location.endLineOffset());
     return new TextRange(startPointer, endPointer);
   }
 
   public static TextRange merge(List<TextRange> ranges) {
     return new TextRange(
       ranges.stream().map(TextRange::start).min(naturalOrder()).orElseThrow(MERGE_EXCEPTION_SUPPLIER),
-      ranges.stream().map(TextRange::end).max(naturalOrder()).orElseThrow(MERGE_EXCEPTION_SUPPLIER));
-  }
-
-  public static TextRange mergeElementsWithTextRange(List<? extends HasTextRange> elementsWithTextRange) {
-    List<TextRange> textRanges = new ArrayList<>();
-    for (HasTextRange element : elementsWithTextRange) {
-      textRanges.add(element.textRange());
-    }
-    return TextRanges.merge(textRanges);
+      ranges.stream().map(TextRange::end).max(naturalOrder()).orElseThrow(MERGE_EXCEPTION_SUPPLIER)
+    );
   }
 
   public static boolean isValidAndNotEmpty(TextRange range) {
