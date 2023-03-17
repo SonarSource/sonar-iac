@@ -23,8 +23,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.policy.Policy;
 
 public enum PrivilegeEscalationVector {
 
@@ -50,6 +53,8 @@ public enum PrivilegeEscalationVector {
   GLUE_DEVELOPMENT_ENDPOINT("Glue Development Endpoint", List.of("iam:PassRole", "glue:CreateDevEndpoint")),
   UPDATE_GLUE_DEV_ENDPOINT("Update Glue Dev Endpoint", List.of("glue:UpdateDevEndpoint")),
   UPDATE_LAMBDA_CODE("Update Lambda code", List.of("lambda:UpdateFunctionCode"));
+
+  private static final Pattern RESOURCE_NAME_PATTERN = Pattern.compile("arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)/\\*");
 
   private final List<Permission.SimplePermission> permissions;
   private final String name;
@@ -115,5 +120,40 @@ public enum PrivilegeEscalationVector {
         super(permissionName);
       }
     }
+  }
+
+  public static boolean actionEnablesVector(PrivilegeEscalationVector vector, String value) {
+    PrivilegeEscalationVector.Permission permission = PrivilegeEscalationVector.Permission.of(value);
+    return vector.getPermissions().stream().anyMatch(p -> p.isCoveredBy(permission));
+  }
+
+  public static boolean someBooleanCheck(Policy.Statement statement) {
+    return statement.effect().filter(PrivilegeEscalationVector::isAllowEffect).isPresent()
+      && statement.resource().filter(PrivilegeEscalationVector::isSensitiveResource).isPresent()
+      && statement.condition().isEmpty()
+      && statement.principal().isEmpty()
+      && statement.action().isPresent();
+  }
+
+  private static boolean isAllowEffect(Tree effect) {
+    return TextUtils.isValue(effect, "Allow").isTrue();
+  }
+
+  private static boolean isSensitiveResource(Tree resource) {
+    return TextUtils.matchesValue(resource, rsc -> rsc.equals("*") || RESOURCE_NAME_PATTERN.matcher(rsc).matches()).isTrue();
+  }
+
+  public static Optional<PrivilegeEscalationVector> getStatementEscalationVector(Policy.Statement statement, List<Tree> actionTrees) {
+    if (someBooleanCheck(statement)) {
+      return getActionEscalationVector(actionTrees);
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<PrivilegeEscalationVector> getActionEscalationVector(List<Tree> testTree) {
+    Stream<String> actionPermissions = testTree.stream()
+      .map(TextUtils::getValue)
+      .flatMap(Optional::stream);
+    return PrivilegeEscalationVector.getEscalationVector(actionPermissions);
   }
 }
