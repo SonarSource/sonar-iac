@@ -1,0 +1,11 @@
+[
+  {
+    "Filename": "doesNotExist.yaml"
+  },
+  {
+    "Filename": "a/b/doesNotExistToo.yaml"
+  },
+  {
+    "Filename": "thirdOneThatDoesNotExist"
+  }
+]

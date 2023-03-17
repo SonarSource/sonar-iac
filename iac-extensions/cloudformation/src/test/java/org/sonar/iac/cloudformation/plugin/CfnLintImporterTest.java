@@ -148,6 +148,22 @@ class CfnLintImporterTest {
     verifyNoInteractions(mockAnalysisWarnings);
   }
 
+  @ParameterizedTest
+  @CsvSource(value = {
+    "src/test/resources/cfn-lint/invalidPathTwo.json; Cfn-lint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +
+      "doesNotExist.yaml, a/b/doesNotExistToo.yaml",
+    "src/test/resources/cfn-lint/invalidPathMoreThanTwo.json; Cfn-lint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
+      "doesNotExist.yaml, a/b/doesNotExistToo.yaml, ..."
+  }, delimiter = ';')
+  void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
+    String expectedLog = String.format(expectedLogFormat, reportFile.getPath());
+    importReport(reportFile);
+    assertThat(context.allExternalIssues()).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .containsExactly(expectedLog);
+    verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
+  }
+
   private void importReport(File reportFile) {
     new CfnLintImporter(context, mockAnalysisWarnings).importReport(reportFile);
   }

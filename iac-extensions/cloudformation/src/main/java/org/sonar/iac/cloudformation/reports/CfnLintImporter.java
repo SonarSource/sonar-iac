@@ -23,8 +23,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -110,9 +112,9 @@ public class CfnLintImporter {
 
     if (inputFile == null) {
       unresolvedPaths.add(path);
-      return;
     }
 
+    Objects.requireNonNull(inputFile);
     String ruleId = (String) ((JSONObject) issueJson.get("Rule")).get("Id");
     if (!CfnLintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
       ruleId = "cfn-lint.fallback";
@@ -133,9 +135,7 @@ public class CfnLintImporter {
     StringBuilder sb = new StringBuilder(String.format("Cfn-lint report importing: could not save %d out of %d issues from %s.", failed, total, path));
     if (!unresolvedPaths.isEmpty()) {
       sb.append(" Some file paths could not be resolved: ");
-      unresolvedPaths.stream()
-        .limit(2)
-        .forEach(p -> sb.append(String.format(", '%s'", p)));
+      sb.append(unresolvedPaths.stream().limit(2).collect(Collectors.joining(", ")));
       sb.append(unresolvedPaths.size() > 2 ? ", ..." : "");
     }
     logWarnAndAddUnique(analysisWarnings, sb.toString());
