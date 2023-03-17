@@ -29,10 +29,12 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
 @ScannerSide
+@SonarLintSide
 public class TerraformProviders {
 
   private static final String MISSING_PROVIDER_VERSION = "Provide the used %s provider version via the \"%s\" property to increase the accuracy of your results.";
