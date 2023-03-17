@@ -74,8 +74,7 @@ class CfnLintImporterTest {
     String logMessage = String.format(expectedLog, path);
 
     importReport(reportFile);
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly(logMessage);
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -89,8 +88,7 @@ class CfnLintImporterTest {
     doAnswer((invocation) -> {throw new IOException();}).when(reportFile).toPath();
 
     importReport(reportFile);
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly(logMessage);
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -108,8 +106,7 @@ class CfnLintImporterTest {
     String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 1 issues from %s.", reportFile.getPath());
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly(logMessage);
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -157,10 +154,11 @@ class CfnLintImporterTest {
   }, delimiter = ';')
   void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
     String expectedLog = String.format(expectedLogFormat, reportFile.getPath());
+
     importReport(reportFile);
+
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly(expectedLog);
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(expectedLog);
     verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
   }
 
