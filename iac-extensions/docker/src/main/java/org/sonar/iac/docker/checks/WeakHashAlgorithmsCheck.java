@@ -42,11 +42,11 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   private static final Set<String> OPENSSL_SENSITIVE_SUBCOMMAND = Set.of("md5", "sha1", "rmd160", "ripemd160");
   private static final Set<String> OPENSSL_SENSITIVE_DGST_OPTION  = Set.of("-md2", "-md4", "-md5", "-sha1", "-ripemd160", "-ripemd", "-rmd160");
 
-  private static final CommandDetector sensitiveOpenSslSubcommand = CommandDetector.builder()
+  private static final CommandDetector SENSITIVE_OPENSSL_SUBCOMMAND = CommandDetector.builder()
     .with("openssl"::equals)
     .with(OPENSSL_SENSITIVE_SUBCOMMAND::contains)
     .build();
-  private static final CommandDetector sensitiveOpenSslDgst = CommandDetector.builder()
+  private static final CommandDetector SENSITIVE_OPENSSL_DGST = CommandDetector.builder()
     .with("openssl"::equals)
     .with("dgst"::equals)
     .withOptional(s -> !OPENSSL_SENSITIVE_DGST_OPTION.contains(s) && s.startsWith("-"))
@@ -61,8 +61,8 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = runInstruction.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
 
-    sensitiveOpenSslSubcommand.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
-    sensitiveOpenSslDgst.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    SENSITIVE_OPENSSL_SUBCOMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    SENSITIVE_OPENSSL_DGST.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
   }
 
   static class Command implements HasTextRange {
@@ -78,7 +78,7 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
     }
   }
 
-  private static class CommandDetector {
+  public static class CommandDetector {
 
     List<CommandPredicate> predicates;
 
@@ -93,7 +93,7 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
     /**
      * Return all block of arguments which match the list of predicates.
      */
-    private List<Command> search(List<ArgumentResolution> resolvedArguments) {
+    public List<Command> search(List<ArgumentResolution> resolvedArguments) {
       List<Command> commands = new ArrayList<>();
 
       for (int argIndex = 0; argIndex < resolvedArguments.size(); argIndex++) {

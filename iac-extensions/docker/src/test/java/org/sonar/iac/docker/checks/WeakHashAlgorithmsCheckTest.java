@@ -19,12 +19,43 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.impl.ArgumentImpl;
+import org.sonar.iac.docker.tree.impl.LiteralImpl;
+import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WeakHashAlgorithmsCheckTest {
 
   @Test
   void test_openssl() {
     DockerVerifier.verify("WeakHashAlgorithmsCheck/openssl.dockerfile", new WeakHashAlgorithmsCheck());
+  }
+
+  // TODO : migrate specific CommandDetector test to proper test file once we moved it outside of the check rule class
+  @Test
+  void test_commandDetector_size1() {
+    List<ArgumentResolution> arguments = buildArgumentList("sensitive", "sensitive");
+    WeakHashAlgorithmsCheck.CommandDetector detector = WeakHashAlgorithmsCheck.CommandDetector.builder()
+      .with("sensitive"::equals)
+      .build();
+    List<WeakHashAlgorithmsCheck.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(2);
+    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
+    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+  }
+
+  List<ArgumentResolution> buildArgumentList(String... strs) {
+    List<ArgumentResolution> arguments = new ArrayList<>();
+    for (String str : strs) {
+      Argument arg = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(str, null, List.of()))));
+      arguments.add(ArgumentResolution.of(arg));
+    }
+    return arguments;
   }
 }
