@@ -19,19 +19,14 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
@@ -63,103 +58,5 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
 
     SENSITIVE_OPENSSL_SUBCOMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
     SENSITIVE_OPENSSL_DGST.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
-  }
-
-  static class Command implements HasTextRange {
-    List<ArgumentResolution> resolvedArguments;
-
-    public Command(List<ArgumentResolution> resolvedArguments) {
-      this.resolvedArguments = resolvedArguments;
-    }
-
-    @Override
-    public TextRange textRange() {
-      return TextRanges.mergeElementsWithTextRange(resolvedArguments.stream().map(ArgumentResolution::argument).collect(Collectors.toList()));
-    }
-  }
-
-  public static class CommandDetector {
-
-    List<CommandPredicate> predicates;
-
-    private CommandDetector(List<CommandPredicate> predicates) {
-      this.predicates = predicates;
-    }
-
-    public static Builder builder() {
-      return new Builder();
-    }
-
-    /**
-     * Return all block of arguments which match the list of predicates.
-     */
-    public List<Command> search(List<ArgumentResolution> resolvedArguments) {
-      List<Command> commands = new ArrayList<>();
-
-      for (int argIndex = 0; argIndex < resolvedArguments.size(); argIndex++) {
-        Integer sizeCommand = fullMatch(resolvedArguments, argIndex);
-        if (sizeCommand != null) {
-          commands.add(new Command(resolvedArguments.subList(argIndex, argIndex + sizeCommand)));
-          // add the command size to the counter to skip related arguments
-          argIndex += sizeCommand - 1;
-        }
-      }
-      return commands;
-    }
-
-    /**
-     * If the provided list of resolved argument match with the list of predicates, return the size of matched predicates, ignoring optional predicates that didn't match.
-     * Otherwise, it will return null.
-     */
-    @CheckForNull
-    private Integer fullMatch(List<ArgumentResolution> resolvedArgument, int argIndex) {
-      int sizeCommand = 0;
-      for (CommandPredicate commandPredicate : predicates) {
-        if (resolvedArgument.size() <= argIndex + sizeCommand) {
-          return null;
-        }
-
-        String argValue = resolvedArgument.get(argIndex + sizeCommand).value();
-        if (commandPredicate.predicate.test(argValue)) {
-          sizeCommand++;
-        } else if (!commandPredicate.optional) {
-          return null;
-        }
-      }
-      return sizeCommand;
-    }
-
-    public static class Builder {
-
-      List<CommandPredicate> predicates = new ArrayList<>();
-
-      private void addPredicate(Predicate<String> predicate, boolean optional) {
-        predicates.add(new CommandPredicate(predicate, optional));
-      }
-
-      public Builder with(Predicate<String> predicate) {
-        addPredicate(predicate, false);
-        return this;
-      }
-
-      public Builder withOptional(Predicate<String> predicate) {
-        addPredicate(predicate, true);
-        return this;
-      }
-
-      public CommandDetector build() {
-        return new CommandDetector(predicates);
-      }
-    }
-
-    static class CommandPredicate {
-      Predicate<String> predicate;
-      boolean optional;
-
-      public CommandPredicate(Predicate<String> predicate, boolean optional) {
-        this.predicate = predicate;
-        this.optional = optional;
-      }
-    }
   }
 }
