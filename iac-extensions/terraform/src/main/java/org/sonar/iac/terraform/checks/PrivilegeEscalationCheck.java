@@ -35,9 +35,6 @@ import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.utils.PolicyUtils;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
-import static org.sonar.iac.common.checks.PrivilegeEscalationVector.actionEnablesVector;
-import static org.sonar.iac.common.checks.PrivilegeEscalationVector.getStatementEscalationVector;
-
 @Rule(key = "S6317")
 public class PrivilegeEscalationCheck extends AbstractNewResourceCheck {
 
@@ -63,7 +60,7 @@ public class PrivilegeEscalationCheck extends AbstractNewResourceCheck {
         actionTrees = ((TupleTree) action.get()).elements().trees().stream().map(Tree.class::cast).collect(Collectors.toList());
       }
 
-      Optional<PrivilegeEscalationVector> vectorOpt = getStatementEscalationVector(statement, actionTrees);
+      Optional<PrivilegeEscalationVector> vectorOpt = PrivilegeEscalationVector.getStatementEscalationVector(statement, actionTrees);
       if (vectorOpt.isPresent()) {
         PrivilegeEscalationVector vector = vectorOpt.get();
         String vectorName = vector.getName();
@@ -93,7 +90,8 @@ public class PrivilegeEscalationCheck extends AbstractNewResourceCheck {
   private static void addSecondaryLocationsFromAction(Statement statement, PrivilegeEscalationVector vector, String vectorName,
     List<SecondaryLocation> secondaryLocations, String actionsMsg) {
     statement.action().ifPresent(tree -> ((TupleTree) tree).elements().trees().stream()
-      .filter(actionElement -> TextUtils.getValue(actionElement).map(value -> actionEnablesVector(vector, value)).orElse(false))
+      .filter(actionElement -> TextUtils.getValue(actionElement).map(value -> PrivilegeEscalationVector.actionEnablesVector(vector,
+        value)).orElse(false))
       .forEach(actionElement -> secondaryLocations.add(new SecondaryLocation(actionElement, String.format(actionsMsg, vectorName)))));
   }
 }

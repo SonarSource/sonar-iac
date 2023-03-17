@@ -35,7 +35,7 @@ import org.sonar.iac.common.checks.policy.Policy.Statement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
 
-class PolicyTest {
+public class PolicyTest {
 
   @Test
   void empty_policy() {
@@ -130,12 +130,12 @@ class PolicyTest {
     assertThat(statement.condition()).isPresent();
   }
 
-  static class TestPropertyTree extends AbstractTestTree implements PropertyTree {
+  public static class TestPropertyTree extends AbstractTestTree implements PropertyTree {
 
     private final Tree key;
     private final Tree value;
 
-    private TestPropertyTree(String key, Tree value) {
+    public TestPropertyTree(String key, Tree value) {
       this.key = text(key);
       this.value = value;
     }
@@ -151,11 +151,11 @@ class PolicyTest {
     }
   }
 
-  static class TestTree extends AbstractTestTree implements HasProperties {
+  public static class TestTree extends AbstractTestTree implements HasProperties {
 
     private final List<Tree> children = new ArrayList<>();
 
-    private TestTree(Tree... attributes) {
+    public TestTree(Tree... attributes) {
       Stream.of(attributes).forEach(children::add);
     }
 

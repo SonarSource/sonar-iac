@@ -19,10 +19,19 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.policy.Policy;
+import org.sonar.iac.common.checks.policy.PolicyTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
+import static org.sonar.iac.common.checks.PrivilegeEscalationVector.actionEnablesVector;
+import static org.sonar.iac.common.checks.PrivilegeEscalationVector.getStatementEscalationVector;
 import static org.sonar.iac.common.checks.PrivilegeEscalationVector.isSupersetOfAnEscalationVector;
 
 class PrivilegeEscalationVectorTest {
@@ -73,5 +82,97 @@ class PrivilegeEscalationVectorTest {
       assertThat(vector.getName()).isNotEmpty();
       assertThat(vector.getPermissions()).isNotEmpty();
     });
+  }
+
+  @Test
+  void actionValueEnablesTheGivenVector() { //better name
+    assertThat(actionEnablesVector(PrivilegeEscalationVector.EC2, "iam:PassRole")).isTrue();
+    assertThat(actionEnablesVector(PrivilegeEscalationVector.EC2, "failMe")).isFalse();
+  }
+
+  @Test
+  void getStatementEscalationVectorSuccess() {
+    Policy.Statement statement = statement(Map.of("Effect", "Allow",
+      "Action", "action",
+      "Resource", "*"));
+
+    Optional<PrivilegeEscalationVector> actualVector = getStatementEscalationVector(statement, List.of(text("iam" +
+      ":CreatePolicyVersion")));
+    assertThat(actualVector).containsSame(PrivilegeEscalationVector.CREATE_POLICY_VERSION);
+  }
+
+  @Test
+  void getStatementEscalationVectorNoAllowEffect() {
+    Policy.Statement statement = statement(Map.of());
+
+    Optional<PrivilegeEscalationVector> actualVector = getStatementEscalationVector(statement, List.of(text("iam" +
+      ":CreatePolicyVersion")));
+    assertThat(actualVector).isEmpty();
+  }
+
+  @Test
+  void getStatementEscalationVectorWithResourceNotSensitive() {
+    Policy.Statement statement = statement(Map.of("Effect", "Allow",
+      "Action", "action",
+      "Resource", "NotSensitive"));
+
+    Optional<PrivilegeEscalationVector> actualVector = getStatementEscalationVector(statement, List.of(text("iam" +
+      ":CreatePolicyVersion")));
+    assertThat(actualVector).isEmpty();
+  }
+
+  @Test
+  void getStatementEscalationVectorWithResourceInPattern() {
+    Policy.Statement statement = statement(Map.of("Effect", "Allow",
+      "Action", "action",
+      "Resource", "arn:foo:bar:baz:bax:user/*"));
+
+    Optional<PrivilegeEscalationVector> actualVector = getStatementEscalationVector(statement, List.of(text("iam" +
+      ":CreatePolicyVersion")));
+    assertThat(actualVector).containsSame(PrivilegeEscalationVector.CREATE_POLICY_VERSION);
+  }
+
+  @Test
+  void getStatementEscalationVectorConditionExists() {
+    Policy.Statement statement = statement(Map.of("Effect", "Allow",
+      "Action", "action",
+      "Resource", "*",
+      "Condition", "condition"));
+
+    Optional<PrivilegeEscalationVector> actualVector = getStatementEscalationVector(statement, List.of(text("iam" +
+      ":CreatePolicyVersion")));
+    assertThat(actualVector).isEmpty();
+  }
+
+  @Test
+  void getStatementEscalationVectorPrincipalExists() {
+    Policy.Statement statement = statement(Map.of("Effect", "Allow",
+      "Action", "action",
+      "Resource", "*",
+      "Principal", "principal"));
+
+    Optional<PrivilegeEscalationVector> actualVector = getStatementEscalationVector(statement, List.of(text("iam" +
+      ":CreatePolicyVersion")));
+    assertThat(actualVector).isEmpty();
+  }
+
+  @Test
+  void getStatementEscalationVectorActionNotPresent() {
+    Policy.Statement statement = statement(Map.of("Effect", "Allow",
+      "Resource", "*"));
+
+    Optional<PrivilegeEscalationVector> actualVector = getStatementEscalationVector(statement, List.of(text("iam" +
+      ":CreatePolicyVersion")));
+    assertThat(actualVector).isEmpty();
+  }
+
+  private static Policy.Statement statement(Map<String, String> properties) {
+    Tree[] trees = properties.entrySet().stream()
+      .map(e -> new PolicyTest.TestPropertyTree(e.getKey(), text(e.getValue())))
+      .toArray(Tree[]::new);
+    Tree statementTree = new PolicyTest.TestTree(trees);
+    Tree tree = new PolicyTest.TestTree(statementTree);
+    Policy policy = new Policy(tree, Tree::children);
+    return policy.statement().get(0);
   }
 }

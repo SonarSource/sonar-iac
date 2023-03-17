@@ -122,6 +122,21 @@ Resources:
             Action:
               - sts:AssumeRole
             Resource: "*"
+  Compliant9:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: Foo
+            Resource: "*"
+  Compliant10:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Resource: "*"
   Coverage:
     Type: NON::AWS::IAM::ManagedPolicy
     Properties:

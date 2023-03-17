@@ -46,8 +46,10 @@ public enum PrivilegeEscalationVector {
   UPDATE_ASSUME_ROLE_POLICY("Update Assume role Policy", List.of("iam:UpdateAssumeRolePolicy", "sts:AssumeRole")),
   EC2("EC2", List.of("iam:PassRole", "ec2:RunInstances")),
   LAMBDA_CREATE_AND_INVOKE("Lambda Create and Invoke", List.of("iam:PassRole", "lambda:CreateFunction", "lambda:InvokeFunction")),
-  LAMBDA_CREATE_AND_ADD_PERMISSION("Lambda Create and Add Permission", List.of("iam:PassRole", "lambda:CreateFunction", "lambda:AddPermission")),
-  LAMBDA_TRIGGERED_WITH_AN_EXTERNAL_EVENT("Lambda triggered with an external event", List.of("iam:PassRole", "lambda:CreateFunction", "lambda:CreateEventSourceMapping")),
+  LAMBDA_CREATE_AND_ADD_PERMISSION("Lambda Create and Add Permission", List.of("iam:PassRole", "lambda:CreateFunction", "lambda" +
+    ":AddPermission")),
+  LAMBDA_TRIGGERED_WITH_AN_EXTERNAL_EVENT("Lambda triggered with an external event", List.of("iam:PassRole", "lambda:CreateFunction",
+    "lambda:CreateEventSourceMapping")),
   CLOUD_FORMATION("CloudFormation", List.of("iam:PassRole", "cloudformation:CreateStack")),
   DATA_PIPELINE("Data Pipeline", List.of("iam:PassRole", "datapipeline:CreatePipeline", "datapipeline:PutPipelineDefinition")),
   GLUE_DEVELOPMENT_ENDPOINT("Glue Development Endpoint", List.of("iam:PassRole", "glue:CreateDevEndpoint")),
@@ -76,16 +78,49 @@ public enum PrivilegeEscalationVector {
     return getEscalationVector(actionPermissions).isPresent();
   }
 
-  public static Optional<PrivilegeEscalationVector> getEscalationVector(Stream<String> actionPermissions) {
+  public List<Permission.SimplePermission> getPermissions() {
+    return permissions;
+  }
+
+  public static boolean actionEnablesVector(PrivilegeEscalationVector vector, String value) {
+    Permission permission = Permission.of(value);
+    return vector.getPermissions().stream().anyMatch(p -> p.isCoveredBy(permission));
+  }
+
+  public static Optional<PrivilegeEscalationVector> getStatementEscalationVector(Policy.Statement statement
+    , List<Tree> actionTrees) {
+    if (statement.effect().filter(PrivilegeEscalationVector::isAllowEffect).isPresent()
+      && statement.resource().filter(PrivilegeEscalationVector::isSensitiveResource).isPresent()
+      && statement.condition().isEmpty()
+      && statement.principal().isEmpty()
+      && statement.action().isPresent()) {
+      return getActionEscalationVector(actionTrees);
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<PrivilegeEscalationVector> getActionEscalationVector(List<Tree> testTree) {
+    Stream<String> actionPermissions = testTree.stream()
+      .map(TextUtils::getValue)
+      .flatMap(Optional::stream);
+    return getEscalationVector(actionPermissions);
+  }
+
+  private static Optional<PrivilegeEscalationVector> getEscalationVector(Stream<String> actionPermissions) {
     Set<Permission> permissionVector = actionPermissions.map(Permission::of).collect(Collectors.toSet());
 
-    return Stream.of(PrivilegeEscalationVector.values())
+    return Stream.of(values())
       .filter(vector -> vector.isSubsetOf(permissionVector))
       .findFirst();
   }
 
-  public List<Permission.SimplePermission> getPermissions() {
-    return permissions;
+  private static boolean isAllowEffect(Tree effect) {
+    return TextUtils.isValue(effect, "Allow").isTrue();
+  }
+
+  private static boolean isSensitiveResource(Tree resource) {
+    return TextUtils.matchesValue(resource, rsc -> rsc.equals("*")
+      || RESOURCE_NAME_PATTERN.matcher(rsc).matches()).isTrue();
   }
 
   public abstract static class Permission {
@@ -97,7 +132,8 @@ public enum PrivilegeEscalationVector {
     }
 
     public static Permission of(String permissionName) {
-      return permissionName.endsWith("*") ? new Permission.WildCardPermission(permissionName) : new Permission.SimplePermission(permissionName);
+      return permissionName.endsWith("*") ? new Permission.WildCardPermission(permissionName) :
+        new Permission.SimplePermission(permissionName);
     }
 
     public static class SimplePermission extends Permission {
@@ -120,40 +156,5 @@ public enum PrivilegeEscalationVector {
         super(permissionName);
       }
     }
-  }
-
-  public static boolean actionEnablesVector(PrivilegeEscalationVector vector, String value) {
-    PrivilegeEscalationVector.Permission permission = PrivilegeEscalationVector.Permission.of(value);
-    return vector.getPermissions().stream().anyMatch(p -> p.isCoveredBy(permission));
-  }
-
-  public static boolean someBooleanCheck(Policy.Statement statement) {
-    return statement.effect().filter(PrivilegeEscalationVector::isAllowEffect).isPresent()
-      && statement.resource().filter(PrivilegeEscalationVector::isSensitiveResource).isPresent()
-      && statement.condition().isEmpty()
-      && statement.principal().isEmpty()
-      && statement.action().isPresent();
-  }
-
-  private static boolean isAllowEffect(Tree effect) {
-    return TextUtils.isValue(effect, "Allow").isTrue();
-  }
-
-  private static boolean isSensitiveResource(Tree resource) {
-    return TextUtils.matchesValue(resource, rsc -> rsc.equals("*") || RESOURCE_NAME_PATTERN.matcher(rsc).matches()).isTrue();
-  }
-
-  public static Optional<PrivilegeEscalationVector> getStatementEscalationVector(Policy.Statement statement, List<Tree> actionTrees) {
-    if (someBooleanCheck(statement)) {
-      return getActionEscalationVector(actionTrees);
-    }
-    return Optional.empty();
-  }
-
-  private static Optional<PrivilegeEscalationVector> getActionEscalationVector(List<Tree> testTree) {
-    Stream<String> actionPermissions = testTree.stream()
-      .map(TextUtils::getValue)
-      .flatMap(Optional::stream);
-    return PrivilegeEscalationVector.getEscalationVector(actionPermissions);
   }
 }

@@ -142,6 +142,29 @@ resource "aws_iam_policy" "non_compliant_policy7" {
   })
 }
 
+resource "aws_iam_policy" "non_compliant_policy8" {
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [ "Foo" ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "non_compliant_policy9" {
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "non_aws_iam_policy" "coverage" {
   policy = jsonencode({
     Statement = [

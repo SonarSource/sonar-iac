@@ -62,7 +62,9 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
       Optional<Tree> action = statement.action();
       if (action.isPresent() && action.get() instanceof SequenceTree) {
-        actionTrees = ((SequenceTree) action.get()).elements().stream().map(Tree.class::cast).collect(Collectors.toList());
+        actionTrees = ((SequenceTree) action.get()).elements().stream()
+          .map(Tree.class::cast)
+          .collect(Collectors.toList());
       }
 
       Optional<PrivilegeEscalationVector> vectorOpt = getStatementEscalationVector(statement, actionTrees);
