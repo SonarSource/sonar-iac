@@ -100,6 +100,7 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
         Integer sizeCommand = fullMatch(resolvedArguments, argIndex);
         if (sizeCommand != null) {
           commands.add(new Command(resolvedArguments.subList(argIndex, argIndex + sizeCommand)));
+          // add the command size to the counter to skip related arguments
           argIndex += sizeCommand - 1;
         }
       }
