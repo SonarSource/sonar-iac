@@ -77,7 +77,7 @@ public class CloudformationSensor extends YamlSensor {
   @Override
   protected void importExternalReports(SensorContext sensorContext) {
     ExternalReportProvider.getReportFiles(sensorContext, CloudformationSettings.CFN_LINT_REPORTS_KEY)
-      .forEach(report -> CfnLintImporter.importReport(sensorContext, report, analysisWarnings));
+      .forEach(report -> new CfnLintImporter(sensorContext, analysisWarnings).importReport(report));
   }
 
   @Override

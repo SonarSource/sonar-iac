@@ -105,7 +105,7 @@ class CfnLintImporterTest {
   @Test
   void invalid_issue() {
     File reportFile = new File("src/test/resources/cfn-lint/invalidIssue.json");
-    String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 1 issues from %s", reportFile.getPath());
+    String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 1 issues from %s.", reportFile.getPath());
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(logTester.logs(LoggerLevel.WARN))
@@ -131,7 +131,7 @@ class CfnLintImporterTest {
     File reportFile = new File("src/test/resources/cfn-lint/validAndInvalid.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
-    String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 2 issues from %s", reportFile.getPath());
+    String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 2 issues from %s.", reportFile.getPath());
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
@@ -149,6 +149,6 @@ class CfnLintImporterTest {
   }
 
   private void importReport(File reportFile) {
-    CfnLintImporter.importReport(context, reportFile, mockAnalysisWarnings);
+    new CfnLintImporter(context, mockAnalysisWarnings).importReport(reportFile);
   }
 }

@@ -22,7 +22,9 @@ package org.sonar.iac.cloudformation.reports;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Objects;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -44,58 +46,72 @@ public class CfnLintImporter {
 
   public static final String LINE_NUMBER_KEY = "LineNumber";
   public static final String COLUMN_NUMBER_KEY = "ColumnNumber";
+  private final SensorContext context;
+  private final AnalysisWarningsWrapper analysisWarnings;
+  private Set<String> unresolvedPaths;
 
-  private CfnLintImporter() {
+  public CfnLintImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings) {
+    this.context = context;
+    this.analysisWarnings = analysisWarnings;
   }
 
-  public static void importReport(SensorContext context, File reportFile, AnalysisWarningsWrapper analysisWarnings) {
-    String path = reportFile.getPath();
+  public void importReport(File reportFile) {
     if (!reportFile.isFile()) {
-      String message = String.format("Cfn-lint report importing: path does not seem to point to a file %s", path);
+      String message = String.format("Cfn-lint report importing: path does not seem to point to a file %s", reportFile.getPath());
       logWarnAndAddUnique(analysisWarnings, message);
       return;
     }
 
-    JSONArray issuesJson;
+    parseJson(reportFile).ifPresent(issuesJson -> {
+      unresolvedPaths = new LinkedHashSet<>();
+      int failedToSaveIssues = saveIssues(issuesJson);
+      if (failedToSaveIssues > 0) {
+        addWarning(reportFile.getPath(), issuesJson.size(), failedToSaveIssues);
+      }
+    });
+  }
+
+  private Optional<JSONArray> parseJson(File reportFile) {
+    JSONArray issuesJson = null;
     try {
       issuesJson = (JSONArray) jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
     } catch (IOException e) {
-      String message = String.format("Cfn-lint report importing: could not read report file %s", path);
+      String message = String.format("Cfn-lint report importing: could not read report file %s", reportFile.getPath());
       logWarnAndAddUnique(analysisWarnings, message);
-      return;
     } catch (ParseException e) {
-      String message = String.format("Cfn-lint report importing: could not parse file as JSON %s", path);
+      String message = String.format("Cfn-lint report importing: could not parse file as JSON %s", reportFile.getPath());
       logWarnAndAddUnique(analysisWarnings, message);
-      return;
     } catch (RuntimeException e) {
-      String message = String.format("Cfn-lint report importing: file is expected to contain a JSON array but didn't %s", path);
+      String message = String.format("Cfn-lint report importing: file is expected to contain a JSON array but didn't %s", reportFile.getPath());
       logWarnAndAddUnique(analysisWarnings, message);
-      return;
     }
+    return Optional.ofNullable(issuesJson);
+  }
 
+  private int saveIssues(JSONArray issuesJson) {
     int failedToSaveIssues = 0;
     for (Object issueJson : issuesJson) {
       try {
-        saveAsExternalIssue(context, (JSONObject) issueJson);
+        saveIssue((JSONObject) issueJson);
       } catch (RuntimeException e) {
         LOG.debug("Cfn-lint report importing: failed to save issue", e);
         failedToSaveIssues++;
       }
     }
-
-    if (failedToSaveIssues > 0) {
-      String message = String.format("Cfn-lint report importing: could not save %d out of %d issues from %s", failedToSaveIssues, issuesJson.size(), path);
-      logWarnAndAddUnique(analysisWarnings, message);
-    }
+    return failedToSaveIssues;
   }
 
-  private static void saveAsExternalIssue(SensorContext context, JSONObject issueJson) {
+  private void saveIssue(JSONObject issueJson) {
     String path = (String) issueJson.get("Filename");
     FilePredicates predicates = context.fileSystem().predicates();
     InputFile inputFile = context.fileSystem().inputFile(predicates.or(
       predicates.hasAbsolutePath(path),
       predicates.hasRelativePath(path)));
-    Objects.requireNonNull(inputFile);
+
+    if (inputFile == null) {
+      unresolvedPaths.add(path);
+      return;
+    }
 
     String ruleId = (String) ((JSONObject) issueJson.get("Rule")).get("Id");
     if (!CfnLintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
@@ -111,6 +127,18 @@ public class CfnLintImporter {
     externalIssue.at(getIssueLocation(issueJson, externalIssue, inputFile));
 
     externalIssue.save();
+  }
+
+  private void addWarning(String path, int total, int failed) {
+    StringBuilder sb = new StringBuilder(String.format("Cfn-lint report importing: could not save %d out of %d issues from %s.", failed, total, path));
+    if (!unresolvedPaths.isEmpty()) {
+      sb.append(" Some file paths could not be resolved: ");
+      unresolvedPaths.stream()
+        .limit(2)
+        .forEach(p -> sb.append(String.format(", '%s'", p)));
+      sb.append(unresolvedPaths.size() > 2 ? ", ..." : "");
+    }
+    logWarnAndAddUnique(analysisWarnings, sb.toString());
   }
 
   private static NewIssueLocation getIssueLocation(JSONObject issueJson, NewExternalIssue externalIssue, InputFile inputFile) {
