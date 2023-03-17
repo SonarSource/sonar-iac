@@ -1,0 +1,43 @@
+{
+  "title": "Using weak hashing algorithms is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "spring",
+    "owasp-a6",
+    "sans-top25-porous",
+    "owasp-a3",
+    "owasp-m5"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4790",
+  "sqKey": "S4790",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      1240
+    ],
+    "OWASP": [
+      "A3",
+      "A6"
+    ],
+    "OWASP Mobile": [
+      "M5"
+    ],
+    "MASVS": [
+      "MSTG-CRYPTO-4"
+    ],
+    "OWASP Top 10 2021": [
+      "A2"
+    ],
+    "PCI DSS 3.2": [
+      "3.4",
+      "6.5.3",
+      "6.5.4"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  }
+}
