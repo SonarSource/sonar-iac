@@ -74,8 +74,7 @@ class CfnLintImporterTest {
     String logMessage = String.format(expectedLog, path);
 
     importReport(reportFile);
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly(logMessage);
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -89,8 +88,7 @@ class CfnLintImporterTest {
     doAnswer((invocation) -> {throw new IOException();}).when(reportFile).toPath();
 
     importReport(reportFile);
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly(logMessage);
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -105,11 +103,10 @@ class CfnLintImporterTest {
   @Test
   void invalid_issue() {
     File reportFile = new File("src/test/resources/cfn-lint/invalidIssue.json");
-    String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 1 issues from %s", reportFile.getPath());
+    String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 1 issues from %s.", reportFile.getPath());
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsExactly(logMessage);
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -131,7 +128,7 @@ class CfnLintImporterTest {
     File reportFile = new File("src/test/resources/cfn-lint/validAndInvalid.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
-    String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 2 issues from %s", reportFile.getPath());
+    String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 2 issues from %s.", reportFile.getPath());
     assertThat(logTester.logs(LoggerLevel.WARN))
       .containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
@@ -148,7 +145,24 @@ class CfnLintImporterTest {
     verifyNoInteractions(mockAnalysisWarnings);
   }
 
+  @ParameterizedTest
+  @CsvSource(value = {
+    "src/test/resources/cfn-lint/invalidPathTwo.json; Cfn-lint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +
+      "doesNotExist.yaml, a/b/doesNotExistToo.yaml",
+    "src/test/resources/cfn-lint/invalidPathMoreThanTwo.json; Cfn-lint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
+      "doesNotExist.yaml, a/b/doesNotExistToo.yaml, ..."
+  }, delimiter = ';')
+  void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
+    String expectedLog = String.format(expectedLogFormat, reportFile.getPath());
+
+    importReport(reportFile);
+
+    assertThat(context.allExternalIssues()).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(expectedLog);
+    verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
+  }
+
   private void importReport(File reportFile) {
-    CfnLintImporter.importReport(context, reportFile, mockAnalysisWarnings);
+    new CfnLintImporter(context, mockAnalysisWarnings).importReport(reportFile);
   }
 }
