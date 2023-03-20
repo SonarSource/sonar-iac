@@ -21,11 +21,11 @@ package org.sonar.iac.docker.checks;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
@@ -38,17 +38,15 @@ public class PackageInstallationCheck implements IacCheck {
   private static final Set<String> APT_COMMANDS = Set.of("apt", "apt-get");
   private static final CommandDetector SENSITIVE_APT_COMMAND = CommandDetector.builder()
     .with(APT_COMMANDS::contains)
-    .withOptionalRepeating(s -> s.startsWith("-"))
+    .withAnyFlag()
     .with("install"::equals)
-    .withOptionalRepeating(s -> s.startsWith("-") && !"--no-install-recommends".equals(s))
-    .notWith("--no-install-recommends"::equals)
+    .withAnyFlagExcept("--no-install-recommends")
     .build();
   private static final CommandDetector SENSITIVE_APTITUDE_COMMAND = CommandDetector.builder()
     .with("aptitude"::equals)
-    .withOptionalRepeating(s -> s.startsWith("-"))
+    .withAnyFlag()
     .with("install"::equals)
-    .withOptionalRepeating(s -> s.startsWith("-") && !"--without-recommends".equals(s))
-    .notWith("--without-recommends"::equals)
+    .withAnyFlagExcept("--without-recommends")
     .build();
 
   @Override
@@ -57,7 +55,7 @@ public class PackageInstallationCheck implements IacCheck {
   }
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
-    List<ArgumentResolution> resolvedArgument = runInstruction.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
+    List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
     SENSITIVE_APT_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
     SENSITIVE_APTITUDE_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));

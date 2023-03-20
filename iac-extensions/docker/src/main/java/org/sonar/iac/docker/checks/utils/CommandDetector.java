@@ -20,6 +20,8 @@
 package org.sonar.iac.docker.checks.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -82,8 +84,13 @@ public class CommandDetector {
       CommandPredicate currentPredicate = predicateStack.pollFirst();
       ArgumentResolution resolution = argumentStack.pollFirst();
 
-      // Stop argument detection when argument list is empty or argument is unresolved to start new command detection
-      if (resolution == null || resolution.is(UNRESOLVED)) {
+      // Stop argument detection when argument list is empty
+      if (resolution == null) {
+        return remainingPredictsAreOptional(currentPredicate, predicateStack) ? commandArguments : Collections.emptyList();
+      }
+
+      // Stop argument detection when argument is unresolved to start new command detection
+      if (resolution.is(UNRESOLVED)) {
         return Collections.emptyList();
       }
 
@@ -110,6 +117,11 @@ public class CommandDetector {
     return commandArguments;
   }
 
+  private static boolean remainingPredictsAreOptional(CommandPredicate currentPredicate, Deque<CommandPredicate> remainingPredicates) {
+    remainingPredicates.addFirst(currentPredicate);
+    return remainingPredicates.stream().noneMatch(predicate -> predicate.is(MATCH));
+  }
+
   public static class Builder {
 
     List<CommandPredicate> predicates = new ArrayList<>();
@@ -121,6 +133,14 @@ public class CommandDetector {
     public CommandDetector.Builder with(Predicate<String> predicate) {
       addPredicate(predicate, MATCH);
       return this;
+    }
+
+    public CommandDetector.Builder with(Collection<String> firstOf) {
+      return with(firstOf::contains);
+    }
+
+    public CommandDetector.Builder with(String expectedString) {
+      return with(expectedString::equals);
     }
 
     public CommandDetector.Builder withOptional(Predicate<String> predicate) {
@@ -136,6 +156,16 @@ public class CommandDetector {
     public CommandDetector.Builder withOptionalRepeating(Predicate<String> predicate) {
       addPredicate(predicate, ZERO_OR_MORE);
       return this;
+    }
+
+    public CommandDetector.Builder withAnyFlagExcept(String... excludedFlags) {
+      List<String> excludedFlagList = Arrays.asList(excludedFlags);
+      return withOptionalRepeating(s -> s.startsWith("-") && !excludedFlagList.contains(s))
+        .notWith(excludedFlagList::contains);
+    }
+
+    public CommandDetector.Builder withAnyFlag() {
+      return withOptionalRepeating(s -> s.startsWith("-"));
     }
 
     public CommandDetector build() {
