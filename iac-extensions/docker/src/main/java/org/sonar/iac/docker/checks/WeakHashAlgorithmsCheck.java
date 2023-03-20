@@ -36,7 +36,7 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   private static final String MESSAGE = "Using weak hashing algorithms is security-sensitive.";
 
   private static final Set<String> OPENSSL_SENSITIVE_SUBCOMMAND = Set.of("md5", "sha1", "rmd160", "ripemd160");
-  private static final Set<String> OPENSSL_SENSITIVE_DGST_OPTION  = Set.of("-md2", "-md4", "-md5", "-sha1", "-ripemd160", "-ripemd", "-rmd160");
+  private static final Set<String> OPENSSL_SENSITIVE_DGST_OPTION = Set.of("-md2", "-md4", "-md5", "-sha1", "-ripemd160", "-ripemd", "-rmd160");
   private static final Set<String> SHASUM_SENSITIVE_COMMAND = Set.of("md5sum", "sha1sum");
 
   private static final CommandDetector SENSITIVE_OPENSSL_SUBCOMMAND = CommandDetector.builder()
