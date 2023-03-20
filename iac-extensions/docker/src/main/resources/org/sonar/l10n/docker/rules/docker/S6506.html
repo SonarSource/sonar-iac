@@ -1,0 +1,50 @@
+<p>The usage of HTTPS is not enforced here. As it is possible for the HTTP client to follow redirects, such redirects might lead to websites using
+HTTP.</p>
+<p>As HTTP is a clear-text protocol, it is considered insecure. Due to its lack of encryption, attackers that are able to sniff traffic from the
+network can read, modify, or corrupt the transported content. Therefore, allowing redirects to HTTP can lead to several risks:</p>
+<ul>
+  <li> Exposure of sensitive data </li>
+  <li> Malware-infected software updates or installers </li>
+  <li> Corruption of critical information </li>
+</ul>
+<p>Even in isolated networks, such as segmented cloud or offline environments, it is important to ensure the usage of HTTPS. If not, then insider
+threats with access to these environments might still be able to monitor or tamper with communications.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> It is possible for the requested resource to be redirected to an insecure location in the future. </li>
+</ul>
+<p>There is a risk if you answered yes to the question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Ensure that the HTTP client only accepts HTTPS pages. In curl, this can be enabled using the option <code>--proto "=https"</code>. </li>
+  <li> If it is not necessary to follow HTTP redirects, then disable this in the HTTP client. In curl, this is done by omitting the <code>-L</code> or
+  <code>--location</code> option. </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<p>In this example, an install script is downloaded using curl and then executed.</p>
+<p>Several options are set to ensure secure execution of the HTTP request using curl. However, as the option <code>-L</code> is set,
+<code>https://might-redirect.example.com/install.sh</code> might redirect curl to a location that uses HTTP. If this is the case, an attacker can
+change the install script that will be executed on the host system.</p>
+<pre>
+FROM ubuntu:22.04
+
+# Sensitive
+RUN curl --tlsv1.2 -sSf -L https://might-redirect.example.com/install.sh | sh
+</pre>
+<h2>Compliant Solution</h2>
+<p>By adding the option <code>--proto "=https"</code> to the HTTP request, curl will only execute requests made using HTTPS. If a redirect goes to an
+insecure (HTTP) location, the request will not be executed. This ensures that no tampering can occur.</p>
+<pre>
+FROM ubuntu:22.04
+
+RUN curl --proto "=https" --tlsv1.2 -sSf -L https://might-redirect.example.com/install.sh | sh
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/757">MITRE, CWE-757</a> - Selection of Less-Secure Algorithm During Negotiation ('Algorithm
+  Downgrade') </li>
+  <li> <a href="https://curl.se/docs/manpage.html#--proto">curl.1 the man page</a> - <code>--proto &lt;protocols&gt;</code> </li>
+  <li> <a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#41-encrypt-everything">SSL and TLS Deployment Best
+  Practices</a> - Encrypt Everything </li>
+</ul>
+
