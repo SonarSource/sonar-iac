@@ -53,8 +53,7 @@ class ExposeInstructionImplTest {
       .notMatches("EXPOSE80")
       .notMatches("EXPOSE")
       .notMatches("EXPOSE ")
-      .notMatches("EXPOSEE")
-    ;
+      .notMatches("EXPOSEE");
   }
 
   @Test

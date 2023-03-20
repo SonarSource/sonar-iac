@@ -50,10 +50,9 @@ public class AwsTagNameConventionCheck extends AbstractResourceCheck {
 
   @Override
   protected void registerResourceChecks() {
-    register((ctx, resource) ->
-      getTagKeyStream(resource)
-        .filter(this::isMismatchingKey)
-        .forEach(tagKey -> ctx.reportIssue(tagKey, String.format(MESSAGE, tagKey.value(), format))));
+    register((ctx, resource) -> getTagKeyStream(resource)
+      .filter(this::isMismatchingKey)
+      .forEach(tagKey -> ctx.reportIssue(tagKey, String.format(MESSAGE, tagKey.value(), format))));
   }
 
   private static Stream<LiteralExprTree> getTagKeyStream(BlockTree resource) {

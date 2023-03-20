@@ -46,7 +46,7 @@ public class AwsPublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
       resource -> resource.block("network_interfaces")
         .reportIfAbsent(String.format(OMITTING_MESSAGE, "network_interfaces.associate_public_ip_address"))
         .attribute("associate_public_ip_address")
-          .reportIfAbsent(OMITTING_MESSAGE, resource.toSecondary(SECONDARY_TEMPLATE_MESSAGE))
-          .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE, resource.toSecondary(SECONDARY_TEMPLATE_MESSAGE)));
+        .reportIfAbsent(OMITTING_MESSAGE, resource.toSecondary(SECONDARY_TEMPLATE_MESSAGE))
+        .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE, resource.toSecondary(SECONDARY_TEMPLATE_MESSAGE)));
   }
 }

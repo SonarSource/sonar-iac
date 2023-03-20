@@ -200,7 +200,7 @@ public abstract class IacSensor implements Sensor {
           statistics.time(visitorId, () -> visitor.scan(inputFileContext, tree));
         } catch (RuntimeException e) {
           inputFileContext.reportAnalysisError(e.getMessage(), null);
-          LOG.error("Cannot analyse '" + inputFile +"': " + e.getMessage(), e);
+          LOG.error("Cannot analyse '" + inputFile + "': " + e.getMessage(), e);
 
           interruptOnFailFast(inputFileContext.sensorContext, inputFile, e);
         }

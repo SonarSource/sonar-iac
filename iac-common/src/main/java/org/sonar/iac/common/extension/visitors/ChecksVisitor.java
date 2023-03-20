@@ -49,6 +49,7 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
       check.initialize(context(ruleKey));
     }
   }
+
   protected InitContext context(RuleKey ruleKey) {
     return new ContextAdapter(ruleKey);
   }

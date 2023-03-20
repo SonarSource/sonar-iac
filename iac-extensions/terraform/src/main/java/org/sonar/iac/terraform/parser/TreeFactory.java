@@ -179,7 +179,7 @@ public class TreeFactory {
     List<PartialAccess> accesses = optionalAccesses.get();
 
     ExpressionTree result = accesses.get(0).complete(primary);
-    for (PartialAccess attribute: accesses.subList(1, accesses.size())) {
+    for (PartialAccess attribute : accesses.subList(1, accesses.size())) {
       result = attribute.complete(result);
     }
 
@@ -206,21 +206,21 @@ public class TreeFactory {
   }
 
   public ForTupleTree forTuple(SyntaxToken openBracket,
-                               AbstractForTree.ForIntro intro,
-                               ExpressionTree expression,
-                               Optional<Pair<SyntaxToken, ExpressionTree>> condition,
-                               SyntaxToken closeBracket) {
+    AbstractForTree.ForIntro intro,
+    ExpressionTree expression,
+    Optional<Pair<SyntaxToken, ExpressionTree>> condition,
+    SyntaxToken closeBracket) {
     return new ForTupleTreeImpl(openBracket, intro, expression, condition.orNull(), closeBracket);
   }
 
   public ForObjectTree forObject(SyntaxToken openBrace,
-                                 AbstractForTree.ForIntro intro,
-                                 ExpressionTree firstExpression,
-                                 SyntaxToken arrow,
-                                 ExpressionTree secondExpression,
-                                 Optional<SyntaxToken> ellipsis,
-                                 Optional<Pair<SyntaxToken, ExpressionTree>> condition,
-                                 SyntaxToken closeBrace) {
+    AbstractForTree.ForIntro intro,
+    ExpressionTree firstExpression,
+    SyntaxToken arrow,
+    ExpressionTree secondExpression,
+    Optional<SyntaxToken> ellipsis,
+    Optional<Pair<SyntaxToken, ExpressionTree>> condition,
+    SyntaxToken closeBrace) {
     return new ForObjectTreeImpl(openBrace, intro, firstExpression, arrow, secondExpression, ellipsis.orNull(), condition.orNull(), closeBrace);
   }
 
@@ -246,8 +246,7 @@ public class TreeFactory {
   private static <T extends TerraformTree> SeparatedTreesImpl<T> separatedTrees(
     T firstElement,
     Optional<List<Pair<SyntaxToken, T>>> pairs,
-    @Nullable SyntaxToken trailingSeparator
-  ) {
+    @Nullable SyntaxToken trailingSeparator) {
     List<T> elements = new ArrayList<>();
     List<SyntaxToken> separators = new ArrayList<>();
 

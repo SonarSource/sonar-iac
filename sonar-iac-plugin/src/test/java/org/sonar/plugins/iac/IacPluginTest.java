@@ -43,4 +43,3 @@ class IacPluginTest {
     assertThat(context.getExtensions()).hasSize(28);
   }
 }
-

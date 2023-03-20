@@ -62,7 +62,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void yaml_file_without_identifiers_should_not_be_parsed() {
-    analyse(sensor(), inputFile( ""));
+    analyse(sensor(), inputFile(""));
     asserNotSourceFileIsParsed();
   }
 

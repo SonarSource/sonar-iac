@@ -56,7 +56,7 @@ public class AzureClearTextProtocolsCheckPart extends AbstractNewResourceCheck {
     register("azurerm_app_service",
       resource -> resource.block("site_config")
         .attribute("ftps_state")
-          .reportIf(equalTo("AllAllowed"), MESSAGE_CLEAR_TEXT));
+        .reportIf(equalTo("AllAllowed"), MESSAGE_CLEAR_TEXT));
 
     register("azurerm_cdn_endpoint",
       resource -> resource.attribute("is_http_allowed")
@@ -75,7 +75,7 @@ public class AzureClearTextProtocolsCheckPart extends AbstractNewResourceCheck {
       resource -> resource.attribute("enable_https_traffic_only")
         .reportIf(isFalse(), MESSAGE_CLEAR_TEXT));
 
-    register("azurerm_api_management_api" ,
+    register("azurerm_api_management_api",
       resource -> resource.list("protocols")
         .reportItemIf(equalTo("http"), MESSAGE_CLEAR_TEXT));
   }

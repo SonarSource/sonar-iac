@@ -144,18 +144,16 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
-    b.rule(WHITESPACE).is(b.regexp("["+LexicalConstant.WHITESPACE+"]++")).skip();
+    b.rule(WHITESPACE).is(b.regexp("[" + LexicalConstant.WHITESPACE + "]++")).skip();
     b.rule(SKIPPED_WHITESPACE).is(b.skippedTrivia(WHITESPACE));
-    b.rule(WHITESPACE_OR_LINE_BREAK).is(b.regexp("["+LexicalConstant.WHITESPACE+LexicalConstant.LINE_TERMINATOR+"]++")).skip();
-    b.rule(EOL).is(b.regexp("(?:"+DockerLexicalConstant.EOL+"|$)"));
+    b.rule(WHITESPACE_OR_LINE_BREAK).is(b.regexp("[" + LexicalConstant.WHITESPACE + LexicalConstant.LINE_TERMINATOR + "]++")).skip();
+    b.rule(EOL).is(b.regexp("(?:" + DockerLexicalConstant.EOL + "|$)"));
     b.rule(SPACING).is(
       b.oneOrMore(
         b.firstOf(
           b.commentTrivia(b.regexp(DockerLexicalConstant.COMMENT)),
-          b.skippedTrivia(WHITESPACE_OR_LINE_BREAK)
-        )
-      )
-    ).skip();
+          b.skippedTrivia(WHITESPACE_OR_LINE_BREAK))))
+      .skip();
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
 
@@ -189,11 +187,8 @@ public enum DockerLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
-    Arrays.stream(DockerKeyword.values()).forEach(tokenType ->
-      b.rule(tokenType).is(
-        b.optional(SPACING),
-        b.regexp("(?i)" + tokenType.getValue())
-      ).skip()
-    );
+    Arrays.stream(DockerKeyword.values()).forEach(tokenType -> b.rule(tokenType).is(
+      b.optional(SPACING),
+      b.regexp("(?i)" + tokenType.getValue())).skip());
   }
 }

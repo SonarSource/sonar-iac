@@ -55,8 +55,7 @@ class ArgumentImplTest {
       .matches("foo${bar}foo$bar")
 
       .notMatches("foo bar")
-      .notMatches("foo $bar")
-    ;
+      .notMatches("foo $bar");
   }
 
   @Test

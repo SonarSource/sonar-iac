@@ -36,7 +36,7 @@ public class DisabledESDomainEncryptionCheck extends AbstractNewResourceCheck {
       resource -> resource.block("encrypt_at_rest")
         .reportIfAbsent(OMITTING_MESSAGE)
         .attribute("enabled")
-          .reportIfAbsent(OMITTING_MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
-          .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE)));
+        .reportIfAbsent(OMITTING_MESSAGE, resource.toSecondary(SECONDARY_MESSAGE))
+        .reportIf(isFalse(), MESSAGE, resource.toSecondary(SECONDARY_MESSAGE)));
   }
 }

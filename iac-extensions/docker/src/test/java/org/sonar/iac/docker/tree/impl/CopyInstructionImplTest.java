@@ -145,7 +145,7 @@ class CopyInstructionImplTest {
       "line 2",
       "FILE1");
     CopyInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.COPY);
-    assertTextRange(tree.textRange()).hasRange(1,0,4,5);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 4, 5);
 
     assertThat(tree.keyword().value()).isEqualTo("COPY");
     assertThat(tree.arguments()).isNotNull();

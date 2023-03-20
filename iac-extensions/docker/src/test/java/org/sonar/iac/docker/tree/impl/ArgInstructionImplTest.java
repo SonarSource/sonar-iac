@@ -46,8 +46,7 @@ class ArgInstructionImplTest {
 
       .notMatches("ARGkey1")
       .notMatches("ARG")
-      .notMatches("ARG ")
-    ;
+      .notMatches("ARG ");
   }
 
   @Test

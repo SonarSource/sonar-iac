@@ -33,7 +33,7 @@ public class AuditLogMemberExclusionCheck extends AbstractNewResourceCheck {
         .forEach(block -> {
           ListSymbol list = block.list("exempted_members");
           if (!list.isEmpty() && !list.isByReference()) {
-            list.report( "Make sure excluding members activity from audit logs is safe here.");
+            list.report("Make sure excluding members activity from audit logs is safe here.");
           }
         }));
   }

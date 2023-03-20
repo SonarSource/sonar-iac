@@ -22,7 +22,7 @@ package org.sonar.iac.cloudformation.checks;
 import org.junit.jupiter.api.Test;
 
 class PrivilegePolicyCheckTest {
-  
+
   @Test
   void test() {
     CloudformationVerifier.verify("PrivilegePolicyCheck/test.yaml", new PrivilegePolicyCheck());

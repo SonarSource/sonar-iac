@@ -33,26 +33,17 @@ public class MountingFileSystemPathsCheck extends AbstractKubernetesObjectCheck 
 
   @Override
   void registerObjectCheck() {
-    register("Pod", pod ->
-      pod.blocks("volumes").forEach(container ->
-        container.block(HOST_PATH)
-          .attribute("path")
-            .reportIfValue(startsWith(SENSITIVE_PATHS), MESSAGE)
-      )
-    );
+    register("Pod", pod -> pod.blocks("volumes").forEach(container -> container.block(HOST_PATH)
+      .attribute("path")
+      .reportIfValue(startsWith(SENSITIVE_PATHS), MESSAGE)));
 
-    register("PersistentVolume", perVolu ->
-      perVolu.block(HOST_PATH)
-          .attribute("path")
-            .reportIfValue(startsWith(SENSITIVE_PATHS), MESSAGE)
-    );
+    register("PersistentVolume", perVolu -> perVolu.block(HOST_PATH)
+      .attribute("path")
+      .reportIfValue(startsWith(SENSITIVE_PATHS), MESSAGE));
 
-    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      obj.block("template").block("spec").blocks("volumes").forEach(container ->
-        container.block(HOST_PATH)
-          .attribute("path")
-            .reportIfValue(startsWith(SENSITIVE_PATHS), MESSAGE)
-      )
-    );
+    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"),
+      obj -> obj.block("template").block("spec").blocks("volumes").forEach(container -> container.block(HOST_PATH)
+        .attribute("path")
+        .reportIfValue(startsWith(SENSITIVE_PATHS), MESSAGE)));
   }
 }

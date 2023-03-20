@@ -52,7 +52,7 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
     register("aws_db_instance",
       resource -> {
         if (resource.attribute("source_db_instance_identifier").isAbsent()
-        && !resource.attribute("engine").is(isEngineException())) {
+          && !resource.attribute("engine").is(isEngineException())) {
           checkAwsRetentionRate(resource);
         }
       });
@@ -62,14 +62,14 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
     register("azurerm_backup_policy_file_share",
       resource -> resource.block("retention_daily")
         .attribute("count")
-          .reportIf(lessThan(backupRetentionDuration), MESSAGE));
+        .reportIf(lessThan(backupRetentionDuration), MESSAGE));
 
     register("azurerm_cosmosdb_account",
       resource -> resource.block("backup")
         .reportIfAbsent(String.format(OMITTING_MESSAGE, "backup.retention_in_hours"))
         .attribute("retention_in_hours")
-          .reportIfAbsent(OMITTING_MESSAGE)
-          .reportIf(lessThan(backupRetentionDuration * 24), MESSAGE));
+        .reportIfAbsent(OMITTING_MESSAGE)
+        .reportIf(lessThan(backupRetentionDuration * 24), MESSAGE));
 
     register("azurerm_app_service",
       resource -> {
@@ -80,7 +80,7 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
           if (enabled.is(isTrue())) {
             backup.block("schedule")
               .attribute("retention_period_in_days")
-                .reportIf(lessThan(backupRetentionDuration), MESSAGE);
+              .reportIf(lessThan(backupRetentionDuration), MESSAGE);
           }
         }
       });

@@ -61,9 +61,8 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
     scan("" +
       "key: |\n" +
       "  value1\n" +
-      "  value2\n"
-    );
-    assertThat(visitor.linesOfCode()).containsExactly(1,2,3);
+      "  value2\n");
+    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
   }
 
   @Test
@@ -71,9 +70,8 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
     scan("" +
       "key: |\n" +
       "  value1\n" +
-      "  value2\n    "
-    );
-    assertThat(visitor.linesOfCode()).containsExactly(1,2,3,4);
+      "  value2\n    ");
+    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4);
   }
 
   @Test
@@ -81,9 +79,8 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
     scan("" +
       "key: >\n" +
       "  value1\n" +
-      "  value2\n"
-    );
-    assertThat(visitor.linesOfCode()).containsExactly(1,2,3);
+      "  value2\n");
+    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
   }
 
   @Test
@@ -92,7 +89,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
       "key:\n" +
       "  - value\n" +
       "  - value\n");
-    assertThat(visitor.linesOfCode()).containsExactly(1,2,3);
+    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
   }
 
   @Test
@@ -101,7 +98,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
       "foo:\n" +
       "\n" +
       "   bar");
-    assertThat(visitor.linesOfCode()).containsExactly(1,3);
+    assertThat(visitor.linesOfCode()).containsExactly(1, 3);
     assertThat(visitor.commentLines()).isEmpty();
   }
 
@@ -111,7 +108,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
       "{\n" +
       "  \"foo\": \"bar\"\n" +
       "}\n");
-    assertThat(visitor.linesOfCode()).containsExactly(1,2,3);
+    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
   }
 
   @Test
@@ -122,7 +119,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
       "    \"bar\"\n" +
       "  ]\n" +
       "}\n");
-    assertThat(visitor.linesOfCode()).containsExactly(1,2,3,4,5);
+    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4, 5);
   }
 
   @Test

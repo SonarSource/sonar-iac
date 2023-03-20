@@ -64,8 +64,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
     "block_public_policy",
     "block_public_acls",
     "ignore_public_acls",
-    "restrict_public_buckets"
-  ));
+    "restrict_public_buckets"));
 
   @Override
   public void initialize(InitContext init) {
@@ -78,7 +77,7 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
 
   private static void checkS3Bucket(CheckContext ctx, S3Bucket bucket, Set<BlockTree> publicAccessBlocks) {
     Optional<BlockTree> publicAccessBlock = bucket.resource(PAB);
-    if (publicAccessBlock.isPresent())  {
+    if (publicAccessBlock.isPresent()) {
       BlockTree pab = publicAccessBlock.get();
       publicAccessBlocks.remove(pab);
       checkPublicAccessBlocks(ctx, pab, bucket);

@@ -55,8 +55,7 @@ public class LogGroupDeclarationCheck implements IacCheck {
     "AWS::Lambda::Function",
     "AWS::Serverless::Function",
     "AWS::ApiGatewayV2::Api",
-    "AWS::CodeBuild::Project"
-  ));
+    "AWS::CodeBuild::Project"));
 
   @Override
   public void initialize(InitContext init) {
@@ -126,9 +125,8 @@ public class LogGroupDeclarationCheck implements IacCheck {
     private final Set<String> references = new HashSet<>();
 
     public FunctionReferenceCollector() {
-      register(FunctionCallTree.class, (ctx, tree) ->
-        tree.arguments().stream().limit(1).filter(ScalarTree.class::isInstance)
-          .forEach(argument -> collectReference(tree.name(), (ScalarTree) argument)));
+      register(FunctionCallTree.class, (ctx, tree) -> tree.arguments().stream().limit(1).filter(ScalarTree.class::isInstance)
+        .forEach(argument -> collectReference(tree.name(), (ScalarTree) argument)));
     }
 
     private void collectReference(String functionName, ScalarTree argument) {

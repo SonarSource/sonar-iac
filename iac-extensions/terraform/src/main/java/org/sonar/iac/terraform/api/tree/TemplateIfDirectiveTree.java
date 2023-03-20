@@ -23,7 +23,9 @@ import javax.annotation.Nullable;
 
 public interface TemplateIfDirectiveTree extends ExpressionTree {
   ExpressionTree condition();
+
   ExpressionTree trueExpression();
+
   @Nullable
   ExpressionTree falseExpression();
 }

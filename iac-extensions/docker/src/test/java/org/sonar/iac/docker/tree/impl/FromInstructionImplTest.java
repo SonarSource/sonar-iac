@@ -58,8 +58,7 @@ class FromInstructionImplTest {
       .notMatches("FROM foobar AS")
       .notMatches("FROM")
       .notMatches("FROM foobar foobar")
-      .notMatches("FROM --platform=foo")
-    ;
+      .notMatches("FROM --platform=foo");
   }
 
   @Test

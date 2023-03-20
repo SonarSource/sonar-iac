@@ -23,5 +23,6 @@ import org.sonar.iac.common.api.tree.PropertyTree;
 
 public interface TupleTree extends YamlTree, PropertyTree {
   YamlTree key();
+
   YamlTree value();
 }

@@ -45,7 +45,7 @@ public class GcpDisabledLoggingCheckPart extends AbstractNewResourceCheck {
       resource -> resource.block("log_config")
         .reportIfAbsent(MESSAGE_OMITTING)
         .attribute("enable")
-          .reportIf(isFalse(), MESSAGE));
+        .reportIf(isFalse(), MESSAGE));
 
     register("google_compute_subnetwork",
       resource -> resource.block("log_config")

@@ -23,5 +23,6 @@ import java.util.Optional;
 
 public interface ForTupleTree extends ForTree {
   ExpressionTree expression();
+
   Optional<ExpressionTree> condition();
 }

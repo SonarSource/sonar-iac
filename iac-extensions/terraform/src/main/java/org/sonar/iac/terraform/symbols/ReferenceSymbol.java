@@ -43,7 +43,7 @@ public class ReferenceSymbol extends Symbol<AttributeTree> {
 
   public static ReferenceSymbol fromPresent(CheckContext ctx, AttributeTree tree, BlockSymbol parent) {
     if (tree.value().is(TerraformTree.Kind.ATTRIBUTE_ACCESS)) {
-      return new ReferenceSymbol(ctx, tree, tree.key().value(),  parent, (AttributeAccessTree) tree.value());
+      return new ReferenceSymbol(ctx, tree, tree.key().value(), parent, (AttributeAccessTree) tree.value());
     }
     return ReferenceSymbol.fromAbsent(ctx, tree.key().value(), parent);
   }

@@ -80,11 +80,11 @@ class EntrypointInstructionImplTest {
     EntrypointInstructionImpl tree = DockerTestUtils.parse("ENTRYPOINT [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.ENTRYPOINT);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
-    assertTextRange(tree.textRange()).hasRange(1,0,1,43);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 43);
 
     assertThat(tree.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2");
 
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat(tree.children().get(1)).isInstanceOf(ExecFormImpl.class);
   }
 
@@ -94,7 +94,7 @@ class EntrypointInstructionImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
-    assertTextRange(tree.textRange()).hasRange(1,0,1,35);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 35);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
   }
@@ -116,7 +116,7 @@ class EntrypointInstructionImplTest {
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
 
     assertThat(tree.arguments()).isEmpty();
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("ENTRYPOINT");
     assertThat(tree.children()).hasSize(1);
   }
 }

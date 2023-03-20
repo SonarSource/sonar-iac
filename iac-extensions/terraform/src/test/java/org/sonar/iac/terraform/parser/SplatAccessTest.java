@@ -39,7 +39,6 @@ class SplatAccessTest {
       .matches("(a).*")
       .notMatches("*.b")
       .notMatches("a[*]b")
-      .notMatches("a.[*]")
-    ;
+      .notMatches("a.[*]");
   }
 }

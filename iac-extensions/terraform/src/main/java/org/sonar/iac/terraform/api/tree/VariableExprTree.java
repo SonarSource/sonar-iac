@@ -23,5 +23,6 @@ import org.sonar.iac.common.api.tree.TextTree;
 
 public interface VariableExprTree extends ExpressionTree, TextTree {
   SyntaxToken token();
+
   String name();
 }

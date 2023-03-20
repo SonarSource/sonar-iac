@@ -22,7 +22,6 @@ package org.sonar.iac.terraform.checks.gcp;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.checks.TerraformVerifier;
 
-
 class ExcessivePermissionsCheckTest {
 
   @Test

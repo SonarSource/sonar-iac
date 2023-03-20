@@ -49,10 +49,10 @@ public class HealthCheckInstructionImpl extends InstructionImpl implements Healt
     List<Tree> result = new ArrayList<>();
     result.add(keyword);
     result.addAll(options);
-    if(cmdInstruction != null) {
+    if (cmdInstruction != null) {
       result.add(cmdInstruction);
     }
-    if(none != null) {
+    if (none != null) {
       result.add(none);
     }
     return result;

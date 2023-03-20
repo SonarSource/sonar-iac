@@ -27,7 +27,7 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class TextUtils {
 
-  private TextUtils () {
+  private TextUtils() {
     // Utils class
   }
 

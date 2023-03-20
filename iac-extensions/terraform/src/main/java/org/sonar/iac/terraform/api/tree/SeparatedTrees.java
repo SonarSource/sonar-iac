@@ -23,6 +23,8 @@ import java.util.List;
 
 public interface SeparatedTrees<T extends TerraformTree> {
   List<T> trees();
+
   List<SyntaxToken> separators();
+
   List<TerraformTree> treesAndSeparators();
 }

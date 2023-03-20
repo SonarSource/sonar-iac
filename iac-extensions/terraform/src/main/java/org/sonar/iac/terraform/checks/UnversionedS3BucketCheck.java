@@ -77,12 +77,11 @@ public class UnversionedS3BucketCheck extends AbstractNewResourceCheck {
     if (attribute.tree.value().is(TerraformTree.Kind.OBJECT)) {
       PropertyUtils.get(attribute.tree.value(), "enabled", ObjectElementTree.class)
         .ifPresentOrElse(enabled -> {
-            if (TextUtils.isValueFalse(enabled.value())) {
-              attribute.ctx.reportIssue(enabled, SUSPENDED_MSG, secondaryLocation);
-            }
-          },
-          () -> attribute.ctx.reportIssue(attribute.tree.key(), UNVERSIONED_MSG, secondaryLocation)
-        );
+          if (TextUtils.isValueFalse(enabled.value())) {
+            attribute.ctx.reportIssue(enabled, SUSPENDED_MSG, secondaryLocation);
+          }
+        },
+          () -> attribute.ctx.reportIssue(attribute.tree.key(), UNVERSIONED_MSG, secondaryLocation));
     }
   }
 }

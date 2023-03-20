@@ -44,8 +44,10 @@ public class SecondaryLocation {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
     SecondaryLocation other = (SecondaryLocation) o;
     return this.textRange.equals(other.textRange) && Objects.equals(this.message, other.message);
   }

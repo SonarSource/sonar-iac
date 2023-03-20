@@ -56,7 +56,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     assertThat(tree.key().value()).isEqualTo("a");
     assertThat(tree.labels()).isEmpty();
     assertThat(tree.value().statements()).isEmpty();
-    assertTextRange(tree.textRange()).hasRange(1,0,1,4);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 4);
   }
 
   @Test
@@ -101,7 +101,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     assertThat(tree.key().comments()).hasSize(1);
     assertThat(tree.key().comments().get(0)).satisfies(t -> {
       assertThat(t.value()).isEqualTo("#comment");
-      assertTextRange(t.textRange()).hasRange(1,0,1,8);
+      assertTextRange(t.textRange()).hasRange(1, 0, 1, 8);
     });
   }
 
@@ -112,7 +112,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     assertThat(tree.key().comments()).hasSize(1);
     assertThat(tree.key().comments().get(0)).satisfies(t -> {
       assertThat(t.value()).isEqualTo("//comment");
-      assertTextRange(t.textRange()).hasRange(1,0,1,9);
+      assertTextRange(t.textRange()).hasRange(1, 0, 1, 9);
     });
   }
 
@@ -123,11 +123,11 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     assertThat(tree.key().comments()).hasSize(2);
     assertThat(tree.key().comments().get(0)).satisfies(t -> {
       assertThat(t.value()).isEqualTo("#comment1");
-      assertTextRange(t.textRange()).hasRange(1,0,1,9);
+      assertTextRange(t.textRange()).hasRange(1, 0, 1, 9);
     });
     assertThat(tree.key().comments().get(1)).satisfies(t -> {
       assertThat(t.value()).isEqualTo("#comment2");
-      assertTextRange(t.textRange()).hasRange(2,0,2,9);
+      assertTextRange(t.textRange()).hasRange(2, 0, 2, 9);
     });
   }
 
@@ -138,7 +138,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     assertThat(tree.key().comments()).hasSize(1);
     assertThat(tree.key().comments().get(0)).satisfies(t -> {
       assertThat(t.value()).isEqualTo("/* line1\nline2 */");
-      assertTextRange(t.textRange()).hasRange(1,0,2,8);
+      assertTextRange(t.textRange()).hasRange(1, 0, 2, 8);
     });
   }
 
@@ -149,7 +149,7 @@ class BlockTreeImplTest extends TerraformTreeModelTest {
     assertThat(tree.key().comments()).hasSize(1);
     assertThat(tree.key().comments().get(0)).satisfies(t -> {
       assertThat(t.value()).isEqualTo("/* comment */");
-      assertTextRange(t.textRange()).hasRange(1,0,1,13);
+      assertTextRange(t.textRange()).hasRange(1, 0, 1, 13);
     });
   }
 

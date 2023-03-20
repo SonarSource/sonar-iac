@@ -21,5 +21,6 @@ package org.sonar.iac.common.api.tree;
 
 public interface PropertyTree extends HasTextRange {
   Tree key();
+
   Tree value();
 }

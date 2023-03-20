@@ -59,7 +59,8 @@ public class DirectoryCopySourceCheck implements IacCheck {
   }
 
   private static void checkCopy(CheckContext ctx, CopyInstruction copyInstruction) {
-    if (hasFromOption(copyInstruction.options())) return;
+    if (hasFromOption(copyInstruction.options()))
+      return;
 
     for (Argument src : copyInstruction.srcs()) {
       ArgumentResolution resolution = ArgumentResolution.of(src);
@@ -75,7 +76,7 @@ public class DirectoryCopySourceCheck implements IacCheck {
   }
 
   private static void reportIfSensitive(CheckContext ctx, Argument src, PathSensitivity sensitivity, String messagePrefix) {
-    if(sensitivity == PathSensitivity.ROOT_OR_CURRENT) {
+    if (sensitivity == PathSensitivity.ROOT_OR_CURRENT) {
       ctx.reportIssue(src, String.format(MESSAGE_CURRENT_OR_ROOT, messagePrefix));
     } else if (sensitivity == PathSensitivity.TOP_LEVEL_GLOBBING) {
       ctx.reportIssue(src, String.format(MESSAGE_GLOBBING, messagePrefix));
@@ -98,10 +99,13 @@ public class DirectoryCopySourceCheck implements IacCheck {
    */
   private static PathSensitivity isSensitivePath(String path) {
     String[] levels = normalize(path);
-    if (levels.length == 0) return PathSensitivity.ROOT_OR_CURRENT;
-    if (levels.length == 1 && (isRootOrCurrent(levels[0]))) return PathSensitivity.ROOT_OR_CURRENT;
+    if (levels.length == 0)
+      return PathSensitivity.ROOT_OR_CURRENT;
+    if (levels.length == 1 && (isRootOrCurrent(levels[0])))
+      return PathSensitivity.ROOT_OR_CURRENT;
     int topLevel = getLevelToCheckIndex(levels);
-    if (levels[topLevel].endsWith("*") && levels.length == topLevel+1) return PathSensitivity.TOP_LEVEL_GLOBBING;
+    if (levels[topLevel].endsWith("*") && levels.length == topLevel + 1)
+      return PathSensitivity.TOP_LEVEL_GLOBBING;
     return PathSensitivity.SAFE;
   }
 
@@ -117,7 +121,8 @@ public class DirectoryCopySourceCheck implements IacCheck {
    * - will return index 1 : ./a, /a, c:/a
    */
   private static int getLevelToCheckIndex(String[] levels) {
-    if (isRootOrCurrent(levels[0])) return 1;
+    if (isRootOrCurrent(levels[0]))
+      return 1;
     return 0;
   }
 

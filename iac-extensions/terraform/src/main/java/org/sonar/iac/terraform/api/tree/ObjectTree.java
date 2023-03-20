@@ -24,5 +24,6 @@ import org.sonar.iac.common.api.tree.HasProperties;
 
 public interface ObjectTree extends ExpressionTree, HasProperties {
   SeparatedTrees<ObjectElementTree> elements();
+
   List<ObjectElementTree> properties();
 }

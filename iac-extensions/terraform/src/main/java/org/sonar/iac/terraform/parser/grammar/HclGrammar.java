@@ -59,8 +59,7 @@ public class HclGrammar {
       f.file(b.zeroOrMore(
         b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK())),
         b.optional(b.token(HclLexicalGrammar.SPACING)),
-        b.token(HclLexicalGrammar.EOF)
-      ));
+        b.token(HclLexicalGrammar.EOF)));
   }
 
   public BlockTree BLOCK() {
@@ -70,8 +69,7 @@ public class HclGrammar {
         b.token(Punctuator.LCURLYBRACE),
         b.token(HclLexicalGrammar.NEWLINE),
         b.zeroOrMore(b.firstOf(ATTRIBUTE(), BLOCK(), ONE_LINE_BLOCK())),
-        b.token(Punctuator.RCURLYBRACE)
-      ));
+        b.token(Punctuator.RCURLYBRACE)));
   }
 
   public BlockTree ONE_LINE_BLOCK() {
@@ -80,20 +78,17 @@ public class HclGrammar {
         b.zeroOrMore(LABEL()),
         b.token(Punctuator.LCURLYBRACE),
         b.optional(ATTRIBUTE()),
-        b.token(Punctuator.RCURLYBRACE)
-      ));
+        b.token(Punctuator.RCURLYBRACE)));
   }
 
   public LabelTree LABEL() {
     return b.<LabelTree>nonterminal(HclLexicalGrammar.LABEL).is(
-      f.label(b.firstOf(b.token(HclLexicalGrammar.STRING_LITERAL), b.token(HclLexicalGrammar.IDENTIFIER)))
-    );
+      f.label(b.firstOf(b.token(HclLexicalGrammar.STRING_LITERAL), b.token(HclLexicalGrammar.IDENTIFIER))));
   }
 
   public AttributeTree ATTRIBUTE() {
     return b.<AttributeTree>nonterminal(HclLexicalGrammar.ATTRIBUTE).is(
-      f.attribute(b.token(HclLexicalGrammar.IDENTIFIER), b.token(Punctuator.EQU), EXPRESSION())
-    );
+      f.attribute(b.token(HclLexicalGrammar.IDENTIFIER), b.token(Punctuator.EQU), EXPRESSION()));
   }
 
   public ExpressionTree EXPRESSION() {
@@ -174,8 +169,7 @@ public class HclGrammar {
             b.firstOf(
               f.templateStringLiteral(b.token(HclLexicalGrammar.QUOTED_TEMPLATE_STRING_CHARACTERS)),
               TEMPLATE())),
-          b.token(Punctuator.DOUBLE_QUOTE))
-      ));
+          b.token(Punctuator.DOUBLE_QUOTE))));
   }
 
   public ExpressionTree TEMPLATE() {
@@ -330,8 +324,7 @@ public class HclGrammar {
     return b.<SeparatedTrees<ObjectElementTree>>nonterminal().is(
       f.objectElements(OBJECT_ELEMENT(),
         b.zeroOrMore(f.newPair(b.firstOf(b.token(Punctuator.COMMA), b.token(HclLexicalGrammar.NEWLINE)), OBJECT_ELEMENT())),
-        b.optional(b.token(Punctuator.COMMA))
-        ));
+        b.optional(b.token(Punctuator.COMMA))));
   }
 
   public TupleTree TUPLE() {
@@ -345,8 +338,7 @@ public class HclGrammar {
     return b.<SeparatedTrees<ExpressionTree>>nonterminal().is(
       f.tupleElements(EXPRESSION(),
         b.zeroOrMore(f.newPair(b.token(Punctuator.COMMA), EXPRESSION())),
-        b.optional(b.token(Punctuator.COMMA))
-      ));
+        b.optional(b.token(Punctuator.COMMA))));
   }
 
   public ObjectElementTree OBJECT_ELEMENT() {
@@ -363,8 +355,7 @@ public class HclGrammar {
         f.numericLiteral(b.token(HclLexicalGrammar.NUMERIC_LITERAL)),
         f.booleanLiteral(b.token(HclLexicalGrammar.BOOLEAN_LITERAL)),
         f.nullLiteral(b.token(HclLexicalGrammar.NULL)),
-        f.heredocLiteral(b.token(HclLexicalGrammar.HEREDOC_LITERAL))
-      ));
+        f.heredocLiteral(b.token(HclLexicalGrammar.HEREDOC_LITERAL))));
   }
 
   public VariableExprTree VARIABLE_EXPRESSION() {

@@ -30,7 +30,7 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class ListObject extends YamlObject<ListObject, SequenceTree>{
+public class ListObject extends YamlObject<ListObject, SequenceTree> {
 
   protected final List<YamlTree> items;
   private final YamlTree parent;
@@ -42,11 +42,11 @@ public class ListObject extends YamlObject<ListObject, SequenceTree>{
   }
 
   public static ListObject fromPresent(CheckContext ctx, YamlTree tree, String key, YamlTree parent) {
-    if(tree instanceof TupleTree) {
+    if (tree instanceof TupleTree) {
       return fromPresent(ctx, ((TupleTree) tree).value(), key, tree);
     }
     if (tree instanceof SequenceTree) {
-      return new ListObject(ctx, ((SequenceTree) tree), key, Status.PRESENT, parent, ((SequenceTree)tree).elements());
+      return new ListObject(ctx, ((SequenceTree) tree), key, Status.PRESENT, parent, ((SequenceTree) tree).elements());
     }
     // List can also be provided as reference. To avoid false positives due to a missing reference resolution
     // we create an empty ListObject

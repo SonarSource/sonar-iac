@@ -47,8 +47,7 @@ class ExpandableStringLiteralImplTest {
       .matches("\"1${bar}2\"")
       .matches("\"{}${bar}\"")
 
-      .notMatches("'$foo'")
-    ;
+      .notMatches("'$foo'");
   }
 
   @Test

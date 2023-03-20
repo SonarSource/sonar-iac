@@ -81,13 +81,14 @@ class PrivilegedUserCheckTest {
   void testMultiStageBuild() {
     DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_multi_stage_build", check);
   }
+
   @Test
   void testMultiStageBuildCompliant() {
     DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile_multi_stage_build-Compliant", check);
   }
 
-  private static List<String> provideTestFiles(String testFileDir)  {
-    try(Stream<Path> pathStream = Files.list(BASE_DIR.resolve(testFileDir))) {
+  private static List<String> provideTestFiles(String testFileDir) {
+    try (Stream<Path> pathStream = Files.list(BASE_DIR.resolve(testFileDir))) {
       return pathStream
         .map(Path::getFileName)
         .map(fileName -> testFileDir + "/" + fileName)

@@ -67,17 +67,17 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck extends AbstractNewReso
           .reportIf(matchesPattern("MANAGER|OWNER"), MESSAGE_ON_GRANT_FULL_ACCESS)));
 
     register(List.of(
-        "google_bigquery_dataset_access",
-        "google_storage_bucket_access_control",
-        "google_storage_default_object_access_control",
-        "google_storage_object_access_control"),
+      "google_bigquery_dataset_access",
+      "google_storage_bucket_access_control",
+      "google_storage_default_object_access_control",
+      "google_storage_object_access_control"),
       resource -> resource.attribute("role")
         .reportIf(equalTo("OWNER"), MESSAGE_ON_GRANT_FULL_ACCESS));
 
     register(List.of(
-        "google_storage_bucket_acl",
-        "google_storage_default_object_acl",
-        "google_storage_object_acl"),
+      "google_storage_bucket_acl",
+      "google_storage_default_object_acl",
+      "google_storage_object_acl"),
       resource -> resource.list("role_entity")
         .reportItemIf(matchesPattern("OWNER:.*"), MESSAGE_ON_GRANT_FULL_ACCESS));
   }
@@ -210,7 +210,7 @@ public class HighPrivilegedRolesOnWorkloadResourcesCheck extends AbstractNewReso
     "google_tags_tag_key_iam_member",
     "google_tags_tag_value_iam_member"
   };
-  
+
   private static final String[] IAM_POLICY_RESOURCE_NAMES = {
     "google_apigee_environment_iam_policy",
     "google_api_gateway_api_config_iam_policy",

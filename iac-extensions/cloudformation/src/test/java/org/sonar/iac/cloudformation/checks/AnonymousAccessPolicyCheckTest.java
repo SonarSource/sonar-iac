@@ -39,11 +39,10 @@ class AnonymousAccessPolicyCheckTest {
     CloudformationVerifier.verify("AnonymousAccessPolicyCheck/test.json", new AnonymousAccessPolicyCheck(),
       new Verifier.Issue(range(39, 23, 39, 26), message,
         new SecondaryLocation(range(37, 24, 37, 31), secondaryMessage)),
-      new Verifier.Issue(range(57, 18, 57, 21),  message,
+      new Verifier.Issue(range(57, 18, 57, 21), message,
         new SecondaryLocation(range(54, 24, 54, 31), secondaryMessage)),
-      new Verifier.Issue(range(109, 16, 109, 19),  message,
-        new SecondaryLocation(range(107, 24, 107, 31), secondaryMessage))
-    );
+      new Verifier.Issue(range(109, 16, 109, 19), message,
+        new SecondaryLocation(range(107, 24, 107, 31), secondaryMessage)));
   }
 
 }

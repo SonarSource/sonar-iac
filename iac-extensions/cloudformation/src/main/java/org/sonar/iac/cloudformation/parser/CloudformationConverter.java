@@ -104,9 +104,8 @@ public class CloudformationConverter extends YamlConverter {
 
   @Nullable
   private static FunctionCallTree convertSequenceToFunctionCall(SequenceNode functionNode, List<YamlTree> arguments) {
-    return shortStyleFunctionName(functionNode).map(functionName ->
-      new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.SHORT, arguments, YamlTreeMetadata.fromNode("FUNCTION_CALL", functionNode))
-    ).orElse(null);
+    return shortStyleFunctionName(functionNode)
+      .map(functionName -> new FunctionCallTreeImpl(functionName, FunctionCallTree.Style.SHORT, arguments, YamlTreeMetadata.fromNode("FUNCTION_CALL", functionNode))).orElse(null);
   }
 
   @Nullable

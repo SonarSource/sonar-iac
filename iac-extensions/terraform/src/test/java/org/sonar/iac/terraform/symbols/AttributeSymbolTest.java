@@ -22,7 +22,7 @@ package org.sonar.iac.terraform.symbols;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 
-class AttributeSymbolTest extends AbstractSymbolTest{
+class AttributeSymbolTest extends AbstractSymbolTest {
 
   @Test
   void report_fromPresent() {

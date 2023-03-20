@@ -41,15 +41,11 @@ public class PolicyValidator {
         continue;
       }
 
-      statement.resource().flatMap(PolicyValidator::findInsecureResource).ifPresent(resource ->
-        statement.effect().filter(PolicyValidator::isAllowEffect).ifPresent(effect ->
-          result.add(new PolicyValidator.InsecureStatement(resource, effect, resourceAccessAction))
-        ));
+      statement.resource().flatMap(PolicyValidator::findInsecureResource).ifPresent(resource -> statement.effect().filter(PolicyValidator::isAllowEffect)
+        .ifPresent(effect -> result.add(new PolicyValidator.InsecureStatement(resource, effect, resourceAccessAction))));
 
-      statement.notResource().flatMap(PolicyValidator::findInsecureResource).ifPresent(notResource ->
-        statement.effect().filter(PolicyValidator::isDenyEffect).ifPresent(effect ->
-          result.add(new PolicyValidator.InsecureStatement(notResource, effect, resourceAccessAction))
-        ));
+      statement.notResource().flatMap(PolicyValidator::findInsecureResource).ifPresent(notResource -> statement.effect().filter(PolicyValidator::isDenyEffect)
+        .ifPresent(effect -> result.add(new PolicyValidator.InsecureStatement(notResource, effect, resourceAccessAction))));
     }
     return result;
   }
