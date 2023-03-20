@@ -21,18 +21,15 @@ package org.sonar.iac.docker.checks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.checks.utils.CheckUtils;
+import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 @Rule(key = "S6505")
 public class PackageInstallationScriptExecutionCheck implements IacCheck {
@@ -40,106 +37,41 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
   private static final String MESSAGE = "Omitting --ignore-scripts can lead to the execution of shell scripts. Make sure it is safe here.";
 
   private static final String REQUIRED_FLAG = "--ignore-scripts";
+  private static final Set<String> NPM_COMMAND = Set.of("npm", "pnpm");
+  private static final Set<String> NPM_INSTALL_COMMAND = Set.of("install", "ci", "add", "i", "in", "ins", "inst", "insta", "instal", "isnt", "isnta", "isntal", "isntall");
 
-  private enum StatementType {
-    NPM, YARN
-  }
+  private static final CommandDetector NPM_PACKAGE_INSTALLATION = CommandDetector.builder()
+    .with(NPM_COMMAND)
+    .with(NPM_INSTALL_COMMAND)
+    .withAnyFlagExcept(REQUIRED_FLAG)
+    .build();
 
-  private static final Map<String, StatementType> TRIGGER_COMMANDS_STATEMENT_TYPE_MAPPING = Map.of(
-    "npm", StatementType.NPM,
-    "pnpm", StatementType.NPM,
-    "yarn", StatementType.YARN);
+  private static final CommandDetector YARN_PACKAGE_INSTALL = CommandDetector.builder()
+    .with("yarn")
+    .with("install")
+    .withAnyFlagExcept(REQUIRED_FLAG)
+    .build();
 
-  private static final Set<String> NPM_INSTALL_ALIASES = Set.of("ci", "add", "i", "in", "ins", "inst", "insta", "instal", "isnt", "isnta", "isntal", "isntall");
+  private static final CommandDetector YARN_ONLY = CommandDetector.builder()
+    .with("yarn")
+    .withAnyFlagExcept(REQUIRED_FLAG)
+    .notWith(s -> s.matches("[a-zA-Z_]++"))
+    .build();
 
   @Override
   public void initialize(InitContext init) {
     init.register(RunInstruction.class, PackageInstallationScriptExecutionCheck::checkRunInstruction);
   }
 
-  private static void checkRunInstruction(CheckContext ctx, RunInstruction instruction) {
-    StatementValidator validator = new StatementValidator(ctx, instruction.arguments());
-    validator.processArguments();
+  private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
+    List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
+    List<CommandDetector.Command> sensitiveCommands = new ArrayList<>();
+
+    sensitiveCommands.addAll(NPM_PACKAGE_INSTALLATION.search(resolvedArgument));
+    sensitiveCommands.addAll(YARN_PACKAGE_INSTALL.search(resolvedArgument));
+    sensitiveCommands.addAll(YARN_ONLY.search(resolvedArgument));
+
+    sensitiveCommands.forEach(command -> ctx.reportIssue(command, MESSAGE));
   }
 
-  private static class StatementValidator {
-
-    CheckContext ctx;
-    List<Argument> arguments;
-    PackageManagerStatement currentStatement;
-
-    StatementValidator(CheckContext ctx, List<Argument> arguments) {
-      this.ctx = ctx;
-      this.arguments = arguments;
-    }
-
-    void processArguments() {
-      if (arguments.isEmpty()) {
-        return;
-      }
-      arguments.forEach(this::process);
-      reportSensitiveStatement();
-    }
-
-    void process(Argument argument) {
-      ArgumentResolution resolution = ArgumentResolution.of(argument);
-
-      // stop analyzing package-manager statement when unresolved part is detected
-      if (resolution.is(UNRESOLVED)) {
-        currentStatement = null;
-        return;
-      }
-      String argValue = resolution.value();
-
-      // if new package-manager statement starts report existing one and create new statement
-      if (TRIGGER_COMMANDS_STATEMENT_TYPE_MAPPING.containsKey(argValue)) {
-        reportSensitiveStatement();
-        currentStatement = new PackageManagerStatement(argument, REQUIRED_FLAG, TRIGGER_COMMANDS_STATEMENT_TYPE_MAPPING.get(argValue));
-      } else if (currentStatement != null) {
-        // check for required flag or store irrelevant ones to the statement
-        if (argValue.startsWith("-")) {
-          if (currentStatement.requiredFlag.equals(argValue)) {
-            currentStatement = null;
-          } else {
-            currentStatement.add(argument);
-          }
-          // detect if statement is installed command or known alias
-        } else if ("install".equals(argValue) || (StatementType.NPM == currentStatement.statementType && NPM_INSTALL_ALIASES.contains(argValue))) {
-          currentStatement.isInstallStatement = true;
-          currentStatement.add(argument);
-          // report statement if install statement without required flag
-        } else {
-          reportSensitiveStatement();
-        }
-      }
-
-    }
-
-    private void reportSensitiveStatement() {
-      if (currentStatement != null && (currentStatement.isInstallStatement ||
-        (StatementType.YARN == currentStatement.statementType && arguments.size() == 1))) {
-        // also reports the statement if the statement consists only of the "yarn" command
-        ctx.reportIssue(TextRanges.mergeElementsWithTextRange(currentStatement.arguments), MESSAGE);
-        currentStatement = null;
-      }
-    }
-
-    private static class PackageManagerStatement {
-
-      List<Argument> arguments = new ArrayList<>();
-      StatementType statementType;
-      boolean isInstallStatement = false;
-      String requiredFlag;
-
-      public PackageManagerStatement(Argument command, String requiredFlag, StatementType statementType) {
-        arguments.add(command);
-        this.statementType = statementType;
-        this.requiredFlag = requiredFlag;
-      }
-
-      public void add(Argument element) {
-        arguments.add(element);
-      }
-    }
-  }
 }
