@@ -29,6 +29,7 @@ public abstract class IacRulesDefinition implements RulesDefinition, ProvideLang
   public static final String REPOSITORY_NAME = "SonarAnalyzer";
 
   private static final String RESOURCE_FOLDER_FORMAT = "org/sonar/l10n/%1$s/rules/%1$s";
+  public static final String SONAR_WAY_FILE = "/Sonar_way_profile.json";
   private SonarRuntime runtime;
 
   protected IacRulesDefinition(SonarRuntime runtime) {
@@ -43,7 +44,8 @@ public abstract class IacRulesDefinition implements RulesDefinition, ProvideLang
     NewRepository repository = context.createRepository(languageKey, languageKey)
       .setName(REPOSITORY_NAME);
     String resourceFolder = String.format(RESOURCE_FOLDER_FORMAT, languageKey);
-    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(resourceFolder, runtime);
+    String defaultProfilePath = resourceFolder + SONAR_WAY_FILE;
+    RuleMetadataLoader metadataLoader = new RuleMetadataLoader(resourceFolder, defaultProfilePath, runtime);
     metadataLoader.addRulesByAnnotatedClass(repository, checks());
     repository.done();
   }
