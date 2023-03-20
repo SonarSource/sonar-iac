@@ -19,103 +19,45 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.checks.utils.CheckUtils;
+import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 @Rule(key = "S6500")
 public class PackageInstallationCheck implements IacCheck {
 
   private static final String MESSAGE = "Make sure that installing unnecessary dependencies is safe here.";
 
-  private static final Map<String, String> COMMAND_FLAG_MAP = Map.of(
-    "apt", "--no-install-recommends",
-    "apt-get", "--no-install-recommends",
-    "aptitude", "--without-recommends"
-  );
+  private static final Set<String> APT_COMMANDS = Set.of("apt", "apt-get");
+  private static final CommandDetector SENSITIVE_APT_COMMAND = CommandDetector.builder()
+    .with(APT_COMMANDS::contains)
+    .withAnyFlag()
+    .with("install"::equals)
+    .withAnyFlagExcept("--no-install-recommends")
+    .build();
+  private static final CommandDetector SENSITIVE_APTITUDE_COMMAND = CommandDetector.builder()
+    .with("aptitude"::equals)
+    .withAnyFlag()
+    .with("install"::equals)
+    .withAnyFlagExcept("--without-recommends")
+    .build();
 
   @Override
   public void initialize(InitContext init) {
     init.register(RunInstruction.class, PackageInstallationCheck::checkRunInstruction);
   }
 
-  private static void checkRunInstruction(CheckContext ctx, RunInstruction instruction) {
-    StatementValidator validator = new StatementValidator(ctx);
-    instruction.arguments().forEach(validator::process);
-  }
+  private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
+    List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
-  private static class StatementValidator {
-
-    CheckContext ctx;
-    AptStatement statement;
-
-    StatementValidator(CheckContext ctx) {
-      this.ctx = ctx;
-    }
-
-    void process(Argument argument) {
-      ArgumentResolution resolution = ArgumentResolution.of(argument);
-
-      // stop analyzing apt statement when unresolved part is detected
-      if (resolution.is(UNRESOLVED)) {
-        statement = null;
-        return;
-      }
-      String argValue = resolution.value();
-
-      // if new apt statement starts report existing one and create new statement
-      if (COMMAND_FLAG_MAP.containsKey(argValue)) {
-        reportSensitiveStatement();
-        statement = new AptStatement(argument, COMMAND_FLAG_MAP.get(argValue));
-      } else if (statement != null) {
-        // check for required flag or store irrelevant ones to the statement
-        if (argValue.startsWith("-")) {
-          if (statement.requiredFlag.equals(argValue)) {
-            statement = null;
-          } else {
-            statement.add(argument);
-          }
-        // detect if statement is installed command
-        } else if ("install".equals(argValue)) {
-          statement.isInstallStatement = true;
-          statement.add(argument);
-        // report statement if install statement without required flag
-        } else {
-          reportSensitiveStatement();
-        }
-      }
-    }
-
-    private void reportSensitiveStatement() {
-      if (statement != null && statement.isInstallStatement) {
-        ctx.reportIssue(TextRanges.mergeElementsWithTextRange(statement.arguments), MESSAGE);
-        statement = null;
-      }
-    }
-
-    private static class AptStatement {
-      List<Argument> arguments = new ArrayList<>();
-      boolean isInstallStatement = false;
-      String requiredFlag;
-
-      public AptStatement(Argument command, String requiredFlag) {
-        arguments.add(command);
-        this.requiredFlag = requiredFlag;
-      }
-
-      public void add(Argument element) {
-        arguments.add(element);
-      }
-    }
+    SENSITIVE_APT_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    SENSITIVE_APTITUDE_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
   }
 }

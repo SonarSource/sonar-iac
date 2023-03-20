@@ -13,7 +13,7 @@ RUN yarn install
 # Noncompliant@+1
 RUN yarn
 
-# FN current bash processing approach doesn't have the needed capabilities
+# Noncompliant@+1
 RUN yarn && foo
 
 # FN current bash processing approach doesn't have the needed capabilities
