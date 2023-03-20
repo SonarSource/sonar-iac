@@ -84,11 +84,13 @@ public class CommandDetector {
       CommandPredicate currentPredicate = predicateStack.pollFirst();
       ArgumentResolution resolution = argumentStack.pollFirst();
 
-      // Stop argument detection when argument list is empty or argument is unresolved to start new command detection
-      if (resolution == null || resolution.is(UNRESOLVED)) {
-        if (resolution == null && remainingPredictsAreOptional(currentPredicate, predicateStack)) {
-          return commandArguments;
-        }
+      // Stop argument detection when argument list is empty
+      if (resolution == null) {
+        return remainingPredictsAreOptional(currentPredicate, predicateStack) ? commandArguments : Collections.emptyList();
+      }
+
+      // Stop argument detection when argument is unresolved to start new command detection
+      if (resolution.is(UNRESOLVED)) {
         return Collections.emptyList();
       }
 
