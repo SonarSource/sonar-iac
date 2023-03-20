@@ -23,7 +23,7 @@ RUN apt install -y geary
 # Non install command
 RUN apt update
 
-# Nothing is installed
+# Noncompliant@+1
 RUN apt install -y
 
 # Required flag is set

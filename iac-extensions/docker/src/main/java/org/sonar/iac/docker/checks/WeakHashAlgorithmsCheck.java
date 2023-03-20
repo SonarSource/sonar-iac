@@ -21,11 +21,11 @@ package org.sonar.iac.docker.checks;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
@@ -54,7 +54,7 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   }
 
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
-    List<ArgumentResolution> resolvedArgument = runInstruction.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
+    List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
     SENSITIVE_OPENSSL_SUBCOMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
     SENSITIVE_OPENSSL_DGST.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
