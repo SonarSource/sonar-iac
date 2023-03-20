@@ -72,6 +72,8 @@ RUN && openssl md5 test.txt
 RUN openssl md5 test.txt | other command
 # Noncompliant@+1
 RUN openssl md5 test.txt ; other command
+# Noncompliant@+1
+RUN other command; openssl md5 test.txt
 
 ## Use case compliant
 RUN openssl
