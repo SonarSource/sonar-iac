@@ -130,12 +130,12 @@ class PolicyTest {
     assertThat(statement.condition()).isPresent();
   }
 
-  public static class TestPropertyTree extends AbstractTestTree implements PropertyTree {
+  static class TestPropertyTree extends AbstractTestTree implements PropertyTree {
 
     private final Tree key;
     private final Tree value;
 
-    public TestPropertyTree(String key, Tree value) {
+    private TestPropertyTree(String key, Tree value) {
       this.key = text(key);
       this.value = value;
     }
@@ -151,11 +151,11 @@ class PolicyTest {
     }
   }
 
-  public static class TestTree extends AbstractTestTree implements HasProperties {
+  static class TestTree extends AbstractTestTree implements HasProperties {
 
     private final List<Tree> children = new ArrayList<>();
 
-    public TestTree(Tree... attributes) {
+    private TestTree(Tree... attributes) {
       Stream.of(attributes).forEach(children::add);
     }
 
