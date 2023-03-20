@@ -21,6 +21,8 @@ package org.sonar.iac.terraform.api.tree;
 
 public interface TemplateForDirectiveTree extends ExpressionTree {
   SeparatedTrees<VariableExprTree> loopVariables();
+
   ExpressionTree loopExpression();
+
   ExpressionTree expression();
 }

@@ -42,8 +42,10 @@ public class PropertyUtils {
       Set<Trilean> elementTrileans = ((HasProperties) tree).properties().stream()
         .map(element -> TextUtils.isValue(element.key(), key))
         .collect(Collectors.toSet());
-      if (elementTrileans.contains(Trilean.TRUE)) return Trilean.TRUE;
-      if (elementTrileans.contains(Trilean.UNKNOWN)) return Trilean.UNKNOWN;
+      if (elementTrileans.contains(Trilean.TRUE))
+        return Trilean.TRUE;
+      if (elementTrileans.contains(Trilean.UNKNOWN))
+        return Trilean.UNKNOWN;
     }
     return Trilean.FALSE;
   }
@@ -78,7 +80,8 @@ public class PropertyUtils {
   }
 
   private static Stream<PropertyTree> getAll(@Nullable Tree tree, Predicate<String> keyMatcher) {
-    if (!(tree instanceof HasProperties)) return Stream.empty();
+    if (!(tree instanceof HasProperties))
+      return Stream.empty();
     return ((HasProperties) tree).properties().stream()
       .filter(attribute -> TextUtils.matchesValue(attribute.key(), keyMatcher).isTrue());
   }

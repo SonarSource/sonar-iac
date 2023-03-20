@@ -28,6 +28,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 class TerraformExtensionTest {
 
   private static final Version VERSION_8_9 = Version.create(8, 9);

@@ -54,8 +54,7 @@ public class YamlConverter {
   private final Map<Class<?>, Function<Node, YamlTree>> converters = Map.of(
     MappingNode.class, node -> convertMapping((MappingNode) node),
     ScalarNode.class, node -> convertScalar((ScalarNode) node),
-    SequenceNode.class, node -> convertSequence((SequenceNode) node)
-  );
+    SequenceNode.class, node -> convertSequence((SequenceNode) node));
 
   public YamlTree convert(Node node) {
     if (node.isRecursive()) {
@@ -119,6 +118,5 @@ public class YamlConverter {
         return ScalarTree.Style.OTHER;
     }
   }
-
 
 }

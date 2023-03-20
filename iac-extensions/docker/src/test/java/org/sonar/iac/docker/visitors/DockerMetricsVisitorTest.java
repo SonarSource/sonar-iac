@@ -31,7 +31,6 @@ import org.sonar.iac.docker.parser.DockerParser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-
 class DockerMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
@@ -48,13 +47,12 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
   void linesOfCode() {
     scan(code(
       "FROM foo",
-        "",
-        "MAINTAINER foo<bar>",
-        "",
-        "RUN \\",
-        "  command1 \\",
-        "  command2"
-    ));
+      "",
+      "MAINTAINER foo<bar>",
+      "",
+      "RUN \\",
+      "  command1 \\",
+      "  command2"));
     assertThat(visitor.linesOfCode()).containsExactly(1, 3, 5, 6, 7);
   }
 
@@ -69,8 +67,7 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
       "RUN \\",
       "  command1 \\",
       "  # comment 3",
-      "  command2"
-    ));
+      "  command2"));
     assertThat(visitor.commentLines()).containsExactly(1, 2, 6);
   }
 }

@@ -78,6 +78,8 @@ public class TreeUtilsTest {
       return children;
     }
 
-    public String name() { return name; }
+    public String name() {
+      return name;
+    }
   }
 }

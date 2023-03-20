@@ -35,11 +35,10 @@ class PolicyUtilsTest extends AbstractUtilsTest {
   void test_policy() {
     assertThat(getPolicies(of("AbstractPolicyCheck/policy.yaml")))
       .hasSize(1)
-      .satisfies(p -> { Policy policy = p.get(0);
-        assertThat(policy.id()).isPresent().get().
-          isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("id"));
-        assertThat(policy.version()).isPresent().get().
-          isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("v"));
+      .satisfies(p -> {
+        Policy policy = p.get(0);
+        assertThat(policy.id()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("id"));
+        assertThat(policy.version()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("v"));
         assertThat(policy.statement())
           .hasSize(1);
       });
@@ -67,28 +66,21 @@ class PolicyUtilsTest extends AbstractUtilsTest {
   void test_statement() {
     assertThat(getPolicies(of("AbstractPolicyCheck/statement.yaml")))
       .hasSize(1)
-      .satisfies(p -> { Policy policy = p.get(0);
+      .satisfies(p -> {
+        Policy policy = p.get(0);
         assertThat(policy.statement())
           .hasSize(1)
-          .satisfies(s -> { Statement statement = s.get(0);
-            assertThat(statement.sid()).isPresent().get().
-              isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("sid"));
-            assertThat(statement.effect()).isPresent().get().
-              isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("eff"));
-            assertThat(statement.principal()).isPresent().get().
-              isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("pri"));
-            assertThat(statement.notPrincipal()).isPresent().get().
-              isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("npr"));
-            assertThat(statement.action()).isPresent().get().
-              isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("act"));
-            assertThat(statement.notAction()).isPresent().get().
-              isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("nac"));
-            assertThat(statement.resource()).isPresent().get().
-              isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("rsc"));
-            assertThat(statement.notResource()).isPresent().get().
-              isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("nrs"));
-            assertThat(statement.condition()).isPresent().get().
-              isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("cnd"));
+          .satisfies(s -> {
+            Statement statement = s.get(0);
+            assertThat(statement.sid()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("sid"));
+            assertThat(statement.effect()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("eff"));
+            assertThat(statement.principal()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("pri"));
+            assertThat(statement.notPrincipal()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("npr"));
+            assertThat(statement.action()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("act"));
+            assertThat(statement.notAction()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("nac"));
+            assertThat(statement.resource()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("rsc"));
+            assertThat(statement.notResource()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("nrs"));
+            assertThat(statement.condition()).isPresent().get().isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("cnd"));
           });
       });
   }

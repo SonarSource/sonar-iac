@@ -30,7 +30,8 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class TreeUtils {
 
-  private TreeUtils() {}
+  private TreeUtils() {
+  }
 
   public static <T extends Tree> Optional<T> firstDescendant(Tree root, Class<T> clazz) {
     return (Optional<T>) firstDescendant(root, clazz::isInstance);

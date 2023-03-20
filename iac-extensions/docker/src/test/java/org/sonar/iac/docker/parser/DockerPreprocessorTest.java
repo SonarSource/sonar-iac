@@ -105,8 +105,8 @@ class DockerPreprocessorTest {
   @Test
   void sourceLineAndColumnWithOneEscapedLinebreak() {
     DockerPreprocessor.SourceOffset sourceOffset = preprocessor.process("foo\\\nbar").sourceOffset();
-    assertThat(sourceOffset.sourceLineAndColumnAt(2)).isEqualTo(new int[] {1,3});
-    assertThat(sourceOffset.sourceLineAndColumnAt(3)).isEqualTo(new int[] {2,1});
+    assertThat(sourceOffset.sourceLineAndColumnAt(2)).isEqualTo(new int[] {1, 3});
+    assertThat(sourceOffset.sourceLineAndColumnAt(3)).isEqualTo(new int[] {2, 1});
   }
 
   @ParameterizedTest

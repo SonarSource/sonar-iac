@@ -30,14 +30,13 @@ public class KubernetesExtension {
 
   public static void define(Plugin.Context context) {
     context.addExtensions(
-      //Language
+      // Language
       KubernetesLanguage.class,
       // Sensor
       KubernetesSensor.class,
       // Rules and profiles
       KubernetesRulesDefinition.class,
-      KubernetesProfileDefinition.class
-    );
+      KubernetesProfileDefinition.class);
     context.addExtensions(KubernetesSettings.getProperties());
   }
 }

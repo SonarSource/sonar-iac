@@ -64,8 +64,7 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
     PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
       .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", MESSAGE_CLEAR_TEXT));
 
-    PropertyUtils.get(resource, "node_to_node_encryption", BlockTree.class).ifPresentOrElse(encryption ->
-        reportOnFalseProperty(ctx, encryption, "enabled", MESSAGE_CLEAR_TEXT),
+    PropertyUtils.get(resource, "node_to_node_encryption", BlockTree.class).ifPresentOrElse(encryption -> reportOnFalseProperty(ctx, encryption, "enabled", MESSAGE_CLEAR_TEXT),
       () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "node_to_node_encryption")));
   }
 
@@ -76,7 +75,7 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
 
   private static void checkLbListener(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "protocol", AttributeTree.class)
-      .filter(p -> TextUtils.isValue(p.value(),"HTTP").isTrue())
+      .filter(p -> TextUtils.isValue(p.value(), "HTTP").isTrue())
       .ifPresent(rootProtocol -> checkLbDefaultAction(ctx, resource, rootProtocol));
   }
 
@@ -101,26 +100,22 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
   }
 
   private static void checkESReplicationGroup(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "transit_encryption_enabled", AttributeTree.class).ifPresentOrElse(encryption ->
-        reportOnFalse(ctx, encryption, MESSAGE_CLEAR_TEXT),
+    PropertyUtils.get(resource, "transit_encryption_enabled", AttributeTree.class).ifPresentOrElse(encryption -> reportOnFalse(ctx, encryption, MESSAGE_CLEAR_TEXT),
       () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "transit_encryption_enabled")));
   }
 
   private static void checkEcsTaskDefinition(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.getAll(resource, "volume", BlockTree.class).forEach(volume ->
-      PropertyUtils.get(volume, "efs_volume_configuration", BlockTree.class).ifPresent(config ->
-        checkEscVolumeConfig(ctx, config)));
+    PropertyUtils.getAll(resource, "volume", BlockTree.class)
+      .forEach(volume -> PropertyUtils.get(volume, "efs_volume_configuration", BlockTree.class).ifPresent(config -> checkEscVolumeConfig(ctx, config)));
   }
 
   private static void checkEscVolumeConfig(CheckContext ctx, BlockTree config) {
-    PropertyUtils.get(config, "transit_encryption", AttributeTree.class).ifPresentOrElse(encryption ->
-        reportSensitiveValue(ctx, encryption, "DISABLED", MESSAGE_CLEAR_TEXT),
+    PropertyUtils.get(config, "transit_encryption", AttributeTree.class).ifPresentOrElse(encryption -> reportSensitiveValue(ctx, encryption, "DISABLED", MESSAGE_CLEAR_TEXT),
       () -> ctx.reportIssue(config.key(), String.format(MESSAGE_OMITTING, "transit_encryption")));
   }
 
   private static void checkKinesisStream(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "encryption_type", AttributeTree.class).ifPresentOrElse(encryption ->
-        reportSensitiveValue(ctx, encryption, "NONE", MESSAGE_CLEAR_TEXT),
+    PropertyUtils.get(resource, "encryption_type", AttributeTree.class).ifPresentOrElse(encryption -> reportSensitiveValue(ctx, encryption, "NONE", MESSAGE_CLEAR_TEXT),
       () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "encryption_type")));
   }
 }

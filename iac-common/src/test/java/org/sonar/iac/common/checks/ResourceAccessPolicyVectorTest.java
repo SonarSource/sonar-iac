@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.common.checks;
 
-
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 

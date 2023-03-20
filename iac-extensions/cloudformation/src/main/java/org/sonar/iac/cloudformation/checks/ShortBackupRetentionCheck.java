@@ -40,12 +40,11 @@ public class ShortBackupRetentionCheck extends AbstractResourceCheck {
     description = "Minimum backup retention duration in days")
   int backupRetentionDuration = DEFAULT;
 
-
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     if ((resource.isType("AWS::RDS::DBInstance")
-        && PropertyUtils.isMissing(resource.properties(), "SourceDBInstanceIdentifier")
-        && isNotEngineException(resource))
+      && PropertyUtils.isMissing(resource.properties(), "SourceDBInstanceIdentifier")
+      && isNotEngineException(resource))
       || resource.isType("AWS::RDS::DBCluster")) {
       checkBackupRetentionPeriod(ctx, resource, backupRetentionDuration);
     }
@@ -57,9 +56,8 @@ public class ShortBackupRetentionCheck extends AbstractResourceCheck {
   }
 
   private static void checkBackupRetentionPeriod(CheckContext ctx, Resource resource, int minPeriod) {
-    PropertyUtils.value(resource.properties(), "BackupRetentionPeriod").ifPresentOrElse(period ->
-        TextUtils.getIntValue(period).filter(currentPeriod -> currentPeriod < minPeriod)
-          .ifPresent(currentPeriod -> ctx.reportIssue(period, MESSAGE)),
+    PropertyUtils.value(resource.properties(), "BackupRetentionPeriod").ifPresentOrElse(period -> TextUtils.getIntValue(period).filter(currentPeriod -> currentPeriod < minPeriod)
+      .ifPresent(currentPeriod -> ctx.reportIssue(period, MESSAGE)),
       () -> {
         if (minPeriod != 1) {
           reportResource(ctx, resource, OMITTING_MESSAGE);

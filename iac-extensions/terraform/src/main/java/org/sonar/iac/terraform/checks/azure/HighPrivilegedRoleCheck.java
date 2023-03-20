@@ -48,4 +48,3 @@ public class HighPrivilegedRoleCheck extends AbstractResourceCheck {
       .ifPresent(attr -> ctx.reportIssue(attr, String.format(MESSAGE, ((TextTree) attr.value()).value())));
   }
 }
-

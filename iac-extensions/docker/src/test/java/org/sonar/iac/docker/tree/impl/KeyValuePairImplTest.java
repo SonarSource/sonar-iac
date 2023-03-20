@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
@@ -63,8 +62,7 @@ class KeyValuePairImplTest {
       .matches("\"key=\"=value") // This is invalid syntax, but it would increase the grammar complexity to cover this case
 
       .notMatches("key= value")
-      .notMatches("\"key\"= \"value\"")
-    ;
+      .notMatches("\"key\"= \"value\"");
   }
 
   @Test
@@ -74,19 +72,20 @@ class KeyValuePairImplTest {
     assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
     assertTextRange(keyValuePair.textRange()).hasRange(1, 0, 1, 9);
 
-    assertTextRange(keyValuePair.key().textRange()).hasRange(1, 0 , 1, 3);
+    assertTextRange(keyValuePair.key().textRange()).hasRange(1, 0, 1, 3);
 
     assertThat(keyValuePair.equalSign()).satisfies(equal -> {
       assertThat(equal).isNotNull();
-      assertTextRange(equal.textRange()).hasRange(1, 3 , 1, 4);
-    });assertThat(keyValuePair.equalSign()).satisfies(equal -> {
+      assertTextRange(equal.textRange()).hasRange(1, 3, 1, 4);
+    });
+    assertThat(keyValuePair.equalSign()).satisfies(equal -> {
       assertThat(equal).isNotNull();
-      assertTextRange(equal.textRange()).hasRange(1, 3 , 1, 4);
+      assertTextRange(equal.textRange()).hasRange(1, 3, 1, 4);
     });
 
     assertThat(keyValuePair.value()).satisfies(key -> {
       assertThat(key).isNotNull();
-      assertTextRange(key.textRange()).hasRange(1, 4 , 1, 9);
+      assertTextRange(key.textRange()).hasRange(1, 4, 1, 9);
     });
   }
 
@@ -103,11 +102,10 @@ class KeyValuePairImplTest {
     KeyValuePair keyValuePair = parse("key value1    value2", DockerLexicalGrammar.KEY_VALUE_PAIR);
 
     assertThat(keyValuePair.equalSign()).isNull();
-    assertThat(keyValuePair.value()).isNotNull().satisfies(argument ->
-      assertThat(argument.expressions())
-        .hasSize(3)
-        .hasExactlyElementsOfTypes(LiteralImpl.class, LiteralImpl.class, LiteralImpl.class)
-        .extracting(expression -> ((Literal) expression).value())
-        .containsExactly("value1", "    ", "value2"));
+    assertThat(keyValuePair.value()).isNotNull().satisfies(argument -> assertThat(argument.expressions())
+      .hasSize(3)
+      .hasExactlyElementsOfTypes(LiteralImpl.class, LiteralImpl.class, LiteralImpl.class)
+      .extracting(expression -> ((Literal) expression).value())
+      .containsExactly("value1", "    ", "value2"));
   }
 }

@@ -21,5 +21,6 @@ package org.sonar.iac.terraform.api.tree;
 
 public interface ForTree extends ExpressionTree {
   SeparatedTrees<VariableExprTree> loopVariables();
+
   ExpressionTree loopExpression();
 }

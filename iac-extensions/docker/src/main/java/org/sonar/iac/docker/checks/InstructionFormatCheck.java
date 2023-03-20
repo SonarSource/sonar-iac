@@ -38,8 +38,7 @@ public class InstructionFormatCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(Instruction.class, (ctx, instruction) ->
-      checkInstructionKeyword(ctx, instruction.keyword()));
+    init.register(Instruction.class, (ctx, instruction) -> checkInstructionKeyword(ctx, instruction.keyword()));
 
     init.register(FromInstruction.class, (ctx, from) -> {
       Alias alias = from.alias();

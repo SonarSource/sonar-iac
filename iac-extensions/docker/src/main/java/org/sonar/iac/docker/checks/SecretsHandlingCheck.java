@@ -129,7 +129,6 @@ public class SecretsHandlingCheck implements IacCheck {
     return !isUrl(value) && !isPath(value);
   }
 
-
   /**
    * Check if the argument contains of a single variable expression and check if its name is sensitive
    */

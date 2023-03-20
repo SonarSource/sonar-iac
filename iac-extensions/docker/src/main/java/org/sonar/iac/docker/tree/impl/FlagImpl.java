@@ -60,7 +60,7 @@ public class FlagImpl extends AbstractDockerTreeImpl implements Flag {
     if (equals != null) {
       children.add(equals);
     }
-    if(value != null) {
+    if (value != null) {
       children.add(value);
     }
     return children;

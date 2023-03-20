@@ -37,7 +37,6 @@ public final class KubernetesCheckList {
       MountingFileSystemPathsCheck.class,
       ParsingErrorCheck.class,
       PrivilegeEscalationCheck.class,
-      ToDoCommentCheck.class
-    );
+      ToDoCommentCheck.class);
   }
 }

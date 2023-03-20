@@ -57,7 +57,6 @@ class YamlSensorTest extends AbstractSensorTest {
     assertThat(sensorDescriptor.name()).isEqualTo("IaC Yaml Sensor");
   }
 
-
   @Test
   void treeParser() {
     assertThat(sensor().treeParser()).isInstanceOf(YamlParser.class);
@@ -149,7 +148,6 @@ class YamlSensorTest extends AbstractSensorTest {
     return "yaml.activation";
   }
 
-
   private YamlSensor sensor() {
     return sensor(checkFactory());
   }
@@ -201,7 +199,7 @@ class YamlSensorTest extends AbstractSensorTest {
 
     @Override
     public String[] getFileSuffixes() {
-      return new String[]{};
+      return new String[] {};
     }
   }
 }

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 class DockerToDoCommentCheckTest {
-  
+
   @Test
   void test() {
     DockerVerifier.verify("ToDoCommentCheck/Dockerfile", new ToDoCommentCheck());

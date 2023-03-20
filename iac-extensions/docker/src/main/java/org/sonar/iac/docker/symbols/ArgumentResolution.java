@@ -48,7 +48,7 @@ public class ArgumentResolution {
 
   static final ArgumentResolution EMPTY = new ArgumentResolution(null, "", Status.EMPTY) {
     @Override
-    public Argument argument()  {
+    public Argument argument() {
       throw new IllegalStateException("The root argument should not be requested from an empty resolution");
     }
   };

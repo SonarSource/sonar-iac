@@ -53,6 +53,7 @@ public class DockerHeredocParser extends DockerParser {
   static class DockerHeredocNodeBuilder extends DockerNodeBuilder {
 
     private TextPointer offset;
+
     @Override
     protected TextRange tokenRange(Input input, int startIndex, String value) {
       TextRange textRange = super.tokenRange(input, startIndex, value);

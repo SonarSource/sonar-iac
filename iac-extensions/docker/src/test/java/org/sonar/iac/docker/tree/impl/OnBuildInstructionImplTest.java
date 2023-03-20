@@ -54,8 +54,7 @@ class OnBuildInstructionImplTest {
       .notMatches("ONBUILD ")
       .notMatches("ONBUILD ONBUILD")
       .notMatches("ONBUILD ONBUILD STOPSIGNAL")
-      .notMatches("ONBUILD unknown")
-    ;
+      .notMatches("ONBUILD unknown");
   }
 
   @Test
@@ -74,10 +73,10 @@ class OnBuildInstructionImplTest {
     assertThat(stopSignal.signal().expressions()).satisfies(expressions -> {
       assertThat(expressions).hasSize(1);
       assertThat(expressions.get(0).getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
-      assertThat((Literal)expressions.get(0)).extracting(Literal::value).isEqualTo("SIGKILL");
+      assertThat((Literal) expressions.get(0)).extracting(Literal::value).isEqualTo("SIGKILL");
     });
 
-    assertThat(((SyntaxToken)stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
+    assertThat(((SyntaxToken) stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
   }
 
   @Test
@@ -122,8 +121,8 @@ class OnBuildInstructionImplTest {
     assertThat(stopSignal.keyword().value()).isEqualTo("STOPSIGNAL");
     assertThat(stopSignal.signal().expressions()).hasSize(1);
     assertThat(stopSignal.signal().expressions().get(0).getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
-    assertThat(((Literal)stopSignal.signal().expressions().get(0)).value()).isEqualTo("SIGKILL");
-    assertThat(((SyntaxToken)stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
-    assertThat(((Literal) ((Argument)stopSignal.children().get(1)).expressions().get(0)).value()).isEqualTo("SIGKILL");
+    assertThat(((Literal) stopSignal.signal().expressions().get(0)).value()).isEqualTo("SIGKILL");
+    assertThat(((SyntaxToken) stopSignal.children().get(0)).value()).isEqualTo("STOPSIGNAL");
+    assertThat(((Literal) ((Argument) stopSignal.children().get(1)).expressions().get(0)).value()).isEqualTo("SIGKILL");
   }
 }

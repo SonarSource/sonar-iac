@@ -21,6 +21,8 @@ package org.sonar.iac.terraform.api.tree;
 
 public interface ConditionTree extends ExpressionTree {
   ExpressionTree conditionExpression();
+
   ExpressionTree trueExpression();
+
   ExpressionTree falseExpression();
 }

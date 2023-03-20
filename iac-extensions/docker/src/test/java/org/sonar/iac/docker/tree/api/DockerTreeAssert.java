@@ -29,7 +29,7 @@ public abstract class DockerTreeAssert<SELF extends DockerTreeAssert<SELF, ACTUA
 
   public SELF hasKind(DockerTree.Kind kind) {
     isNotNull();
-    if(actual.getKind() != kind) {
+    if (actual.getKind() != kind) {
       failWithMessage("Expected Docker Tree kind to be <%s> but was <%s>", kind, actual.getKind());
     }
     return (SELF) this;

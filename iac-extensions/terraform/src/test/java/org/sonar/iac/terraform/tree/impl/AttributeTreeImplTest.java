@@ -27,7 +27,7 @@ import org.sonar.iac.terraform.parser.grammar.HclLexicalGrammar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class AttributeTreeImplTest extends TerraformTreeModelTest{
+class AttributeTreeImplTest extends TerraformTreeModelTest {
 
   @Test
   void simple_attribute() {

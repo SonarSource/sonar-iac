@@ -55,8 +55,7 @@ class DockerImageImplTest {
     DockerImage dockerImage = parse(code(
       "FROM foobar",
       "MAINTAINER bob",
-      "EXPOSE 80"
-    ), DockerLexicalGrammar.DOCKERIMAGE);
+      "EXPOSE 80"), DockerLexicalGrammar.DOCKERIMAGE);
     assertThat(dockerImage.getKind()).isEqualTo(DockerTree.Kind.DOCKERIMAGE);
     assertTextRange(dockerImage.textRange()).hasRange(1, 0, 3, 9);
 

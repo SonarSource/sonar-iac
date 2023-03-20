@@ -72,6 +72,7 @@ public class FromInstructionImpl extends InstructionImpl implements FromInstruct
     }
     return children;
   }
+
   @Override
   public Kind getKind() {
     return Kind.FROM;

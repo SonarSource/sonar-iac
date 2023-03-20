@@ -38,7 +38,6 @@ class ForExprTest {
       .notMatches("[for a, in b : c]")
       .notMatches("[for a,b,c in b : c]")
       .notMatches("{for a, in b: c => d}")
-      .notMatches("{for a,b,c in b: c => d}")
-    ;
+      .notMatches("{for a,b,c in b: c => d}");
   }
 }

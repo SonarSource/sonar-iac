@@ -65,14 +65,10 @@ public class PrivilegePolicyCheck extends AbstractResourceCheck {
     static List<InsecureStatement> findInsecureStatements(Policy policy) {
       List<InsecureStatement> result = new ArrayList<>();
       for (Statement statement : policy.statement()) {
-        statement.action().flatMap(PolicyValidator::findInsecureAction).ifPresent(action ->
-          statement.effect().filter(PolicyValidator::isAllowEffect).ifPresent(effect -> 
-            result.add(new InsecureStatement(action, effect))
-        ));
-        statement.notAction().flatMap(PolicyValidator::findInsecureAction).ifPresent(notAction ->
-          statement.effect().filter(PolicyValidator::isDenyEffect).ifPresent(effect ->
-            result.add(new InsecureStatement(notAction, effect))
-        ));
+        statement.action().flatMap(PolicyValidator::findInsecureAction)
+          .ifPresent(action -> statement.effect().filter(PolicyValidator::isAllowEffect).ifPresent(effect -> result.add(new InsecureStatement(action, effect))));
+        statement.notAction().flatMap(PolicyValidator::findInsecureAction)
+          .ifPresent(notAction -> statement.effect().filter(PolicyValidator::isDenyEffect).ifPresent(effect -> result.add(new InsecureStatement(notAction, effect))));
       }
       return result;
     }

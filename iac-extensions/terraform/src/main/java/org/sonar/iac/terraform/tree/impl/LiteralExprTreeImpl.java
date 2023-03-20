@@ -48,7 +48,7 @@ public class LiteralExprTreeImpl extends TerraformTreeImpl implements LiteralExp
   @Override
   public String value() {
     if (is(Kind.STRING_LITERAL)) {
-      return token.value().substring(1, token.value().length() - 1 );
+      return token.value().substring(1, token.value().length() - 1);
     }
     return token.value();
   }

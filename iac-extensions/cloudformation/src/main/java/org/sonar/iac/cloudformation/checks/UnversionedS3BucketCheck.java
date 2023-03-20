@@ -28,7 +28,6 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
-
 @Rule(key = "S6252")
 public class UnversionedS3BucketCheck extends AbstractResourceCheck {
 
@@ -40,8 +39,6 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
   private static final String SECONDARY_MSG = "Related bucket";
 
   private static final String SUSPENDED_VALUE = "Suspended";
-
-
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -57,8 +54,8 @@ public class UnversionedS3BucketCheck extends AbstractResourceCheck {
       Optional<Tree> status = PropertyUtils.value(versioning.get(), "Status");
       if (status.isPresent()) {
         TextUtils.getValue(status.get()).filter(SUSPENDED_VALUE::equals).ifPresent(
-         s -> ctx.reportIssue(status.get(), String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG)));
-      } else if (properties != null){
+          s -> ctx.reportIssue(status.get(), String.format(MESSAGE, SUSPENDED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG)));
+      } else if (properties != null) {
         ctx.reportIssue(versioningKey(properties), String.format(MESSAGE, UNVERSIONED_MSG), new SecondaryLocation(resource.type(), SECONDARY_MSG));
       }
     } else {

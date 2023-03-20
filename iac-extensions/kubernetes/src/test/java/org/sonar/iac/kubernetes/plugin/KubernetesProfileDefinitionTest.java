@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 class KubernetesProfileDefinitionTest {
 
   @Test

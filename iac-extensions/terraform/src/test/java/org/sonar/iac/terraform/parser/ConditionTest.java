@@ -34,7 +34,6 @@ class ConditionTest {
       .matches("a ? a1 : a2 ? b ? b1 : b2 : c ? c1 : c2")
       .matches("(a ? a1 : a2) ? (b ? b1 : b2) : (c ? c1 : c2)")
       .notMatches("a ? b")
-      .notMatches("a ? b :")
-    ;
+      .notMatches("a ? b :");
   }
 }

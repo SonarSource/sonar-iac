@@ -69,8 +69,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
       return PropertyUtils.value(mapping, "Type", YamlTree.class).map(typeTree -> new Resource(
         name,
         typeTree,
-        PropertyUtils.valueOrNull(mapping, "Properties", YamlTree.class)
-      )).orElse(null);
+        PropertyUtils.valueOrNull(mapping, "Properties", YamlTree.class))).orElse(null);
 
     }
 

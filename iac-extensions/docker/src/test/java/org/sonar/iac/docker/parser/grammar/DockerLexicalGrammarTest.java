@@ -29,6 +29,7 @@ public class DockerLexicalGrammarTest {
 
   public static final List<Character> FORBIDDEN_CHARACTERS_AFTER_KEYWORD = List.of('[', ']', 'A', '2', '-', '_', '<', '>', '!', '@', '#', '$', '%',
     '&', '£', '§', '`', '~', '*', '(', ')', '=', '{', '}', '\'', ':', ';', '|', '/', '?', '.', ',', '"');
+
   @Test
   void shouldVerifyStringLiteral() {
     Assertions.assertThat(DockerLexicalGrammar.STRING_LITERAL)

@@ -39,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DockerSensorTest extends ExtensionSensorTest {
 
-
   @Test
   void shouldReturnDockerDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
@@ -74,8 +73,7 @@ class DockerSensorTest extends ExtensionSensorTest {
       inputFile("DockerfileFoo", ""),
       inputFile("Dockerfile.foo.bar", ""),
       inputFile("Foo.Dockerfile", ""),
-      inputFile("Foo.dockerfile", "")
-    );
+      inputFile("Foo.dockerfile", ""));
 
     FileSystem fileSystem = context.fileSystem();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context));

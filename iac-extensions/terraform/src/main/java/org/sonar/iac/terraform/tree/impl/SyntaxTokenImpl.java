@@ -37,7 +37,6 @@ public class SyntaxTokenImpl extends TerraformTreeImpl implements SyntaxToken {
     this.comments = comments;
   }
 
-
   @Override
   public String value() {
     return value;

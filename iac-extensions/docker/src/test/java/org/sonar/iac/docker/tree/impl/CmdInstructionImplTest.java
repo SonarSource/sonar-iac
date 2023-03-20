@@ -83,12 +83,12 @@ class CmdInstructionImplTest {
     CmdInstruction tree = DockerTestUtils.parse("CMD [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
-    assertTextRange(tree.textRange()).hasRange(1,0,1,36);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 36);
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().stream().map(t -> ArgumentResolution.of(t).value())).containsExactly("executable", "param1", "param2");
 
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ExecForm.class);
   }
 
@@ -98,12 +98,12 @@ class CmdInstructionImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
-    assertTextRange(tree.textRange()).hasRange(1,0,1,28);
+    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 28);
 
     assertThat(tree.arguments()).isNotNull();
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
 
-    assertThat(((SyntaxToken)tree.children().get(0)).value()).isEqualTo("CMD");
+    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("CMD");
     assertThat(tree.children().get(1)).isInstanceOf(ShellForm.class);
   }
 

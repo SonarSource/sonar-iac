@@ -30,6 +30,8 @@ public interface FunctionCallTree extends YamlTree {
   }
 
   String name();
+
   Style style();
+
   List<YamlTree> arguments();
 }

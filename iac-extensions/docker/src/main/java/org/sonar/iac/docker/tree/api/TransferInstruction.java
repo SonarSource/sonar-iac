@@ -29,6 +29,8 @@ import java.util.List;
  */
 public interface TransferInstruction extends Instruction {
   List<Flag> options();
+
   List<Argument> srcs();
+
   Argument dest();
 }

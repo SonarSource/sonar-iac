@@ -80,8 +80,7 @@ class InputFileContextTest {
   void secondary_location_is_not_added_when_its_range_is_invalid_or_empty() {
     inputFileContext.reportIssue(RuleKey.parse("s:42"), range(1, 1, 1, 2), "message", List.of(
       new SecondaryLocation(EMPTY_RANGE, "message"),
-      new SecondaryLocation(INVALID_RANGE, "message")
-    ));
+      new SecondaryLocation(INVALID_RANGE, "message")));
 
     List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
     assertThat(issues).hasSize(1);

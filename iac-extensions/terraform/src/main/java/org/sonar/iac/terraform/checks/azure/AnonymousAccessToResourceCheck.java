@@ -98,7 +98,7 @@ public class AnonymousAccessToResourceCheck extends AbstractResourceCheck {
   private static void checkApiManagement(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "sign_in", BlockTree.class)
       .ifPresentOrElse(signIn -> PropertyUtils.get(signIn, "enabled", AttributeTree.class)
-          .ifPresent(enabled -> reportOnFalse(ctx, enabled, API_MANAGEMENT_DISABLED_MESSAGE)),
+        .ifPresent(enabled -> reportOnFalse(ctx, enabled, API_MANAGEMENT_DISABLED_MESSAGE)),
         () -> reportResource(ctx, resource, API_MANAGEMENT_MISSING_MESSAGE));
   }
 

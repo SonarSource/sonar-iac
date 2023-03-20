@@ -42,18 +42,18 @@ public class UnencryptedCloudServicesCheck extends AbstractNewResourceCheck {
 
     register("azurerm_mysql_server",
       resource -> resource.attribute("infrastructure_encryption_enabled")
-        .reportIf(isFalse(),UNENCRYPTED_MESSAGE)
+        .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
         .reportIfAbsent(FORMAT_OMITTING));
 
     register("azurerm_windows_virtual_machine_scale_set",
       resource -> resource.attribute("encryption_at_host_enabled")
-        .reportIf(isFalse(),UNENCRYPTED_MESSAGE)
+        .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
         .reportIfAbsent(FORMAT_OMITTING));
 
     register("azurerm_windows_virtual_machine_scale_set",
       resource -> List.of("os_disk", "data_disk")
         .forEach(blockName -> resource.block(blockName)
           .attribute("disk_encryption_set_id")
-            .reportIfAbsent(FORMAT_OMITTING)));
+          .reportIfAbsent(FORMAT_OMITTING)));
   }
 }

@@ -31,8 +31,7 @@ public class AbstractCheckListTestTest extends AbstractCheckListTest {
     return List.of(
       TestCheck.class,
       ParsingErrorCheck.class,
-      ToDoCommentCheck.class
-    );
+      ToDoCommentCheck.class);
   }
 
   @Override
@@ -45,5 +44,6 @@ public class AbstractCheckListTestTest extends AbstractCheckListTest {
     // overridden for test purpose
   }
 
-  static class TestCheck {}
+  static class TestCheck {
+  }
 }

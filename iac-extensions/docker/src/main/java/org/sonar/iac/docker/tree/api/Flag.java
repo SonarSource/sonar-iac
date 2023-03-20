@@ -31,6 +31,7 @@ import javax.annotation.CheckForNull;
  */
 public interface Flag extends DockerTree {
   String name();
+
   @CheckForNull
   Argument value();
 }

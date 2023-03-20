@@ -38,7 +38,7 @@ import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 public class KubernetesSensor extends YamlSensor {
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-                             NoSonarFilter noSonarFilter, KubernetesLanguage language) {
+    NoSonarFilter noSonarFilter, KubernetesLanguage language) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks());
   }
 
