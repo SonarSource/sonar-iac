@@ -27,10 +27,15 @@ RUN apt update
 RUN apt install -y
 
 # Required flag is set
-RUN apt -y --no-install-recommends install aptitude
+RUN apt install -y --no-install-recommends aptitude
 RUN apt-get install -y --no-install-recommends aptitude
-RUN aptitude -y --without-recommends install build-essential
-RUN apt -y --no-install-recommends install geary
+RUN aptitude install -y --without-recommends build-essential
+RUN apt install -y --no-install-recommends geary
+
+# Apt flag is set
+RUN apt --random-flag install -y --no-install-recommends geary
+# Noncompliant@+1
+RUN apt --random-flag install geary
 
 # Noncompliant@+2
 RUN apt-get update && \
