@@ -65,7 +65,9 @@ public class CommandDetector {
   @CheckForNull
   private Integer fullMatch(List<ArgumentResolution> resolvedArgument, int argIndex) {
     int sizeCommand = 0;
-    for (CommandPredicate commandPredicate : predicates) {
+    int indexPredicate = 0;
+    while (indexPredicate < predicates.size()) {
+      CommandPredicate commandPredicate = predicates.get(indexPredicate);
       if (resolvedArgument.size() <= argIndex + sizeCommand) {
         return null;
       }
@@ -73,8 +75,14 @@ public class CommandDetector {
       String argValue = resolvedArgument.get(argIndex + sizeCommand).value();
       if (commandPredicate.predicate.test(argValue)) {
         sizeCommand++;
-      } else if (!commandPredicate.optional) {
-        return null;
+        if (!commandPredicate.repeating) {
+          indexPredicate++;
+        }
+      } else {
+        if (!commandPredicate.optional) {
+          return null;
+        }
+        indexPredicate++;
       }
     }
     return sizeCommand;
@@ -84,17 +92,22 @@ public class CommandDetector {
 
     List<CommandPredicate> predicates = new ArrayList<>();
 
-    private void addPredicate(Predicate<String> predicate, boolean optional) {
-      predicates.add(new CommandPredicate(predicate, optional));
+    private void addPredicate(Predicate<String> predicate, boolean optional, boolean repeating) {
+      predicates.add(new CommandPredicate(predicate, optional, repeating));
     }
 
     public CommandDetector.Builder with(Predicate<String> predicate) {
-      addPredicate(predicate, false);
+      addPredicate(predicate, false, false);
       return this;
     }
 
     public CommandDetector.Builder withOptional(Predicate<String> predicate) {
-      addPredicate(predicate, true);
+      addPredicate(predicate, true, false);
+      return this;
+    }
+
+    public CommandDetector.Builder withOptionalRepeating(Predicate<String> predicate) {
+      addPredicate(predicate, true, true);
       return this;
     }
 
@@ -106,10 +119,12 @@ public class CommandDetector {
   private static class CommandPredicate {
     Predicate<String> predicate;
     boolean optional;
+    boolean repeating;
 
-    public CommandPredicate(Predicate<String> predicate, boolean optional) {
+    public CommandPredicate(Predicate<String> predicate, boolean optional, boolean repeating) {
       this.predicate = predicate;
       this.optional = optional;
+      this.repeating = repeating;
     }
   }
 
