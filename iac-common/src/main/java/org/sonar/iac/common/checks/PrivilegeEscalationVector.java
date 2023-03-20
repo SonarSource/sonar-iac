@@ -23,8 +23,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.policy.Policy;
 
 public enum PrivilegeEscalationVector {
 
@@ -43,13 +46,17 @@ public enum PrivilegeEscalationVector {
   UPDATE_ASSUME_ROLE_POLICY("Update Assume role Policy", List.of("iam:UpdateAssumeRolePolicy", "sts:AssumeRole")),
   EC2("EC2", List.of("iam:PassRole", "ec2:RunInstances")),
   LAMBDA_CREATE_AND_INVOKE("Lambda Create and Invoke", List.of("iam:PassRole", "lambda:CreateFunction", "lambda:InvokeFunction")),
-  LAMBDA_CREATE_AND_ADD_PERMISSION("Lambda Create and Add Permission", List.of("iam:PassRole", "lambda:CreateFunction", "lambda:AddPermission")),
-  LAMBDA_TRIGGERED_WITH_AN_EXTERNAL_EVENT("Lambda triggered with an external event", List.of("iam:PassRole", "lambda:CreateFunction", "lambda:CreateEventSourceMapping")),
+  LAMBDA_CREATE_AND_ADD_PERMISSION("Lambda Create and Add Permission", List.of("iam:PassRole", "lambda:CreateFunction", "lambda" +
+    ":AddPermission")),
+  LAMBDA_TRIGGERED_WITH_AN_EXTERNAL_EVENT("Lambda triggered with an external event", List.of("iam:PassRole", "lambda:CreateFunction",
+    "lambda:CreateEventSourceMapping")),
   CLOUD_FORMATION("CloudFormation", List.of("iam:PassRole", "cloudformation:CreateStack")),
   DATA_PIPELINE("Data Pipeline", List.of("iam:PassRole", "datapipeline:CreatePipeline", "datapipeline:PutPipelineDefinition")),
   GLUE_DEVELOPMENT_ENDPOINT("Glue Development Endpoint", List.of("iam:PassRole", "glue:CreateDevEndpoint")),
   UPDATE_GLUE_DEV_ENDPOINT("Update Glue Dev Endpoint", List.of("glue:UpdateDevEndpoint")),
   UPDATE_LAMBDA_CODE("Update Lambda code", List.of("lambda:UpdateFunctionCode"));
+
+  private static final Pattern RESOURCE_NAME_PATTERN = Pattern.compile("arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)/\\*");
 
   private final List<Permission.SimplePermission> permissions;
   private final String name;
@@ -67,20 +74,45 @@ public enum PrivilegeEscalationVector {
     return permissions.stream().allMatch(p -> actionPermissions.stream().anyMatch(p::isCoveredBy));
   }
 
-  public static boolean isSupersetOfAnEscalationVector(Stream<String> actionPermissions) {
-    return getEscalationVector(actionPermissions).isPresent();
+  public List<Permission.SimplePermission> getPermissions() {
+    return permissions;
   }
 
-  public static Optional<PrivilegeEscalationVector> getEscalationVector(Stream<String> actionPermissions) {
-    Set<Permission> permissionVector = actionPermissions.map(Permission::of).collect(Collectors.toSet());
+  public static boolean actionEnablesVector(PrivilegeEscalationVector vector, String value) {
+    Permission permission = Permission.of(value);
+    return vector.getPermissions().stream().anyMatch(p -> p.isCoveredBy(permission));
+  }
 
-    return Stream.of(PrivilegeEscalationVector.values())
-      .filter(vector -> vector.isSubsetOf(permissionVector))
+  public static Optional<PrivilegeEscalationVector> getStatementEscalationVector(Policy.Statement statement, List<Tree> actionTrees) {
+    if (statement.effect().filter(PrivilegeEscalationVector::isAllowEffect).isPresent()
+      && statement.resource().filter(PrivilegeEscalationVector::isSensitiveResource).isPresent()
+      && statement.condition().isEmpty()
+      && statement.principal().isEmpty()
+      && statement.action().isPresent()) {
+      return getActionEscalationVector(actionTrees);
+    }
+    return Optional.empty();
+  }
+
+  static Optional<PrivilegeEscalationVector> getActionEscalationVector(List<Tree> actionTrees) {
+    Set<Permission> actionPermissions = actionTrees.stream()
+      .map(TextUtils::getValue)
+      .flatMap(Optional::stream)
+      .map(Permission::of)
+      .collect(Collectors.toSet());
+
+    return Stream.of(values())
+      .filter(vector -> vector.isSubsetOf(actionPermissions))
       .findFirst();
   }
 
-  public List<Permission.SimplePermission> getPermissions() {
-    return permissions;
+  private static boolean isAllowEffect(Tree effect) {
+    return TextUtils.isValue(effect, "Allow").isTrue();
+  }
+
+  private static boolean isSensitiveResource(Tree resource) {
+    return TextUtils.matchesValue(resource, rsc -> rsc.equals("*")
+      || RESOURCE_NAME_PATTERN.matcher(rsc).matches()).isTrue();
   }
 
   public abstract static class Permission {
