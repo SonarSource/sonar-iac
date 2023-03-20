@@ -61,7 +61,7 @@ public class Policy {
     private final Tree notResource;
     private final Tree condition;
 
-    public Statement(Tree statement) {
+    private Statement(Tree statement) {
       this.sid = PropertyUtils.valueOrNull(statement, "Sid");
       this.effect = PropertyUtils.valueOrNull(statement, "Effect");
       this.principal = PropertyUtils.valueOrNull(statement, "Principal");

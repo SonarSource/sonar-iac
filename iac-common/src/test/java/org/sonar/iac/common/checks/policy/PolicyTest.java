@@ -35,7 +35,7 @@ import org.sonar.iac.common.checks.policy.Policy.Statement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
 
-public class PolicyTest {
+class PolicyTest {
 
   @Test
   void empty_policy() {

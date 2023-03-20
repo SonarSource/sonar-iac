@@ -20,7 +20,6 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,46 +57,44 @@ public class PrivilegeEscalationCheck extends AbstractResourceCheck {
 
   private static void checkPrivilegeEscalation(CheckContext ctx, Policy policy, Resource resource) {
     for (Statement statement : policy.statement()) {
-      List<Tree> actionTrees = Collections.emptyList();
-
       Optional<Tree> action = statement.action();
       if (action.isPresent() && action.get() instanceof SequenceTree) {
-        actionTrees = ((SequenceTree) action.get()).elements().stream()
+        List<Tree> actionTrees = ((SequenceTree) action.get()).elements().stream()
           .map(Tree.class::cast)
           .collect(Collectors.toList());
-      }
-
-      Optional<PrivilegeEscalationVector> vectorOpt = getStatementEscalationVector(statement, actionTrees);
-      if (vectorOpt.isPresent()) {
-        PrivilegeEscalationVector vector = vectorOpt.get();
-        String vectorName = vector.getName();
-        List<SecondaryLocation> secondaryLocations = secondaryLocations(statement, vector, vectorName);
-        ctx.reportIssue(resource.type(), String.format(MESSAGE, vectorName), secondaryLocations);
+        Optional<PrivilegeEscalationVector> vectorOpt = getStatementEscalationVector(statement, actionTrees);
+        if (vectorOpt.isPresent()) {
+          PrivilegeEscalationVector vector = vectorOpt.get();
+          List<SecondaryLocation> secondaryLocations = secondaryLocations(statement, vector);
+          ctx.reportIssue(resource.type(), String.format(MESSAGE, vector.getName()), secondaryLocations);
+        }
       }
     }
   }
 
-  private static List<SecondaryLocation> secondaryLocations(Statement statement, PrivilegeEscalationVector vector, String vectorName) {
+  private static List<SecondaryLocation> secondaryLocations(Statement statement, PrivilegeEscalationVector vector) {
     List<SecondaryLocation> secondaryLocations = new ArrayList<>();
-    String actionsMsg = vector.getPermissions().size() == 1 ? String.format(MESSAGE_ACTION_SINGLE, vectorName) :
-      String.format(MESSAGE_ACTION_MULTIPLE, vectorName);
-    addSecondaryLocationsFromAction(statement, vector, vectorName, secondaryLocations, actionsMsg);
-    addSecondaryLocationsFromResource(statement, secondaryLocations);
+    secondaryLocations.addAll(retrieveSecondaryLocationsFromAction(statement, vector));
+    secondaryLocations.addAll(retrieveSecondaryLocationsFromResource(statement));
     return secondaryLocations;
   }
 
-  private static void addSecondaryLocationsFromAction(Statement statement, PrivilegeEscalationVector vector, String vectorName,
-    List<SecondaryLocation> secondaryLocations, String actionsMsg) {
+  private static List<SecondaryLocation> retrieveSecondaryLocationsFromAction(Statement statement, PrivilegeEscalationVector vector) {
+    List<SecondaryLocation> secondaryLocationsFromAction = new ArrayList<>();
+    String actionsMsg = vector.getPermissions().size() == 1 ? String.format(MESSAGE_ACTION_SINGLE, vector.getName()) : String.format(MESSAGE_ACTION_MULTIPLE, vector.getName());
     statement.action().ifPresent(tree -> ((SequenceTree) tree).elements().stream()
       .filter(actionElement -> TextUtils.getValue(actionElement).map(value -> actionEnablesVector(vector, value)).orElse(false))
-      .forEach(actionElement -> secondaryLocations.add(new SecondaryLocation(actionElement, String.format(actionsMsg, vectorName)))));
+      .forEach(actionElement -> secondaryLocationsFromAction.add(new SecondaryLocation(actionElement, actionsMsg))));
+    return secondaryLocationsFromAction;
   }
 
-  private static void addSecondaryLocationsFromResource(Statement statement, List<SecondaryLocation> secondaryLocations) {
+  private static List<SecondaryLocation> retrieveSecondaryLocationsFromResource(Statement statement) {
+    List<SecondaryLocation> secondaryLocationsFromResource = new ArrayList<>();
     statement.resource().ifPresent(resource -> {
       if (TextUtils.isValue(resource, "*").isTrue()) {
-        secondaryLocations.add(new SecondaryLocation(resource, MESSAGE_STATEMENT_ALL));
+        secondaryLocationsFromResource.add(new SecondaryLocation(resource, MESSAGE_STATEMENT_ALL));
       }
     });
+    return secondaryLocationsFromResource;
   }
 }

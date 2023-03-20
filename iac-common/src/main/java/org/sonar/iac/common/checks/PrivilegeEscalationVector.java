@@ -74,10 +74,6 @@ public enum PrivilegeEscalationVector {
     return permissions.stream().allMatch(p -> actionPermissions.stream().anyMatch(p::isCoveredBy));
   }
 
-  public static boolean isSupersetOfAnEscalationVector(Stream<String> actionPermissions) {
-    return getEscalationVector(actionPermissions).isPresent();
-  }
-
   public List<Permission.SimplePermission> getPermissions() {
     return permissions;
   }
@@ -87,8 +83,7 @@ public enum PrivilegeEscalationVector {
     return vector.getPermissions().stream().anyMatch(p -> p.isCoveredBy(permission));
   }
 
-  public static Optional<PrivilegeEscalationVector> getStatementEscalationVector(Policy.Statement statement
-    , List<Tree> actionTrees) {
+  public static Optional<PrivilegeEscalationVector> getStatementEscalationVector(Policy.Statement statement, List<Tree> actionTrees) {
     if (statement.effect().filter(PrivilegeEscalationVector::isAllowEffect).isPresent()
       && statement.resource().filter(PrivilegeEscalationVector::isSensitiveResource).isPresent()
       && statement.condition().isEmpty()
@@ -99,18 +94,15 @@ public enum PrivilegeEscalationVector {
     return Optional.empty();
   }
 
-  private static Optional<PrivilegeEscalationVector> getActionEscalationVector(List<Tree> testTree) {
-    Stream<String> actionPermissions = testTree.stream()
+  static Optional<PrivilegeEscalationVector> getActionEscalationVector(List<Tree> actionTrees) {
+    Set<Permission> actionPermissions = actionTrees.stream()
       .map(TextUtils::getValue)
-      .flatMap(Optional::stream);
-    return getEscalationVector(actionPermissions);
-  }
-
-  private static Optional<PrivilegeEscalationVector> getEscalationVector(Stream<String> actionPermissions) {
-    Set<Permission> permissionVector = actionPermissions.map(Permission::of).collect(Collectors.toSet());
+      .flatMap(Optional::stream)
+      .map(Permission::of)
+      .collect(Collectors.toSet());
 
     return Stream.of(values())
-      .filter(vector -> vector.isSubsetOf(permissionVector))
+      .filter(vector -> vector.isSubsetOf(actionPermissions))
       .findFirst();
   }
 
@@ -132,8 +124,7 @@ public enum PrivilegeEscalationVector {
     }
 
     public static Permission of(String permissionName) {
-      return permissionName.endsWith("*") ? new Permission.WildCardPermission(permissionName) :
-        new Permission.SimplePermission(permissionName);
+      return permissionName.endsWith("*") ? new Permission.WildCardPermission(permissionName) : new Permission.SimplePermission(permissionName);
     }
 
     public static class SimplePermission extends Permission {

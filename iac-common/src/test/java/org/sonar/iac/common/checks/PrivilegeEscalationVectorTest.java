@@ -22,58 +22,58 @@ package org.sonar.iac.common.checks;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.checks.policy.Policy;
-import org.sonar.iac.common.checks.policy.PolicyTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.checks.CommonTestUtils.TestAttributeTree.attribute;
+import static org.sonar.iac.common.checks.CommonTestUtils.TestPropertiesTree.properties;
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
 import static org.sonar.iac.common.checks.PrivilegeEscalationVector.actionEnablesVector;
+import static org.sonar.iac.common.checks.PrivilegeEscalationVector.getActionEscalationVector;
 import static org.sonar.iac.common.checks.PrivilegeEscalationVector.getStatementEscalationVector;
-import static org.sonar.iac.common.checks.PrivilegeEscalationVector.isSupersetOfAnEscalationVector;
 
 class PrivilegeEscalationVectorTest {
 
   @Test
   void escalationVectorApply_on_single_sensitive_permission() {
-    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:CreateAccessKey"))).isTrue();
+    assertThat(getActionEscalationVector(List.of(text("iam:CreateAccessKey")))).isPresent();
   }
 
   @Test
   void escalationVectorApply_on_single_compliant_permission() {
-    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:bar"))).isFalse();
+    assertThat(getActionEscalationVector(List.of(text("iam:bar")))).isEmpty();
   }
 
   @Test
   void escalationVectorApply_on_single_sensitive_wildcard_permission() {
-    assertThat(isSupersetOfAnEscalationVector(Stream.of("ec2:*"))).isFalse();
+    assertThat(getActionEscalationVector(List.of(text("ec2:*")))).isEmpty();
   }
 
   @Test
   void escalationVectorApply_on_single_compliant_wildcard_permission() {
-    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:*"))).isTrue();
+    assertThat(getActionEscalationVector(List.of(text("iam:*")))).isPresent();
   }
 
   @Test
   void escalationVectorApply_on_multiple_permissions() {
-    assertThat(isSupersetOfAnEscalationVector(Stream.of("glue:foo", "iam:CreateAccessKey"))).isTrue();
+    assertThat(getActionEscalationVector(List.of(text("glue:foo"), text("iam:CreateAccessKey")))).isPresent();
   }
 
   @Test
   void escalationVectorApply_on_multiple_sensitive_permission() {
-    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:UpdateAssumeRolePolicy", "sts:AssumeRole"))).isTrue();
+    assertThat(getActionEscalationVector(List.of(text("iam:UpdateAssumeRolePolicy"), text("sts:AssumeRole")))).isPresent();
   }
 
   @Test
   void escalationVectorApply_on_multiple_sensitive_permission_with_wildcard() {
-    assertThat(isSupersetOfAnEscalationVector(Stream.of("iam:*", "sts:AssumeRole"))).isTrue();
+    assertThat(getActionEscalationVector(List.of(text("iam:*"), text("sts:AssumeRole")))).isPresent();
   }
 
   @Test
   void escalationVectorApply_unexpected_permission_format() {
-    assertThat(isSupersetOfAnEscalationVector(Stream.of("foo"))).isFalse();
+    assertThat(getActionEscalationVector(List.of(text("foo")))).isEmpty();
   }
 
   @Test
@@ -85,7 +85,7 @@ class PrivilegeEscalationVectorTest {
   }
 
   @Test
-  void actionValueEnablesTheGivenVector() { //better name
+  void actionValueEnablesTheGivenVector() {
     assertThat(actionEnablesVector(PrivilegeEscalationVector.EC2, "iam:PassRole")).isTrue();
     assertThat(actionEnablesVector(PrivilegeEscalationVector.EC2, "failMe")).isFalse();
   }
@@ -167,12 +167,10 @@ class PrivilegeEscalationVectorTest {
   }
 
   private static Policy.Statement statement(Map<String, String> properties) {
-    Tree[] trees = properties.entrySet().stream()
-      .map(e -> new PolicyTest.TestPropertyTree(e.getKey(), text(e.getValue())))
-      .toArray(Tree[]::new);
-    Tree statementTree = new PolicyTest.TestTree(trees);
-    Tree tree = new PolicyTest.TestTree(statementTree);
-    Policy policy = new Policy(tree, Tree::children);
-    return policy.statement().get(0);
+    PropertyTree[] propertyTrees = properties.entrySet().stream()
+      .map(e -> attribute(e.getKey(), text(e.getValue())))
+      .toArray(PropertyTree[]::new);
+    CommonTestUtils.TestPropertiesTree statement = properties(propertyTrees);
+    return new Policy(null, tree -> List.of(statement)).statement().get(0);
   }
 }

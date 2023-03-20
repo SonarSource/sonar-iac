@@ -20,7 +20,6 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,45 +52,44 @@ public class PrivilegeEscalationCheck extends AbstractNewResourceCheck {
 
   private static void checkPrivilegeEscalation(ResourceSymbol resourceSymbol, Policy policy) {
     for (Statement statement : policy.statement()) {
-      List<Tree> actionTrees = Collections.emptyList();
-
       Optional<Tree> action = statement.action();
       if (action.isPresent() && action.get() instanceof TupleTree) {
-        actionTrees = ((TupleTree) action.get()).elements().trees().stream().map(Tree.class::cast).collect(Collectors.toList());
-      }
-
-      Optional<PrivilegeEscalationVector> vectorOpt = PrivilegeEscalationVector.getStatementEscalationVector(statement, actionTrees);
-      if (vectorOpt.isPresent()) {
-        PrivilegeEscalationVector vector = vectorOpt.get();
-        String vectorName = vector.getName();
-        List<SecondaryLocation> secondaryLocations = secondaryLocations(statement, vector, vectorName);
-        resourceSymbol.report(String.format(MESSAGE, vectorName), secondaryLocations);
+        List<Tree> actionTrees = ((TupleTree) action.get()).elements().trees().stream().map(Tree.class::cast).collect(Collectors.toList());
+        Optional<PrivilegeEscalationVector> vectorOpt = PrivilegeEscalationVector.getStatementEscalationVector(statement, actionTrees);
+        if (vectorOpt.isPresent()) {
+          PrivilegeEscalationVector vector = vectorOpt.get();
+          List<SecondaryLocation> secondaryLocations = secondaryLocations(statement, vector);
+          resourceSymbol.report(String.format(MESSAGE, vector.getName()), secondaryLocations);
+        }
       }
     }
   }
 
-  private static List<SecondaryLocation> secondaryLocations(Statement statement, PrivilegeEscalationVector vector, String vectorName) {
+  private static List<SecondaryLocation> secondaryLocations(Statement statement, PrivilegeEscalationVector vector) {
     List<SecondaryLocation> secondaryLocations = new ArrayList<>();
-    String actionsMsg = vector.getPermissions().size() == 1 ? String.format(MESSAGE_ACTION_SINGLE, vectorName) :
-      String.format(MESSAGE_ACTION_MULTIPLE, vectorName);
-    addSecondaryLocationsFromAction(statement, vector, vectorName, secondaryLocations, actionsMsg);
-    addSecondaryLocationsFromResource(statement, secondaryLocations);
+    secondaryLocations.addAll(retrieveSecondaryLocationsFromAction(statement, vector));
+    secondaryLocations.addAll(retrieveSecondaryLocationsFromResource(statement));
     return secondaryLocations;
   }
 
-  private static void addSecondaryLocationsFromResource(Statement statement, List<SecondaryLocation> secondaryLocations) {
+  private static List<SecondaryLocation> retrieveSecondaryLocationsFromResource(Statement statement) {
+    List<SecondaryLocation> secondaryLocationsFromResource = new ArrayList<>();
     statement.resource().ifPresent(resource -> {
       if (TextUtils.isValue(resource, "*").isTrue()) {
-        secondaryLocations.add(new SecondaryLocation(resource, MESSAGE_STATEMENT_ALL));
+        secondaryLocationsFromResource.add(new SecondaryLocation(resource, MESSAGE_STATEMENT_ALL));
       }
     });
+    return secondaryLocationsFromResource;
   }
 
-  private static void addSecondaryLocationsFromAction(Statement statement, PrivilegeEscalationVector vector, String vectorName,
-    List<SecondaryLocation> secondaryLocations, String actionsMsg) {
+  private static List<SecondaryLocation> retrieveSecondaryLocationsFromAction(Statement statement, PrivilegeEscalationVector vector) {
+    List<SecondaryLocation> secondaryLocationsFromAction = new ArrayList<>();
+    String actionsMsg = vector.getPermissions().size() == 1 ? String.format(MESSAGE_ACTION_SINGLE, vector.getName()) : String.format(MESSAGE_ACTION_MULTIPLE, vector.getName());
     statement.action().ifPresent(tree -> ((TupleTree) tree).elements().trees().stream()
-      .filter(actionElement -> TextUtils.getValue(actionElement).map(value -> PrivilegeEscalationVector.actionEnablesVector(vector,
-        value)).orElse(false))
-      .forEach(actionElement -> secondaryLocations.add(new SecondaryLocation(actionElement, String.format(actionsMsg, vectorName)))));
+      .filter(actionElement -> TextUtils.getValue(actionElement)
+        .map(value -> PrivilegeEscalationVector.actionEnablesVector(vector, value))
+        .orElse(false))
+      .forEach(actionElement -> secondaryLocationsFromAction.add(new SecondaryLocation(actionElement, actionsMsg))));
+    return secondaryLocationsFromAction;
   }
 }
