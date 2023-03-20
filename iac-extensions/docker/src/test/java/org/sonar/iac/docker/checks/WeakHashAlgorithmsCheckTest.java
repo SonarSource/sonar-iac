@@ -27,4 +27,9 @@ class WeakHashAlgorithmsCheckTest {
   void test_openssl() {
     DockerVerifier.verify("WeakHashAlgorithmsCheck/openssl.dockerfile", new WeakHashAlgorithmsCheck());
   }
+
+  @Test
+  void test_shasum() {
+    DockerVerifier.verify("WeakHashAlgorithmsCheck/shasum.dockerfile", new WeakHashAlgorithmsCheck());
+  }
 }
