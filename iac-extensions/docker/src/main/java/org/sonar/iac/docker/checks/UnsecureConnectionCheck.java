@@ -36,11 +36,13 @@ public class UnsecureConnectionCheck implements IacCheck {
   private static final String MESSAGE = "Disabling TLS certificate verification is security-sensitive.";
 
   private static final Set<String> SENSITIVE_CURL_OPTION = Set.of("-k", "--insecure", "--proxy-insecure", "--doh-insecure");
+
   private static final CommandDetector SENSITIVE_CURL_COMMAND = CommandDetector.builder()
     .with("curl"::equals)
     .withOptionalRepeating(s -> !SENSITIVE_CURL_OPTION.contains(s) && s.startsWith("-"))
     .with(SENSITIVE_CURL_OPTION::contains)
     .build();
+
   private static final CommandDetector SENSITIVE_WGET_COMMAND = CommandDetector.builder()
     .with("wget"::equals)
     .withOptionalRepeating(s -> !"--no-check-certificate".equals(s) && s.startsWith("-"))
