@@ -34,6 +34,7 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 public class WeakHashAlgorithmsCheck implements IacCheck {
 
   private static final String MESSAGE = "Using weak hashing algorithms is security-sensitive.";
+
   private static final Set<String> OPENSSL_SENSITIVE_SUBCOMMAND = Set.of("md5", "sha1", "rmd160", "ripemd160");
   private static final Set<String> OPENSSL_SENSITIVE_DGST_OPTION  = Set.of("-md2", "-md4", "-md5", "-sha1", "-ripemd160", "-ripemd", "-rmd160");
   private static final Set<String> SHASUM_SENSITIVE_COMMAND = Set.of("md5sum", "sha1sum");
@@ -61,6 +62,9 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
     .with("1"::equals)
     .build();
 
+  private static final List<CommandDetector> COMMANDS = List.of(SENSITIVE_OPENSSL_SUBCOMMAND, SENSITIVE_OPENSSL_DGST, SENSITIVE_SHASUM_COMMAND,
+    SENSITIVE_SHASUN_COMMAND_WITHOUT_OPTION, SENSITIVE_SHASUM_COMMAND_WITH_OPTION_A_TO_1);
+
   @Override
   public void initialize(InitContext init) {
     init.register(RunInstruction.class, WeakHashAlgorithmsCheck::checkRun);
@@ -68,18 +72,6 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
 
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
-    checkOpenSsl(ctx, resolvedArgument);
-    checkShasum(ctx, resolvedArgument);
-  }
-
-  private static void checkOpenSsl(CheckContext ctx, List<ArgumentResolution> resolvedArgument) {
-    SENSITIVE_OPENSSL_SUBCOMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
-    SENSITIVE_OPENSSL_DGST.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
-  }
-
-  private static void checkShasum(CheckContext ctx, List<ArgumentResolution> resolvedArgument) {
-    SENSITIVE_SHASUM_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
-    SENSITIVE_SHASUN_COMMAND_WITHOUT_OPTION.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
-    SENSITIVE_SHASUM_COMMAND_WITH_OPTION_A_TO_1.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    COMMANDS.forEach(detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
   }
 }
