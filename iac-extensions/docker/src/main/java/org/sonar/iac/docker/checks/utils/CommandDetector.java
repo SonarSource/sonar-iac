@@ -171,6 +171,11 @@ public class CommandDetector {
     public CommandDetector build() {
       return new CommandDetector(predicates);
     }
+
+    public CommandDetector.Builder addPredicatesFromBuilder(CommandDetector.Builder otherBuilder) {
+      this.predicates.addAll(otherBuilder.predicates);
+      return this;
+    }
   }
 
   protected static class CommandPredicate {
