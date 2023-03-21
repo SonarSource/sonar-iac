@@ -22,12 +22,11 @@ package org.sonar.iac.docker.checks;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
@@ -36,19 +35,17 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 public class ClearTextProtocolDowngradeCheck implements IacCheck {
 
   private static final String MESSAGE = "Not enforcing HTTPS here might allow for redirects to insecure websites. Make sure it is safe here.";
-
   private static final String CURL_COMMAND = "curl";
   private static final String PROTO_FLAG = "--proto";
   private static final String PROTO_FLAG_OPTION = "=https";
   private static final Set<String> REDIRECTION_FLAGS = Set.of("-L", "--location");
 
-  private static final Set<String> SENSITIVE_FLAGS = Stream.concat(REDIRECTION_FLAGS.stream(), Stream.of(PROTO_FLAG))
-    .collect(Collectors.toSet());
+  private static final Set<String> SENSITIVE_FLAGS = Set.of("-L", "--location", PROTO_FLAG);
 
   private static final Predicate<String> SENSITIVE_BEGINNING_URL_SCHEME = s -> s.startsWith("https");
   private static final Predicate<String> OPTIONAL_OTHER_FLAGS = s -> s.startsWith("-") && !SENSITIVE_FLAGS.contains(s);
 
-  // common predicates of builders
+  // common predicates of detectors
   private static final CommandDetector.Builder REDIRECTION_PREDICATES = CommandDetector.builder()
     .withOptional(OPTIONAL_OTHER_FLAGS)
     .with(REDIRECTION_FLAGS)
@@ -71,46 +68,44 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(s -> !s.equals(PROTO_FLAG_OPTION))
     .withOptional(OPTIONAL_OTHER_FLAGS);
 
-  // actual builder
+  // actual detectors
+  // matching "RUN curl -L --proto https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION = CommandDetector.builder()
     .with(CURL_COMMAND)
-    .addPredicatesFromBuilder(REDIRECTION_PREDICATES)
-    .addPredicatesFromBuilder(PROTO_FLAG_MISSING_OPTION_PREDICATES)
+    .withPredicatesFrom(REDIRECTION_PREDICATES)
+    .withPredicatesFrom(PROTO_FLAG_MISSING_OPTION_PREDICATES)
     .with(SENSITIVE_BEGINNING_URL_SCHEME)
     .build();
 
+  // matching "RUN curl --proto -L https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION_DIFF_ORDER = CommandDetector.builder()
     .with(CURL_COMMAND)
-    .addPredicatesFromBuilder(PROTO_FLAG_MISSING_OPTION_PREDICATES)
-    .addPredicatesFromBuilder(REDIRECTION_PREDICATES)
+    .withPredicatesFrom(PROTO_FLAG_MISSING_OPTION_PREDICATES)
+    .withPredicatesFrom(REDIRECTION_PREDICATES)
     .with(SENSITIVE_BEGINNING_URL_SCHEME)
     .build();
 
+  // matching "RUN curl -L https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_MISSING_FLAG = CommandDetector.builder()
     .with(CURL_COMMAND)
-    .addPredicatesFromBuilder(REDIRECTION_PREDICATES)
-    .addPredicatesFromBuilder(PROTO_FLAG_MISSING_PREDICATES)
+    .withPredicatesFrom(REDIRECTION_PREDICATES)
+    .withPredicatesFrom(PROTO_FLAG_MISSING_PREDICATES)
     .with(SENSITIVE_BEGINNING_URL_SCHEME)
     .build();
 
-  private static final CommandDetector SENSITIVE_CURL_COMMAND_MISSING_FLAG_DIFF_ORDER = CommandDetector.builder()
-    .with(CURL_COMMAND)
-    .addPredicatesFromBuilder(PROTO_FLAG_MISSING_PREDICATES)
-    .addPredicatesFromBuilder(REDIRECTION_PREDICATES)
-    .with(SENSITIVE_BEGINNING_URL_SCHEME)
-    .build();
-
+  // matching "RUN curl -L --proto =foo https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION = CommandDetector.builder()
     .with(CURL_COMMAND)
-    .addPredicatesFromBuilder(REDIRECTION_PREDICATES)
-    .addPredicatesFromBuilder(PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES)
+    .withPredicatesFrom(REDIRECTION_PREDICATES)
+    .withPredicatesFrom(PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES)
     .with(SENSITIVE_BEGINNING_URL_SCHEME)
     .build();
 
+  // matching "RUN curl --proto =foo -L https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION_DIFF_ORDER = CommandDetector.builder()
     .with(CURL_COMMAND)
-    .addPredicatesFromBuilder(PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES)
-    .addPredicatesFromBuilder(REDIRECTION_PREDICATES)
+    .withPredicatesFrom(PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES)
+    .withPredicatesFrom(REDIRECTION_PREDICATES)
     .with(SENSITIVE_BEGINNING_URL_SCHEME)
     .build();
 
@@ -118,7 +113,6 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION,
     SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION_DIFF_ORDER,
     SENSITIVE_CURL_COMMAND_MISSING_FLAG,
-    SENSITIVE_CURL_COMMAND_MISSING_FLAG_DIFF_ORDER,
     SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION,
     SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION_DIFF_ORDER);
 
@@ -128,7 +122,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   }
 
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
-    List<ArgumentResolution> resolvedArgument = runInstruction.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
+    List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
     SENSITIVE_CURL_COMMAND_DETECTORS.forEach(
       commandDetector -> commandDetector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));

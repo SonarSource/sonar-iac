@@ -168,13 +168,13 @@ public class CommandDetector {
       return withOptionalRepeating(s -> s.startsWith("-"));
     }
 
-    public CommandDetector build() {
-      return new CommandDetector(predicates);
-    }
-
-    public CommandDetector.Builder addPredicatesFromBuilder(CommandDetector.Builder otherBuilder) {
+    public CommandDetector.Builder withPredicatesFrom(CommandDetector.Builder otherBuilder) {
       this.predicates.addAll(otherBuilder.predicates);
       return this;
+    }
+
+    public CommandDetector build() {
+      return new CommandDetector(predicates);
     }
   }
 
