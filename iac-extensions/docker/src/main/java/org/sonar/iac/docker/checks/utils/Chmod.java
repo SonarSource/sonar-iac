@@ -50,6 +50,12 @@ public class Chmod {
     this.permissions = parsePermissions(permissions);
   }
 
+  public Chmod(String permissions) {
+    this.chmodArg = null;
+    this.permissionsArg = null;
+    this.permissions = parsePermissions(permissions);
+  }
+
   private static Permission parsePermissions(String permissions) {
     Matcher matcher = PERMISSIONS_PATTERN.matcher(permissions);
     if (matcher.find()) {
