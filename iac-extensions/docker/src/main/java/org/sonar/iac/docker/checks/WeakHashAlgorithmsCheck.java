@@ -38,32 +38,34 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   private static final Set<String> OPENSSL_SENSITIVE_SUBCOMMAND = Set.of("md5", "sha1", "rmd160", "ripemd160");
   private static final Set<String> OPENSSL_SENSITIVE_DGST_OPTION = Set.of("-md2", "-md4", "-md5", "-sha1", "-ripemd160", "-ripemd", "-rmd160");
   private static final Set<String> SHASUM_SENSITIVE_COMMAND = Set.of("md5sum", "sha1sum");
+  private static final Set<String> SHASUM_SENSITIVE_FLAG = Set.of("-a", "--algorithm");
 
   private static final CommandDetector SENSITIVE_OPENSSL_SUBCOMMAND = CommandDetector.builder()
-    .with("openssl"::equals)
-    .with(OPENSSL_SENSITIVE_SUBCOMMAND::contains)
+    .with("openssl")
+    .with(OPENSSL_SENSITIVE_SUBCOMMAND)
     .build();
   private static final CommandDetector SENSITIVE_OPENSSL_DGST = CommandDetector.builder()
-    .with("openssl"::equals)
-    .with("dgst"::equals)
-    .withOptional(s -> !OPENSSL_SENSITIVE_DGST_OPTION.contains(s) && s.startsWith("-"))
-    .with(OPENSSL_SENSITIVE_DGST_OPTION::contains)
+    .with("openssl")
+    .with("dgst")
+    .withOptionalRepeating(s -> s.startsWith("-") && !OPENSSL_SENSITIVE_DGST_OPTION.contains(s))
+    .with(OPENSSL_SENSITIVE_DGST_OPTION)
     .build();
   private static final CommandDetector SENSITIVE_SHASUM_COMMAND = CommandDetector.builder()
-    .with(SHASUM_SENSITIVE_COMMAND::contains)
+    .with(SHASUM_SENSITIVE_COMMAND)
     .build();
-  private static final CommandDetector SENSITIVE_SHASUN_COMMAND_WITHOUT_OPTION = CommandDetector.builder()
-    .with("shasum"::equals)
-    .notWith("-a"::equals)
+  private static final CommandDetector SENSITIVE_SHASUN_COMMAND_WITHOUT_OPTION_A = CommandDetector.builder()
+    .with("shasum")
+    .withAnyFlagExcept(SHASUM_SENSITIVE_FLAG)
     .build();
   private static final CommandDetector SENSITIVE_SHASUM_COMMAND_WITH_OPTION_A_TO_1 = CommandDetector.builder()
-    .with("shasum"::equals)
-    .with("-a"::equals)
-    .with("1"::equals)
+    .with("shasum")
+    .withOptionalRepeating(s -> s.startsWith("-") && !SHASUM_SENSITIVE_FLAG.contains(s))
+    .with(SHASUM_SENSITIVE_FLAG)
+    .with("1")
     .build();
 
   private static final List<CommandDetector> COMMANDS = List.of(SENSITIVE_OPENSSL_SUBCOMMAND, SENSITIVE_OPENSSL_DGST, SENSITIVE_SHASUM_COMMAND,
-    SENSITIVE_SHASUN_COMMAND_WITHOUT_OPTION, SENSITIVE_SHASUM_COMMAND_WITH_OPTION_A_TO_1);
+    SENSITIVE_SHASUN_COMMAND_WITHOUT_OPTION_A, SENSITIVE_SHASUM_COMMAND_WITH_OPTION_A_TO_1);
 
   @Override
   public void initialize(InitContext init) {

@@ -13,3 +13,4 @@ RUN wget --random1 --random2 --no-check-certificate https://expired.badssl.com
 
 ## Compliant
 RUN wget https://www.sonarsource.com
+RUN wget https://expired.badssl.com --no-check-certificate

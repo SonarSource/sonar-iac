@@ -173,9 +173,12 @@ public class CommandDetector {
     }
 
     public CommandDetector.Builder withAnyFlagExcept(String... excludedFlags) {
-      List<String> excludedFlagList = Arrays.asList(excludedFlags);
-      return withOptionalRepeating(s -> s.startsWith("-") && !excludedFlagList.contains(s))
-        .notWith(excludedFlagList::contains);
+      return withAnyFlagExcept(Arrays.asList(excludedFlags));
+    }
+
+    public CommandDetector.Builder withAnyFlagExcept(Collection<String> excludedFlags) {
+      return withOptionalRepeating(s -> s.startsWith("-") && !excludedFlags.contains(s))
+        .notWith(excludedFlags::contains);
     }
 
     public CommandDetector.Builder withAnyFlag() {
