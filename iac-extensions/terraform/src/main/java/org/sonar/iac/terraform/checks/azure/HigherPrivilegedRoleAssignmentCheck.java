@@ -54,8 +54,7 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
     "966707d0-3269-4727-9be2-8c3a10f19b9d", "Password Administrator",
     "7be44c8a-adaf-4e2a-84d6-ab2649e08a13", "Privileged Authentication Administrator",
     "e8611ab8-c189-46e8-94e1-60213ab1f814", "Privileged Role Administrator",
-    "fe930be7-5e62-47db-91af-98c3a49a38b1", "User Administrator"
-  );
+    "fe930be7-5e62-47db-91af-98c3a49a38b1", "User Administrator");
 
   private static final String MESSAGE = "Make sure that assigning the %s role is safe here.";
   private static final String SECONDARY_MESSAGE = "Role assigned here.";
@@ -70,11 +69,11 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
 
   private static void checkAssignedRolePrivileges(CheckContext ctx, HigherPrivilegedRoleCollector collector) {
     collector.roleMember.entrySet().stream()
-      .filter(member ->  collector.higherPrivilegedRoles.containsKey(member.getKey()))
+      .filter(member -> collector.higherPrivilegedRoles.containsKey(member.getKey()))
       .forEach(member -> {
         AttributeTree role = collector.higherPrivilegedRoles.get(member.getKey());
         SecondaryLocation secondary = new SecondaryLocation(member.getValue(), SECONDARY_MESSAGE);
-        ctx.reportIssue(role, message(((TextTree)role.value()).value()), secondary);
+        ctx.reportIssue(role, message(((TextTree) role.value()).value()), secondary);
       });
   }
 
@@ -117,7 +116,6 @@ public class HigherPrivilegedRoleAssignmentCheck implements IacCheck {
     private static boolean isObjectIdReference(AttributeAccessTree tree) {
       return "object_id".equals(tree.attribute().value()) && tree.object() instanceof AttributeAccessTree;
     }
-
 
     private static String getObjectReferenceLabel(AttributeAccessTree tree) {
       return ((AttributeAccessTree) tree.object()).attribute().value();

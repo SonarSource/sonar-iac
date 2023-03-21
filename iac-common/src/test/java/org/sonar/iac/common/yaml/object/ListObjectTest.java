@@ -39,7 +39,6 @@ class ListObjectTest extends YamlTreeTest {
   CheckContext ctx = mock(CheckContext.class);
   private final TupleTree tree = parseTuple("my_list : [\"my_item\", a]");
 
-
   @Test
   void report_fromPresent() {
     ListObject list = ListObject.fromPresent(ctx, tree, "my_list", null);

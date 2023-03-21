@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 class TerraformToDoCommentCheckTest {
-  
+
   @Test
   void test() {
     TerraformVerifier.verify("ToDoCommentCheck/todo.tf", new ToDoCommentCheck());

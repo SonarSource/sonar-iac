@@ -70,6 +70,7 @@
     <version.assertj>3.23.1</version.assertj>
     <version.mockito>4.6.1</version.mockito>
     <version.snakeyaml>2.6</version.snakeyaml>
+    <version.spotless>2.34.0</version.spotless>
     <gitRepositoryName>sonar-iac</gitRepositoryName>
     <!-- Release: enable publication to Bintray -->
     <artifactsToPublish>${project.groupId}:sonar-iac-plugin:jar</artifactsToPublish>
@@ -208,6 +209,30 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <version>${version.shade.plugin}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${version.spotless}</version>
+          <executions>
+            <execution>
+              <id>spotless-check</id>
+              <!-- Runs in install phase to fail fast in case of formatting issues.-->
+              <phase>install</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <java>
+              <eclipse>
+                <version>4.21.0</version>
+                <file>https://raw.githubusercontent.com/SonarSource/sonar-developer-toolset/master/eclipse/sonar-formatter.xml</file>
+              </eclipse>
+            </java>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>

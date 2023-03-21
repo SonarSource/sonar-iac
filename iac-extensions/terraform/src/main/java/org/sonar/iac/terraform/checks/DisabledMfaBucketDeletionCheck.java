@@ -55,9 +55,8 @@ public class DisabledMfaBucketDeletionCheck extends AbstractNewResourceCheck {
       SecondaryLocation secondary = resource.toSecondary(MESSAGE_SECONDARY);
       resource.block("versioning_configuration")
         .attribute("mfa_delete")
-          .reportIf(equalTo("Disabled"), MESSAGE, secondary)
-          .reportIfAbsent(MESSAGE, secondary);
-      }
-    );
+        .reportIf(equalTo("Disabled"), MESSAGE, secondary)
+        .reportIfAbsent(MESSAGE, secondary);
+    });
   }
 }

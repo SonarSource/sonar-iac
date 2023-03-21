@@ -39,10 +39,10 @@ public class EncapsulatedVariableImpl extends AbstractDockerTreeImpl implements 
   private Symbol symbol;
 
   public EncapsulatedVariableImpl(SyntaxToken openDollarCurly,
-                                  SyntaxToken identifier,
-                                  @Nullable SyntaxToken modifierSeparator,
-                                  @Nullable Argument modifier,
-                                  SyntaxToken closeCurly) {
+    SyntaxToken identifier,
+    @Nullable SyntaxToken modifierSeparator,
+    @Nullable Argument modifier,
+    SyntaxToken closeCurly) {
     this.openDollarCurly = openDollarCurly;
     this.identifier = identifier;
     this.modifierSeparator = modifierSeparator;

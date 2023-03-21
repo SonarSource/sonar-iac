@@ -46,8 +46,7 @@ class ShellFormImplTest {
 
       .notMatches(" ${var%%[a-z+]}")
       .notMatches("ls -a")
-      .notMatches("")
-    ;
+      .notMatches("");
   }
 
   @Test
@@ -64,8 +63,7 @@ class ShellFormImplTest {
       .matches(" ${var%%[a-z+]}")
 
       .notMatches("ls -a")
-      .notMatches("")
-    ;
+      .notMatches("");
   }
 
   @Test

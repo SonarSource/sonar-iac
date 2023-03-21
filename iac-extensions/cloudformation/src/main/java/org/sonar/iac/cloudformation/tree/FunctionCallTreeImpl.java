@@ -43,6 +43,7 @@ public class FunctionCallTreeImpl extends YamlTreeImpl implements FunctionCallTr
   public List<Tree> children() {
     return new ArrayList<>(arguments);
   }
+
   @Override
   public String name() {
     return name;

@@ -52,13 +52,13 @@ public abstract class AbstractTransferInstructionImpl extends InstructionImpl im
   @Override
   public List<Argument> srcs() {
     List<Argument> args = srcsAndDest.arguments();
-    return args.subList(0, args.size()-1);
+    return args.subList(0, args.size() - 1);
   }
 
   @Override
   public Argument dest() {
     List<Argument> args = srcsAndDest.arguments();
-    return args.get(args.size()-1);
+    return args.get(args.size() - 1);
   }
 
   @Override

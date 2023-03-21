@@ -87,6 +87,7 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
       applicationLogs.report("Make sure that deactivating application logs is safe here.");
     }
   }
+
   private static void checkStorageAccount(ResourceSymbol resource) {
     if (resource.attribute("account_kind").is(ExpressionPredicate.equalTo("BlobStorage"))) {
       return;
@@ -95,7 +96,7 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     var logging = resource.block("queue_properties")
       .reportIfAbsent("Make sure that omitting to log is safe here.")
       .block("logging")
-        .reportIfAbsent("Make sure that omitting to log is safe here.");
+      .reportIfAbsent("Make sure that omitting to log is safe here.");
 
     List<AttributeSymbol> disabled = Stream.of("delete", "read", "write")
       .map(logging::attribute)
@@ -107,7 +108,7 @@ public class AzureDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     if (disabledLoggings == 3) {
       logging.report("Make sure that disabling logging is safe here.");
       return;
-    } else if(disabledLoggings == 2) {
+    } else if (disabledLoggings == 2) {
       logging.report("Make sure that partially enabling logging is safe here.");
       return;
     }

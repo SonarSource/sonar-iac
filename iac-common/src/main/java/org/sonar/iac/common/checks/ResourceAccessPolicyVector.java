@@ -46,7 +46,7 @@ public final class ResourceAccessPolicyVector {
     try {
       String resourceAccessPolicies = loadJsonFile(VECTOR_FILE);
       JSONParser parser = new JSONParser();
-      return  (JSONArray) parser.parse(resourceAccessPolicies);
+      return (JSONArray) parser.parse(resourceAccessPolicies);
     } catch (IOException | ParseException e) {
       LOG.error(e.getMessage());
     }
@@ -63,7 +63,7 @@ public final class ResourceAccessPolicyVector {
       for (int read = input.read(buffer); read != -1; read = input.read(buffer)) {
         out.write(buffer, 0, read);
       }
-      return  out.toString(StandardCharsets.UTF_8);
+      return out.toString(StandardCharsets.UTF_8);
     }
   }
 

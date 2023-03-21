@@ -21,5 +21,6 @@ package org.sonar.iac.terraform.api.tree;
 
 public interface FunctionCallTree extends ExpressionTree {
   SyntaxToken name();
+
   SeparatedTrees<ExpressionTree> arguments();
 }

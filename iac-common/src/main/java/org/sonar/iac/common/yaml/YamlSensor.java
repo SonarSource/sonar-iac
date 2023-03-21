@@ -55,8 +55,9 @@ public abstract class YamlSensor extends IacSensor {
   protected static final String FILE_SEPERATOR = "---";
 
   protected final Checks<IacCheck> checks;
+
   protected YamlSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-                       NoSonarFilter noSonarFilter, Language language, List<Class<?>> checks) {
+    NoSonarFilter noSonarFilter, Language language, List<Class<?>> checks) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     this.checks = checkFactory.create(repositoryKey());
     this.checks.addAnnotatedChecks(checks);
@@ -85,8 +86,6 @@ public abstract class YamlSensor extends IacSensor {
     return visitors;
   }
 
-
-
   @Override
   protected ParseException toParseException(String action, InputFile inputFile, Exception cause) {
     if (cause instanceof MarkedYamlEngineException) {
@@ -104,8 +103,8 @@ public abstract class YamlSensor extends IacSensor {
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
     FileSystem fileSystem = sensorContext.fileSystem();
     return fileSystem.predicates().and(fileSystem.predicates().and(
-        fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY), fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
-        fileSystem.predicates().hasType(InputFile.Type.MAIN)),
+      fileSystem.predicates().or(fileSystem.predicates().hasLanguage(JSON_LANGUAGE_KEY), fileSystem.predicates().hasLanguage(YAML_LANGUAGE_KEY)),
+      fileSystem.predicates().hasType(InputFile.Type.MAIN)),
       customFilePredicate(sensorContext));
   }
 

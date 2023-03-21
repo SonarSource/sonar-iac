@@ -22,5 +22,5 @@ package org.sonar.iac.docker.tree.api;
 /**
  * Parent interface for all the trees representing arguments
  */
-public interface Expression extends DockerTree{
+public interface Expression extends DockerTree {
 }

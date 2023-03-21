@@ -36,20 +36,13 @@ public class ContainerPrivilegedModeCheck extends AbstractKubernetesObjectCheck 
   }
 
   private void checkOnPrivilegedModeWithKey(String key) {
-    register("Pod", pod ->
-      pod.blocks(key).forEach(container ->
-        container.block("securityContext")
-          .attribute("privileged")
-          .reportIfValue(isTrue(), MESSAGE)
-      )
-    );
+    register("Pod", pod -> pod.blocks(key).forEach(container -> container.block("securityContext")
+      .attribute("privileged")
+      .reportIfValue(isTrue(), MESSAGE)));
 
-    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      obj.block("template").block("spec").blocks(key).forEach(container ->
-        container.block("securityContext")
-          .attribute("privileged")
-          .reportIfValue(isTrue(), MESSAGE)
-      )
-    );
+    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"),
+      obj -> obj.block("template").block("spec").blocks(key).forEach(container -> container.block("securityContext")
+        .attribute("privileged")
+        .reportIfValue(isTrue(), MESSAGE)));
   }
 }

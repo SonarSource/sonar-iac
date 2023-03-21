@@ -21,7 +21,6 @@ package org.sonar.iac.terraform.checks;
 
 import org.junit.jupiter.api.Test;
 
-
 class ShortBackupRetentionCheckTest {
 
   @Test

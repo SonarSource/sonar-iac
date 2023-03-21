@@ -40,8 +40,8 @@ class PolicyValidatorTest {
 
   @Test
   void exploreTestSingleTree() {
-    assertThat(PolicyValidator.explore(TEST_PREDICATE,  POSITIVE_TREE)).isPresent().get().isEqualTo(POSITIVE_TREE);
-    assertThat(PolicyValidator.explore(TEST_PREDICATE,  NEGATIVE_TREE)).isEmpty();
+    assertThat(PolicyValidator.explore(TEST_PREDICATE, POSITIVE_TREE)).isPresent().get().isEqualTo(POSITIVE_TREE);
+    assertThat(PolicyValidator.explore(TEST_PREDICATE, NEGATIVE_TREE)).isEmpty();
     assertThat(PolicyValidator.explore(TEST_PREDICATE, tree())).isEmpty();
   }
 
@@ -77,8 +77,7 @@ class PolicyValidatorTest {
       properties(attribute("Action", "foo:bar"), attribute("Resource", "*"), attribute("Effect", "Allow")),
       properties(attribute("Action", "sns:Publish"), attribute("Effect", "Allow")),
       properties(attribute("Action", "sns:Publish"), attribute("Resource", "*")),
-      properties(attribute("Action", "sns:Publish"), attribute("NotResource", "*"))
-    );
+      properties(attribute("Action", "sns:Publish"), attribute("NotResource", "*")));
 
     Policy policy = new Policy(null, tree -> statements);
     assertThat(PolicyValidator.findInsecureStatements(policy)).hasSize(2);

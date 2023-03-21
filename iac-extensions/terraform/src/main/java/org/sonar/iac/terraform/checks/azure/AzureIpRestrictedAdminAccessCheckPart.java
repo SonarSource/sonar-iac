@@ -53,7 +53,7 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
   }
 
   private static void checkNetworkSecurityRule(CheckContext ctx, BlockTree rule) {
-    if (hasAttributeWithMatchingValue(rule,"direction", "Inbound"::equals)
+    if (hasAttributeWithMatchingValue(rule, "direction", "Inbound"::equals)
       && hasAttributeWithMatchingValue(rule, "access", "Allow"::equals)
       && hasAttributeWithMatchingValue(rule, "protocol", p -> "Tcp".equals(p) || "*".equals(p))) {
       checkSecurityRule(ctx, rule);
@@ -61,9 +61,8 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
   }
 
   private static void checkSecurityRule(CheckContext ctx, BlockTree rule) {
-    sensitiveDestinationPortRange(rule).ifPresent(sensitivePort ->
-      sensitiveSourcePrefix(rule).ifPresent(sensitivePrefix ->
-        ctx.reportIssue(sensitivePrefix, MESSAGE, new SecondaryLocation(sensitivePort, SECONDARY_MSG))));
+    sensitiveDestinationPortRange(rule).ifPresent(
+      sensitivePort -> sensitiveSourcePrefix(rule).ifPresent(sensitivePrefix -> ctx.reportIssue(sensitivePrefix, MESSAGE, new SecondaryLocation(sensitivePort, SECONDARY_MSG))));
   }
 
   private static Optional<ExpressionTree> sensitiveDestinationPortRange(BlockTree rule) {

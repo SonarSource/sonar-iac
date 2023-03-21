@@ -87,6 +87,6 @@ public class UnrestrictedAdministrationCheck extends AbstractResourceCheck {
     Optional<Integer> fromIntValue = TextUtils.getIntValue(from);
     Optional<Integer> toIntValue = TextUtils.getIntValue(to);
     return (fromIntValue.isPresent() && toIntValue.isPresent()) &&
-        ((SSH_PORT >= fromIntValue.get() && SSH_PORT <= toIntValue.get()) || (RDP_PORT >= fromIntValue.get() && RDP_PORT <= toIntValue.get()));
+      ((SSH_PORT >= fromIntValue.get() && SSH_PORT <= toIntValue.get()) || (RDP_PORT >= fromIntValue.get() && RDP_PORT <= toIntValue.get()));
   }
 }

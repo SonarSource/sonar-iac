@@ -21,5 +21,6 @@ package org.sonar.iac.terraform.api.tree;
 
 public interface PrefixExpressionTree extends ExpressionTree {
   SyntaxToken prefix();
+
   ExpressionTree expression();
 }

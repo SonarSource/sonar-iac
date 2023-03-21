@@ -44,12 +44,12 @@ class XPathUtilsTest extends AbstractUtilsTest {
   void test_getTrees() {
     assertThat(XPathUtils.getTrees(root, "/Resources/S3BucketPolicy/Properties/PolicyDocument/Statement[]/Principal/AWS"))
       .isNotEmpty().hasSize(1)
-      .satisfies(t -> { YamlTree tree = t.get(0);
-        assertThat(tree).isInstanceOfSatisfying(SequenceTree.class, s ->
-          assertThat(s.elements()).hasSize(1).satisfies(els -> { YamlTree element = els.get(0);
-              assertThat(element).isInstanceOfSatisfying(ScalarTree.class, v ->
-                assertThat(v.value()).isEqualTo("arn:aws:iam::123456789123:root"));
-            }));
+      .satisfies(t -> {
+        YamlTree tree = t.get(0);
+        assertThat(tree).isInstanceOfSatisfying(SequenceTree.class, s -> assertThat(s.elements()).hasSize(1).satisfies(els -> {
+          YamlTree element = els.get(0);
+          assertThat(element).isInstanceOfSatisfying(ScalarTree.class, v -> assertThat(v.value()).isEqualTo("arn:aws:iam::123456789123:root"));
+        }));
       });
   }
 
@@ -63,22 +63,19 @@ class XPathUtilsTest extends AbstractUtilsTest {
 
   @Test
   void test_getSingleTree_with_custom_root() {
-    assertThat(XPathUtils.getSingleTree(root,"/Resources/S3BucketPolicy")).isPresent()
-      .satisfies(o ->
-        assertThat(XPathUtils.getSingleTree(o.get(), "/Properties/PolicyDocument")).isPresent());
+    assertThat(XPathUtils.getSingleTree(root, "/Resources/S3BucketPolicy")).isPresent()
+      .satisfies(o -> assertThat(XPathUtils.getSingleTree(o.get(), "/Properties/PolicyDocument")).isPresent());
   }
 
   @Test
   void test_invalid_expression() {
-    assertThatThrownBy(() -> XPathUtils.getSingleTree(root,"Resources/S3BucketPolicy"))
+    assertThatThrownBy(() -> XPathUtils.getSingleTree(root, "Resources/S3BucketPolicy"))
       .isInstanceOf(XPathUtils.InvalidXPathExpression.class);
   }
 
   @Test
   void test_only_root_expression() {
-    assertThat(XPathUtils.getSingleTree(root,"/")).isPresent().get().isEqualTo(root);
+    assertThat(XPathUtils.getSingleTree(root, "/")).isPresent().get().isEqualTo(root);
   }
 
 }
-
-

@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.checks;
 
-
 import org.junit.jupiter.api.Test;
 
 class BuilderSandboxCheckTest {

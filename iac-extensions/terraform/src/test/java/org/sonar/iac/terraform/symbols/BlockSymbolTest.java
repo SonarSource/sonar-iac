@@ -26,7 +26,6 @@ import org.sonar.iac.terraform.api.tree.TupleTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 class BlockSymbolTest extends AbstractSymbolTest {
 
   @Test

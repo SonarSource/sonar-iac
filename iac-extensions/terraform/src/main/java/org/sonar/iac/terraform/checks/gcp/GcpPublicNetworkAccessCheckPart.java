@@ -34,16 +34,15 @@ public class GcpPublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
       resource -> resource.block("worker_config")
         .reportIfAbsent(String.format(OMITTING_MESSAGE, "worker_config.no_external_ip"))
         .attribute("no_external_ip")
-          .reportIf(isFalse(), NETWORK_ACCESS_MESSAGE)
-          .reportIfAbsent(OMITTING_MESSAGE));
+        .reportIf(isFalse(), NETWORK_ACCESS_MESSAGE)
+        .reportIfAbsent(OMITTING_MESSAGE));
 
     register("google_compute_instance",
       resource -> resource.blocks("network_interface").forEach(
         block -> {
           block.block("access_config").report(NETWORK_ACCESS_MESSAGE);
           block.block("ipv6_access_config").report(NETWORK_ACCESS_MESSAGE);
-        }
-      ));
+        }));
 
     register("google_notebooks_instance",
       resource -> resource.attribute("no_public_ip")

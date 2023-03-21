@@ -47,9 +47,8 @@ class ToDoCommentCheckTest {
     context.scan(tree);
 
     verify(verifier).reportIssue("Complete the task associated to this \"TODO\" comment.");
-    verify(issueBuilder).onRange(1,1,1,13);
+    verify(issueBuilder).onRange(1, 1, 1, 13);
   }
-
 
   @Test
   void shouldNotReportIssueForSimpleComment() {

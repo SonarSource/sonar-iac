@@ -65,6 +65,7 @@ public class PrivilegedUserCheck implements IacCheck {
   public String safeImages = "";
 
   private Set<String> safeImagesSet;
+
   private Set<String> userSafeImages() {
     if (safeImagesSet == null) {
       safeImagesSet = Stream.of(safeImages.split(","))
@@ -85,14 +86,13 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private void handle(CheckContext ctx, DockerImage dockerImage) {
-    if(!isLastDockerImageInFile(dockerImage)) {
+    if (!isLastDockerImageInFile(dockerImage)) {
       return;
     }
 
     getLastUser(dockerImage).ifPresentOrElse(
-      lastUserInstruction -> checkLastUserInstruction(ctx, lastUserInstruction), 
-      () -> checkLastImageName(ctx, dockerImage.from())
-    );
+      lastUserInstruction -> checkLastUserInstruction(ctx, lastUserInstruction),
+      () -> checkLastImageName(ctx, dockerImage.from()));
   }
 
   private static void checkLastUserInstruction(CheckContext ctx, UserInstruction userInstruction) {

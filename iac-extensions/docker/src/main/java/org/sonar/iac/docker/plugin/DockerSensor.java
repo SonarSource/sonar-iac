@@ -50,7 +50,7 @@ public class DockerSensor extends IacSensor {
   private final Checks<IacCheck> checks;
 
   public DockerSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-                         NoSonarFilter noSonarFilter, DockerLanguage language) {
+    NoSonarFilter noSonarFilter, DockerLanguage language) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(DockerCheckList.checks());
@@ -72,8 +72,7 @@ public class DockerSensor extends IacSensor {
         p.matchesPathPattern("**/Dockerfile"),
         p.matchesPathPattern("**/Dockerfile.*"),
         p.matchesPathPattern("**/**.Dockerfile"),
-        p.matchesPathPattern("**/**.dockerfile")
-      ),
+        p.matchesPathPattern("**/**.dockerfile")),
       p.hasType(InputFile.Type.MAIN));
   }
 

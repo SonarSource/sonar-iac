@@ -49,7 +49,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    //https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+    // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
     register(S3_BUCKET, resource -> {
       BlockTree resourceBlock = resource.tree;
       if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4) && !isMaybeLoggingBucket(resourceBlock) && PropertyUtils.isMissing(resourceBlock, "logging")) {
@@ -58,23 +58,21 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     });
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage
-    register("aws_api_gateway_stage", resource ->
-      resource.attribute("xray_tracing_enabled")
-        .reportIf(isFalse(), MESSAGE)
-        .reportIfAbsent(MESSAGE_OMITTING));
+    register("aws_api_gateway_stage", resource -> resource.attribute("xray_tracing_enabled")
+      .reportIf(isFalse(), MESSAGE)
+      .reportIfAbsent(MESSAGE_OMITTING));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apigatewayv2_api
-    register(Set.of("aws_apigatewayv2_stage", "aws_api_gateway_stage"), resource ->
-      resource.block("access_log_settings")
-        .reportIfAbsent(MESSAGE_OMITTING));
+    register(Set.of("aws_apigatewayv2_stage", "aws_api_gateway_stage"), resource -> resource.block("access_log_settings")
+      .reportIfAbsent(MESSAGE_OMITTING));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/msk_cluster
     register("aws_msk_cluster", resource -> {
       BlockSymbol brokerLogs = resource.block("logging_info")
         .reportIfAbsent(String.format(MESSAGE_OMITTING, "logging_info.broker_logs"))
         .block("broker_logs")
-          .reportIfAbsent(MESSAGE_OMITTING);
+        .reportIfAbsent(MESSAGE_OMITTING);
 
       Stream<AttributeSymbol> logSettings = Stream.of("cloudwatch_logs", "firehose", "s3")
         .map(brokerLogs::block)
@@ -87,10 +85,9 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     });
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/neptune_cluster
-    register("aws_neptune_cluster", resource ->
-      resource.list("enable_cloudwatch_logs_exports")
-        .reportIfEmpty(MESSAGE)
-        .reportIfAbsent(MESSAGE_OMITTING));
+    register("aws_neptune_cluster", resource -> resource.list("enable_cloudwatch_logs_exports")
+      .reportIfEmpty(MESSAGE)
+      .reportIfAbsent(MESSAGE_OMITTING));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster
     register("aws_docdb_cluster", resource -> {
@@ -103,60 +100,54 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
     });
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/mq_broker
-    register("aws_mq_broker", resource ->{
+    register("aws_mq_broker", resource -> {
       BlockSymbol logs = resource.block("logs")
         .reportIfAbsent(String.format(MESSAGE_OMITTING, "logs.audit or logs.general"));
 
       AttributeSymbol auditLog = logs.attribute("audit");
       AttributeSymbol generalLog = logs.attribute("general");
-      if ((auditLog.isAbsent() && generalLog.isAbsent()) ||  (auditLog.is(isFalse()) && generalLog.is(isFalse()))) {
+      if ((auditLog.isAbsent() && generalLog.isAbsent()) || (auditLog.is(isFalse()) && generalLog.is(isFalse()))) {
         logs.report(MESSAGE);
       }
     });
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/redshift_cluster
-    register("aws_redshift_cluster", resource ->
-      resource.block("logging")
-        .reportIfAbsent(String.format(MESSAGE_OMITTING, "logging.enable"))
-        .attribute("enable")
-          .reportIf(isFalse(), MESSAGE)
-          .reportIfAbsent(MESSAGE));
+    register("aws_redshift_cluster", resource -> resource.block("logging")
+      .reportIfAbsent(String.format(MESSAGE_OMITTING, "logging.enable"))
+      .attribute("enable")
+      .reportIf(isFalse(), MESSAGE)
+      .reportIfAbsent(MESSAGE));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/globalaccelerator_accelerator
-    register("aws_globalaccelerator_accelerator", resource ->
-      resource.block("attributes")
-        .reportIfAbsent(String.format(MESSAGE_OMITTING, "attributes.flow_logs_enabled"))
-        .attribute("flow_logs_enabled")
-          .reportIf(isFalse(), MESSAGE)
-          .reportIfAbsent(MESSAGE));
+    register("aws_globalaccelerator_accelerator", resource -> resource.block("attributes")
+      .reportIfAbsent(String.format(MESSAGE_OMITTING, "attributes.flow_logs_enabled"))
+      .attribute("flow_logs_enabled")
+      .reportIf(isFalse(), MESSAGE)
+      .reportIfAbsent(MESSAGE));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticsearch_domain
-    register("aws_elasticsearch_domain", resource ->
-      resource.blocks("log_publishing_options")
-        .filter(block -> block.attribute("log_type").is(notEqualTo("AUDIT_LOGS").negate()))
-        .findFirst()
-        .ifPresentOrElse(auditLog -> auditLog.attribute("enabled").reportIf(isFalse(), MESSAGE),
-          () -> resource.report(String.format(MESSAGE_OMITTING, "log_publishing_options of type \"AUDIT_LOGS\""))));
+    register("aws_elasticsearch_domain", resource -> resource.blocks("log_publishing_options")
+      .filter(block -> block.attribute("log_type").is(notEqualTo("AUDIT_LOGS").negate()))
+      .findFirst()
+      .ifPresentOrElse(auditLog -> auditLog.attribute("enabled").reportIf(isFalse(), MESSAGE),
+        () -> resource.report(String.format(MESSAGE_OMITTING, "log_publishing_options of type \"AUDIT_LOGS\""))));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
-    register("aws_cloudfront_distribution", resource ->
-      resource.block("logging_config")
-        .reportIfAbsent(MESSAGE_OMITTING));
+    register("aws_cloudfront_distribution", resource -> resource.block("logging_config")
+      .reportIfAbsent(MESSAGE_OMITTING));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb
-    register("aws_lb", resource ->
-      resource.block("access_logs")
-        .reportIfAbsent(MESSAGE_OMITTING)
-        .attribute("enabled")
-          .reportIf(isFalse(), MESSAGE)
-          .reportIfAbsent(MESSAGE));
+    register("aws_lb", resource -> resource.block("access_logs")
+      .reportIfAbsent(MESSAGE_OMITTING)
+      .attribute("enabled")
+      .reportIf(isFalse(), MESSAGE)
+      .reportIfAbsent(MESSAGE));
 
     // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elb
-    register("aws_elb", resource ->
-      resource.block("access_logs")
-        .reportIfAbsent(MESSAGE_OMITTING)
-        .attribute("enabled")
-        .reportIf(isFalse(), MESSAGE));
+    register("aws_elb", resource -> resource.block("access_logs")
+      .reportIfAbsent(MESSAGE_OMITTING)
+      .attribute("enabled")
+      .reportIf(isFalse(), MESSAGE));
   }
 
   private static boolean isMaybeLoggingBucket(BlockTree resource) {

@@ -26,13 +26,13 @@ import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 class ExposePortCheckTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   ExposePortCheck check = new ExposePortCheck();
+
   @Test
   void test() {
     DockerVerifier.verify("ExposePortCheck/Dockerfile.default", check);

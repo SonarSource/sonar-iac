@@ -51,14 +51,13 @@ import static org.sonar.iac.terraform.TestTreeBuilders.SyntaxTokenBuilder.token;
 
 public class TestTreeBuilders {
 
-
   public static class SyntaxTokenBuilder {
 
     private SyntaxTokenBuilder() {
     }
 
     public static SyntaxToken token(String value) {
-      return new SyntaxTokenImpl(value, null , Collections.emptyList());
+      return new SyntaxTokenImpl(value, null, Collections.emptyList());
     }
   }
 
@@ -106,7 +105,7 @@ public class TestTreeBuilders {
     }
 
     public static LabelTree label(String label) {
-        return new LabelTreeImpl(token(label));
+      return new LabelTreeImpl(token(label));
     }
   }
 
@@ -166,13 +165,14 @@ public class TestTreeBuilders {
       elements.add(element);
       return this;
     }
+
     public ObjectBuilder element(String identifier, ExpressionTree value) {
       elements.add(new ObjectElementTreeImpl(new VariableExprTreeImpl(token(identifier)), token(":"), value));
       return this;
     }
 
     public ObjectTree build() {
-      return new ObjectTreeImpl(token("{"), new SeparatedTreesImpl<>(elements, getSeparators()),token("}"));
+      return new ObjectTreeImpl(token("{"), new SeparatedTreesImpl<>(elements, getSeparators()), token("}"));
     }
 
     private List<SyntaxToken> getSeparators() {

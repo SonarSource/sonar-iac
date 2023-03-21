@@ -29,8 +29,11 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 public interface DockerTree extends Tree {
 
   boolean is(Kind... kind);
+
   Kind getKind();
+
   DockerTree parent();
+
   void setParent(DockerTree parent);
 
   enum Kind implements GrammarRuleKey {
@@ -72,7 +75,6 @@ public interface DockerTree extends Tree {
     REGULAR_VARIABLE(RegularVariable.class),
     ENCAPSULATED_VARIABLE(EncapsulatedVariable.class),
     ARGUMENT(Argument.class);
-
 
     private final Class<? extends DockerTree> associatedInterface;
 

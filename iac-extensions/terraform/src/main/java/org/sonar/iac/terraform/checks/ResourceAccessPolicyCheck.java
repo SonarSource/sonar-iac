@@ -46,10 +46,8 @@ public class ResourceAccessPolicyCheck extends AbstractResourceCheck {
   }
 
   private static void checkInsecurePolicy(CheckContext ctx, Policy policy) {
-    PolicyValidator.findInsecureStatements(policy).forEach(statement ->
-      ctx.reportIssue(statement.resource, MESSAGE, List.of(
-        new SecondaryLocation(statement.effect, EFFECT_MESSAGE),
-        new SecondaryLocation(statement.action, ACTION_MESSAGE)
-      )));
+    PolicyValidator.findInsecureStatements(policy).forEach(statement -> ctx.reportIssue(statement.resource, MESSAGE, List.of(
+      new SecondaryLocation(statement.effect, EFFECT_MESSAGE),
+      new SecondaryLocation(statement.action, ACTION_MESSAGE))));
   }
 }

@@ -31,7 +31,6 @@ public class UnencryptedEbsVolumeCheck extends AbstractNewResourceCheck {
   private static final String MESSAGE = "Make sure that using unencrypted volumes is safe here.";
   private static final String OMITTING_MESSAGE = "Omitting \"%s\" disables volumes encryption. Make sure it is safe here.";
 
-
   @Override
   protected void registerResourceConsumer() {
     register("aws_ebs_encryption_by_default",
@@ -49,6 +48,5 @@ public class UnencryptedEbsVolumeCheck extends AbstractNewResourceCheck {
         .reportIfAbsent(OMITTING_MESSAGE)
         .reportIf(isFalse(), MESSAGE)));
   }
-
 
 }

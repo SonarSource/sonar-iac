@@ -32,14 +32,13 @@ public class CloudformationExtension {
 
   public static void define(Plugin.Context context) {
     context.addExtensions(
-      //Language
+      // Language
       CloudformationLanguage.class,
       // Sensor
       CloudformationSensor.class,
       // Rules and profiles
       CloudformationRulesDefinition.class,
-      CloudformationProfileDefinition.class
-    );
+      CloudformationProfileDefinition.class);
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
       // We do not import external reports in SonarLint so no need to define the CfnLint rules.

@@ -51,11 +51,10 @@ public class RoleScopeHelper implements PredicateUtils {
       return attributeAccessMatches(scope, referenceScopePredicate).isTrue();
     } else if (scope.is(TerraformTree.Kind.TEMPLATE_EXPRESSION)) {
       return !isLimitedToResourceGroup((TemplateExpressionTree) scope)
-       && containsSensitiveInterpolations((TemplateExpressionTree) scope, referenceScopePredicate);
+        && containsSensitiveInterpolations((TemplateExpressionTree) scope, referenceScopePredicate);
     }
     return TextUtils.matchesValue(scope, plainScopePredicate).isTrue();
   }
-
 
   private static boolean containsSensitiveInterpolations(TemplateExpressionTree scope, Predicate<String> referenceScopePredicate) {
     return scope.parts().stream()
