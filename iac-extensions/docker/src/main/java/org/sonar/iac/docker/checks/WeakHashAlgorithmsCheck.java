@@ -40,26 +40,26 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   private static final Set<String> SHASUM_SENSITIVE_COMMAND = Set.of("md5sum", "sha1sum");
 
   private static final CommandDetector SENSITIVE_OPENSSL_SUBCOMMAND = CommandDetector.builder()
-    .with("openssl"::equals)
-    .with(OPENSSL_SENSITIVE_SUBCOMMAND::contains)
+    .with("openssl")
+    .with(OPENSSL_SENSITIVE_SUBCOMMAND)
     .build();
   private static final CommandDetector SENSITIVE_OPENSSL_DGST = CommandDetector.builder()
-    .with("openssl"::equals)
-    .with("dgst"::equals)
+    .with("openssl")
+    .with("dgst")
     .withOptional(s -> !OPENSSL_SENSITIVE_DGST_OPTION.contains(s) && s.startsWith("-"))
-    .with(OPENSSL_SENSITIVE_DGST_OPTION::contains)
+    .with(OPENSSL_SENSITIVE_DGST_OPTION)
     .build();
   private static final CommandDetector SENSITIVE_SHASUM_COMMAND = CommandDetector.builder()
-    .with(SHASUM_SENSITIVE_COMMAND::contains)
+    .with(SHASUM_SENSITIVE_COMMAND)
     .build();
   private static final CommandDetector SENSITIVE_SHASUN_COMMAND_WITHOUT_OPTION = CommandDetector.builder()
-    .with("shasum"::equals)
-    .notWith("-a"::equals)
+    .with("shasum")
+    .notWith("-a")
     .build();
   private static final CommandDetector SENSITIVE_SHASUM_COMMAND_WITH_OPTION_A_TO_1 = CommandDetector.builder()
-    .with("shasum"::equals)
-    .with("-a"::equals)
-    .with("1"::equals)
+    .with("shasum")
+    .with("-a")
+    .with("1")
     .build();
 
   private static final List<CommandDetector> COMMANDS = List.of(SENSITIVE_OPENSSL_SUBCOMMAND, SENSITIVE_OPENSSL_DGST, SENSITIVE_SHASUM_COMMAND,

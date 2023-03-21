@@ -41,7 +41,7 @@ import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 public class CommandDetector {
 
-  List<CommandPredicate> predicates;
+  private List<CommandPredicate> predicates;
 
   private CommandDetector(List<CommandPredicate> predicates) {
     this.predicates = predicates;
@@ -77,6 +77,8 @@ public class CommandDetector {
    * The method is then called again with a reduced argument stack until there are no more arguments on the stack.
    * If a predicate can be applied multiple times to the argument stack, it is placed on the predicate stack again at the end of the loop.
    */
+  // Cognitive Complexity of methods should not be too high
+  @SuppressWarnings("java:S3776")
   private List<ArgumentResolution> fullMatch(Deque<ArgumentResolution> argumentStack) {
     List<ArgumentResolution> commandArguments = new ArrayList<>();
     Deque<CommandPredicate> predicateStack = new LinkedList<>(predicates);
@@ -153,8 +155,23 @@ public class CommandDetector {
       return this;
     }
 
+    public CommandDetector.Builder notWith(String excludedString) {
+      addPredicate(excludedString::equals, NO_MATCH);
+      return this;
+    }
+
     public CommandDetector.Builder withOptionalRepeating(Predicate<String> predicate) {
       addPredicate(predicate, ZERO_OR_MORE);
+      return this;
+    }
+
+    public CommandDetector.Builder withOptionalRepeatingExpect(Predicate<String> predicate) {
+      withOptionalRepeating(predicate.negate());
+      return this;
+    }
+
+    public CommandDetector.Builder withOptionalRepeatingExpect(String excludedString) {
+      withOptionalRepeatingExpect(excludedString::equals);
       return this;
     }
 
@@ -195,8 +212,8 @@ public class CommandDetector {
     }
 
     public boolean is(Type... types) {
-      for (Type type : types) {
-        if (this.type.equals(type)) {
+      for (Type t : types) {
+        if (type.equals(t)) {
           return true;
         }
       }
