@@ -59,10 +59,9 @@ public class RoleBasedAccessControlCheck extends AbstractNewResourceCheck {
     });
 
     // https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault
-    register("azurerm_key_vault",  resource ->
-      resource.attribute("enable_rbac_authorization")
-        .reportIf(isFalse(), DISABLED_MESSAGE)
-        .reportIfAbsent(MISSING_MESSAGE));
+    register("azurerm_key_vault", resource -> resource.attribute("enable_rbac_authorization")
+      .reportIf(isFalse(), DISABLED_MESSAGE)
+      .reportIfAbsent(MISSING_MESSAGE));
   }
 
   private static void checkActiveDirectoryRoleBasedAccessControl(BlockSymbol adRbac) {

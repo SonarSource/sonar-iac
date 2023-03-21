@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.terraform.plugin;
 
-
 import org.junit.jupiter.api.Test;
 import org.sonar.api.config.internal.MapSettings;
 

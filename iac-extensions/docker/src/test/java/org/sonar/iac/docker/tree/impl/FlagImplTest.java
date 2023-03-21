@@ -51,8 +51,7 @@ class FlagImplTest {
       .notMatches(" --platform= foo")
       .notMatches(" --platform foo")
       .notMatches(" --PLATFORM=foo")
-      .notMatches(" --platform=foo\n")
-    ;
+      .notMatches(" --platform=foo\n");
   }
 
   @Test

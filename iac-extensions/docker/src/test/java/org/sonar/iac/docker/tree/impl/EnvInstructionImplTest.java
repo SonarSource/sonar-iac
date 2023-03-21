@@ -131,12 +131,12 @@ class EnvInstructionImplTest {
   @Test
   void shouldParseMultiline() {
     EnvInstruction tree = parse("ENV JAVA_OPTS -Duser.timezone=\\$TIMEZONE -XX:+UseParallelGC\\\n" +
-        "    -Dlog4j.configuration=config.properties -Xms\\$XMS -Xmx\\$XMX \\\n" +
-        "    -XX:MaxPermSize=\\$MAXPERMSIZE -Dbanproxy.jdbc.url=\\$BANPROXY_JDBC_URL \\\n" +
-        "    -DlogFileDir=\\$LOGFILEDIR \\\n" +
-        "    -Dscheme=\\$SCHEME \\\n" +
-        "    -Dproxy.port=\\$PROXY_PORT \\\n" +
-        "    -Dproxy.name=\\$PROXY_NAME",
+      "    -Dlog4j.configuration=config.properties -Xms\\$XMS -Xmx\\$XMX \\\n" +
+      "    -XX:MaxPermSize=\\$MAXPERMSIZE -Dbanproxy.jdbc.url=\\$BANPROXY_JDBC_URL \\\n" +
+      "    -DlogFileDir=\\$LOGFILEDIR \\\n" +
+      "    -Dscheme=\\$SCHEME \\\n" +
+      "    -Dproxy.port=\\$PROXY_PORT \\\n" +
+      "    -Dproxy.name=\\$PROXY_NAME",
       DockerLexicalGrammar.ENV);
     assertThat(tree.environmentVariables()).hasSize(1);
   }

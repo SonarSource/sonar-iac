@@ -65,11 +65,11 @@ public class GcpPrivilegePolicyCheckPart extends AbstractNewResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register(List.of("google_project_iam_binding", "google_organization_iam_binding",
-        "google_service_account_iam_binding", "google_folder_iam_binding"),
+      "google_service_account_iam_binding", "google_folder_iam_binding"),
       resource -> checkRole(resource, POLICY_MESSAGE));
 
     register(List.of("google_project_iam_member", "google_organization_iam_member",
-        "google_service_account_iam_member", "google_folder_iam_member"),
+      "google_service_account_iam_member", "google_folder_iam_member"),
       resource -> checkRole(resource, MEMBER_MESSAGE));
   }
 

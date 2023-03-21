@@ -44,7 +44,7 @@ public class TerraformSensor extends IacSensor {
   private final TerraformProviders providerVersions;
 
   public TerraformSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-                         NoSonarFilter noSonarFilter, TerraformLanguage language, TerraformProviders providerVersions) {
+    NoSonarFilter noSonarFilter, TerraformLanguage language, TerraformProviders providerVersions) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(TerraformCheckList.checks());

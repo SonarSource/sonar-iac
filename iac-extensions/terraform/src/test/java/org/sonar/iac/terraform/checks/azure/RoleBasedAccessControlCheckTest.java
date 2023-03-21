@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.terraform.checks.TerraformVerifier;
 
-
 class RoleBasedAccessControlCheckTest {
 
   final IacCheck check = new RoleBasedAccessControlCheck();

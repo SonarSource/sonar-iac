@@ -25,6 +25,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 class DisabledMfaBucketDeletionCheckTest {
 
   IacCheck check = new DisabledMfaBucketDeletionCheck();
+
   @Test
   void aws_provider_v3() {
     TerraformVerifier.verifyWithProviderVersion("DisabledMfaBucketDeletionCheck/aws_provider_v3.tf", check, "3");

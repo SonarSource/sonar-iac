@@ -52,8 +52,7 @@ class HealthCheckInstructionImplTest {
       .notMatches("HEALTHCHECK --interval=30s")
       .notMatches("HEALTHCHECK--interval=30s")
       .notMatches("HEALTHCHECK NONEE")
-      .notMatches("HEALTHCHECKNONE")
-    ;
+      .notMatches("HEALTHCHECKNONE");
   }
 
   @Test
@@ -66,7 +65,7 @@ class HealthCheckInstructionImplTest {
     assertThat(tree.isNone()).isTrue();
     assertThat(tree.none().getKind()).isEqualTo(DockerTree.Kind.TOKEN);
     assertThat(tree.none().value()).isEqualTo("NONE");
-    assertTextRange(tree.none().textRange()).hasRange(1,12,1,16);
+    assertTextRange(tree.none().textRange()).hasRange(1, 12, 1, 16);
     assertThat(tree.cmdInstruction()).isNull();
     assertThat(tree.options()).isEmpty();
   }

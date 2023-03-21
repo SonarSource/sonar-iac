@@ -33,7 +33,6 @@ public class DockerSettings {
   static final String ACTIVATION_KEY = "sonar.docker.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
 
-
   private DockerSettings() {
   }
 
@@ -49,7 +48,6 @@ public class DockerSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(DOCKER_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
-        .build()
-    );
+        .build());
   }
 }

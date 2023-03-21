@@ -103,8 +103,8 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
         .reportIf(matchesPattern("all(Authenticated)?Users"), MESSAGE));
 
     register(List.of("google_storage_bucket_acl",
-        "google_storage_default_object_acl",
-        "google_storage_object_acl"),
+      "google_storage_default_object_acl",
+      "google_storage_object_acl"),
       resource -> resource.list("role_entity")
         .reportItemIf(matchesPattern(".*:all(Authenticated)?Users"), MESSAGE));
 
@@ -159,6 +159,6 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
 
   @CheckForNull
   private static String getName(BlockTree block) {
-    return block.labels().size() >= 2 ?  block.labels().get(1).value() : null;
+    return block.labels().size() >= 2 ? block.labels().get(1).value() : null;
   }
 }

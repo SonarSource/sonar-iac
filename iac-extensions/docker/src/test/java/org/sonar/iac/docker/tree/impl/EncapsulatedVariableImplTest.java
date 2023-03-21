@@ -56,8 +56,7 @@ class EncapsulatedVariableImplTest {
       .notMatches("${foo }")
       .notMatches("${\"foo\"}")
       .notMatches("${:-bar}")
-      .notMatches("${$foo}")
-    ;
+      .notMatches("${$foo}");
   }
 
   @Test
@@ -67,7 +66,7 @@ class EncapsulatedVariableImplTest {
     assertThat(variable.getKind()).isEqualTo(DockerTree.Kind.ENCAPSULATED_VARIABLE);
     assertThat(variable.identifier()).isEqualTo("foo");
     assertThat(variable.modifierSeparator()).isEqualTo(":-");
-    assertTextRange(variable.textRange()).hasRange(1,0,1,11);
+    assertTextRange(variable.textRange()).hasRange(1, 0, 1, 11);
 
     Argument modifier = variable.modifier();
     assertThat(modifier).isNotNull();

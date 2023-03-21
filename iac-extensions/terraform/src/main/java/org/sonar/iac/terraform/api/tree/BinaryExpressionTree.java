@@ -21,6 +21,8 @@ package org.sonar.iac.terraform.api.tree;
 
 public interface BinaryExpressionTree extends ExpressionTree {
   ExpressionTree leftOperand();
+
   SyntaxToken operator();
+
   ExpressionTree rightOperand();
 }

@@ -97,7 +97,6 @@ public class TemplateForDirectiveTreeImpl extends TerraformTreeImpl implements T
       this.forCloseToken = forCloseToken;
     }
 
-
     @Override
     public Kind getKind() {
       // this will never be used as this is just wrapper class to ease parsing

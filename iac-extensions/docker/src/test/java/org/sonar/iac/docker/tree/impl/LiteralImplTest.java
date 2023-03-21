@@ -68,8 +68,7 @@ class LiteralImplTest {
       .notMatches("\"foo\" ")
       .notMatches("\"foo$bar5a\"")
       .notMatches("\"$3\"")
-      .notMatches("\"foo$$bar\"")
-    ;
+      .notMatches("\"foo$$bar\"");
   }
 
   @Test

@@ -47,8 +47,7 @@ class VolumeInstructionImplTest {
       .notMatches("VOLUME ${myvolume%%[a-z]+}")
       .notMatches("VOLUME")
       .notMatches("VOLUME ")
-      .notMatches("VOLUMEE 80")
-    ;
+      .notMatches("VOLUMEE 80");
   }
 
   @Test

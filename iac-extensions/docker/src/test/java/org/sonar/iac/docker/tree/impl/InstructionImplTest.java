@@ -41,8 +41,7 @@ class InstructionImplTest {
   void commentBeforeInstruction() {
     String code = code(
       "# instruction comment",
-        "FROM foo"
-    );
+      "FROM foo");
 
     File file = parse(code, DockerLexicalGrammar.FILE);
     DockerImage dockerImage = file.body().dockerImages().get(0);
@@ -59,8 +58,7 @@ class InstructionImplTest {
     String code = code(
       "FROM foo \\",
       "# multiline comment",
-      "AS bar"
-    );
+      "AS bar");
 
     File file = parse(code, DockerLexicalGrammar.FILE);
     DockerImage dockerImage = file.body().dockerImages().get(0);
@@ -80,8 +78,7 @@ class InstructionImplTest {
   void shouldParseCommentWithoutSpace() {
     File file = parse(code(
       "#foobar",
-      "FROM foo"
-    ), DockerLexicalGrammar.FILE);
+      "FROM foo"), DockerLexicalGrammar.FILE);
 
     DockerImage image = TreeUtils.firstDescendant(file, DockerImage.class).get();
     List<Comment> comments = image.from().keyword().comments();
@@ -92,8 +89,7 @@ class InstructionImplTest {
   void shouldParseEmptyComment() {
     File file = parse(code(
       "#",
-      "FROM foo"
-    ), DockerLexicalGrammar.FILE);
+      "FROM foo"), DockerLexicalGrammar.FILE);
 
     DockerImage image = TreeUtils.firstDescendant(file, DockerImage.class).get();
     List<Comment> comments = image.from().keyword().comments();

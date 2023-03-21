@@ -23,7 +23,10 @@ import java.util.Optional;
 
 public interface ForObjectTree extends ForTree {
   ExpressionTree firstExpression();
+
   ExpressionTree secondExpression();
+
   boolean hasEllipsis();
+
   Optional<ExpressionTree> condition();
 }

@@ -66,7 +66,8 @@ public class ExposePortCheck implements IacCheck {
 
   private void checkPort(CheckContext ctx, Argument arg) {
     String portStr = ArgumentResolution.of(arg).value();
-    if (portStr == null) return;
+    if (portStr == null)
+      return;
     try {
       Port port = new Port.PortParser(portStr).parsePort().parseProtocol().build();
       if (port.protocol == Protocol.TCP && isSensitivePort(port.portMin, port.portMax)) {
@@ -85,7 +86,9 @@ public class ExposePortCheck implements IacCheck {
     return value >= min && value <= max;
   }
 
-  enum Protocol {TCP, UDP}
+  enum Protocol {
+    TCP, UDP
+  }
 
   /**
    * Represent a single Port exposition in docker, with a range and a protocol.
@@ -102,6 +105,7 @@ public class ExposePortCheck implements IacCheck {
     static class PortParser {
       String[] splittedProtocol;
       Port port;
+
       public PortParser(String str) {
         port = new Port();
         splittedProtocol = str.split("/");

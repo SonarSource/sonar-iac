@@ -34,7 +34,6 @@ class AliasImplTest {
 
       .notMatches("AS foo")
       .notMatches(" AS")
-      .notMatches(" AS foo\n")
-    ;
+      .notMatches(" AS foo\n");
   }
 }

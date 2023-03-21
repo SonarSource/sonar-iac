@@ -48,9 +48,9 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register(List.of("google_logging_project_bucket_config",
-        "google_logging_billing_account_bucket_config",
-        "google_logging_organization_bucket_config",
-        "google_logging_folder_bucket_config"),
+      "google_logging_billing_account_bucket_config",
+      "google_logging_organization_bucket_config",
+      "google_logging_folder_bucket_config"),
       resource -> {
         AttributeSymbol retention = resource.attribute("retention_days")
           .reportIf(lessThanMinimumOrFallback(), MESSAGE);
@@ -67,10 +67,10 @@ public class ShortLogRetentionCheck extends AbstractNewResourceCheck {
       resource -> {
         var logs = resource.block("logs");
         Set.of(logs.block("http_logs").block("azure_blob_storage"),
-            logs.block("http_logs").block("file_system"),
-            logs.block("application_logs").block("azure_blob_storage"))
+          logs.block("http_logs").block("file_system"),
+          logs.block("application_logs").block("azure_blob_storage"))
           .forEach(block -> block.consume(this::checkRetentionInDays));
-    });
+      });
 
     register("azurerm_firewall_policy",
       resource -> resource.block("insights")

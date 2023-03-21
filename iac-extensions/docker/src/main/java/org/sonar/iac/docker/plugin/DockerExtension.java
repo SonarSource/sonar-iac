@@ -29,14 +29,14 @@ public class DockerExtension {
 
   public static void define(Plugin.Context context) {
     context.addExtensions(
-      //Language
+      // Language
       DockerLanguage.class,
       // Sensor
       DockerSensor.class,
       // Rules and profiles
       DockerRulesDefinition.class,
       DockerProfileDefinition.class
-      // Additional extensions
+    // Additional extensions
     );
     context.addExtensions(DockerSettings.getProperties());
   }

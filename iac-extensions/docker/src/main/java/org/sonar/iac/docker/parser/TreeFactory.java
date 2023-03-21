@@ -204,11 +204,11 @@ public class TreeFactory {
     return new ShellInstructionImpl(token, execForm);
   }
 
-  public  HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Flag>> flags, DockerTree noneOrCmd) {
+  public HealthCheckInstruction healthcheck(SyntaxToken healthcheck, Optional<List<Flag>> flags, DockerTree noneOrCmd) {
     if (noneOrCmd instanceof CmdInstruction) {
-      return new HealthCheckInstructionImpl(healthcheck, flags.or(Collections.emptyList()), (CmdInstruction)noneOrCmd, null);
+      return new HealthCheckInstructionImpl(healthcheck, flags.or(Collections.emptyList()), (CmdInstruction) noneOrCmd, null);
     } else {
-      return new HealthCheckInstructionImpl(healthcheck, flags.or(Collections.emptyList()), null, (SyntaxToken)noneOrCmd);
+      return new HealthCheckInstructionImpl(healthcheck, flags.or(Collections.emptyList()), null, (SyntaxToken) noneOrCmd);
     }
   }
 
@@ -266,8 +266,7 @@ public class TreeFactory {
   public ExpandableStringLiteral expandableStringLiteral(
     SyntaxToken openDoubleQuote,
     List<Expression> expressions,
-    SyntaxToken closeDoubleQuote
-  ) {
+    SyntaxToken closeDoubleQuote) {
     return new ExpandableStringLiteralImpl(openDoubleQuote, expressions, closeDoubleQuote);
   }
 
@@ -320,11 +319,9 @@ public class TreeFactory {
     return new KeyValuePairImpl(key, null, value);
   }
 
-
   public KeyValuePair keyValuePair(Argument key, Optional<SyntaxToken> equalSign) {
     return new KeyValuePairImpl(key, equalSign.orNull(), null);
   }
-
 
   public static class Tuple<T, U> {
 

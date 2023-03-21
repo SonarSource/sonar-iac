@@ -42,6 +42,7 @@ public class ExposeInstructionImpl extends InstructionImpl implements ExposeInst
     children.addAll(arguments);
     return children;
   }
+
   @Override
   public Kind getKind() {
     return Kind.EXPOSE;

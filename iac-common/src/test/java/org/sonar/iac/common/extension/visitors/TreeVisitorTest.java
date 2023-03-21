@@ -42,7 +42,6 @@ class TreeVisitorTest {
   private final Tree tree2 = new TestTree(subtree3);
   private final Tree root = new TestTree(tree1, tree2);
 
-
   @Test
   void visit_simple_tree() {
     List<Tree> visited = new ArrayList<>();

@@ -85,7 +85,6 @@ public class TerraformSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(TERRAFORM_CATEGORY)
         .subCategory(VERSION_SUBCATEGORY)
-        .build()
-    );
+        .build());
   }
 }

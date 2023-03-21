@@ -31,22 +31,15 @@ public class CapabilitiesCheck extends AbstractKubernetesObjectCheck {
 
   @Override
   void registerObjectCheck() {
-    register("Pod", pod ->
-      pod.blocks("containers").forEach(container ->
-        container.block("securityContext")
-          .block("capabilities")
-            .list("add")
-              .reportIfAnyItem(isSet(), MESSAGE)
-      )
-    );
+    register("Pod", pod -> pod.blocks("containers").forEach(container -> container.block("securityContext")
+      .block("capabilities")
+      .list("add")
+      .reportIfAnyItem(isSet(), MESSAGE)));
 
-    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"), obj ->
-      obj.block("template").block("spec").blocks("containers").forEach(container ->
-        container.block("securityContext")
-          .block("capabilities")
-            .list("add")
-              .reportIfAnyItem(isSet(), MESSAGE)
-      )
-    );
+    register(List.of("DaemonSet", "Deployment", "Job", "ReplicaSet", "ReplicationController", "StatefulSet"),
+      obj -> obj.block("template").block("spec").blocks("containers").forEach(container -> container.block("securityContext")
+        .block("capabilities")
+        .list("add")
+        .reportIfAnyItem(isSet(), MESSAGE)));
   }
 }

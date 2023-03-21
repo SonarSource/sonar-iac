@@ -69,5 +69,6 @@ class IacRulesDefinitionTest {
   }
 
   @Rule(key = "S1")
-  static class TestCheck {}
+  static class TestCheck {
+  }
 }

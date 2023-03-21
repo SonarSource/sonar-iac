@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractCheckListTest {
 
   protected abstract List<Class<?>> checks();
+
   protected abstract File checkClassDir();
 
   @Test

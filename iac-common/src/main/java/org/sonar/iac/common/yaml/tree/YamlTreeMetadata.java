@@ -61,6 +61,7 @@ public final class YamlTreeMetadata implements HasTextRange {
   public static YamlTreeMetadata fromNode(String tag, Node node) {
     return new YamlTreeMetadata(tag, range(node), comments(node));
   }
+
   public static YamlTreeMetadata fromNode(Node node) {
     return fromNode(tag(node), node);
   }

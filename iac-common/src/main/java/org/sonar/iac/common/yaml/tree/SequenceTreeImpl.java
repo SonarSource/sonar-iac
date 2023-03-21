@@ -42,7 +42,6 @@ public class SequenceTreeImpl extends YamlTreeImpl implements SequenceTree {
     return elements;
   }
 
-
   @Override
   public Iterator<YamlTree> iterator() {
     return elements.iterator();

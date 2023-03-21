@@ -59,8 +59,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   protected void register(BiConsumer<CheckContext, BlockTree> resourceCheck, String... resourceNames) {
-    Arrays.asList(resourceNames).forEach(resourceName ->
-      resourceChecks.computeIfAbsent(resourceName, i -> new ArrayList<>()).add(resourceCheck));
+    Arrays.asList(resourceNames).forEach(resourceName -> resourceChecks.computeIfAbsent(resourceName, i -> new ArrayList<>()).add(resourceCheck));
   }
 
   protected void checkResource(CheckContext ctx, BlockTree resource) {

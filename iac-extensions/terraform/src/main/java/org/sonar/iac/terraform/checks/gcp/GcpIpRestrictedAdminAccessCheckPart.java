@@ -40,18 +40,15 @@ public class GcpIpRestrictedAdminAccessCheckPart extends AbstractNewResourceChec
 
   private static final Set<String> SENSITIVE_PREFIXES = Set.of(ALL_IPV4, ALL_IPV6, "0::0/0", "::0/0");
 
-  private static final Predicate<ExpressionTree> RANGE_CONTAINS_SENSITIVE_PORTS =
-    range -> TextUtils.matchesValue(range, IpRestrictedAdminAccessCheck::rangeContainsSshOrRdpPort).isTrue();
+  private static final Predicate<ExpressionTree> RANGE_CONTAINS_SENSITIVE_PORTS = range -> TextUtils.matchesValue(range, IpRestrictedAdminAccessCheck::rangeContainsSshOrRdpPort)
+    .isTrue();
 
-  private static final Predicate<ExpressionTree> SENSITIVE_IP_RANGE =
-    range -> TextUtils.matchesValue(range, SENSITIVE_PREFIXES::contains).isTrue();
-
+  private static final Predicate<ExpressionTree> SENSITIVE_IP_RANGE = range -> TextUtils.matchesValue(range, SENSITIVE_PREFIXES::contains).isTrue();
 
   @Override
   protected void registerResourceConsumer() {
     register(List.of("google_compute_firewall"), this::checkFirewall);
   }
-
 
   private void checkFirewall(ResourceSymbol firewall) {
     // Check preconditions for a sensitive firewall

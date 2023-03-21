@@ -94,7 +94,7 @@ class ExpressionPrecedenceTest extends TerraformTreeModelTest {
       return Collections.singletonList(((SyntaxToken) tree).value());
     } else {
       List<String> childrenAsString = new ArrayList<>();
-      for (Tree child: tree.children()) {
+      for (Tree child : tree.children()) {
         List<String> childAsString = dumpWithParentheses(child);
         if (childAsString.size() == 1) {
           childrenAsString.add(childAsString.get(0));

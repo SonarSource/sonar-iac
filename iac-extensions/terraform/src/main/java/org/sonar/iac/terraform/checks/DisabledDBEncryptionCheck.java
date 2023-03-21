@@ -28,7 +28,6 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualTo;
 
-
 @Rule(key = "S6303")
 public class DisabledDBEncryptionCheck extends AbstractNewResourceCheck {
 

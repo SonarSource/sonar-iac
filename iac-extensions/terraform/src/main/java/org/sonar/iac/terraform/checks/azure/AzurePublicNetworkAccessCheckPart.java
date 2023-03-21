@@ -41,7 +41,6 @@ import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAcces
 
 public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
 
-
   private static final Predicate<String> STARTS_WITH_AZURERM_PUBLIC_IP = exactMatchStringPredicate("azurerm_public_ip.*", CASE_INSENSITIVE);
   private static final Predicate<ExpressionTree> IS_PUBLIC_IP_ADDRESS = treePredicate(exactMatchStringPredicate("(10|172[.]16|192[.]168)[.].*|0[.]0[.]0[.]0/32").negate());
 
@@ -77,7 +76,7 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
     register("azurerm_dev_test_virtual_network",
       resource -> resource.block("subnet")
         .attribute("use_public_ip_address")
-          .reportIf(notEqualTo("Deny"), NETWORK_ACCESS_MESSAGE));
+        .reportIf(notEqualTo("Deny"), NETWORK_ACCESS_MESSAGE));
 
     register("azurerm_kubernetes_cluster_node_pool",
       resource -> resource.attribute("enable_node_public_ip")
@@ -106,7 +105,6 @@ public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck 
       resource -> resource.attribute("public_network_access_enabled")
         .reportIf(isTrue(), NETWORK_ACCESS_MESSAGE));
   }
-
 
   private static Consumer<ResourceSymbol> checkEnabledPublicIp(String propertyName) {
     return resource -> resource.attribute(propertyName)

@@ -61,4 +61,4 @@ public abstract class AbstractSymbolTest {
   protected void assertIssueReported(HasTextRange hasTextRange, String message, SecondaryLocation... secondaries) {
     verify(ctx).reportIssue(hasTextRange, message, List.of(secondaries));
   }
- }
+}

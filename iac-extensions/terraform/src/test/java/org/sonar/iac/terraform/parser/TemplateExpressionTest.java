@@ -47,7 +47,6 @@ class TemplateExpressionTest {
       .notMatches("\"foo${ ~ a}\"")
       .notMatches("\"%{ if a != 1 }foo%\"")
       .notMatches("\"%{ for a,b,c in b}foo%{ endfor }\"")
-      .notMatches("\"%{ for a,b,c in b}foo\"")
-    ;
+      .notMatches("\"%{ for a,b,c in b}foo\"");
   }
 }
