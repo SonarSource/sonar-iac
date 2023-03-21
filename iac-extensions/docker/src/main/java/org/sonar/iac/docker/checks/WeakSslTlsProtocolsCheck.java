@@ -37,10 +37,28 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
 
   private static final CommandDetector WEAK_CURL_TLS_MAX = CommandDetector.builder()
     .with("curl")
-    .withOptionalRepeatingExpect("--tls-max")
+    .withOptionalRepeatingExcept("--tls-max")
     .with("--tls-max")
     .with(Set.of("1.0", "1.1"))
     .build();
+
+  public static final Set<String> INSECURE_FLAGS = Set.of(
+    "--sslv2",
+    "-2",
+    "--sslv3",
+    "-3",
+    "--tlsv1.0",
+    "--tlsv1",
+    "-1",
+    "--tlsv1.1");
+
+  private static final CommandDetector WEAK_CURL_PROTOCOLS = CommandDetector.builder()
+    .with("curl")
+    .withOptionalRepeatingExcept(INSECURE_FLAGS)
+    .with(INSECURE_FLAGS)
+    .build();
+
+  private static final List<CommandDetector> COMMANDS = List.of(WEAK_CURL_TLS_MAX, WEAK_CURL_PROTOCOLS);
 
   @Override
   public void initialize(InitContext init) {
@@ -49,6 +67,6 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
 
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
-    WEAK_CURL_TLS_MAX.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    COMMANDS.forEach(detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
   }
 }

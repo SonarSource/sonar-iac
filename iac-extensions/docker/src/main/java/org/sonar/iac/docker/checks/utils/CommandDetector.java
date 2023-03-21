@@ -165,14 +165,16 @@ public class CommandDetector {
       return this;
     }
 
-    public CommandDetector.Builder withOptionalRepeatingExpect(Predicate<String> predicate) {
-      withOptionalRepeating(predicate.negate());
-      return this;
+    public CommandDetector.Builder withOptionalRepeatingExcept(Predicate<String> predicate) {
+      return withOptionalRepeating(predicate.negate());
     }
 
-    public CommandDetector.Builder withOptionalRepeatingExpect(String excludedString) {
-      withOptionalRepeatingExpect(excludedString::equals);
-      return this;
+    public CommandDetector.Builder withOptionalRepeatingExcept(String excludedString) {
+      return withOptionalRepeatingExcept(excludedString::equals);
+    }
+
+    public Builder withOptionalRepeatingExcept(Collection<String> insecureFlags) {
+      return withOptionalRepeatingExcept(insecureFlags::contains);
     }
 
     public CommandDetector.Builder withAnyFlagExcept(String... excludedFlags) {
