@@ -1,0 +1,22 @@
+{
+  "title": "Allowing downgrades to a clear-text protocol is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6505",
+  "sqKey": "S6505",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      757
+    ]
+  },
+  "quickfix": "unknown"
+}

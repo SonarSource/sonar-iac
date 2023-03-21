@@ -32,6 +32,7 @@ public class DockerCheckList {
   public static List<Class<?>> checks() {
     return Arrays.asList(
       BuilderSandboxCheck.class,
+      ClearTextProtocolDowngradeCheck.class,
       DebugModeCheck.class,
       DirectoryCopySourceCheck.class,
       ExposePortCheck.class,
