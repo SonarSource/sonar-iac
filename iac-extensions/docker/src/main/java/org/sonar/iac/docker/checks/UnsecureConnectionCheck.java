@@ -38,15 +38,13 @@ public class UnsecureConnectionCheck implements IacCheck {
   private static final Set<String> SENSITIVE_CURL_OPTION = Set.of("-k", "--insecure", "--proxy-insecure", "--doh-insecure");
 
   private static final CommandDetector SENSITIVE_CURL_COMMAND = CommandDetector.builder()
-    .with("curl"::equals)
-    .withOptionalRepeating(s -> !SENSITIVE_CURL_OPTION.contains(s) && s.startsWith("-"))
-    .with(SENSITIVE_CURL_OPTION::contains)
+    .with("curl")
+    .withAnyFlagFollowedBy(SENSITIVE_CURL_OPTION)
     .build();
 
   private static final CommandDetector SENSITIVE_WGET_COMMAND = CommandDetector.builder()
-    .with("wget"::equals)
-    .withOptionalRepeating(s -> !"--no-check-certificate".equals(s) && s.startsWith("-"))
-    .with("--no-check-certificate"::equals)
+    .with("wget")
+    .withAnyFlagFollowedBy("--no-check-certificate")
     .build();
 
   @Override
