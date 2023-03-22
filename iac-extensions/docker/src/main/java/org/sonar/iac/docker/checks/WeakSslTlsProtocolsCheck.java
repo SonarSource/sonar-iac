@@ -68,7 +68,6 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
     .with(INSECURE_WGET_PROTOCOLS)
     .build();
 
-
   private static final List<CommandDetector> COMMANDS = List.of(
     WEAK_CURL_TLS_MAX,
     WEAK_CURL_PROTOCOLS,
