@@ -52,9 +52,9 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   private static void checkTransferInstruction(CheckContext ctx, TransferInstruction transferInstruction) {
-    Flag sensitiveChownFlag = getSensitiveChownFlag(transferInstruction);
+    Flag sensitiveChownFlag = getChownFlagSensitive(transferInstruction);
     if (sensitiveChownFlag != null) {
-      List<Argument> sensitiveFiles = getSensitiveFiles(transferInstruction.srcs());
+      List<Argument> sensitiveFiles = getFilesSensitive(transferInstruction.srcs());
       Chmod chmod = getChmod(transferInstruction);
 
       if (chmod == null) {
@@ -82,14 +82,15 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   @CheckForNull
-  private static Flag getSensitiveChownFlag(TransferInstruction transferInstruction) {
+  private static Flag getChownFlagSensitive(TransferInstruction transferInstruction) {
     return transferInstruction.options().stream()
       .filter(f -> f.name().equals("chown"))
-      .filter(ExecutableNotOwnedByRootCheck::isSensitiveUser)
-      .findFirst().orElse(null);
+      .filter(ExecutableNotOwnedByRootCheck::isUserSensitive)
+      .findFirst()
+      .orElse(null);
   }
 
-  private static boolean isSensitiveUser(Flag chownFlag) {
+  private static boolean isUserSensitive(Flag chownFlag) {
     ArgumentResolution resolvedArgArgument = ArgumentResolution.of(chownFlag.value());
     return resolvedArgArgument.is(ArgumentResolution.Status.RESOLVED) && !"root".equals(resolvedArgArgument.value());
   }
@@ -100,11 +101,12 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
       .filter(f -> f.name().equals("chmod"))
       .map(f -> ArgumentResolution.of(f.value()))
       .filter(argResolved -> argResolved.is(ArgumentResolution.Status.RESOLVED))
-      .map(argResolved -> new Chmod(argResolved.value()))
-      .findFirst().orElse(null);
+      .map(argResolved -> new Chmod(null, null, argResolved.value()))
+      .findFirst()
+      .orElse(null);
   }
 
-  private static List<Argument> getSensitiveFiles(List<Argument> arguments) {
+  private static List<Argument> getFilesSensitive(List<Argument> arguments) {
     return arguments.stream()
       .map(ArgumentResolution::of)
       .filter(ExecutableNotOwnedByRootCheck::isFileSensitive)

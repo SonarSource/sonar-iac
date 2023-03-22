@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 
@@ -44,15 +45,9 @@ public class Chmod {
   public final Argument permissionsArg;
   public final Permission permissions;
 
-  public Chmod(Argument chmodArg, Argument permissionsArg, String permissions) {
+  public Chmod(@Nullable Argument chmodArg, @Nullable Argument permissionsArg, String permissions) {
     this.chmodArg = chmodArg;
     this.permissionsArg = permissionsArg;
-    this.permissions = parsePermissions(permissions);
-  }
-
-  public Chmod(String permissions) {
-    this.chmodArg = null;
-    this.permissionsArg = null;
     this.permissions = parsePermissions(permissions);
   }
 
