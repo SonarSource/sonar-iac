@@ -155,11 +155,6 @@ public class CommandDetector {
       return this;
     }
 
-    public CommandDetector.Builder notWith(String excludedString) {
-      addPredicate(excludedString::equals, NO_MATCH);
-      return this;
-    }
-
     public CommandDetector.Builder withOptionalRepeating(Predicate<String> predicate) {
       addPredicate(predicate, ZERO_OR_MORE);
       return this;
