@@ -173,8 +173,8 @@ public class CommandDetector {
       return withOptionalRepeatingExcept(excludedString::equals);
     }
 
-    public Builder withOptionalRepeatingExcept(Collection<String> insecureFlags) {
-      return withOptionalRepeatingExcept(insecureFlags::contains);
+    public Builder withOptionalRepeatingExcept(Collection<String> excludedStrings) {
+      return withOptionalRepeatingExcept(excludedStrings::contains);
     }
 
     public CommandDetector.Builder withAnyFlagExcept(String... excludedFlags) {
