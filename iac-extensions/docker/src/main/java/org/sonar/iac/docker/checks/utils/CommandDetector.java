@@ -41,7 +41,7 @@ import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 public class CommandDetector {
 
-  private List<CommandPredicate> predicates;
+  private final List<CommandPredicate> predicates;
 
   private CommandDetector(List<CommandPredicate> predicates) {
     this.predicates = predicates;
@@ -179,6 +179,15 @@ public class CommandDetector {
     public CommandDetector.Builder withAnyFlagExcept(Collection<String> excludedFlags) {
       return withOptionalRepeating(s -> s.startsWith("-") && !excludedFlags.contains(s))
         .notWith(excludedFlags::contains);
+    }
+
+    public CommandDetector.Builder withAnyFlagFollowedBy(String... flags) {
+      return withAnyFlagFollowedBy(Arrays.asList(flags));
+    }
+
+    public CommandDetector.Builder withAnyFlagFollowedBy(Collection<String> flags) {
+      return withOptionalRepeating(s -> s.startsWith("-") && !flags.contains(s))
+        .with(flags);
     }
 
     public CommandDetector.Builder withAnyFlag() {

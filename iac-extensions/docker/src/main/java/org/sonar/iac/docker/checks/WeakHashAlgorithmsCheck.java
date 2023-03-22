@@ -47,8 +47,7 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
   private static final CommandDetector SENSITIVE_OPENSSL_DGST = CommandDetector.builder()
     .with("openssl")
     .with("dgst")
-    .withOptionalRepeating(s -> s.startsWith("-") && !OPENSSL_SENSITIVE_DGST_OPTION.contains(s))
-    .with(OPENSSL_SENSITIVE_DGST_OPTION)
+    .withAnyFlagFollowedBy(OPENSSL_SENSITIVE_DGST_OPTION)
     .build();
   private static final CommandDetector SENSITIVE_SHASUM_COMMAND = CommandDetector.builder()
     .with(SHASUM_SENSITIVE_COMMAND)
@@ -59,8 +58,7 @@ public class WeakHashAlgorithmsCheck implements IacCheck {
     .build();
   private static final CommandDetector SENSITIVE_SHASUM_COMMAND_WITH_OPTION_A_TO_1 = CommandDetector.builder()
     .with("shasum")
-    .withOptionalRepeating(s -> s.startsWith("-") && !SHASUM_SENSITIVE_FLAG.contains(s))
-    .with(SHASUM_SENSITIVE_FLAG)
+    .withAnyFlagFollowedBy(SHASUM_SENSITIVE_FLAG)
     .with("1")
     .build();
 

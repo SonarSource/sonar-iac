@@ -39,14 +39,12 @@ public class UnsecureConnectionCheck implements IacCheck {
 
   private static final CommandDetector SENSITIVE_CURL_COMMAND = CommandDetector.builder()
     .with("curl")
-    .withOptionalRepeating(s -> s.startsWith("-") && !SENSITIVE_CURL_OPTION.contains(s))
-    .with(SENSITIVE_CURL_OPTION)
+    .withAnyFlagFollowedBy(SENSITIVE_CURL_OPTION)
     .build();
 
   private static final CommandDetector SENSITIVE_WGET_COMMAND = CommandDetector.builder()
     .with("wget")
-    .withOptionalRepeating(s -> s.startsWith("-") && !"--no-check-certificate".equals(s))
-    .with("--no-check-certificate")
+    .withAnyFlagFollowedBy("--no-check-certificate")
     .build();
 
   @Override
