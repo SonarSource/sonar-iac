@@ -40,10 +40,15 @@ import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.MATCH;
 import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.NO_MATCH;
 import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.OPTIONAL;
 import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.ZERO_OR_MORE;
+import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 public class CommandDetector {
 
   private final List<CommandPredicate> predicates;
+
+  enum MatchDetectionStatus {
+    CONTINUE, ABORT
+  }
 
   private CommandDetector(List<CommandPredicate> predicates) {
     this.predicates = predicates;
@@ -224,6 +229,50 @@ public class CommandDetector {
       return;
     }
     detectionStatus.setStatus(CommandDetectionStatus.Status.CONTINUE);
+  }
+
+  private MatchDetectionStatus matchPredicate(SingularPredicate singularPredicate, Deque<ArgumentResolution> argumentStack, Deque<CommandPredicate> predicateStack,
+    List<ArgumentResolution> commandArguments) {
+    ArgumentResolution resolution = argumentStack.pollFirst();
+
+    if (resolution == null) {
+      // nothing to match, will be caught above
+      return MatchDetectionStatus.CONTINUE;
+    }
+
+    // Test argument resolution with predicate
+    if (singularPredicate.predicate.test(resolution.value())) {
+      // Skip argument and start new command detection
+      if (singularPredicate.is(NO_MATCH)) {
+        return MatchDetectionStatus.ABORT;
+      }
+      // Re-add predicate to stack to be reevaluated on the next argument
+      if (singularPredicate.is(ZERO_OR_MORE)) {
+        predicateStack.addFirst(singularPredicate);
+      }
+      // Add matched argument to command
+      commandArguments.add(resolution);
+    } else if (singularPredicate.is(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
+      // Re-add argument to be evaluated by the next predicate
+      argumentStack.addFirst(resolution);
+    } else {
+      // Stop argument detection in case the argument does not match and the predicate is not optional or should not be matched
+      // above method should return empty
+      return MatchDetectionStatus.ABORT;
+    }
+    return MatchDetectionStatus.CONTINUE;
+  }
+
+  private MatchDetectionStatus matchPredicate(OptionPredicate optionPredicate, Deque<ArgumentResolution> argumentStack, Deque<CommandPredicate> predicateStack,
+    List<ArgumentResolution> commandArguments) {
+    MatchDetectionStatus matchStatus = matchPredicate(optionPredicate.flagPredicate, argumentStack, predicateStack, commandArguments);
+
+    if (matchStatus.equals(MatchDetectionStatus.ABORT) || optionPredicate.withoutValue()) {
+      // no value present -> no further action required for this optionPredicate
+      return matchStatus;
+    }
+
+    return matchPredicate(optionPredicate.valuePredicate, argumentStack, predicateStack, commandArguments);
   }
 
   private static boolean remainingPredictsAreOptional(CommandPredicate currentPredicate, Deque<CommandPredicate> remainingPredicates) {

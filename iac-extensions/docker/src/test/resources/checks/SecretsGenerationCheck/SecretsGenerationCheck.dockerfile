@@ -13,7 +13,6 @@ RUN ssh-keygen -random1 random1Value -N "" -random2 -t dsa -random3 =random3Valu
 # Noncompliant@+1
 RUN ssh-keygen -random1 random1Value -N "" -random2 -t dsa -random3 =random3Value -b 1024 -random4 -f rsync-key -random5 random5Option
 
-
 # Noncompliant@+1
 RUN ssh-keygen -N "" -t dsa -f rsync-key -b 1024
 
