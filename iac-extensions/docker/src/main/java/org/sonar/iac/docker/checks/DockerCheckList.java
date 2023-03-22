@@ -50,6 +50,7 @@ public class DockerCheckList {
       SecretsHandlingCheck.class,
       UnencryptedProtocolCheck.class,
       UnsecureConnectionCheck.class,
-      WeakHashAlgorithmsCheck.class);
+      WeakHashAlgorithmsCheck.class,
+      WeakSslTlsProtocolsCheck.class);
   }
 }

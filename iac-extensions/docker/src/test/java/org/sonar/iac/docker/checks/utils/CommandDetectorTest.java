@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CommandDetectorTest {
 
   @Test
-  void CommandDetectorSize1() {
+  void commandDetectorSize1() {
     List<ArgumentResolution> arguments = buildArgumentList("sensitive", "sensitive");
     CommandDetector detector = CommandDetector.builder()
       .with("sensitive"::equals)

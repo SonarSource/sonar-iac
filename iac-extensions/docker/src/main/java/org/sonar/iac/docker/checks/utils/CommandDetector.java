@@ -41,7 +41,7 @@ import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 public class CommandDetector {
 
-  List<CommandPredicate> predicates;
+  private List<CommandPredicate> predicates;
 
   private CommandDetector(List<CommandPredicate> predicates) {
     this.predicates = predicates;
@@ -77,6 +77,8 @@ public class CommandDetector {
    * The method is then called again with a reduced argument stack until there are no more arguments on the stack.
    * If a predicate can be applied multiple times to the argument stack, it is placed on the predicate stack again at the end of the loop.
    */
+  // Cognitive Complexity of methods should not be too high
+  @SuppressWarnings("java:S3776")
   private List<ArgumentResolution> fullMatch(Deque<ArgumentResolution> argumentStack) {
     List<ArgumentResolution> commandArguments = new ArrayList<>();
     Deque<CommandPredicate> predicateStack = new LinkedList<>(predicates);
@@ -158,6 +160,18 @@ public class CommandDetector {
       return this;
     }
 
+    public CommandDetector.Builder withOptionalRepeatingExcept(Predicate<String> predicate) {
+      return withOptionalRepeating(predicate.negate());
+    }
+
+    public CommandDetector.Builder withOptionalRepeatingExcept(String excludedString) {
+      return withOptionalRepeatingExcept(excludedString::equals);
+    }
+
+    public Builder withOptionalRepeatingExcept(Collection<String> excludedStrings) {
+      return withOptionalRepeatingExcept(excludedStrings::contains);
+    }
+
     public CommandDetector.Builder withAnyFlagExcept(String... excludedFlags) {
       List<String> excludedFlagList = Arrays.asList(excludedFlags);
       return withOptionalRepeating(s -> s.startsWith("-") && !excludedFlagList.contains(s))
@@ -195,8 +209,8 @@ public class CommandDetector {
     }
 
     public boolean is(Type... types) {
-      for (Type type : types) {
-        if (this.type.equals(type)) {
+      for (Type t : types) {
+        if (type.equals(t)) {
           return true;
         }
       }
