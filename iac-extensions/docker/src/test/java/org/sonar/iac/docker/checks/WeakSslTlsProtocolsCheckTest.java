@@ -27,4 +27,9 @@ class WeakSslTlsProtocolsCheckTest {
   void testCurl() {
     DockerVerifier.verify("WeakSslTlsProtocolsCheck/curl.dockerfile", new WeakSslTlsProtocolsCheck());
   }
+
+  @Test
+  void testWget() {
+    DockerVerifier.verify("WeakSslTlsProtocolsCheck/wget.dockerfile", new WeakSslTlsProtocolsCheck());
+  }
 }
