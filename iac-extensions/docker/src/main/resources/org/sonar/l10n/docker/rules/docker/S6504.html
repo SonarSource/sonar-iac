@@ -1,0 +1,40 @@
+<p>Ownership of an executable has been assigned to a user other than root. More often than not, resource owners have write permissions and thus can
+edit the resource.</p>
+<p>Write permissions enable malicious actors, who got a foothold on the container, to tamper with the executable and thus manipulate the container’s
+expected behavior.<br> Manipulating executables could disrupt services or aid in escalating privileges inside the container.<br></p>
+<p>This breaches the container immutability principle as it facilitates container changes during its life. Immutability, a container best practice,
+allows for a more reliable and reproducible behavior of Docker containers.</p>
+<p>Resource ownership is not required; executables can be assigned execute permissions using <code>chmod</code> if needed.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> A non-root user has write permissions for the executable. </li>
+</ul>
+<p>There is a risk if you answered yes to the question.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Use <code>--chmod</code> to change executable permissions at build-time. </li>
+  <li> Be mindful of the container immutability principle. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<pre>
+FROM example
+
+RUN useradd exampleuser
+# Sensitive
+COPY --chown=exampleuser:exampleuser src.py dst.py
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+FROM example
+
+COPY src.py dst.py
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#add">Dockerfile reference</a> - ADD instruction </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#copy">Dockerfile reference</a> - COPY instruction </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/732.html">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
+  <li> <a href="https://cloud.google.com/architecture/best-practices-for-operating-containers#immutability">Google Cloud, Immutability</a> - Best
+  practices for operating containers </li>
+</ul>
+

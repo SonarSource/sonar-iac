@@ -35,6 +35,7 @@ public class DockerCheckList {
       ClearTextProtocolDowngradeCheck.class,
       DebugModeCheck.class,
       DirectoryCopySourceCheck.class,
+      ExecutableNotOwnedByRootCheck.class,
       ExposePortCheck.class,
       HostNetworkNamespaceCheck.class,
       ImageWithDigestCheck.class,

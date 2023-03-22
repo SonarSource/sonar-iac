@@ -1,0 +1,23 @@
+{
+  "title": "Having executables not owned by root is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "dockerfile",
+    "cwe"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6504",
+  "sqKey": "S6504",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      522
+    ]
+  },
+  "quickfix": "unknown"
+}
