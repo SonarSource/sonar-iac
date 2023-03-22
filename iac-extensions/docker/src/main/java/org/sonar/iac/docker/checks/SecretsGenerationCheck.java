@@ -35,6 +35,17 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final String MESSAGE = "Revoke and change this secret, as it might be compromised.";
 
+  private static final Set<String> SENSITIVE_FLAGS = Set.of("-N", "-t", "-b", "-f");
+
+  // detects 'RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key'
+  private static final CommandDetector SSH_DETECTOR = CommandDetector.builder()
+    .with("ssh-keygen")
+    .withOptionAndSurroundingAnyOptionsExcluding("-N", "", SENSITIVE_FLAGS)
+    .withOptionAndSurroundingAnyOptionsExcluding("-t", "dsa", SENSITIVE_FLAGS)
+    .withOptionAndSurroundingAnyOptionsExcluding("-b", "1024", SENSITIVE_FLAGS)
+    .withOptionAndSurroundingAnyOptionsExcluding("-f", "rsync-key", SENSITIVE_FLAGS)
+    .build();
+
   private static final Set<String> SENSITIVE_KEYTOOL_FLAGS = Set.of("-gencert", "-genkeypair", "-genseckey", "-genkey");
 
   private static final CommandDetector KEYTOOL_DETECTOR = CommandDetector.builder()
@@ -54,7 +65,7 @@ public class SecretsGenerationCheck implements IacCheck {
     .build();
 
   private static final Set<CommandDetector> DETECTORS = Set.of(
-    KEYTOOL_DETECTOR, SENSITIVE_OPENSSL_COMMANDS);
+    SSH_DETECTOR, KEYTOOL_DETECTOR, SENSITIVE_OPENSSL_COMMANDS);
 
   @Override
   public void initialize(InitContext init) {

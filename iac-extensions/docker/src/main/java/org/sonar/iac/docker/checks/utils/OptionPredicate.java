@@ -17,27 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
+package org.sonar.iac.docker.checks.utils;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
+public class OptionPredicate implements CommandPredicate {
+  final SingularPredicate flagPredicate;
 
-class SecretsGenerationCheckTest {
+  // optional
+  final SingularPredicate valuePredicate;
 
-  final IacCheck check = new SecretsGenerationCheck();
-
-  @Test
-  void test_sshKeygen() {
-    DockerVerifier.verify("SecretsGenerationCheck/SecretsGenerationCheck.dockerfile", new SecretsGenerationCheck());
+  public OptionPredicate(SingularPredicate flagPredicate, SingularPredicate valuePredicate) {
+    this.flagPredicate = flagPredicate;
+    this.valuePredicate = valuePredicate;
   }
 
-  @Test
-  void test_keytool() {
-    DockerVerifier.verify("SecretsGenerationCheck/keytool.dockerfile", check);
+  public OptionPredicate(SingularPredicate flagPredicate) {
+    this.flagPredicate = flagPredicate;
+    this.valuePredicate = null;
   }
 
-  @Test
-  void test_openssl() {
-    DockerVerifier.verify("SecretsGenerationCheck/openssl.dockerfile", check);
+  public boolean hasValuePredicate() {
+    return valuePredicate != null;
+  }
+
+  @Override
+  public boolean is(Type... types) {
+    for (Type type : types) {
+      if (this.flagPredicate.is(type)) {
+        return !hasValuePredicate() || this.valuePredicate.is(type);
+      }
+    }
+    return false;
   }
 }

@@ -33,14 +33,18 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
-import static org.sonar.iac.docker.checks.utils.CommandDetector.CommandPredicate.Type.MATCH;
-import static org.sonar.iac.docker.checks.utils.CommandDetector.CommandPredicate.Type.NO_MATCH;
-import static org.sonar.iac.docker.checks.utils.CommandDetector.CommandPredicate.Type.OPTIONAL;
-import static org.sonar.iac.docker.checks.utils.CommandDetector.CommandPredicate.Type.ZERO_OR_MORE;
+import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.MATCH;
+import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.NO_MATCH;
+import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.OPTIONAL;
+import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.ZERO_OR_MORE;
 
 public class CommandDetector {
 
   private final List<CommandPredicate> predicates;
+
+  enum MatchDetectionStatus {
+    CONTINUE, ABORT
+  }
 
   private CommandDetector(List<CommandPredicate> predicates) {
     this.predicates = predicates;
@@ -78,12 +82,14 @@ public class CommandDetector {
    */
   // Cognitive Complexity of methods should not be too high
   @SuppressWarnings("java:S3776")
+  // TODO: Rework commentary
   private List<ArgumentResolution> fullMatch(Deque<ArgumentResolution> argumentStack) {
     List<ArgumentResolution> commandArguments = new ArrayList<>();
     Deque<CommandPredicate> predicateStack = new LinkedList<>(predicates);
     while (!predicateStack.isEmpty()) {
       CommandPredicate currentPredicate = predicateStack.pollFirst();
-      ArgumentResolution resolution = argumentStack.pollFirst();
+
+      ArgumentResolution resolution = argumentStack.peekFirst();
 
       // Stop argument detection when argument list is empty
       if (resolution == null) {
@@ -92,30 +98,69 @@ public class CommandDetector {
 
       // Stop argument detection when argument is unresolved to start new command detection
       if (resolution.isUnresolved()) {
+        argumentStack.pop();
         return Collections.emptyList();
       }
 
-      // Test argument resolution with predicate
-      if (currentPredicate.predicate.test(resolution.value())) {
-        // Skip argument and start new command detection
-        if (currentPredicate.is(NO_MATCH)) {
-          return Collections.emptyList();
-        }
-        // Re-add predicate to stack to be reevaluated on the next argument
-        if (currentPredicate.is(ZERO_OR_MORE)) {
-          predicateStack.addFirst(currentPredicate);
-        }
-        // Add matched argument to command
-        commandArguments.add(resolution);
-      } else if (currentPredicate.is(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
-        // Re-add argument to be evaluated by the next predicate
-        argumentStack.addFirst(resolution);
+      MatchDetectionStatus matchStatus;
+      if (currentPredicate instanceof SingularPredicate) {
+        matchStatus = matchPredicate((SingularPredicate) currentPredicate, argumentStack, predicateStack, commandArguments);
+
+      } else if (currentPredicate instanceof OptionPredicate) {
+        matchStatus = matchPredicate((OptionPredicate) currentPredicate, argumentStack, predicateStack, commandArguments);
       } else {
-        // Stop argument detection in case the argument does not match and the predicate is not optional or should not be matched
+        matchStatus = MatchDetectionStatus.ABORT;
+      }
+
+      if (matchStatus.equals(MatchDetectionStatus.ABORT)) {
         return Collections.emptyList();
       }
     }
     return commandArguments;
+  }
+
+  private MatchDetectionStatus matchPredicate(SingularPredicate singularPredicate, Deque<ArgumentResolution> argumentStack, Deque<CommandPredicate> predicateStack,
+    List<ArgumentResolution> commandArguments) {
+    ArgumentResolution resolution = argumentStack.pollFirst();
+
+    if (resolution == null) {
+      // nothing to match, will be caught above
+      return MatchDetectionStatus.CONTINUE;
+    }
+
+    // Test argument resolution with predicate
+    if (singularPredicate.predicate.test(resolution.value())) {
+      // Skip argument and start new command detection
+      if (singularPredicate.is(NO_MATCH)) {
+        return MatchDetectionStatus.ABORT;
+      }
+      // Re-add predicate to stack to be reevaluated on the next argument
+      if (singularPredicate.is(ZERO_OR_MORE)) {
+        predicateStack.addFirst(singularPredicate);
+      }
+      // Add matched argument to command
+      commandArguments.add(resolution);
+    } else if (singularPredicate.is(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
+      // Re-add argument to be evaluated by the next predicate
+      argumentStack.addFirst(resolution);
+    } else {
+      // Stop argument detection in case the argument does not match and the predicate is not optional or should not be matched
+      // above method should return empty
+      return MatchDetectionStatus.ABORT;
+    }
+    return MatchDetectionStatus.CONTINUE;
+  }
+
+  private MatchDetectionStatus matchPredicate(OptionPredicate optionPredicate, Deque<ArgumentResolution> argumentStack, Deque<CommandPredicate> predicateStack,
+    List<ArgumentResolution> commandArguments) {
+    MatchDetectionStatus matchStatus = matchPredicate(optionPredicate.flagPredicate, argumentStack, predicateStack, commandArguments);
+
+    if (matchStatus.equals(MatchDetectionStatus.ABORT) || !optionPredicate.hasValuePredicate()) {
+      // no value present -> no further action required for this optionPredicate
+      return matchStatus;
+    }
+
+    return matchPredicate(optionPredicate.valuePredicate, argumentStack, predicateStack, commandArguments);
   }
 
   private static boolean remainingPredictsAreOptional(CommandPredicate currentPredicate, Deque<CommandPredicate> remainingPredicates) {
@@ -127,12 +172,20 @@ public class CommandDetector {
 
     List<CommandPredicate> predicates = new ArrayList<>();
 
-    private void addPredicate(Predicate<String> predicate, CommandPredicate.Type type) {
-      predicates.add(new CommandPredicate(predicate, type));
+    private void addCommandPredicate(CommandPredicate commandPredicate) {
+      predicates.add(commandPredicate);
+    }
+
+    private void addSingularPredicate(Predicate<String> predicate, CommandPredicate.Type type) {
+      addCommandPredicate(new SingularPredicate(predicate, type));
+    }
+
+    private void addOptionPredicate(SingularPredicate flag, SingularPredicate value) {
+      addCommandPredicate(new OptionPredicate(flag, value));
     }
 
     public CommandDetector.Builder with(Predicate<String> predicate) {
-      addPredicate(predicate, MATCH);
+      addSingularPredicate(predicate, MATCH);
       return this;
     }
 
@@ -145,17 +198,17 @@ public class CommandDetector {
     }
 
     public CommandDetector.Builder withOptional(Predicate<String> predicate) {
-      addPredicate(predicate, OPTIONAL);
+      addSingularPredicate(predicate, OPTIONAL);
       return this;
     }
 
     public CommandDetector.Builder notWith(Predicate<String> predicate) {
-      addPredicate(predicate, NO_MATCH);
+      addSingularPredicate(predicate, NO_MATCH);
       return this;
     }
 
     public CommandDetector.Builder withOptionalRepeating(Predicate<String> predicate) {
-      addPredicate(predicate, ZERO_OR_MORE);
+      addSingularPredicate(predicate, ZERO_OR_MORE);
       return this;
     }
 
@@ -193,6 +246,29 @@ public class CommandDetector {
       return withOptionalRepeating(s -> s.startsWith("-"));
     }
 
+    public CommandDetector.Builder withOption(Predicate<String> expectedFlag, Predicate<String> expectedValue) {
+      addOptionPredicate(new SingularPredicate(expectedFlag, MATCH), new SingularPredicate(expectedValue, MATCH));
+      return this;
+    }
+
+    public CommandDetector.Builder withOption(String expectedFlag, String expectedValue) {
+      return withOption(expectedFlag::equals, expectedValue::equals);
+    }
+
+    public CommandDetector.Builder withAnyOptionExcluding(Collection<String> excludedFlags) {
+      SingularPredicate flagPredicate = new SingularPredicate(s -> s.startsWith("-") && !excludedFlags.contains(s), ZERO_OR_MORE);
+      // should not test for any flag only possible values
+      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || excludedFlags.contains(s)), ZERO_OR_MORE);
+      addOptionPredicate(flagPredicate, valuePredicate);
+      return this;
+    }
+
+    public CommandDetector.Builder withOptionAndSurroundingAnyOptionsExcluding(String expectedFlag, String expectedValue, Collection<String> excludedFlags) {
+      return withAnyOptionExcluding(excludedFlags)
+        .withOption(expectedFlag::equals, expectedValue::equals)
+        .withAnyOptionExcluding(excludedFlags);
+    }
+
     public CommandDetector.Builder withPredicatesFrom(CommandDetector.Builder otherBuilder) {
       this.predicates.addAll(otherBuilder.predicates);
       return this;
@@ -200,32 +276,6 @@ public class CommandDetector {
 
     public CommandDetector build() {
       return new CommandDetector(predicates);
-    }
-  }
-
-  protected static class CommandPredicate {
-    final Predicate<String> predicate;
-    final Type type;
-
-    enum Type {
-      MATCH,
-      NO_MATCH,
-      OPTIONAL,
-      ZERO_OR_MORE
-    }
-
-    public CommandPredicate(Predicate<String> predicate, Type type) {
-      this.predicate = predicate;
-      this.type = type;
-    }
-
-    public boolean is(Type... types) {
-      for (Type t : types) {
-        if (type.equals(t)) {
-          return true;
-        }
-      }
-      return false;
     }
   }
 

@@ -17,27 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks;
+package org.sonar.iac.docker.checks.utils;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
+import java.util.function.Predicate;
 
-class SecretsGenerationCheckTest {
+public class SingularPredicate implements CommandPredicate {
+  final Predicate<String> predicate;
+  final Type type;
 
-  final IacCheck check = new SecretsGenerationCheck();
-
-  @Test
-  void test_sshKeygen() {
-    DockerVerifier.verify("SecretsGenerationCheck/SecretsGenerationCheck.dockerfile", new SecretsGenerationCheck());
+  public SingularPredicate(Predicate<String> predicate, Type type) {
+    this.predicate = predicate;
+    this.type = type;
   }
 
-  @Test
-  void test_keytool() {
-    DockerVerifier.verify("SecretsGenerationCheck/keytool.dockerfile", check);
-  }
-
-  @Test
-  void test_openssl() {
-    DockerVerifier.verify("SecretsGenerationCheck/openssl.dockerfile", check);
+  public boolean is(Type... types) {
+    for (Type type : types) {
+      if (this.type.equals(type)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
