@@ -293,8 +293,23 @@ RUN curl --data 'name=bob' ${PROTOCOL_TLSV11_ARG} --request PUT https://tls-v1-1
 
 ## All compliant subcommands
 RUN curl https://www.sonarsource.com
+RUN curl --tls-max 1.2 https://tls-v1-1.badssl.com:1011
 RUN curl --tlsv1.2 https://tls-v1-1.badssl.com:1011
 RUN curl --tlsv1.3 https://tls-v1-1.badssl.com:1011
 RUN curl -out out.txt -k --tlsv1.2 --request PUT https://tls-v1-1.badssl.com:1011
 RUN curl -out out.txt -k --tlsv1.3 --request PUT https://tls-v1-1.badssl.com:1011
 RUN curl --data 'name=bob' --tls-max $UNKNOWN https://tls-v1-0.badssl.com:1010 --output path/to/file
+
+ENV TLS_MAX_12_ENV=1.2
+ARG TLS_MAX_12_ARG=1.2
+ENV PROTOCOL_TLSV12_ENV=--tlsv1.2
+ARG PROTOCOL_TLSV13_ARG=--tlsv1.3
+
+RUN curl --data 'name=bob' --tls-max $TLS_MAX_12_ENV   https://tls-v1-0.badssl.com:1010 --output path/to/file
+RUN curl --data 'name=bob' --tls-max ${TLS_MAX_12_ENV} https://tls-v1-0.badssl.com:1010 --output path/to/file
+RUN curl --data 'name=bob' --tls-max $TLS_MAX_12_ARG   https://tls-v1-0.badssl.com:1010 --output path/to/file
+RUN curl --data 'name=bob' --tls-max ${TLS_MAX_12_ARG} https://tls-v1-0.badssl.com:1010 --output path/to/file
+RUN curl --data 'name=bob' $PROTOCOL_TLSV12_ENV        https://tls-v1-0.badssl.com:1010 --output path/to/file
+RUN curl --data 'name=bob' ${PROTOCOL_TLSV12_ENV}      https://tls-v1-0.badssl.com:1010 --output path/to/file
+RUN curl --data 'name=bob' $PROTOCOL_TLSV13_ARG        https://tls-v1-0.badssl.com:1010 --output path/to/file
+RUN curl --data 'name=bob' ${PROTOCOL_TLSV13_ARG}      https://tls-v1-0.badssl.com:1010 --output path/to/file
