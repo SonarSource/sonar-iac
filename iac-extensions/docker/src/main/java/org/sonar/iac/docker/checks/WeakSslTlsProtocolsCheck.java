@@ -35,11 +35,12 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
 
   private static final String MESSAGE = "Change this code to enforce TLS 1.2 or above.";
 
+  public static final Set<String> WEAK_TLS_MAX_VERSIONS = Set.of("1.0", "1.1");
   private static final CommandDetector WEAK_CURL_TLS_MAX = CommandDetector.builder()
     .with("curl")
     .withOptionalRepeatingExcept("--tls-max")
     .with("--tls-max")
-    .with(Set.of("1.0", "1.1"))
+    .with(WEAK_TLS_MAX_VERSIONS)
     .build();
 
   public static final Set<String> INSECURE_FLAGS = Set.of(

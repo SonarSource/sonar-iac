@@ -11,6 +11,7 @@ RUN curl --tls-max 1.0 https://tls-v1-0.badssl.com:1010
 RUN curl --tls-max 1.1 https://tls-v1-1.badssl.com:1011
 # Noncompliant@+1
 RUN curl -out out.txt -k --tls-max 1.1 https://tls-v1-1.badssl.com:1011
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Noncompliant@+1
 RUN curl --tls-max 1.1 -out out.txt -k https://tls-v1-1.badssl.com:1011
 # Noncompliant@+1
@@ -290,6 +291,18 @@ ARG PROTOCOL_TLSV11_ARG=--tlsv1.1
 RUN curl --data 'name=bob' $PROTOCOL_TLSV11_ARG --request PUT https://tls-v1-1.badssl.com:1011 --output path/to/file
 # Noncompliant@+1
 RUN curl --data 'name=bob' ${PROTOCOL_TLSV11_ARG} --request PUT https://tls-v1-1.badssl.com:1011 --output path/to/file
+
+
+## The current limitations of our parser
+# Noncompliant@+1
+RUN curl https://www.sonarsource.com && curl --data 'name=bob' --tls-max 1.1 https://tls-v1-0.badssl.com:1010
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+# Noncompliant@+1
+RUN curl https://www.sonarsource.com && \
+    other command && \
+    curl --data 'name=bob' --tls-max 1.1 https://tls-v1-0.badssl.com:1010 \
+    other command
 
 ## All compliant subcommands
 RUN curl https://www.sonarsource.com
