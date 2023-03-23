@@ -22,7 +22,6 @@ package org.sonar.iac.docker.checks.utils;
 public class OptionPredicate implements CommandPredicate {
   final SingularPredicate flagPredicate;
 
-  // optional
   final SingularPredicate valuePredicate;
 
   public OptionPredicate(SingularPredicate flagPredicate, SingularPredicate valuePredicate) {
@@ -35,16 +34,22 @@ public class OptionPredicate implements CommandPredicate {
     this.valuePredicate = null;
   }
 
-  public boolean hasValuePredicate() {
-    return valuePredicate != null;
+  public static OptionPredicate EQUAL_MATCH(String expectedFlag, String expectedValue) {
+    return new OptionPredicate(SingularPredicate.EQUAL_MATCH(expectedFlag), SingularPredicate.EQUAL_MATCH(expectedValue));
+  }
+
+  public static OptionPredicate EQUAL_MATCH(String expectedFlag) {
+    return new OptionPredicate(SingularPredicate.EQUAL_MATCH(expectedFlag), null);
+  }
+
+  public boolean withoutValue() {
+    return valuePredicate == null;
   }
 
   @Override
   public boolean is(Type... types) {
-    for (Type type : types) {
-      if (this.flagPredicate.is(type)) {
-        return !hasValuePredicate() || this.valuePredicate.is(type);
-      }
+    if (this.flagPredicate.is(types)) {
+      return withoutValue() || this.valuePredicate.is(types);
     }
     return false;
   }

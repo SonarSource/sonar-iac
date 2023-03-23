@@ -27,6 +27,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
+import org.sonar.iac.docker.checks.utils.OptionPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
@@ -35,15 +36,16 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final String MESSAGE = "Revoke and change this secret, as it might be compromised.";
 
-  private static final Set<String> SENSITIVE_FLAGS = Set.of("-N", "-t", "-b", "-f");
+  private static List<OptionPredicate> expectedOptions = List.of(
+    OptionPredicate.EQUAL_MATCH("-t", "dsa"),
+    OptionPredicate.EQUAL_MATCH("-N", ""),
+    OptionPredicate.EQUAL_MATCH("-b", "1024"),
+    OptionPredicate.EQUAL_MATCH("-f", "rsync-key"));
 
   // detects 'RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key'
   private static final CommandDetector SSH_DETECTOR = CommandDetector.builder()
     .with("ssh-keygen")
-    .withOptionAndSurroundingAnyOptionsExcluding("-N", "", SENSITIVE_FLAGS)
-    .withOptionAndSurroundingAnyOptionsExcluding("-t", "dsa", SENSITIVE_FLAGS)
-    .withOptionAndSurroundingAnyOptionsExcluding("-b", "1024", SENSITIVE_FLAGS)
-    .withOptionAndSurroundingAnyOptionsExcluding("-f", "rsync-key", SENSITIVE_FLAGS)
+    .withMultiple(expectedOptions)
     .build();
 
   private static final Set<String> SENSITIVE_KEYTOOL_FLAGS = Set.of("-gencert", "-genkeypair", "-genseckey", "-genkey");

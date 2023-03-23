@@ -30,6 +30,10 @@ public class SingularPredicate implements CommandPredicate {
     this.type = type;
   }
 
+  public static SingularPredicate EQUAL_MATCH(String string) {
+    return new SingularPredicate(string::equals, Type.MATCH);
+  }
+
   public boolean is(Type... types) {
     for (Type type : types) {
       if (this.type.equals(type)) {
