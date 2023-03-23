@@ -81,7 +81,7 @@ public class KubernetesSensor extends YamlSensor {
         boolean hasExpectedIdentifier = false;
         for (String line : lines) {
           if (containsHelmChartTemplateDirective(line)) {
-            LOG.debug("Line contains Helm Chart directive, file will not be analyzed.\n{}", line);
+            LOG.debug("Line contains help chart directive, file will not be analyzed.\n{}", line);
             return false;
           }
           if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
