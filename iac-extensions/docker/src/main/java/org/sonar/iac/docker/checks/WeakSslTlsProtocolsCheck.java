@@ -21,6 +21,7 @@ package org.sonar.iac.docker.checks;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -43,7 +44,7 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
     .with(WEAK_TLS_MAX_VERSIONS)
     .build();
 
-  public static final Set<String> INSECURE_FLAGS = Set.of(
+  public static final Set<String> INSECURE_CURL_FLAGS = Set.of(
     "--sslv2",
     "-2",
     "--sslv3",
@@ -55,11 +56,32 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
 
   private static final CommandDetector WEAK_CURL_PROTOCOLS = CommandDetector.builder()
     .with("curl")
-    .withOptionalRepeatingExcept(INSECURE_FLAGS)
-    .with(INSECURE_FLAGS)
+    .withOptionalRepeatingExcept(INSECURE_CURL_FLAGS)
+    .with(INSECURE_CURL_FLAGS)
     .build();
 
-  private static final List<CommandDetector> COMMANDS = List.of(WEAK_CURL_TLS_MAX, WEAK_CURL_PROTOCOLS);
+  public static final String WGET_SECURE_PROTOCOL_FLAG = "--secure-protocol";
+  public static final Set<String> INSECURE_WGET_PROTOCOLS = Set.of("SSLv2", "SSLv3", "TLSv1", "TLSv1_1");
+  private static final CommandDetector WEAK_WGET_PROTOCOLS = CommandDetector.builder()
+    .with("wget")
+    .withOptionalRepeatingExcept(WGET_SECURE_PROTOCOL_FLAG)
+    .with(WGET_SECURE_PROTOCOL_FLAG)
+    .with(INSECURE_WGET_PROTOCOLS)
+    .build();
+
+  private static final Pattern WEAK_WGET_PROTOCOLS_EQUAL_REGEX = Pattern.compile("--secure-protocol=((SSLv2)|(SSLv3)|(TLSv1)|(TLSv1_1))");
+
+  private static final CommandDetector WEAK_WGET_PROTOCOLS_EQUAL_SYNTAX = CommandDetector.builder()
+    .with("wget")
+    .withOptionalRepeatingExcept(s -> s.startsWith(WGET_SECURE_PROTOCOL_FLAG))
+    .with(s -> WEAK_WGET_PROTOCOLS_EQUAL_REGEX.matcher(s).matches())
+    .build();
+
+  private static final List<CommandDetector> COMMANDS = List.of(
+    WEAK_CURL_TLS_MAX,
+    WEAK_CURL_PROTOCOLS,
+    WEAK_WGET_PROTOCOLS,
+    WEAK_WGET_PROTOCOLS_EQUAL_SYNTAX);
 
   @Override
   public void initialize(InitContext init) {
