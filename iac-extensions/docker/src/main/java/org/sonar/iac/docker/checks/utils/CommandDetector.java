@@ -40,7 +40,6 @@ import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.MATCH;
 import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.NO_MATCH;
 import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.OPTIONAL;
 import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.ZERO_OR_MORE;
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 public class CommandDetector {
 
