@@ -39,8 +39,6 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
 
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
-
 /**
  * Class used to visit a DockerTree and build symbols and their usages for variables.
  * Those Symbol/Usage can later be used in checks to resolve Argument or to report issue variable flow.
@@ -101,7 +99,7 @@ public class DockerSymbolVisitor extends TreeVisitor<InputFileContext> {
       Argument identifier = keyValuePair.key();
       visitPossibleVariablesInIdentifier(identifier);
       ArgumentResolution resolution = ArgumentResolution.of(identifier);
-      if (resolution.is(RESOLVED) && !resolution.value().isBlank()) {
+      if (resolution.isResolved() && !resolution.value().isBlank()) {
         Symbol symbol = currentScope.addSymbol(resolution.value());
         symbol.addUsage(currentScope, keyValuePair, Usage.Kind.ASSIGNMENT);
       }

@@ -92,7 +92,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
   private static boolean isUserSensitive(Flag chownFlag) {
     ArgumentResolution resolvedArgArgument = ArgumentResolution.of(chownFlag.value());
-    return resolvedArgArgument.is(ArgumentResolution.Status.RESOLVED) && !"root".equals(resolvedArgArgument.value());
+    return resolvedArgArgument.isResolved() && !"root".equals(resolvedArgArgument.value());
   }
 
   @CheckForNull
@@ -100,7 +100,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
     return transferInstruction.options().stream()
       .filter(f -> f.name().equals("chmod"))
       .map(f -> ArgumentResolution.of(f.value()))
-      .filter(argResolved -> argResolved.is(ArgumentResolution.Status.RESOLVED))
+      .filter(ArgumentResolution::isResolved)
       .map(argResolved -> new Chmod(null, null, argResolved.value()))
       .findFirst()
       .orElse(null);
@@ -115,8 +115,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   private static boolean isFileSensitive(ArgumentResolution argumentResolution) {
-    return argumentResolution.is(ArgumentResolution.Status.RESOLVED)
-      && SENSITIVE_FILE_EXTENSION.contains(FilenameUtils.getExtension(argumentResolution.value()));
+    return argumentResolution.isResolved() && SENSITIVE_FILE_EXTENSION.contains(FilenameUtils.getExtension(argumentResolution.value()));
   }
 
   private static boolean isChmodWriteSensitive(Chmod chmod) {

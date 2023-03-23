@@ -78,6 +78,9 @@ class ArgumentResolutionTest {
     ArgumentResolution resolution = ArgumentResolution.of(argument);
     assertThat(resolution.value()).isEqualTo(expectedOutput);
     assertThat(resolution.status()).isEqualTo(UNRESOLVED);
+    assertThat(resolution.isResolved()).isFalse();
+    assertThat(resolution.isUnresolved()).isTrue();
+    assertThat(resolution.isEmpty()).isFalse();
   }
 
   @ParameterizedTest
@@ -100,6 +103,9 @@ class ArgumentResolutionTest {
     KeyValuePair label = TreeUtils.firstDescendant(file, LabelInstruction.class).get().labels().get(0);
 
     ArgumentResolution resolution = ArgumentResolution.of(label.value());
+    assertThat(resolution.isResolved()).isTrue();
+    assertThat(resolution.isUnresolved()).isFalse();
+    assertThat(resolution.isEmpty()).isFalse();
     assertThat(resolution.value()).isEqualTo("bar");
   }
 
@@ -139,6 +145,9 @@ class ArgumentResolutionTest {
 
     assertThat(resolution.value()).isEmpty();
     assertThat(resolution.status()).isEqualTo(EMPTY);
+    assertThat(resolution.isResolved()).isFalse();
+    assertThat(resolution.isUnresolved()).isFalse();
+    assertThat(resolution.isEmpty()).isTrue();
     Exception exception = assertThrows(IllegalStateException.class, resolution::argument);
     assertThat(exception.getMessage()).isEqualTo("The root argument should not be requested from an empty resolution");
   }
