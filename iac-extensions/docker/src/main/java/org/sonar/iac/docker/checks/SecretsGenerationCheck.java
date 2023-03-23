@@ -45,7 +45,7 @@ public class SecretsGenerationCheck implements IacCheck {
   // detects 'RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key'
   private static final CommandDetector SSH_DETECTOR = CommandDetector.builder()
     .with("ssh-keygen")
-    .withMultiple(expectedOptions)
+    .withMultipleUnorderedOptions(expectedOptions)
     .build();
 
   private static final Set<String> SENSITIVE_KEYTOOL_FLAGS = Set.of("-gencert", "-genkeypair", "-genseckey", "-genkey");

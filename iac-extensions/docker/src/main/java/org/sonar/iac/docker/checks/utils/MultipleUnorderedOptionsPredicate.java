@@ -24,18 +24,18 @@ import java.util.function.Predicate;
 
 import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.ZERO_OR_MORE;
 
-public class MultipleUnorderedOptionPredicate implements CommandPredicate {
+public class MultipleUnorderedOptionsPredicate implements CommandPredicate {
 
   final List<OptionPredicate> options;
 
   final boolean shouldSupportAnyMatch;
 
-  public MultipleUnorderedOptionPredicate(List<OptionPredicate> options) {
+  public MultipleUnorderedOptionsPredicate(List<OptionPredicate> options) {
     this.options = options;
     this.shouldSupportAnyMatch = true;
   }
 
-  public MultipleUnorderedOptionPredicate(List<OptionPredicate> options, boolean shouldSupportAnyMatch) {
+  public MultipleUnorderedOptionsPredicate(List<OptionPredicate> options, boolean shouldSupportAnyMatch) {
     this.options = options;
     this.shouldSupportAnyMatch = shouldSupportAnyMatch;
   }
@@ -44,7 +44,7 @@ public class MultipleUnorderedOptionPredicate implements CommandPredicate {
     return shouldSupportAnyMatch;
   }
 
-  public OptionPredicate calculateAnyOptionExceptExpected() {
+  public OptionPredicate calculateAnyOptionMatchingExceptExpected() {
     Predicate<String> noFlagFromExpectedOptions = options.stream()
       .map(option -> option.flagPredicate.predicate.negate())
       .reduce(s -> s.startsWith("-"), Predicate::and);
