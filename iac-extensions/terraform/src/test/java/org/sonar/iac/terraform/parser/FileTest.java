@@ -30,6 +30,9 @@ class FileTest {
     Assertions.assertThat(HclLexicalGrammar.FILE)
       .matches("")
       .matches("a = 1")
+      .matches("_a = 1")
+      .matches("a_ = 1")
+      .matches("_ = 1")
       .matches("a {}")
       .matches("a = [1, false]")
       .notMatches("a {");
