@@ -37,7 +37,6 @@ import static org.sonar.iac.docker.checks.utils.CommandDetector.CommandPredicate
 import static org.sonar.iac.docker.checks.utils.CommandDetector.CommandPredicate.Type.NO_MATCH;
 import static org.sonar.iac.docker.checks.utils.CommandDetector.CommandPredicate.Type.OPTIONAL;
 import static org.sonar.iac.docker.checks.utils.CommandDetector.CommandPredicate.Type.ZERO_OR_MORE;
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
 
 public class CommandDetector {
 
@@ -92,7 +91,7 @@ public class CommandDetector {
       }
 
       // Stop argument detection when argument is unresolved to start new command detection
-      if (resolution.is(UNRESOLVED)) {
+      if (resolution.isUnresolved()) {
         return Collections.emptyList();
       }
 

@@ -87,8 +87,16 @@ public class ArgumentResolution {
     return argument;
   }
 
-  public boolean is(Status status) {
-    return this.status == status;
+  public boolean isResolved() {
+    return this.status == Status.RESOLVED;
+  }
+
+  public boolean isUnresolved() {
+    return this.status == Status.UNRESOLVED;
+  }
+
+  public boolean isEmpty() {
+    return this.status == Status.EMPTY;
   }
 
   private static class Builder {

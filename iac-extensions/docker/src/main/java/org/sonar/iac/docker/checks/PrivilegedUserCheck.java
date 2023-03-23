@@ -38,8 +38,6 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
-
 @Rule(key = "S6471")
 public class PrivilegedUserCheck implements IacCheck {
 
@@ -126,7 +124,7 @@ public class PrivilegedUserCheck implements IacCheck {
   private static String getImageName(FromInstruction from) {
     ArgumentResolution resolvedImage = ArgumentResolution.of(from.image());
     String fullImageName = resolvedImage.value();
-    if (resolvedImage.is(UNRESOLVED)) {
+    if (resolvedImage.isUnresolved()) {
       return null;
     } else if (fullImageName.contains(":")) {
       return fullImageName.split(":")[0];

@@ -39,9 +39,6 @@ import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
 
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.RESOLVED;
-import static org.sonar.iac.docker.symbols.ArgumentResolution.Status.UNRESOLVED;
-
 @Rule(key = "S6472")
 public class SecretsHandlingCheck implements IacCheck {
 
@@ -102,10 +99,7 @@ public class SecretsHandlingCheck implements IacCheck {
    */
   private static boolean isSensitiveName(Argument nameArgument) {
     ArgumentResolution nameResolution = ArgumentResolution.of(nameArgument);
-    if (nameResolution.is(RESOLVED)) {
-      return isSensitiveVariableName(nameResolution.value());
-    }
-    return false;
+    return nameResolution.isResolved() && isSensitiveVariableName(nameResolution.value());
   }
 
   /**
@@ -117,7 +111,7 @@ public class SecretsHandlingCheck implements IacCheck {
     }
 
     ArgumentResolution valueResolution = ArgumentResolution.of(secret);
-    if (valueResolution.is(UNRESOLVED)) {
+    if (valueResolution.isUnresolved()) {
       return type.equals(AssignmentType.ARG) || isSensitiveVariableName(secret);
     }
 
