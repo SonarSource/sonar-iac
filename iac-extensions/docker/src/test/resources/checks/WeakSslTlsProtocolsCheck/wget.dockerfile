@@ -40,33 +40,57 @@ RUN wget --user-agent "Mozilla" --secure-protocol SSLv2 https://tls-v1-0.badssl.
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol SSLv2 https://tls-v1-0.badssl.com:1010 \
       && other command
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" --secure-protocol=SSLv2 --request PUT https://tls-v1-0.badssl.com:1010
+
 
 # Noncompliant@+1
 RUN other command | wget --secure-protocol SSLv2 https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
    RUN ["wget", "--secure-protocol", "SSLv2", "https://tls-v1-0.badssl.com:1010"]
 #       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Noncompliant@+1
+   RUN ["wget", "--secure-protocol=SSLv2", "https://tls-v1-0.badssl.com:1010"]
+#       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Noncompliant@+1
 RUN <<-EOF wget --secure-protocol SSLv2 https://tls-v1-1.badssl.com:1011
+  some value
+EOF
+# Noncompliant@+1
+RUN <<-EOF wget --secure-protocol=SSLv2 https://tls-v1-1.badssl.com:1011
   some value
 EOF
 # Noncompliant@+2
 RUN <<-EOF
   wget --secure-protocol SSLv2 https://tls-v1-1.badssl.com:1011
 EOF
+# Noncompliant@+2
+RUN <<-EOF
+  wget --secure-protocol=SSLv2 https://tls-v1-1.badssl.com:1011
+EOF
 
 ENV SSLV2_VERSION_ENV=SSLv2
+ENV FLAG_AND_SSLV2_VERSION_ENV="--secure-protocol=${SSLV2_VERSION_ENV}"
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol $SSLV2_VERSION_ENV https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol ${SSLV2_VERSION_ENV} https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" $FLAG_AND_SSLV2_VERSION_ENV https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" ${FLAG_AND_SSLV2_VERSION_ENV} https://tls-v1-0.badssl.com:1010
 
 ARG SSLV2_VERSION_ARG=SSLv2
+ARG FLAG_AND_SSLV2_VERSION_ARG="--secure-protocol=${SSLV2_VERSION_ARG}"
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol $SSLV2_VERSION_ARG https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol ${SSLV2_VERSION_ARG} https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" $FLAG_AND_SSLV2_VERSION_ARG https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" ${FLAG_AND_SSLV2_VERSION_ARG} https://tls-v1-0.badssl.com:1010
 
 ## SSLv3
 # Noncompliant@+1 {{Change this code to enforce TLS 1.2 or above.}}
@@ -107,33 +131,59 @@ RUN wget --user-agent "Mozilla" --secure-protocol SSLv3 https://tls-v1-0.badssl.
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol SSLv3 https://tls-v1-0.badssl.com:1010 \
       && other command
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" --secure-protocol=SSLv3 https://tls-v1-0.badssl.com:1010 \
+      && other command
 
 # Noncompliant@+1
 RUN other command | wget --secure-protocol SSLv3 https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
    RUN ["wget", "--secure-protocol", "SSLv3", "https://tls-v1-0.badssl.com:1010"]
 #       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Noncompliant@+1
+RUN other command | wget --secure-protocol SSLv3 https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+   RUN ["wget", "--secure-protocol=SSLv3", "https://tls-v1-0.badssl.com:1010"]
+#       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Noncompliant@+1
 RUN <<-EOF wget --secure-protocol SSLv3 https://tls-v1-1.badssl.com:1011
+  some value
+EOF
+# Noncompliant@+1
+RUN <<-EOF wget --secure-protocol=SSLv3 https://tls-v1-1.badssl.com:1011
   some value
 EOF
 # Noncompliant@+2
 RUN <<-EOF
   wget --secure-protocol SSLv3 https://tls-v1-1.badssl.com:1011
 EOF
+# Noncompliant@+2
+RUN <<-EOF
+  wget --secure-protocol=SSLv3 https://tls-v1-1.badssl.com:1011
+EOF
 
 ENV SSLV3_VERSION_ENV=SSLv3
+ENV FLAG_SSLV3_VERSION_ENV="--secure-protocol=${SSLV3_VERSION_ENV}"
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol $SSLV3_VERSION_ENV https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol ${SSLV3_VERSION_ENV} https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" $FLAG_SSLV3_VERSION_ENV https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" ${FLAG_SSLV3_VERSION_ENV} https://tls-v1-0.badssl.com:1010
 
 ARG SSLV3_VERSION_ARG=SSLv3
+ARG FLAG_AND_SSLV3_VERSION_ARG="--secure-protocol=SSLv3"
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol $SSLV3_VERSION_ARG https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol ${SSLV3_VERSION_ARG} https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" $FLAG_AND_SSLV3_VERSION_ARG https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" ${FLAG_AND_SSLV3_VERSION_ARG} https://tls-v1-0.badssl.com:1010
 
 ## TLSv1
 # Noncompliant@+1 {{Change this code to enforce TLS 1.2 or above.}}
@@ -174,12 +224,20 @@ RUN wget --user-agent "Mozilla" --secure-protocol TLSv1 https://tls-v1-0.badssl.
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol TLSv1 https://tls-v1-0.badssl.com:1010 \
       && other command
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" --secure-protocol=TLSv1 https://tls-v1-0.badssl.com:1010 \
+      && other command
 
 # Noncompliant@+1
 RUN other command | wget --secure-protocol TLSv1 https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
    RUN ["wget", "--secure-protocol", "TLSv1", "https://tls-v1-0.badssl.com:1010"]
 #       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Noncompliant@+1
+RUN other command | wget --secure-protocol TLSv1 https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+   RUN ["wget", "--secure-protocol=TLSv1", "https://tls-v1-0.badssl.com:1010"]
+#       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Noncompliant@+1
 RUN <<-EOF wget --secure-protocol TLSv1 https://tls-v1-1.badssl.com:1011
@@ -191,16 +249,26 @@ RUN <<-EOF
 EOF
 
 ENV TLSV1_VERSION_ENV=TLSv1
+ENV FLAG_AND_TLSV1_VERSION_ENV="--secure-protocol=TLSv1"
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol $TLSV1_VERSION_ENV https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol ${TLSV1_VERSION_ENV} https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" $FLAG_AND_TLSV1_VERSION_ENV https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" ${FLAG_AND_TLSV1_VERSION_ENV} https://tls-v1-0.badssl.com:1010
 
 ARG TLSV1_VERSION_ARG=TLSv1
+ARG FLAG_AND_TLSV1_VERSION_ARG="--secure-protocol=${TLSV1_VERSION_ARG}"
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol $TLSV1_VERSION_ARG https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol ${TLSV1_VERSION_ARG} https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" $FLAG_AND_TLSV1_VERSION_ARG https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" ${FLAG_AND_TLSV1_VERSION_ARG} https://tls-v1-0.badssl.com:1010
 
 ## TLSv1_1
 # Noncompliant@+1 {{Change this code to enforce TLS 1.2 or above.}}
@@ -241,12 +309,20 @@ RUN wget --user-agent "Mozilla" --secure-protocol TLSv1_1 https://tls-v1-0.badss
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol TLSv1_1 https://tls-v1-0.badssl.com:1010 \
       && other command
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" --secure-protocol=TLSv1_1 https://tls-v1-0.badssl.com:1010 \
+      && other command
 
 # Noncompliant@+1
 RUN other command | wget --secure-protocol TLSv1_1 https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
    RUN ["wget", "--secure-protocol", "TLSv1_1", "https://tls-v1-0.badssl.com:1010"]
 #       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Noncompliant@+1
+RUN other command | wget --secure-protocol TLSv1_1 https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+   RUN ["wget", "--secure-protocol=TLSv1_1", "https://tls-v1-0.badssl.com:1010"]
+#       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Noncompliant@+1
 RUN <<-EOF wget --secure-protocol TLSv1_1 https://tls-v1-1.badssl.com:1011
@@ -258,16 +334,26 @@ RUN <<-EOF
 EOF
 
 ENV TLSV11_VERSION_ENV=TLSv1_1
+ENV FALG_AND_TLSV11_VERSION_ENV="--secure-protocol=${TLSV11_VERSION_ENV}"
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol $TLSV11_VERSION_ENV https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol ${TLSV11_VERSION_ENV} https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" $FALG_AND_TLSV11_VERSION_ENV https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" ${FALG_AND_TLSV11_VERSION_ENV} https://tls-v1-0.badssl.com:1010
 
 ARG TLSV11_VERSION_ARG=TLSv1_1
+ARG FLAG_AND_TLSV11_VERSION_ARG="--secure-protocol=TLSv1_1"
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol $TLSV11_VERSION_ARG https://tls-v1-0.badssl.com:1010
 # Noncompliant@+1
 RUN wget --user-agent "Mozilla" --secure-protocol ${TLSV11_VERSION_ARG} https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" $FLAG_AND_TLSV11_VERSION_ARG https://tls-v1-0.badssl.com:1010
+# Noncompliant@+1
+RUN wget --user-agent "Mozilla" ${FLAG_AND_TLSV11_VERSION_ARG} https://tls-v1-0.badssl.com:1010
 
 
 ## The current limitations of our parser

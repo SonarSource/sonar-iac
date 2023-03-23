@@ -21,6 +21,7 @@ package org.sonar.iac.docker.checks;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -68,10 +69,19 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
     .with(INSECURE_WGET_PROTOCOLS)
     .build();
 
+  private static final Pattern WEAK_WGET_PROTOCOLS_EQUAL_REGEX = Pattern.compile("--secure-protocol=((SSLv2)|(SSLv3)|(TLSv1)|(TLSv1_1))");
+
+  private static final CommandDetector WEAK_WGET_PROTOCOLS_EQUAL_SYNTAX = CommandDetector.builder()
+    .with("wget")
+    .withOptionalRepeatingExcept(s -> s.startsWith(WGET_SECURE_PROTOCOL_FLAG))
+    .with(s -> WEAK_WGET_PROTOCOLS_EQUAL_REGEX.matcher(s).matches())
+    .build();
+
   private static final List<CommandDetector> COMMANDS = List.of(
     WEAK_CURL_TLS_MAX,
     WEAK_CURL_PROTOCOLS,
-    WEAK_WGET_PROTOCOLS);
+    WEAK_WGET_PROTOCOLS,
+    WEAK_WGET_PROTOCOLS_EQUAL_SYNTAX);
 
   @Override
   public void initialize(InitContext init) {
