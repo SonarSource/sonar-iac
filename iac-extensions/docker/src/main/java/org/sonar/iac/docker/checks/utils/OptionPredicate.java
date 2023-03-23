@@ -22,7 +22,6 @@ package org.sonar.iac.docker.checks.utils;
 public class OptionPredicate implements CommandPredicate {
   final SingularPredicate flagPredicate;
 
-  // optional
   final SingularPredicate valuePredicate;
 
   public OptionPredicate(SingularPredicate flagPredicate, SingularPredicate valuePredicate) {

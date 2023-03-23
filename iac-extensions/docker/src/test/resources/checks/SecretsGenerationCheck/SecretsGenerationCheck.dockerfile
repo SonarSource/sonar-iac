@@ -49,8 +49,6 @@ RUN ssh-keygen -t dsa -N "" -f rsync-key -b 1024
 RUN ssh-keygen -t dsa -N "" -b 1024 -f rsync-key
 
 
-
-
 # Noncompliant@+1
 RUN ssh-keygen -b 1024 -N "" -t dsa -f rsync-key
 
@@ -68,8 +66,6 @@ RUN ssh-keygen -b 1024 -f rsync-key -t dsa -N ""
 
 # Noncompliant@+1
 RUN ssh-keygen -b 1024 -f rsync-key -N "" -t dsa
-
-
 
 # Noncompliant@+1
 RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key
@@ -96,7 +92,6 @@ RUN ssh-keygen -N "" -t =opt1 -b 1024 -f rsync-key
 RUN ssh-keygen -N "" -t dsa -b 1000 -f rsync-key
 
 RUN ssh-keygen -N "" -b 1000 -f rsync-key
-
 
 RUN foobar
 
