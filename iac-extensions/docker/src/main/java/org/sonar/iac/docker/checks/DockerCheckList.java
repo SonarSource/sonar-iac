@@ -47,6 +47,7 @@ public class DockerCheckList {
       PosixPermissionCheck.class,
       PrivilegedUserCheck.class,
       ToDoCommentCheck.class,
+      SecretsGenerationCheck.class,
       SecretsHandlingCheck.class,
       UnencryptedProtocolCheck.class,
       UnsecureConnectionCheck.class,

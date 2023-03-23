@@ -1,0 +1,48 @@
+<p>Sensitive data has been found in the Dockerfile or Docker image. The data should be considered breached.</p>
+<p>If malicious third parties can get a hold of such information, they could impersonate legitimate identities within the organization.<br> It is a
+clear breach of trust in the system, as the systems involved falsely assume that the authenticated entity is who it claims to be.<br> The consequences
+can be catastrophic.</p>
+<p>In Dockerfiles, secrets hard-coded, secrets passed through as variables or created at build-time will cause security risks. The secret information
+can be exposed either via the container environment itself, the image metadata or the build environment logs.</p>
+<p>Docker Buildkit’s secret mount options should be used when secrets have to be accessed at build time. For run-time secrets, best practices would
+recommend only setting them at runtime, for example with the <code>--env</code> option of the docker run command.</p>
+<p>Note that files exposing the secrets should be securely stored and not exposed to a large sphere. If possible, use a secret vault or another
+similar component. For example, <strong>Docker Swarm</strong> provides a <strong>secrets</strong> service that can be used to handle most confidential
+data.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+FROM example
+ARG PASSWORD
+# Noncompliant
+RUN wget --user=guest --password="$PASSWORD" https://example.com
+</pre>
+<h2>Compliant Solution</h2>
+<p>For build-time secrets, use <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Buildkit’s secret mount type</a>
+instead:</p>
+<pre>
+FROM example
+RUN --mount=type=secret,id=build_secret \
+    wget --user=guest --password=$(cat /run/secrets/build_secret) https://example.com
+</pre>
+<p>For runtime secrets, leave the environment variables empty until runtime:</p>
+<pre>
+FROM example
+ENV ACCESS_TOKEN=""
+CMD /run.sh
+</pre>
+<p>Store the runtime secrets in an <a href="https://docs.docker.com/compose/env-file/">environment file</a> (such as <code>.env</code>) and then start
+the container with the <a
+href="https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables—​e---env---env-file"><code>--env-file</code></a>
+argument:</p>
+<pre>
+docker run --env-file .env myImage
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN command secrets mount points
+  </li>
+  <li> <a href="https://docs.docker.com/engine/swarm/secrets/">Docker documentation</a> - Manage sensitive data with Docker secrets </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/522.html">MITRE, CWE-522</a> - Insufficiently Protected Credentials </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/798.html">MITRE, CWE-798</a> - Use of Hard-coded Credentials </li>
+</ul>
+
