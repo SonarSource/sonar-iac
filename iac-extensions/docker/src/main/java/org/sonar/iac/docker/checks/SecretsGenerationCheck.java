@@ -49,8 +49,8 @@ public class SecretsGenerationCheck implements IacCheck {
   private static final CommandDetector SENSITIVE_OPENSSL_COMMANDS = CommandDetector.builder()
     .with("openssl")
     .with(SENSITIVE_OPENSSL_SUBCOMMANDS)
-    // everything that comes after a MATCH of the sensitive subcommand should be flagged as well
-    .withOptionalRepeating(s -> true)
+    // every flag that comes after a MATCH of the sensitive subcommand should be flagged as well
+    .withOptionalRepeating(s -> s.startsWith("-"))
     .build();
 
   private static final Set<CommandDetector> DETECTORS = Set.of(
