@@ -28,7 +28,7 @@ class SecretsGenerationCheckTest {
 
   @Test
   void test_sshKeygen() {
-    DockerVerifier.verify("SecretsGenerationCheck/SecretsGenerationCheck.dockerfile", new SecretsGenerationCheck());
+    DockerVerifier.verify("SecretsGenerationCheck/sshKeygen.dockerfile", new SecretsGenerationCheck());
   }
 
   @Test

@@ -13,6 +13,7 @@ RUN ssh-keygen -random1 random1Value -N "" -random2 -t dsa -random3 =random3Valu
 # Noncompliant@+1
 RUN ssh-keygen -random1 random1Value -N "" -random2 -t dsa -random3 =random3Value -b 1024 -random4 -f rsync-key -random5 random5Option
 
+
 # Noncompliant@+1
 RUN ssh-keygen -N "" -t dsa -f rsync-key -b 1024
 
@@ -49,6 +50,8 @@ RUN ssh-keygen -t dsa -N "" -f rsync-key -b 1024
 RUN ssh-keygen -t dsa -N "" -b 1024 -f rsync-key
 
 
+
+
 # Noncompliant@+1
 RUN ssh-keygen -b 1024 -N "" -t dsa -f rsync-key
 
@@ -66,6 +69,8 @@ RUN ssh-keygen -b 1024 -f rsync-key -t dsa -N ""
 
 # Noncompliant@+1
 RUN ssh-keygen -b 1024 -f rsync-key -N "" -t dsa
+
+
 
 # Noncompliant@+1
 RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key
@@ -102,4 +107,3 @@ RUN ssh-keygen -N "" -t dsa -f
 RUN ssh-keygen -N "" -t dsa
 
 RUN foobar
-
