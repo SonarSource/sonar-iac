@@ -27,7 +27,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class OptionPredicateTest {
 
   @Test
-  void hasReturningFalse() {
+  void hasReturningTrueBothPredicatesDontMatch() {
+    OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"), new SingularPredicate("value"::equals, CommandPredicate.Type.NO_MATCH));
+
+    assertTrue(optionPredicate.has(CommandPredicate.Type.NO_MATCH));
+  }
+
+  @Test
+  void hasReturningTrueWhenValueNullAndFlagMatches() {
+    OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"));
+
+    assertTrue(optionPredicate.has(CommandPredicate.Type.MATCH));
+  }
+
+  @Test
+  void hasReturningFalseBothPredicatesDontMatch() {
     OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"), new SingularPredicate("value"::equals, CommandPredicate.Type.NO_MATCH));
 
     assertFalse(optionPredicate.has(CommandPredicate.Type.OPTIONAL));
@@ -38,13 +52,6 @@ class OptionPredicateTest {
     OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"));
 
     assertFalse(optionPredicate.has(CommandPredicate.Type.OPTIONAL));
-  }
-
-  @Test
-  void hasReturningTrueWhenValueNullAndFlagMatches() {
-    OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"));
-
-    assertTrue(optionPredicate.has(CommandPredicate.Type.MATCH));
   }
 
 }
