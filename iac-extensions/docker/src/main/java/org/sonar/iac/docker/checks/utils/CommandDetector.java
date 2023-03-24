@@ -22,24 +22,25 @@ package org.sonar.iac.docker.checks.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.checks.utils.command.CommandMatcher;
+import org.sonar.iac.docker.checks.utils.command.CommandPredicate;
+import org.sonar.iac.docker.checks.utils.command.MultipleUnorderedOptionsPredicate;
+import org.sonar.iac.docker.checks.utils.command.OptionPredicate;
+import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
-import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.MATCH;
-import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.NO_MATCH;
-import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.OPTIONAL;
-import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.ZERO_OR_MORE;
+import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
+import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
+import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.OPTIONAL;
+import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.ZERO_OR_MORE;
 
 public class CommandDetector {
 
@@ -60,174 +61,17 @@ public class CommandDetector {
    */
   public List<Command> search(List<ArgumentResolution> resolvedArguments) {
     List<Command> commands = new ArrayList<>();
-
     Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolvedArguments);
+
+    CommandMatcher commandMatcher = new CommandMatcher(argumentStack, predicates);
+
     while (!argumentStack.isEmpty()) {
-      List<ArgumentResolution> commandArguments = fullMatch(argumentStack);
+      List<ArgumentResolution> commandArguments = commandMatcher.fullMatch();
       if (!commandArguments.isEmpty()) {
         commands.add(new Command(commandArguments));
       }
     }
     return commands;
-  }
-
-  /**
-   * Process and reduce the stack of arguments. Within the loop, which iterates over a stack of predicates,
-   * each argument from the stack is consumed and tested to see if the corresponding predicate is a match.
-   * Each consumed argument that matches is added to the list of arguments that will later form the suitable command.
-   * If a predicate is not optional and does not match, an empty list is returned.
-   * The method is then called again with a reduced argument stack until there are no more arguments on the stack.
-   * If a predicate can be applied multiple times to the argument stack, it is placed on the predicate stack again at the end of the loop.
-   */
-  // Cognitive Complexity of methods should not be too high
-  @SuppressWarnings("java:S3776")
-  // TODO: Rework commentary
-  private List<ArgumentResolution> fullMatch(Deque<ArgumentResolution> argumentStack) {
-    CommandDetectionStatus detectionStatus = new CommandDetectionStatus(argumentStack, new LinkedList<>(predicates), new ArrayList<>());
-    while (!detectionStatus.predicateStack.isEmpty()) {
-      detectionStatus.setCurrentPredicate(detectionStatus.predicateStack.pollFirst());
-      // resolution is removed from stack during match-methods, here it is peeked to see if it is null or UNRESOLVED
-      ArgumentResolution resolution = detectionStatus.argumentStack.peekFirst();
-
-      // Stop argument detection when argument list is empty
-      if (resolution == null) {
-        return remainingPredictsAreOptional(detectionStatus.getCurrentPredicate(), detectionStatus.predicateStack) ? detectionStatus.commandArguments : Collections.emptyList();
-      }
-
-      // Stop argument detection when argument is unresolved to start new command detection
-      if (resolution.isUnresolved()) {
-        argumentStack.pop();
-        return Collections.emptyList();
-      }
-
-      if (detectionStatus.getCurrentPredicate() instanceof SingularPredicate) {
-        matchPredicate((SingularPredicate) detectionStatus.getCurrentPredicate(), detectionStatus);
-      } else if (detectionStatus.getCurrentPredicate() instanceof OptionPredicate) {
-        matchPredicate((OptionPredicate) detectionStatus.getCurrentPredicate(), detectionStatus);
-      } else if (detectionStatus.getCurrentPredicate() instanceof MultipleUnorderedOptionsPredicate) {
-        matchPredicate((MultipleUnorderedOptionsPredicate) detectionStatus.getCurrentPredicate(), detectionStatus);
-      } else {
-        detectionStatus.setStatus(CommandDetectionStatus.Status.ABORT);
-      }
-
-      if (detectionStatus.is(CommandDetectionStatus.Status.ABORT, CommandDetectionStatus.Status.FOUND_NOTHING)) {
-        return Collections.emptyList();
-      }
-    }
-    return detectionStatus.commandArguments;
-  }
-
-  private void matchPredicate(SingularPredicate singularPredicate, CommandDetectionStatus detectionStatus) {
-    ArgumentResolution resolution = detectionStatus.argumentStack.pollFirst();
-
-    if (resolution == null) {
-      // nothing to match, will be caught above
-      detectionStatus.setStatus(CommandDetectionStatus.Status.CONTINUE);
-      return;
-    }
-
-    // Test argument resolution with predicate
-    if (singularPredicate.predicate.test(resolution.value())) {
-      // Skip argument and start new command detection
-      if (singularPredicate.is(NO_MATCH)) {
-        detectionStatus.setStatus(CommandDetectionStatus.Status.ABORT);
-        return;
-      }
-      // Re-add predicate to stack to be reevaluated on the next argument
-      if (singularPredicate.is(ZERO_OR_MORE)) {
-        if (detectionStatus.getCurrentPredicate() instanceof SingularPredicate) {
-          // only needed in this case, the other will handle it themselves
-          detectionStatus.predicateStack.addFirst(singularPredicate);
-        }
-      }
-      // Add matched argument to command
-      detectionStatus.commandArguments.add(resolution);
-    } else if (singularPredicate.is(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
-      // Re-add argument to be evaluated by the next predicate
-      detectionStatus.argumentStack.addFirst(resolution);
-    } else {
-      // Stop argument detection in case the argument does not match and the predicate is not optional or should not be matched
-      // above method should return empty
-      detectionStatus.setStatus(CommandDetectionStatus.Status.FOUND_NOTHING);
-      return;
-    }
-    detectionStatus.setStatus(CommandDetectionStatus.Status.CONTINUE);
-  }
-
-  private void matchPredicate(OptionPredicate optionPredicate, CommandDetectionStatus detectionStatus) {
-    matchPredicate(optionPredicate.flagPredicate, detectionStatus);
-    if (detectionStatus.is(CommandDetectionStatus.Status.ABORT, CommandDetectionStatus.Status.FOUND_NOTHING) || optionPredicate.withoutValue()) {
-      // no value present -> no further action required for this optionPredicate
-      return;
-    }
-    // valuePredicate == null is already checked above in the if-condition
-    matchPredicate(optionPredicate.valuePredicate, detectionStatus);
-  }
-
-  private void matchPredicate(MultipleUnorderedOptionsPredicate multipleOptions, CommandDetectionStatus detectionStatus) {
-
-    Set<OptionPredicate> fulfilledOptions = new HashSet<>();
-    List<OptionPredicate> workingSet = new ArrayList<>(multipleOptions.options);
-
-    long expectedMatches = workingSet.stream().filter(optionPredicate -> optionPredicate.is(MATCH)).count();
-
-    OptionPredicate anyMatchIfSupported = multipleOptions.calculateAnyOptionMatchingExceptExpected();
-
-    // initial initialization to get into while, could be solved with do-while
-    boolean anythingMatched = true;
-
-    while (anythingMatched && !workingSet.isEmpty()) {
-      anythingMatched = false;
-
-      // used to gauge if there happened to be a match
-      int previousNumberOfCommandArguments = detectionStatus.commandArguments.size();
-
-      for (Iterator<OptionPredicate> iterator = workingSet.iterator(); iterator.hasNext() && !anythingMatched;) {
-        OptionPredicate option = iterator.next();
-
-        // saving this resolution to add it to the stack if needed
-        ArgumentResolution argumentResolution = detectionStatus.argumentStack.peekFirst();
-        matchPredicate(option, detectionStatus);
-
-        if (detectionStatus.is(CommandDetectionStatus.Status.FOUND_NOTHING) && argumentResolution != null) {
-          detectionStatus.argumentStack.addFirst(argumentResolution);
-        }
-
-        if (detectionStatus.is(CommandDetectionStatus.Status.ABORT)) {
-          return;
-        }
-
-        if (previousNumberOfCommandArguments != detectionStatus.commandArguments.size()) {
-          iterator.remove();
-          fulfilledOptions.add(option);
-          anythingMatched = true;
-        }
-
-      }
-      if (!anythingMatched && multipleOptions.isShouldSupportAnyMatch()) {
-        matchPredicate(anyMatchIfSupported, detectionStatus);
-        if (detectionStatus.is(CommandDetectionStatus.Status.ABORT)) {
-          return;
-        }
-
-        if (previousNumberOfCommandArguments != detectionStatus.commandArguments.size()) {
-          anythingMatched = true;
-        }
-      }
-
-    }
-
-    // calculate success or failure due to size of sets
-    if (fulfilledOptions.size() != expectedMatches) {
-      detectionStatus.setStatus(CommandDetectionStatus.Status.ABORT);
-      return;
-    }
-    detectionStatus.setStatus(CommandDetectionStatus.Status.CONTINUE);
-  }
-
-  private static boolean remainingPredictsAreOptional(CommandPredicate currentPredicate, Deque<CommandPredicate> remainingPredicates) {
-    remainingPredicates.addFirst(currentPredicate);
-    return remainingPredicates.stream().noneMatch(predicate -> predicate.is(MATCH));
   }
 
   public static class Builder {
@@ -347,47 +191,6 @@ public class CommandDetector {
 
     public CommandDetector build() {
       return new CommandDetector(predicates);
-    }
-  }
-
-  protected static class CommandDetectionStatus {
-    enum Status {
-      CONTINUE, ABORT, FOUND_NOTHING
-    }
-
-    Status status;
-    final Deque<ArgumentResolution> argumentStack;
-    final Deque<CommandPredicate> predicateStack;
-    final List<ArgumentResolution> commandArguments;
-    CommandPredicate currentPredicate;
-
-    public CommandDetectionStatus(Deque<ArgumentResolution> argumentStack, Deque<CommandPredicate> predicateStack,
-      List<ArgumentResolution> commandArguments) {
-      this.argumentStack = argumentStack;
-      this.predicateStack = predicateStack;
-      this.commandArguments = commandArguments;
-      this.status = Status.CONTINUE;
-    }
-
-    public boolean is(Status... statusArray) {
-      for (Status specificStatus : statusArray) {
-        if (this.status.equals(specificStatus)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    public void setStatus(Status status) {
-      this.status = status;
-    }
-
-    public CommandPredicate getCurrentPredicate() {
-      return currentPredicate;
-    }
-
-    public void setCurrentPredicate(CommandPredicate currentPredicate) {
-      this.currentPredicate = currentPredicate;
     }
   }
 

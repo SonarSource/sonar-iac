@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks.utils;
+package org.sonar.iac.docker.checks.utils.command;
 
 public class OptionPredicate implements CommandPredicate {
   final SingularPredicate flagPredicate;
@@ -34,22 +34,18 @@ public class OptionPredicate implements CommandPredicate {
     this.valuePredicate = null;
   }
 
-  public static OptionPredicate EQUAL_MATCH(String expectedFlag, String expectedValue) {
-    return new OptionPredicate(SingularPredicate.EQUAL_MATCH(expectedFlag), SingularPredicate.EQUAL_MATCH(expectedValue));
+  public static OptionPredicate equalMatch(String expectedFlag, String expectedValue) {
+    return new OptionPredicate(SingularPredicate.equalMatch(expectedFlag), SingularPredicate.equalMatch(expectedValue));
   }
 
-  public static OptionPredicate EQUAL_MATCH(String expectedFlag) {
-    return new OptionPredicate(SingularPredicate.EQUAL_MATCH(expectedFlag), null);
-  }
-
-  public boolean withoutValue() {
-    return valuePredicate == null;
+  public static OptionPredicate equalMatch(String expectedFlag) {
+    return new OptionPredicate(SingularPredicate.equalMatch(expectedFlag), null);
   }
 
   @Override
   public boolean is(Type... types) {
     if (this.flagPredicate.is(types)) {
-      return withoutValue() || this.valuePredicate.is(types);
+      return this.valuePredicate == null || this.valuePredicate.is(types);
     }
     return false;
   }

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks.utils;
+package org.sonar.iac.docker.checks.utils.command;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.sonar.iac.docker.checks.utils.CommandPredicate.Type.ZERO_OR_MORE;
+import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.ZERO_OR_MORE;
 
 public class MultipleUnorderedOptionsPredicate implements CommandPredicate {
 
