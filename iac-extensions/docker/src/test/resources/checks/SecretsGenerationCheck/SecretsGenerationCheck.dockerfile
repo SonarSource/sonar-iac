@@ -93,5 +93,13 @@ RUN ssh-keygen -N "" -t dsa -b 1000 -f rsync-key
 
 RUN ssh-keygen -N "" -b 1000 -f rsync-key
 
+RUN ssh-keygen -N "" -t dsa $UNRESOLVED
+
+RUN ssh-keygen -N "" -t dsa -f $UNRESOLVED
+
+RUN ssh-keygen -N "" -t dsa -f opt1
+RUN ssh-keygen -N "" -t dsa -f
+RUN ssh-keygen -N "" -t dsa
+
 RUN foobar
 

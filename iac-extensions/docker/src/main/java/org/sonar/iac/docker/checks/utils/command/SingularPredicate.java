@@ -34,7 +34,7 @@ public class SingularPredicate implements CommandPredicate {
     return new SingularPredicate(string::equals, Type.MATCH);
   }
 
-  public boolean is(Type... types) {
+  public boolean has(Type... types) {
     for (Type t : types) {
       if (this.type.equals(t)) {
         return true;

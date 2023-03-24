@@ -105,27 +105,32 @@ public class CommandMatcher {
 
   private boolean remainingPredictsAreOptional() {
     predicatesStack.addFirst(currentPredicate);
-    return predicatesStack.stream().noneMatch(predicate -> predicate.is(MATCH));
+    return predicatesStack.stream().noneMatch(predicate -> predicate.has(MATCH));
   }
 
   private void matchPredicate(SingularPredicate singularPredicate) {
     ArgumentResolution resolution = pollFirstArgumentResolution();
 
+    if (resolution.isUnresolved()) {
+      setStatus(Status.ABORT);
+      return;
+    }
+
     // Test argument resolution with predicate
     if (singularPredicate.predicate.test(resolution.value())) {
       // Skip argument and start new command detection
-      if (singularPredicate.is(NO_MATCH)) {
+      if (singularPredicate.has(NO_MATCH)) {
         setStatus(Status.ABORT);
         return;
       }
       // Re-add predicate to stack to be reevaluated on the next argument
-      if (singularPredicate.is(ZERO_OR_MORE) && (currentPredicate instanceof SingularPredicate)) {
+      if (singularPredicate.has(ZERO_OR_MORE) && (currentPredicate instanceof SingularPredicate)) {
         // only needed in this case, if the currentPredicate is another implementation the calling method will handle this case
         predicatesStack.addFirst(singularPredicate);
       }
       // Add matched argument
       argumentsToReport.add(resolution);
-    } else if (singularPredicate.is(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
+    } else if (singularPredicate.has(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
       // Re-add argument to be evaluated by the next predicate
       argumentStack.addFirst(resolution);
     } else {
@@ -150,7 +155,7 @@ public class CommandMatcher {
     // should not match on empty argumentStack
     if (argumentStack.isEmpty()) {
       // in this special case the calling method doesn't handle it properly so it should be aborted here
-      if (currentPredicate instanceof MultipleUnorderedOptionsPredicate && optionPredicate.valuePredicate.is(MATCH)) {
+      if (currentPredicate instanceof MultipleUnorderedOptionsPredicate && optionPredicate.valuePredicate.has(MATCH)) {
         setStatus(Status.ABORT);
       }
       return;
@@ -175,7 +180,7 @@ public class CommandMatcher {
     // set of options that aren't matched yet
     List<OptionPredicate> workingSet = new ArrayList<>(multipleOptions.options);
 
-    long expectedMatches = workingSet.stream().filter(optionPredicate -> optionPredicate.is(MATCH)).count();
+    long expectedMatches = workingSet.stream().filter(optionPredicate -> optionPredicate.has(MATCH)).count();
 
     OptionPredicate anyOptionExceptExpectedPredicate = multipleOptions.calculateAnyOptionMatchingExceptExpected();
 
@@ -187,6 +192,13 @@ public class CommandMatcher {
     // every iteration of this loop should only match one option to correctly identify possible matches
     while (anythingMatched && !workingSet.isEmpty()) {
       anythingMatched = false;
+
+      if (argumentStack.isEmpty()) {
+        if (!remainingPredictsAreOptional()) {
+          setStatus(Status.ABORT);
+        }
+        return;
+      }
 
       // used to gauge if there happened to be a match in this iteration of the while-loop
       int previousNumberOfCommandArguments = argumentsToReport.size();
@@ -201,7 +213,7 @@ public class CommandMatcher {
 
         matchPredicate(option);
 
-        if (is(Status.FOUND_NO_PREDICATE_MATCH) && argumentResolution != null) {
+        if (is(Status.FOUND_NO_PREDICATE_MATCH)) {
           // if the flag of an option doesn't match, the argumentResolution has to be readded to the stack for the next possible option
           argumentStack.addFirst(argumentResolution);
         }

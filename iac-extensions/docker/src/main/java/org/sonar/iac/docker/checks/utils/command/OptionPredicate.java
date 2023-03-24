@@ -29,24 +29,15 @@ public class OptionPredicate implements CommandPredicate {
     this.valuePredicate = valuePredicate;
   }
 
-  public OptionPredicate(SingularPredicate flagPredicate) {
-    this.flagPredicate = flagPredicate;
-    this.valuePredicate = null;
-  }
-
   public static OptionPredicate equalMatch(String expectedFlag, String expectedValue) {
     return new OptionPredicate(SingularPredicate.equalMatch(expectedFlag), SingularPredicate.equalMatch(expectedValue));
   }
 
-  public static OptionPredicate equalMatch(String expectedFlag) {
-    return new OptionPredicate(SingularPredicate.equalMatch(expectedFlag), null);
-  }
-
+  /**
+   * true if either of the singularPredicates match
+   */
   @Override
-  public boolean is(Type... types) {
-    if (this.flagPredicate.is(types)) {
-      return this.valuePredicate == null || this.valuePredicate.is(types);
-    }
-    return false;
+  public boolean has(Type... types) {
+    return this.flagPredicate.has(types) || (this.valuePredicate != null && this.valuePredicate.has(types));
   }
 }

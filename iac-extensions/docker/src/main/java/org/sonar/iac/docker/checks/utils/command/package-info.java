@@ -17,16 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@javax.annotation.ParametersAreNonnullByDefault
 package org.sonar.iac.docker.checks.utils.command;
-
-public interface CommandPredicate {
-
-  enum Type {
-    MATCH,
-    NO_MATCH,
-    OPTIONAL,
-    ZERO_OR_MORE
-  }
-
-  boolean has(Type... types);
-}

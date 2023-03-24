@@ -35,11 +35,6 @@ public class MultipleUnorderedOptionsPredicate implements CommandPredicate {
     this.shouldSupportAnyMatch = true;
   }
 
-  public MultipleUnorderedOptionsPredicate(List<OptionPredicate> options, boolean shouldSupportAnyMatch) {
-    this.options = options;
-    this.shouldSupportAnyMatch = shouldSupportAnyMatch;
-  }
-
   public boolean isShouldSupportAnyMatch() {
     return shouldSupportAnyMatch;
   }
@@ -54,13 +49,16 @@ public class MultipleUnorderedOptionsPredicate implements CommandPredicate {
     return new OptionPredicate(anyFlagPredicate, anyValuePredicate);
   }
 
+  /**
+   * true if any of the option predicates match
+   */
   @Override
-  public boolean is(Type... types) {
+  public boolean has(Type... types) {
     for (OptionPredicate optionPredicate : options) {
-      if (!optionPredicate.is(types)) {
-        return false;
+      if (optionPredicate.has(types)) {
+        return true;
       }
     }
-    return true;
+    return false;
   }
 }
