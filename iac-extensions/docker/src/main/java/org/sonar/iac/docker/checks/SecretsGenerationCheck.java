@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
@@ -36,8 +37,7 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final String MESSAGE = "Revoke and change this secret, as it might be compromised.";
 
-
-  private static final List<OptionPredicate> expectedOptions = List.of(
+  private static final List<OptionPredicate> EXPECTED_OPTIONS_SSH_KEYGEN = List.of(
     OptionPredicate.equalMatch("-t", "dsa"),
     OptionPredicate.equalMatch("-N", ""),
     OptionPredicate.equalMatch("-b", "1024"),
@@ -46,16 +46,16 @@ public class SecretsGenerationCheck implements IacCheck {
   // detects 'RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key'
   private static final CommandDetector SSH_DETECTOR = CommandDetector.builder()
     .with("ssh-keygen")
-    .withMultipleUnorderedOptions(expectedOptions)
+    .withMultipleUnorderedOptions(EXPECTED_OPTIONS_SSH_KEYGEN)
     .build();
 
   private static final Set<String> SENSITIVE_KEYTOOL_FLAGS = Set.of("-gencert", "-genkeypair", "-genseckey", "-genkey");
 
   private static final CommandDetector KEYTOOL_DETECTOR = CommandDetector.builder()
     .with("keytool")
-    .withOptionalRepeatingExcept(SENSITIVE_KEYTOOL_FLAGS)
+    .withAnyOptionExcluding(SENSITIVE_KEYTOOL_FLAGS)
     .with(SENSITIVE_KEYTOOL_FLAGS)
-    .withOptionalRepeatingExcept(SENSITIVE_KEYTOOL_FLAGS)
+    .withAnyOptionExcluding(SENSITIVE_KEYTOOL_FLAGS)
     .build();
 
   private static final Set<String> SENSITIVE_OPENSSL_SUBCOMMANDS = Set.of("req", "genrsa", "rsa", "gendsa", "ec", "ecparam", "x509", "genpkey", "pkey");
@@ -64,7 +64,7 @@ public class SecretsGenerationCheck implements IacCheck {
     .with("openssl")
     .with(SENSITIVE_OPENSSL_SUBCOMMANDS)
     // every flag that comes after a MATCH of the sensitive subcommand should be flagged as well
-    .withOptionalRepeating(s -> s.startsWith("-"))
+    .withAnyOptionExcluding(Collections.emptyList())
     .build();
 
   private static final Set<CommandDetector> DETECTORS = Set.of(

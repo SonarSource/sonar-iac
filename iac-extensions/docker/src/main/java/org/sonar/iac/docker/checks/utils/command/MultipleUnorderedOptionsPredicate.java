@@ -45,7 +45,7 @@ public class MultipleUnorderedOptionsPredicate implements CommandPredicate {
       .reduce(s -> s.startsWith("-"), Predicate::and);
     SingularPredicate anyFlagPredicate = new SingularPredicate(noFlagFromExpectedOptions, ZERO_OR_MORE);
     // doesn't match on flags, cause flags start with '-'
-    SingularPredicate anyValuePredicate = new SingularPredicate(s -> !s.startsWith("-"), ZERO_OR_MORE);
+    SingularPredicate anyValuePredicate = new SingularPredicate(s -> !s.startsWith("-") && !s.startsWith("&&"), ZERO_OR_MORE);
     return new OptionPredicate(anyFlagPredicate, anyValuePredicate);
   }
 

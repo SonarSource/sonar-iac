@@ -124,9 +124,9 @@ public class CommandMatcher {
         return;
       }
       // Re-add predicate to stack to be reevaluated on the next argument
-      if (singularPredicate.has(ZERO_OR_MORE) && (currentPredicate instanceof SingularPredicate)) {
-        // only needed in this case, if the currentPredicate is another implementation the calling method will handle this case
-        predicatesStack.addFirst(singularPredicate);
+      if (singularPredicate.has(ZERO_OR_MORE) && !(currentPredicate instanceof MultipleUnorderedOptionsPredicate)) {
+        // only needed in this case, if the currentPredicate is MultipleUnorderedOptionsPredicate the calling method will handle this case
+        predicatesStack.addFirst(currentPredicate);
       }
       // Add matched argument
       argumentsToReport.add(resolution);

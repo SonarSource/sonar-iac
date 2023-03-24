@@ -161,22 +161,12 @@ public class CommandDetector {
       return this;
     }
 
-    public CommandDetector.Builder withOption(String expectedFlag, String expectedValue) {
-      return withOption(expectedFlag::equals, expectedValue::equals);
-    }
-
     public CommandDetector.Builder withAnyOptionExcluding(Collection<String> excludedFlags) {
       SingularPredicate flagPredicate = new SingularPredicate(s -> s.startsWith("-") && !excludedFlags.contains(s), ZERO_OR_MORE);
       // should not test for any flag only possible values
-      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || excludedFlags.contains(s)), ZERO_OR_MORE);
+      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || s.startsWith("&&") || excludedFlags.contains(s)), ZERO_OR_MORE);
       addOptionPredicate(flagPredicate, valuePredicate);
       return this;
-    }
-
-    public CommandDetector.Builder withOptionAndSurroundingAnyOptionsExcluding(String expectedFlag, String expectedValue, Collection<String> excludedFlags) {
-      return withAnyOptionExcluding(excludedFlags)
-        .withOption(expectedFlag::equals, expectedValue::equals)
-        .withAnyOptionExcluding(excludedFlags);
     }
 
     public CommandDetector.Builder withMultipleUnorderedOptions(List<OptionPredicate> expectedOptions) {
