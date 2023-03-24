@@ -35,15 +35,26 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final String MESSAGE = "Revoke and change this secret, as it might be compromised.";
 
-  private static final Set<String> SENSITIVE_KEYTOOL_FLAGS = Set.of("-gencert", "-genkeypair", "-genseckey");
+  private static final Set<String> SENSITIVE_KEYTOOL_FLAGS = Set.of("-gencert", "-genkeypair", "-genseckey", "-genkey");
+
   private static final CommandDetector KEYTOOL_DETECTOR = CommandDetector.builder()
     .with("keytool")
     .withOptionalRepeatingExcept(SENSITIVE_KEYTOOL_FLAGS)
     .with(SENSITIVE_KEYTOOL_FLAGS)
     .withOptionalRepeatingExcept(SENSITIVE_KEYTOOL_FLAGS)
     .build();
+
+  private static final Set<String> SENSITIVE_OPENSSL_SUBCOMMANDS = Set.of("req", "genrsa", "rsa", "gendsa", "ec", "ecparam", "x509", "genpkey", "pkey");
+
+  private static final CommandDetector SENSITIVE_OPENSSL_COMMANDS = CommandDetector.builder()
+    .with("openssl")
+    .with(SENSITIVE_OPENSSL_SUBCOMMANDS)
+    // everything that comes after a MATCH of the sensitive subcommand should be flagged as well
+    .withOptionalRepeating(s -> true)
+    .build();
+
   private static final Set<CommandDetector> DETECTORS = Set.of(
-    KEYTOOL_DETECTOR);
+    KEYTOOL_DETECTOR, SENSITIVE_OPENSSL_COMMANDS);
 
   @Override
   public void initialize(InitContext init) {
