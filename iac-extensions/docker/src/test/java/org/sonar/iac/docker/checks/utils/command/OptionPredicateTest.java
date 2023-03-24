@@ -19,30 +19,31 @@
  */
 package org.sonar.iac.docker.checks.utils.command;
 
-public class OptionPredicate implements CommandPredicate {
-  final SingularPredicate flagPredicate;
+import org.junit.jupiter.api.Test;
 
-  final SingularPredicate valuePredicate;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-  public OptionPredicate(SingularPredicate flagPredicate, SingularPredicate valuePredicate) {
-    this.flagPredicate = flagPredicate;
-    this.valuePredicate = valuePredicate;
+class OptionPredicateTest {
+
+  @Test
+  void hasReturningFalse() {
+    OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"), new SingularPredicate("value"::equals, CommandPredicate.Type.NO_MATCH));
+
+    assertFalse(optionPredicate.has(CommandPredicate.Type.OPTIONAL));
   }
 
-  public OptionPredicate(SingularPredicate flagPredicate) {
-    this.flagPredicate = flagPredicate;
-    this.valuePredicate = null;
+  @Test
+  void hasReturningFalseWhenValueNullAndDoesntMatch() {
+    OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"));
+
+    assertFalse(optionPredicate.has(CommandPredicate.Type.OPTIONAL));
   }
 
-  public static OptionPredicate equalMatch(String expectedFlag, String expectedValue) {
-    return new OptionPredicate(SingularPredicate.equalMatch(expectedFlag), SingularPredicate.equalMatch(expectedValue));
+  @Test
+  void hasReturningTrueWhenValueNullAndFlagMatches() {
+    OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"));
+
+    assertFalse(optionPredicate.has(CommandPredicate.Type.MATCH));
   }
 
-  /**
-   * true if either of the singularPredicates match
-   */
-  @Override
-  public boolean has(Type... types) {
-    return this.flagPredicate.has(types) || (this.valuePredicate != null && this.valuePredicate.has(types));
-  }
 }

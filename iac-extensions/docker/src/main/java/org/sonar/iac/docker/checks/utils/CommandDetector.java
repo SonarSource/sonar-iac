@@ -156,11 +156,6 @@ public class CommandDetector {
       return withOptionalRepeating(s -> s.startsWith("-"));
     }
 
-    public CommandDetector.Builder withOption(Predicate<String> expectedFlag, Predicate<String> expectedValue) {
-      addOptionPredicate(new SingularPredicate(expectedFlag, MATCH), new SingularPredicate(expectedValue, MATCH));
-      return this;
-    }
-
     public CommandDetector.Builder withAnyOptionExcluding(Collection<String> excludedFlags) {
       SingularPredicate flagPredicate = new SingularPredicate(s -> s.startsWith("-") && !excludedFlags.contains(s), ZERO_OR_MORE);
       // should not test for any flag only possible values

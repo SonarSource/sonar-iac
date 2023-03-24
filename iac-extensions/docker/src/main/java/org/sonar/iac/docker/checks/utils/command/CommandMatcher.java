@@ -89,9 +89,6 @@ public class CommandMatcher {
         matchPredicate((OptionPredicate) currentPredicate);
       } else if (currentPredicate instanceof MultipleUnorderedOptionsPredicate) {
         matchPredicate((MultipleUnorderedOptionsPredicate) currentPredicate);
-      } else {
-        // should not be happening, error-handling
-        setStatus(Status.ABORT);
       }
 
       // For FOUND_NO_PREDICATE_MATCH:
