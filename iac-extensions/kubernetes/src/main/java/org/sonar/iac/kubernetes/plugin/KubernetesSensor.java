@@ -91,7 +91,7 @@ public class KubernetesSensor extends YamlSensor {
           } else if (FILE_SEPERATOR.equals(line)) {
             identifierCount = 0;
           } else if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
-            // Do not parse Helm files with template directives
+            LOG.debug("Line contains Helm Chart directive, file will not be analyzed.\n{}", line);
             return false;
           }
           if (identifierCount == 4) {
