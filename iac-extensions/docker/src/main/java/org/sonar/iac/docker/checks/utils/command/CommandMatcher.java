@@ -188,7 +188,6 @@ public class CommandMatcher {
     // the workingSet if none of those matches
     // every iteration of this loop should only match one option to correctly identify possible matches
     while (anythingMatched && !workingSet.isEmpty()) {
-      anythingMatched = false;
 
       if (argumentStack.isEmpty()) {
         if (!remainingPredictsAreOptional()) {
@@ -197,48 +196,11 @@ public class CommandMatcher {
         return;
       }
 
-      // used to gauge if there happened to be a match in this iteration of the while-loop
-      int previousNumberOfCommandArguments = argumentsToReport.size();
-
-      Iterator<OptionPredicate> iterator = workingSet.iterator();
-      // this loop tries to match (only) one option of the workingSet to the first resolution of the argument Stack
-      while (iterator.hasNext() && !anythingMatched) {
-        OptionPredicate option = iterator.next();
-
-        // saving this resolution to add it back to the stack if there was no match on the flag
-        ArgumentResolution argumentResolution = argumentStack.peekFirst();
-
-        matchPredicate(option);
-
-        if (is(Status.FOUND_NO_PREDICATE_MATCH)) {
-          // if the flag of an option doesn't match, the argumentResolution has to be readded to the stack for the next possible option
-          argumentStack.addFirst(argumentResolution);
-        }
-
-        if (is(Status.ABORT)) {
-          return;
-        }
-
-        // found a matching option
-        if (previousNumberOfCommandArguments != argumentsToReport.size()) {
-          iterator.remove();
-          fulfilledOptions.add(option);
-          anythingMatched = true;
-        }
-      }
-      // no match in workingSet found, if desired matches any other flags
-      if (!anythingMatched && multipleOptions.isShouldSupportAnyMatch()) {
-        matchPredicate(anyOptionExceptExpectedPredicate);
-        if (is(Status.ABORT)) {
-          // could also check for FOUND_NO_PREDICATE_MATCH, but renders the boolean anythingMatched useless which is added for better readability of
-          // the control flow
-          return;
-        }
-
-        // found a matching option
-        if (previousNumberOfCommandArguments != argumentsToReport.size()) {
-          anythingMatched = true;
-        }
+      anythingMatched = matchExpectedOrAnyOption(fulfilledOptions, workingSet, anyOptionExceptExpectedPredicate);
+      if (is(Status.ABORT)) {
+        // could also check for FOUND_NO_PREDICATE_MATCH, but renders the boolean anythingMatched useless which is added for better readability of
+        // the control flow
+        return;
       }
 
     }
@@ -250,6 +212,51 @@ public class CommandMatcher {
       return;
     }
     setStatus(Status.CONTINUE);
+  }
+
+  public boolean matchExpectedOrAnyOption(Set<OptionPredicate> fulfilledOptions, List<OptionPredicate> workingSet, OptionPredicate anyOptionExceptExpectedPredicate) {
+    boolean anythingMatched = false;
+    // used to gauge if there happened to be a match in this iteration of the while-loop
+    int previousNumberOfCommandArguments = argumentsToReport.size();
+
+    Iterator<OptionPredicate> iterator = workingSet.iterator();
+    // this loop tries to match (only) one option of the workingSet to the first resolution of the argument Stack
+    while (iterator.hasNext() && !anythingMatched) {
+      OptionPredicate option = iterator.next();
+
+      // saving this resolution to add it back to the stack if there was no match on the flag
+      ArgumentResolution argumentResolution = argumentStack.peekFirst();
+
+      matchPredicate(option);
+
+      if (is(Status.FOUND_NO_PREDICATE_MATCH)) {
+        // if the flag of an option doesn't match, the argumentResolution has to be readded to the stack for the next possible option
+        argumentStack.addFirst(argumentResolution);
+      }
+
+      if (is(Status.ABORT)) {
+        return false;
+      }
+
+      // found a matching option
+      if (previousNumberOfCommandArguments != argumentsToReport.size()) {
+        iterator.remove();
+        fulfilledOptions.add(option);
+        anythingMatched = true;
+      }
+    }
+
+    // no match in workingSet found, if desired matches any other flags
+    if (!anythingMatched && ((MultipleUnorderedOptionsPredicate) currentPredicate).isShouldSupportAnyMatch()) {
+      matchPredicate(anyOptionExceptExpectedPredicate);
+
+      // found a matching option
+      if (previousNumberOfCommandArguments != argumentsToReport.size()) {
+        anythingMatched = true;
+      }
+    }
+
+    return anythingMatched;
   }
 
   public boolean is(Status... statusArray) {
