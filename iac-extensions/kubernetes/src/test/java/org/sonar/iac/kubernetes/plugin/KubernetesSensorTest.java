@@ -22,6 +22,8 @@ package org.sonar.iac.kubernetes.plugin;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -43,49 +45,43 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
-  void yaml_file_with_identifiers_should_be_parsed() {
+  void shouldParseYamlFileWithIdentifiers() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS));
     assertOneSourceFileIsParsed();
   }
 
   @Test
-  void yaml_file_with_hel_chart_template_should_not_be_parsed() {
+  void shouldNotParseYamlFileWithHelmChartTemplate() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + "foo: {{ .bar }}"));
     asserNotSourceFileIsParsed();
   }
 
   @Test
-  void yaml_file_with_incomplete_hel_chart_template_should_be_parsed() {
-    analyse(sensor(), inputFile(K8_IDENTIFIERS + "foo: 23{{"));
-    assertOneSourceFileIsParsed();
-  }
-
-  @Test
-  void yaml_file_without_identifiers_should_not_be_parsed() {
+  void shouldNotParseYamlFileWithoutIdentifiers() {
     analyse(sensor(), inputFile(""));
     asserNotSourceFileIsParsed();
   }
 
   @Test
-  void yaml_file_with_incomplete_identifiers_should_not_be_parsed() {
+  void shouldNotParseYamlFileWithIncompleteIdentifiers() {
     analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n"));
     asserNotSourceFileIsParsed();
   }
 
   @Test
-  void yaml_files_within_single_stream_should_be_parsed() {
+  void shouldParseYamlFilesWithinSingleStream() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + "---\n" + K8_IDENTIFIERS));
     assertOneSourceFileIsParsed();
   }
 
   @Test
-  void yaml_files_with_at_least_one_document_with_identifiers_should_be_parsed() {
+  void shouldParseYamlFilesWithAtLeastOneDocumentWithIdentifiers() {
     analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n---\n" + K8_IDENTIFIERS));
     assertOneSourceFileIsParsed();
   }
 
   @Test
-  void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
+  void shouldRaiseParsingIssueForYamlFileWithRecursiveAnchorReference() {
     analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFileWithIdentifiers("foo: &fooanchor\n" +
       " bar: *fooanchor"));
 
@@ -96,11 +92,29 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void should_return_kubernetes_descriptor() {
+  void shouldReturnKubernetesDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC Kubernetes Sensor");
     assertThat(descriptor.languages()).containsExactly("json", "yaml");
+  }
+
+  @Test
+  void shouldNotParseYamlFileWithHelmTemplateDirectives() {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + "{{ .Values.count }}"));
+    asserNotSourceFileIsParsed();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "'{{ .Values.count }}'",
+    "\"{{ .Values.count }}\"",
+    "# {{ .Values.count }}",
+    "custom-label: {{MY_CUSTOM_LABEL}}"
+  })
+  void shouldParseYamlFileWithHelmTemplateDirectives(String content) {
+    analyse(sensor(), inputFile(K8_IDENTIFIERS + content));
+    assertOneSourceFileIsParsed();
   }
 
   /**
