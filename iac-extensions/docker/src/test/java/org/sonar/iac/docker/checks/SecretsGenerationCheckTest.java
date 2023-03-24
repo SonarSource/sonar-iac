@@ -30,4 +30,9 @@ class SecretsGenerationCheckTest {
   void test_keytool() {
     DockerVerifier.verify("SecretsGenerationCheck/keytool.dockerfile", check);
   }
+
+  @Test
+  void test_openssl() {
+    DockerVerifier.verify("SecretsGenerationCheck/openssl.dockerfile", check);
+  }
 }
