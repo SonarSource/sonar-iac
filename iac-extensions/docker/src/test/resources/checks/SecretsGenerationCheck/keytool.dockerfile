@@ -15,7 +15,13 @@ RUN keytool -random1 opt1 -gencert -random2
 RUN keytool -random1 opt1 -genkey -random2
 
 # Noncompliant@+1
-RUN keytool -random1 opt1 -genkey -random2 opt2
+RUN keytool -random1 -random2 opt2 -genkey -random3 opt3
+
+# Noncompliant@+1
+RUN keytool -random1 -random2 opt2 -genkey -random3 opt3 -random4
+
+# Noncompliant@+1
+RUN keytool -random1 -random2 opt2 -genkey -random3 -random4 opt4
 
 # Noncompliant@+1
 RUN apt install wget && keytool -genkey
@@ -34,5 +40,6 @@ RUN keytool -noprompt -alias tomcat -keyalg RSA -keystore /usr/local/tomcat/.key
 
 RUN keytool -random1 && unrelated_command -genkeypair
 
+RUN keytool -random1 && -genkey
 
 RUN foobar
