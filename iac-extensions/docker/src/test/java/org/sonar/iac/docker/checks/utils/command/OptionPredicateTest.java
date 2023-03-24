@@ -22,6 +22,7 @@ package org.sonar.iac.docker.checks.utils.command;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OptionPredicateTest {
 
@@ -43,7 +44,7 @@ class OptionPredicateTest {
   void hasReturningTrueWhenValueNullAndFlagMatches() {
     OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"));
 
-    assertFalse(optionPredicate.has(CommandPredicate.Type.MATCH));
+    assertTrue(optionPredicate.has(CommandPredicate.Type.MATCH));
   }
 
 }
