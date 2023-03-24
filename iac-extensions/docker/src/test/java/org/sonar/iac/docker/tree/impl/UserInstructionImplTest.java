@@ -22,12 +22,12 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
+import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class UserInstructionImplTest {
@@ -73,7 +73,7 @@ class UserInstructionImplTest {
     assertThat(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.arguments()).hasSize(1);
-    ArgumentAssert.assertThat(tree.arguments().get(0)).hasValue("bob");
+    assertThat(tree.arguments().get(0)).hasValue("bob");
   }
 
   @Test
@@ -84,6 +84,6 @@ class UserInstructionImplTest {
     assertThat(tree.textRange()).hasRange(1, 0, 1, 14);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.arguments()).hasSize(1);
-    ArgumentAssert.assertThat(tree.arguments().get(0)).hasValue("bob:group");
+    assertThat(tree.arguments().get(0)).hasValue("bob:group");
   }
 }

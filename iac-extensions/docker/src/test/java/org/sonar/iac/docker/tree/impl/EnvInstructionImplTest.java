@@ -25,10 +25,10 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
-import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
+import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class EnvInstructionImplTest {
@@ -70,7 +70,7 @@ class EnvInstructionImplTest {
     assertThat(tree.environmentVariables()).hasSize(1);
 
     KeyValuePair keyValuePair = tree.environmentVariables().get(0);
-    KeyValuePairAssert.assertThat(keyValuePair)
+    assertThat(keyValuePair)
       .hasKind(DockerTree.Kind.KEY_VALUE_PAIR)
       .hasKey("key1")
       .hasEqualSignNull()
@@ -88,7 +88,7 @@ class EnvInstructionImplTest {
     assertThat(tree.environmentVariables()).hasSize(1);
 
     KeyValuePair keyValuePair = tree.environmentVariables().get(0);
-    KeyValuePairAssert.assertThat(keyValuePair)
+    assertThat(keyValuePair)
       .hasKind(DockerTree.Kind.KEY_VALUE_PAIR)
       .hasKey("CPATH")
       .hasEqualSign("=")
@@ -105,7 +105,7 @@ class EnvInstructionImplTest {
     assertThat(tree.environmentVariables()).hasSize(1);
 
     KeyValuePair keyValuePair = tree.environmentVariables().get(0);
-    KeyValuePairAssert.assertThat(keyValuePair)
+    assertThat(keyValuePair)
       .hasKind(DockerTree.Kind.KEY_VALUE_PAIR)
       .hasKey("key1")
       .hasEqualSign("=")
@@ -120,7 +120,7 @@ class EnvInstructionImplTest {
     assertThat(tree.environmentVariables()).hasSize(1);
     assertThat(tree.children()).hasSize(2);
     KeyValuePair keyValuePair = tree.environmentVariables().get(0);
-    KeyValuePairAssert.assertThat(keyValuePair)
+    assertThat(keyValuePair)
       .hasKind(DockerTree.Kind.KEY_VALUE_PAIR)
       .hasKey("key1")
       .hasEqualSignNull()

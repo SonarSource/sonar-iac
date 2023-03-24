@@ -26,7 +26,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public class TextRangeAssert extends AbstractAssert<TextRangeAssert, TextRange> {
 
-  public TextRangeAssert(@Nullable TextRange actual) {
+  private TextRangeAssert(@Nullable TextRange actual) {
     super(actual, TextRangeAssert.class);
   }
 

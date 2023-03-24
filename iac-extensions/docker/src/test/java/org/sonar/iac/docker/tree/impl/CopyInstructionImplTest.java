@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.CopyInstruction;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
@@ -31,6 +30,7 @@ import org.sonar.iac.docker.tree.api.Flag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
+import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammarTest.FORBIDDEN_CHARACTERS_AFTER_KEYWORD;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
@@ -87,9 +87,9 @@ class CopyInstructionImplTest {
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(2);
 
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src1");
-    ArgumentAssert.assertThat(tree.srcs().get(1)).hasValue("src2");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src1");
+    assertThat(tree.srcs().get(1)).hasValue("src2");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -99,9 +99,9 @@ class CopyInstructionImplTest {
     assertThat(tree.options()).isEmpty();
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.srcs()).hasSize(2);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src1");
-    ArgumentAssert.assertThat(tree.srcs().get(1)).hasValue("src2");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src1");
+    assertThat(tree.srcs().get(1)).hasValue("src2");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -117,8 +117,8 @@ class CopyInstructionImplTest {
     assertThat(ArgumentResolution.of(option.value()).value()).isEqualTo("55:mygroup");
 
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("files*");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("/somedir/");
+    assertThat(tree.srcs().get(0)).hasValue("files*");
+    assertThat(tree.dest()).hasValue("/somedir/");
   }
 
   @Test
@@ -131,11 +131,11 @@ class CopyInstructionImplTest {
     Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("option");
-    assertThat(option.value()).isNull();
+    org.assertj.core.api.Assertions.assertThat(option.value()).isNull();
 
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test

@@ -27,11 +27,11 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class AddInstructionImplTest {
@@ -66,8 +66,8 @@ class AddInstructionImplTest {
     IacCommonAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 12);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -78,8 +78,8 @@ class AddInstructionImplTest {
     IacCommonAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 13);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).isUnresolved();
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).isUnresolved();
   }
 
   @Test
@@ -90,8 +90,8 @@ class AddInstructionImplTest {
     IacCommonAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -103,10 +103,10 @@ class AddInstructionImplTest {
     assertThat(tree.options()).isEmpty();
     List<Argument> srcs = tree.srcs();
     assertThat(srcs).hasSize(3);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src1");
-    ArgumentAssert.assertThat(tree.srcs().get(1)).hasValue("src2");
-    ArgumentAssert.assertThat(tree.srcs().get(2)).hasValue("src3");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src1");
+    assertThat(tree.srcs().get(1)).hasValue("src2");
+    assertThat(tree.srcs().get(2)).hasValue("src3");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -116,8 +116,8 @@ class AddInstructionImplTest {
     IacCommonAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 16);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -127,7 +127,7 @@ class AddInstructionImplTest {
     IacCommonAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).isEmpty();
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -137,9 +137,9 @@ class AddInstructionImplTest {
     IacCommonAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 18);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(2);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src1");
-    ArgumentAssert.assertThat(tree.srcs().get(1)).hasValue("src2");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src1");
+    assertThat(tree.srcs().get(1)).hasValue("src2");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -152,10 +152,10 @@ class AddInstructionImplTest {
     Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(option.name()).isEqualTo("link");
-    assertThat(option.value()).isNull();
+    org.assertj.core.api.Assertions.assertThat(option.value()).isNull();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("/foo");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("/bar");
+    assertThat(tree.srcs().get(0)).hasValue("/foo");
+    assertThat(tree.dest()).hasValue("/bar");
   }
 
   @Test
@@ -172,8 +172,8 @@ class AddInstructionImplTest {
 
     assertThat(tree.srcs()).hasSize(1);
 
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("files*");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("/somedir/");
+    assertThat(tree.srcs().get(0)).hasValue("files*");
+    assertThat(tree.dest()).hasValue("/somedir/");
   }
 
   @Test
@@ -194,7 +194,7 @@ class AddInstructionImplTest {
     assertThat(ArgumentResolution.of(option2.value()).value()).isEqualTo("value2");
 
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).hasValue("dest");
   }
 }

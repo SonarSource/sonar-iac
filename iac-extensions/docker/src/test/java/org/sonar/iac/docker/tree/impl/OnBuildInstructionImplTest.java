@@ -26,7 +26,6 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
-import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
 import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
@@ -35,6 +34,7 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
+import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class OnBuildInstructionImplTest {
@@ -96,8 +96,8 @@ class OnBuildInstructionImplTest {
     assertThat(label.children()).hasSize(7);
 
     List<KeyValuePair> labels = label.labels();
-    KeyValuePairAssert.assertThat(labels.get(0)).hasKey("key1").hasValue("value1");
-    KeyValuePairAssert.assertThat(labels.get(1)).hasKey("key2").hasValue("value2");
+    assertThat(labels.get(0)).hasKey("key1").hasValue("value1");
+    assertThat(labels.get(1)).hasKey("key2").hasValue("value2");
   }
 
   @Test
