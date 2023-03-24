@@ -20,6 +20,8 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.testing.IacCommonAssertions;
+import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
@@ -28,7 +30,7 @@ import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class ArgInstructionImplTest {
@@ -54,7 +56,7 @@ class ArgInstructionImplTest {
     ArgInstruction tree = parse("ARG key1", DockerLexicalGrammar.ARG);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.keyValuePairs()).hasSize(1);
 
@@ -69,7 +71,7 @@ class ArgInstructionImplTest {
     ArgInstruction tree = parse("ARG key1=value1", DockerLexicalGrammar.ARG);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 15);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 15);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.keyValuePairs()).hasSize(1);
 
@@ -84,7 +86,7 @@ class ArgInstructionImplTest {
     ArgInstruction tree = parse("ARG key1=value1 key2", DockerLexicalGrammar.ARG);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 20);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 20);
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.keyValuePairs()).hasSize(2);
 
@@ -104,7 +106,7 @@ class ArgInstructionImplTest {
     ArgInstruction tree = parse("ARG key1=value1 key2=value2", DockerLexicalGrammar.ARG);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ARG);
     assertThat(tree.keyword().value()).isEqualTo("ARG");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 27);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 27);
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.keyValuePairs()).hasSize(2);
 

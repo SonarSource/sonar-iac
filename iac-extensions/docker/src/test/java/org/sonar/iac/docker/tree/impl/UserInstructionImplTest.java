@@ -27,7 +27,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class UserInstructionImplTest {
@@ -70,7 +70,7 @@ class UserInstructionImplTest {
     UserInstruction tree = parse("USER bob", DockerLexicalGrammar.USER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
     assertThat(tree.keyword().value()).isEqualTo("USER");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.arguments()).hasSize(1);
     ArgumentAssert.assertThat(tree.arguments().get(0)).hasValue("bob");
@@ -81,7 +81,7 @@ class UserInstructionImplTest {
     UserInstruction tree = parse("USER bob:group", DockerLexicalGrammar.USER);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.USER);
     assertThat(tree.keyword().value()).isEqualTo("USER");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 14);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 14);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.arguments()).hasSize(1);
     ArgumentAssert.assertThat(tree.arguments().get(0)).hasValue("bob:group");

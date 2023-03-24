@@ -28,7 +28,7 @@ import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class EnvInstructionImplTest {
@@ -82,7 +82,7 @@ class EnvInstructionImplTest {
     EnvInstruction tree = parse("ENV CPATH=\"/usr/include/vtk-6.2\":CPATH", DockerLexicalGrammar.ENV);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
     assertThat(tree.keyword().value()).isEqualTo("ENV");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 38);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 38);
     assertThat(tree.children()).hasSize(2);
 
     assertThat(tree.environmentVariables()).hasSize(1);
@@ -100,7 +100,7 @@ class EnvInstructionImplTest {
     EnvInstruction tree = parse("ENV key1=", DockerLexicalGrammar.ENV);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENV);
     assertThat(tree.keyword().value()).isEqualTo("ENV");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 9);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 9);
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.environmentVariables()).hasSize(1);
 

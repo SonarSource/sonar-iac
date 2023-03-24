@@ -23,11 +23,11 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.Literal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class KeyValuePairImplTest {
@@ -70,22 +70,22 @@ class KeyValuePairImplTest {
     KeyValuePair keyValuePair = parse("key=value", DockerLexicalGrammar.KEY_VALUE_PAIR);
 
     assertThat(keyValuePair.getKind()).isEqualTo(DockerTree.Kind.KEY_VALUE_PAIR);
-    assertTextRange(keyValuePair.textRange()).hasRange(1, 0, 1, 9);
+    assertThat(keyValuePair.textRange()).hasRange(1, 0, 1, 9);
 
-    assertTextRange(keyValuePair.key().textRange()).hasRange(1, 0, 1, 3);
+    assertThat(keyValuePair.key().textRange()).hasRange(1, 0, 1, 3);
 
     assertThat(keyValuePair.equalSign()).satisfies(equal -> {
       assertThat(equal).isNotNull();
-      assertTextRange(equal.textRange()).hasRange(1, 3, 1, 4);
+      assertThat(equal.textRange()).hasRange(1, 3, 1, 4);
     });
     assertThat(keyValuePair.equalSign()).satisfies(equal -> {
       assertThat(equal).isNotNull();
-      assertTextRange(equal.textRange()).hasRange(1, 3, 1, 4);
+      assertThat(equal.textRange()).hasRange(1, 3, 1, 4);
     });
 
     assertThat(keyValuePair.value()).satisfies(key -> {
       assertThat(key).isNotNull();
-      assertTextRange(key.textRange()).hasRange(1, 4, 1, 9);
+      assertThat(key.textRange()).hasRange(1, 4, 1, 9);
     });
   }
 

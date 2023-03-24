@@ -27,7 +27,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class EntrypointInstructionImplTest {
@@ -80,7 +80,7 @@ class EntrypointInstructionImplTest {
     EntrypointInstructionImpl tree = DockerTestUtils.parse("ENTRYPOINT [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.ENTRYPOINT);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 43);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 43);
 
     assertThat(tree.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2");
 
@@ -94,7 +94,7 @@ class EntrypointInstructionImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ENTRYPOINT);
     assertThat(tree.keyword().value()).isEqualTo("ENTRYPOINT");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 35);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 35);
 
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");
   }

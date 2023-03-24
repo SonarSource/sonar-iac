@@ -40,9 +40,10 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
-import org.sonar.iac.common.testing.TextRangeAssert;
+import org.sonar.iac.common.testing.IacCommonAssertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class TerraformSensorTest extends ExtensionSensorTest {
 
@@ -71,7 +72,7 @@ class TerraformSensorTest extends ExtensionSensorTest {
     org.sonar.api.batch.fs.TextRange issueTextRange = location.textRange();
     TextRange treeTextRange = TextRanges.range(issueTextRange.start().line(), issueTextRange.start().lineOffset(),
       issueTextRange.end().line(), issueTextRange.end().lineOffset());
-    TextRangeAssert.assertTextRange(treeTextRange).hasRange(2, 11, 2, 35);
+    assertThat(treeTextRange).hasRange(2, 11, 2, 35);
   }
 
   @Test

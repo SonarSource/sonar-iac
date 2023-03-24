@@ -27,7 +27,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class FlagImplTest {
@@ -60,7 +60,7 @@ class FlagImplTest {
     assertThat(param.getKind()).isEqualTo(DockerTree.Kind.PARAM);
     assertThat(param.name()).isEqualTo("platform");
     assertThat(ArgumentResolution.of(param.value()).value()).isEqualTo("foo");
-    assertTextRange(param.textRange()).hasRange(1, 1, 1, 15);
+    assertThat(param.textRange()).hasRange(1, 1, 1, 15);
   }
 
 }

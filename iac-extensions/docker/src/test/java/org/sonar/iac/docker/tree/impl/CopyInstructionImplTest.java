@@ -29,8 +29,8 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammarTest.FORBIDDEN_CHARACTERS_AFTER_KEYWORD;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
@@ -82,7 +82,7 @@ class CopyInstructionImplTest {
     CopyInstruction tree = parse("COPY src1 src2 dest", DockerLexicalGrammar.COPY);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.COPY);
     assertThat(tree.keyword().value()).isEqualTo("COPY");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(2);
@@ -95,7 +95,7 @@ class CopyInstructionImplTest {
   @Test
   void copyInstructionExecForm() {
     CopyInstruction tree = parse("COPY [\"src1\", \"src2\", \"dest\"]", DockerLexicalGrammar.COPY);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 29);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 29);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.srcs()).hasSize(2);
@@ -108,7 +108,7 @@ class CopyInstructionImplTest {
   void copyInstructionWithOption() {
     CopyInstruction tree = parse("COPY --chown=55:mygroup files* /somedir/", DockerLexicalGrammar.COPY);
     assertThat(tree.options()).hasSize(1);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 40);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 40);
     assertThat(tree.arguments()).isNotNull();
 
     Flag option = tree.options().get(0);
@@ -126,7 +126,7 @@ class CopyInstructionImplTest {
     // This is not valid Docker syntax but should be parsed anyway
     CopyInstruction tree = parse("COPY --option= src dest", DockerLexicalGrammar.COPY);
     assertThat(tree.options()).hasSize(1);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 23);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 23);
 
     Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
@@ -145,7 +145,7 @@ class CopyInstructionImplTest {
       "line 2",
       "FILE1");
     CopyInstruction tree = DockerTestUtils.parse(toParse, DockerLexicalGrammar.COPY);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 4, 5);
+    assertThat(tree.textRange()).hasRange(1, 0, 4, 5);
 
     assertThat(tree.keyword().value()).isEqualTo("COPY");
     assertThat(tree.arguments()).isNotNull();

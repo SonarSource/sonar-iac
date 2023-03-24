@@ -27,7 +27,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class BodyImplTest {
@@ -54,7 +54,7 @@ class BodyImplTest {
   void shouldParseEmptyFileWithByteOrderMark() {
     Body body = parseBody("\uFEFFFROM foobar");
     assertThat(body.getKind()).isEqualTo(DockerTree.Kind.BODY);
-    assertTextRange(body.textRange()).hasRange(1, 0, 1, 11);
+    assertThat(body.textRange()).hasRange(1, 0, 1, 11);
     assertThat(body.globalArgs()).isEmpty();
     assertThat(body.dockerImages()).hasSize(1);
   }
@@ -75,7 +75,7 @@ class BodyImplTest {
     Body body = parseBody("ARG FOO\nFROM foobar");
     assertThat(body.globalArgs()).hasSize(1);
     assertThat(body.dockerImages()).hasSize(1);
-    assertTextRange(body.textRange()).hasRange(1, 0, 2, 11);
+    assertThat(body.textRange()).hasRange(1, 0, 2, 11);
   }
 
   @Test

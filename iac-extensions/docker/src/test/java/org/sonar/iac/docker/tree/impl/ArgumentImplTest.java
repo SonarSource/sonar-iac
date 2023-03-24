@@ -32,7 +32,7 @@ import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RegularVariable;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class ArgumentImplTest {
@@ -63,7 +63,7 @@ class ArgumentImplTest {
     Argument argument = parse("foo$bar\"1\"'2'${foobar}\"${barfoo}\"", DockerLexicalGrammar.ARGUMENT);
 
     assertThat(argument.getKind()).isEqualTo(DockerTree.Kind.ARGUMENT);
-    assertTextRange(argument.textRange()).hasRange(1, 0, 1, 33);
+    assertThat(argument.textRange()).hasRange(1, 0, 1, 33);
 
     List<Expression> expressions = argument.expressions();
     assertThat(expressions).hasSize(6);

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class SequenceTreeImplTest extends YamlTreeTest {
 
@@ -32,7 +32,7 @@ class SequenceTreeImplTest extends YamlTreeTest {
     SequenceTree tree = parse("[1, \"a\"]", SequenceTree.class);
     assertThat(tree.elements()).hasSize(2);
     assertThat(tree.children()).hasSize(2);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.elements().get(0)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.PLAIN));
     assertThat(tree.elements().get(1)).isInstanceOfSatisfying(ScalarTree.class, e -> assertThat(e.style()).isEqualTo(ScalarTree.Style.DOUBLE_QUOTED));
     assertThat(tree.metadata().tag()).isEqualTo("tag:yaml.org,2002:seq");

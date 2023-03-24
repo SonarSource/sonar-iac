@@ -29,7 +29,7 @@ import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HealthCheckInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class HealthCheckInstructionImplTest {
@@ -60,12 +60,12 @@ class HealthCheckInstructionImplTest {
     HealthCheckInstruction tree = DockerTestUtils.parse("HEALTHCHECK NONE", DockerLexicalGrammar.HEALTHCHECK);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.HEALTHCHECK);
     assertThat(tree.keyword().value()).isEqualTo("HEALTHCHECK");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 16);
 
     assertThat(tree.isNone()).isTrue();
     assertThat(tree.none().getKind()).isEqualTo(DockerTree.Kind.TOKEN);
     assertThat(tree.none().value()).isEqualTo("NONE");
-    assertTextRange(tree.none().textRange()).hasRange(1, 12, 1, 16);
+    assertThat(tree.none().textRange()).hasRange(1, 12, 1, 16);
     assertThat(tree.cmdInstruction()).isNull();
     assertThat(tree.options()).isEmpty();
   }
@@ -73,7 +73,7 @@ class HealthCheckInstructionImplTest {
   @Test
   void healthcheckCmd() {
     HealthCheckInstruction tree = DockerTestUtils.parse("HEALTHCHECK CMD command param", DockerLexicalGrammar.HEALTHCHECK);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 29);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 29);
 
     assertThat(tree.isNone()).isFalse();
     assertThat(tree.none()).isNull();
@@ -86,7 +86,7 @@ class HealthCheckInstructionImplTest {
   @Test
   void healthcheckCmdWithOption() {
     HealthCheckInstruction tree = DockerTestUtils.parse("HEALTHCHECK --interval=30s --timeout=5s CMD command", DockerLexicalGrammar.HEALTHCHECK);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 51);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 51);
 
     assertThat(tree.isNone()).isFalse();
     assertThat(tree.none()).isNull();

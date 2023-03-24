@@ -30,7 +30,7 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class FunctionCallTreeImplTest {
 
@@ -62,11 +62,11 @@ class FunctionCallTreeImplTest {
 
   @Test
   void get_function_call_location() {
-    assertTextRange(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").textRange())
+    assertThat(parseFunctionCall("!GetAtt logicalNameOfResource.attributeName").textRange())
       .hasRange(1, 0, 1, 43);
-    assertTextRange(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").textRange())
+    assertThat(parseFunctionCall("Fn::GetAtt: [logicalNameOfResource, attributeName]").textRange())
       .hasRange(1, 0, 1, 50);
-    assertTextRange(parseFunctionCall("Fn::GetAtt:\n   - logicalNameOfResource\n   - attributeName").textRange())
+    assertThat(parseFunctionCall("Fn::GetAtt:\n   - logicalNameOfResource\n   - attributeName").textRange())
       .hasRange(1, 0, 3, 18);
   }
 

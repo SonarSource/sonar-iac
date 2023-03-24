@@ -62,7 +62,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class IacSensorTest extends AbstractSensorTest {
 
@@ -200,7 +200,7 @@ class IacSensorTest extends AbstractSensorTest {
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("testIssue");
-    assertTextRange(TextRanges.range(location.textRange().start().line(), location.textRange().start().lineOffset(), location.textRange().end().line(),
+    assertThat(TextRanges.range(location.textRange().start().line(), location.textRange().start().lineOffset(), location.textRange().end().line(),
       location.textRange().end().lineOffset())).hasRange(1, 0, 1, 2);
   }
 
