@@ -43,7 +43,7 @@ public class SecretsGenerationCheck implements IacCheck {
     OptionPredicate.equalMatch("-b", "1024"),
     OptionPredicate.equalMatch("-f", "rsync-key"));
 
-  // detects 'RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key'
+  // detects 'ssh-keygen -N "" -t dsa -b 1024 -f rsync-key'
   private static final CommandDetector SSH_DETECTOR = CommandDetector.builder()
     .with("ssh-keygen")
     .withMultipleUnorderedOptions(EXPECTED_OPTIONS_SSH_KEYGEN)

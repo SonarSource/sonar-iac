@@ -69,7 +69,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .withOptional(OPTIONAL_OTHER_FLAGS);
 
   // actual detectors
-  // matching "RUN curl -L --proto https://redirecttoinsecure.example.com"
+  // matching "curl -L --proto https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION = CommandDetector.builder()
     .with(CURL_COMMAND)
     .withPredicatesFrom(REDIRECTION_PREDICATES)
@@ -77,7 +77,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(SENSITIVE_BEGINNING_URL_SCHEME)
     .build();
 
-  // matching "RUN curl --proto -L https://redirecttoinsecure.example.com"
+  // matching "curl --proto -L https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION_DIFF_ORDER = CommandDetector.builder()
     .with(CURL_COMMAND)
     .withPredicatesFrom(PROTO_FLAG_MISSING_OPTION_PREDICATES)
@@ -85,7 +85,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(SENSITIVE_BEGINNING_URL_SCHEME)
     .build();
 
-  // matching "RUN curl -L https://redirecttoinsecure.example.com"
+  // matching "curl -L https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_MISSING_FLAG = CommandDetector.builder()
     .with(CURL_COMMAND)
     .withPredicatesFrom(REDIRECTION_PREDICATES)
@@ -93,7 +93,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(SENSITIVE_BEGINNING_URL_SCHEME)
     .build();
 
-  // matching "RUN curl -L --proto =foo https://redirecttoinsecure.example.com"
+  // matching "curl -L --proto =foo https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION = CommandDetector.builder()
     .with(CURL_COMMAND)
     .withPredicatesFrom(REDIRECTION_PREDICATES)
@@ -101,7 +101,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(SENSITIVE_BEGINNING_URL_SCHEME)
     .build();
 
-  // matching "RUN curl --proto =foo -L https://redirecttoinsecure.example.com"
+  // matching "curl --proto =foo -L https://redirecttoinsecure.example.com"
   private static final CommandDetector SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION_DIFF_ORDER = CommandDetector.builder()
     .with(CURL_COMMAND)
     .withPredicatesFrom(PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES)

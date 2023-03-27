@@ -159,7 +159,7 @@ public class CommandDetector {
     public CommandDetector.Builder withAnyOptionExcluding(Collection<String> excludedFlags) {
       SingularPredicate flagPredicate = new SingularPredicate(s -> s.startsWith("-") && !excludedFlags.contains(s), ZERO_OR_MORE);
       // should not test for any flag only possible values
-      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || s.startsWith("&&") || excludedFlags.contains(s)), ZERO_OR_MORE);
+      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || s.equals("&&") || excludedFlags.contains(s)), ZERO_OR_MORE);
       addOptionPredicate(flagPredicate, valuePredicate);
       return this;
     }

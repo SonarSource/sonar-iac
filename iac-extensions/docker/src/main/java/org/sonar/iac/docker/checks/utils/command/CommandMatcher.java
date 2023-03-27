@@ -68,7 +68,7 @@ public class CommandMatcher {
       currentPredicate = predicatesStack.pollFirst();
 
       // resolution is removed from stack during match-methods, here it is only peeked to see if it is null or UNRESOLVED
-      ArgumentResolution resolution = peekFirstArgumentResolution();
+      ArgumentResolution resolution = argumentStack.peekFirst();
 
       // Stop argument detection when argument list is empty
       if (resolution == null) {
@@ -78,7 +78,7 @@ public class CommandMatcher {
       // Stop argument detection when argument is unresolved to start new command detection
       if (resolution.isUnresolved()) {
         // remove first element from stack as it is UNRESOLVED
-        pollFirstArgumentResolution();
+        argumentStack.pollFirst();
         return Collections.emptyList();
       }
 
@@ -106,7 +106,7 @@ public class CommandMatcher {
   }
 
   private void matchPredicate(SingularPredicate singularPredicate) {
-    ArgumentResolution resolution = pollFirstArgumentResolution();
+    ArgumentResolution resolution = argumentStack.pollFirst();
 
     if (resolution.isUnresolved()) {
       setStatus(Status.ABORT);
@@ -270,14 +270,6 @@ public class CommandMatcher {
 
   public void setStatus(Status status) {
     this.status = status;
-  }
-
-  private ArgumentResolution pollFirstArgumentResolution() {
-    return argumentStack.pollFirst();
-  }
-
-  private ArgumentResolution peekFirstArgumentResolution() {
-    return argumentStack.peekFirst();
   }
 
   enum Status {
