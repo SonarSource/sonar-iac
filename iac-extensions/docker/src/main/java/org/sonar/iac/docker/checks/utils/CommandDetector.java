@@ -22,6 +22,7 @@ package org.sonar.iac.docker.checks.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,10 +31,10 @@ import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.docker.checks.utils.command.CommandMatcher;
 import org.sonar.iac.docker.checks.utils.command.CommandPredicate;
 import org.sonar.iac.docker.checks.utils.command.MultipleUnorderedOptionsPredicate;
 import org.sonar.iac.docker.checks.utils.command.OptionPredicate;
+import org.sonar.iac.docker.checks.utils.command.PredicateContext;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
@@ -41,6 +42,8 @@ import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MA
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.OPTIONAL;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.ZERO_OR_MORE;
+import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.ABORT;
+import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.FOUND_NO_PREDICATE_MATCH;
 
 public class CommandDetector {
 
@@ -63,15 +66,58 @@ public class CommandDetector {
     List<Command> commands = new ArrayList<>();
     Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolvedArguments);
 
-    CommandMatcher commandMatcher = new CommandMatcher(argumentStack, predicates);
+    PredicateContext context = new PredicateContext(argumentStack, predicates);
 
     while (!argumentStack.isEmpty()) {
-      List<ArgumentResolution> commandArguments = commandMatcher.fullMatch();
+      List<ArgumentResolution> commandArguments = fullMatch(context);
       if (!commandArguments.isEmpty()) {
         commands.add(new Command(commandArguments));
       }
     }
     return commands;
+  }
+
+  /**
+   * Process and reduce the stack of arguments. Within the loop, which iterates over a stack of predicates,
+   * each argument from the stack is consumed and tested to see if the corresponding predicate is a match.
+   * Each consumed argument that matches is added to the list of arguments that will later form the suitable command.
+   * If a predicate is not optional and does not match, an empty list is returned.
+   * The method is then called again with a reduced argument stack until there are no more arguments on the stack.
+   * If a predicate can be applied multiple times to the argument stack, it is placed on the predicate stack again at the end of the loop.
+   */
+  // Cognitive Complexity of methods should not be too high
+  @SuppressWarnings("java:S3776")
+  public List<ArgumentResolution> fullMatch(PredicateContext context) {
+    context.startNewfullMatchOn(context.getDetectorPredicates());
+
+    while (context.arePredicatesToDetectLeft()) {
+
+      context.provideNextPredicate();
+
+      // resolution is removed from stack during match-methods, here it is only peeked to see if it is null or UNRESOLVED
+      ArgumentResolution resolution = context.getNextArgumentToHandle();
+
+      // Stop argument detection when argument list is empty
+      if (resolution == null) {
+        return context.remainingPredicatesAreOptional() ? context.getArgumentsToReport() : Collections.emptyList();
+      }
+
+      // Stop argument detection when argument is unresolved to start new command detection
+      if (resolution.isUnresolved()) {
+        // remove first element from stack as it is UNRESOLVED
+        context.getNextArgumentToHandleAndRemoveFromList();
+        return Collections.emptyList();
+      }
+
+      context.matchOnCurrentPredicate();
+
+      // For FOUND_NO_PREDICATE_MATCH:
+      // Stop argument detection in case the argument does not match and the predicate is not optional or should not be matched
+      if (context.is(ABORT, FOUND_NO_PREDICATE_MATCH)) {
+        return Collections.emptyList();
+      }
+    }
+    return context.getArgumentsToReport();
   }
 
   public static class Builder {

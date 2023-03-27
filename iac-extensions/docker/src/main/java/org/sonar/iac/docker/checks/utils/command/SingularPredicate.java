@@ -20,6 +20,14 @@
 package org.sonar.iac.docker.checks.utils.command;
 
 import java.util.function.Predicate;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
+
+import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
+import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.OPTIONAL;
+import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.ZERO_OR_MORE;
+import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.ABORT;
+import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.CONTINUE;
+import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.FOUND_NO_PREDICATE_MATCH;
 
 public class SingularPredicate implements CommandPredicate {
   final Predicate<String> predicate;
@@ -34,12 +42,45 @@ public class SingularPredicate implements CommandPredicate {
     return new SingularPredicate(string::equals, Type.MATCH);
   }
 
-  public boolean has(Type... types) {
+  public boolean hasType(Type... types) {
     for (Type t : types) {
       if (this.type.equals(t)) {
         return true;
       }
     }
     return false;
+  }
+
+  @Override
+  public void match(PredicateContext context) {
+    ArgumentResolution resolution = context.getNextArgumentToHandleAndRemoveFromList();
+
+    if (resolution.isUnresolved()) {
+      context.setStatus(ABORT);
+      return;
+    }
+
+    // Test argument resolution with predicate
+    if (this.predicate.test(resolution.value())) {
+      // Skip argument and start new command detection
+      if (this.hasType(NO_MATCH)) {
+        context.setStatus(ABORT);
+        return;
+      }
+      // Re-add predicate to stack to be reevaluated on the next argument
+      if (this.hasType(ZERO_OR_MORE) && !(context.getCurrentPredicate() instanceof MultipleUnorderedOptionsPredicate)) {
+        // only needed in this case, if the currentPredicate is MultipleUnorderedOptionsPredicate the calling method will handle this case
+        context.detectCurrentPredicateAgain();
+      }
+      // Add matched argument
+      context.addAsArgumentToReport(resolution);
+    } else if (this.hasType(OPTIONAL, ZERO_OR_MORE, NO_MATCH)) {
+      // Re-add argument to be evaluated by the next predicate
+      context.argumentShouldBeMatchedAgain(resolution);
+    } else {
+      context.setStatus(FOUND_NO_PREDICATE_MATCH);
+      return;
+    }
+    context.setStatus(CONTINUE);
   }
 }

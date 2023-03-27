@@ -32,14 +32,14 @@ class MultipleUnorderedOptionsPredicateTest {
     List<OptionPredicate> options = List.of(OptionPredicate.equalMatch("-flag", "value"));
     MultipleUnorderedOptionsPredicate multipleOptionsPredicate = new MultipleUnorderedOptionsPredicate(options);
 
-    assertFalse(multipleOptionsPredicate.has(CommandPredicate.Type.NO_MATCH));
+    assertFalse(multipleOptionsPredicate.hasType(CommandPredicate.Type.NO_MATCH));
   }
 
   @Test
   void hasReturningFalseOnEmptyList() {
     MultipleUnorderedOptionsPredicate multipleOptionsPredicate = new MultipleUnorderedOptionsPredicate(Collections.emptyList());
 
-    assertFalse(multipleOptionsPredicate.has(CommandPredicate.Type.NO_MATCH));
+    assertFalse(multipleOptionsPredicate.hasType(CommandPredicate.Type.NO_MATCH));
   }
 
   @Test

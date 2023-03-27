@@ -28,5 +28,7 @@ public interface CommandPredicate {
     ZERO_OR_MORE
   }
 
-  boolean has(Type... types);
+  boolean hasType(Type... types);
+
+  void match(PredicateContext context);
 }

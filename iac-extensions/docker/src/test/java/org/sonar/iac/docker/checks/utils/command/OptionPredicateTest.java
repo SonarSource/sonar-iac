@@ -30,28 +30,28 @@ class OptionPredicateTest {
   void hasReturningTrueBothPredicatesDontMatch() {
     OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"), new SingularPredicate("value"::equals, CommandPredicate.Type.NO_MATCH));
 
-    assertTrue(optionPredicate.has(CommandPredicate.Type.NO_MATCH));
+    assertTrue(optionPredicate.hasType(CommandPredicate.Type.NO_MATCH));
   }
 
   @Test
   void hasReturningTrueWhenValueNullAndFlagMatches() {
     OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"));
 
-    assertTrue(optionPredicate.has(CommandPredicate.Type.MATCH));
+    assertTrue(optionPredicate.hasType(CommandPredicate.Type.MATCH));
   }
 
   @Test
   void hasReturningFalseBothPredicatesDontMatch() {
     OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"), new SingularPredicate("value"::equals, CommandPredicate.Type.NO_MATCH));
 
-    assertFalse(optionPredicate.has(CommandPredicate.Type.OPTIONAL));
+    assertFalse(optionPredicate.hasType(CommandPredicate.Type.OPTIONAL));
   }
 
   @Test
   void hasReturningFalseWhenValueNullAndDoesntMatch() {
     OptionPredicate optionPredicate = new OptionPredicate(SingularPredicate.equalMatch("flag"));
 
-    assertFalse(optionPredicate.has(CommandPredicate.Type.OPTIONAL));
+    assertFalse(optionPredicate.hasType(CommandPredicate.Type.OPTIONAL));
   }
 
 }

@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.docker.checks.utils.command;
 
+import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
+import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.ABORT;
+import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.FOUND_NO_PREDICATE_MATCH;
+
 public class OptionPredicate implements CommandPredicate {
   final SingularPredicate flagPredicate;
 
@@ -42,7 +46,35 @@ public class OptionPredicate implements CommandPredicate {
    * true if either of the singularPredicates match
    */
   @Override
-  public boolean has(Type... types) {
-    return this.flagPredicate.has(types) || (this.valuePredicate != null && this.valuePredicate.has(types));
+  public boolean hasType(Type... types) {
+    return this.flagPredicate.hasType(types) || (this.valuePredicate != null && this.valuePredicate.hasType(types));
+  }
+
+  /**
+   * Used to match this predicate, by matching the {@link SingularPredicate flag} and if it is present the {@link SingularPredicate value}.
+   * The flag and value are both {@link SingularPredicate}, for which the corresponding {@link SingularPredicate#match(PredicateContext)} is used.
+   */
+  @Override
+  public void match(PredicateContext context) {
+    this.flagPredicate.match(context);
+    if (context.is(ABORT, FOUND_NO_PREDICATE_MATCH) || this.valuePredicate == null) {
+      // no value present -> no further action required for this optionPredicate
+      // further action is evaluated by the calling method
+      return;
+    }
+
+    // should not match on empty argumentStack
+    if (context.areNoArgumentsToHandle()) {
+      // in this special case the calling method doesn't handle it properly, so it should be aborted here
+      if (context.getCurrentPredicate() instanceof MultipleUnorderedOptionsPredicate && this.valuePredicate.hasType(MATCH)) {
+        context.setStatus(ABORT);
+      }
+      return;
+    }
+    this.valuePredicate.match(context);
+    if (context.is(FOUND_NO_PREDICATE_MATCH)) {
+      // should abort matching process, because the flag matched but the value didn't match, and there shouldn't be two flags that are identical
+      context.setStatus(ABORT);
+    }
   }
 }
