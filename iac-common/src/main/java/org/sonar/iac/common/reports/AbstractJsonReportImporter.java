@@ -66,8 +66,6 @@ public abstract class AbstractJsonReportImporter {
     });
   }
 
-  protected abstract void saveIssue(JSONObject issueJson);
-
   protected Optional<JSONArray> parseJson(File reportFile) {
     JSONArray issuesJson = null;
     try {
@@ -97,6 +95,8 @@ public abstract class AbstractJsonReportImporter {
     }
     return failedToSaveIssues;
   }
+
+  protected abstract void saveIssue(JSONObject issueJson);
 
   protected void logWarning(String message) {
     String warning = warningPrefix + message;

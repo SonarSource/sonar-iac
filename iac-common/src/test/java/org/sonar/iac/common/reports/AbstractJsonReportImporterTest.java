@@ -95,15 +95,17 @@ class AbstractJsonReportImporterTest {
 
   @Test
   void shouldLogWarnUnresolvedPath() {
-    File reportFile = new File("src/test/resources/ext-json-report/validIssue.json");
+    String filePath = "src/test/resources/ext-json-report/validIssue.json";
+    String path = File.separatorChar == '/' ? filePath : Paths.get(filePath).toString();
+    File reportFile = new File(path);
     TestImporterThrowRuntimeWhenSaveIssue testImporter = new TestImporterThrowRuntimeWhenSaveIssue(
       context, mockAnalysisWarnings, "PREFIX ");
 
     testImporter.importReport(reportFile);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(
-      "PREFIX could not save 1 out of 1 issues from src/test/resources/ext-json-report/validIssue.json. " +
-        "Some file paths could not be resolved: foo/bar");
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(String.format(
+      "PREFIX could not save 1 out of 1 issues from %s. " +
+        "Some file paths could not be resolved: foo/bar", path));
   }
 }
 
