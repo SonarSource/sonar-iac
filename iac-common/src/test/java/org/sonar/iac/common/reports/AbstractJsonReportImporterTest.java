@@ -105,7 +105,8 @@ class AbstractJsonReportImporterTest {
 
     assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(String.format(
       "PREFIX could not save 1 out of 1 issues from %s. " +
-        "Some file paths could not be resolved: foo/bar", path));
+        "Some file paths could not be resolved: foo/bar",
+      path));
   }
 }
 
