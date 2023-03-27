@@ -72,9 +72,5 @@ public class OptionPredicate implements CommandPredicate {
       return;
     }
     this.valuePredicate.match(context);
-    if (context.is(FOUND_NO_PREDICATE_MATCH)) {
-      // should abort matching process, because the flag matched but the value didn't match, and there shouldn't be two flags that are identical
-      context.setStatus(ABORT);
-    }
   }
 }

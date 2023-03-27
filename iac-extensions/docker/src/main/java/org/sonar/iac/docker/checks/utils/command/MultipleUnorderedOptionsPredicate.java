@@ -93,28 +93,18 @@ public class MultipleUnorderedOptionsPredicate implements CommandPredicate {
     while (anythingMatched && !workingSet.isEmpty()) {
 
       if (context.areNoArgumentsToHandle()) {
-        if (!context.remainingPredicatesAreOptional()) {
-          context.setStatus(ABORT);
-        }
+        context.detectCurrentPredicateAgain();
         return;
       }
 
       anythingMatched = matchExpectedOrAnyOption(context, fulfilledOptions, workingSet, anyOptionExceptExpectedPredicate);
-      if (context.is(ABORT)) {
-        // could also check for FOUND_NO_PREDICATE_MATCH, but renders the boolean anythingMatched useless which is added for better readability of
-        // the control flow
-        return;
-      }
-
     }
 
     // calculate success or failure due to size of sets
     if (fulfilledOptions.size() != expectedMatches) {
       // not all expectedMatches are fulfilled so overall the MultipleUnorderedOptionsPredicate hasn't matched
       context.setStatus(ABORT);
-      return;
     }
-    context.setStatus(PredicateContext.Status.CONTINUE);
   }
 
   /**
@@ -147,7 +137,7 @@ public class MultipleUnorderedOptionsPredicate implements CommandPredicate {
       }
 
       // found a matching option
-      if (previousNumberOfCommandArguments != context.numberOfArgumentsToReport()) {
+      if (!context.is(FOUND_NO_PREDICATE_MATCH) && previousNumberOfCommandArguments != context.numberOfArgumentsToReport()) {
         iterator.remove();
         fulfilledOptions.add(option);
         anythingMatched = true;
