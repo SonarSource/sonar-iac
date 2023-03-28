@@ -19,13 +19,19 @@
  */
 package org.sonar.iac.docker;
 
-import org.sonar.iac.common.testing.IacCommonAssertions;
+import javax.annotation.Nullable;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
 
-public class DockerAssertions extends IacCommonAssertions {
+public class DockerAssertions {
+  public static TextRangeAssert assertThat(@Nullable TextRange actual) {
+    return TextRangeAssert.assertThat(actual);
+  }
+
   public static ArgumentAssert assertThat(Argument actual) {
     return ArgumentAssert.assertThat(actual);
   }

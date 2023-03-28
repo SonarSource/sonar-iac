@@ -28,7 +28,6 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
