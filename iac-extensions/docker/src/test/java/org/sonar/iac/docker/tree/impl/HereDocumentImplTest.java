@@ -21,8 +21,8 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
@@ -30,13 +30,11 @@ import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.HereDocument;
-import org.sonar.iac.docker.tree.api.Literal;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class HereDocumentImplTest {
@@ -88,9 +86,9 @@ class HereDocumentImplTest {
 
     RunInstruction runInstruction = (RunInstruction) dockerImage.instructions().get(0);
     assertArgumentsValue(runInstruction.arguments(), "<<-INPUT", "apt-get", "install", "wget", "INPUT");
-    assertTextRange(runInstruction.arguments().get(0).textRange()).hasRange(3, 4, 3, 12);
+    assertThat(runInstruction.arguments().get(0).textRange()).hasRange(3, 4, 3, 12);
 
     TextRange fullTextRange = TextRanges.merge(runInstruction.arguments().stream().map(HasTextRange::textRange).collect(Collectors.toList()));
-    assertTextRange(fullTextRange).hasRange(3, 4, 5, 5);
+    assertThat(fullTextRange).hasRange(3, 4, 5, 5);
   }
 }

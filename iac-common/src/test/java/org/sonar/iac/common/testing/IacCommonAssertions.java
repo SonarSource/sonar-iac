@@ -20,28 +20,11 @@
 package org.sonar.iac.common.testing;
 
 import javax.annotation.Nullable;
-import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.api.SoftAssertions;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 
-public class TextRangeAssert extends AbstractAssert<TextRangeAssert, TextRange> {
-
-  private TextRangeAssert(@Nullable TextRange actual) {
-    super(actual, TextRangeAssert.class);
-  }
+public class IacCommonAssertions {
 
   public static TextRangeAssert assertThat(@Nullable TextRange actual) {
-    return new TextRangeAssert(actual);
-  }
-
-  public TextRangeAssert hasRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
-    isNotNull();
-    SoftAssertions.assertSoftly(softly -> {
-      softly.assertThat(actual.start().line()).as("startLine mismatch").isEqualTo(startLine);
-      softly.assertThat(actual.start().lineOffset()).as("startLineOffset mismatch").isEqualTo(startLineOffset);
-      softly.assertThat(actual.end().line()).as("endLine mismatch").isEqualTo(endLine);
-      softly.assertThat(actual.end().lineOffset()).as("endLineOffset mismatch").isEqualTo(endLineOffset);
-    });
-    return this;
+    return TextRangeAssert.assertThat(actual);
   }
 }

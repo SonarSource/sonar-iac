@@ -22,12 +22,12 @@ package org.sonar.iac.docker.tree.impl;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
-import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 import org.sonar.iac.docker.tree.api.ShellForm;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class ShellFormImplTest {
@@ -100,6 +100,6 @@ class ShellFormImplTest {
     EncapsulatedVariable var = (EncapsulatedVariable) shellForm.arguments().get(0).expressions().get(0);
     assertThat(var.identifier()).isEqualTo("var");
     assertThat(var.modifierSeparator()).isNull();
-    ArgumentAssert.assertThat(var.modifier()).hasValue("%%[a-z]+");
+    assertThat(var.modifier()).hasValue("%%[a-z]+");
   }
 }

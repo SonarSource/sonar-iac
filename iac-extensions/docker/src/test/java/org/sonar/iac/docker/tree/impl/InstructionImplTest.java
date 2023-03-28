@@ -22,7 +22,6 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.Comment;
-import org.sonar.iac.docker.TestUtils;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.TreeUtils;
 import org.sonar.iac.docker.tree.api.Alias;
@@ -31,8 +30,8 @@ import org.sonar.iac.docker.tree.api.File;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class InstructionImplTest {
@@ -50,7 +49,7 @@ class InstructionImplTest {
     assertThat(comments).hasSize(1);
     Comment comment = comments.get(0);
     assertThat(comment.contentText()).isEqualTo("instruction comment");
-    assertTextRange(comment.textRange()).hasRange(1, 0, 1, 21);
+    assertThat(comment.textRange()).hasRange(1, 0, 1, 21);
   }
 
   @Test
@@ -71,7 +70,7 @@ class InstructionImplTest {
     assertThat(aliasComments).hasSize(1);
     Comment comment = aliasComments.get(0);
     assertThat(comment.contentText()).isEqualTo("multiline comment");
-    assertTextRange(comment.textRange()).hasRange(2, 0, 2, 19);
+    assertThat(comment.textRange()).hasRange(2, 0, 2, 19);
   }
 
   @Test

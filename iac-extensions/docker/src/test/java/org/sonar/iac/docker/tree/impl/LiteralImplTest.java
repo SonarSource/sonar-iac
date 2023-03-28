@@ -26,7 +26,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Literal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar.REGULAR_STRING_LITERAL;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
@@ -76,13 +76,13 @@ class LiteralImplTest {
     Literal literal = parse("foo", REGULAR_STRING_LITERAL);
     assertThat(literal.getKind()).isEqualTo(DockerTree.Kind.STRING_LITERAL);
     assertThat(literal.value()).isEqualTo("foo");
-    assertTextRange(literal.textRange()).hasRange(1, 0, 1, 3);
+    assertThat(literal.textRange()).hasRange(1, 0, 1, 3);
   }
 
   @Test
   void textRangeShouldIncludeQuotes() {
     Literal literal = parse("\"foo\"", REGULAR_STRING_LITERAL);
-    assertTextRange(literal.textRange()).hasRange(1, 0, 1, 5);
+    assertThat(literal.textRange()).hasRange(1, 0, 1, 5);
   }
 
   @Test

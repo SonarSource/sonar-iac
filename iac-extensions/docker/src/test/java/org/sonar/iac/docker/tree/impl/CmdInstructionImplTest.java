@@ -20,6 +20,8 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.testing.IacCommonAssertions;
+import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
@@ -30,7 +32,7 @@ import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.TestUtils.assertArgumentsValue;
 
 class CmdInstructionImplTest {
@@ -83,7 +85,7 @@ class CmdInstructionImplTest {
     CmdInstruction tree = DockerTestUtils.parse("CMD [\"executable\",\"param1\",\"param2\"]", DockerLexicalGrammar.CMD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 36);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 36);
 
     assertThat(tree.arguments()).isNotNull();
     assertThat(tree.arguments().stream().map(t -> ArgumentResolution.of(t).value())).containsExactly("executable", "param1", "param2");
@@ -98,7 +100,7 @@ class CmdInstructionImplTest {
 
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.CMD);
     assertThat(tree.keyword().value()).isEqualTo("CMD");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 28);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 28);
 
     assertThat(tree.arguments()).isNotNull();
     assertArgumentsValue(tree.arguments(), "executable", "param1", "param2");

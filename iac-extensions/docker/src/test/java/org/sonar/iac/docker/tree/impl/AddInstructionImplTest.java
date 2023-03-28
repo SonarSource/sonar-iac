@@ -26,12 +26,11 @@ import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.ArgumentAssert;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Flag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class AddInstructionImplTest {
@@ -63,11 +62,11 @@ class AddInstructionImplTest {
     AddInstruction tree = parse("ADD src dest", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 12);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 12);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -75,11 +74,11 @@ class AddInstructionImplTest {
     AddInstruction tree = parse("ADD src $dest", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 13);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 13);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).isUnresolved();
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).isUnresolved();
   }
 
   @Test
@@ -87,11 +86,11 @@ class AddInstructionImplTest {
     AddInstruction tree = parse("ADD [\"src\", \"dest\"]", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 19);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 19);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
@@ -99,54 +98,54 @@ class AddInstructionImplTest {
     AddInstruction tree = parse("ADD [\"src1\", \"src2\", \"src3\", \"dest\"]", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.keyword().value()).isEqualTo("ADD");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 36);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 36);
     assertThat(tree.options()).isEmpty();
     List<Argument> srcs = tree.srcs();
     assertThat(srcs).hasSize(3);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src1");
-    ArgumentAssert.assertThat(tree.srcs().get(1)).hasValue("src2");
-    ArgumentAssert.assertThat(tree.srcs().get(2)).hasValue("src3");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src1");
+    assertThat(tree.srcs().get(1)).hasValue("src2");
+    assertThat(tree.srcs().get(2)).hasValue("src3");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
   void addInstructionSimpleQuotes() {
     AddInstruction tree = parse("ADD \"src\" \"dest\"", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 16);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 16);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
   void addInstructionNoSrc() {
     AddInstruction tree = parse("ADD dest", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 8);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 8);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).isEmpty();
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
   void addInstructionMultipleSrc() {
     AddInstruction tree = parse("ADD src1 src2 dest", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 18);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 18);
     assertThat(tree.options()).isEmpty();
     assertThat(tree.srcs()).hasSize(2);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src1");
-    ArgumentAssert.assertThat(tree.srcs().get(1)).hasValue("src2");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src1");
+    assertThat(tree.srcs().get(1)).hasValue("src2");
+    assertThat(tree.dest()).hasValue("dest");
   }
 
   @Test
   void addInstructionWithSimpleOption() {
     AddInstruction tree = parse("ADD --link /foo /bar", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 20);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 20);
     assertThat(tree.options()).hasSize(1);
 
     Flag option = tree.options().get(0);
@@ -154,8 +153,8 @@ class AddInstructionImplTest {
     assertThat(option.name()).isEqualTo("link");
     assertThat(option.value()).isNull();
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("/foo");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("/bar");
+    assertThat(tree.srcs().get(0)).hasValue("/foo");
+    assertThat(tree.dest()).hasValue("/bar");
   }
 
   @Test
@@ -163,7 +162,7 @@ class AddInstructionImplTest {
     AddInstruction tree = parse("ADD --chown=55:mygroup files* /somedir/", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.options()).hasSize(1);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 39);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 39);
 
     Flag option = tree.options().get(0);
     assertThat(option.getKind()).isEqualTo(DockerTree.Kind.PARAM);
@@ -172,8 +171,8 @@ class AddInstructionImplTest {
 
     assertThat(tree.srcs()).hasSize(1);
 
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("files*");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("/somedir/");
+    assertThat(tree.srcs().get(0)).hasValue("files*");
+    assertThat(tree.dest()).hasValue("/somedir/");
   }
 
   @Test
@@ -181,7 +180,7 @@ class AddInstructionImplTest {
     AddInstruction tree = parse("ADD --option-one=value1 --option-two=value2 src dest", DockerLexicalGrammar.ADD);
     assertThat(tree.getKind()).isEqualTo(DockerTree.Kind.ADD);
     assertThat(tree.options()).hasSize(2);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 52);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 52);
 
     Flag option1 = tree.options().get(0);
     assertThat(option1.getKind()).isEqualTo(DockerTree.Kind.PARAM);
@@ -194,7 +193,7 @@ class AddInstructionImplTest {
     assertThat(ArgumentResolution.of(option2.value()).value()).isEqualTo("value2");
 
     assertThat(tree.srcs()).hasSize(1);
-    ArgumentAssert.assertThat(tree.srcs().get(0)).hasValue("src");
-    ArgumentAssert.assertThat(tree.dest()).hasValue("dest");
+    assertThat(tree.srcs().get(0)).hasValue("src");
+    assertThat(tree.dest()).hasValue("dest");
   }
 }

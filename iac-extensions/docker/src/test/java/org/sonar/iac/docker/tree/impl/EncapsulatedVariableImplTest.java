@@ -20,7 +20,6 @@
 package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -28,7 +27,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EncapsulatedVariable;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class EncapsulatedVariableImplTest {
@@ -66,7 +65,7 @@ class EncapsulatedVariableImplTest {
     assertThat(variable.getKind()).isEqualTo(DockerTree.Kind.ENCAPSULATED_VARIABLE);
     assertThat(variable.identifier()).isEqualTo("foo");
     assertThat(variable.modifierSeparator()).isEqualTo(":-");
-    assertTextRange(variable.textRange()).hasRange(1, 0, 1, 11);
+    assertThat(variable.textRange()).hasRange(1, 0, 1, 11);
 
     Argument modifier = variable.modifier();
     assertThat(modifier).isNotNull();

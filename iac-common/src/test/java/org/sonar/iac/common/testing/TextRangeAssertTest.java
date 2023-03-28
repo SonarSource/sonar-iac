@@ -27,7 +27,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class TextRangeAssertTest {
 
@@ -50,12 +50,12 @@ class TextRangeAssertTest {
 
   @Test
   void range_ok() {
-    assertTextRange(range).hasRange(1, 2, 3, 4);
+    assertThat(range).hasRange(1, 2, 3, 4);
   }
 
   @Test
   void range_failure() {
-    TextRangeAssert assertion = assertTextRange(range);
+    TextRangeAssert assertion = assertThat(range);
     assertThrows(AssertionError.class,
       () -> assertion.hasRange(1, 2, 3, 5));
   }

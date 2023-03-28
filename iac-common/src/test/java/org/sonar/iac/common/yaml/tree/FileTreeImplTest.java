@@ -22,15 +22,15 @@ package org.sonar.iac.common.yaml.tree;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.yaml.YamlTreeTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 
 class FileTreeImplTest extends YamlTreeTest {
 
@@ -40,7 +40,7 @@ class FileTreeImplTest extends YamlTreeTest {
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
     assertThat(tree.children()).hasSize(1);
     assertThat(tree.documents()).hasSize(1);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 4);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 4);
     assertThat(tree.textRange()).isEqualTo(tree.documents().get(0).textRange());
   }
 
@@ -50,7 +50,7 @@ class FileTreeImplTest extends YamlTreeTest {
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
     assertThat(tree.children()).hasSize(2);
     assertThat(tree.documents()).hasSize(2);
-    assertTextRange(tree.textRange()).hasRange(1, 0, 3, 4);
+    assertThat(tree.textRange()).hasRange(1, 0, 3, 4);
 
     List<TextRange> documentRanges = tree.documents().stream().map(HasTextRange::textRange).collect(Collectors.toList());
     assertThat(tree.textRange()).isEqualTo(TextRanges.merge(documentRanges));
@@ -66,7 +66,7 @@ class FileTreeImplTest extends YamlTreeTest {
     FileTree tree = parse("# foo");
     assertThat(tree.documents()).hasSize(1);
     assertThat(tree.metadata().tag()).isEqualTo("FILE");
-    assertTextRange(tree.textRange()).hasRange(1, 0, 1, 0);
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 0);
     YamlTree document = tree.documents().get(0);
     assertThat(document).isInstanceOf(MappingTree.class);
     assertThat(document.metadata().comments()).hasSize(1);

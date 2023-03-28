@@ -21,6 +21,7 @@ package org.sonar.iac.docker.tree.impl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -31,8 +32,8 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
-import static org.sonar.iac.common.testing.TextRangeAssert.assertTextRange;
 import static org.sonar.iac.docker.TestUtils.assertFrom;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
@@ -42,7 +43,7 @@ class DockerImageImplTest {
   void simpleImage() {
     DockerImage dockerImage = parse("FROM foobar", DockerLexicalGrammar.DOCKERIMAGE);
     assertThat(dockerImage.getKind()).isEqualTo(DockerTree.Kind.DOCKERIMAGE);
-    assertTextRange(dockerImage.textRange()).hasRange(1, 0, 1, 11);
+    assertThat(dockerImage.textRange()).hasRange(1, 0, 1, 11);
     assertThat(dockerImage.instructions()).isEmpty();
 
     FromInstruction from = dockerImage.from();
@@ -57,7 +58,7 @@ class DockerImageImplTest {
       "MAINTAINER bob",
       "EXPOSE 80"), DockerLexicalGrammar.DOCKERIMAGE);
     assertThat(dockerImage.getKind()).isEqualTo(DockerTree.Kind.DOCKERIMAGE);
-    assertTextRange(dockerImage.textRange()).hasRange(1, 0, 3, 9);
+    IacCommonAssertions.assertThat(dockerImage.textRange()).hasRange(1, 0, 3, 9);
 
     assertThat(dockerImage.children()).hasExactlyElementsOfTypes(FromInstructionImpl.class, MaintainerInstructionImpl.class, ExposeInstructionImpl.class);
     assertThat(dockerImage.instructions()).hasSize(2);
@@ -79,11 +80,11 @@ class DockerImageImplTest {
     assertThat(file.body().dockerImages()).hasSize(2);
 
     DockerImage dockerImage1 = file.body().dockerImages().get(0);
-    assertTextRange(dockerImage1.textRange()).hasRange(1, 0, 3, 9);
+    IacCommonAssertions.assertThat(dockerImage1.textRange()).hasRange(1, 0, 3, 9);
     assertThat(dockerImage1.children()).hasExactlyElementsOfTypes(FromInstructionImpl.class, MaintainerInstructionImpl.class, ExposeInstructionImpl.class);
 
     DockerImage dockerImage2 = file.body().dockerImages().get(1);
-    assertTextRange(dockerImage2.textRange()).hasRange(4, 0, 6, 17);
+    IacCommonAssertions.assertThat(dockerImage2.textRange()).hasRange(4, 0, 6, 17);
     assertThat(dockerImage2.children()).hasExactlyElementsOfTypes(FromInstructionImpl.class, UserInstructionImpl.class, LabelInstructionImpl.class);
   }
 }

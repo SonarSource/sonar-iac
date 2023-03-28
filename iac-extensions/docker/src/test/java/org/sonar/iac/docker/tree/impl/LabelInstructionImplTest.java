@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.tree.api.DockerTree;
-import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
-import org.sonar.iac.docker.tree.api.LabelInstruction;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
+import org.sonar.iac.docker.tree.api.LabelInstruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.DockerAssertions.assertThat;
 import static org.sonar.iac.docker.tree.impl.DockerTestUtils.parse;
 
 class LabelInstructionImplTest {
@@ -129,7 +129,7 @@ class LabelInstructionImplTest {
   }
 
   private static void assertLabel(KeyValuePair label, String expectedKey, String expectedValue) {
-    KeyValuePairAssert.assertThat(label)
+    assertThat(label)
       .hasKey(expectedKey)
       .hasValue(expectedValue);
   }
