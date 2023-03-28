@@ -1,0 +1,230 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "terraform_required_version",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_required_version.md"
+      },
+      "message": "terraform \"required_version\" attribute is required",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_comment_syntax",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_comment_syntax.md"
+      },
+      "message": "Single line comments should begin with #",
+      "range": {
+        "filename": "examples.tf",
+        "start": {
+          "line": 2,
+          "column": 1
+        },
+        "end": {
+          "line": 3,
+          "column": 1
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_unused_declarations",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_unused_declarations.md"
+      },
+      "message": "local.list is declared but not used",
+      "range": {
+        "filename": "examples.tf",
+        "start": {
+          "line": 5,
+          "column": 3
+        },
+        "end": {
+          "line": 5,
+          "column": 26
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_unused_declarations",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_unused_declarations.md"
+      },
+      "message": "local.value is declared but not used",
+      "range": {
+        "filename": "examples.tf",
+        "start": {
+          "line": 6,
+          "column": 3
+        },
+        "end": {
+          "line": 6,
+          "column": 17
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_deprecated_index",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_deprecated_index.md"
+      },
+      "message": "List items should be accessed using square brackets",
+      "range": {
+        "filename": "examples.tf",
+        "start": {
+          "line": 6,
+          "column": 11
+        },
+        "end": {
+          "line": 6,
+          "column": 17
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_documented_outputs",
+        "severity": "info",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_documented_outputs.md"
+      },
+      "message": "`no_description` output has no description",
+      "range": {
+        "filename": "examples.tf",
+        "start": {
+          "line": 11,
+          "column": 1
+        },
+        "end": {
+          "line": 11,
+          "column": 24
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_standard_module_structure",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_standard_module_structure.md"
+      },
+      "message": "output \"no_description\" should be moved from examples.tf to outputs.tf",
+      "range": {
+        "filename": "examples.tf",
+        "start": {
+          "line": 11,
+          "column": 1
+        },
+        "end": {
+          "line": 11,
+          "column": 24
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_documented_variables",
+        "severity": "info",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_documented_variables.md"
+      },
+      "message": "`my_list` variable has no description",
+      "range": {
+        "filename": "examples.tf",
+        "start": {
+          "line": 15,
+          "column": 1
+        },
+        "end": {
+          "line": 15,
+          "column": 19
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_unused_declarations",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_unused_declarations.md"
+      },
+      "message": "variable \"my_list\" is declared but not used",
+      "range": {
+        "filename": "examples.tf",
+        "start": {
+          "line": 15,
+          "column": 1
+        },
+        "end": {
+          "line": 15,
+          "column": 19
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_standard_module_structure",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_standard_module_structure.md"
+      },
+      "message": "variable \"my_list\" should be moved from examples.tf to variables.tf",
+      "range": {
+        "filename": "examples.tf",
+        "start": {
+          "line": 15,
+          "column": 1
+        },
+        "end": {
+          "line": 15,
+          "column": 19
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "terraform_standard_module_structure",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_standard_module_structure.md"
+      },
+      "message": "Module should include a main.tf file as the primary entrypoint",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 1,
+          "column": 1
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": [
+    {
+      "message": "Failed to check ruleset; Failed to check `aws_instance_previous_type` rule: examples.tf:10,21-29: Reference to undeclared input variable; An input variable with the name \"type\" has not been declared. This variable can be declared with a variable \"type\" {} block.",
+      "severity": "error"
+    }
+  ]
+}

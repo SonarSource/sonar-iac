@@ -53,7 +53,7 @@ public class PrivilegedUserCheck implements IacCheck {
     "postgres", "rabbitmq", "rakudo-star", "redis", "sonarqube", "storm", "swift", "teamspeak", "zookeeper");
   private static final Set<String> UNSAFE_USERS = Set.of("root", "containerAdministrator");
   private static final Set<String> SAFE_IMAGES = Set.of("adminer", "api-firewall", "elasticsearch", "emqx", "flink", "fluentd", "geonetwork", "groovy", "haproxy",
-    " ibm-semeru-runtimes", "irssi", "jetty", "jobber", "kibana", "kong", "lightstreamer", "logstash", "memcached", "neo4j", "odoo", "open-liberty", "percona",
+    "ibm-semeru-runtimes", "irssi", "jetty", "jobber", "kibana", "kong", "lightstreamer", "logstash", "memcached", "neo4j", "odoo", "open-liberty", "percona",
     "rocket.chat", "solr", "swift", "varnish", "vault", "websphere-liberty", "znc", "nginxinc/nginx-unprivileged");
 
   @RuleProperty(
