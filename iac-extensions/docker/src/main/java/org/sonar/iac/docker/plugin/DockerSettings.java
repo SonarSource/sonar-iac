@@ -29,9 +29,11 @@ public class DockerSettings {
 
   private static final String DOCKER_CATEGORY = "Docker";
   private static final String GENERAL_SUBCATEGORY = "General";
+  static final String HADO_LINT_REPORTS_KEY = "sonar.docker.hado-lint.reportPaths";
 
   static final String ACTIVATION_KEY = "sonar.docker.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
+  private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
 
   private DockerSettings() {
   }
@@ -48,6 +50,16 @@ public class DockerSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(DOCKER_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
+        .build(),
+
+      PropertyDefinition.builder(HADO_LINT_REPORTS_KEY)
+        .index(33)
+        .name("Hado-Lint Report Files")
+        .description("Paths (absolute or relative) to the files with Hado-Lint issues.")
+        .category(EXTERNAL_ANALYZERS_CATEGORY)
+        .subCategory(DOCKER_CATEGORY)
+        .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
         .build());
   }
 }

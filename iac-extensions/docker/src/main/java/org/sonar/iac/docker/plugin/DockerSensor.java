@@ -39,21 +39,34 @@ import org.sonar.iac.common.extension.IacSensor;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.docker.checks.DockerCheckList;
 import org.sonar.iac.docker.parser.DockerParser;
+import org.sonar.iac.docker.reports.HadoLintImporter;
 import org.sonar.iac.docker.visitors.DockerHighlightingVisitor;
 import org.sonar.iac.docker.visitors.DockerMetricsVisitor;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
+import org.sonarsource.analyzer.commons.ExternalReportProvider;
+
+import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
 @Phase(name = Phase.Name.POST)
 public class DockerSensor extends IacSensor {
   private final Checks<IacCheck> checks;
 
+  private final AnalysisWarningsWrapper analysisWarnings;
+
   public DockerSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, DockerLanguage language) {
+    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, NOOP_ANALYSIS_WARNINGS);
+  }
+
+  public DockerSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
+    NoSonarFilter noSonarFilter, DockerLanguage language, AnalysisWarningsWrapper analysisWarnings) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language);
     checks = checkFactory.create(DockerExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(DockerCheckList.checks());
+    this.analysisWarnings = analysisWarnings;
   }
 
   @Override
@@ -84,6 +97,12 @@ public class DockerSensor extends IacSensor {
   @Override
   protected String repositoryKey() {
     return DockerExtension.REPOSITORY_KEY;
+  }
+
+  @Override
+  protected void importExternalReports(SensorContext sensorContext) {
+    ExternalReportProvider.getReportFiles(sensorContext, DockerSettings.HADO_LINT_REPORTS_KEY)
+      .forEach(report -> new HadoLintImporter(sensorContext, analysisWarnings).importReport(report));
   }
 
   @Override
