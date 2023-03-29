@@ -121,7 +121,7 @@ class TestImporter extends AbstractJsonReportImporter {
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     LOG.info("Issue saved");
-    return null;
+    return mock(NewExternalIssue.class);
   }
 }
 
