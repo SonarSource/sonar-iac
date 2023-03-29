@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -42,11 +45,14 @@ import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseExcepti
 public class TfLintImporter extends AbstractJsonReportImporter {
 
   private static final String MESSAGE_PREFIX = "TFLint report importing: ";
+  // Matches: `: filename.tf:2,21-29:`
+  private static final Pattern FILENAME_PATTERN = Pattern.compile(":\\s([^*&%:]+):(\\d+),(\\d+)-(\\d+):");
 
   public TfLintImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings) {
     super(context, analysisWarnings, MESSAGE_PREFIX);
   }
 
+  @Override
   protected List<JSONArray> parseJson(File reportFile) {
     JSONObject json = null;
     try {
@@ -58,7 +64,9 @@ public class TfLintImporter extends AbstractJsonReportImporter {
       String message = String.format("could not parse file as JSON %s", reportFile.getPath());
       logWarning(message);
     }
-
+    if (json == null) {
+      return Collections.emptyList();
+    }
     JSONArray issuesArray = (JSONArray) json.get("issues");
     JSONArray errorsArray = (JSONArray) json.get("errors");
 
@@ -72,16 +80,16 @@ public class TfLintImporter extends AbstractJsonReportImporter {
     JSONObject rule = (JSONObject) issueJson.get("rule");
     if (rule == null) {
       // it's error, not an issue
-      // TODO message?
-      String message = (String) issueJson.get("message");
       String severity = (String) issueJson.get("severity");
-      //TODO file
-      return context.newExternalIssue()
+
+      NewExternalIssue externalIssue = context.newExternalIssue()
         .ruleId("tflint.error")
         .type(RuleType.CODE_SMELL)
         .engineId("tflint")
-        .severity(Severity.valueOf(severity))
+        .severity(severity(severity))
         .remediationEffortMinutes(0L);
+      externalIssue.at(errorLocation(issueJson, externalIssue));
+      return externalIssue;
     }
 
     String ruleId = (String) rule.get("name");
@@ -97,31 +105,11 @@ public class TfLintImporter extends AbstractJsonReportImporter {
     return externalIssue;
   }
 
-  private Severity severity(String severity) {
-    String text = severity.toUpperCase();
-    if("WARNING".equals(text)) {
-      text = "MINOR";
-    }
-    if("ERROR".equals(text)) {
-      text = "BLOCKER";
-    }
-    return Severity.valueOf(text);
-  }
-
   private NewIssueLocation issueLocation(JSONObject issueJson, NewExternalIssue externalIssue) {
     JSONObject range = (JSONObject) issueJson.get("range");
     String filename = (String) range.get("filename");
 
-    FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.or(
-      predicates.hasAbsolutePath(filename),
-      predicates.hasRelativePath(filename)));
-
-    if (inputFile == null) {
-      addUnresolvedPath(filename);
-    }
-
-    Objects.requireNonNull(inputFile);
+    InputFile inputFile = inputFile(filename);
 
     JSONObject start = (JSONObject) range.get("start");
     int startLine = asInt(start.get("line"));
@@ -137,5 +125,56 @@ public class TfLintImporter extends AbstractJsonReportImporter {
       .message(message)
       .on(inputFile)
       .at(textRange);
+  }
+
+  private InputFile inputFile(String filename) {
+    FilePredicates predicates = context.fileSystem().predicates();
+    InputFile inputFile = context.fileSystem().inputFile(predicates.or(
+      predicates.hasAbsolutePath(filename),
+      predicates.hasRelativePath(filename)));
+
+    if (inputFile == null) {
+      addUnresolvedPath(filename);
+    }
+
+    Objects.requireNonNull(inputFile);
+    return inputFile;
+  }
+
+  private NewIssueLocation errorLocation(JSONObject issueJson, NewExternalIssue externalIssue) {
+    String message = (String) issueJson.get("message");
+    Matcher matcher = FILENAME_PATTERN.matcher(message);
+    if (!matcher.find()) {
+      throw new RuntimeException("Can't extract filename from error message");
+    }
+    String filename = matcher.group(1);
+    int startLine = Integer.parseInt(matcher.group(2));
+    int startColumn = Integer.parseInt(matcher.group(3));
+    int endLineOffset = Integer.parseInt(matcher.group(4));
+
+    InputFile inputFile = inputFile(filename);
+
+    TextRange textRange;
+    try {
+      textRange = inputFile.newRange(startLine, startColumn - 1, startLine, endLineOffset - 1);
+    } catch (IllegalArgumentException e) {
+      textRange = inputFile.selectLine(startLine);
+    }
+
+    return externalIssue.newLocation()
+      .message(message)
+      .on(inputFile)
+      .at(textRange);
+  }
+
+  private static Severity severity(String severity) {
+    String text = severity.toUpperCase(Locale.ENGLISH);
+    if ("WARNING".equals(text)) {
+      text = "MINOR";
+    }
+    if ("ERROR".equals(text)) {
+      text = "BLOCKER";
+    }
+    return Severity.valueOf(text);
   }
 }

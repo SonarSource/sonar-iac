@@ -2,7 +2,7 @@
   "issues": [],
   "errors": [
     {
-      "message": "Failed to check ruleset; Failed to check `aws_instance_previous_type` rule: examples.tf:2,21-29: Reference to undeclared input variable; An input variable with the name \"type\" has not been declared. This variable can be declared with a variable \"type\" {} block.",
+      "message": "Failed to check ruleset; Failed to check `aws_instance_previous_type` rule: exampleError.tf:2,21-29: Reference to undeclared input variable; An input variable with the name \"type\" has not been declared. This variable can be declared with a variable \"type\" {} block.",
       "severity": "error"
     }
   ]
