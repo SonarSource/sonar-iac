@@ -39,7 +39,7 @@ import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseExcepti
 
 public abstract class AbstractJsonReportImporter {
   private static final Logger LOG = Loggers.get(AbstractJsonReportImporter.class);
-  private static final JSONParser jsonParser = new JSONParser();
+  protected static final JSONParser jsonParser = new JSONParser();
 
   protected final SensorContext context;
   private final AnalysisWarningsWrapper analysisWarnings;
