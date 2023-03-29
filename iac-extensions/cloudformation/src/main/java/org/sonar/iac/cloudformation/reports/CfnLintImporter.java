@@ -41,7 +41,7 @@ public class CfnLintImporter extends AbstractJsonReportImporter {
   }
 
   @Override
-  protected void saveIssue(JSONObject issueJson) {
+  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     String path = (String) issueJson.get("Filename");
     FilePredicates predicates = context.fileSystem().predicates();
     InputFile inputFile = context.fileSystem().inputFile(predicates.or(
@@ -66,7 +66,7 @@ public class CfnLintImporter extends AbstractJsonReportImporter {
       .remediationEffortMinutes(CfnLintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes(ruleId));
     externalIssue.at(getIssueLocation(issueJson, externalIssue, inputFile));
 
-    externalIssue.save();
+    return externalIssue;
   }
 
   private static NewIssueLocation getIssueLocation(JSONObject issueJson, NewExternalIssue externalIssue, InputFile inputFile) {

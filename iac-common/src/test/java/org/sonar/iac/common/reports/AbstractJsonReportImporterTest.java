@@ -28,6 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -118,8 +119,9 @@ class TestImporter extends AbstractJsonReportImporter {
   }
 
   @Override
-  protected void saveIssue(JSONObject issueJson) {
+  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     LOG.info("Issue saved");
+    return null;
   }
 }
 
@@ -130,7 +132,7 @@ class TestImporterThrowRuntimeWhenSaveIssue extends AbstractJsonReportImporter {
   }
 
   @Override
-  protected void saveIssue(JSONObject issueJson) {
+  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     addUnresolvedPath("foo/bar");
     throw new RuntimeException("saveIssue");
   }
@@ -143,7 +145,8 @@ class TestImporterAddUnresolvedPathWhenSave extends AbstractJsonReportImporter {
   }
 
   @Override
-  protected void saveIssue(JSONObject issueJson) {
+  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     addUnresolvedPath("foo/bar");
+    return null;
   }
 }

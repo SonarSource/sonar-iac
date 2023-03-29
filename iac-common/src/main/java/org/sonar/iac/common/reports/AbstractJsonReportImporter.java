@@ -22,11 +22,13 @@ package org.sonar.iac.common.reports;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
@@ -57,7 +59,7 @@ public abstract class AbstractJsonReportImporter {
       return;
     }
 
-    parseJson(reportFile).ifPresent(issuesJson -> {
+    parseJson(reportFile).forEach(issuesJson -> {
       unresolvedPaths = new LinkedHashSet<>();
       int failedToSaveIssues = saveIssues(issuesJson);
       if (failedToSaveIssues > 0) {
@@ -66,7 +68,7 @@ public abstract class AbstractJsonReportImporter {
     });
   }
 
-  protected Optional<JSONArray> parseJson(File reportFile) {
+  protected List<JSONArray> parseJson(File reportFile) {
     JSONArray issuesJson = null;
     try {
       issuesJson = (JSONArray) jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
@@ -80,14 +82,18 @@ public abstract class AbstractJsonReportImporter {
       String message = String.format("file is expected to contain a JSON array but didn't %s", reportFile.getPath());
       logWarning(message);
     }
-    return Optional.ofNullable(issuesJson);
+    if (issuesJson == null) {
+      return Collections.emptyList();
+    }
+    return List.of(issuesJson);
   }
 
   protected int saveIssues(JSONArray issuesJson) {
     int failedToSaveIssues = 0;
     for (Object issueJson : issuesJson) {
       try {
-        saveIssue((JSONObject) issueJson);
+        NewExternalIssue externalIssue = toExternalIssue((JSONObject) issueJson);
+        externalIssue.save();
       } catch (RuntimeException e) {
         LOG.debug("failed to save issue", e);
         failedToSaveIssues++;
@@ -96,7 +102,7 @@ public abstract class AbstractJsonReportImporter {
     return failedToSaveIssues;
   }
 
-  protected abstract void saveIssue(JSONObject issueJson);
+  protected abstract NewExternalIssue toExternalIssue(JSONObject issueJson);
 
   protected void logWarning(String message) {
     String warning = warningPrefix + message;
