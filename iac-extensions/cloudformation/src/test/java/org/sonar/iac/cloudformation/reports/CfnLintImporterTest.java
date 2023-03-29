@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.cloudformation.reports;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,7 +67,7 @@ class CfnLintImporterTest {
   @CsvSource({
     "src/test/resources/cfn-lint/doesNotExist.json, Cfn-lint report importing: path does not seem to point to a file %s",
     "src/test/resources/cfn-lint/parseError.json, Cfn-lint report importing: could not parse file as JSON %s",
-    "src/test/resources/cfn-lint/noArray.json,  Cfn-lint report importing: file is expected to contain a JSON array but didn't %s"})
+    "src/test/resources/cfn-lint/noArray.json, Cfn-lint report importing: file is expected to contain a JSON array but didn't %s"})
   void problem_when_reading_or_parsing_file(String reportPath, String expectedLog) {
     String path = File.separatorChar == '/' ? reportPath : Paths.get(reportPath).toString();
     File reportFile = new File(path);
