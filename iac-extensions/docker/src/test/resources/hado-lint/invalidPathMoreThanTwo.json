@@ -1,0 +1,11 @@
+[
+  {
+    "file": "doesNotExist.docker"
+  },
+  {
+    "file": "a/b/doesNotExistToo.docker"
+  },
+  {
+    "file": "thirdOneThatDoesNotExist"
+  }
+]
