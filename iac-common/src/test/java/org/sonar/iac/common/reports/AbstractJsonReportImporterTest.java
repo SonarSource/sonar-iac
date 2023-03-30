@@ -21,6 +21,8 @@ package org.sonar.iac.common.reports;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.List;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -35,6 +37,8 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
+import org.sonarsource.analyzer.commons.internal.json.simple.parser.JSONParser;
+import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
@@ -108,6 +112,38 @@ class AbstractJsonReportImporterTest {
       "PREFIX could not save 1 out of 1 issues from %s. " +
         "Some file paths could not be resolved: foo/bar",
       path));
+  }
+
+  @Test
+  void asIntSucceedsOnLong() {
+    long numberAsLong = 5;
+    int numberAsInt = TestImporter.asInt(numberAsLong);
+    assertThat(numberAsLong).isEqualTo(numberAsInt);
+  }
+
+  @Test
+  void asIntSucceedsOnParsedJsonObject() throws ParseException {
+    JSONParser jsonParser = new JSONParser();
+    Object parsedJson = jsonParser.parse("5");
+    int numberAsInt = TestImporter.asInt(parsedJson);
+    assertThat(numberAsInt).isEqualTo(5);
+  }
+
+  @Test
+  void asIntFailsOnAnythingOtherThanLongAndJsonWithLong() throws ParseException {
+    SoftAssertions softly = new SoftAssertions();
+
+    JSONParser jsonParser = new JSONParser();
+    Object parsedDouble = jsonParser.parse("1.5");
+
+    List<Object> objects = List.of(5, (short) 5, "string", parsedDouble);
+
+    for (Object object : objects) {
+      softly.assertThatExceptionOfType(ClassCastException.class)
+        .isThrownBy(() -> TestImporter.asInt(object));
+    }
+
+    softly.assertAll();
   }
 }
 

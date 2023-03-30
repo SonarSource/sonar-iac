@@ -19,25 +19,18 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class HadolintRulesDefinition implements RulesDefinition {
+  public static final String LINTER_KEY = "hadolint";
+  public static final String LINTER_NAME = "Haskell Dockerfile Linter";
+  private static final String RULES_JSON = "org/sonar/l10n/docker/rules/hadolint/rules.json";
 
-class DockerExtensionTest {
+  public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, DockerLanguage.KEY);
 
-  private static final Version VERSION_9_7 = Version.create(9, 7);
-
-  @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_7, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    DockerExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(7);
+  @Override
+  public void define(Context context) {
+    RULE_LOADER.createExternalRuleRepository(context);
   }
 }

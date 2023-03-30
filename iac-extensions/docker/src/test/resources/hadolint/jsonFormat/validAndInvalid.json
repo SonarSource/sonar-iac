@@ -1,0 +1,13 @@
+[
+  {
+    "code": "DL3007",
+    "column": 1,
+    "file": "docker-file.docker",
+    "level": "warning",
+    "line": 1,
+    "message": "Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag"
+  },
+  {
+    "NotWhatWeExpect": 1
+  }
+]

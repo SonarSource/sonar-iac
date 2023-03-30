@@ -17,20 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
-
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonarsource.analyzer.commons.ExternalRuleLoader;
-
-public class HadoLintRulesDefinition implements RulesDefinition {
-  public static final String LINTER_KEY = "hado-lint";
-  public static final String LINTER_NAME = "Haskell Dockerfile Linter";
-  private static final String RULES_JSON = "org/sonar/l10n/docker/rules/hado-lint/rules.json";
-
-  public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, DockerLanguage.KEY);
-
-  @Override
-  public void define(Context context) {
-    RULE_LOADER.createExternalRuleRepository(context);
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.docker.reports.hadolint;

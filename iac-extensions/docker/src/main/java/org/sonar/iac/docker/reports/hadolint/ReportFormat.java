@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.plugin;
+package org.sonar.iac.docker.reports.hadolint;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.issue.NewExternalIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface ReportFormat {
 
-class DockerExtensionTest {
+  static ReportFormat getFormatBasedOnReport(JSONObject issueJson) {
+    return issueJson.get("engineId") != null ? new ReportFormatSonarqube() : new ReportFormatJson();
+  }
 
-  private static final Version VERSION_9_7 = Version.create(9, 7);
+  String getPath(JSONObject issueJson);
 
-  @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_7, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    DockerExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(7);
+  String getRuleId(JSONObject issueJson);
+
+  String getMessage(JSONObject issueJson);
+
+  NewIssueLocation getIssueLocation(JSONObject issueJson, NewExternalIssue externalIssue, InputFile inputFile);
+
+  default int asInt(Object o) {
+    // The JSON parser transforms the values to long
+    return Math.toIntExact((long) o);
   }
 }
