@@ -17,5 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.terraform.reports;
+package org.sonar.iac.terraform.plugin;
+
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonarsource.analyzer.commons.ExternalRuleLoader;
+
+public class TFLintRulesDefinition implements RulesDefinition {
+  public static final String LINTER_KEY = "tflint";
+  public static final String LINTER_NAME = "TFLint - A Pluggable Terraform Linter";
+  private static final String RULES_JSON = "org/sonar/l10n/cloudformation/rules/tflint/rules.json";
+
+  public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, TerraformLanguage.KEY);
+
+  @Override
+  public void define(Context context) {
+    RULE_LOADER.createExternalRuleRepository(context);
+  }
+}

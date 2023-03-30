@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.reports;
+package org.sonar.iac.terraform.reports.tflint;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +38,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
+import org.sonar.iac.terraform.reports.tflint.TFLintImporter;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.doAnswer;
