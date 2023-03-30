@@ -17,59 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.reports;
+package org.sonar.iac.docker.reports.hadolint;
 
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 
-public class ReportFormatSonarqube implements ReportFormat {
-
-  private static final String PRIMARY_LOCATION = "primaryLocation";
-  private static ReportFormatSonarqube instance;
-
-  public static ReportFormatSonarqube getInstance() {
-    if (instance == null) {
-      instance = new ReportFormatSonarqube();
-    }
-    return instance;
-  }
+public class ReportFormatJson implements ReportFormat {
 
   @Override
   public String getPath(JSONObject issueJson) {
-    return ((String) ((JSONObject) issueJson.get(PRIMARY_LOCATION)).get("filePath"));
+    return (String) issueJson.get("file");
   }
 
   @Override
   public String getRuleId(JSONObject issueJson) {
-    return (String) issueJson.get("ruleId");
+    return (String) issueJson.get("code");
   }
 
   @Override
   public String getMessage(JSONObject issueJson) {
-    return ((String) ((JSONObject) issueJson.get(PRIMARY_LOCATION)).get("message"));
+    return (String) issueJson.get("message");
   }
 
   @Override
   public NewIssueLocation getIssueLocation(JSONObject issueJson, NewExternalIssue externalIssue, InputFile inputFile) {
-    JSONObject jsonTextRange = (JSONObject) ((JSONObject) issueJson.get(PRIMARY_LOCATION)).get("textRange");
-
-    TextRange range;
-    try {
-      range = inputFile.newRange(
-        asInt(jsonTextRange.get("startLine")),
-        asInt(jsonTextRange.get("startColumn")),
-        asInt(jsonTextRange.get("endLine")),
-        asInt(jsonTextRange.get("endColumn")));
-    } catch (IllegalArgumentException e) {
-      // as a fallback, if start and end positions with columns are not valid for the file, let's try taking just the line
-      range = inputFile.selectLine(asInt(jsonTextRange.get("endLine")));
-    }
     return externalIssue.newLocation()
       .message(getMessage(issueJson))
       .on(inputFile)
-      .at(range);
+      .at(inputFile.selectLine(asInt(issueJson.get("line"))));
   }
 }

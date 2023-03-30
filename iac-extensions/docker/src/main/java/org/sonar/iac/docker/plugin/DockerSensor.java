@@ -42,7 +42,7 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.docker.checks.DockerCheckList;
 import org.sonar.iac.docker.parser.DockerParser;
-import org.sonar.iac.docker.reports.HadoLintImporter;
+import org.sonar.iac.docker.reports.hadolint.HadolintImporter;
 import org.sonar.iac.docker.visitors.DockerHighlightingVisitor;
 import org.sonar.iac.docker.visitors.DockerMetricsVisitor;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
@@ -101,8 +101,8 @@ public class DockerSensor extends IacSensor {
 
   @Override
   protected void importExternalReports(SensorContext sensorContext) {
-    ExternalReportProvider.getReportFiles(sensorContext, DockerSettings.HADO_LINT_REPORTS_KEY)
-      .forEach(report -> new HadoLintImporter(sensorContext, analysisWarnings).importReport(report));
+    ExternalReportProvider.getReportFiles(sensorContext, DockerSettings.HADOLINT_REPORTS_KEY)
+      .forEach(report -> new HadolintImporter(sensorContext, analysisWarnings).importReport(report));
   }
 
   @Override

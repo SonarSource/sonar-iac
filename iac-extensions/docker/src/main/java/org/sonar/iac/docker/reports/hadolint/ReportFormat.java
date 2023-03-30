@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.reports;
+package org.sonar.iac.docker.reports.hadolint;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
@@ -27,7 +27,7 @@ import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 public interface ReportFormat {
 
   static ReportFormat getFormatBasedOnReport(JSONObject issueJson) {
-    return issueJson.get("engineId") != null ? ReportFormatSonarqube.getInstance() : ReportFormatJson.getInstance();
+    return issueJson.get("engineId") != null ? new ReportFormatSonarqube() : new ReportFormatJson();
   }
 
   String getPath(JSONObject issueJson);

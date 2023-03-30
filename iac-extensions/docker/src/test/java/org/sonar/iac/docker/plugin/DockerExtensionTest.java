@@ -38,6 +38,6 @@ class DockerExtensionTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_7, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     DockerExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(6);
+    assertThat(context.getExtensions()).hasSize(7);
   }
 }

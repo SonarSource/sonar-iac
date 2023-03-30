@@ -27,11 +27,11 @@ import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-class HadoLintRulesDefinitionTest {
+class HadolintRulesDefinitionTest {
 
   @Test
   void rulesHaveValidSeverityAndType() {
-    ExternalRuleLoader ruleLoader = HadoLintRulesDefinition.RULE_LOADER;
+    ExternalRuleLoader ruleLoader = HadolintRulesDefinition.RULE_LOADER;
     Set<String> ruleKeys = ruleLoader.ruleKeys();
 
     assertDoesNotThrow(() -> {
@@ -45,11 +45,11 @@ class HadoLintRulesDefinitionTest {
   @Test
   void createExternalHadoLintRepository() {
     RulesDefinition.Context context = new RulesDefinition.Context();
-    HadoLintRulesDefinition hadoLintRulesDefinition = new HadoLintRulesDefinition();
+    HadolintRulesDefinition hadoLintRulesDefinition = new HadolintRulesDefinition();
     hadoLintRulesDefinition.define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    RulesDefinition.Repository repository = context.repository("external_hado-lint");
+    RulesDefinition.Repository repository = context.repository("external_hadolint");
     assertThat(repository).isNotNull();
     assertThat(repository.name()).isEqualTo("Haskell Dockerfile Linter");
     assertThat(repository.language()).isEqualTo("docker");

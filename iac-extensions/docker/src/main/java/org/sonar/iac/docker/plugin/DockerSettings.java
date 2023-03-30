@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.docker.plugin;
 
-import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
@@ -29,7 +28,7 @@ public class DockerSettings {
 
   private static final String DOCKER_CATEGORY = "Docker";
   private static final String GENERAL_SUBCATEGORY = "General";
-  static final String HADO_LINT_REPORTS_KEY = "sonar.docker.hado-lint.reportPaths";
+  static final String HADOLINT_REPORTS_KEY = "sonar.docker.hadolint.reportPaths";
 
   static final String ACTIVATION_KEY = "sonar.docker.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
@@ -38,8 +37,8 @@ public class DockerSettings {
   private DockerSettings() {
   }
 
-  public static List<PropertyDefinition> getProperties() {
-    return Arrays.asList(
+  public static List<PropertyDefinition> getGeneralProperties() {
+    return List.of(
       PropertyDefinition.builder(ACTIVATION_KEY)
         .index(1)
         .defaultValue(ACTIVATION_DEFAULT_VALUE)
@@ -50,16 +49,18 @@ public class DockerSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(DOCKER_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(HADO_LINT_REPORTS_KEY)
-        .index(33)
-        .name("Hado-Lint Report Files")
-        .description("Paths (absolute or relative) to the files with Hado-Lint issues.")
-        .category(EXTERNAL_ANALYZERS_CATEGORY)
-        .subCategory(DOCKER_CATEGORY)
-        .onQualifiers(Qualifiers.PROJECT)
-        .multiValues(true)
         .build());
+  }
+
+  public static List<PropertyDefinition> getExternalReportProperties() {
+    return List.of(PropertyDefinition.builder(HADOLINT_REPORTS_KEY)
+      .index(33)
+      .name("Hadolint Report Files")
+      .description("Paths (absolute or relative) to the files with Hadolint issues.")
+      .category(EXTERNAL_ANALYZERS_CATEGORY)
+      .subCategory(DOCKER_CATEGORY)
+      .onQualifiers(Qualifiers.PROJECT)
+      .multiValues(true)
+      .build());
   }
 }

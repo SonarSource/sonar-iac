@@ -126,7 +126,7 @@ class AbstractJsonReportImporterTest {
     JSONParser jsonParser = new JSONParser();
     Object parsedJson = jsonParser.parse("5");
     int numberAsInt = TestImporter.asInt(parsedJson);
-    assertThat(5).isEqualTo(numberAsInt);
+    assertThat(numberAsInt).isEqualTo(5);
   }
 
   @Test
@@ -139,7 +139,8 @@ class AbstractJsonReportImporterTest {
     List<Object> objects = List.of(5, (short) 5, "string", parsedDouble);
 
     for (Object object : objects) {
-      softly.assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> TestImporter.asInt(object));
+      softly.assertThatExceptionOfType(ClassCastException.class)
+        .isThrownBy(() -> TestImporter.asInt(object));
     }
 
     softly.assertAll();

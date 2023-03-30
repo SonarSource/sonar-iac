@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.reports;
+package org.sonar.iac.docker.reports.hadolint;
 
 import java.util.Objects;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -27,13 +27,13 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.iac.common.reports.AbstractJsonReportImporter;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
-import org.sonar.iac.docker.plugin.HadoLintRulesDefinition;
+import org.sonar.iac.docker.plugin.HadolintRulesDefinition;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 
-public class HadoLintImporter extends AbstractJsonReportImporter {
-  private static final String MESSAGE_PREFIX = "Hado-lint report importing: ";
+public class HadolintImporter extends AbstractJsonReportImporter {
+  private static final String MESSAGE_PREFIX = "Hadolint report importing: ";
 
-  public HadoLintImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings) {
+  public HadolintImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings) {
     super(context, analysisWarnings, MESSAGE_PREFIX);
   }
 
@@ -53,16 +53,16 @@ public class HadoLintImporter extends AbstractJsonReportImporter {
 
     Objects.requireNonNull(inputFile);
     String ruleId = reportFormat.getRuleId(issueJson);
-    if (!HadoLintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
-      ruleId = "hado-lint.fallback";
+    if (!HadolintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
+      ruleId = "hadolint.fallback";
     }
 
     NewExternalIssue externalIssue = context.newExternalIssue()
       .ruleId(ruleId)
-      .type(HadoLintRulesDefinition.RULE_LOADER.ruleType(ruleId))
-      .engineId(HadoLintRulesDefinition.LINTER_KEY)
-      .severity(HadoLintRulesDefinition.RULE_LOADER.ruleSeverity(ruleId))
-      .remediationEffortMinutes(HadoLintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes(ruleId));
+      .type(HadolintRulesDefinition.RULE_LOADER.ruleType(ruleId))
+      .engineId(HadolintRulesDefinition.LINTER_KEY)
+      .severity(HadolintRulesDefinition.RULE_LOADER.ruleSeverity(ruleId))
+      .remediationEffortMinutes(HadolintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes(ruleId));
 
     NewIssueLocation issueLocation = reportFormat.getIssueLocation(issueJson, externalIssue, inputFile);
     externalIssue.at(issueLocation);

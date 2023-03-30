@@ -22,10 +22,10 @@ package org.sonar.iac.docker.plugin;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-public class HadoLintRulesDefinition implements RulesDefinition {
-  public static final String LINTER_KEY = "hado-lint";
+public class HadolintRulesDefinition implements RulesDefinition {
+  public static final String LINTER_KEY = "hadolint";
   public static final String LINTER_NAME = "Haskell Dockerfile Linter";
-  private static final String RULES_JSON = "org/sonar/l10n/docker/rules/hado-lint/rules.json";
+  private static final String RULES_JSON = "org/sonar/l10n/docker/rules/hadolint/rules.json";
 
   public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, DockerLanguage.KEY);
 
