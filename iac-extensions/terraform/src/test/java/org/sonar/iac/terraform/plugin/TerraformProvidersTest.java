@@ -119,7 +119,7 @@ class TerraformProvidersTest {
 
   @Test
   void check_property_registration() {
-    long registeredProperties = TerraformSettings.getProperties().stream()
+    long registeredProperties = TerraformSettings.getGeneralProperties().stream()
       .filter(propertyDefinition -> propertyDefinition.key().startsWith("sonar.terraform.provider"))
       .count();
 

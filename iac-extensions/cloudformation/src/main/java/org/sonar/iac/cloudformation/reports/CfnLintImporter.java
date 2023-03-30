@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.cloudformation.reports;
 
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -27,7 +26,6 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.iac.cloudformation.plugin.CfnLintRulesDefinition;
 import org.sonar.iac.common.reports.AbstractJsonReportImporter;
-import org.sonar.iac.common.reports.ReportImporterException;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 
@@ -43,18 +41,7 @@ public class CfnLintImporter extends AbstractJsonReportImporter {
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     String path = (String) issueJson.get("Filename");
-    if (path == null) {
-      throw new ReportImporterException("Empty path");
-    }
-    FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.or(
-      predicates.hasAbsolutePath(path),
-      predicates.hasRelativePath(path)));
-
-    if (inputFile == null) {
-      addUnresolvedPath(path);
-      throw new ReportImporterException(String.format("The file: %s is not resolved", path));
-    }
+    InputFile inputFile = inputFile(path);
 
     String ruleId = (String) ((JSONObject) issueJson.get("Rule")).get("Id");
     if (!CfnLintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {

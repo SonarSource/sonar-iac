@@ -25,7 +25,7 @@ import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 public class TFLintRulesDefinition implements RulesDefinition {
   public static final String LINTER_KEY = "tflint";
   public static final String LINTER_NAME = "TFLint - A Pluggable Terraform Linter";
-  private static final String RULES_JSON = "org/sonar/l10n/cloudformation/rules/tflint/rules.json";
+  private static final String RULES_JSON = "org/sonar/l10n/terraform/rules/tflint/rules.json";
 
   public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, TerraformLanguage.KEY);
 

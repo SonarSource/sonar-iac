@@ -19,7 +19,11 @@
  */
 package org.sonar.iac.terraform.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.config.PropertyDefinition;
 
 public class TerraformExtension {
 
@@ -41,6 +45,14 @@ public class TerraformExtension {
       // Additional extensions
       TerraformProviders.class);
 
-    context.addExtensions(TerraformSettings.getProperties());
+    List<PropertyDefinition> properties = new ArrayList<>(TerraformSettings.getGeneralProperties());
+
+    if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
+      // We do not import external reports in SonarLint so no need to define the tflint rules.
+      context.addExtension(TFLintRulesDefinition.class);
+      properties.addAll(TerraformSettings.getExternalReportProperties());
+    }
+
+    context.addExtensions(TerraformSettings.getGeneralProperties());
   }
 }
