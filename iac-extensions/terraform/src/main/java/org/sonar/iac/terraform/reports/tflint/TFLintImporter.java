@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.Severity;
@@ -125,20 +124,6 @@ public class TFLintImporter extends AbstractJsonReportImporter {
       .message(message)
       .on(inputFile)
       .at(textRange);
-  }
-
-  private InputFile inputFile(String filename) {
-    FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.or(
-      predicates.hasAbsolutePath(filename),
-      predicates.hasRelativePath(filename)));
-
-    if (inputFile == null) {
-      addUnresolvedPath(filename);
-      throw new ReportImporterException(String.format("The file: %s is not resolved", filename));
-    }
-
-    return inputFile;
   }
 
   private NewIssueLocation errorLocation(JSONObject issueJson, NewExternalIssue externalIssue) {

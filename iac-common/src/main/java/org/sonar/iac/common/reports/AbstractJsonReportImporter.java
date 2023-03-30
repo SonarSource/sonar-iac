@@ -27,6 +27,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.utils.log.Logger;
@@ -117,6 +120,23 @@ public abstract class AbstractJsonReportImporter {
   protected static int asInt(Object o) {
     // The JSON parser transforms the values to long
     return Math.toIntExact((long) o);
+  }
+
+  protected InputFile inputFile(@Nullable String filename) {
+    if (filename == null) {
+      throw new ReportImporterException("Empty path");
+    }
+    FilePredicates predicates = context.fileSystem().predicates();
+    InputFile inputFile = context.fileSystem().inputFile(predicates.or(
+      predicates.hasAbsolutePath(filename),
+      predicates.hasRelativePath(filename)));
+
+    if (inputFile == null) {
+      addUnresolvedPath(filename);
+      throw new ReportImporterException(String.format("The file: %s is not resolved", filename));
+    }
+
+    return inputFile;
   }
 
   private void addWarning(String path, int total, int failed) {
