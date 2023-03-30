@@ -88,7 +88,7 @@ class AbstractJsonReportImporterTest {
   @Test
   void shouldLogDebugWhenSaveIssueThrowsRuntimeException() {
     File reportFile = new File("src/test/resources/ext-json-report/validIssue.json");
-    TestImporterThrowRuntimeWhenSaveIssue testImporter = new TestImporterThrowRuntimeWhenSaveIssue(
+    TestImporterThrowReportImporterExceptionWhenSaveIssue testImporter = new TestImporterThrowReportImporterExceptionWhenSaveIssue(
       context,
       mockAnalysisWarnings,
       "PREFIX ");
@@ -103,7 +103,7 @@ class AbstractJsonReportImporterTest {
     String filePath = "src/test/resources/ext-json-report/validIssue.json";
     String path = File.separatorChar == '/' ? filePath : Paths.get(filePath).toString();
     File reportFile = new File(path);
-    TestImporterThrowRuntimeWhenSaveIssue testImporter = new TestImporterThrowRuntimeWhenSaveIssue(
+    TestImporterThrowReportImporterExceptionWhenSaveIssue testImporter = new TestImporterThrowReportImporterExceptionWhenSaveIssue(
       context, mockAnalysisWarnings, "PREFIX ");
 
     testImporter.importReport(reportFile);
@@ -161,28 +161,15 @@ class TestImporter extends AbstractJsonReportImporter {
   }
 }
 
-class TestImporterThrowRuntimeWhenSaveIssue extends AbstractJsonReportImporter {
+class TestImporterThrowReportImporterExceptionWhenSaveIssue extends AbstractJsonReportImporter {
 
-  protected TestImporterThrowRuntimeWhenSaveIssue(SensorContext context, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
+  protected TestImporterThrowReportImporterExceptionWhenSaveIssue(SensorContext context, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
     super(context, analysisWarnings, warningPrefix);
   }
 
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     addUnresolvedPath("foo/bar");
-    throw new RuntimeException("saveIssue");
-  }
-}
-
-class TestImporterAddUnresolvedPathWhenSave extends AbstractJsonReportImporter {
-
-  protected TestImporterAddUnresolvedPathWhenSave(SensorContext context, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
-    super(context, analysisWarnings, warningPrefix);
-  }
-
-  @Override
-  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
-    addUnresolvedPath("foo/bar");
-    return null;
+    throw new ReportImporterException("saveIssue");
   }
 }

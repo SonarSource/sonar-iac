@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-class TfLintImporterTest {
+class TFLintImporterTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -72,7 +72,7 @@ class TfLintImporterTest {
   @Test
   void shouldImportExampleIssue() {
     File reportFile = new File("src/test/resources/tflint/exampleIssues.json");
-    TfLintImporter importer = new TfLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -88,7 +88,7 @@ class TfLintImporterTest {
   @Test
   void shouldImportExampleError() {
     File reportFile = new File("src/test/resources/tflint/exampleError.json");
-    TfLintImporter importer = new TfLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -112,7 +112,7 @@ class TfLintImporterTest {
   void shouldLogWarningWhenImport(String reportPath, String expectedLog) {
     String path = File.separatorChar == '/' ? reportPath : Paths.get(reportPath).toString();
     File reportFile = new File(path);
-    TfLintImporter importer = new TfLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -130,7 +130,7 @@ class TfLintImporterTest {
     doAnswer((invocation) -> {
       throw new IOException();
     }).when(reportFile).toPath();
-    TfLintImporter importer = new TfLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 
@@ -147,7 +147,7 @@ class TfLintImporterTest {
   }, delimiter = ';')
   void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
     String expectedLog = String.format(expectedLogFormat, reportFile.getPath());
-    TfLintImporter importer = new TfLintImporter(context, mockAnalysisWarnings);
+    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
 

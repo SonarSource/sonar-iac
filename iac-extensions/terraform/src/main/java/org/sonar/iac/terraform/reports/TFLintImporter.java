@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -37,18 +36,19 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
 import org.sonar.iac.common.reports.AbstractJsonReportImporter;
+import org.sonar.iac.common.reports.ReportImporterException;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
-public class TfLintImporter extends AbstractJsonReportImporter {
+public class TFLintImporter extends AbstractJsonReportImporter {
 
   private static final String MESSAGE_PREFIX = "TFLint report importing: ";
   // Matches: `: filename.tf:2,21-29:`
   private static final Pattern FILENAME_PATTERN = Pattern.compile(":\\s([^*&%:]+):(\\d+),(\\d+)-(\\d+):");
 
-  public TfLintImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings) {
+  public TFLintImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings) {
     super(context, analysisWarnings, MESSAGE_PREFIX);
   }
 
@@ -135,9 +135,9 @@ public class TfLintImporter extends AbstractJsonReportImporter {
 
     if (inputFile == null) {
       addUnresolvedPath(filename);
+      throw new ReportImporterException(String.format("The file: %s is not resolved", filename));
     }
 
-    Objects.requireNonNull(inputFile);
     return inputFile;
   }
 
@@ -145,7 +145,7 @@ public class TfLintImporter extends AbstractJsonReportImporter {
     String message = (String) issueJson.get("message");
     Matcher matcher = FILENAME_PATTERN.matcher(message);
     if (!matcher.find()) {
-      throw new RuntimeException("Can't extract filename from error message");
+      throw new ReportImporterException("Can't extract filename from error message");
     }
     String filename = matcher.group(1);
     int startLine = Integer.parseInt(matcher.group(2));

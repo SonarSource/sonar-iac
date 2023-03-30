@@ -94,7 +94,7 @@ public abstract class AbstractJsonReportImporter {
       try {
         NewExternalIssue externalIssue = toExternalIssue((JSONObject) issueJson);
         externalIssue.save();
-      } catch (RuntimeException e) {
+      } catch (ReportImporterException e) {
         LOG.debug("failed to save issue", e);
         failedToSaveIssues++;
       }
