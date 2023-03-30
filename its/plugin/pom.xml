@@ -15,7 +15,7 @@
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
+      <artifactId>junit-jupiter</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
@@ -31,6 +31,16 @@
       <version>${version.sonar}</version>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.sonarlint.core</groupId>
+      <artifactId>sonarlint-core</artifactId>
+      <version>${version.sonar.lint}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sonarlint.core</groupId>
+      <artifactId>sonarlint-plugin-api</artifactId>
+      <version>${version.sonar.lint}</version>
+    </dependency>
+    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
     </dependency>
@@ -44,6 +54,7 @@
           <argLine>-Xmx128m -server</argLine>
           <includes>
             <include>org/sonarsource/iac/Tests.java</include>
+            <include>org/sonarsource/iac/SonarLintTests.java</include>
           </includes>
         </configuration>
       </plugin>

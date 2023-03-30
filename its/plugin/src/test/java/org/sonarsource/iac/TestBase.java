@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
@@ -44,14 +44,14 @@ import static java.util.Collections.singletonList;
 
 public abstract class TestBase {
 
-  @ClassRule
+  @RegisterExtension
   public static final Orchestrator ORCHESTRATOR = Tests.ORCHESTRATOR;
 
   protected SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey) {
     return getSonarScanner(projectKey, directoryToScan, languageKey, null);
   }
 
-  protected SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey, @Nullable String profileName) {
+  protected static SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey, @Nullable String profileName) {
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
     if (profileName != null) {
       ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, languageKey, profileName);
