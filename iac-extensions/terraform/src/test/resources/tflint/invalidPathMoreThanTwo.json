@@ -1,0 +1,32 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "terraform_comment_syntax",
+        "severity": "warning"
+      },
+      "range": {
+        "filename": "doesNotExist.yaml"
+      }
+    },
+    {
+      "rule": {
+        "name": "terraform_comment_syntax",
+        "severity": "warning"
+      },
+      "range": {
+        "filename": "a/b/doesNotExistToo.yaml"
+      }
+    },
+    {
+      "rule": {
+        "name": "terraform_comment_syntax",
+        "severity": "warning"
+      },
+      "range": {
+        "filename": "thirdOneThatDoesNotExist"
+      }
+    }
+  ],
+  "errors": []
+}

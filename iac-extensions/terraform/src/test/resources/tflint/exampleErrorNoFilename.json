@@ -1,0 +1,9 @@
+{
+  "issues": [],
+  "errors": [
+    {
+      "message": "Some message without filename",
+      "severity": "error"
+    }
+  ]
+}

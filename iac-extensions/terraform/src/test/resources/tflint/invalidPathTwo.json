@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "terraform_comment_syntax",
+        "severity": "warning"
+      },
+      "message": "Single line comments should begin with #",
+      "range": {
+        "filename": "doesNotExist.yaml"
+      }
+    },
+    {
+      "rule": {
+        "name": "terraform_comment_syntax",
+        "severity": "warning"
+      },
+      "message": "Single line comments should begin with #",
+      "range": {
+        "filename": "a/b/doesNotExistToo.yaml"
+      }
+    }
+  ],
+  "errors": []
+}

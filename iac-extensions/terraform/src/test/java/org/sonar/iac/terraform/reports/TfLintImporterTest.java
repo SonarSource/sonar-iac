@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -39,8 +40,12 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 class TfLintImporterTest {
 
@@ -102,7 +107,8 @@ class TfLintImporterTest {
   @ParameterizedTest
   @CsvSource({
     "src/test/resources/tflint/doesNotExist.json, TFLint report importing: path does not seem to point to a file %s",
-    "src/test/resources/tflint/parseError.json, TFLint report importing: could not parse file as JSON %s"})
+    "src/test/resources/tflint/parseError.json, TFLint report importing: could not parse file as JSON %s",
+    "src/test/resources/tflint/exampleErrorNoFilename.json, TFLint report importing: could not save 1 out of 1 issues from %s."})
   void shouldLogWarningWhenImport(String reportPath, String expectedLog) {
     String path = File.separatorChar == '/' ? reportPath : Paths.get(reportPath).toString();
     File reportFile = new File(path);
@@ -112,6 +118,42 @@ class TfLintImporterTest {
 
     context.allExternalIssues().forEach(System.out::println);
     assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(String.format(expectedLog, path));
+  }
+
+  @Test
+  void shouldLogWarningWhenReadingFileThrowsIOException() {
+    String path = "src\\test\\resources\\tflint\\throwsIOException.json";
+    File reportFile = Mockito.mock(File.class);
+    String logMessage = String.format("TFLint report importing: could not read report file %s", path);
+    when(reportFile.getPath()).thenReturn(path);
+    when(reportFile.isFile()).thenReturn(true);
+    doAnswer((invocation) -> {
+      throw new IOException();
+    }).when(reportFile).toPath();
+    TfLintImporter importer = new TfLintImporter(context, mockAnalysisWarnings);
+
+    importer.importReport(reportFile);
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
+    verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {
+    "src/test/resources/tflint/invalidPathTwo.json; TFLint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +
+      "doesNotExist.yaml, a/b/doesNotExistToo.yaml",
+    "src/test/resources/tflint/invalidPathMoreThanTwo.json; TFLint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
+      "doesNotExist.yaml, a/b/doesNotExistToo.yaml, ..."
+  }, delimiter = ';')
+  void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
+    String expectedLog = String.format(expectedLogFormat, reportFile.getPath());
+    TfLintImporter importer = new TfLintImporter(context, mockAnalysisWarnings);
+
+    importer.importReport(reportFile);
+
+    assertThat(context.allExternalIssues()).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(expectedLog);
+    verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
   }
 
   private void assertTextRange(TextRange actual, int startLine, int startLineOffset, int endLine, int endLineOffset) {
