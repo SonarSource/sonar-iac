@@ -26,7 +26,7 @@ jobs:
             development/kv/data/slack webhook | SLACK_WEBHOOK;
       - name: git octopus step
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: dogfood
         uses: SonarSource/gh-action_dogfood_merge@master
         with:
