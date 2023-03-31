@@ -51,7 +51,7 @@ class HadolintRulesDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     RulesDefinition.Repository repository = context.repository("external_hadolint");
     assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("Haskell Dockerfile Linter");
+    assertThat(repository.name()).isEqualTo("HADOLINT");
     assertThat(repository.language()).isEqualTo("docker");
     assertThat(repository.isExternal()).isTrue();
     assertThat(repository.rules()).hasSize(99);

@@ -51,7 +51,7 @@ class TFLintRulesDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     RulesDefinition.Repository repository = context.repository("external_tflint");
     assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("TFLint - A Pluggable Terraform Linter");
+    assertThat(repository.name()).isEqualTo("TFLINT");
     assertThat(repository.language()).isEqualTo("terraform");
     assertThat(repository.isExternal()).isTrue();
     assertThat(repository.rules()).hasSize(2);

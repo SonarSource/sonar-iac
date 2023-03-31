@@ -17,20 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.plugin;
+package org.sonar.iac.cloudformation.plugin;
 
+import org.junit.jupiter.api.Test;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-public class TFLintRulesDefinition implements RulesDefinition {
-  public static final String LINTER_KEY = "tflint";
-  public static final String LINTER_NAME = "TFLINT";
-  private static final String RULES_JSON = "org/sonar/l10n/terraform/rules/tflint/rules.json";
+import static org.fest.assertions.Assertions.assertThat;
 
-  public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, TerraformLanguage.KEY);
+class CfnLintRulesDefinitionTest {
 
-  @Override
-  public void define(Context context) {
-    RULE_LOADER.createExternalRuleRepository(context);
+  @Test
+  void createExternalCfnLintRepository() {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    CfnLintRulesDefinition cfnLintRulesDefinition = new CfnLintRulesDefinition();
+    cfnLintRulesDefinition.define(context);
+
+    assertThat(context.repositories()).hasSize(1);
+    RulesDefinition.Repository repository = context.repository("external_cfn-lint");
+    assertThat(repository).isNotNull();
+    assertThat(repository.name()).isEqualTo("CFN-LINT");
+    assertThat(repository.language()).isEqualTo("cloudformation");
+    assertThat(repository.isExternal()).isTrue();
+    assertThat(repository.rules()).hasSize(145);
   }
+
 }

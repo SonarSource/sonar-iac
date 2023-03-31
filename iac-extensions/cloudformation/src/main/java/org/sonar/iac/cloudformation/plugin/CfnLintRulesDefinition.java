@@ -24,7 +24,7 @@ import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 public class CfnLintRulesDefinition implements RulesDefinition {
   public static final String LINTER_KEY = "cfn-lint";
-  public static final String LINTER_NAME = "AWS CloudFormation Linter";
+  public static final String LINTER_NAME = "CFN-LINT";
   private static final String RULES_JSON = "org/sonar/l10n/cloudformation/rules/cfn-lint/rules.json";
 
   public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, CloudformationLanguage.KEY);
