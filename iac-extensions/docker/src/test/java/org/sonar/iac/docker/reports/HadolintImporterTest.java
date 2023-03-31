@@ -30,6 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
@@ -47,6 +48,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class HadolintImporterTest {
+
+  private static final String PATH_PREFIX = "src/test/resources/hadolint";
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -54,19 +57,24 @@ class HadolintImporterTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    File baseDir = new File("src/test/resources/hadolint");
+    File baseDir = new File(PATH_PREFIX);
     context = SensorContextTester.create(baseDir);
 
-    File someFile = new File("src/test/resources/hadolint/docker-file.docker");
+    addFileToContext(baseDir, PATH_PREFIX + "/docker-file.docker");
+  }
+
+  private void addFileToContext(File baseDir, String path) throws IOException {
+    File someFile = new File(path);
     context.fileSystem().add(new TestInputFileBuilder("project", baseDir, someFile).setContents(new String(Files.readAllBytes(someFile.toPath()))).build());
   }
 
   @ParameterizedTest
   @CsvSource({
-    "src/test/resources/hadolint/doesNotExist.json, Hadolint report importing: path does not seem to point to a file %s",
-    "src/test/resources/hadolint/parseError.json, Hadolint report importing: could not parse file as JSON %s",
-    "src/test/resources/hadolint/noArray.json, Hadolint report importing: file is expected to contain a JSON array but didn't %s"})
+    "/doesNotExist.json, Hadolint report importing: path does not seem to point to a file %s",
+    "/parseError.json, Hadolint report importing: could not parse file as JSON %s",
+    "/noArray.json, Hadolint report importing: file is expected to contain a JSON array but didn't %s"})
   void problemWhenReadingOrParsingFile(String reportPath, String expectedLog) {
+    reportPath = PATH_PREFIX + reportPath;
     String path = File.separatorChar == '/' ? reportPath : Paths.get(reportPath).toString();
     File reportFile = new File(path);
     String logMessage = String.format(expectedLog, path);
@@ -94,7 +102,7 @@ class HadolintImporterTest {
 
   @Test
   void noIssues() {
-    File reportFile = new File("src/test/resources/hadolint/emptyArray.json");
+    File reportFile = new File(PATH_PREFIX + "/emptyArray.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
     verifyNoInteractions(mockAnalysisWarnings);
@@ -102,7 +110,7 @@ class HadolintImporterTest {
 
   @Test
   void invalidIssue() {
-    File reportFile = new File("src/test/resources/hadolint/invalidIssue.json");
+    File reportFile = new File(PATH_PREFIX + "/invalidIssue.json");
     String logMessage = String.format("Hadolint report importing: could not save 1 out of 1 issues from %s.", reportFile.getPath());
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
@@ -112,10 +120,23 @@ class HadolintImporterTest {
 
   @ParameterizedTest
   @CsvSource({
-    "src/test/resources/hadolint/jsonFormat/validIssue.json",
-    "src/test/resources/hadolint/sonarqubeFormat/validIssue.json"})
+    "/jsonFormat/validIssue.json",
+    "/sonarqubeFormat/validIssue.json"})
   void validIssue(String reportPath) {
-    File reportFile = new File(reportPath);
+    File reportFile = new File(PATH_PREFIX + reportPath);
+    importReport(reportFile);
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    assertThat(issue.ruleId()).isEqualTo("DL3007");
+    assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(issue.primaryLocation().message()).isEqualTo("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag");
+    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
+    verifyNoInteractions(mockAnalysisWarnings);
+  }
+
+  @Test
+  void validIssueWithInvalidColumns() {
+    File reportFile = new File(PATH_PREFIX + "/sonarqubeFormat/validIssueWithInvalidColumns.json");
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
@@ -128,10 +149,10 @@ class HadolintImporterTest {
 
   @ParameterizedTest
   @CsvSource({
-    "src/test/resources/hadolint/jsonFormat/validAndInvalid.json",
-    "src/test/resources/hadolint/sonarqubeFormat/validAndInvalid.json"})
+    "/jsonFormat/validAndInvalid.json",
+    "/sonarqubeFormat/validAndInvalid.json"})
   void oneInvalidAndOneValidIssue(String reportPath) {
-    File reportFile = new File(reportPath);
+    File reportFile = new File(PATH_PREFIX + reportPath);
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     String logMessage = String.format("Hadolint report importing: could not save 1 out of 2 issues from %s.", reportFile.getPath());
@@ -142,10 +163,10 @@ class HadolintImporterTest {
 
   @ParameterizedTest
   @CsvSource({
-    "src/test/resources/hadolint/jsonFormat/unknownRule.json",
-    "src/test/resources/hadolint/sonarqubeFormat/unknownRule.json"})
+    "/jsonFormat/unknownRule.json",
+    "/sonarqubeFormat/unknownRule.json"})
   void unknownRule(String reportPath) {
-    File reportFile = new File(reportPath);
+    File reportFile = new File(PATH_PREFIX + reportPath);
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
@@ -155,10 +176,41 @@ class HadolintImporterTest {
   }
 
   @ParameterizedTest
+  @CsvSource({
+    "/jsonFormat/unknownWarningRuleWithValidHadolintName.json, SC9999",
+    "/sonarqubeFormat/unknownWarningRuleWithValidHadolintName.json, DL9999"})
+  void unknownWarningRuleWithValidHadolintFormat(String reportPath, String ruleId) {
+    File reportFile = new File(PATH_PREFIX + reportPath);
+    importReport(reportFile);
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    assertThat(issue.ruleId()).isEqualTo(ruleId);
+    assertThat(issue.severity()).isEqualTo(Severity.MAJOR);
+    assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
+
+    verifyNoInteractions(mockAnalysisWarnings);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "/jsonFormat/unknownErrorRuleWithValidHadolintName.json, SC9999",
+    "/sonarqubeFormat/unknownErrorRuleWithValidHadolintName.json, DL9999"})
+  void unknownErrorRuleWithValidHadolintFormat(String reportPath, String ruleId) {
+    File reportFile = new File(PATH_PREFIX + reportPath);
+    importReport(reportFile);
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    assertThat(issue.ruleId()).isEqualTo(ruleId);
+    assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(issue.type()).isEqualTo(RuleType.BUG);
+    verifyNoInteractions(mockAnalysisWarnings);
+  }
+
+  @ParameterizedTest
   @CsvSource(value = {
-    "src/test/resources/hadolint/invalidPathTwo.json; Hadolint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +
+    PATH_PREFIX + "/invalidPathTwo.json; Hadolint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +
       "doesNotExist.docker, a/b/doesNotExistToo.docker",
-    "src/test/resources/hadolint/invalidPathMoreThanTwo.json; Hadolint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
+    PATH_PREFIX + "/invalidPathMoreThanTwo.json; Hadolint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
       "doesNotExist.docker, a/b/doesNotExistToo.docker, ..."
   }, delimiter = ';')
   void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
