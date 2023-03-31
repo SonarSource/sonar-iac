@@ -37,7 +37,16 @@ public class HadolintImporter extends AbstractJsonReportImporter {
     super(context, analysisWarnings, MESSAGE_PREFIX);
   }
 
-  private static void loadPropertiesIntoIssue(NewExternalIssue externalIssue, ReportFormat format, JSONObject issueJson, String ruleId) {
+  @Override
+  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
+    ReportFormat reportFormat = ReportFormat.getFormatBasedOnReport(issueJson);
+
+    String path = reportFormat.getPath(issueJson);
+    InputFile inputFile = inputFile(path);
+
+    String ruleId = reportFormat.getRuleId(issueJson);
+
+    NewExternalIssue externalIssue = context.newExternalIssue();
     boolean loadPropertiesFromRepository = true;
     if (!HadolintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
       if (ruleId.startsWith("DL") || ruleId.startsWith("SC")) {
@@ -59,8 +68,8 @@ public class HadolintImporter extends AbstractJsonReportImporter {
       severity = HadolintRulesDefinition.RULE_LOADER.ruleSeverity(ruleId);
       type = HadolintRulesDefinition.RULE_LOADER.ruleType(ruleId);
     } else {
-      severity = Severity.valueOf(format.getSeverity(issueJson));
-      type = RuleType.valueOf(format.getRuleType(issueJson));
+      severity = Severity.valueOf(reportFormat.getSeverity(issueJson));
+      type = RuleType.valueOf(reportFormat.getRuleType(issueJson));
       // using default cause property is missing in report
       effortInMinutes = HadolintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes("hadolint.fallback");
     }
@@ -70,23 +79,9 @@ public class HadolintImporter extends AbstractJsonReportImporter {
       .type(type)
       .severity(severity)
       .remediationEffortMinutes(effortInMinutes);
-  }
-
-  @Override
-  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
-    ReportFormat reportFormat = ReportFormat.getFormatBasedOnReport(issueJson);
-
-    String path = reportFormat.getPath(issueJson);
-    InputFile inputFile = inputFile(path);
-
-    String ruleId = reportFormat.getRuleId(issueJson);
-
-    NewExternalIssue externalIssue = context.newExternalIssue();
-
-    loadPropertiesIntoIssue(externalIssue, reportFormat, issueJson, ruleId);
 
     NewIssueLocation issueLocation = reportFormat.getIssueLocation(issueJson, externalIssue, inputFile);
-    externalIssue.at(issueLocation);
-    return externalIssue;
+    return externalIssue.at(issueLocation);
+
   }
 }

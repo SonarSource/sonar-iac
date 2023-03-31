@@ -43,7 +43,9 @@ public class HadolintReportTest extends TestBase {
     executeBuildWithExpectedWarnings(ORCHESTRATOR, sonarScanner);
 
     List<Issues.Issue> issues = issuesForComponent(PROJECT);
-    assertThat(issues).hasSize(1);
+    assertThat(issues).hasSize(19);
+
+    // testing only the first one as sanity check
     Issues.Issue first = issues.get(0);
     assertThat(first.getComponent()).isEqualTo(PROJECT + ":src/test.docker");
     assertThat(first.getRule()).isEqualTo("external_hadolint:DL3007");
@@ -51,7 +53,7 @@ public class HadolintReportTest extends TestBase {
     assertThat(first.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
     assertThat(first.getSeverity()).isEqualTo(Common.Severity.MAJOR);
     assertThat(first.getEffort()).isEqualTo("5min");
-    assertThat(first.getLine()).isOne();
+    assertThat(first.getLine()).isEqualTo(10);
   }
 
 }
