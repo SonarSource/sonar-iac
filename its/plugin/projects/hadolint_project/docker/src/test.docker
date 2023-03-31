@@ -1,0 +1,81 @@
+# MySQL Server with Apache and phpmyadmin
+#
+# VERSION               0.0.1
+#
+# Docs: 
+# - https://www.digitalocean.com/community/tutorials/how-to-use-haproxy-to-set-up-http-load-balancing-on-an-ubuntu-vps
+#
+
+
+FROM     ubuntu:latest
+MAINTAINER Jonas Colmsjö "jonas@gizur.com"
+
+RUN echo "export HOME=/root" >> /root/.profile
+
+RUN apt-get update
+RUN apt-get install -y wget nano curl git
+
+#
+# Install supervisord (used to handle processes)
+#
+
+RUN apt-get install -y supervisor
+ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+
+#
+# Install haproxy and rsyslog
+#
+
+RUN apt-get install -y haproxy rsyslog
+
+# Move default configuration out
+RUN mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original
+
+# Add out own configuration
+ADD ./etc-haproxy-haproxy.cfg /etc/haproxy/haproxy.cfg
+
+ADD ./etc-rsyslog.conf /etc/rsyslog.conf
+ADD ./etc-rsyslog.d-50-default.conf /etc/rsyslog.d/50-default.conf
+
+RUN rm /etc/rsyslog.d/haproxy.conf
+
+# Create a volume
+RUN mkdir /volume
+VOLUME ["/volume"]
+
+
+#
+# Start haproxy
+#
+#There are only a few command line options :
+#
+#    -f <configuration file>
+#    -n <high limit for the total number of simultaneous connections>
+#       = 'maxconn' in 'global' section
+#    -N <high limit for the per-listener number of simultaneous connections>
+#       = 'maxconn' in 'listen' or 'default' sections
+#    -d starts in foregreound with debugging mode enabled
+#    -D starts in daemon mode
+#    -q disable messages on output
+#    -V displays messages on output even when -q or 'quiet' are specified.
+#    -c only checks config file and exits with code 0 if no error was found, or
+#       exits with code 1 if a syntax error was found.
+#    -p <pidfile> asks the process to write down each of its children's
+#       pids to this file in daemon mode.
+#    -sf specifies a list of pids to send a FINISH signal to after startup.
+#    -st specifies a list of pids to send a TERMINATE signal to after startup.
+#    -s shows statistics (only if compiled in)
+#    -l shows even more statistics (implies '-s')
+#    -dk disables use of kqueue()
+#    -ds disables use of speculative epoll()
+#    -de disables use of epoll()
+#    -dp disables use of poll()
+#    -db disables background mode (stays in foreground, useful for debugging)
+#    -m <megs> enforces a memory usage limit to a maximum of <megs> megabytes.
+
+
+ADD ./start.sh /start.sh
+
+EXPOSE 80 443
+CMD ["/start.sh"]

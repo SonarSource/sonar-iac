@@ -19,12 +19,15 @@
  */
 package org.sonar.iac.docker.reports.hadolint;
 
+import java.util.Map;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 
 public class ReportFormatJson implements ReportFormat {
+
+  private static final Map<String, String> severityMapping = Map.of("error", "CRITICAL", "warning", "MAJOR", "info", "MINOR", "style", "INFO");
 
   @Override
   public String getPath(JSONObject issueJson) {
@@ -47,5 +50,14 @@ public class ReportFormatJson implements ReportFormat {
       .message(getMessage(issueJson))
       .on(inputFile)
       .at(inputFile.selectLine(asInt(issueJson.get("line"))));
+  }
+
+  public String getRuleType(JSONObject issueJson) {
+    return "CRITICAL".equals(getSeverity(issueJson)) ? "BUG" : "CODE_SMELL";
+  }
+
+  public String getSeverity(JSONObject issueJson) {
+    String level = (String) issueJson.get("level");
+    return severityMapping.getOrDefault(level, "INFO");
   }
 }

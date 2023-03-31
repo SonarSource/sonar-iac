@@ -46,6 +46,6 @@ class CloudformationExtensionTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(Version.create(3, 14));
     Plugin.Context context = new Plugin.Context(runtime);
     CloudformationExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(7);
+    assertThat(context.getExtensions()).hasSize(6);
   }
 }

@@ -20,16 +20,19 @@
 package org.sonarsource.iac;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
@@ -41,17 +44,18 @@ import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TestBase {
 
-  @ClassRule
+  @RegisterExtension
   public static final Orchestrator ORCHESTRATOR = Tests.ORCHESTRATOR;
 
   protected SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey) {
     return getSonarScanner(projectKey, directoryToScan, languageKey, null);
   }
 
-  protected SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey, @Nullable String profileName) {
+  protected static SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey, @Nullable String profileName) {
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
     if (profileName != null) {
       ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, languageKey, profileName);
@@ -97,6 +101,13 @@ public abstract class TestBase {
       .setComponentKeys(Collections.singletonList(componentKey))).getIssuesList();
   }
 
+  static List<Issues.Issue> issuesForComponent(String componentKey) {
+    return newWsClient()
+      .issues()
+      .search(new SearchRequest().setComponentKeys(Collections.singletonList(componentKey)))
+      .getIssuesList();
+  }
+
   protected List<Hotspots.SearchWsResponse.Hotspot> getHotspotsForProject(String projectkey) {
     return newWsClient().hotspots().search(new org.sonarqube.ws.client.hotspots.SearchRequest()
       .setProjectKey(projectkey)).getHotspotsList();
@@ -111,5 +122,32 @@ public abstract class TestBase {
     return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(ORCHESTRATOR.getServer().getUrl())
       .build());
+  }
+
+  public static void executeBuildWithExpectedWarnings(Orchestrator orchestrator, SonarScanner build) {
+    BuildResult result = orchestrator.executeBuild(build);
+    assertAnalyzerLogs(result.getLogs());
+  }
+
+  private static void assertAnalyzerLogs(String logs) {
+    List<String> lines = new ArrayList<>(Arrays.asList(logs.split("[\r\n]+")));
+
+    assertThat(lines.size()).isBetween(25, 150);
+
+    Set<String> allowedStrings = Set.of(
+      "INFO: ",
+      "WARN: SonarQube scanners will require Java 11+ starting on next version",
+      "WARN: The sonar.modules is a deprecated property and should not be used anymore",
+      "WARNING: An illegal reflective access operation has occurred",
+      "WARNING: Illegal reflective access",
+      "WARNING: Please consider reporting this to the maintainers",
+      "WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations",
+      "WARNING: All illegal access operations will be denied in a future release",
+      "WARN: The property 'sonar.login' is deprecated and will be removed in the future. Please use the 'sonar.token' property instead when passing a token.",
+      "Picked up JAVA_TOOL_OPTIONS:");
+
+    lines.removeIf(logElement -> allowedStrings.stream().anyMatch(logElement::startsWith));
+
+    assertThat(lines).isEmpty();
   }
 }

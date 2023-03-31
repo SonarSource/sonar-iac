@@ -38,6 +38,10 @@ public interface ReportFormat {
 
   NewIssueLocation getIssueLocation(JSONObject issueJson, NewExternalIssue externalIssue, InputFile inputFile);
 
+  String getRuleType(JSONObject issueJson);
+
+  String getSeverity(JSONObject issueJson);
+
   default int asInt(Object o) {
     // The JSON parser transforms the values to long
     return Math.toIntExact((long) o);

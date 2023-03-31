@@ -38,7 +38,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
-import org.sonar.iac.terraform.reports.tflint.TFLintImporter;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.doAnswer;
@@ -50,7 +49,7 @@ import static org.mockito.Mockito.when;
 
 class TFLintImporterTest {
 
-  private static final String RESOURCES_PATH = "src/test/resources/tflint/";
+  private static final String PATH_PREFIX = "src/test/resources/tflint";
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
@@ -59,11 +58,11 @@ class TFLintImporterTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    File baseDir = new File("src/test/resources/tflint");
+    File baseDir = new File(PATH_PREFIX);
     context = SensorContextTester.create(baseDir);
 
-    addFileToContext(baseDir, RESOURCES_PATH + "exampleIssues.tf");
-    addFileToContext(baseDir, RESOURCES_PATH + "exampleError.tf");
+    addFileToContext(baseDir, PATH_PREFIX + "/exampleIssues.tf");
+    addFileToContext(baseDir, PATH_PREFIX + "/exampleError.tf");
   }
 
   private void addFileToContext(File baseDir, String path) throws IOException {
@@ -73,7 +72,7 @@ class TFLintImporterTest {
 
   @Test
   void shouldImportExampleIssue() {
-    File reportFile = new File(RESOURCES_PATH + "exampleIssues.json");
+    File reportFile = new File(PATH_PREFIX + "/exampleIssues.json");
     TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
@@ -89,7 +88,7 @@ class TFLintImporterTest {
 
   @Test
   void shouldImportExampleError() {
-    File reportFile = new File(RESOURCES_PATH + "exampleError.json");
+    File reportFile = new File(PATH_PREFIX + "/exampleError.json");
     TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
@@ -106,7 +105,7 @@ class TFLintImporterTest {
 
   @Test
   void shouldImportExampleErrorBadFileLocation() {
-    File reportFile = new File(RESOURCES_PATH + "exampleErrorBadFileLocation.json");
+    File reportFile = new File(PATH_PREFIX + "/exampleErrorBadFileLocation.json");
     TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 
     importer.importReport(reportFile);
@@ -123,10 +122,11 @@ class TFLintImporterTest {
 
   @ParameterizedTest
   @CsvSource({
-    RESOURCES_PATH + "doesNotExist.json, TFLint report importing: path does not seem to point to a file %s",
-    RESOURCES_PATH + "parseError.json, TFLint report importing: could not parse file as JSON %s",
-    RESOURCES_PATH + "exampleErrorNoFilename.json, TFLint report importing: could not save 1 out of 1 issues from %s."})
+    "/doesNotExist.json, TFLint report importing: path does not seem to point to a file %s",
+    "/parseError.json, TFLint report importing: could not parse file as JSON %s",
+    "/exampleErrorNoFilename.json, TFLint report importing: could not save 1 out of 1 issues from %s."})
   void shouldLogWarningWhenImport(String reportPath, String expectedLog) {
+    reportPath = PATH_PREFIX + reportPath;
     String path = File.separatorChar == '/' ? reportPath : Paths.get(reportPath).toString();
     File reportFile = new File(path);
     TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
@@ -168,9 +168,9 @@ class TFLintImporterTest {
 
   @ParameterizedTest
   @CsvSource(value = {
-    RESOURCES_PATH + "invalidPathTwo.json; TFLint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +
+    PATH_PREFIX + "/invalidPathTwo.json; TFLint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +
       "doesNotExist.yaml, a/b/doesNotExistToo.yaml",
-    RESOURCES_PATH + "invalidPathMoreThanTwo.json; TFLint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
+    PATH_PREFIX + "/invalidPathMoreThanTwo.json; TFLint report importing: could not save 3 out of 3 issues from %s. Some file paths could not be resolved: " +
       "doesNotExist.yaml, a/b/doesNotExistToo.yaml, ..."
   }, delimiter = ';')
   void unresolvedPathsAreAddedToWarning(File reportFile, String expectedLogFormat) {
