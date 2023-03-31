@@ -53,6 +53,6 @@ public class TerraformExtension {
       properties.addAll(TerraformSettings.getExternalReportProperties());
     }
 
-    context.addExtensions(TerraformSettings.getGeneralProperties());
+    context.addExtensions(properties);
   }
 }

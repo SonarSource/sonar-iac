@@ -32,7 +32,7 @@ public class TerraformSettings {
   private static final String VERSION_SUBCATEGORY = "Provider Versions";
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
 
-  static final String TFLINT_REPORTS_KEY = "sonar.docker.tflint.reportPaths";
+  static final String TFLINT_REPORTS_KEY = "sonar.terraform.tflint.reportPaths";
 
   static final String ACTIVATION_KEY = "sonar.terraform.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";

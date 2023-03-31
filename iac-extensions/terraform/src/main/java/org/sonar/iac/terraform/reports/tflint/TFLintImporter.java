@@ -37,6 +37,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.iac.common.reports.AbstractJsonReportImporter;
 import org.sonar.iac.common.reports.ReportImporterException;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
+import org.sonar.iac.terraform.plugin.TFLintRulesDefinition;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
@@ -77,30 +78,27 @@ public class TFLintImporter extends AbstractJsonReportImporter {
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     JSONObject rule = (JSONObject) issueJson.get("rule");
+    // TFLint report contains 2 types: issues & errors. Errors do not contain `rule` object
+    NewExternalIssue externalIssue;
     if (rule == null) {
-      // it's error, not an issue
       String severity = (String) issueJson.get("severity");
-
-      NewExternalIssue externalIssue = context.newExternalIssue()
+      externalIssue = context.newExternalIssue()
         .ruleId("tflint.error")
-        .type(RuleType.CODE_SMELL)
-        .engineId("tflint")
-        .severity(severity(severity))
-        .remediationEffortMinutes(0L);
+        .severity(severity(severity));
       externalIssue.at(errorLocation(issueJson, externalIssue));
-      return externalIssue;
+    } else {
+      String ruleId = (String) rule.get("name");
+      String severity = (String) rule.get("severity");
+      externalIssue = context.newExternalIssue()
+        .ruleId(ruleId)
+        .severity(severity(severity));
+      externalIssue.at(issueLocation(issueJson, externalIssue));
     }
 
-    String ruleId = (String) rule.get("name");
-    String severity = (String) rule.get("severity");
-
-    NewExternalIssue externalIssue = context.newExternalIssue()
-      .ruleId(ruleId)
-      .type(RuleType.CODE_SMELL)
-      .engineId("tflint")
-      .severity(severity(severity))
+    externalIssue.type(RuleType.CODE_SMELL)
+      .engineId(TFLintRulesDefinition.LINTER_KEY)
       .remediationEffortMinutes(0L);
-    externalIssue.at(issueLocation(issueJson, externalIssue));
+
     return externalIssue;
   }
 
@@ -160,6 +158,10 @@ public class TFLintImporter extends AbstractJsonReportImporter {
     if ("ERROR".equals(text)) {
       text = "BLOCKER";
     }
-    return Severity.valueOf(text);
+    try {
+      return Severity.valueOf(text);
+    } catch (IllegalArgumentException e) {
+      return Severity.MINOR;
+    }
   }
 }

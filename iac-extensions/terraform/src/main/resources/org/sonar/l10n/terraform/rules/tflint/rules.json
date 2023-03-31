@@ -12,7 +12,7 @@
     "severity": "MAJOR"
   },
   {
-    "key": "cfn-lint.fallback",
+    "key": "tflint.fallback",
     "name": "Cfn-lint Rule",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
     "tags": [

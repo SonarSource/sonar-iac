@@ -93,8 +93,6 @@ class TFLintImporterTest {
 
     importer.importReport(reportFile);
 
-    context.allExternalIssues().forEach(System.out::println);
-
     assertThat(context.allExternalIssues()).hasSize(1);
     ExternalIssue issue = context.allExternalIssues().iterator().next();
     assertThat(issue.ruleId()).isEqualTo("tflint.error");
@@ -102,6 +100,23 @@ class TFLintImporterTest {
     assertThat(issue.primaryLocation().message()).isEqualTo(
       "Failed to check ruleset; Failed to check `aws_instance_previous_type` rule: exampleError.tf:2,21-29: Reference to undeclared input variable; An input variable with the name \"type\" has not been declared. This variable can be declared with a variable \"type\" {} block.");
     assertTextRange(issue.primaryLocation().textRange(), 2, 0, 2, 26);
+    verifyNoInteractions(mockAnalysisWarnings);
+  }
+
+  @Test
+  void shouldImportExampleErrorBadFileLocation() {
+    File reportFile = new File("src/test/resources/tflint/exampleErrorBadFileLocation.json");
+    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
+
+    importer.importReport(reportFile);
+
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    assertThat(issue.ruleId()).isEqualTo("tflint.error");
+    assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(issue.primaryLocation().message()).isEqualTo(
+      "Failed to check ruleset; Failed to check `foo bar` rule: exampleError.tf:2,21-25: foo bar");
+    assertTextRange(issue.primaryLocation().textRange(), 2, 20, 2, 24);
     verifyNoInteractions(mockAnalysisWarnings);
   }
 
@@ -117,7 +132,6 @@ class TFLintImporterTest {
 
     importer.importReport(reportFile);
 
-    context.allExternalIssues().forEach(System.out::println);
     assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(String.format(expectedLog, path));
   }
 
