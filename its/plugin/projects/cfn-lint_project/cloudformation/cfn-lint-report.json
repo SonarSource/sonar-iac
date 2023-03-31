@@ -1,0 +1,24 @@
+[
+  {
+    "Filename": "src/template.yaml",
+    "Level": "Error",
+    "Location": {
+      "End": {
+        "ColumnNumber": 21,
+        "LineNumber": 8
+      },
+      "Path": null,
+      "Start": {
+        "ColumnNumber": 20,
+        "LineNumber": 8
+      }
+    },
+    "Message": "Null value at line 8 column 20",
+    "Rule": {
+      "Description": "Checks for JSON/YAML formatting errors in your template",
+      "Id": "E0000",
+      "ShortDescription": "Parsing error found when parsing the template",
+      "Source": "https://github.com/aws-cloudformation/cfn-python-lint"
+    }
+  }
+]

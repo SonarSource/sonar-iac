@@ -29,6 +29,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  CfnLintReportTest.class,
   HadolintReportTest.class,
   MeasuresTest.class,
   NoSonarTest.class,
@@ -53,7 +54,8 @@ public class Tests {
       .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", SONAR_CONFIG_VERSION))
       .restoreProfileAtStartup(FileLocation.of("src/test/resources/nosonar-terraform.xml"))
       .restoreProfileAtStartup(FileLocation.of("src/test/resources/aws-provider-terraform.xml"))
-      .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules.xml"))
+      .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-docker.xml"))
+      .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules-cloudformation.xml"))
       .build();
   }
 }
