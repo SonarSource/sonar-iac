@@ -23,10 +23,12 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
@@ -128,24 +130,24 @@ public abstract class TestBase {
   }
 
   private static void assertAnalyzerLogs(String logs) {
-    List<String> lines = Arrays.asList(logs.split("[\r\n]+"));
+    List<String> lines = new ArrayList<>(Arrays.asList(logs.split("[\r\n]+")));
 
     assertThat(lines.size()).isBetween(25, 150);
 
-    List<String> unexpectedLogs = lines.stream()
-      .filter(line -> !line.startsWith("INFO: "))
-      .filter(line -> !line.startsWith("WARN: SonarQube scanners will require Java 11+ starting on next version"))
-      .filter(line -> !line.startsWith("WARN: The sonar.modules is a deprecated property and should not be used anymore"))
-      .filter(line -> !line.startsWith("WARNING: An illegal reflective access operation has occurred"))
-      .filter(line -> !line.startsWith("WARNING: Illegal reflective access"))
-      .filter(line -> !line.startsWith("WARNING: Please consider reporting this to the maintainers"))
-      .filter(line -> !line.startsWith("WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations"))
-      .filter(line -> !line.startsWith("WARNING: All illegal access operations will be denied in a future release"))
-      .filter(line -> !line
-        .startsWith("WARN: The property 'sonar.login' is deprecated and will be removed in the future. Please use the 'sonar.token' property instead when passing a token."))
-      .filter(line -> !line.startsWith("Picked up JAVA_TOOL_OPTIONS:"))
-      .collect(Collectors.toList());
+    Set<String> allowedStrings = Set.of(
+      "INFO: ",
+      "WARN: SonarQube scanners will require Java 11+ starting on next version",
+      "WARN: The sonar.modules is a deprecated property and should not be used anymore",
+      "WARNING: An illegal reflective access operation has occurred",
+      "WARNING: Illegal reflective access",
+      "WARNING: Please consider reporting this to the maintainers",
+      "WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations",
+      "WARNING: All illegal access operations will be denied in a future release",
+      "WARN: The property 'sonar.login' is deprecated and will be removed in the future. Please use the 'sonar.token' property instead when passing a token.",
+      "Picked up JAVA_TOOL_OPTIONS:");
 
-    assertThat(unexpectedLogs).isEmpty();
+    lines.removeIf(logElement -> allowedStrings.stream().anyMatch(logElement::startsWith));
+
+    assertThat(lines).isEmpty();
   }
 }
