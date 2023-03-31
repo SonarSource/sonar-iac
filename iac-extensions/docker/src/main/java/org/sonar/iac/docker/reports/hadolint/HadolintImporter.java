@@ -20,9 +20,11 @@
 package org.sonar.iac.docker.reports.hadolint;
 
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.rules.RuleType;
 import org.sonar.iac.common.reports.AbstractJsonReportImporter;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.docker.plugin.HadolintRulesDefinition;
@@ -35,6 +37,41 @@ public class HadolintImporter extends AbstractJsonReportImporter {
     super(context, analysisWarnings, MESSAGE_PREFIX);
   }
 
+  private static void loadPropertiesIntoIssue(NewExternalIssue externalIssue, ReportFormat format, JSONObject issueJson, String ruleId) {
+    boolean loadPropertiesFromRepository = true;
+    if (!HadolintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
+      if (ruleId.startsWith("DL") || ruleId.startsWith("SC")) {
+        // imported a rule which isn't (yet) contained in our rule repository, but is a valid rule from hadolint
+        loadPropertiesFromRepository = false;
+      } else {
+        // properties will be loaded from repository using default values
+        ruleId = "hadolint.fallback";
+      }
+    }
+    externalIssue.ruleId(ruleId);
+
+    Long effortInMinutes;
+    Severity severity;
+    RuleType type;
+
+    if (loadPropertiesFromRepository) {
+      effortInMinutes = HadolintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes(ruleId);
+      severity = HadolintRulesDefinition.RULE_LOADER.ruleSeverity(ruleId);
+      type = HadolintRulesDefinition.RULE_LOADER.ruleType(ruleId);
+    } else {
+      severity = Severity.valueOf(format.getSeverity(issueJson));
+      type = RuleType.valueOf(format.getRuleType(issueJson));
+      // using default cause property is missing in report
+      effortInMinutes = HadolintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes("hadolint.fallback");
+    }
+    externalIssue
+      .ruleId(ruleId)
+      .engineId(HadolintRulesDefinition.LINTER_KEY)
+      .type(type)
+      .severity(severity)
+      .remediationEffortMinutes(effortInMinutes);
+  }
+
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     ReportFormat reportFormat = ReportFormat.getFormatBasedOnReport(issueJson);
@@ -43,16 +80,10 @@ public class HadolintImporter extends AbstractJsonReportImporter {
     InputFile inputFile = inputFile(path);
 
     String ruleId = reportFormat.getRuleId(issueJson);
-    if (!HadolintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
-      ruleId = "hadolint.fallback";
-    }
 
-    NewExternalIssue externalIssue = context.newExternalIssue()
-      .ruleId(ruleId)
-      .type(HadolintRulesDefinition.RULE_LOADER.ruleType(ruleId))
-      .engineId(HadolintRulesDefinition.LINTER_KEY)
-      .severity(HadolintRulesDefinition.RULE_LOADER.ruleSeverity(ruleId))
-      .remediationEffortMinutes(HadolintRulesDefinition.RULE_LOADER.ruleConstantDebtMinutes(ruleId));
+    NewExternalIssue externalIssue = context.newExternalIssue();
+
+    loadPropertiesIntoIssue(externalIssue, reportFormat, issueJson, ruleId);
 
     NewIssueLocation issueLocation = reportFormat.getIssueLocation(issueJson, externalIssue, inputFile);
     externalIssue.at(issueLocation);

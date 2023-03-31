@@ -64,4 +64,12 @@ public class ReportFormatSonarqube implements ReportFormat {
       .on(inputFile)
       .at(range);
   }
+
+  public String getRuleType(JSONObject issueJson) {
+    return (String) issueJson.get("type");
+  }
+
+  public String getSeverity(JSONObject issueJson) {
+    return (String) issueJson.get("severity");
+  }
 }

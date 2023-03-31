@@ -30,6 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
@@ -57,7 +58,11 @@ class HadolintImporterTest {
     File baseDir = new File("src/test/resources/hadolint");
     context = SensorContextTester.create(baseDir);
 
-    File someFile = new File("src/test/resources/hadolint/docker-file.docker");
+    addFileToContext(baseDir, "src/test/resources/hadolint/docker-file.docker");
+  }
+
+  private void addFileToContext(File baseDir, String path) throws IOException {
+    File someFile = new File(path);
     context.fileSystem().add(new TestInputFileBuilder("project", baseDir, someFile).setContents(new String(Files.readAllBytes(someFile.toPath()))).build());
   }
 
@@ -126,6 +131,19 @@ class HadolintImporterTest {
     verifyNoInteractions(mockAnalysisWarnings);
   }
 
+  @Test
+  void validIssueWithInvalidColumns() {
+    File reportFile = new File("src/test/resources/hadolint/sonarqubeFormat/validIssueWithInvalidColumns.json");
+    importReport(reportFile);
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    assertThat(issue.ruleId()).isEqualTo("DL3007");
+    assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(issue.primaryLocation().message()).isEqualTo("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag");
+    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
+    verifyNoInteractions(mockAnalysisWarnings);
+  }
+
   @ParameterizedTest
   @CsvSource({
     "src/test/resources/hadolint/jsonFormat/validAndInvalid.json",
@@ -151,6 +169,37 @@ class HadolintImporterTest {
     ExternalIssue issue = context.allExternalIssues().iterator().next();
     assertThat(issue.ruleId()).isEqualTo("hadolint.fallback");
     assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
+    verifyNoInteractions(mockAnalysisWarnings);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "src/test/resources/hadolint/jsonFormat/unknownWarningRuleWithValidHadolintName.json, SC9999",
+    "src/test/resources/hadolint/sonarqubeFormat/unknownWarningRuleWithValidHadolintName.json, DL9999"})
+  void unknownWarningRuleWithValidHadolintFormat(String reportPath, String ruleId) {
+    File reportFile = new File(reportPath);
+    importReport(reportFile);
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    assertThat(issue.ruleId()).isEqualTo(ruleId);
+    assertThat(issue.severity()).isEqualTo(Severity.MAJOR);
+    assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
+
+    verifyNoInteractions(mockAnalysisWarnings);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "src/test/resources/hadolint/jsonFormat/unknownErrorRuleWithValidHadolintName.json, SC9999",
+    "src/test/resources/hadolint/sonarqubeFormat/unknownErrorRuleWithValidHadolintName.json, DL9999"})
+  void unknownErrorRuleWithValidHadolintFormat(String reportPath, String ruleId) {
+    File reportFile = new File(reportPath);
+    importReport(reportFile);
+    assertThat(context.allExternalIssues()).hasSize(1);
+    ExternalIssue issue = context.allExternalIssues().iterator().next();
+    assertThat(issue.ruleId()).isEqualTo(ruleId);
+    assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(issue.type()).isEqualTo(RuleType.BUG);
     verifyNoInteractions(mockAnalysisWarnings);
   }
 
