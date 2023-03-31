@@ -25,7 +25,6 @@ import org.sonar.api.SonarProduct;
 public class CloudformationExtension {
 
   public static final String REPOSITORY_KEY = "cloudformation";
-  public static final String REPOSITORY_NAME = "SonarQube";
 
   private CloudformationExtension() {
   }
@@ -40,11 +39,13 @@ public class CloudformationExtension {
       CloudformationRulesDefinition.class,
       CloudformationProfileDefinition.class);
 
+    context.addExtensions(CloudformationSettings.getGeneralProperties());
+
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
-      // We do not import external reports in SonarLint so no need to define the CfnLint rules.
+      // We do not import external reports in SonarLint so no need to define their rules.
       context.addExtension(CfnLintRulesDefinition.class);
+      context.addExtensions(CloudformationSettings.getExternalReportProperties());
     }
 
-    context.addExtensions(CloudformationSettings.getProperties());
   }
 }
