@@ -34,15 +34,21 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.reports.AbstractJsonReportImporter;
 import org.sonar.iac.common.reports.ReportImporterException;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
-import org.sonar.iac.terraform.plugin.TFLintRulesDefinition;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
+import static org.sonar.iac.terraform.plugin.TFLintRulesDefinition.LINTER_KEY;
+import static org.sonar.iac.terraform.plugin.TFLintRulesDefinition.RULE_LOADER;
+
 public class TFLintImporter extends AbstractJsonReportImporter {
+
+  private static final Logger LOG = Loggers.get(TFLintImporter.class);
 
   private static final String MESSAGE_PREFIX = "TFLint report importing: ";
   // Matches: `: filename.tf:2,21-29:`
@@ -78,26 +84,36 @@ public class TFLintImporter extends AbstractJsonReportImporter {
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     JSONObject rule = (JSONObject) issueJson.get("rule");
-    // TFLint report contains 2 types: issues & errors. Errors do not contain `rule` object
     NewExternalIssue externalIssue;
+    String severity;
+    RuleType type = RuleType.CODE_SMELL;
+    Long effortInMinutes = 5L;
+    // TFLint report contains 2 types: issues & errors. Errors do not contain `rule` object
     if (rule == null) {
-      String severity = (String) issueJson.get("severity");
+      severity = (String) issueJson.get("severity");
       externalIssue = context.newExternalIssue()
-        .ruleId("tflint.error")
-        .severity(severity(severity));
+        .ruleId("tflint.error");
       externalIssue.at(errorLocation(issueJson, externalIssue));
     } else {
       String ruleId = (String) rule.get("name");
-      String severity = (String) rule.get("severity");
+      severity = (String) rule.get("severity");
+
+      if (RULE_LOADER.ruleKeys().contains(ruleId)) {
+        type = RULE_LOADER.ruleType(ruleId);
+        effortInMinutes = RULE_LOADER.ruleConstantDebtMinutes(ruleId);
+      } else {
+        LOG.trace(String.format("%s No rule definition for rule id: %s", MESSAGE_PREFIX, ruleId));
+      }
+
       externalIssue = context.newExternalIssue()
-        .ruleId(ruleId)
-        .severity(severity(severity));
+        .ruleId(ruleId);
       externalIssue.at(issueLocation(issueJson, externalIssue));
     }
 
-    externalIssue.type(RuleType.CODE_SMELL)
-      .engineId(TFLintRulesDefinition.LINTER_KEY)
-      .remediationEffortMinutes(0L);
+    externalIssue.type(type)
+      .engineId(LINTER_KEY)
+      .severity(severity(severity))
+      .remediationEffortMinutes(effortInMinutes);
 
     return externalIssue;
   }
