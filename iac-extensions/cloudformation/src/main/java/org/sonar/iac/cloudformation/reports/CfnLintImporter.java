@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.cloudformation.reports;
 
-import java.util.Objects;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -43,16 +41,8 @@ public class CfnLintImporter extends AbstractJsonReportImporter {
   @Override
   protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
     String path = (String) issueJson.get("Filename");
-    FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.or(
-      predicates.hasAbsolutePath(path),
-      predicates.hasRelativePath(path)));
+    InputFile inputFile = inputFile(path);
 
-    if (inputFile == null) {
-      addUnresolvedPath(path);
-    }
-
-    Objects.requireNonNull(inputFile);
     String ruleId = (String) ((JSONObject) issueJson.get("Rule")).get("Id");
     if (!CfnLintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
       ruleId = "cfn-lint.fallback";

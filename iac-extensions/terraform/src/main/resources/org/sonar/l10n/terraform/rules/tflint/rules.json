@@ -1,0 +1,26 @@
+[
+  {
+    "key": "E0000",
+    "name": "Parsing error found when parsing the template",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [
+      "base"
+    ],
+    "description": "Checks for JSON/YAML formatting errors in your template",
+    "constantDebtMinutes": 0,
+    "type": "BUG",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "tflint.fallback",
+    "name": "Cfn-lint Rule",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [
+      "cfn-lint"
+    ],
+    "description": "This reporting may be triggered by a custom cfn-lint rule or by a default cfn-lint rule that has not yet been added to the Sonar IaC analyzer.",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  }
+]

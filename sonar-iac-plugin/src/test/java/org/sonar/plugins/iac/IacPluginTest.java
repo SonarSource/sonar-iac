@@ -36,10 +36,10 @@ class IacPluginTest {
   private final IacPlugin iacPlugin = new IacPlugin();
 
   @Test
-  void sonarqube_extensions() {
+  void sonarqubeExtensions() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     iacPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(30);
+    assertThat(context.getExtensions()).hasSize(32);
   }
 }

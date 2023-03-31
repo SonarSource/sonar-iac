@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.docker.reports.hadolint;
 
-import java.util.Objects;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
@@ -42,16 +40,8 @@ public class HadolintImporter extends AbstractJsonReportImporter {
     ReportFormat reportFormat = ReportFormat.getFormatBasedOnReport(issueJson);
 
     String path = reportFormat.getPath(issueJson);
-    FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.or(
-      predicates.hasAbsolutePath(path),
-      predicates.hasRelativePath(path)));
+    InputFile inputFile = inputFile(path);
 
-    if (inputFile == null) {
-      addUnresolvedPath(path);
-    }
-
-    Objects.requireNonNull(inputFile);
     String ruleId = reportFormat.getRuleId(issueJson);
     if (!HadolintRulesDefinition.RULE_LOADER.ruleKeys().contains(ruleId)) {
       ruleId = "hadolint.fallback";

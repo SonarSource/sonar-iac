@@ -119,11 +119,29 @@ class TerraformProvidersTest {
 
   @Test
   void check_property_registration() {
-    long registeredProperties = TerraformSettings.getProperties().stream()
+    long registeredProperties = TerraformSettings.getGeneralProperties().stream()
       .filter(propertyDefinition -> propertyDefinition.key().startsWith("sonar.terraform.provider"))
       .count();
 
     assertThat(registeredProperties).isEqualTo(Provider.Identifier.values().length);
+  }
+
+  @Test
+  void checkGeneralPropertiesPrefix() {
+    long countPrefix = TerraformSettings.getGeneralProperties().stream()
+      .filter(propertyDefinition -> propertyDefinition.key().startsWith("sonar.terraform."))
+      .count();
+
+    assertThat(countPrefix).isEqualTo(TerraformSettings.getGeneralProperties().size());
+  }
+
+  @Test
+  void checkExternalReportPropertiesPrefix() {
+    long countPrefix = TerraformSettings.getExternalReportProperties().stream()
+      .filter(propertyDefinition -> propertyDefinition.key().startsWith("sonar.terraform."))
+      .count();
+
+    assertThat(countPrefix).isEqualTo(TerraformSettings.getExternalReportProperties().size());
   }
 
   private TerraformProviders providers(SensorContext context) {

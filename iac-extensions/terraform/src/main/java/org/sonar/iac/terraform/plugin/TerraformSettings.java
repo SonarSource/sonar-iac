@@ -30,6 +30,9 @@ public class TerraformSettings {
   private static final String TERRAFORM_CATEGORY = "Terraform";
   private static final String GENERAL_SUBCATEGORY = "General";
   private static final String VERSION_SUBCATEGORY = "Provider Versions";
+  private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
+
+  static final String TFLINT_REPORTS_KEY = "sonar.terraform.tflint.reportPaths";
 
   static final String ACTIVATION_KEY = "sonar.terraform.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
@@ -40,7 +43,7 @@ public class TerraformSettings {
   private TerraformSettings() {
   }
 
-  public static List<PropertyDefinition> getProperties() {
+  public static List<PropertyDefinition> getGeneralProperties() {
     return Arrays.asList(
       PropertyDefinition.builder(ACTIVATION_KEY)
         .index(1)
@@ -86,5 +89,17 @@ public class TerraformSettings {
         .category(TERRAFORM_CATEGORY)
         .subCategory(VERSION_SUBCATEGORY)
         .build());
+  }
+
+  public static List<PropertyDefinition> getExternalReportProperties() {
+    return List.of(PropertyDefinition.builder(TFLINT_REPORTS_KEY)
+      .index(33)
+      .name("TFLint Report Files")
+      .description("Paths (absolute or relative) to the files with TFLint issues.")
+      .category(EXTERNAL_ANALYZERS_CATEGORY)
+      .subCategory(TERRAFORM_CATEGORY)
+      .onQualifiers(Qualifiers.PROJECT)
+      .multiValues(true)
+      .build());
   }
 }

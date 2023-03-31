@@ -1,0 +1,9 @@
+{
+  "issues": [],
+  "errors": [
+    {
+      "message": "Failed to check ruleset; Failed to check `foo bar` rule: exampleError.tf:2,21-25: foo bar",
+      "severity": "error"
+    }
+  ]
+}
