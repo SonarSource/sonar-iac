@@ -43,7 +43,7 @@ class TFLintRulesDefinitionTest {
   }
 
   @Test
-  void createExternalHadoLintRepository() {
+  void createExternalTFLintRepository() {
     RulesDefinition.Context context = new RulesDefinition.Context();
     TFLintRulesDefinition TFLintRulesDefinition = new TFLintRulesDefinition();
     TFLintRulesDefinition.define(context);
@@ -54,6 +54,6 @@ class TFLintRulesDefinitionTest {
     assertThat(repository.name()).isEqualTo("TFLint - A Pluggable Terraform Linter");
     assertThat(repository.language()).isEqualTo("terraform");
     assertThat(repository.isExternal()).isTrue();
-    assertThat(repository.rules()).hasSize(1713);
+    assertThat(repository.rules()).hasSize(1712);
   }
 }
