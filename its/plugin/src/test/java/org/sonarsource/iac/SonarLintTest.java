@@ -136,12 +136,6 @@ public class SonarLintTest {
     return testFiles;
   }
 
-  private ClientInputFile prepareInputFile(String relativePath, String content, final boolean isTest) throws IOException {
-    final File file = new File(tmp, relativePath);
-    FileUtils.write(file, content, StandardCharsets.UTF_8);
-    return createInputFile(file.toPath(), isTest);
-  }
-
   private ClientInputFile createInputFile(final Path path, final boolean isTest) {
     return new ClientInputFile() {
 
