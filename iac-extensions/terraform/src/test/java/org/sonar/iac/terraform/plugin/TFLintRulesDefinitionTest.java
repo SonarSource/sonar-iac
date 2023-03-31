@@ -54,6 +54,6 @@ class TFLintRulesDefinitionTest {
     assertThat(repository.name()).isEqualTo("TFLint - A Pluggable Terraform Linter");
     assertThat(repository.language()).isEqualTo("terraform");
     assertThat(repository.isExternal()).isTrue();
-    assertThat(repository.rules()).hasSize(2);
+    assertThat(repository.rules()).hasSize(1713);
   }
 }
