@@ -20,6 +20,7 @@
 package org.sonarsource.iac;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.util.Arrays;
@@ -41,6 +42,7 @@ import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TestBase {
 
@@ -97,6 +99,13 @@ public abstract class TestBase {
       .setComponentKeys(Collections.singletonList(componentKey))).getIssuesList();
   }
 
+  static List<Issues.Issue> issuesForComponent(String componentKey) {
+    return newWsClient()
+      .issues()
+      .search(new SearchRequest().setComponentKeys(Collections.singletonList(componentKey)))
+      .getIssuesList();
+  }
+
   protected List<Hotspots.SearchWsResponse.Hotspot> getHotspotsForProject(String projectkey) {
     return newWsClient().hotspots().search(new org.sonarqube.ws.client.hotspots.SearchRequest()
       .setProjectKey(projectkey)).getHotspotsList();
@@ -111,5 +120,32 @@ public abstract class TestBase {
     return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(ORCHESTRATOR.getServer().getUrl())
       .build());
+  }
+
+  public static void executeBuildWithExpectedWarnings(Orchestrator orchestrator, SonarScanner build) {
+    BuildResult result = orchestrator.executeBuild(build);
+    assertAnalyzerLogs(result.getLogs());
+  }
+
+  private static void assertAnalyzerLogs(String logs) {
+    List<String> lines = Arrays.asList(logs.split("[\r\n]+"));
+
+    assertThat(lines.size()).isBetween(25, 150);
+
+    List<String> unexpectedLogs = lines.stream()
+      .filter(line -> !line.startsWith("INFO: "))
+      .filter(line -> !line.startsWith("WARN: SonarQube scanners will require Java 11+ starting on next version"))
+      .filter(line -> !line.startsWith("WARN: The sonar.modules is a deprecated property and should not be used anymore"))
+      .filter(line -> !line.startsWith("WARNING: An illegal reflective access operation has occurred"))
+      .filter(line -> !line.startsWith("WARNING: Illegal reflective access"))
+      .filter(line -> !line.startsWith("WARNING: Please consider reporting this to the maintainers"))
+      .filter(line -> !line.startsWith("WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations"))
+      .filter(line -> !line.startsWith("WARNING: All illegal access operations will be denied in a future release"))
+      .filter(line -> !line
+        .startsWith("WARN: The property 'sonar.login' is deprecated and will be removed in the future. Please use the 'sonar.token' property instead when passing a token."))
+      .filter(line -> !line.startsWith("Picked up JAVA_TOOL_OPTIONS:"))
+      .collect(Collectors.toList());
+
+    assertThat(unexpectedLogs).isEmpty();
   }
 }
