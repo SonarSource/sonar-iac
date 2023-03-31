@@ -42,7 +42,7 @@ public class CloudformationSettings {
   private CloudformationSettings() {
   }
 
-  public static List<PropertyDefinition> getProperties() {
+  public static List<PropertyDefinition> getGeneralProperties() {
     return Arrays.asList(
       PropertyDefinition.builder(ACTIVATION_KEY)
         .index(1)
@@ -63,16 +63,18 @@ public class CloudformationSettings {
         .onQualifiers(Qualifiers.PROJECT)
         .category(CLOUDFORMATION_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(CFN_LINT_REPORTS_KEY)
-        .index(33)
-        .name("Cfn-Lint Report Files")
-        .description("Paths (absolute or relative) to the files with Cfn-Lint issues.")
-        .category(EXTERNAL_ANALYZERS_CATEGORY)
-        .subCategory(CLOUDFORMATION_CATEGORY)
-        .onQualifiers(Qualifiers.PROJECT)
-        .multiValues(true)
         .build());
+  }
+
+  public static List<PropertyDefinition> getExternalReportProperties() {
+    return List.of(PropertyDefinition.builder(CFN_LINT_REPORTS_KEY)
+      .index(33)
+      .name("Cfn-Lint Report Files")
+      .description("Paths (absolute or relative) to the files with Cfn-Lint issues.")
+      .category(EXTERNAL_ANALYZERS_CATEGORY)
+      .subCategory(CLOUDFORMATION_CATEGORY)
+      .onQualifiers(Qualifiers.PROJECT)
+      .multiValues(true)
+      .build());
   }
 }
