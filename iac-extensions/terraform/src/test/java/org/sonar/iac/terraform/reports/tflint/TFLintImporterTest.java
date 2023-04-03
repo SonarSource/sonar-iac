@@ -156,7 +156,7 @@ class TFLintImporterTest {
 
   @Test
   void shouldLogTraceWhenRuleDoesntExist() {
-    String path = RESOURCES_PATH + "exampleIssueInvalidRuleId.json";
+    String path = PATH_PREFIX + "/exampleIssueInvalidRuleId.json";
     File reportFile = new File(path);
     TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
 
