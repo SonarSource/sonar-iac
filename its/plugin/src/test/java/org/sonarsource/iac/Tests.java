@@ -33,7 +33,8 @@ import org.junit.runners.Suite;
   HadolintReportTest.class,
   MeasuresTest.class,
   NoSonarTest.class,
-  PropertiesTest.class
+  PropertiesTest.class,
+  TFLintReportTest.class
 })
 public class Tests {
 
