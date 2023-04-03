@@ -24,7 +24,7 @@ import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 public class HadolintRulesDefinition implements RulesDefinition {
   public static final String LINTER_KEY = "hadolint";
-  public static final String LINTER_NAME = "Haskell Dockerfile Linter";
+  public static final String LINTER_NAME = "HADOLINT";
   private static final String RULES_JSON = "org/sonar/l10n/docker/rules/hadolint/rules.json";
 
   public static final ExternalRuleLoader RULE_LOADER = new ExternalRuleLoader(LINTER_KEY, LINTER_NAME, RULES_JSON, DockerLanguage.KEY);
