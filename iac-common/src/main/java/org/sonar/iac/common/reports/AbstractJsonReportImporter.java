@@ -76,7 +76,7 @@ public abstract class AbstractJsonReportImporter {
   protected List<JSONArray> parseJson(File reportFile) {
     JSONArray issuesJson = null;
     try {
-      issuesJson = (JSONArray) jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
+      issuesJson = parseFileAsArray(reportFile);
     } catch (IOException e) {
       String message = String.format("could not read report file %s", reportFile.getPath());
       logWarning(message);
@@ -91,6 +91,10 @@ public abstract class AbstractJsonReportImporter {
       return Collections.emptyList();
     }
     return List.of(issuesJson);
+  }
+
+  protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
+    return (JSONArray) jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
   }
 
   protected int saveIssues(JSONArray issuesJson) {

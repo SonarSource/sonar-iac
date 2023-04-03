@@ -22,6 +22,7 @@ package org.sonarsource.iac;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.List;
+import java.util.Optional;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Common;
@@ -45,15 +46,16 @@ public class HadolintReportTest extends TestBase {
     List<Issues.Issue> issues = issuesForComponent(PROJECT);
     assertThat(issues).hasSize(19);
 
-    // testing only the first one as sanity check
-    Issues.Issue first = issues.get(0);
-    assertThat(first.getComponent()).isEqualTo(PROJECT + ":src/test.docker");
-    assertThat(first.getRule()).isEqualTo("external_hadolint:DL3007");
-    assertThat(first.getMessage()).isEqualTo("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag");
-    assertThat(first.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
-    assertThat(first.getSeverity()).isEqualTo(Common.Severity.MAJOR);
-    assertThat(first.getEffort()).isEqualTo("5min");
-    assertThat(first.getLine()).isEqualTo(10);
+    Optional<Issues.Issue> optionalIssue = issues.stream().filter(issue -> issue.getRule().equals("external_hadolint:DL3007")).findFirst();
+    assertThat(optionalIssue).isNotEmpty();
+    Issues.Issue issue = optionalIssue.get();
+    assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/test.docker");
+    assertThat(issue.getRule()).isEqualTo("external_hadolint:DL3007");
+    assertThat(issue.getMessage()).isEqualTo("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag");
+    assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    assertThat(issue.getEffort()).isEqualTo("5min");
+    assertThat(issue.getLine()).isEqualTo(10);
   }
 
 }

@@ -1,0 +1,148 @@
+{
+  "issues": [
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "src/test.docker",
+        "message": "Use COPY instead of ADD for files and folders",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 23,
+          "startColumn": 0,
+          "startLine": 23
+        }
+      },
+      "ruleId": "DL3020",
+      "severity": "CRITICAL",
+      "type": "BUG"
+    },
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "src/test.docker",
+        "message": "Pin versions in apt get install. Instead of `apt-get install <package>` use `apt-get install <package>=<version>`",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 30,
+          "startColumn": 0,
+          "startLine": 30
+        }
+      },
+      "ruleId": "DL3008",
+      "severity": "MAJOR",
+      "type": "CODE_SMELL"
+    },
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "src/test.docker",
+        "message": "Avoid additional packages by specifying `--no-install-recommends`",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 30,
+          "startColumn": 0,
+          "startLine": 30
+        }
+      },
+      "ruleId": "DL3015",
+      "severity": "MINOR",
+      "type": "CODE_SMELL"
+    },
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "src/test.docker",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 33,
+          "startColumn": 0,
+          "startLine": 33
+        }
+      },
+      "ruleId": "DL3059",
+      "severity": "MINOR",
+      "type": "CODE_SMELL"
+    },
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "src/test.docker",
+        "message": "Use COPY instead of ADD for files and folders",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 36,
+          "startColumn": 0,
+          "startLine": 36
+        }
+      },
+      "ruleId": "DL3020",
+      "severity": "CRITICAL",
+      "type": "BUG"
+    },
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "src/test.docker",
+        "message": "Use COPY instead of ADD for files and folders",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 38,
+          "startColumn": 0,
+          "startLine": 38
+        }
+      },
+      "ruleId": "DL3020",
+      "severity": "CRITICAL",
+      "type": "BUG"
+    },
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "src/test.docker",
+        "message": "Use COPY instead of ADD for files and folders",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 39,
+          "startColumn": 0,
+          "startLine": 39
+        }
+      },
+      "ruleId": "DL3020",
+      "severity": "CRITICAL",
+      "type": "BUG"
+    },
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "src/test.docker",
+        "message": "Multiple consecutive `RUN` instructions. Consider consolidation.",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 44,
+          "startColumn": 0,
+          "startLine": 44
+        }
+      },
+      "ruleId": "DL3059",
+      "severity": "MINOR",
+      "type": "CODE_SMELL"
+    },
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "src/test.docker",
+        "message": "Use COPY instead of ADD for files and folders",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 78,
+          "startColumn": 0,
+          "startLine": 78
+        }
+      },
+      "ruleId": "DL3020",
+      "severity": "CRITICAL",
+      "type": "BUG"
+    }
+  ]
+}

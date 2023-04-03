@@ -22,8 +22,6 @@ package org.sonar.iac.terraform.reports.tflint;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,26 +57,12 @@ public class TFLintImporter extends AbstractJsonReportImporter {
   }
 
   @Override
-  protected List<JSONArray> parseJson(File reportFile) {
-    JSONObject json = null;
-    try {
-      json = (JSONObject) jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
-    } catch (IOException e) {
-      String message = String.format("could not read report file %s", reportFile.getPath());
-      logWarning(message);
-    } catch (ParseException e) {
-      String message = String.format("could not parse file as JSON %s", reportFile.getPath());
-      logWarning(message);
-    }
-    if (json == null) {
-      return Collections.emptyList();
-    }
-    JSONArray issuesArray = (JSONArray) json.get("issues");
-    JSONArray errorsArray = (JSONArray) json.get("errors");
-
+  protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
+    Object parsedJson = jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
+    JSONArray issuesArray = ((JSONArray) ((JSONObject) parsedJson).get("issues"));
+    JSONArray errorsArray = ((JSONArray) ((JSONObject) parsedJson).get("errors"));
     issuesArray.addAll(errorsArray);
-
-    return List.of(issuesArray);
+    return issuesArray;
   }
 
   @Override
