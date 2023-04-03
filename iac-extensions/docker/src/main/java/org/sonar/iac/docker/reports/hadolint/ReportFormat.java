@@ -30,17 +30,6 @@ public interface ReportFormat {
     return issueJson.get("engineId") != null ? new ReportFormatSonarqube() : new ReportFormatJson();
   }
 
-  static Object getIssueArrayBasedOnFormat(Object parsedObject) {
-    if (parsedObject instanceof JSONObject) {
-      // case: sonarQube-Format
-      Object jsonObject = ((JSONObject) parsedObject).get("issues");
-      if (jsonObject != null) {
-        return jsonObject;
-      }
-    }
-    return parsedObject;
-  }
-
   String getPath(JSONObject issueJson);
 
   String getRuleId(JSONObject issueJson);

@@ -22,8 +22,6 @@ package org.sonar.iac.docker.reports.hadolint;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -45,25 +43,16 @@ public class HadolintImporter extends AbstractJsonReportImporter {
   }
 
   @Override
-  protected List<JSONArray> parseJson(File reportFile) {
-    JSONArray issuesJson = null;
-    try {
-      Object parsedJson = jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
-      issuesJson = (JSONArray) ReportFormat.getIssueArrayBasedOnFormat(parsedJson);
-    } catch (IOException e) {
-      String message = String.format("could not read report file %s", reportFile.getPath());
-      logWarning(message);
-    } catch (ParseException e) {
-      String message = String.format("could not parse file as JSON %s", reportFile.getPath());
-      logWarning(message);
-    } catch (RuntimeException e) {
-      String message = String.format("file is expected to contain a JSON array but didn't %s", reportFile.getPath());
-      logWarning(message);
+  protected JSONArray parseFileAsArray(File reportFile) throws IOException, ParseException {
+    Object parsedJson = jsonParser.parse(Files.newBufferedReader(reportFile.toPath()));
+    if (parsedJson instanceof JSONObject) {
+      // case: sonarQube-Format
+      Object jsonObject = ((JSONObject) parsedJson).get("issues");
+      if (jsonObject != null) {
+        return (JSONArray) jsonObject;
+      }
     }
-    if (issuesJson == null) {
-      return Collections.emptyList();
-    }
-    return List.of(issuesJson);
+    return (JSONArray) parsedJson;
   }
 
   @Override
