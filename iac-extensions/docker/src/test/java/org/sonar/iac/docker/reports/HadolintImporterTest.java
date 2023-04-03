@@ -21,7 +21,6 @@ package org.sonar.iac.docker.reports;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
@@ -46,6 +44,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.addFileToContext;
 
 class HadolintImporterTest {
 
@@ -60,12 +59,7 @@ class HadolintImporterTest {
     File baseDir = new File(PATH_PREFIX);
     context = SensorContextTester.create(baseDir);
 
-    addFileToContext(baseDir, PATH_PREFIX + "/docker-file.docker");
-  }
-
-  private void addFileToContext(File baseDir, String path) throws IOException {
-    File someFile = new File(path);
-    context.fileSystem().add(new TestInputFileBuilder("project", baseDir, someFile).setContents(new String(Files.readAllBytes(someFile.toPath()))).build());
+    addFileToContext(context, baseDir, PATH_PREFIX + "/docker-file.docker");
   }
 
   @ParameterizedTest
