@@ -82,6 +82,5 @@ public class HadolintImporter extends AbstractJsonReportImporter {
 
     NewIssueLocation issueLocation = reportFormat.getIssueLocation(issueJson, externalIssue, inputFile);
     return externalIssue.at(issueLocation);
-
   }
 }
