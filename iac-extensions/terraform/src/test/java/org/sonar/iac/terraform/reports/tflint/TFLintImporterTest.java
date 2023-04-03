@@ -21,7 +21,6 @@ package org.sonar.iac.terraform.reports.tflint;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +30,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
@@ -46,6 +44,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.addFileToContext;
 
 class TFLintImporterTest {
 
@@ -61,13 +60,8 @@ class TFLintImporterTest {
     File baseDir = new File(PATH_PREFIX);
     context = SensorContextTester.create(baseDir);
 
-    addFileToContext(baseDir, PATH_PREFIX + "/exampleIssues.tf");
-    addFileToContext(baseDir, PATH_PREFIX + "/exampleError.tf");
-  }
-
-  private void addFileToContext(File baseDir, String path) throws IOException {
-    File someFile = new File(path);
-    context.fileSystem().add(new TestInputFileBuilder("project", baseDir, someFile).setContents(new String(Files.readAllBytes(someFile.toPath()))).build());
+    addFileToContext(context, baseDir, PATH_PREFIX + "/exampleIssues.tf");
+    addFileToContext(context, baseDir, PATH_PREFIX + "/exampleError.tf");
   }
 
   @Test

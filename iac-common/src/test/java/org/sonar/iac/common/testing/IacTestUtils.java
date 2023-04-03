@@ -22,8 +22,10 @@ package org.sonar.iac.common.testing;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 
 public class IacTestUtils {
@@ -46,5 +48,10 @@ public class IacTestUtils {
     } catch (IOException e) {
       throw new IllegalStateException("File not found", e);
     }
+  }
+
+  public static void addFileToContext(SensorContextTester context, File baseDir, String path) throws IOException {
+    File someFile = new File(path);
+    context.fileSystem().add(new TestInputFileBuilder("project", baseDir, someFile).setContents(new String(Files.readAllBytes(someFile.toPath()))).build());
   }
 }
