@@ -90,12 +90,17 @@ class AbstractJsonReportImporterTest {
 
   @Test
   void shouldParseFile() {
-    File reportFile = new File("src/test/resources/ext-json-report/validIssue.json");
+    String filename = "src/test/resources/ext-json-report/validIssue.json";
+    String path = File.separatorChar == '/' ? filename : Paths.get(filename).toString();
+    File reportFile = new File(path);
     TestImporter testImporter = new TestImporter(context, mockAnalysisWarnings, "PREFIX ");
 
     testImporter.importReport(reportFile);
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly("Issue saved");
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .containsExactly(
+        String.format("PREFIX  Importing external report from: %s", path),
+        "Issue saved");
   }
 
   @Test

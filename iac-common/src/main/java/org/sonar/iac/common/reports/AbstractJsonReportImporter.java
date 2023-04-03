@@ -60,6 +60,8 @@ public abstract class AbstractJsonReportImporter {
       String message = String.format("path does not seem to point to a file %s", reportFile.getPath());
       logWarning(message);
       return;
+    } else {
+      LOG.info(String.format("%s Importing external report from: %s", warningPrefix, reportFile.getPath()));
     }
 
     parseJson(reportFile).forEach(issuesJson -> {

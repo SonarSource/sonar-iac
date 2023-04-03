@@ -154,6 +154,18 @@ class TFLintImporterTest {
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
+  @Test
+  void shouldLogTraceWhenRuleDoesntExist() {
+    String path = PATH_PREFIX + "/exampleIssueInvalidRuleId.json";
+    File reportFile = new File(path);
+    TFLintImporter importer = new TFLintImporter(context, mockAnalysisWarnings);
+
+    importer.importReport(reportFile);
+
+    String logMessage = "TFLint report importing:  No rule definition for rule id: id_doesnt_exist";
+    assertThat(logTester.logs(LoggerLevel.TRACE)).containsExactly(logMessage);
+  }
+
   @ParameterizedTest
   @CsvSource(value = {
     PATH_PREFIX + "/invalidPathTwo.json; TFLint report importing: could not save 2 out of 2 issues from %s. Some file paths could not be resolved: " +

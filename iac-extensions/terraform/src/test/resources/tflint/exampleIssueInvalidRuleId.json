@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "id_doesnt_exist",
+        "severity": "warning",
+        "link": "https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.2.2/docs/rules/terraform_comment_syntax.md"
+      },
+      "message": "Single line comments should begin with #",
+      "range": {
+        "filename": "exampleIssues.tf",
+        "start": {
+          "line": 2,
+          "column": 1
+        },
+        "end": {
+          "line": 3,
+          "column": 1
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}
