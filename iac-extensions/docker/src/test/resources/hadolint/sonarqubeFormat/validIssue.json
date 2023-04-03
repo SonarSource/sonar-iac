@@ -1,18 +1,20 @@
-[
-  {
-    "engineId": "Hadolint",
-    "primaryLocation": {
-      "filePath": "docker-file.docker",
-      "message": "Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag",
-      "textRange": {
-        "endColumn": 1,
-        "endLine": 1,
-        "startColumn": 0,
-        "startLine": 1
-      }
-    },
-    "ruleId": "DL3007",
-    "severity": "MAJOR",
-    "type": "CODE_SMELL"
-  }
-]
+{
+  "issues": [
+    {
+      "engineId": "Hadolint",
+      "primaryLocation": {
+        "filePath": "docker-file.docker",
+        "message": "Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag",
+        "textRange": {
+          "endColumn": 1,
+          "endLine": 1,
+          "startColumn": 0,
+          "startLine": 1
+        }
+      },
+      "ruleId": "DL3007",
+      "severity": "MAJOR",
+      "type": "CODE_SMELL"
+    }
+  ]
+}
