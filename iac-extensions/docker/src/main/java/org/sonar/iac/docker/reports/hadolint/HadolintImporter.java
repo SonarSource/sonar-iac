@@ -52,7 +52,13 @@ public class HadolintImporter extends AbstractJsonReportImporter {
         return (JSONArray) jsonObject;
       }
     }
-    return (JSONArray) parsedJson;
+    if (parsedJson instanceof JSONArray) {
+      return (JSONArray) parsedJson;
+    } else {
+      // exception is caught in calling method
+      String message = String.format("file is expected to contain a JSON array but didn't %s", reportFile.getPath());
+      throw new ClassCastException(message);
+    }
   }
 
   @Override
