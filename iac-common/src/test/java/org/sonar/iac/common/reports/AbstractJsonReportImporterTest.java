@@ -99,7 +99,7 @@ class AbstractJsonReportImporterTest {
 
     assertThat(logTester.logs(LoggerLevel.INFO))
       .containsExactly(
-        "PREFIX  Importing external report from: src/test/resources/ext-json-report/validIssue.json",
+        String.format("PREFIX  Importing external report from: %s", path),
         "Issue saved");
   }
 
