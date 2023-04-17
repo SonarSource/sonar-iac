@@ -290,7 +290,7 @@
       "functions",
       "if"
     ],
-    "description": "Check Fn::If to make sure its valid.  Condition has to be a string.",
+    "description": "Check Fn::If to make sure its valid. Condition has to be a string.",
     "constantDebtMinutes": 0,
     "type": "BUG",
     "severity": "MAJOR"
@@ -1876,6 +1876,18 @@
       "conditions"
     ],
     "description": "Making sure the conditions defined are used",
+    "constantDebtMinutes": 0,
+    "type": "CODE_SMELL",
+    "severity": "MAJOR"
+  },
+  {
+    "key": "W8003",
+    "name": "'Fn::Equals' will always return true or false",
+    "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#rules-1",
+    "tags": [
+      "conditions"
+    ],
+    "description": "Validate 'Fn::Equals' to see if its comparing two strings or two equal items. While this works it may not be intended.",
     "constantDebtMinutes": 0,
     "type": "CODE_SMELL",
     "severity": "MAJOR"
