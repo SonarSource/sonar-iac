@@ -33,7 +33,7 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 @Rule(key = "S6500")
 public class PackageInstallationCheck implements IacCheck {
 
-  private static final String MESSAGE = "Make sure that installing unnecessary dependencies is safe here.";
+  private static final String MESSAGE = "Make sure automatically installing recommended packages is safe here.";
 
   private static final Set<String> APT_COMMANDS = Set.of("apt", "apt-get");
   private static final CommandDetector SENSITIVE_APT_COMMAND = CommandDetector.builder()
