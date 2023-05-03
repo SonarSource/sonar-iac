@@ -1,6 +1,6 @@
 FROM scratch
 
-# Noncompliant@+1 {{Make sure this permission is safe.}}
+# Noncompliant@+1 {{Make sure granting write access to others is safe here.}}
 COPY --chmod=002 orig dest
 #    ^^^^^^^^^^^
 # Noncompliant@+1
