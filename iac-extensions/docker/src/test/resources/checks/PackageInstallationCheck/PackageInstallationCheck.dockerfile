@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-# Noncompliant@+1 {{Make sure that installing unnecessary dependencies is safe here.}}
+# Noncompliant@+1 {{Make sure automatically installing recommended packages is safe here.}}
 RUN apt install -y aptitude
 #   ^^^^^^^^^^^^^^
 

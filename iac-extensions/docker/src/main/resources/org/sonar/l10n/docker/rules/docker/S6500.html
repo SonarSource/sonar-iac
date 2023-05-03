@@ -1,8 +1,10 @@
-<p>Installing unnecessary dependencies can lead to additional vulnerabilities in the Docker image.</p>
-<p>Unnecessary dependencies are installed via a known Debian package manager. These unused dependencies might contain vulnerabilities, thus weakening
-the overall security posture of the created containers.<br> Depending on the introduced vulnerabilities, a malicious actor accessing such a container
-could use these for privilege escalation.<br> Removing the unused dependencies can also significantly reduce your Docker image size.</p>
-<p>To be secure, remove the unused dependencies where possible and ensure images are subject to routine vulnerability scans.</p>
+<p>Installing recommended packages automatically can lead to vulnerabilities in the Docker image.</p>
+<p>Potentially unnecessary packages are installed via a known Debian package manager. These packages will increase the attack surface of the created
+container as they might contain unidentified vulnerabilities or malicious code. Those packages could be used as part of a broader supply chain attack.
+In general, the more packages are installed in a container, the weaker its security posture is.<br> Depending on the introduced vulnerabilities, a
+malicious actor accessing such a container could use these for privilege escalation.<br> Removing unused packages can also significantly reduce your
+Docker image size.</p>
+<p>To be secure, remove unused packages where possible and ensure images are subject to routine vulnerability scans.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> Container vulnerability scans are not performed. </li>

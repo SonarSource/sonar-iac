@@ -1,5 +1,5 @@
 {
-  "title": "Installing unnecessary packages is security-sensitive",
+  "title": "Automatically installing recommended packages is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
