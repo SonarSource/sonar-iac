@@ -48,13 +48,13 @@ public class SecretsHandlingCheck implements IacCheck {
     "APP", "AUTH", "CLIENT", "CONFIG", "DATABASE", "DB", "ENCRYPTION", "ENV", "FACEBOOK", "FIREBASE", "FTP", "GIT",
     "GITHUB", "GITLAB", "HONEYCOMB", "JWT", "KEYCLOAK", "KEYRING", "LDAP", "MAIL", "MASTER", "MARIADB", "MSSQL",
     "MYSQL", "NPM", "OAUTH", "OAUTH2", "PG", "POSTGRES", "REDIS", "REFRESH", "REPLICATION", "ROOT", "RPC", "SA",
-    "SECRET", "SERVER", "SIGN", "SIGNING", "SLACK", "SVN", "USER", "VNC", "WEBHOOK");
+    "SECRET", "SERVER", "SIGN", "SIGNING", "SLACK", "SVN", "USER", "VNC", "WEBHOOK", "JDBC");
 
   private static final Set<String> SECRETS = Set.of("CREDENTIALS", "KEY", "PASS", "PASSPHRASE", "PASSWD", "PASSWORD",
     "SECRET", "TOKEN");
 
   private static final Set<String> EXCLUSIONS = Set.of("ALLOW", "DIR", "EXPIRE", "EXPIRY", "FILE", "ID",
-    "LOCATION", "NAME", "OWNER", "PATH", "URL");
+    "LOCATION", "NAME", "OWNER", "PATH", "URL", "SIZE");
 
   // Patterns to split the identifier of a variable into separate words
   private static final Pattern UNDERSCORE_NAME_PATTERN = Pattern.compile("^\\w+$");
