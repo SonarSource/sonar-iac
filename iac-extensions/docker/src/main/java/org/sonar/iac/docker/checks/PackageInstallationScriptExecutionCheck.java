@@ -52,12 +52,6 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
     .withAnyFlagExcept(REQUIRED_FLAG)
     .build();
 
-  private static final CommandDetector YARN_ONLY = CommandDetector.builder()
-    .with("yarn")
-    .withAnyFlagExcept(REQUIRED_FLAG)
-    .notWith(s -> s.matches("[a-zA-Z_]++"))
-    .build();
-
   @Override
   public void initialize(InitContext init) {
     init.register(RunInstruction.class, PackageInstallationScriptExecutionCheck::checkRunInstruction);
@@ -69,7 +63,6 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
 
     sensitiveCommands.addAll(NPM_PACKAGE_INSTALLATION.search(resolvedArgument));
     sensitiveCommands.addAll(YARN_PACKAGE_INSTALL.search(resolvedArgument));
-    sensitiveCommands.addAll(YARN_ONLY.search(resolvedArgument));
 
     sensitiveCommands.forEach(command -> ctx.reportIssue(command, MESSAGE));
   }
