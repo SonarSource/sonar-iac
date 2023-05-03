@@ -10,10 +10,8 @@ RUN pnpm i
 # Noncompliant@+1
 RUN yarn install
 
-# Noncompliant@+1
 RUN yarn
 
-# Noncompliant@+1
 RUN yarn && foo
 
 # FN current bash processing approach doesn't have the needed capabilities
@@ -56,4 +54,12 @@ RUN yarn init
 RUN foobar
 
 RUN npm install $UNRESOLVED
+
+RUN apk add python3 make g++ nodejs yarn
+
+RUN foobar yarn
+
+RUN yarn foobar
+
+RUN foobar yarn foobar
 
