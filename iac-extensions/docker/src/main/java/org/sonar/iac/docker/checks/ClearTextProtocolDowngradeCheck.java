@@ -110,8 +110,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final CommandDetector WGET_DETECTOR = CommandDetector.builder()
     .with("wget")
     .with(SENSITIVE_HTTPS_URL_BEGINNING)
-    .withOptionalRepeating(s -> s.startsWith("-") && !isCompliantRedirect(s))
-    .notWith(ClearTextProtocolDowngradeCheck::isCompliantRedirect)
+    .withAnyFlagExcept("--max-redirect=0")
     .build();
 
   private static final Set<CommandDetector> SENSITIVE_CURL_COMMAND_DETECTORS = Set.of(
@@ -132,9 +131,5 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
 
     SENSITIVE_CURL_COMMAND_DETECTORS.forEach(
       commandDetector -> commandDetector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
-  }
-
-  private static boolean isCompliantRedirect(String flag) {
-    return "--max-redirect=0".equals(flag);
   }
 }
