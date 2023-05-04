@@ -1,47 +1,50 @@
 FROM ubuntu:22.04
 
-
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -l -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -l randomOption -randomFlag randomValue
 
-# Noncompliant@+1
+RUN ssh-keygen -randomFlag randomValue -randomFlag randomValue -l -randomFlag randomValue
+
+RUN ssh-keygen -randomFlag randomValue -randomFlag randomValue -l randomOption -randomFlag randomValue
+
+RUN ssh-keygen -l -randomFlag randomValue
+
+RUN ssh-keygen -l randomOption -randomFlag randomValue
+
+RUN ssh-keygen -randomFlag randomValue -l
+
+RUN ssh-keygen -randomFlag randomValue -l randomOption
+
 RUN ssh-keygen -randomFlag randomValue -F -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -F randomOption -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -H -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -H randomOption -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -R -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -R randomOption -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -r -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -r randomOption -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -k -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -k randomOption -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -Q -randomFlag randomValue
 
-# Noncompliant@+1
 RUN ssh-keygen -randomFlag randomValue -Q randomOption -randomFlag randomValue
+
+# Noncompliant@+1
+RUN ssh-keygen -randomFlag Q
+
+# Noncompliant@+1
+RUN ssh-keygen -randomFlag randomOption
 
 # Noncompliant@+1 {{Revoke and change this secret, as it might be compromised.}}
 RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key

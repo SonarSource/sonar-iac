@@ -36,11 +36,12 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final String MESSAGE = "Revoke and change this secret, as it might be compromised.";
 
-  private static final Set<String> SSH_KEYGEN_COMPLIANT_FLAGS = Set.of("l", "F", "H", "R", "r", "k", "Q");
+  private static final Set<String> SSH_KEYGEN_COMPLIANT_FLAGS = Set.of("-l", "-F", "-H", "-R", "-r", "-k", "-Q");
 
   private static final CommandDetector SSH_DETECTOR = CommandDetector.builder()
     .with("ssh-keygen")
-    .withAnyOptionExcluding(SSH_KEYGEN_COMPLIANT_FLAGS)
+    .withOptionalRepeatingExcept(SSH_KEYGEN_COMPLIANT_FLAGS)
+    .notWith(SSH_KEYGEN_COMPLIANT_FLAGS::contains)
     .build();
 
   private static final Set<String> SENSITIVE_KEYTOOL_FLAGS = Set.of("-gencert", "-genkeypair", "-genseckey", "-genkey");
