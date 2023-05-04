@@ -10,8 +10,8 @@
     "cwe"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-6505",
-  "sqKey": "S6505",
+  "ruleSpecification": "RSPEC-6506",
+  "sqKey": "S6506",
   "scope": "All",
   "securityStandards": {
     "CWE": [

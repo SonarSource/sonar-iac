@@ -16,35 +16,68 @@ threats with access to these environments might still be able to monitor or tamp
 <p>There is a risk if you answered yes to the question.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Ensure that the HTTP client only accepts HTTPS pages. In curl, this can be enabled using the option <code>--proto "=https"</code>. </li>
-  <li> If it is not necessary to follow HTTP redirects, then disable this in the HTTP client. In curl, this is done by omitting the <code>-L</code> or
-  <code>--location</code> option. </li>
+  <li> Ensure that the HTTP client only accepts HTTPS pages. In <code>curl</code> this can be enabled using the option <code>--proto
+    "=https"</code>.
+  </li>
+  <li> If it is not necessary to follow HTTP redirects, disable this in the HTTP client. In <code>curl</code> this is done by omitting the
+    <code>-L</code> or <code>--location</code> option. In <code>wget</code> this is done by adding the option <code>--max-redirect=0</code>.
+  </li>
 </ul>
 <h2>Noncompliant Code Example</h2>
-<p>In this example, an install script is downloaded using curl and then executed.</p>
-<p>Several options are set to ensure secure execution of the HTTP request using curl. However, as the option <code>-L</code> is set,
-<code>https://might-redirect.example.com/install.sh</code> might redirect curl to a location that uses HTTP. If this is the case, an attacker can
-change the install script that will be executed on the host system.</p>
-<pre>
+<p>In the examples below, an install script is downloaded using <code>curl</code> or <code>wget</code> and then executed.</p>
+<p>While connections made using HTTPS are generally considered secure, <code>https://might-redirect.example.com/install.sh</code> might
+  redirect to a
+  location that uses HTTP. Downloads made using HTTP are not secure and can be intercepted and modified. An attacker could modify the
+  install script to
+  run malicious code inside the container.</p>
+<p><code>curl</code> will not follow redirects unless either <code>-L</code> or <code>--location</code> option is used.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 FROM ubuntu:22.04
 
 # Sensitive
 RUN curl --tlsv1.2 -sSf -L https://might-redirect.example.com/install.sh | sh
 </pre>
+<p><code>wget</code> will follow redirects by default.</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+FROM ubuntu:22.04
+
+# Sensitive
+RUN wget --secure-protocol=TLSv1_2 -q -O - https://might-redirect.example.com/install.sh | sh
+</pre>
 <h2>Compliant Solution</h2>
-<p>By adding the option <code>--proto "=https"</code> to the HTTP request, curl will only execute requests made using HTTPS. If a redirect goes to an
-insecure (HTTP) location, the request will not be executed. This ensures that no tampering can occur.</p>
-<pre>
+<p>If you expect the server to redirect the download to a new location, <code>curl</code> can use the option <code>--proto "=https"</code>
+  to ensure
+  requests are only made using HTTPS. Any attempt to redirect to a location using HTTP will result in an error.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 FROM ubuntu:22.04
 
 RUN curl --proto "=https" --tlsv1.2 -sSf -L https://might-redirect.example.com/install.sh | sh
 </pre>
+<p><code>wget</code> does not support this functionality so <code>curl</code> should be used instead.</p>
+<p>If you expect the server to return the file without redirects, <code>curl</code> should not be instructed to follow redirects. Remove any
+  <code>-L</code> or <code>--location</code> options from the command.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM ubuntu:22.04
+
+RUN curl --tlsv1.2 -sSf https://might-redirect.example.com/install.sh | sh
+</pre>
+<p><code>wget</code> uses the option <code>--max-redirect=0</code> to disable redirects.</p>
+<pre data-diff-id="2" data-diff-type="compliant">
+FROM ubuntu:22.04
+
+RUN wget --secure-protocol=TLSv1_2 --max-redirect=0 -q -O - https://might-redirect.example.com/install.sh | sh
+</pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://cwe.mitre.org/data/definitions/757">MITRE, CWE-757</a> - Selection of Less-Secure Algorithm During Negotiation ('Algorithm
-  Downgrade') </li>
-  <li> <a href="https://curl.se/docs/manpage.html#--proto">curl.1 the man page</a> - <code>--proto &lt;protocols&gt;</code> </li>
-  <li> <a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#41-encrypt-everything">SSL and TLS Deployment Best
-  Practices</a> - Encrypt Everything </li>
+  <li><a href="https://cwe.mitre.org/data/definitions/757">MITRE, CWE-757</a> - Selection of Less-Secure Algorithm During Negotiation
+    ('Algorithm
+    Downgrade')
+  </li>
+  <li><a href="https://curl.se/docs/manpage.html#--proto">curl.1 the man page</a> - <code>--proto &lt;protocols&gt;</code></li>
+  <li><a href="https://linux.die.net/man/1/wget">wget(1) - Linux man page</a> - <code>--max-redirect=</code></li>
+  <li><a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#41-encrypt-everything">SSL and TLS Deployment
+    Best
+    Practices</a> - Encrypt Everything
+  </li>
 </ul>
 
