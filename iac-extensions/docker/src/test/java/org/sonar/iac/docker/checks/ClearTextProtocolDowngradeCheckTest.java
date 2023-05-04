@@ -24,7 +24,12 @@ import org.junit.jupiter.api.Test;
 class ClearTextProtocolDowngradeCheckTest {
 
   @Test
-  void test() {
-    DockerVerifier.verify("ClearTextProtocolDowngradeCheck/ClearTextProtocolDowngradeCheck.dockerfile", new ClearTextProtocolDowngradeCheck());
+  void testCurl() {
+    DockerVerifier.verify("ClearTextProtocolDowngradeCheck/curl.dockerfile", new ClearTextProtocolDowngradeCheck());
+  }
+
+  @Test
+  void testWget() {
+    DockerVerifier.verify("ClearTextProtocolDowngradeCheck/wget.dockerfile", new ClearTextProtocolDowngradeCheck());
   }
 }
