@@ -39,10 +39,8 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final String PROTO_FLAG = "--proto";
   private static final String PROTO_FLAG_OPTION = "=https";
   private static final Set<String> REDIRECTION_FLAGS = Set.of("-L", "--location");
-
   private static final Set<String> SENSITIVE_FLAGS = Set.of("-L", "--location", PROTO_FLAG);
-
-  private static final Predicate<String> SENSITIVE_BEGINNING_URL_SCHEME = s -> s.startsWith("https");
+  private static final Predicate<String> SENSITIVE_HTTPS_URL_BEGINNING = s -> s.startsWith("https");
   private static final Predicate<String> OPTIONAL_OTHER_FLAGS = s -> s.startsWith("-") && !SENSITIVE_FLAGS.contains(s);
 
   // common predicates of detectors
@@ -74,7 +72,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(CURL_COMMAND)
     .withPredicatesFrom(REDIRECTION_PREDICATES)
     .withPredicatesFrom(PROTO_FLAG_MISSING_OPTION_PREDICATES)
-    .with(SENSITIVE_BEGINNING_URL_SCHEME)
+    .with(SENSITIVE_HTTPS_URL_BEGINNING)
     .build();
 
   // matching "curl --proto -L https://redirecttoinsecure.example.com"
@@ -82,7 +80,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(CURL_COMMAND)
     .withPredicatesFrom(PROTO_FLAG_MISSING_OPTION_PREDICATES)
     .withPredicatesFrom(REDIRECTION_PREDICATES)
-    .with(SENSITIVE_BEGINNING_URL_SCHEME)
+    .with(SENSITIVE_HTTPS_URL_BEGINNING)
     .build();
 
   // matching "curl -L https://redirecttoinsecure.example.com"
@@ -90,7 +88,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(CURL_COMMAND)
     .withPredicatesFrom(REDIRECTION_PREDICATES)
     .withPredicatesFrom(PROTO_FLAG_MISSING_PREDICATES)
-    .with(SENSITIVE_BEGINNING_URL_SCHEME)
+    .with(SENSITIVE_HTTPS_URL_BEGINNING)
     .build();
 
   // matching "curl -L --proto =foo https://redirecttoinsecure.example.com"
@@ -98,7 +96,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(CURL_COMMAND)
     .withPredicatesFrom(REDIRECTION_PREDICATES)
     .withPredicatesFrom(PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES)
-    .with(SENSITIVE_BEGINNING_URL_SCHEME)
+    .with(SENSITIVE_HTTPS_URL_BEGINNING)
     .build();
 
   // matching "curl --proto =foo -L https://redirecttoinsecure.example.com"
@@ -106,7 +104,13 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     .with(CURL_COMMAND)
     .withPredicatesFrom(PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES)
     .withPredicatesFrom(REDIRECTION_PREDICATES)
-    .with(SENSITIVE_BEGINNING_URL_SCHEME)
+    .with(SENSITIVE_HTTPS_URL_BEGINNING)
+    .build();
+
+  private static final CommandDetector WGET_DETECTOR = CommandDetector.builder()
+    .with("wget")
+    .with(SENSITIVE_HTTPS_URL_BEGINNING)
+    .withAnyFlagExcept("--max-redirect=0")
     .build();
 
   private static final Set<CommandDetector> SENSITIVE_CURL_COMMAND_DETECTORS = Set.of(
@@ -114,7 +118,8 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION_DIFF_ORDER,
     SENSITIVE_CURL_COMMAND_MISSING_FLAG,
     SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION,
-    SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION_DIFF_ORDER);
+    SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION_DIFF_ORDER,
+    WGET_DETECTOR);
 
   @Override
   public void initialize(InitContext init) {
