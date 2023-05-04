@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-# Noncompliant@+1 {{Revoke and change this secret, as it might be compromised.}}
+# Noncompliant@+1 {{Change this code not to store a secret in the image.}}
 RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

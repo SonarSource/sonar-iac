@@ -35,7 +35,7 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 @Rule(key = "S6437")
 public class SecretsGenerationCheck implements IacCheck {
 
-  private static final String MESSAGE = "Revoke and change this secret, as it might be compromised.";
+  private static final String MESSAGE = "Change this code not to store a secret in the image.";
 
   private static final List<OptionPredicate> EXPECTED_OPTIONS_SSH_KEYGEN = List.of(
     OptionPredicate.equalMatch("-t", "dsa"),
