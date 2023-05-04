@@ -36,7 +36,7 @@ import org.sonar.iac.docker.tree.api.TransferInstruction;
 @Rule(key = "S2612")
 public class PosixPermissionCheck implements IacCheck {
 
-  private static final String MESSAGE = "Make sure this permission is safe.";
+  private static final String MESSAGE = "Make sure granting write access to others is safe here.";
 
   @Override
   public void initialize(InitContext init) {

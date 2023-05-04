@@ -5,9 +5,9 @@ information, disrupt services or elevate privileges.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The container is designed to be a multi-user environment. </li>
-  <li> Removing permissions to <code>others</code> does not bring instability. </li>
+  <li> Services are run by dedicated low-privileged users to achieve privileges separation. </li>
 </ul>
-<p>There is a risk if you answered yes to the question.</p>
+<p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>The most restrictive possible permissions should be assigned to files and directories.</p>
 <p>To be secure, remove the unnecessary permissions. If required, use <code>--chown</code> to set the target user and group.</p>

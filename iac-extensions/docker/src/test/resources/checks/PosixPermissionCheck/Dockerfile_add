@@ -5,7 +5,7 @@ ARG sensitive_digit=2
 ARG compliant_digit=0
 
 ## All non compliant number
-# Noncompliant@+1 {{Make sure this permission is safe.}}
+# Noncompliant@+1 {{Make sure granting write access to others is safe here.}}
 ADD --chmod=002 orig dest
 #   ^^^^^^^^^^^
 # Noncompliant@+1
