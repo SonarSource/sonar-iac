@@ -46,6 +46,8 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   private static final Set<String> SENSITIVE_FILE_EXTENSION = Set.of("exe", "py", "rb", "pl", "lua", "js", "lisp", "sh", "jar", "war",
     "run", "bin", "bat", "ps1");
 
+  private static final Set<String> COMPLIANT_CHOWN_VALUES = Set.of("root", "0", "");
+
   @Override
   public void initialize(InitContext init) {
     init.register(TransferInstruction.class, ExecutableNotOwnedByRootCheck::checkTransferInstruction);
@@ -53,6 +55,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
   private static void checkTransferInstruction(CheckContext ctx, TransferInstruction transferInstruction) {
     Flag sensitiveChownFlag = getChownFlagSensitive(transferInstruction);
+
     if (sensitiveChownFlag != null) {
       List<Argument> sensitiveFiles = getFilesSensitive(transferInstruction.srcs());
       Chmod chmod = getChmod(transferInstruction);
@@ -61,10 +64,16 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
         if (!sensitiveFiles.isEmpty()) {
           reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
         }
-      } else if (isChmodWriteSensitive(chmod) && (isChmodExecuteSensitive(chmod) || !sensitiveFiles.isEmpty())) {
+      } else if (shouldBeReportedBasedOnChmod(sensitiveChownFlag, sensitiveFiles, chmod)) {
         reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
       }
     }
+  }
+
+  private static boolean shouldBeReportedBasedOnChmod(Flag sensitiveChownFlag, List<Argument> sensitiveFiles, Chmod chmod) {
+    return !isUserRootAndGroupHasNoWritePermission(sensitiveChownFlag, chmod)
+      && isChmodWriteSensitive(chmod)
+      && (isChmodExecuteSensitive(chmod) || !sensitiveFiles.isEmpty());
   }
 
   private static void reportIssue(CheckContext ctx, Flag sensitiveChownFlag, List<Argument> sensitiveFiles) {
@@ -92,7 +101,17 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
   private static boolean isUserSensitive(Flag chownFlag) {
     ArgumentResolution resolvedArgArgument = ArgumentResolution.of(chownFlag.value());
-    return resolvedArgArgument.isResolved() && !"root".equals(resolvedArgArgument.value());
+    return resolvedArgArgument.isResolved() && hasNonRootChownValue(resolvedArgArgument.value());
+  }
+
+  private static boolean hasNonRootChownValue(String chownValue) {
+    String[] splitValue = chownValue.split(":");
+    for (String chownTarget : splitValue) {
+      if (!COMPLIANT_CHOWN_VALUES.contains(chownTarget)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @CheckForNull
@@ -120,6 +139,12 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
   private static boolean isChmodWriteSensitive(Chmod chmod) {
     return chmod.hasPermission("u+w") || chmod.hasPermission("g+w");
+  }
+
+  private static boolean isUserRootAndGroupHasNoWritePermission(Flag chown, Chmod chmod) {
+    ArgumentResolution resolvedChown = ArgumentResolution.of(chown.value());
+    return !chmod.hasPermission("g+w")
+      && (resolvedChown.value().startsWith("root:") || resolvedChown.value().startsWith("0:"));
   }
 
   private static boolean isChmodExecuteSensitive(Chmod chmod) {
