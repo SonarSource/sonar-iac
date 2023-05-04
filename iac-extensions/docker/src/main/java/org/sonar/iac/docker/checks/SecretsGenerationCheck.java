@@ -28,7 +28,6 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
-import org.sonar.iac.docker.checks.utils.command.OptionPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
@@ -37,16 +36,12 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final String MESSAGE = "Revoke and change this secret, as it might be compromised.";
 
-  private static final List<OptionPredicate> EXPECTED_OPTIONS_SSH_KEYGEN = List.of(
-    OptionPredicate.equalMatch("-t", "dsa"),
-    OptionPredicate.equalMatch("-N", ""),
-    OptionPredicate.equalMatch("-b", "1024"),
-    OptionPredicate.equalMatch("-f", "rsync-key"));
+  private static final Set<String> SSH_KEYGEN_COMPLIANT_FLAGS = Set.of("-l", "-F", "-H", "-R", "-r", "-k", "-Q");
 
-  // detects 'ssh-keygen -N "" -t dsa -b 1024 -f rsync-key'
   private static final CommandDetector SSH_DETECTOR = CommandDetector.builder()
     .with("ssh-keygen")
-    .withMultipleUnorderedOptions(EXPECTED_OPTIONS_SSH_KEYGEN)
+    .withOptionalRepeatingExcept(SSH_KEYGEN_COMPLIANT_FLAGS)
+    .notWith(SSH_KEYGEN_COMPLIANT_FLAGS::contains)
     .build();
 
   private static final Set<String> SENSITIVE_KEYTOOL_FLAGS = Set.of("-gencert", "-genkeypair", "-genseckey", "-genkey");
@@ -68,7 +63,9 @@ public class SecretsGenerationCheck implements IacCheck {
     .build();
 
   private static final Set<CommandDetector> DETECTORS = Set.of(
-    SSH_DETECTOR, KEYTOOL_DETECTOR, SENSITIVE_OPENSSL_COMMANDS);
+    SSH_DETECTOR,
+    KEYTOOL_DETECTOR,
+    SENSITIVE_OPENSSL_COMMANDS);
 
   @Override
   public void initialize(InitContext init) {
