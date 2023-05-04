@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-# Noncompliant@+1 {{Not enforcing HTTPS here might allow for redirects to insecure websites. Make sure it is safe here.}}
+# Noncompliant@+1 {{Not disabling redirects might allow for redirections to insecure websites. Make sure it is safe here.}}
 RUN wget https://might-redirect.example.com/install.sh -q -O - | sh
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -34,7 +34,8 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 @Rule(key = "S6506")
 public class ClearTextProtocolDowngradeCheck implements IacCheck {
 
-  private static final String MESSAGE = "Not enforcing HTTPS here might allow for redirects to insecure websites. Make sure it is safe here.";
+  private static final String CURL_MESSAGE = "Not enforcing HTTPS here might allow for redirections to insecure websites. Make sure it is safe here.";
+  private static final String WGET_MESSAGE = "Not disabling redirects might allow for redirections to insecure websites. Make sure it is safe here.";
   private static final String CURL_COMMAND = "curl";
   private static final String PROTO_FLAG = "--proto";
   private static final String PROTO_FLAG_OPTION = "=https";
@@ -118,8 +119,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     SENSITIVE_CURL_COMMAND_FLAG_WITH_MISSING_OPTION_DIFF_ORDER,
     SENSITIVE_CURL_COMMAND_MISSING_FLAG,
     SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION,
-    SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION_DIFF_ORDER,
-    WGET_DETECTOR);
+    SENSITIVE_CURL_COMMAND_FLAG_WITH_WRONG_OPTION_DIFF_ORDER);
 
   @Override
   public void initialize(InitContext init) {
@@ -130,6 +130,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
     SENSITIVE_CURL_COMMAND_DETECTORS.forEach(
-      commandDetector -> commandDetector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
+      commandDetector -> commandDetector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, CURL_MESSAGE)));
+    WGET_DETECTOR.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, WGET_MESSAGE));
   }
 }
