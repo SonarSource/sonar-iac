@@ -20,6 +20,30 @@ env:
   # Allows to run builds for the 50 last commits in a branch:
   CIRRUS_CLONE_DEPTH: 1
 
+maven_cache: &MAVEN_CACHE
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+    fingerprint_script: cat **/pom.xml
+
+build_secrets: &BUILD_SECRETS
+  SIGN_KEY: VAULT[development/kv/data/sign data.key]
+  PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
+  # analysis on SonarCloud
+  SONAR_HOST_URL: https://sonarcloud.io
+  SONAR_TOKEN: VAULT[development/kv/data/sonarcloud data.token]
+
+ws_scan_secrets: &WS_SCAN_SECRETS
+  WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
+
+promote_secrets: &PROMOTE_SECRETS
+  GCF_ACCESS_TOKEN: VAULT[development/kv/data/promote data.token]
+  PROMOTE_URL: VAULT[development/kv/data/promote data.url]
+  GITHUB_TOKEN: VAULT[development/github/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promotion token]
+
+# ----------------------------------------------
+# -------------CONTAINER DEFINITIONS------------
+# ----------------------------------------------
+
 linux_image_template: &LINUX_IMAGE
   image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j11-latest
   cluster_name: ${CIRRUS_CLUSTER_NAME}
@@ -32,12 +56,6 @@ linux_1_cpu_1G_template: &LINUX_1_CPU_1G
     <<: *LINUX_IMAGE
     cpu: 1
     memory: 1G
-
-linux_1_cpu_2G_template: &LINUX_1_CPU_2G
-  eks_container:
-    <<: *LINUX_IMAGE
-    cpu: 1
-    memory: 2G
 
 linux_3_5_cpu_7G_template: &LINUX_3_5_CPU_7G
   eks_container:
@@ -62,6 +80,10 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     subnet_id: ${CIRRUS_AWS_SUBNET}
     use_ssd: true
 
+# ----------------------------------------------
+# ------------------FILTERS---------------------
+# ----------------------------------------------
+
 only_sonarsource_qa: &ONLY_IF_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
@@ -70,20 +92,19 @@ qa_task_filter_template: &QA_TASK_FILTER
     - build
   <<: *ONLY_IF_SONARSOURCE_QA
 
+# ----------------------------------------------
+# -------------------TASKS----------------------
+# ----------------------------------------------
+
 build_task:
   <<: *LINUX_3_5_CPU_7G
+  <<: *MAVEN_CACHE
   env:
-    SIGN_KEY: VAULT[development/kv/data/sign data.key]
-    PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
-    # analysis on SonarCloud
-    SONAR_TOKEN: VAULT[development/kv/data/sonarcloud data.token]
-    SONAR_HOST_URL: https://sonarcloud.io
+    <<: *BUILD_SECRETS
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   build_script:
-    - source cirrus-env BUILD-PRIVATE
+    - source cirrus-env BUILD
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
@@ -102,13 +123,11 @@ qa_os_win_task:
 ws_scan_task:
   depends_on:
     - build
-  <<: *LINUX_1_CPU_2G
-  # run only on master and long-term branches
-  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
+  <<: *LINUX_3_5_CPU_7G
+  <<: *MAVEN_CACHE
+  <<: *ONLY_IF_SONARSOURCE_QA
   env:
-    WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+    <<: *WS_SCAN_SECRETS
   whitesource_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
@@ -122,12 +141,11 @@ ws_scan_task:
 qa_plugin_task:
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
+  <<: *MAVEN_CACHE
   env:
     matrix:
       - SQ_VERSION: LATEST_RELEASE
       - SQ_VERSION: DEV
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   submodules_script:
     - git submodule update --init
   plugin_script:
@@ -140,8 +158,7 @@ qa_plugin_task:
 qa_ruling_task:
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  <<: *MAVEN_CACHE
   submodules_script:
     - git submodule update --init
   ruling_script:
@@ -159,14 +176,10 @@ promote_task:
     - ws_scan
   <<: *ONLY_IF_SONARSOURCE_QA
   <<: *LINUX_1_CPU_1G
+  <<: *MAVEN_CACHE
   env:
-    #promotion cloud function
-    GCF_ACCESS_TOKEN: VAULT[development/kv/data/promote data.token]
-    PROMOTE_URL: VAULT[development/kv/data/promote data.url]
-    GITHUB_TOKEN: VAULT[development/github/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promotion token]
+    <<: *PROMOTE_SECRETS
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: com.sonarsource.iac:sonar-iac-plugin:jar
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   script: cirrus_promote_maven
   cleanup_before_cache_script: cleanup_maven_repository
