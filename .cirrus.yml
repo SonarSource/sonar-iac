@@ -20,11 +20,7 @@ env:
   # Allows to run builds for the 50 last commits in a branch:
   CIRRUS_CLONE_DEPTH: 1
 
-# ----------------------------------------------
-# ------------------SECRETS---------------------
-# ----------------------------------------------
-
-maven_cache_definition: &MAVEN_CACHE
+maven_cache: &MAVEN_CACHE
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     fingerprint_script: cat **/pom.xml
@@ -32,9 +28,11 @@ maven_cache_definition: &MAVEN_CACHE
 build_secrets: &BUILD_SECRETS
   SIGN_KEY: VAULT[development/kv/data/sign data.key]
   PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
+  # analysis on SonarCloud
+  SONAR_HOST_URL: https://sonarcloud.io
   SONAR_TOKEN: VAULT[development/kv/data/sonarcloud data.token]
 
-ws_scan_secrets: &WS_SECRETS
+ws_scan_secrets: &WS_SCAN_SECRETS
   WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
 
 promote_secrets: &PROMOTE_SECRETS
@@ -102,22 +100,22 @@ build_task:
   <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
   env:
-    # analysis on SonarCloud
-    SONAR_HOST_URL: https://sonarcloud.io
     <<: *BUILD_SECRETS
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
   build_script:
-    - source cirrus-env BUILD-PRIVATE
+    - source cirrus-env BUILD
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
 qa_os_win_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_IF_SONARSOURCE_QA
-  <<: *MAVEN_CACHE
   depends_on:
     - build
+  maven_cache:
+    #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
+    folder: ~/.m2/repository
   build_script:
     - source cirrus-env CI
     - mvn.cmd clean verify
@@ -127,10 +125,9 @@ ws_scan_task:
     - build
   <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
-  # run only on master and long-term branches
-  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
+  <<: *ONLY_IF_SONARSOURCE_QA
   env:
-    <<: *WS_SECRETS
+    <<: *WS_SCAN_SECRETS
   whitesource_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
