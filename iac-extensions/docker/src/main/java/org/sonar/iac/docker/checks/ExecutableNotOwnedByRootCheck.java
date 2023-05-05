@@ -46,25 +46,38 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   private static final Set<String> SENSITIVE_FILE_EXTENSION = Set.of("exe", "py", "rb", "pl", "lua", "js", "lisp", "sh", "jar", "war",
     "run", "bin", "bat", "ps1");
 
+  private static final Set<String> COMPLIANT_CHOWN_VALUES = Set.of("root", "0", "");
+
   @Override
   public void initialize(InitContext init) {
     init.register(TransferInstruction.class, ExecutableNotOwnedByRootCheck::checkTransferInstruction);
   }
 
   private static void checkTransferInstruction(CheckContext ctx, TransferInstruction transferInstruction) {
-    Flag sensitiveChownFlag = getChownFlagSensitive(transferInstruction);
-    if (sensitiveChownFlag != null) {
-      List<Argument> sensitiveFiles = getFilesSensitive(transferInstruction.srcs());
-      Chmod chmod = getChmod(transferInstruction);
+    Flag sensitiveChownFlag = getSensitiveChownFlag(transferInstruction);
 
+    if (sensitiveChownFlag != null) {
+      List<Argument> sensitiveFiles = getSensitiveFiles(transferInstruction.srcs());
+
+      if (isNonRootUser(sensitiveChownFlag)) {
+        reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
+      }
+
+      Chmod chmod = getChmod(transferInstruction);
       if (chmod == null) {
         if (!sensitiveFiles.isEmpty()) {
           reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
         }
-      } else if (isChmodWriteSensitive(chmod) && (isChmodExecuteSensitive(chmod) || !sensitiveFiles.isEmpty())) {
+      } else if (isSensitiveChmod(sensitiveChownFlag, sensitiveFiles, chmod)) {
         reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
       }
     }
+  }
+
+  private static boolean isSensitiveChmod(Flag sensitiveChownFlag, List<Argument> sensitiveFiles, Chmod chmod) {
+    return !isRootUserAndGroupHasNoWritePermission(sensitiveChownFlag, chmod)
+      && isSensitiveWriteChmod(chmod)
+      && (isSensitiveExecuteChmod(chmod) || !sensitiveFiles.isEmpty());
   }
 
   private static void reportIssue(CheckContext ctx, Flag sensitiveChownFlag, List<Argument> sensitiveFiles) {
@@ -82,17 +95,17 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   @CheckForNull
-  private static Flag getChownFlagSensitive(TransferInstruction transferInstruction) {
+  private static Flag getSensitiveChownFlag(TransferInstruction transferInstruction) {
     return transferInstruction.options().stream()
       .filter(f -> f.name().equals("chown"))
-      .filter(ExecutableNotOwnedByRootCheck::isUserSensitive)
+      .filter(ExecutableNotOwnedByRootCheck::isSensitiveUser)
       .findFirst()
       .orElse(null);
   }
 
-  private static boolean isUserSensitive(Flag chownFlag) {
+  private static boolean isSensitiveUser(Flag chownFlag) {
     ArgumentResolution resolvedArgArgument = ArgumentResolution.of(chownFlag.value());
-    return resolvedArgArgument.isResolved() && !"root".equals(resolvedArgArgument.value());
+    return resolvedArgArgument.isResolved() && isNonRootChown(resolvedArgArgument.value());
   }
 
   @CheckForNull
@@ -106,23 +119,51 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
       .orElse(null);
   }
 
-  private static List<Argument> getFilesSensitive(List<Argument> arguments) {
+  private static List<Argument> getSensitiveFiles(List<Argument> arguments) {
     return arguments.stream()
       .map(ArgumentResolution::of)
-      .filter(ExecutableNotOwnedByRootCheck::isFileSensitive)
+      .filter(ExecutableNotOwnedByRootCheck::isSensitiveFile)
       .map(ArgumentResolution::argument)
       .collect(Collectors.toList());
   }
 
-  private static boolean isFileSensitive(ArgumentResolution argumentResolution) {
+  private static boolean isSensitiveFile(ArgumentResolution argumentResolution) {
     return argumentResolution.isResolved() && SENSITIVE_FILE_EXTENSION.contains(FilenameUtils.getExtension(argumentResolution.value()));
   }
 
-  private static boolean isChmodWriteSensitive(Chmod chmod) {
+  private static boolean isSensitiveWriteChmod(Chmod chmod) {
     return chmod.hasPermission("u+w") || chmod.hasPermission("g+w");
   }
 
-  private static boolean isChmodExecuteSensitive(Chmod chmod) {
+  private static boolean isSensitiveExecuteChmod(Chmod chmod) {
     return chmod.hasPermission("u+x") || chmod.hasPermission("g+x") || chmod.hasPermission("o+x");
+  }
+
+  // true if user value is any of ['root', '0', ''], group value is not from this list, and group has write permissions
+  // for example --chown=root:bar --chmod=664
+  private static boolean isRootUserAndGroupHasNoWritePermission(Flag chown, Chmod chmod) {
+    ArgumentResolution resolvedChown = ArgumentResolution.of(chown.value());
+    boolean isRootUser = !isNonRootAtId(resolvedChown.value(), 0);
+    return !chmod.hasPermission("g+w") && isRootUser && isNonRootAtId(resolvedChown.value(), 1);
+  }
+
+  // true if the user value is different from ['root', '0', ''], for example 'foo:root'
+  private static boolean isNonRootUser(Flag sensitiveChownFlag) {
+    ArgumentResolution resolvedChown = ArgumentResolution.of(sensitiveChownFlag.value());
+    return isNonRootAtId(resolvedChown.value(), 0);
+  }
+
+  // true if any of the user or group value is different from ['root', '0', ''], for example 'root:foo'
+  private static boolean isNonRootChown(String chownValue) {
+    return isNonRootAtId(chownValue, 0) || isNonRootAtId(chownValue, 1);
+  }
+
+  // true if the value at the specified id (0 for user, 1 for group) is not from ['root', '0', '']
+  static boolean isNonRootAtId(String chownValue, int indexToCheck) {
+    String[] split = chownValue.split(":");
+    if (split.length > indexToCheck) {
+      return !COMPLIANT_CHOWN_VALUES.contains(split[indexToCheck]);
+    }
+    return false;
   }
 }

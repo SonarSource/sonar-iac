@@ -1,5 +1,9 @@
 {
-'docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/nginx/Dockerfile':[
-8,
-],
+  'docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/flask/Dockerfile': [
+    18
+  ],
+  'docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/nginx/Dockerfile': [
+    7,
+    8
+  ]
 }
