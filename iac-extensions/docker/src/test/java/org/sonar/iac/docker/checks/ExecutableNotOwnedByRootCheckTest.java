@@ -34,14 +34,7 @@ class ExecutableNotOwnedByRootCheckTest {
     DockerVerifier.verify("ExecutableNotOwnedByRootCheck/add_copy.dockerfile", new ExecutableNotOwnedByRootCheck());
   }
 
-  @ParameterizedTest
-  @MethodSource("provideArgumentsForNonRootValueAtIdTest")
-  void nonRootValueAtIdTest(String chownValue, int indexToCheck, boolean expectedResult) {
-    boolean isNonRootAtId = ExecutableNotOwnedByRootCheck.isNonRootValueAtId(chownValue, indexToCheck);
-    assertThat(isNonRootAtId).isEqualTo(expectedResult);
-  }
-
-  private static Stream<Arguments> provideArgumentsForNonRootValueAtIdTest() {
+  private static Stream<Arguments> provideArgumentsForNonRootAtIdTest() {
     int USER_INDEX = 0;
     int GROUP_INDEX = 1;
     return Stream.of(
@@ -65,5 +58,12 @@ class ExecutableNotOwnedByRootCheckTest {
       Arguments.of("root:root", GROUP_INDEX, false),
       Arguments.of("x:x", USER_INDEX, true),
       Arguments.of("x:x", GROUP_INDEX, true));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideArgumentsForNonRootAtIdTest")
+  void nonRootAtIdTest(String chownValue, int indexToCheck, boolean expectedResult) {
+    boolean isNonRootAtId = ExecutableNotOwnedByRootCheck.isNonRootAtId(chownValue, indexToCheck);
+    assertThat(isNonRootAtId).isEqualTo(expectedResult);
   }
 }

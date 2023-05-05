@@ -54,12 +54,12 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   private static void checkTransferInstruction(CheckContext ctx, TransferInstruction transferInstruction) {
-    Flag sensitiveChownFlag = getChownFlagSensitive(transferInstruction);
+    Flag sensitiveChownFlag = getSensitiveChownFlag(transferInstruction);
 
     if (sensitiveChownFlag != null) {
-      List<Argument> sensitiveFiles = getFilesSensitive(transferInstruction.srcs());
+      List<Argument> sensitiveFiles = getSensitiveFiles(transferInstruction.srcs());
 
-      if (isNonRootUserValue(sensitiveChownFlag)) {
+      if (isNonRootUser(sensitiveChownFlag)) {
         reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
       }
 
@@ -68,16 +68,16 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
         if (!sensitiveFiles.isEmpty()) {
           reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
         }
-      } else if (shouldBeReportedBasedOnChmod(sensitiveChownFlag, sensitiveFiles, chmod)) {
+      } else if (isSensitiveChmod(sensitiveChownFlag, sensitiveFiles, chmod)) {
         reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
       }
     }
   }
 
-  private static boolean shouldBeReportedBasedOnChmod(Flag sensitiveChownFlag, List<Argument> sensitiveFiles, Chmod chmod) {
-    return !isUserRootAndGroupHasNoWritePermission(sensitiveChownFlag, chmod)
-      && isChmodWriteSensitive(chmod)
-      && (isChmodExecuteSensitive(chmod) || !sensitiveFiles.isEmpty());
+  private static boolean isSensitiveChmod(Flag sensitiveChownFlag, List<Argument> sensitiveFiles, Chmod chmod) {
+    return !isRootUserAndGroupHasNoWritePermission(sensitiveChownFlag, chmod)
+      && isSensitiveWriteChmod(chmod)
+      && (isSensitiveExecuteChmod(chmod) || !sensitiveFiles.isEmpty());
   }
 
   private static void reportIssue(CheckContext ctx, Flag sensitiveChownFlag, List<Argument> sensitiveFiles) {
@@ -95,17 +95,17 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   @CheckForNull
-  private static Flag getChownFlagSensitive(TransferInstruction transferInstruction) {
+  private static Flag getSensitiveChownFlag(TransferInstruction transferInstruction) {
     return transferInstruction.options().stream()
       .filter(f -> f.name().equals("chown"))
-      .filter(ExecutableNotOwnedByRootCheck::isUserSensitive)
+      .filter(ExecutableNotOwnedByRootCheck::isSensitiveUser)
       .findFirst()
       .orElse(null);
   }
 
-  private static boolean isUserSensitive(Flag chownFlag) {
+  private static boolean isSensitiveUser(Flag chownFlag) {
     ArgumentResolution resolvedArgArgument = ArgumentResolution.of(chownFlag.value());
-    return resolvedArgArgument.isResolved() && hasNonRootChownValue(resolvedArgArgument.value());
+    return resolvedArgArgument.isResolved() && isNonRootChown(resolvedArgArgument.value());
   }
 
   @CheckForNull
@@ -119,42 +119,47 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
       .orElse(null);
   }
 
-  private static List<Argument> getFilesSensitive(List<Argument> arguments) {
+  private static List<Argument> getSensitiveFiles(List<Argument> arguments) {
     return arguments.stream()
       .map(ArgumentResolution::of)
-      .filter(ExecutableNotOwnedByRootCheck::isFileSensitive)
+      .filter(ExecutableNotOwnedByRootCheck::isSensitiveFile)
       .map(ArgumentResolution::argument)
       .collect(Collectors.toList());
   }
 
-  private static boolean isFileSensitive(ArgumentResolution argumentResolution) {
+  private static boolean isSensitiveFile(ArgumentResolution argumentResolution) {
     return argumentResolution.isResolved() && SENSITIVE_FILE_EXTENSION.contains(FilenameUtils.getExtension(argumentResolution.value()));
   }
 
-  private static boolean isChmodWriteSensitive(Chmod chmod) {
+  private static boolean isSensitiveWriteChmod(Chmod chmod) {
     return chmod.hasPermission("u+w") || chmod.hasPermission("g+w");
   }
 
-  private static boolean isChmodExecuteSensitive(Chmod chmod) {
+  private static boolean isSensitiveExecuteChmod(Chmod chmod) {
     return chmod.hasPermission("u+x") || chmod.hasPermission("g+x") || chmod.hasPermission("o+x");
   }
 
-  private static boolean isUserRootAndGroupHasNoWritePermission(Flag chown, Chmod chmod) {
+  // true if user value is any of ['root', '0', ''], group value is not from this list, and group has write permissions
+  // for example --chown=root:bar --chmod=664
+  private static boolean isRootUserAndGroupHasNoWritePermission(Flag chown, Chmod chmod) {
     ArgumentResolution resolvedChown = ArgumentResolution.of(chown.value());
-    boolean isRootUser = !isNonRootValueAtId(resolvedChown.value(), 0);
-    return !chmod.hasPermission("g+w") && isRootUser && isNonRootValueAtId(resolvedChown.value(), 1);
+    boolean isRootUser = !isNonRootAtId(resolvedChown.value(), 0);
+    return !chmod.hasPermission("g+w") && isRootUser && isNonRootAtId(resolvedChown.value(), 1);
   }
 
-  private static boolean isNonRootUserValue(Flag sensitiveChownFlag) {
+  // true if the user value is different from ['root', '0', ''], for example 'foo:root'
+  private static boolean isNonRootUser(Flag sensitiveChownFlag) {
     ArgumentResolution resolvedChown = ArgumentResolution.of(sensitiveChownFlag.value());
-    return isNonRootValueAtId(resolvedChown.value(), 0);
+    return isNonRootAtId(resolvedChown.value(), 0);
   }
 
-  private static boolean hasNonRootChownValue(String chownValue) {
-    return isNonRootValueAtId(chownValue, 0) || isNonRootValueAtId(chownValue, 1);
+  // true if any of the user or group value is different from ['root', '0', ''], for example 'root:foo'
+  private static boolean isNonRootChown(String chownValue) {
+    return isNonRootAtId(chownValue, 0) || isNonRootAtId(chownValue, 1);
   }
 
-  static boolean isNonRootValueAtId(String chownValue, int indexToCheck) {
+  // true if the value at the specified id (0 for user, 1 for group) is not from ['root', '0', '']
+  static boolean isNonRootAtId(String chownValue, int indexToCheck) {
     String[] split = chownValue.split(":");
     if (split.length > indexToCheck) {
       return !COMPLIANT_CHOWN_VALUES.contains(split[indexToCheck]);
