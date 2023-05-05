@@ -1,5 +1,15 @@
 FROM ubuntu:22.04
 
+# Noncompliant@+1 {{Change this code not to store a secret in the image.}}
+RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+# Noncompliant@+1
+RUN ssh-keygen -randomFlag Q
+
+# Noncompliant@+1
+RUN ssh-keygen -randomFlag randomOption
+
 RUN ssh-keygen -randomFlag randomValue -l -randomFlag randomValue
 
 RUN ssh-keygen -randomFlag randomValue -l randomOption -randomFlag randomValue
@@ -39,16 +49,6 @@ RUN ssh-keygen -randomFlag randomValue -k randomOption -randomFlag randomValue
 RUN ssh-keygen -randomFlag randomValue -Q -randomFlag randomValue
 
 RUN ssh-keygen -randomFlag randomValue -Q randomOption -randomFlag randomValue
-
-# Noncompliant@+1
-RUN ssh-keygen -randomFlag Q
-
-# Noncompliant@+1
-RUN ssh-keygen -randomFlag randomOption
-
-# Noncompliant@+1 {{Revoke and change this secret, as it might be compromised.}}
-RUN ssh-keygen -N "" -t dsa -b 1024 -f rsync-key
-#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Noncompliant@+1
 RUN ssh-keygen -random1 -N "" -random2 -t dsa -random3 -b 1024 -random4 -f rsync-key -random5

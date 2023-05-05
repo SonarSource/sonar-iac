@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-# Noncompliant@+1 {{Revoke and change this secret, as it might be compromised.}}
+# Noncompliant@+1 {{Change this code not to store a secret in the image.}}
 RUN openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

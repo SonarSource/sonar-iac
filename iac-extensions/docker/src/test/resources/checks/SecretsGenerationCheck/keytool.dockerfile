@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 
-# Noncompliant@+1 {{Revoke and change this secret, as it might be compromised.}}
+# Noncompliant@+1 {{Change this code not to store a secret in the image.}}
 RUN keytool -genseckey -noprompt -alias tomcat -keyalg RSA -keystore /usr/local/tomcat/.keystore -storepass changeit -keypass changeit -dname "CN=Lyngby, OU=ILoop, O=CFB, L=Christian, S=Ravn, C=DK"
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
