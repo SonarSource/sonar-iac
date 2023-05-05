@@ -21,12 +21,14 @@ package org.sonar.iac.cloudformation.plugin;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
@@ -35,6 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CloudformationSensorTest extends ExtensionSensorTest {
 
+  @RegisterExtension
+  LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private static final String PARSING_ERROR_KEY = "S2260";
 
   @Test
@@ -65,6 +69,11 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
     analyse(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
     assertThat(context.allIssues()).isEmpty();
+
+    var logs = logTester.logs(LoggerLevel.DEBUG);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0))
+      .startsWith("File without CloudFormation identifier:").endsWith("parserError.json");
   }
 
   @Test

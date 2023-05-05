@@ -98,11 +98,14 @@ public class KubernetesSensor extends YamlSensor {
             hasExpectedIdentifier = true;
           }
         }
-        return hasExpectedIdentifier;
+        if (hasExpectedIdentifier) {
+          return true;
+        }
       } catch (IOException e) {
         LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
         LOG.error(e.getMessage());
       }
+      LOG.debug("File without Kubernetes identifier: {}", inputFile.uri());
       return false;
     }
   }

@@ -66,6 +66,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldNotParseYamlFileWithIncompleteIdentifiers() {
     analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n"));
     asserNotSourceFileIsParsed();
+
+    var logs = logTester.logs(LoggerLevel.DEBUG);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0))
+      .startsWith("File without Kubernetes identifier:").endsWith("k8.yaml");
   }
 
   @Test

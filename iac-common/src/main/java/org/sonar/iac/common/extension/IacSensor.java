@@ -96,9 +96,9 @@ public abstract class IacSensor implements Sensor {
     }
 
     DurationStatistics statistics = new DurationStatistics(sensorContext.config());
-    FileSystem fileSystem = sensorContext.fileSystem();
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate(sensorContext));
-    List<String> filenames = StreamSupport.stream(inputFiles.spliterator(), false).map(InputFile::toString).collect(Collectors.toList());
+    List<InputFile> inputFiles = inputFiles(sensorContext);
+    List<String> filenames = inputFiles.stream().map(InputFile::toString).collect(Collectors.toList());
+
     ProgressReport progressReport = new ProgressReport("Progress of the " + language.getName() + " analysis", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(filenames);
     boolean success = false;
@@ -113,6 +113,13 @@ public abstract class IacSensor implements Sensor {
       }
     }
     statistics.log();
+  }
+
+  private List<InputFile> inputFiles(SensorContext sensorContext) {
+    FileSystem fileSystem = sensorContext.fileSystem();
+    FilePredicate predicate = mainFilePredicate(sensorContext);
+    return StreamSupport.stream(fileSystem.inputFiles(predicate).spliterator(), false)
+      .collect(Collectors.toList());
   }
 
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
@@ -154,7 +161,7 @@ public abstract class IacSensor implements Sensor {
       this.statistics = statistics;
     }
 
-    boolean analyseFiles(SensorContext sensorContext, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
+    boolean analyseFiles(SensorContext sensorContext, List<InputFile> inputFiles, ProgressReport progressReport) {
       for (InputFile inputFile : inputFiles) {
         if (sensorContext.isCancelled()) {
           return false;
