@@ -58,8 +58,12 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
     if (sensitiveChownFlag != null) {
       List<Argument> sensitiveFiles = getFilesSensitive(transferInstruction.srcs());
-      Chmod chmod = getChmod(transferInstruction);
 
+      if (isNonRootUserValue(sensitiveChownFlag)) {
+        reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
+      }
+
+      Chmod chmod = getChmod(transferInstruction);
       if (chmod == null) {
         if (!sensitiveFiles.isEmpty()) {
           reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
@@ -104,16 +108,6 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
     return resolvedArgArgument.isResolved() && hasNonRootChownValue(resolvedArgArgument.value());
   }
 
-  private static boolean hasNonRootChownValue(String chownValue) {
-    String[] splitValue = chownValue.split(":");
-    for (String chownTarget : splitValue) {
-      if (!COMPLIANT_CHOWN_VALUES.contains(chownTarget)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   @CheckForNull
   private static Chmod getChmod(TransferInstruction transferInstruction) {
     return transferInstruction.options().stream()
@@ -141,13 +135,30 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
     return chmod.hasPermission("u+w") || chmod.hasPermission("g+w");
   }
 
-  private static boolean isUserRootAndGroupHasNoWritePermission(Flag chown, Chmod chmod) {
-    ArgumentResolution resolvedChown = ArgumentResolution.of(chown.value());
-    return !chmod.hasPermission("g+w")
-      && (resolvedChown.value().startsWith("root:") || resolvedChown.value().startsWith("0:"));
-  }
-
   private static boolean isChmodExecuteSensitive(Chmod chmod) {
     return chmod.hasPermission("u+x") || chmod.hasPermission("g+x") || chmod.hasPermission("o+x");
+  }
+
+  private static boolean isUserRootAndGroupHasNoWritePermission(Flag chown, Chmod chmod) {
+    ArgumentResolution resolvedChown = ArgumentResolution.of(chown.value());
+    boolean isRootUser = !isNonRootValueAtId(resolvedChown.value(), 0);
+    return !chmod.hasPermission("g+w") && isRootUser && isNonRootValueAtId(resolvedChown.value(), 1);
+  }
+
+  private static boolean isNonRootUserValue(Flag sensitiveChownFlag) {
+    ArgumentResolution resolvedChown = ArgumentResolution.of(sensitiveChownFlag.value());
+    return isNonRootValueAtId(resolvedChown.value(), 0);
+  }
+
+  private static boolean hasNonRootChownValue(String chownValue) {
+    return isNonRootValueAtId(chownValue, 0) || isNonRootValueAtId(chownValue, 1);
+  }
+
+  static boolean isNonRootValueAtId(String chownValue, int indexToCheck) {
+    String[] split = chownValue.split(":");
+    if (split.length > indexToCheck) {
+      return !COMPLIANT_CHOWN_VALUES.contains(split[indexToCheck]);
+    }
+    return false;
   }
 }
