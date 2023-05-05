@@ -128,7 +128,7 @@ ws_scan_task:
   <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
   # run only on master and long-term branches
-  # only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
     <<: *WS_SECRETS
   whitesource_script:
