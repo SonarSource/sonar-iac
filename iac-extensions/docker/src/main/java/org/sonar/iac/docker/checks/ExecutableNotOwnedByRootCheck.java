@@ -128,7 +128,13 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   private static boolean isSensitiveFile(ArgumentResolution argumentResolution) {
-    return argumentResolution.isResolved() && SENSITIVE_FILE_EXTENSION.contains(FilenameUtils.getExtension(argumentResolution.value()));
+    String fileExtension;
+    try {
+      fileExtension = FilenameUtils.getExtension(argumentResolution.value());
+    } catch (IllegalArgumentException e) {
+      fileExtension = "";
+    }
+    return argumentResolution.isResolved() && SENSITIVE_FILE_EXTENSION.contains(fileExtension);
   }
 
   private static boolean isSensitiveWriteChmod(Chmod chmod) {
