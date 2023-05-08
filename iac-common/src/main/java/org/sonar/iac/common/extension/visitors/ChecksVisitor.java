@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -34,6 +33,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
@@ -92,7 +92,12 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
     }
 
     private void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations);
+      try {
+        currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations);
+      } catch (Exception e) {
+        e.setStackTrace(new StackTraceElement[0]);
+        throw e;
+      }
     }
   }
 }
