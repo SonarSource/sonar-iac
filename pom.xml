@@ -64,7 +64,7 @@
     <version.sonar>9.3.0.51899</version.sonar>
     <version.sonar.api>9.13.0.360</version.sonar.api>
     <version.sonar.lint>8.16.0.67686</version.sonar.lint>
-    <version.analyzer.commons>1.24.0.965</version.analyzer.commons>
+    <version.analyzer.commons>2.5.0.1358</version.analyzer.commons>
     <version.orchestrator>3.40.0.183</version.orchestrator>
     <version.sslr>1.24.0.633</version.sslr>
     <version.junit>5.8.1</version.junit>
