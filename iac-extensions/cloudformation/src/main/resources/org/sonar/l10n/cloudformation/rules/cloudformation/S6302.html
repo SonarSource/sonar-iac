@@ -13,7 +13,7 @@ may occur and therefore result in loss of information.</p>
 <p>It’s recommended to apply the least privilege principle, i.e. by only granting the necessary permissions to identities. A good practice is to start
 with the very minimum set of permissions and to refine the policy over time. In order to fix overly permissive policies already deployed in
 production, a strategy could be to review the monitored activity in order to reduce the set of permissions to those most used.</p>
-<h2>Noncompliant Code Example</h2>
+<h2>Sensitive Code Example</h2>
 <p>A customer-managed policy that grants all permissions by using the wildcard (*) in the <code>Action</code> property:</p>
 <pre>
 MyPolicy:

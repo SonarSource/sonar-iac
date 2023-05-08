@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Sensitive data has been found in the Dockerfile or Docker image. The data should be considered breached.</p>
 <p>If malicious third parties can get a hold of such information, they could impersonate legitimate identities within the organization.<br> It is a
 clear breach of trust in the system, as the systems involved falsely assume that the authenticated entity is who it claims to be.<br> The consequences
@@ -9,14 +10,14 @@ recommend only setting them at runtime, for example with the <code>--env</code> 
 <p>Note that files exposing the secrets should be securely stored and not exposed to a large sphere. If possible, use a secret vault or another
 similar component. For example, <strong>Docker Swarm</strong> provides a <strong>secrets</strong> service that can be used to handle most confidential
 data.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 FROM example
 ARG PASSWORD
 # Noncompliant
 RUN wget --user=guest --password="$PASSWORD" https://example.com
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p>For build-time secrets, use <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Buildkit’s secret mount type</a>
 instead:</p>
 <pre>
@@ -37,7 +38,7 @@ argument:</p>
 <pre>
 docker run --env-file .env myImage
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN command secrets mount points
   </li>

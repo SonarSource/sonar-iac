@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Some AWS services create <code>Log Groups</code> implicitly and don’t let the developer choose the <code>Log Group</code> name. This means that
 CloudFormation does not require the developer to declare the <code>Log Group</code> that the resource will write to.</p>
 <p>If a <code>Log Group</code> is not declared within CloudFormation, then this <code>Log Group</code> will be automatically created at run time and
@@ -17,7 +18,7 @@ Group</code> resource is managed as code.</p>
   <li> AWS::ApiGatewayV2::Api </li>
   <li> AWS::CodeBuild::Project </li>
 </ul>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
   # There is no "Log Group" declared corresponding to "MyLambdaFunction": logs will not be managed by CloudFormation
   MyLambdaFunction:
@@ -26,7 +27,7 @@ Group</code> resource is managed as code.</p>
       Runtime: nodejs12.x
       Description: Example of Lambda Function
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p>Example with Ref</p>
 <pre>
   MyLambdaFunction:

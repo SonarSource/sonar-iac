@@ -1,5 +1,6 @@
+<h2>Why is this an issue?</h2>
 <p>Shared conventions allow teams to collaborate effectively. This rule allows to check that all tag keys match a provided regular expression.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p>With default provided regular expression ^([A-Z]<strong>:)</strong>([A-Z][A-Za-z]*)$:</p>
 <pre>
 resource "aws_s3_bucket" "mynoncompliantbucket" {
@@ -10,7 +11,7 @@ resource "aws_s3_bucket" "mynoncompliantbucket" {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 resource "aws_s3_bucket" "mycompliantbucket" {
   bucket = "mybucketname"
@@ -20,7 +21,7 @@ resource "aws_s3_bucket" "mycompliantbucket" {
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://docs.aws.amazon.com/whitepapers/latest/tagging-best-practices/adopt-a-standardized-approach-for-tag-names.html">AWS
   Documentation</a>: Adopt a Standardized Approach for Tag Names </li>
