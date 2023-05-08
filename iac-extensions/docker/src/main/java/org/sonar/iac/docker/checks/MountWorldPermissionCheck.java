@@ -23,18 +23,18 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
-import org.sonar.iac.common.api.tree.impl.TextPointer;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.utils.CheckUtils;
 
 @Rule(key = "S6469")
 public class MountWorldPermissionCheck implements IacCheck {

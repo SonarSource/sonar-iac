@@ -14,7 +14,7 @@ computational effort is enough to find two or more different inputs that produce
 <p>Safer alternatives, such as <code>SHA-256</code>, <code>SHA-512</code>, <code>SHA-3</code> are recommended, and for password hashing, it’s even
 better to use algorithms that do not compute too "quickly", like <code>bcrypt</code>, <code>scrypt</code>, <code>argon2</code> or <code>pbkdf2</code>
 because it slows down <code>brute force attacks</code>.</p>
-<h2>Noncompliant Code Example</h2>
+<h2>Sensitive Code Example</h2>
 <pre>
 FROM ubuntu:22.04
 

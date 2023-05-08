@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Docker offers a feature to mount files and directories for specific <code>RUN</code> instructions when building Docker images. This feature can be
 used to provide secrets to the commands that are executed during the build without baking them into the image. Additionally, it can be used to access
 SSH agents during the build.</p>
@@ -8,15 +9,15 @@ requirement, supply chain attacks, and other related threats, should still be co
 <p>If you are executing a command as a low-privileged user and need to access secrets or agents, you can use the options <code>uid</code> and
 <code>gid</code> to provide access without having to resort to world-readable or writable permissions that might expose them to unintended
 parties.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 RUN --mount=type=secret,id=build_secret,mode=0777 ./installer.sh # Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 RUN --mount=type=secret,id=build_secret,uid=1000 ./installer.sh
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/732">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
   <li> <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN --mount </li>
