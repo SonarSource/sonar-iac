@@ -38,7 +38,7 @@ class CfnLintRulesDefinitionTest {
     assertThat(repository.name()).isEqualTo("CFN-LINT");
     assertThat(repository.language()).isEqualTo("cloudformation");
     assertThat(repository.isExternal()).isTrue();
-    assertThat(repository.rules()).hasSize(145);
+    assertThat(repository.rules()).hasSize(146);
   }
 
 }
