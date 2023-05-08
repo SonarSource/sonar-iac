@@ -368,6 +368,28 @@ class IacSensorTest extends AbstractSensorTest {
     assertThat(((TestIacSensor) sensor).didImportExternalReports).isFalse();
   }
 
+  @Test
+  void shouldNotFailWhenIssueIsReportedOnInvalidLineOffset() {
+    CheckFactory checkFactory = mock(CheckFactory.class);
+    Checks checks = mock(Checks.class);
+    IacCheck validCheck = init -> init.register(Tree.class, (ctx, tree) -> ctx.reportIssue(TextRanges.range(1, 100, "foo"), "test"));
+    when(checks.ruleKey(validCheck)).thenReturn(RuleKey.of(repositoryKey(), "valid"));
+    when(checkFactory.create(repositoryKey())).thenReturn(checks);
+    when(checks.all()).thenReturn(Collections.singletonList(validCheck));
+    testParserThrowsRuntimeException = (source, inputFileContext) -> new TestTree();
+
+    InputFile inputFile = inputFile("file1.iac", "foo");
+    analyse(sensor(checkFactory), inputFile);
+
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).isEmpty();
+
+    var errorLogs = logTester.logs(LoggerLevel.ERROR);
+    assertThat(errorLogs).hasSize(2);
+    assertThat(errorLogs.get(0)).startsWith("Can not report issue on file").endsWith("file1.iac");
+    assertThat(errorLogs.get(1)).isEqualTo("100 is not a valid line offset for pointer. File file1.iac has 3 character(s) at line 1");
+  }
+
   @Override
   protected String repositoryKey() {
     return "iac";

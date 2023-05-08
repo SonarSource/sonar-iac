@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
@@ -37,6 +39,8 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.DurationStatistics;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
+
+  private static Logger LOG = Loggers.get(ChecksVisitor.class);
 
   private final DurationStatistics statistics;
 
@@ -92,7 +96,12 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
     }
 
     private void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations);
+      try {
+        currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations);
+      } catch (Exception e) {
+        LOG.error("Can not report issue on file: {}", currentCtx.inputFile.uri());
+        LOG.error(e.getMessage());
+      }
     }
   }
 }
