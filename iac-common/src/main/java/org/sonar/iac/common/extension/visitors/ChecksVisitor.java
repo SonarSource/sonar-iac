@@ -40,7 +40,7 @@ import org.sonar.iac.common.extension.DurationStatistics;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 
-  private static Logger LOG = Loggers.get(ChecksVisitor.class);
+  private static final Logger LOG = Loggers.get(ChecksVisitor.class);
 
   private final DurationStatistics statistics;
 
