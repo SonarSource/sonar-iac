@@ -161,3 +161,5 @@ ADD --chown=root  --chmod=u+wx file.txt target/
 ## Compliant because user doesn't change
 ADD --chown=:              file.sh  target/
 
+## Compliant, but should no lead to an exception of the check
+COPY --chown=root:bar --chmod=614 fileName:withColon.sh /

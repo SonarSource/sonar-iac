@@ -33,4 +33,13 @@ public class CheckUtils {
   public static List<ArgumentResolution> resolveInstructionArguments(HasArguments instructionWithArguments) {
     return instructionWithArguments.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
   }
+
+  public static String getFileExtension(String name) {
+    int lastIndexOf = name.lastIndexOf(".");
+    if (lastIndexOf == -1) {
+      // empty extension
+      return "";
+    }
+    return name.substring(lastIndexOf + 1);
+  }
 }

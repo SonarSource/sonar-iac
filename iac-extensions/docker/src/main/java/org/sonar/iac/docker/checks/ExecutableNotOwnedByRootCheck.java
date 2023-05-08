@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.apache.commons.io.FilenameUtils;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.Chmod;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -128,7 +128,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   }
 
   private static boolean isSensitiveFile(ArgumentResolution argumentResolution) {
-    return argumentResolution.isResolved() && SENSITIVE_FILE_EXTENSION.contains(FilenameUtils.getExtension(argumentResolution.value()));
+    return argumentResolution.isResolved() && SENSITIVE_FILE_EXTENSION.contains(CheckUtils.getFileExtension(argumentResolution.value()));
   }
 
   private static boolean isSensitiveWriteChmod(Chmod chmod) {
