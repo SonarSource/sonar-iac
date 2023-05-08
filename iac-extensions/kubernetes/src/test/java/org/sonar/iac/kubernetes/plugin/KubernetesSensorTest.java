@@ -41,9 +41,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   private static final String K8_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\nspec: ~\n";
   private static final String PARSING_ERROR_KEY = "S2260";
 
-  @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
-
   @Test
   void shouldParseYamlFileWithIdentifiers() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS));

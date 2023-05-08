@@ -37,8 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CloudformationSensorTest extends ExtensionSensorTest {
 
-  @RegisterExtension
-  LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private static final String PARSING_ERROR_KEY = "S2260";
 
   @Test
