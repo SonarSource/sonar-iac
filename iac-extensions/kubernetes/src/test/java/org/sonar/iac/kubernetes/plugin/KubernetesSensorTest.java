@@ -41,9 +41,6 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   private static final String K8_IDENTIFIERS = "apiVersion: ~\nkind: ~\nmetadata: ~\nspec: ~\n";
   private static final String PARSING_ERROR_KEY = "S2260";
 
-  @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
-
   @Test
   void shouldParseYamlFileWithIdentifiers() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS));
@@ -66,6 +63,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldNotParseYamlFileWithIncompleteIdentifiers() {
     analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n"));
     asserNotSourceFileIsParsed();
+
+    var logs = logTester.logs(LoggerLevel.DEBUG);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0))
+      .startsWith("File without Kubernetes identifier:").endsWith("k8.yaml");
   }
 
   @Test

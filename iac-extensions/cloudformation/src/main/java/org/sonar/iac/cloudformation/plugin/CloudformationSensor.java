@@ -120,7 +120,7 @@ public class CloudformationSensor extends YamlSensor {
         LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
         LOG.error(e.getMessage());
       }
-
+      LOG.debug("File without CloudFormation identifier: {}", inputFile.uri());
       return false;
     }
   }

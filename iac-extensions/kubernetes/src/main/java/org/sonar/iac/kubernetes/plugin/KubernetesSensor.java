@@ -79,12 +79,12 @@ public class KubernetesSensor extends YamlSensor {
 
     private static boolean hasKubernetesObjectStructure(InputFile inputFile) {
       int identifierCount = 0;
+      boolean hasExpectedIdentifier = false;
       try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
         // Only firs 8k bytes is read to avoid slow execution for big one-line files
         byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
         String text = new String(bytes, inputFile.charset());
         String[] lines = LINE_TERMINATOR.split(text);
-        boolean hasExpectedIdentifier = false;
         for (String line : lines) {
           if (IDENTIFIER.stream().anyMatch(line::startsWith)) {
             identifierCount++;
@@ -98,12 +98,17 @@ public class KubernetesSensor extends YamlSensor {
             hasExpectedIdentifier = true;
           }
         }
-        return hasExpectedIdentifier;
       } catch (IOException e) {
         LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
         LOG.error(e.getMessage());
       }
-      return false;
+
+      if (hasExpectedIdentifier) {
+        return true;
+      } else {
+        LOG.debug("File without Kubernetes identifier: {}", inputFile.uri());
+        return false;
+      }
     }
   }
 }
