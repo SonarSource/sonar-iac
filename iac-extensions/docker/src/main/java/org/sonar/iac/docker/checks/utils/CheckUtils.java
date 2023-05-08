@@ -20,8 +20,10 @@
 package org.sonar.iac.docker.checks.utils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.HasArguments;
 
 public class CheckUtils {
@@ -41,5 +43,9 @@ public class CheckUtils {
       return "";
     }
     return name.substring(lastIndexOf + 1);
+  }
+
+  public static Optional<Flag> getParamByName(List<Flag> params, String name) {
+    return params.stream().filter(param -> name.equals(param.name())).findFirst();
   }
 }
