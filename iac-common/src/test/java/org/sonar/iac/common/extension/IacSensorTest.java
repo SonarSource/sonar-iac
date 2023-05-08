@@ -383,10 +383,8 @@ class IacSensorTest extends AbstractSensorTest {
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
-
-    var errorLogs = logTester.logs(LoggerLevel.ERROR);
-    assertThat(errorLogs).hasSize(1);
-    assertThat(errorLogs.get(0)).isEqualTo("Cannot analyse 'file1.iac': 100 is not a valid line offset for pointer. File file1.iac has 3 character(s) at line 1");
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .containsExactly("Cannot analyse 'file1.iac': 100 is not a valid line offset for pointer. File file1.iac has 3 character(s) at line 1");
   }
 
   @Override
