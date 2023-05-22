@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.arm.plugin;
 
+import org.junit.jupiter.api.Test;
 import org.sonar.api.Plugin;
-import org.sonar.iac.arm.plugin.ArmExtension;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper;
-import org.sonar.iac.docker.plugin.DockerExtension;
-import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 
-public class IacPlugin implements Plugin {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public void define(Context context) {
-    TerraformExtension.define(context);
-    CloudformationExtension.define(context);
-    KubernetesExtension.define(context);
-    DockerExtension.define(context);
+class ArmExtensionTest {
+
+  private static final Version VERSION_10_0 = Version.create(10, 0);
+
+  @Test
+  void sonarqube_extensions() {
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_10_0, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    Plugin.Context context = new Plugin.Context(runtime);
     ArmExtension.define(context);
-
-    context.addExtension(DefaultAnalysisWarningsWrapper.class);
+    assertThat(context.getExtensions()).isEmpty();
   }
+
 }

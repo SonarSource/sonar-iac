@@ -17,6 +17,7 @@
     <module>cloudformation</module>
     <module>kubernetes</module>
     <module>docker</module>
+    <module>arm</module>
   </modules>
 
 </project>

@@ -40,6 +40,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-iac-docker</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-iac-arm</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>
