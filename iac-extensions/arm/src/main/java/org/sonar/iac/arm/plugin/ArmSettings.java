@@ -27,7 +27,7 @@ import org.sonar.api.resources.Qualifiers;
 
 public class ArmSettings {
 
-  private static final String CLOUDFORMATION_CATEGORY = "CloudFormation";
+  private static final String ARM_CATEGORY = "ARM";
   private static final String GENERAL_SUBCATEGORY = "General";
 
   static final String ACTIVATION_KEY = "sonar.arm.activate";
@@ -48,7 +48,7 @@ public class ArmSettings {
         .description("Activate analysis of JSON files recognized as ARM files.")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
-        .category(CLOUDFORMATION_CATEGORY)
+        .category(ARM_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
         .build(),
 
@@ -58,7 +58,7 @@ public class ArmSettings {
         .name("File Identifier")
         .description("Files without the identifier are excluded from the analysis. The identifier can be anywhere in the file.")
         .onQualifiers(Qualifiers.PROJECT)
-        .category(CLOUDFORMATION_CATEGORY)
+        .category(ARM_CATEGORY)
         .subCategory(GENERAL_SUBCATEGORY)
         .build());
   }
