@@ -29,7 +29,5 @@ public class ArmExtension {
   }
 
   public static void define(Plugin.Context context) {
-    context.addExtension(ArmSensor.class);
-    context.addExtensions(ArmSettings.getGeneralProperties());
   }
 }
