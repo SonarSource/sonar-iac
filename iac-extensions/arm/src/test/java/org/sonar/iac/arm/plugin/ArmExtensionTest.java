@@ -38,7 +38,7 @@ class ArmExtensionTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_10_0, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     ArmExtension.define(context);
-    assertThat(context.getExtensions()).isEmpty();
+    assertThat(context.getExtensions()).hasSize(3);
   }
 
 }
