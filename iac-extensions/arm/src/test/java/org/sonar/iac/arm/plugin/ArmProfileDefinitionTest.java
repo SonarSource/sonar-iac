@@ -35,6 +35,6 @@ class ArmProfileDefinitionTest {
     BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("azureresourcemanager", "Sonar way");
     assertThat(profile.language()).isEqualTo("azureresourcemanager");
     assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSize(0);
+    assertThat(profile.rules()).isEmpty();
   }
 }
