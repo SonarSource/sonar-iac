@@ -108,6 +108,11 @@
         <artifactId>sonar-iac-docker</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-iac-arm</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.sonarsource.sslr</groupId>

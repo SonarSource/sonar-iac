@@ -1,0 +1,11 @@
+{
+  "rules-metadata-path": "./src/main/resources/org/sonar/l10n/azureresourcemanager/rules/azureresourcemanager",
+  "languages": [
+    "AZURE_RESOURCE_MANAGER"
+  ],
+  "latest-update": "2023-05-08T07:13:45.831563776Z",
+  "options": {
+    "no-language-in-filenames": true,
+    "preserve-filenames": true
+  }
+}

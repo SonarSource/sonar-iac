@@ -17,26 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.arm.plugin;
 
 import org.sonar.api.Plugin;
-import org.sonar.iac.arm.plugin.ArmExtension;
-import org.sonar.iac.cloudformation.plugin.CloudformationExtension;
-import org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper;
-import org.sonar.iac.docker.plugin.DockerExtension;
-import org.sonar.iac.kubernetes.plugin.KubernetesExtension;
-import org.sonar.iac.terraform.plugin.TerraformExtension;
 
-public class IacPlugin implements Plugin {
+public class ArmExtension {
 
-  @Override
-  public void define(Context context) {
-    TerraformExtension.define(context);
-    CloudformationExtension.define(context);
-    KubernetesExtension.define(context);
-    DockerExtension.define(context);
-    ArmExtension.define(context);
+  private ArmExtension() {
+  }
 
-    context.addExtension(DefaultAnalysisWarningsWrapper.class);
+  public static void define(Plugin.Context context) {
+    // empty for now
   }
 }
