@@ -26,13 +26,12 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
-import org.sonar.iac.cloudformation.parser.CloudformationConverter;
+import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
-import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
@@ -55,7 +54,7 @@ public class CloudformationSensor extends YamlSensor {
 
   @Override
   protected TreeParser<Tree> treeParser() {
-    return new YamlParser(new CloudformationConverter());
+    return new CloudformationParser();
   }
 
   @Override
