@@ -19,19 +19,22 @@
  */
 package org.sonar.iac.arm.plugin;
 
-import org.sonar.api.resources.AbstractLanguage;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
 
-public class ArmLanguage extends AbstractLanguage {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public static final String KEY = "azureresourcemanager";
-  public static final String NAME = "AzureResourceManager";
+class ArmProfileDefinitionTest {
 
-  public ArmLanguage() {
-    super(KEY, NAME);
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    return new String[0];
+  @Test
+  void should_create_sonar_way_profile() {
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    ArmProfileDefinition definition = new ArmProfileDefinition();
+    definition.define(context);
+    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("azureresourcemanager", "Sonar way");
+    assertThat(profile.language()).isEqualTo("azureresourcemanager");
+    assertThat(profile.name()).isEqualTo("Sonar way");
+    assertThat(profile.rules()).hasSize(0);
   }
 }
