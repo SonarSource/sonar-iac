@@ -71,7 +71,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     var logs = logTester.logs(LoggerLevel.DEBUG);
     assertThat(logs).hasSize(1);
     assertThat(logs.get(0))
-      .startsWith("File without CloudFormation identifier:").endsWith("parserError.json");
+      .startsWith("File without provided identifier:").endsWith("parserError.json");
   }
 
   @Test

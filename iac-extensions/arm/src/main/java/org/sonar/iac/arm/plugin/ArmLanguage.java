@@ -19,16 +19,19 @@
  */
 package org.sonar.iac.arm.plugin;
 
-import org.sonar.api.Plugin;
+import org.sonar.api.resources.AbstractLanguage;
 
-public class ArmExtension {
+public class ArmLanguage extends AbstractLanguage {
 
-  public static final String REPOSITORY_KEY = "azureresourcemanager";
+  public static final String KEY = "arm";
+  public static final String NAME = "ARM";
 
-  private ArmExtension() {
+  public ArmLanguage() {
+    super(KEY, NAME);
   }
 
-  public static void define(Plugin.Context context) {
-    // empty for now
+  @Override
+  public String[] getFileSuffixes() {
+    return new String[0];
   }
 }

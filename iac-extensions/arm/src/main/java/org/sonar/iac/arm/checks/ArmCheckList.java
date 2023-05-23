@@ -17,18 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.plugin;
+package org.sonar.iac.arm.checks;
 
-import org.sonar.api.Plugin;
+import java.util.List;
 
-public class ArmExtension {
+public class ArmCheckList {
 
-  public static final String REPOSITORY_KEY = "azureresourcemanager";
-
-  private ArmExtension() {
+  private ArmCheckList() {
   }
 
-  public static void define(Plugin.Context context) {
-    // empty for now
+  public static List<Class<?>> checks() {
+    return List.of();
   }
 }

@@ -1,0 +1,188 @@
+{
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.16.2.56959",
+      "templateHash": "1490579835944567133"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-11-01",
+      "name": "string",
+      "location": "string",
+      "tags": {
+        "tagName1": "tagValue1",
+        "tagName2": "tagValue2"
+      },
+      "sku": {
+        "capacity": 3,
+        "name": "string",
+        "tier": "string"
+      },
+      "extendedLocation": {
+        "name": "string",
+        "type": "EdgeZone"
+      },
+      "identity": {
+        "type": "string",
+        "userAssignedIdentities": {}
+      },
+      "plan": {
+        "name": "string",
+        "product": "string",
+        "promotionCode": "string",
+        "publisher": "string"
+      },
+      "properties": {
+        "additionalCapabilities": {
+          "hibernationEnabled": true,
+          "ultraSSDEnabled": true
+        },
+        "automaticRepairsPolicy": {
+          "enabled": true,
+          "gracePeriod": "string",
+          "repairAction": "string"
+        },
+        "constrainedMaximumCapacity": true,
+        "doNotRunExtensionsOnOverprovisionedVMs": true,
+        "hostGroup": {
+          "id": "string"
+        },
+        "orchestrationMode": "string",
+        "overprovision": true,
+        "platformFaultDomainCount": 3,
+        "priorityMixPolicy": {
+          "baseRegularPriorityCount": 3,
+          "regularPriorityPercentageAboveBase": 3
+        },
+        "proximityPlacementGroup": {
+          "id": "string"
+        },
+        "scaleInPolicy": {
+          "forceDeletion": true,
+          "rules": [
+            "string"
+          ]
+        },
+        "singlePlacementGroup": true,
+        "spotRestorePolicy": {
+          "enabled": true,
+          "restoreTimeout": "string"
+        },
+        "upgradePolicy": {
+          "automaticOSUpgradePolicy": {
+            "disableAutomaticRollback": true,
+            "enableAutomaticOSUpgrade": true,
+            "useRollingUpgradePolicy": true
+          },
+          "mode": "string",
+          "rollingUpgradePolicy": {
+            "enableCrossZoneUpgrade": true,
+            "maxBatchInstancePercent": 3,
+            "maxSurge": true,
+            "maxUnhealthyInstancePercent": 3,
+            "maxUnhealthyUpgradedInstancePercent": 3,
+            "pauseTimeBetweenBatches": "string",
+            "prioritizeUnhealthyInstances": true,
+            "rollbackFailedInstancesOnPolicyBreach": true
+          }
+        },
+        "virtualMachineProfile": {
+          "applicationProfile": {
+            "galleryApplications": [
+              {
+                "configurationReference": "string",
+                "enableAutomaticUpgrade": true,
+                "order": 3,
+                "packageReferenceId": "string",
+                "tags": "string",
+                "treatFailureAsDeploymentFailure": true
+              }
+            ]
+          },
+          "billingProfile": {
+            "maxPrice": "[json('1')]"
+          },
+          "capacityReservation": {
+            "capacityReservationGroup": {
+              "id": "string"
+            }
+          },
+          "diagnosticsProfile": {
+            "bootDiagnostics": {
+              "enabled": true,
+              "storageUri": "string"
+            }
+          },
+          "evictionPolicy": "string",
+          "extensionProfile": {
+            "extensions": [
+              {
+                "name": "string",
+                "properties": {
+                  "autoUpgradeMinorVersion": true,
+                  "enableAutomaticUpgrade": true,
+                  "forceUpdateTag": "string",
+                  "protectedSettings": "",
+                  "protectedSettingsFromKeyVault": {
+                    "secretUrl": "string",
+                    "sourceVault": {
+                      "id": "string"
+                    }
+                  },
+                  "provisionAfterExtensions": [
+                    "string"
+                  ],
+                  "publisher": "string",
+                  "settings": 1,
+                  "suppressFailures": true,
+                  "type": "string",
+                  "typeHandlerVersion": "string"
+                }
+              }
+            ],
+            "extensionsTimeBudget": "string"
+          },
+          "hardwareProfile": {
+            "vmSizeProperties": {
+              "vCPUsAvailable": 3,
+              "vCPUsPerCore": 3
+            }
+          },
+          "licenseType": "string",
+          "priority": "string",
+          "scheduledEventsProfile": {
+            "osImageNotificationProfile": {
+              "enable": true,
+              "notBeforeTimeout": "string"
+            },
+            "terminateNotificationProfile": {
+              "enable": true,
+              "notBeforeTimeout": "string"
+            }
+          },
+          "securityProfile": {
+            "encryptionAtHost": true,
+            "securityType": "string",
+            "uefiSettings": {
+              "secureBootEnabled": true,
+              "vTpmEnabled": true
+            }
+          },
+          "serviceArtifactReference": {
+            "id": "string"
+          },
+          "userData": "string"
+        },
+        "zoneBalance": true
+      },
+      "zones": [
+        "string"
+      ]
+    }
+  ],
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+}
