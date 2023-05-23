@@ -63,7 +63,7 @@ public class FileIdentificationPredicate implements FilePredicate {
       LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
       LOG.error(e.getMessage());
     }
-    LOG.debug("File without provided identifier: {}", inputFile.uri());
+    LOG.debug("File without identifier '{}': {}", fileIdentifier, inputFile.uri());
     return false;
   }
 }
