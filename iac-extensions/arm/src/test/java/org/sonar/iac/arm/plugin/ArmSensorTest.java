@@ -31,7 +31,7 @@ import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ArmSensorTest extends ExtensionSensorTest {
+class ArmSensorTest extends ExtensionSensorTest {
 
   @Test
   void should_return_arm_descriptor() {

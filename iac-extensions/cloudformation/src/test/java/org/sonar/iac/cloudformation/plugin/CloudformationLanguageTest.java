@@ -20,7 +20,6 @@
 package org.sonar.iac.cloudformation.plugin;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

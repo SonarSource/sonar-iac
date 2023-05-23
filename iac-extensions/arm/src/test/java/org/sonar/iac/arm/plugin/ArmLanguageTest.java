@@ -20,25 +20,14 @@
 package org.sonar.iac.arm.plugin;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ArmExtensionTest {
-
-  private static final Version VERSION_10_0 = Version.create(10, 0);
+class ArmLanguageTest {
 
   @Test
-  void sonarqube_extensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_10_0, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    ArmExtension.define(context);
-    assertThat(context.getExtensions()).hasSize(4);
+  void should_return_arm_file_suffixes() {
+    ArmLanguage language = new ArmLanguage();
+    assertThat(language.getFileSuffixes()).isEmpty();
   }
-
 }

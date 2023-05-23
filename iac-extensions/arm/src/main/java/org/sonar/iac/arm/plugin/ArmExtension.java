@@ -29,6 +29,12 @@ public class ArmExtension {
   }
 
   public static void define(Plugin.Context context) {
-    // empty for now
+    context.addExtensions(
+      // Language
+      ArmLanguage.class,
+      // Sensor
+      ArmSensor.class);
+
+    context.addExtensions(ArmSettings.getGeneralProperties());
   }
 }
