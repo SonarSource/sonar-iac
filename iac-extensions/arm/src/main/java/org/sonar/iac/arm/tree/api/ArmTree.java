@@ -19,9 +19,11 @@
  */
 package org.sonar.iac.arm.tree.api;
 
+import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.Tree;
 
 public interface ArmTree extends Tree {
+  @CheckForNull
   ArmTree parent();
 
   void setParent(ArmTree parent);
