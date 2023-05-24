@@ -20,43 +20,38 @@
 package org.sonar.iac.arm.tree.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-public abstract class AbstractArmTreeImpl implements ArmTree {
+public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
 
-  protected TextRange textRange;
-  protected ArmTree parent;
+  private final String identifier;
+  private final YamlTreeMetadata metadata;
+
+  public IdentifierImpl(String identifier, YamlTreeMetadata metadata) {
+    this.identifier = identifier;
+    this.metadata = metadata;
+  }
 
   @Override
-  public final boolean is(Kind... kind) {
-    for (Kind kindIter : kind) {
-      if (getKind() == kindIter) {
-        return true;
-      }
-    }
-    return false;
+  public String value() {
+    return identifier;
   }
 
   @Override
   public TextRange textRange() {
-    if (textRange == null) {
-      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).collect(Collectors.toList());
-      textRange = TextRanges.merge(childRanges);
-    }
-    return textRange;
+    return metadata.textRange();
   }
 
   @Override
-  public ArmTree parent() {
-    return parent;
+  public List<Tree> children() {
+    return List.of();
   }
 
   @Override
-  public void setParent(ArmTree parent) {
-    this.parent = parent;
+  public Kind getKind() {
+    return Kind.IDENTIFIER;
   }
 }

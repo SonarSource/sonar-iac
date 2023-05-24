@@ -22,12 +22,12 @@ package org.sonar.iac.arm.parser;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,6 +39,7 @@ class ArmParserTest {
   @Test
   void shouldParseEmptyJson() {
     File tree = (File) parser.parse("{}", null);
+    assertThat(tree.is(ArmTree.Kind.FILE)).isTrue();
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.children()).isEmpty();
     assertThat(tree.parent()).isNull();

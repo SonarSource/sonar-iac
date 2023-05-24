@@ -20,43 +20,34 @@
 package org.sonar.iac.arm.tree.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
-public abstract class AbstractArmTreeImpl implements ArmTree {
+public class PropertyImpl implements Property {
 
-  protected TextRange textRange;
-  protected ArmTree parent;
+  private final Identifier key;
+  private final Expression value;
+
+  public PropertyImpl(Identifier key, Expression value) {
+    this.key = key;
+    this.value = value;
+  }
 
   @Override
-  public final boolean is(Kind... kind) {
-    for (Kind kindIter : kind) {
-      if (getKind() == kindIter) {
-        return true;
-      }
-    }
-    return false;
+  public Identifier key() {
+    return key;
+  }
+
+  @Override
+  public Expression value() {
+    return value;
   }
 
   @Override
   public TextRange textRange() {
-    if (textRange == null) {
-      List<TextRange> childRanges = children().stream().map(HasTextRange::textRange).collect(Collectors.toList());
-      textRange = TextRanges.merge(childRanges);
-    }
-    return textRange;
-  }
-
-  @Override
-  public ArmTree parent() {
-    return parent;
-  }
-
-  @Override
-  public void setParent(ArmTree parent) {
-    this.parent = parent;
+    return TextRanges.merge(List.of(key.textRange(), value.textRange()));
   }
 }
