@@ -34,7 +34,7 @@ class ArmRulesDefinitionTest {
 
   @Test
   void testActivationSonarLint() {
-    RulesDefinition.Repository repository = armRuleRepository(9, 3);
+    RulesDefinition.Repository repository = armRuleRepository(10, 0);
     assertThat(repository).isNotNull();
     assertThat(repository.name()).isEqualTo("SonarQube");
     assertThat(repository.language()).isEqualTo("azureresourcemanager");
