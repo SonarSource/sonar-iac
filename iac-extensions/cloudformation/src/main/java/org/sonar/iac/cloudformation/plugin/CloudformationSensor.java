@@ -19,22 +19,17 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.util.regex.Pattern;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.cloudformation.checks.CloudformationCheckList;
 import org.sonar.iac.cloudformation.parser.CloudformationConverter;
 import org.sonar.iac.cloudformation.reports.CfnLintImporter;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.FileIdentificationPredicate;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.YamlParser;
@@ -44,8 +39,6 @@ import org.sonarsource.analyzer.commons.ExternalReportProvider;
 import static org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper.NOOP_ANALYSIS_WARNINGS;
 
 public class CloudformationSensor extends YamlSensor {
-
-  private static final int DEFAULT_BUFFER_SIZE = 8192;
 
   private final AnalysisWarningsWrapper analysisWarnings;
 
@@ -84,44 +77,5 @@ public class CloudformationSensor extends YamlSensor {
   @Override
   protected String getActivationSettingKey() {
     return CloudformationSettings.ACTIVATION_KEY;
-  }
-
-  private static class FileIdentificationPredicate implements FilePredicate {
-    private static final Logger LOG = Loggers.get(FileIdentificationPredicate.class);
-    private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
-
-    private final String fileIdentifier;
-
-    public FileIdentificationPredicate(String fileIdentifier) {
-      this.fileIdentifier = fileIdentifier;
-    }
-
-    @Override
-    public boolean apply(InputFile inputFile) {
-      return hasFileIdentifier(inputFile);
-    }
-
-    private boolean hasFileIdentifier(InputFile inputFile) {
-      if ("".equals(fileIdentifier)) {
-        return true;
-      }
-
-      try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
-        // Only firs 8k bytes is read to avoid slow execution for big one-line files
-        byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
-        String text = new String(bytes, inputFile.charset());
-        String[] lines = LINE_TERMINATOR.split(text);
-        for (String line : lines) {
-          if (line.contains(fileIdentifier)) {
-            return true;
-          }
-        }
-      } catch (IOException e) {
-        LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
-        LOG.error(e.getMessage());
-      }
-      LOG.debug("File without CloudFormation identifier: {}", inputFile.uri());
-      return false;
-    }
   }
 }

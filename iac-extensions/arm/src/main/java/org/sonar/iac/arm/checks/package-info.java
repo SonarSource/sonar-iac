@@ -1,3 +1,4 @@
+
 /*
  * SonarQube IaC Plugin
  * Copyright (C) 2021-2023 SonarSource SA
@@ -17,17 +18,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
-
-import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-class CloudformationLanguageTest {
-
-  @Test
-  void should_return_cloudformation_file_suffixes() {
-    CloudformationLanguage language = new CloudformationLanguage();
-    assertThat(language.getFileSuffixes()).isEmpty();
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.arm.checks;

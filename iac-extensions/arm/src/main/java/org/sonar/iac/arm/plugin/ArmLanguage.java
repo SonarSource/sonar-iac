@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.arm.plugin;
 
-import org.junit.jupiter.api.Test;
+import org.sonar.api.resources.AbstractLanguage;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class ArmLanguage extends AbstractLanguage {
 
-class CloudformationLanguageTest {
+  public static final String KEY = "arm";
+  public static final String NAME = "ARM";
 
-  @Test
-  void should_return_cloudformation_file_suffixes() {
-    CloudformationLanguage language = new CloudformationLanguage();
-    assertThat(language.getFileSuffixes()).isEmpty();
+  public ArmLanguage() {
+    super(KEY, NAME);
+  }
+
+  @Override
+  public String[] getFileSuffixes() {
+    return new String[0];
   }
 }

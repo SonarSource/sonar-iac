@@ -17,77 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.cloudformation.plugin;
+package org.sonar.iac.arm.plugin;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CloudformationSensorTest extends ExtensionSensorTest {
-
-  private static final String PARSING_ERROR_KEY = "S2260";
+class ArmSensorTest extends ExtensionSensorTest {
 
   @Test
-  void yaml_file_with_recursive_anchor_reference_should_raise_parsing_issue() {
-    analyse(sensor(checkFactory(PARSING_ERROR_KEY)), inputFile("loop.yaml", "foo: &fooanchor\n" +
-      " bar: *fooanchor"));
-
-    assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(context.allIssues()).hasSize(1);
-    Issue issue = context.allIssues().iterator().next();
-    assertThat(issue.ruleKey().rule()).as("A parsing error must be raised").isEqualTo(PARSING_ERROR_KEY);
-  }
-
-  @Test
-  void should_return_cloudformation_descriptor() {
+  void should_return_arm_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("IaC CloudFormation Sensor");
-    assertThat(descriptor.languages()).containsExactly("json", "yaml");
-  }
-
-  @Test
-  void should_raise_no_parsing_issue_in_file_without_identifier() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, "myIdentifier");
-    settings.setProperty(getActivationSettingKey(), true);
-    context.setSettings(settings);
-
-    analyse(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
-    assertThat(context.allIssues()).isEmpty();
-
-    var logs = logTester.logs(LoggerLevel.DEBUG);
-    assertThat(logs).hasSize(1);
-    assertThat(logs.get(0))
-      .startsWith("File without identifier 'myIdentifier':").endsWith("parserError.json");
-  }
-
-  @Test
-  void should_raise_parsing_issue_in_file_with_identifier() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, "myIdentifier");
-    settings.setProperty(getActivationSettingKey(), true);
-    context.setSettings(settings);
-
-    analyse(sensor("S2260"), inputFile("parserError.json", "\"myIdentifier'"));
-    assertThat(context.allIssues()).hasSize(1);
+    assertThat(descriptor.name()).isEqualTo("IaC ARM Sensor");
+    assertThat(descriptor.languages()).containsExactly("json");
   }
 
   /**
-   * When identifying whether an input file is a Cloudformation file, a custom identifier is retrieved from the file.
-   * In order not to spend too much time on this verification in large files, it is only applied to the first 8kb.
+   * When trying to identify if an input file is an ARM file, we look for a specific identifier in the file.
+   * There is a limit (8 Kb) on the file reading to not spend an extensive amount of time.
    * This test checks 2 files with valid identifiers. The identifiers are at the end of each file.
    */
   @Test
@@ -96,7 +53,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     InputFile mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.json", "json");
 
     MapSettings settings = new MapSettings();
-    settings.setProperty(CloudformationSettings.FILE_IDENTIFIER_KEY, CloudformationSettings.FILE_IDENTIFIER_DEFAULT_VALUE);
+    settings.setProperty(ArmSettings.FILE_IDENTIFIER_KEY, ArmSettings.FILE_IDENTIFIER_DEFAULT_VALUE);
     context.setSettings(settings);
 
     FilePredicate filePredicate = sensor().customFilePredicate(context);
@@ -104,23 +61,23 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
   }
 
-  private CloudformationSensor sensor(String... rules) {
+  @Override
+  protected String getActivationSettingKey() {
+    return ArmSettings.ACTIVATION_KEY;
+  }
+
+  @Override
+  protected ArmSensor sensor(CheckFactory checkFactory) {
+    return new ArmSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new ArmLanguage());
+  }
+
+  private ArmSensor sensor(String... rules) {
     return sensor(checkFactory(rules));
   }
 
   @Override
-  protected String getActivationSettingKey() {
-    return CloudformationSettings.ACTIVATION_KEY;
-  }
-
-  @Override
-  protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    return new CloudformationSensor(SONAR_RUNTIME_8_9, fileLinesContextFactory, checkFactory, noSonarFilter, new CloudformationLanguage());
-  }
-
-  @Override
   protected String repositoryKey() {
-    return CloudformationExtension.REPOSITORY_KEY;
+    return ArmExtension.REPOSITORY_KEY;
   }
 
   @Override
@@ -140,7 +97,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected InputFile validFile() {
-    return inputFile("comment.yaml", "# Some Comment");
+    return inputFile("object.json", "{\"key\":\"value\"}");
   }
 
   @Override

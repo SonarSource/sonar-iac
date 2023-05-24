@@ -23,10 +23,11 @@ import org.sonar.api.Plugin;
 
 public class ArmExtension {
 
+  public static final String REPOSITORY_KEY = "azureresourcemanager";
+
   private ArmExtension() {
   }
 
   public static void define(Plugin.Context context) {
-    // empty for now
   }
 }

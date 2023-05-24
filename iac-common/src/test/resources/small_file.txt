@@ -1,0 +1,9 @@
+File is smaller than total buffer (8 Kb)
+
+some text
+some text
+some text
+some text
+some text
+myidentifier
+some text
