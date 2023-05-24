@@ -28,6 +28,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,18 +42,17 @@ class ArmParserTest {
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.children()).isEmpty();
     assertThat(tree.parent()).isNull();
-    Throwable throwable = catchThrowable(tree::textRange);
-    assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(tree::textRange)
+      .isInstanceOf(IllegalArgumentException.class);
 
-    // temp test for coverage
+    // TODO it is a temp test for coverage it will covered later when implementing more advance features
     tree.setParent(tree);
     assertThat(tree.parent()).isSameAs(tree);
   }
 
   @Test
   void shouldThrowExceptionWhenParseError() {
-    Throwable throwable = catchThrowable(() -> parser.parse("{", null));
-    assertThat(throwable)
+    assertThatThrownBy(() -> parser.parse("{", null))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to parse");
   }
@@ -63,8 +63,7 @@ class ArmParserTest {
     InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
     when(inputFile.filename()).thenReturn("foo.json");
 
-    Throwable throwable = catchThrowable(() -> parser.parse("{", inputFileContext));
-    assertThat(throwable)
+    assertThatThrownBy(() -> parser.parse("{", inputFileContext))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to parse foo.json");
   }
