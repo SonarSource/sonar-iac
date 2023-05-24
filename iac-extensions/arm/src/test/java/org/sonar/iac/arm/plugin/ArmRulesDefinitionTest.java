@@ -17,29 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.iac;
+package org.sonar.iac.arm.plugin;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.arm.checks.ArmCheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class IacPluginTest {
-
-  private static final Version VERSION_8_9 = Version.create(8, 9);
-
-  private final IacPlugin iacPlugin = new IacPlugin();
+class ArmRulesDefinitionTest {
 
   @Test
-  void sonarqubeExtensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    iacPlugin.define(context);
-    assertThat(context.getExtensions()).hasSize(38);
+  void testActivationSonarLint() {
+    RulesDefinition.Repository repository = armRuleRepository(10, 0);
+    assertThat(repository).isNotNull();
+    assertThat(repository.name()).isEqualTo("SonarQube");
+    assertThat(repository.language()).isEqualTo("azureresourcemanager");
+    assertThat(repository.rules()).hasSize(ArmCheckList.checks().size());
+  }
+
+  private static RulesDefinition.Repository armRuleRepository(int major, int minor) {
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
+    ArmRulesDefinition rulesDefinition = new ArmRulesDefinition(sonarRuntime);
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+    return context.repository("azureresourcemanager");
   }
 }

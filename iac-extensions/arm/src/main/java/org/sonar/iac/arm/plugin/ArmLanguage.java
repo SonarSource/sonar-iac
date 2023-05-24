@@ -23,8 +23,8 @@ import org.sonar.api.resources.AbstractLanguage;
 
 public class ArmLanguage extends AbstractLanguage {
 
-  public static final String KEY = "arm";
-  public static final String NAME = "ARM";
+  public static final String KEY = "azureresourcemanager";
+  public static final String NAME = "AzureResourceManager";
 
   public ArmLanguage() {
     super(KEY, NAME);
