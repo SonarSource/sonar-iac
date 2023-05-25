@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
@@ -35,6 +36,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
+import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
@@ -45,7 +47,10 @@ import org.sonar.iac.arm.tree.impl.json.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
+import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.common.extension.BasicTextPointer;
+import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -57,6 +62,7 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
+import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 
 public class ArmParser implements TreeParser<ArmTree> {
 
@@ -88,22 +94,101 @@ public class ArmParser implements TreeParser<ArmTree> {
     List<Statement> statements = new ArrayList<>();
     MappingTree document = (MappingTree) fileTree.documents().get(0);
 
-    extractResourcesSequence(document).ifPresent(sequence -> {
-      List<ResourceDeclaration> resourceDeclarations = convertResources(sequence);
-      statements.addAll(resourceDeclarations);
-    });
+    extractResourcesSequence(fileTree).ifPresent(res -> statements.addAll(convertResources(res)));
+
     extractOutputsMapping(document).ifPresent(mapping -> {
       List<OutputDeclaration> outputDeclarations = convertOutputsDeclaration(mapping);
       statements.addAll(outputDeclarations);
     });
 
+    List<Statement> params = extractParametersSequence(fileTree)
+      .map(ArmParser::convertParameters)
+      .collect(Collectors.toList());
+    statements.addAll(params);
+
     return new FileImpl(statements);
+  }
+
+  private static Stream<TupleTree> extractParametersSequence(FileTree fileTree) {
+    MappingTree document = (MappingTree) fileTree.documents().get(0);
+    return document.elements().stream()
+      .filter(element -> element.key() instanceof ScalarTree)
+      .filter(element -> "parameters".equals(((ScalarTree) element.key()).value()))
+      .map(TupleTree::value)
+      .map(MappingTree.class::cast)
+      .map(MappingTree::elements)
+      .flatMap(List::stream);
+  }
+
+  private static ParameterDeclaration convertParameters(TupleTree tupleTree) {
+    String id = ((ScalarTree) tupleTree.key()).value();
+    Identifier identifier = new IdentifierImpl(id, tupleTree.key().metadata());
+    ParameterDeclarationImpl parameter = new ParameterDeclarationImpl(identifier);
+
+    List<TupleTree> elements = ((MappingTreeImpl) tupleTree.value()).elements();
+    for (TupleTree element : elements) {
+      String keyName = ((ScalarTree) element.key()).value();
+      switch (keyName) {
+        case "type":
+          String type = ((ScalarTree) element.value()).value();
+          ParameterType parameterType = ParameterType.fromName(type);
+          if (parameterType != null) {
+            parameter.setType(parameterType);
+          }
+          break;
+
+        case "defaultValue":
+          String defValue = ((ScalarTree) element.value()).value();
+          parameter.setDefaultValue(new ExpressionImpl(defValue, element.value().metadata()));
+          break;
+
+        case "minValue":
+          String minValue = ((ScalarTree) element.value()).value();
+          parameter.setMinValue(new ExpressionImpl(minValue, element.value().metadata()));
+          break;
+
+        case "maxValue":
+          String maxValue = ((ScalarTree) element.value()).value();
+          parameter.setMaxValue(new ExpressionImpl(maxValue, element.value().metadata()));
+          break;
+
+        case "minLength":
+          String minLength = ((ScalarTree) element.value()).value();
+          parameter.setMinLength(new ExpressionImpl(minLength, element.value().metadata()));
+          break;
+
+        case "maxLength":
+          String maxLength = ((ScalarTree) element.value()).value();
+          parameter.setMaxLength(new ExpressionImpl(maxLength, element.value().metadata()));
+          break;
+
+        case "allowedValues":
+          List<Expression> allowedValues = ((SequenceTree) element.value()).elements().stream()
+            .map(ScalarTree.class::cast)
+            .map(allowedVal -> new ExpressionImpl(allowedVal.value(), allowedVal.metadata()))
+            .collect(Collectors.toList());
+          parameter.setAllowedValues(allowedValues);
+          break;
+
+        case "metadata":
+          ((MappingTree) element.value()).elements().stream()
+            .filter(a -> "description".equals(((ScalarTree) a.key()).value()))
+            .map(a -> new ExpressionImpl(((ScalarTree) a.value()).value(), a.value().metadata()))
+            .findFirst()
+            .ifPresent(parameter::setDescription);
+          break;
+
+        default:
+          LOG.debug("Unknown key `{}` of parameter {}", keyName, id);
+      }
+    }
+    return parameter;
   }
 
   private static Optional<SequenceTree> extractResourcesSequence(MappingTree document) {
     return document.elements().stream()
       .filter(element -> element.key() instanceof ScalarTree)
-      .filter(element -> ((ScalarTree) element.key()).value().equals("resources"))
+      .filter(element -> "resources".equals(((ScalarTree) element.key()).value()))
       .map(TupleTree::value)
       .filter(SequenceTree.class::isInstance)
       .map(SequenceTree.class::cast)
