@@ -21,6 +21,8 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
@@ -28,27 +30,49 @@ import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
+import static java.util.Collections.emptyList;
+
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
 
   private final Identifier identifier;
-  private ParameterType type;
+  private final ParameterType type;
   private Expression defaultValue;
-  private List<Expression> allowedValues;
+  private List<Expression> allowedValues = emptyList();
   private Expression description;
   private Expression minValue;
   private Expression maxValue;
   private Expression minLength;
   private Expression maxLength;
 
-  public ParameterDeclarationImpl(Identifier identifier) {
+  public ParameterDeclarationImpl(Identifier identifier, ParameterType type) {
     this.identifier = identifier;
+    this.type = type;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(identifier);
-
+    // TODO type?
+    if (defaultValue != null) {
+      children.add(defaultValue);
+    }
+    children.addAll(allowedValues);
+    if (description != null) {
+      children.add(description);
+    }
+    if (minValue != null) {
+      children.add(minValue);
+    }
+    if (maxValue != null) {
+      children.add(maxValue);
+    }
+    if (minLength != null) {
+      children.add(minLength);
+    }
+    if (maxLength != null) {
+      children.add(maxLength);
+    }
     return children;
   }
 
@@ -62,16 +86,13 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     return type;
   }
 
-  public void setType(ParameterType type) {
-    this.type = type;
-  }
-
   @Override
+  @CheckForNull
   public Expression defaultValue() {
     return defaultValue;
   }
 
-  public void setDefaultValue(Expression defaultValue) {
+  public void setDefaultValue(@Nullable Expression defaultValue) {
     this.defaultValue = defaultValue;
   }
 
@@ -85,47 +106,52 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
+  @CheckForNull
   public Expression description() {
     return description;
   }
 
-  public void setDescription(Expression description) {
+  public void setDescription(@Nullable Expression description) {
     this.description = description;
   }
 
   @Override
+  @CheckForNull
   public Expression minValue() {
     return minValue;
   }
 
-  public void setMinValue(Expression minValue) {
+  public void setMinValue(@Nullable Expression minValue) {
     this.minValue = minValue;
   }
 
   @Override
+  @CheckForNull
   public Expression maxValue() {
     return maxValue;
   }
 
-  public void setMaxValue(Expression maxValue) {
+  public void setMaxValue(@Nullable Expression maxValue) {
     this.maxValue = maxValue;
   }
 
   @Override
+  @CheckForNull
   public Expression minLength() {
     return minLength;
   }
 
-  public void setMinLength(Expression minLength) {
+  public void setMinLength(@Nullable Expression minLength) {
     this.minLength = minLength;
   }
 
   @Override
+  @CheckForNull
   public Expression maxLength() {
     return maxLength;
   }
 
-  public void setMaxLength(Expression maxLength) {
+  public void setMaxLength(@Nullable Expression maxLength) {
     this.maxLength = maxLength;
   }
 

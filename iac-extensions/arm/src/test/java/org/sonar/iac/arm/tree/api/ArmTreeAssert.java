@@ -17,41 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl;
+package org.sonar.iac.arm.tree.api;
 
-import java.util.List;
-import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
+import org.assertj.core.api.AbstractAssert;
 
-public class ExpressionImpl extends AbstractArmTreeImpl implements Expression {
-
-  private final String value;
-  private final YamlTreeMetadata metadata;
-
-  public ExpressionImpl(String value, YamlTreeMetadata metadata) {
-    this.value = value;
-    this.metadata = metadata;
+public abstract class ArmTreeAssert<SELF extends ArmTreeAssert<SELF, ACTUAL>, ACTUAL extends ArmTree> extends AbstractAssert<SELF, ACTUAL> {
+  protected ArmTreeAssert(ACTUAL actual, Class<?> selfType) {
+    super(actual, selfType);
   }
 
-  @Override
-  public String value() {
-    return value;
-  }
-
-  @Override
-  public TextRange textRange() {
-    return metadata.textRange();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return List.of();
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.EXPRESSION;
+  public SELF hasKind(ArmTree.Kind kind) {
+    isNotNull();
+    if (actual.getKind() != kind) {
+      failWithMessage("Expected Arm Tree kind to be <%s> but was <%s>", kind, actual.getKind());
+    }
+    return (SELF) this;
   }
 }

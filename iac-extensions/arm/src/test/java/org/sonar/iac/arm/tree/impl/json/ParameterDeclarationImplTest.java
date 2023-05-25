@@ -19,13 +19,20 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ParameterType;
+import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.EXPRESSION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PARAMETER_DECLARATION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ParameterDeclarationImplTest {
@@ -47,12 +54,24 @@ class ParameterDeclarationImplTest {
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
     assertThat(parameter.identifier().value()).isEqualTo("enabledForDeployment");
     assertThat(parameter.type()).isEqualTo(ParameterType.BOOL);
+    assertThat(parameter.getKind()).isEqualTo(PARAMETER_DECLARATION);
+    assertThat(parameter.is(PARAMETER_DECLARATION)).isTrue();
+    assertThat(parameter.is(RESOURCE_DECLARATION)).isFalse();
+    assertThat(parameter.textRange()).hasRange(3, 4, 3, 26);
+
+    Assertions.assertThat(parameter.defaultValue()).isNull();
+    assertThat(parameter.allowedValues()).isEmpty();
+    Assertions.assertThat(parameter.description()).isNull();
+    Assertions.assertThat(parameter.minValue()).isNull();
+    Assertions.assertThat(parameter.maxValue()).isNull();
+    Assertions.assertThat(parameter.minLength()).isNull();
+    Assertions.assertThat(parameter.maxLength()).isNull();
 
     assertThat(tree.statements()).hasSize(1);
   }
 
   @Test
-  void shouldParseFullParameters() {
+  void shouldParseFullParameter() {
     String code = code("{",
       "    \"parameters\": {",
       "        \"exampleParam\": {",
@@ -79,12 +98,27 @@ class ParameterDeclarationImplTest {
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
     assertThat(parameter.identifier().value()).isEqualTo("exampleParam");
     assertThat(parameter.type()).isEqualTo(ParameterType.STRING);
-    assertThat(parameter.defaultValue().value()).isEqualTo("a");
-    assertThat(parameter.minValue().value()).isEqualTo("7");
-    assertThat(parameter.maxValue().value()).isEqualTo("90");
-    assertThat(parameter.minLength().value()).isEqualTo("1");
-    assertThat(parameter.maxLength().value()).isEqualTo("10");
+    assertThat(parameter.defaultValue()).hasValue("a").hasKind(EXPRESSION).hasRange(5, 28, 5, 31);
+    assertThat(parameter.minValue()).hasValue("7").hasKind(EXPRESSION).hasRange(6, 24, 6, 25);
+    assertThat(parameter.maxValue()).hasValue("90").hasKind(EXPRESSION).hasRange(7, 24, 7, 26);
+    assertThat(parameter.minLength()).hasValue("1").hasKind(EXPRESSION).hasRange(8, 25, 8, 26);
+    assertThat(parameter.maxLength()).hasValue("10").hasKind(EXPRESSION).hasRange(9, 25, 9, 27);
     assertThat(parameter.allowedValues()).map(Expression::value).containsExactly("A", "B", "CCCC");
-    assertThat(parameter.description().value()).isEqualTo("some description");
+    assertThat(parameter.description()).hasValue("some description").hasKind(EXPRESSION).hasRange(16, 31, 16, 49);
+    assertThat(parameter.textRange()).hasRange(3, 8, 16, 49);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenTypeIsMissing() {
+    String code = code("{",
+      "  \"parameters\": {",
+      "    \"enabledForDeployment\": {",
+      "    }",
+      "  }",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("TODO");
   }
 }

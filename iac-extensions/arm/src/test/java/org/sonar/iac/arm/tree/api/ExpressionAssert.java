@@ -17,41 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl;
+package org.sonar.iac.arm.tree.api;
 
-import java.util.List;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
+import org.assertj.core.api.Assertions;
+import org.sonar.iac.common.testing.TextRangeAssert;
 
-public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
-
-  private final String identifier;
-  private final YamlTreeMetadata metadata;
-
-  public IdentifierImpl(String identifier, YamlTreeMetadata metadata) {
-    this.identifier = identifier;
-    this.metadata = metadata;
+public class ExpressionAssert extends ArmTreeAssert<ExpressionAssert, Expression> {
+  private ExpressionAssert(Expression expression) {
+    super(expression, ExpressionAssert.class);
   }
 
-  @Override
-  public String value() {
-    return identifier;
+  public static ExpressionAssert assertThat(Expression actual) {
+    return new ExpressionAssert(actual);
   }
 
-  @Override
-  public TextRange textRange() {
-    return metadata.textRange();
+  public ExpressionAssert hasValue(String value) {
+    Assertions.assertThat(actual.value()).isEqualTo(value);
+    return this;
   }
 
-  @Override
-  public List<Tree> children() {
-    return List.of();
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.IDENTIFIER;
+  public ExpressionAssert hasRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+    TextRangeAssert.assertThat(actual.textRange()).hasRange(startLine, startLineOffset, endLine, endLineOffset);
+    return this;
   }
 }
