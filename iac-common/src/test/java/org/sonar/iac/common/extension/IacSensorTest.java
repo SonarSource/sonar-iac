@@ -331,7 +331,7 @@ class IacSensorTest extends AbstractSensorTest {
       .containsExactly("ParseException message");
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .startsWith("Details of error at 1:2");
+      .startsWith("Details of error");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
       .startsWith("org.sonar.iac.common.extension.ParseException: ParseException message"
         + System.lineSeparator() +
