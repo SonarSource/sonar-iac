@@ -19,15 +19,34 @@
  */
 package org.sonar.iac.arm.parser;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.impl.json.ExpressionImpl;
+import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
+import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
+import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
+import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class ArmParser implements TreeParser<ArmTree> {
 
@@ -50,9 +69,82 @@ public class ArmParser implements TreeParser<ArmTree> {
     }
   }
 
-  // Unused method parameters, it's just for now
-  @SuppressWarnings("java:S1172")
   private static ArmTree convert(FileTree fileTree) {
-    return new FileImpl(List.of());
+    List<Statement> statements = new ArrayList<>();
+
+    extractResourcesSequence(fileTree).ifPresent(res -> {
+      List<ResourceDeclaration> resourceDeclarations = convertResources(res);
+      statements.addAll(resourceDeclarations);
+    });
+
+    return new FileImpl(statements);
+  }
+
+  private static Optional<SequenceTree> extractResourcesSequence(FileTree fileTree) {
+    MappingTree document = (MappingTree) fileTree.documents().get(0);
+    return document.elements().stream()
+      .filter(element -> element.key() instanceof ScalarTree)
+      .filter(element -> ((ScalarTree) element.key()).value().equals("resources"))
+      .map(TupleTree::value)
+      .filter(SequenceTree.class::isInstance)
+      .map(SequenceTree.class::cast)
+      .findFirst();
+  }
+
+  private static List<ResourceDeclaration> convertResources(SequenceTree resource) {
+    return resource.elements().stream()
+      .filter(MappingTree.class::isInstance)
+      .map(MappingTree.class::cast)
+      .map(ArmParser::convertToResourceDeclaration)
+      .collect(Collectors.toList());
+  }
+
+  private static ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
+    Property type = null;
+    Property version = null;
+    Property name = null;
+    List<Property> otherProperties = new ArrayList<>();
+
+    for (TupleTree tuple : tree.elements()) {
+      Property property = convertTupleToProperty(tuple);
+      if ("type".equals(property.key().value())) {
+        type = property;
+      } else if ("apiVersion".equals(property.key().value())) {
+        version = property;
+      } else if ("name".equals(property.key().value())) {
+        name = property;
+      } else {
+        otherProperties.add(property);
+      }
+    }
+
+    if (type == null || version == null || name == null) {
+      TextPointer pointer = new BasicTextPointer(tree.metadata().textRange());
+      throw new ParseException(String.format("Resource without required field (name, type, apiVersion) spotted at %d:%d", pointer.line(), pointer.lineOffset()), pointer, null);
+    }
+
+    return new ResourceDeclarationImpl(name, version, type, otherProperties);
+  }
+
+  private static Property convertTupleToProperty(TupleTree tuple) {
+    return new PropertyImpl(convertToIdentifier(tuple.key()), convertToExpression(tuple.value()));
+  }
+
+  private static Identifier convertToIdentifier(YamlTree tree) {
+    return Optional.of(tree)
+      .filter(ScalarTree.class::isInstance)
+      .map(ScalarTree.class::cast)
+      .map(scalarTree -> new IdentifierImpl(scalarTree.value(), scalarTree.metadata()))
+      .orElseThrow(
+        () -> new ParseException("Expecting ScalarTree to convert to Identifier, got " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null));
+  }
+
+  private static Expression convertToExpression(YamlTree tree) {
+    return Optional.of(tree)
+      .filter(ScalarTree.class::isInstance)
+      .map(ScalarTree.class::cast)
+      .map(scalarTree -> new ExpressionImpl(scalarTree.value(), scalarTree.metadata()))
+      .orElseThrow(
+        () -> new ParseException("Expecting ScalarTree to convert to Expression, got " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null));
   }
 }

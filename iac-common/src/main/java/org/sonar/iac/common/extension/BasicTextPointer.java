@@ -17,35 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.json;
+package org.sonar.iac.common.extension;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
-public class FileImpl extends AbstractArmTreeImpl implements File {
+public class BasicTextPointer implements TextPointer {
+  private final int line;
+  private final int lineOffset;
 
-  private List<Statement> statements;
-
-  public FileImpl(List<Statement> statements) {
-    this.statements = statements;
+  public BasicTextPointer(int line, int lineOffset) {
+    this.line = line;
+    this.lineOffset = lineOffset;
   }
 
-  @Override
-  public List<Tree> children() {
-    return new ArrayList<>(statements);
+  public BasicTextPointer(TextRange range) {
+    this(range.start().line(), range.start().lineOffset());
   }
 
-  @Override
-  public List<Statement> statements() {
-    return statements;
+  public int line() {
+    return this.line;
   }
 
-  @Override
-  public Kind getKind() {
-    return Kind.FILE;
+  public int lineOffset() {
+    return this.lineOffset;
+  }
+
+  public int compareTo(TextPointer o) {
+    return this.line == o.line() ? Integer.compare(this.lineOffset, o.lineOffset()) : Integer.compare(this.line, o.line());
   }
 }

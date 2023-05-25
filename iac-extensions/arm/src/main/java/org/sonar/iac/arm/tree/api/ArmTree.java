@@ -21,10 +21,29 @@ package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public interface ArmTree extends Tree {
+
   @CheckForNull
   ArmTree parent();
 
+  boolean is(Kind... kind);
+
+  Kind getKind();
+
   void setParent(ArmTree parent);
+
+  enum Kind implements GrammarRuleKey {
+    FILE(File.class),
+    RESOURCE_DECLARATION(ResourceDeclaration.class),
+    EXPRESSION(Expression.class),
+    IDENTIFIER(Identifier.class);
+
+    private final Class<? extends ArmTree> associatedInterface;
+
+    Kind(Class<? extends ArmTree> associatedInterface) {
+      this.associatedInterface = associatedInterface;
+    }
+  }
 }

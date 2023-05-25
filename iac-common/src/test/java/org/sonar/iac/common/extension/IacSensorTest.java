@@ -71,8 +71,9 @@ class IacSensorTest extends AbstractSensorTest {
   };
 
   TreeParser<Tree> testParserThrowsParseException = (source, inputFileContext) -> {
-    throw new ParseException("ParseException message", null, null);
+    throw new ParseException("ParseException message", new BasicTextPointer(1, 2), "Details of error");
   };
+
   TreeParser<Tree> testParserThrowsRecognitionException = (source, inputFileContext) -> {
     throw new RecognitionException(1, "RecognitionException message");
   };
@@ -328,11 +329,13 @@ class IacSensorTest extends AbstractSensorTest {
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .containsExactly("ParseException message");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .startsWith("org.sonar.iac.common.extension.ParseException: ParseException message" +
-        System.lineSeparator() +
+      .startsWith("Details of error");
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+      .startsWith("org.sonar.iac.common.extension.ParseException: ParseException message"
+        + System.lineSeparator() +
         "\tat org.sonar.iac");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
   }
 
   @Test
