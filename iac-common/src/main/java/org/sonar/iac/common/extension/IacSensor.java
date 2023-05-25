@@ -224,7 +224,9 @@ public abstract class IacSensor implements Sensor {
       LOG.error(e.getMessage());
       String detailedMessage = e.getDetails();
       if (detailedMessage != null) {
-        LOG.debug(detailedMessage);
+        TextPointer position = e.getPosition();
+        String positionDetail = position != null ? " at " + position.line() + ":" + position.lineOffset() : "";
+        LOG.debug(detailedMessage + positionDetail);
       }
       LOG.debug(getStackTrace(e));
     }
