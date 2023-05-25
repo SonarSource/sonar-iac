@@ -36,6 +36,7 @@ import org.sonar.iac.common.testing.IacCommonAssertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ResourceDeclarationTest {
@@ -136,9 +137,11 @@ class ResourceDeclarationTest {
       "    }",
       "  ]",
       "}");
-    assertThatThrownBy(() -> parser.parse(code, null))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Resource without required field (name, type, apiVersion) spotted at 3:4");
+    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    assertThat(parseException).hasMessage("Resource without required field (name, type, apiVersion) spotted at 3:4");
+    assertThat(parseException.getDetails()).isNull();
+    assertThat(parseException.getPosition().line()).isEqualTo(3);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);
   }
 
   @Test
