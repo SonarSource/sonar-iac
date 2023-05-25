@@ -17,27 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl;
+package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
-import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-public class ExpressionImpl extends AbstractArmTreeImpl implements Expression {
+public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
 
-  private final String value;
+  private final String identifier;
   private final YamlTreeMetadata metadata;
 
-  public ExpressionImpl(String value, YamlTreeMetadata metadata) {
-    this.value = value;
+  public IdentifierImpl(String identifier, YamlTreeMetadata metadata) {
+    this.identifier = identifier;
     this.metadata = metadata;
   }
 
   @Override
   public String value() {
-    return value;
+    return identifier;
   }
 
   @Override
@@ -52,6 +53,6 @@ public class ExpressionImpl extends AbstractArmTreeImpl implements Expression {
 
   @Override
   public Kind getKind() {
-    return Kind.EXPRESSION;
+    return Kind.IDENTIFIER;
   }
 }

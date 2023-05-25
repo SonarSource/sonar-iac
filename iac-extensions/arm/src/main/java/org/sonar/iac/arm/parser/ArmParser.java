@@ -24,17 +24,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.impl.ExpressionImpl;
-import org.sonar.iac.arm.tree.impl.IdentifierImpl;
-import org.sonar.iac.arm.tree.impl.PropertyImpl;
-import org.sonar.iac.arm.tree.impl.ResourceDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.json.ExpressionImpl;
+import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
+import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
+import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -117,7 +119,8 @@ public class ArmParser implements TreeParser<ArmTree> {
     }
 
     if (type == null || version == null || name == null) {
-      throw new ParseException("Resource without required field spotted (name, type, apiVersion)", null, null);
+      TextPointer pointer = new BasicTextPointer(tree.metadata().textRange());
+      throw new ParseException(String.format("Resource without required field (name, type, apiVersion) spotted at %d:%d", pointer.line(), pointer.lineOffset()), pointer, null);
     }
 
     return new ResourceDeclarationImpl(name, version, type, otherProperties);
@@ -133,7 +136,7 @@ public class ArmParser implements TreeParser<ArmTree> {
       .map(ScalarTree.class::cast)
       .map(scalarTree -> new IdentifierImpl(scalarTree.value(), scalarTree.metadata()))
       .orElseThrow(
-        () -> new ParseException("Expecting ScalarTree to convert to Identifier, got " + tree.getClass().getSimpleName(), null, null));
+        () -> new ParseException("Expecting ScalarTree to convert to Identifier, got " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null));
   }
 
   private static Expression convertToExpression(YamlTree tree) {
@@ -142,6 +145,6 @@ public class ArmParser implements TreeParser<ArmTree> {
       .map(ScalarTree.class::cast)
       .map(scalarTree -> new ExpressionImpl(scalarTree.value(), scalarTree.metadata()))
       .orElseThrow(
-        () -> new ParseException("Expecting ScalarTree to convert to Expression, got " + tree.getClass().getSimpleName(), null, null));
+        () -> new ParseException("Expecting ScalarTree to convert to Expression, got " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null));
   }
 }

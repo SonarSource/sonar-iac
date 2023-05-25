@@ -23,6 +23,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
@@ -41,7 +43,7 @@ class ResourceDeclarationTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
-  void shouldParseResource() {
+  void shouldParseResource() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
     String code = code("{",
       "  \"resources\": [",
       "    {",
@@ -71,22 +73,6 @@ class ResourceDeclarationTest {
     assertThat(properties.get(0).key().value()).isEqualTo("location");
     assertThat(properties.get(0).value().value()).isEqualTo("random location");
     IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 35);
-  }
-
-  @Test
-  void checkChildren() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\",",
-      "      \"location\": \"random location\",",
-      "    }",
-      "  ]",
-      "}");
-    File tree = (File) parser.parse(code, null);
-    ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
 
     List<Tree> children = resourceDeclaration.children();
     assertThat(children).hasSize(8);
@@ -132,30 +118,27 @@ class ResourceDeclarationTest {
       .hasMessage("Expecting ScalarTree to convert to Expression, got SequenceTreeImpl");
   }
 
-  @Test
-  void shouldThrowParseExceptionOnIncompleteResource() {
-    String[] usecases = new String[] {
-      // " ", // surprisingly, this throw a different parseException, apparently a node cannot have empty content
-      "                                                    \"type\":\"myType\"",
-      "                        \"apiVersion\":\"version\"                     ",
-      "                        \"apiVersion\":\"version\", \"type\":\"myType\"",
-      "\"name\":\"nameValue\"                                                 ",
-      "\"name\":\"nameValue\",                             \"type\":\"myType\"",
-      "\"name\":\"nameValue\", \"apiVersion\":\"version\"                     ",
-    };
-
-    for (String usecase : usecases) {
-      String code = code("{",
-        "  \"resources\": [",
-        "    {",
-        "      " + usecase,
-        "    }",
-        "  ]",
-        "}");
-      assertThatThrownBy(() -> parser.parse(code, null))
-        .isInstanceOf(ParseException.class)
-        .hasMessage("Resource without required field spotted (name, type, apiVersion)");
-    }
+  @ParameterizedTest
+  @ValueSource(strings = {
+    // " ", // surprisingly, this throw a different parseException, apparently a node cannot have empty content
+    "                                                    \"type\":\"myType\"",
+    "                        \"apiVersion\":\"version\"                     ",
+    "                        \"apiVersion\":\"version\", \"type\":\"myType\"",
+    "\"name\":\"nameValue\"                                                 ",
+    "\"name\":\"nameValue\",                             \"type\":\"myType\"",
+    "\"name\":\"nameValue\", \"apiVersion\":\"version\"                     ",
+  })
+  void shouldThrowParseExceptionOnIncompleteResource(String attributes) {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      " + attributes,
+      "    }",
+      "  ]",
+      "}");
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Resource without required field (name, type, apiVersion) spotted at 3:4");
   }
 
   @Test

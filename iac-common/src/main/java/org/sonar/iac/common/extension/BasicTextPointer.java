@@ -17,37 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl;
+package org.sonar.iac.common.extension;
 
-import java.util.List;
-import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
 
-public class PropertyImpl implements Property {
+public class BasicTextPointer implements TextPointer {
+  private final int line;
+  private final int lineOffset;
 
-  private final Identifier key;
-  private final Expression value;
-
-  public PropertyImpl(Identifier key, Expression value) {
-    this.key = key;
-    this.value = value;
+  public BasicTextPointer(int line, int lineOffset) {
+    this.line = line;
+    this.lineOffset = lineOffset;
   }
 
-  @Override
-  public Identifier key() {
-    return key;
+  public BasicTextPointer(TextRange range) {
+    this(range.start().line(), range.start().lineOffset());
   }
 
-  @Override
-  public Expression value() {
-    return value;
+  public int line() {
+    return this.line;
   }
 
-  @Override
-  public TextRange textRange() {
-    return TextRanges.merge(List.of(key.textRange(), value.textRange()));
+  public int lineOffset() {
+    return this.lineOffset;
+  }
+
+  public int compareTo(TextPointer o) {
+    return this.line == o.line() ? Integer.compare(this.lineOffset, o.lineOffset()) : Integer.compare(this.line, o.line());
   }
 }
