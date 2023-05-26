@@ -179,7 +179,7 @@ public class ArmParser implements TreeParser<ArmTree> {
 
   /**
    * This method will raise a Parse exception if any of the provided object is null.
-   * It require first the metadata object to report the location in the exception.
+   * It requires first the metadata object to report the location in the exception.
    * Then it is expecting arguments by pair: the name of the argument (for the exception message) and the object reference to check.
    */
   private static void checkMandatoryObject(YamlTreeMetadata metadata, Object... objects) {
@@ -211,6 +211,7 @@ public class ArmParser implements TreeParser<ArmTree> {
   }
 
   /**
+   * TODO: SONARIAC-840, Property value could potentially be a list of Property (or even an array), change this method behaviour to not concatenate them with a separator.
    * Transform a collection of TupleTree into a Map of Property to easily find specific properties and process them.
    * This is a recursive method which will also convert sub-object, adding a prefix at every level.
    * Example :
