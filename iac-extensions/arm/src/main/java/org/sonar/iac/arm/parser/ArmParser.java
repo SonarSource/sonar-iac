@@ -61,13 +61,16 @@ import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 public class ArmParser implements TreeParser<ArmTree> {
 
   private static final Logger LOG = Loggers.get(ArmParser.class);
+  @Nullable
+  private InputFileContext inputFileContext;
 
   @Override
   public ArmTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    return convert(parseJson(source, inputFileContext));
+    this.inputFileContext = inputFileContext;
+    return convert(parseJson(source));
   }
 
-  private static FileTree parseJson(String source, @Nullable InputFileContext inputFileContext) {
+  private FileTree parseJson(String source) {
     YamlParser yamlParser = new YamlParser();
     try {
       return yamlParser.parse(source, inputFileContext);
@@ -81,7 +84,7 @@ public class ArmParser implements TreeParser<ArmTree> {
     }
   }
 
-  private static ArmTree convert(FileTree fileTree) {
+  private ArmTree convert(FileTree fileTree) {
     List<Statement> statements = new ArrayList<>();
     MappingTree document = (MappingTree) fileTree.documents().get(0);
 
@@ -125,9 +128,9 @@ public class ArmParser implements TreeParser<ArmTree> {
       .collect(Collectors.toList());
   }
 
-  private static List<OutputDeclaration> convertOutputsDeclaration(MappingTree mapping) {
+  private List<OutputDeclaration> convertOutputsDeclaration(MappingTree mapping) {
     return mapping.elements().stream()
-      .map(ArmParser::convertToOutputDeclaration)
+      .map(this::convertToOutputDeclaration)
       .collect(Collectors.toList());
   }
 
@@ -144,7 +147,7 @@ public class ArmParser implements TreeParser<ArmTree> {
     return new ResourceDeclarationImpl(name, version, type, otherProperties);
   }
 
-  private static OutputDeclaration convertToOutputDeclaration(TupleTree tupleTree) {
+  private OutputDeclaration convertToOutputDeclaration(TupleTree tupleTree) {
     Identifier name = convertToIdentifier(tupleTree.key());
 
     MappingTree outputMapping = toMappingTree(tupleTree.value());
@@ -158,12 +161,20 @@ public class ArmParser implements TreeParser<ArmTree> {
 
     for (Map.Entry<String, Property> unexpectedProperty : properties.entrySet()) {
       TextRange position = unexpectedProperty.getValue().textRange();
-      LOG.debug("Unexpected property '{}' found in output declaration at {}:{}, ignoring it.", unexpectedProperty.getKey(), position.start().line(), position.start().lineOffset());
+      LOG.debug("Unexpected property '{}' found in output declaration at {}, ignoring it.", unexpectedProperty.getKey(), buildLocation(position));
     }
 
     checkMandatoryObject(tupleTree.metadata(), "type", type);
 
     return new OutputDeclarationImpl(name, type, condition, copyCount, copyInput, value);
+  }
+
+  private String buildLocation(TextRange position) {
+    String filename = null;
+    if (inputFileContext != null) {
+      filename = inputFileContext.inputFile.filename();
+    }
+    return (filename != null ? filename + ":" : "") + position.start().line() + ":" + position.start().lineOffset();
   }
 
   /**

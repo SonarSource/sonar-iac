@@ -55,39 +55,38 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   }
 
   @Override
-  public String type() {
-    return type.value().value();
+  public Expression type() {
+    return type.value();
   }
 
   @CheckForNull
   @Override
-  public String condition() {
-    return propertyValueToString(condition);
+  public Expression condition() {
+    return propertyValue(condition);
   }
 
   @CheckForNull
   @Override
-  public String copyCount() {
-    return propertyValueToString(copyCount);
+  public Expression copyCount() {
+    return propertyValue(copyCount);
   }
 
   @CheckForNull
   @Override
-  public String copyInput() {
-    return propertyValueToString(copyInput);
+  public Expression copyInput() {
+    return propertyValue(copyInput);
   }
 
   @CheckForNull
   @Override
-  public String value() {
-    return propertyValueToString(value);
+  public Expression value() {
+    return propertyValue(value);
   }
 
   @CheckForNull
-  private static String propertyValueToString(@Nullable Property property) {
+  private static Expression propertyValue(@Nullable Property property) {
     return Optional.ofNullable(property)
       .map(Property::value)
-      .map(Expression::value)
       .orElse(null);
   }
 

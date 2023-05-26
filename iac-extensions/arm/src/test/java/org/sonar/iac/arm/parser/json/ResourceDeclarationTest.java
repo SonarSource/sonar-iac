@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser;
+package org.sonar.iac.arm.parser.json;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.sonar.iac.arm.parser.utils.ArmAssertions;
+import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
@@ -35,6 +35,10 @@ import org.sonar.iac.common.testing.IacCommonAssertions;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.EXPRESSION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ResourceDeclarationTest {
@@ -55,15 +59,15 @@ class ResourceDeclarationTest {
       "}");
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
-    assertThat(tree.statements().get(0).is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
-    assertThat(tree.statements().get(0).is(ArmTree.Kind.EXPRESSION)).isFalse();
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
+    assertThat(tree.statements().get(0).is(EXPRESSION)).isFalse();
 
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
     assertThat(resourceDeclaration.type()).isEqualTo("Microsoft.Kusto/clusters");
     assertThat(resourceDeclaration.version()).isEqualTo("2022-12-29");
 
-    ArmAssertions.assertThat(resourceDeclaration.name())
-      .is(ArmTree.Kind.EXPRESSION)
+    assertThat(resourceDeclaration.name())
+      .is(EXPRESSION)
       .has("value", "myResource")
       .hasRange(6, 14, 6, 26);
 
@@ -76,14 +80,14 @@ class ResourceDeclarationTest {
     List<Tree> children = resourceDeclaration.children();
     assertThat(children).hasSize(8);
 
-    ArmAssertions.assertThat((ArmTree) children.get(0)).is(ArmTree.Kind.IDENTIFIER).has("value", "name").hasRange(6, 6, 6, 12);
-    ArmAssertions.assertThat((ArmTree) children.get(1)).is(ArmTree.Kind.EXPRESSION).has("value", "myResource").hasRange(6, 14, 6, 26);
-    ArmAssertions.assertThat((ArmTree) children.get(2)).is(ArmTree.Kind.IDENTIFIER).has("value", "apiVersion").hasRange(5, 6, 5, 18);
-    ArmAssertions.assertThat((ArmTree) children.get(3)).is(ArmTree.Kind.EXPRESSION).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
-    ArmAssertions.assertThat((ArmTree) children.get(4)).is(ArmTree.Kind.IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
-    ArmAssertions.assertThat((ArmTree) children.get(5)).is(ArmTree.Kind.EXPRESSION).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
-    ArmAssertions.assertThat((ArmTree) children.get(6)).is(ArmTree.Kind.IDENTIFIER).has("value", "location").hasRange(7, 6, 7, 16);
-    ArmAssertions.assertThat((ArmTree) children.get(7)).is(ArmTree.Kind.EXPRESSION).has("value", "random location").hasRange(7, 18, 7, 35);
+    assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "name").hasRange(6, 6, 6, 12);
+    assertThat((ArmTree) children.get(1)).is(EXPRESSION).has("value", "myResource").hasRange(6, 14, 6, 26);
+    assertThat((ArmTree) children.get(2)).is(IDENTIFIER).has("value", "apiVersion").hasRange(5, 6, 5, 18);
+    assertThat((ArmTree) children.get(3)).is(EXPRESSION).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
+    assertThat((ArmTree) children.get(4)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
+    assertThat((ArmTree) children.get(5)).is(EXPRESSION).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
+    assertThat((ArmTree) children.get(6)).is(IDENTIFIER).has("value", "location").hasRange(7, 6, 7, 16);
+    assertThat((ArmTree) children.get(7)).is(EXPRESSION).has("value", "random location").hasRange(7, 18, 7, 35);
   }
 
   @Test
