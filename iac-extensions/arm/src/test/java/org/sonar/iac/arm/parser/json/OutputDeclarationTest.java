@@ -221,6 +221,23 @@ class OutputDeclarationTest {
       .isEqualTo("Unexpected property 'unknown' found in output declaration at file.json:6:6, ignoring it.");
   }
 
+  @Test
+  void shouldLogDebugWithoutFileDetails() {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      "      \"type\": \"my type\",",
+      "      \"value\": \"my output value\",",
+      "      \"unknown\": \"unexpected attribute\"",
+      "    }",
+      "  }",
+      "}");
+    parser.parse(code, null);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .isEqualTo("Unexpected property 'unknown' found in output declaration at 6:6, ignoring it.");
+  }
+
   InputFileContext mockInputFileContext(String filename) {
     SensorContext sensorContext = mock(SensorContext.class);
     InputFile inputFile = mock(InputFile.class);

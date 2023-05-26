@@ -170,11 +170,11 @@ public class ArmParser implements TreeParser<ArmTree> {
   }
 
   private String buildLocation(TextRange position) {
-    String filename = null;
+    String filename = "";
     if (inputFileContext != null) {
-      filename = inputFileContext.inputFile.filename();
+      filename = inputFileContext.inputFile.filename() + ":";
     }
-    return (filename != null ? filename + ":" : "") + position.start().line() + ":" + position.start().lineOffset();
+    return filename + position.start().line() + ":" + position.start().lineOffset();
   }
 
   /**
