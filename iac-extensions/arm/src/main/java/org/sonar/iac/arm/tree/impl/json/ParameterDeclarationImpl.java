@@ -31,23 +31,40 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static java.util.Collections.emptyList;
-
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
 
   private final Identifier identifier;
   private final Property type;
-  private Expression defaultValue;
-  private List<Expression> allowedValues = emptyList();
-  private Expression description;
-  private Expression minValue;
-  private Expression maxValue;
-  private Expression minLength;
-  private Expression maxLength;
+  private final Expression defaultValue;
+  private final List<Expression> allowedValues;
+  private final Expression description;
+  private final Expression minValue;
+  private final Expression maxValue;
+  private final Expression minLength;
+  private final Expression maxLength;
 
-  public ParameterDeclarationImpl(Identifier identifier, Property type) {
+  // Methods should not have too many parameters
+  @SuppressWarnings("java:S107")
+  public ParameterDeclarationImpl(
+    Identifier identifier,
+    Property type,
+    @Nullable Expression defaultValue,
+    @Nullable List<Expression> allowedValues,
+    @Nullable Expression description,
+    @Nullable Expression minValue,
+    @Nullable Expression maxValue,
+    @Nullable Expression minLength,
+    @Nullable Expression maxLength) {
+
     this.identifier = identifier;
     this.type = type;
+    this.defaultValue = defaultValue;
+    this.allowedValues = allowedValues;
+    this.description = description;
+    this.minValue = minValue;
+    this.maxValue = maxValue;
+    this.minLength = minLength;
+    this.maxLength = maxLength;
   }
 
   @Override
@@ -94,17 +111,9 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     return defaultValue;
   }
 
-  public void setDefaultValue(@Nullable Expression defaultValue) {
-    this.defaultValue = defaultValue;
-  }
-
   @Override
   public List<Expression> allowedValues() {
     return allowedValues;
-  }
-
-  public void setAllowedValues(List<Expression> allowedValues) {
-    this.allowedValues = allowedValues;
   }
 
   @Override
@@ -113,18 +122,10 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     return description;
   }
 
-  public void setDescription(@Nullable Expression description) {
-    this.description = description;
-  }
-
   @Override
   @CheckForNull
   public Expression minValue() {
     return minValue;
-  }
-
-  public void setMinValue(@Nullable Expression minValue) {
-    this.minValue = minValue;
   }
 
   @Override
@@ -133,28 +134,16 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     return maxValue;
   }
 
-  public void setMaxValue(@Nullable Expression maxValue) {
-    this.maxValue = maxValue;
-  }
-
   @Override
   @CheckForNull
   public Expression minLength() {
     return minLength;
   }
 
-  public void setMinLength(@Nullable Expression minLength) {
-    this.minLength = minLength;
-  }
-
   @Override
   @CheckForNull
   public Expression maxLength() {
     return maxLength;
-  }
-
-  public void setMaxLength(@Nullable Expression maxLength) {
-    this.maxLength = maxLength;
   }
 
   @Override

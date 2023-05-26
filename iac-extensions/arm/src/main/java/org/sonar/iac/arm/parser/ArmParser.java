@@ -49,6 +49,7 @@ import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
 import org.sonar.iac.common.extension.ParseException;
@@ -102,7 +103,7 @@ public class ArmParser implements TreeParser<ArmTree> {
     });
 
     List<Statement> params = extractParametersSequence(fileTree)
-      .map(ArmParser::convertParameters)
+      .map(parameters -> convertParameters(parameters, filename))
       .collect(Collectors.toList());
     statements.addAll(params);
 
@@ -120,7 +121,7 @@ public class ArmParser implements TreeParser<ArmTree> {
       .flatMap(List::stream);
   }
 
-  private static ParameterDeclaration convertParameters(TupleTree tupleTree) {
+  private static ParameterDeclaration convertParameters(TupleTree tupleTree, String filename) {
     String id = ((ScalarTree) tupleTree.key()).value();
     Identifier identifier = new IdentifierImpl(id, tupleTree.key().metadata());
 
@@ -183,21 +184,33 @@ public class ArmParser implements TreeParser<ArmTree> {
           break;
 
         default:
-          LOG.debug("Unknown key `{}` of parameter {}", keyName, id);
+          String fileAndPosition = filenameAndPosition(filename, element.metadata().textRange());
+          LOG.debug("Unexpected property `{}` found in parameter {} at {}, ignoring it.", keyName, id, fileAndPosition);
       }
     }
     if (type == null) {
-      throw new ParseException("TODO", null, null);
+      String fileAndPosition = filenameAndPosition(filename, tupleTree.metadata().textRange());
+      String message = String.format("Missing required field 'type' in Parameter %s at %s", id, fileAndPosition);
+      throw new ParseException(message, null, null);
     }
-    ParameterDeclarationImpl parameter = new ParameterDeclarationImpl(identifier, type);
-    parameter.setDefaultValue(defaultValue);
-    parameter.setMinValue(minValue);
-    parameter.setMaxValue(maxValue);
-    parameter.setMinLength(minLength);
-    parameter.setMaxLength(maxLength);
-    parameter.setAllowedValues(allowedValues);
-    parameter.setDescription(description);
-    return parameter;
+    return new ParameterDeclarationImpl(
+      identifier,
+      type,
+      defaultValue,
+      allowedValues,
+      description,
+      minValue,
+      maxValue,
+      minLength,
+      maxLength);
+  }
+
+  private static String filenameAndPosition(String filename, TextRange textRange) {
+    String position = textRange.start().line() + ":" + textRange.start().lineOffset();
+    if (StringUtils.isNotBlank(filename)) {
+      return filename + ":" + position;
+    }
+    return position;
   }
 
   private static Optional<SequenceTree> extractResourcesSequence(MappingTree document) {

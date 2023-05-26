@@ -19,16 +19,23 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PARAMETER_DECLARATION;
@@ -38,6 +45,10 @@ import static org.sonar.iac.common.testing.IacTestUtils.code;
 class ParameterDeclarationImplTest {
 
   private final ArmParser parser = new ArmParser();
+  private final InputFileContext mockFile = mockFile();
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void shouldParseMinimalParameter() {
@@ -59,13 +70,13 @@ class ParameterDeclarationImplTest {
     assertThat(parameter.is(RESOURCE_DECLARATION)).isFalse();
     assertThat(parameter.textRange()).hasRange(3, 4, 4, 20);
 
-    Assertions.assertThat(parameter.defaultValue()).isNull();
+    assertThat(parameter.defaultValue()).isNull();
     assertThat(parameter.allowedValues()).isEmpty();
-    Assertions.assertThat(parameter.description()).isNull();
-    Assertions.assertThat(parameter.minValue()).isNull();
-    Assertions.assertThat(parameter.maxValue()).isNull();
-    Assertions.assertThat(parameter.minLength()).isNull();
-    Assertions.assertThat(parameter.maxLength()).isNull();
+    assertThat(parameter.description()).isNull();
+    assertThat(parameter.minValue()).isNull();
+    assertThat(parameter.maxValue()).isNull();
+    assertThat(parameter.minLength()).isNull();
+    assertThat(parameter.maxLength()).isNull();
 
     assertThat(tree.statements()).hasSize(1);
   }
@@ -119,6 +130,44 @@ class ParameterDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("TODO");
+      .hasMessage("Missing required field 'type' in Parameter enabledForDeployment at 3:4");
+  }
+
+  @Test
+  void shouldThrowExceptionWhenTypeIsMissingFilename() {
+    String code = code("{",
+      "  \"parameters\": {",
+      "    \"enabledForDeployment\": {",
+      "    }",
+      "  }",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, mockFile))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Missing required field 'type' in Parameter enabledForDeployment at foo.json:3:4");
+  }
+
+  @Test
+  void shouldLogWhenUnexpectedField() {
+    String code = code("{",
+      "  \"parameters\": {",
+      "    \"enabledForDeployment\": {",
+      "      \"type\": \"bool\",",
+      "      \"unknown\": \"dummy\"",
+      "    }",
+      "  }",
+      "}");
+    parser.parse(code, null);
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+      .isEqualTo("Unexpected property `unknown` found in parameter enabledForDeployment at 5:6, ignoring it.");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+  }
+
+  private static InputFileContext mockFile() {
+    InputFile inputFile = mock(InputFile.class);
+    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    when(inputFile.filename()).thenReturn("foo.json");
+    return inputFileContext;
   }
 }
