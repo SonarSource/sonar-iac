@@ -27,6 +27,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -35,7 +36,7 @@ import static java.util.Collections.emptyList;
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
 
   private final Identifier identifier;
-  private final ParameterType type;
+  private final Property type;
   private Expression defaultValue;
   private List<Expression> allowedValues = emptyList();
   private Expression description;
@@ -44,7 +45,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   private Expression minLength;
   private Expression maxLength;
 
-  public ParameterDeclarationImpl(Identifier identifier, ParameterType type) {
+  public ParameterDeclarationImpl(Identifier identifier, Property type) {
     this.identifier = identifier;
     this.type = type;
   }
@@ -53,7 +54,8 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(identifier);
-    // TODO type?
+    children.add(type.key());
+    children.add(type.value());
     if (defaultValue != null) {
       children.add(defaultValue);
     }
@@ -83,7 +85,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   @Override
   public ParameterType type() {
-    return type;
+    return ParameterType.fromName(type.value().value());
   }
 
   @Override

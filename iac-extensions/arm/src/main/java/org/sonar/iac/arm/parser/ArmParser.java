@@ -124,7 +124,7 @@ public class ArmParser implements TreeParser<ArmTree> {
     String id = ((ScalarTree) tupleTree.key()).value();
     Identifier identifier = new IdentifierImpl(id, tupleTree.key().metadata());
 
-    ParameterType parameterType = null;
+    Property type = null;
     Expression defaultValue = null;
     ExpressionImpl minValue = null;
     ExpressionImpl maxValue = null;
@@ -137,8 +137,9 @@ public class ArmParser implements TreeParser<ArmTree> {
       String keyName = ((ScalarTree) element.key()).value();
       switch (keyName) {
         case "type":
-          String type = ((ScalarTree) element.value()).value();
-          parameterType = ParameterType.fromName(type);
+          Identifier key = new IdentifierImpl(keyName, element.key().metadata());
+          Expression value = new ExpressionImpl(((ScalarTree) element.value()).value(), element.value().metadata());
+          type = new PropertyImpl(key, value);
           break;
 
         case "defaultValue":
@@ -185,10 +186,10 @@ public class ArmParser implements TreeParser<ArmTree> {
           LOG.debug("Unknown key `{}` of parameter {}", keyName, id);
       }
     }
-    if (parameterType == null) {
+    if (type == null) {
       throw new ParseException("TODO", null, null);
     }
-    ParameterDeclarationImpl parameter = new ParameterDeclarationImpl(identifier, parameterType);
+    ParameterDeclarationImpl parameter = new ParameterDeclarationImpl(identifier, type);
     parameter.setDefaultValue(defaultValue);
     parameter.setMinValue(minValue);
     parameter.setMaxValue(maxValue);
