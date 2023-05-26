@@ -19,14 +19,12 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.sonar.iac.arm.parser.utils.ArmAssertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -44,7 +42,7 @@ class ResourceDeclarationTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
-  void shouldParseResource() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+  void shouldParseResource() {
     String code = code("{",
       "  \"resources\": [",
       "    {",
@@ -64,10 +62,10 @@ class ResourceDeclarationTest {
     assertThat(resourceDeclaration.type()).isEqualTo("Microsoft.Kusto/clusters");
     assertThat(resourceDeclaration.version()).isEqualTo("2022-12-29");
 
-    Expression name = resourceDeclaration.name();
-    assertThat(name.value()).isEqualTo("myResource");
-    assertThat(name.is(ArmTree.Kind.EXPRESSION)).isTrue();
-    IacCommonAssertions.assertThat(name.textRange()).hasRange(6, 14, 6, 26);
+    ArmAssertions.assertThat(resourceDeclaration.name())
+      .is(ArmTree.Kind.EXPRESSION)
+      .has("value", "myResource")
+      .hasRange(6, 14, 6, 26);
 
     List<Property> properties = resourceDeclaration.properties();
     assertThat(properties).hasSize(1);
@@ -78,28 +76,14 @@ class ResourceDeclarationTest {
     List<Tree> children = resourceDeclaration.children();
     assertThat(children).hasSize(8);
 
-    checkElement(children.get(0), ArmTree.Kind.IDENTIFIER, "name", 6, 6, 6, 12);
-    checkElement(children.get(1), ArmTree.Kind.EXPRESSION, "myResource", 6, 14, 6, 26);
-    checkElement(children.get(2), ArmTree.Kind.IDENTIFIER, "apiVersion", 5, 6, 5, 18);
-    checkElement(children.get(3), ArmTree.Kind.EXPRESSION, "2022-12-29", 5, 20, 5, 32);
-    checkElement(children.get(4), ArmTree.Kind.IDENTIFIER, "type", 4, 6, 4, 12);
-    checkElement(children.get(5), ArmTree.Kind.EXPRESSION, "Microsoft.Kusto/clusters", 4, 14, 4, 40);
-    checkElement(children.get(6), ArmTree.Kind.IDENTIFIER, "location", 7, 6, 7, 16);
-    checkElement(children.get(7), ArmTree.Kind.EXPRESSION, "random location", 7, 18, 7, 35);
-  }
-
-  void checkElement(Tree element, ArmTree.Kind kind, String value, int startLine, int startLineOffset, int endLine, int endLineOffset)
-    throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    assertThat(element).isInstanceOf(ArmTree.class);
-    ArmTree armTree = (ArmTree) element;
-    assertThat(armTree.is(kind)).isTrue();
-
-    Method method = element.getClass().getMethod("value");
-    String elementValue = (String) method.invoke(element);
-    assertThat(elementValue).isEqualTo(value);
-
-    assertThat(armTree.children()).isEmpty();
-    IacCommonAssertions.assertThat(armTree.textRange()).hasRange(startLine, startLineOffset, endLine, endLineOffset);
+    ArmAssertions.assertThat((ArmTree) children.get(0)).is(ArmTree.Kind.IDENTIFIER).has("value", "name").hasRange(6, 6, 6, 12);
+    ArmAssertions.assertThat((ArmTree) children.get(1)).is(ArmTree.Kind.EXPRESSION).has("value", "myResource").hasRange(6, 14, 6, 26);
+    ArmAssertions.assertThat((ArmTree) children.get(2)).is(ArmTree.Kind.IDENTIFIER).has("value", "apiVersion").hasRange(5, 6, 5, 18);
+    ArmAssertions.assertThat((ArmTree) children.get(3)).is(ArmTree.Kind.EXPRESSION).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
+    ArmAssertions.assertThat((ArmTree) children.get(4)).is(ArmTree.Kind.IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
+    ArmAssertions.assertThat((ArmTree) children.get(5)).is(ArmTree.Kind.EXPRESSION).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
+    ArmAssertions.assertThat((ArmTree) children.get(6)).is(ArmTree.Kind.IDENTIFIER).has("value", "location").hasRange(7, 6, 7, 16);
+    ArmAssertions.assertThat((ArmTree) children.get(7)).is(ArmTree.Kind.EXPRESSION).has("value", "random location").hasRange(7, 18, 7, 35);
   }
 
   @Test
@@ -116,20 +100,20 @@ class ResourceDeclarationTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Expecting ScalarTree to convert to Expression, got SequenceTreeImpl");
+      .hasMessage("Unsupported type for extractProperties, expected MappingTree or ScalarTree, got 'SequenceTreeImpl'");
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
+  @CsvSource(delimiter = ';', value = {
     // " ", // surprisingly, this throw a different parseException, apparently a node cannot have empty content
-    "                                                    \"type\":\"myType\"",
-    "                        \"apiVersion\":\"version\"                     ",
-    "                        \"apiVersion\":\"version\", \"type\":\"myType\"",
-    "\"name\":\"nameValue\"                                                 ",
-    "\"name\":\"nameValue\",                             \"type\":\"myType\"",
-    "\"name\":\"nameValue\", \"apiVersion\":\"version\"                     ",
+    "                                                    \"type\":\"myType\"; fields [\"apiVersion\", \"name\"]",
+    "                        \"apiVersion\":\"version\"                     ; fields [\"type\", \"name\"]",
+    "                        \"apiVersion\":\"version\", \"type\":\"myType\"; field [\"name\"]",
+    "\"name\":\"nameValue\"                                                 ; fields [\"type\", \"apiVersion\"]",
+    "\"name\":\"nameValue\",                             \"type\":\"myType\"; field [\"apiVersion\"]",
+    "\"name\":\"nameValue\", \"apiVersion\":\"version\"                     ; field [\"type\"]",
   })
-  void shouldThrowParseExceptionOnIncompleteResource(String attributes) {
+  void shouldThrowParseExceptionOnIncompleteResource(String attributes, String errorMessageComponents) {
     String code = code("{",
       "  \"resources\": [",
       "    {",
@@ -138,7 +122,7 @@ class ResourceDeclarationTest {
       "  ]",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Resource without required field (name, type, apiVersion) spotted at 3:4");
+    assertThat(parseException).hasMessage("Missing required " + errorMessageComponents + " at 3:4");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);

@@ -17,24 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.parser.utils;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-public interface OutputDeclaration extends Statement {
-  Identifier name();
-
-  String type();
-
-  @CheckForNull
-  String condition();
-
-  @CheckForNull
-  String copyCount();
-
-  @CheckForNull
-  String copyInput();
-
-  @CheckForNull
-  String value();
+public class ArmAssertions {
+  public static ArmTreeAssert assertThat(@Nullable ArmTree actual) {
+    return ArmTreeAssert.assertThat(actual);
+  }
 }
