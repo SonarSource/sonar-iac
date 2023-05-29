@@ -19,5 +19,22 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-public interface OutputDeclaration {
+import javax.annotation.CheckForNull;
+
+public interface OutputDeclaration extends Statement {
+  Identifier name();
+
+  Expression type();
+
+  @CheckForNull
+  Expression condition();
+
+  @CheckForNull
+  Expression copyCount();
+
+  @CheckForNull
+  Expression copyInput();
+
+  @CheckForNull
+  Expression value();
 }

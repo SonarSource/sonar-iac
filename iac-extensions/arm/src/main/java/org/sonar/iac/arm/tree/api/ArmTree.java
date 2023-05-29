@@ -38,7 +38,8 @@ public interface ArmTree extends Tree {
     FILE(File.class),
     RESOURCE_DECLARATION(ResourceDeclaration.class),
     EXPRESSION(Expression.class),
-    IDENTIFIER(Identifier.class);
+    IDENTIFIER(Identifier.class),
+    OUTPUT_DECLARATION(OutputDeclaration.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 
