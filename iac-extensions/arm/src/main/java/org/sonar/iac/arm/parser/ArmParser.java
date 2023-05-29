@@ -165,7 +165,7 @@ public class ArmParser implements TreeParser<ArmTree> {
       try {
         result = convertTupleToProperty(typeTuple);
       } catch (ParseException e) {
-        //TODO SONARIAC-841 please remove this try/catch when all types of defaultValue will be supported
+        // TODO SONARIAC-841 please remove this try/catch when all types of defaultValue will be supported
         LOG.debug("Unsupported type of defaultValue, ignoring it");
       }
     }
