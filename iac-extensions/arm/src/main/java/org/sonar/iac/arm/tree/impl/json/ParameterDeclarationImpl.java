@@ -35,26 +35,26 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   private final Identifier identifier;
   private final Property type;
-  private final Expression defaultValue;
+  private final Property defaultValue;
   private final List<Expression> allowedValues;
-  private final Expression description;
-  private final Expression minValue;
-  private final Expression maxValue;
-  private final Expression minLength;
-  private final Expression maxLength;
+  private final Property description;
+  private final Property minValue;
+  private final Property maxValue;
+  private final Property minLength;
+  private final Property maxLength;
 
   // Methods should not have too many parameters
   @SuppressWarnings("java:S107")
   public ParameterDeclarationImpl(
     Identifier identifier,
     Property type,
-    @Nullable Expression defaultValue,
+    @Nullable Property defaultValue,
     @Nullable List<Expression> allowedValues,
-    @Nullable Expression description,
-    @Nullable Expression minValue,
-    @Nullable Expression maxValue,
-    @Nullable Expression minLength,
-    @Nullable Expression maxLength) {
+    @Nullable Property description,
+    @Nullable Property minValue,
+    @Nullable Property maxValue,
+    @Nullable Property minLength,
+    @Nullable Property maxLength) {
 
     this.identifier = identifier;
     this.type = type;
@@ -73,24 +73,14 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     children.add(identifier);
     children.add(type.key());
     children.add(type.value());
-    if (defaultValue != null) {
-      children.add(defaultValue);
-    }
-    children.addAll(allowedValues);
-    if (description != null) {
-      children.add(description);
-    }
-    if (minValue != null) {
-      children.add(minValue);
-    }
-    if (maxValue != null) {
-      children.add(maxValue);
-    }
-    if (minLength != null) {
-      children.add(minLength);
-    }
-    if (maxLength != null) {
-      children.add(maxLength);
+    addChildrenIfPresent(children, defaultValue);
+    addChildrenIfPresent(children, description);
+    addChildrenIfPresent(children, minValue);
+    addChildrenIfPresent(children, maxValue);
+    addChildrenIfPresent(children, minLength);
+    addChildrenIfPresent(children, maxLength);
+    if (allowedValues != null) {
+      children.addAll(allowedValues);
     }
     return children;
   }
@@ -108,7 +98,10 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @Override
   @CheckForNull
   public Expression defaultValue() {
-    return defaultValue;
+    if (defaultValue != null) {
+      return defaultValue.value();
+    }
+    return null;
   }
 
   @Override
@@ -119,35 +112,57 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @Override
   @CheckForNull
   public Expression description() {
-    return description;
+    if (description != null) {
+      return description.value();
+    }
+    return null;
   }
 
   @Override
   @CheckForNull
   public Expression minValue() {
-    return minValue;
+    if (minValue != null) {
+      return minValue.value();
+    }
+    return null;
   }
 
   @Override
   @CheckForNull
   public Expression maxValue() {
-    return maxValue;
+    if (maxValue != null) {
+      return maxValue.value();
+    }
+    return null;
   }
 
   @Override
   @CheckForNull
   public Expression minLength() {
-    return minLength;
+    if (minLength != null) {
+      return minLength.value();
+    }
+    return null;
   }
 
   @Override
   @CheckForNull
   public Expression maxLength() {
-    return maxLength;
+    if (maxLength != null) {
+      return maxLength.value();
+    }
+    return null;
   }
 
   @Override
   public Kind getKind() {
     return Kind.PARAMETER_DECLARATION;
+  }
+
+  private static void addChildrenIfPresent(List<Tree> children, @Nullable Property property) {
+    if (property != null) {
+      children.add(property.key());
+      children.add(property.value());
+    }
   }
 }

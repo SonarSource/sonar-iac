@@ -21,6 +21,7 @@ package org.sonar.iac.arm.parser;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,7 @@ import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 public class ArmParser implements TreeParser<ArmTree> {
 
   private static final Logger LOG = Loggers.get(ArmParser.class);
+  private static final List<String> EXPECTED_KEYS_IN_PARAMETERS = List.of("allowedValues", "metadata", "type", "defaultValue", "minValue", "maxValue", "minLength", "maxLength");
   @Nullable
   private InputFileContext inputFileContext;
 
@@ -125,74 +127,25 @@ public class ArmParser implements TreeParser<ArmTree> {
     String id = ((ScalarTree) tupleTree.key()).value();
     Identifier identifier = new IdentifierImpl(id, tupleTree.key().metadata());
 
-    Property type = null;
-    Expression defaultValue = null;
-    ExpressionImpl minValue = null;
-    ExpressionImpl maxValue = null;
-    ExpressionImpl minLength = null;
-    ExpressionImpl maxLength = null;
-    List<Expression> allowedValues = Collections.emptyList();
-    ExpressionImpl description = null;
     List<TupleTree> elements = ((MappingTreeImpl) tupleTree.value()).elements();
-    for (TupleTree element : elements) {
-      String keyName = ((ScalarTree) element.key()).value();
-      switch (keyName) {
-        case "type":
-          Identifier key = new IdentifierImpl(keyName, element.key().metadata());
-          Expression value = new ExpressionImpl(((ScalarTree) element.value()).value(), element.value().metadata());
-          type = new PropertyImpl(key, value);
-          break;
-
-        case "defaultValue":
-          String defValue = ((ScalarTree) element.value()).value();
-          defaultValue = new ExpressionImpl(defValue, element.value().metadata());
-          break;
-
-        case "minValue":
-          String minValueText = ((ScalarTree) element.value()).value();
-          minValue = new ExpressionImpl(minValueText, element.value().metadata());
-          break;
-
-        case "maxValue":
-          String maxValueText = ((ScalarTree) element.value()).value();
-          maxValue = new ExpressionImpl(maxValueText, element.value().metadata());
-          break;
-
-        case "minLength":
-          String minLengthText = ((ScalarTree) element.value()).value();
-          minLength = new ExpressionImpl(minLengthText, element.value().metadata());
-          break;
-
-        case "maxLength":
-          String maxLengthText = ((ScalarTree) element.value()).value();
-          maxLength = new ExpressionImpl(maxLengthText, element.value().metadata());
-          break;
-
-        case "allowedValues":
-          allowedValues = ((SequenceTree) element.value()).elements().stream()
-            .map(ScalarTree.class::cast)
-            .map(allowedVal -> new ExpressionImpl(allowedVal.value(), allowedVal.metadata()))
-            .collect(Collectors.toList());
-          break;
-
-        case "metadata":
-          description = ((MappingTree) element.value()).elements().stream()
-            .filter(a -> "description".equals(((ScalarTree) a.key()).value()))
-            .map(a -> new ExpressionImpl(((ScalarTree) a.value()).value(), a.value().metadata()))
-            .findFirst()
-            .orElse(null);
-          break;
-
-        default:
-          String fileAndPosition = filenameAndPosition(filename, element.metadata().textRange());
-          LOG.debug("Unexpected property `{}` found in parameter {} at {}, ignoring it.", keyName, id, fileAndPosition);
-      }
-    }
+    Map<String, TupleTree> byKeys = associateByKey(elements);
+    Property type = extractParameterByKey(byKeys, "type");
     if (type == null) {
       String fileAndPosition = filenameAndPosition(filename, tupleTree.metadata().textRange());
       String message = String.format("Missing required field 'type' in Parameter %s at %s", id, fileAndPosition);
       throw new ParseException(message, null, null);
     }
+
+    Property defaultValue = extractParameterByKey(byKeys, "defaultValue");
+    Property minValue = extractParameterByKey(byKeys, "minValue");
+    Property maxValue = extractParameterByKey(byKeys, "maxValue");
+    Property minLength = extractParameterByKey(byKeys, "minLength");
+    Property maxLength = extractParameterByKey(byKeys, "maxLength");
+    List<Expression> allowedValues = extractParameterAllowedValues(byKeys);
+    Property description = extractParameterDescription(byKeys);
+
+    checkUnexpectedProperties(byKeys, id, filename);
+
     return new ParameterDeclarationImpl(
       identifier,
       type,
@@ -203,6 +156,58 @@ public class ArmParser implements TreeParser<ArmTree> {
       maxValue,
       minLength,
       maxLength);
+  }
+
+  private static Property extractParameterByKey(Map<String, TupleTree> byKeys, String name) {
+    Property result = null;
+    TupleTree typeTuple = byKeys.get(name);
+    if (typeTuple != null) {
+      result = convertTupleToProperty(typeTuple);
+    }
+    return result;
+  }
+
+  private static List<Expression> extractParameterAllowedValues(Map<String, TupleTree> byKeys) {
+    List<Expression> allowedValues = Collections.emptyList();
+    TupleTree tupleTree = byKeys.get("allowedValues");
+    if (tupleTree != null) {
+      allowedValues = ((SequenceTree) tupleTree.value()).elements().stream()
+        .map(ScalarTree.class::cast)
+        .map(allowedVal -> new ExpressionImpl(allowedVal.value(), allowedVal.metadata()))
+        .collect(Collectors.toList());
+    }
+    return allowedValues;
+  }
+
+  private static Property extractParameterDescription(Map<String, TupleTree> byKeys) {
+    Property description = null;
+    TupleTree tupleTree = byKeys.get("metadata");
+    if (tupleTree != null) {
+      description = ((MappingTree) tupleTree.value()).elements().stream()
+        .filter(tuple -> "description".equals(((ScalarTree) tuple.key()).value()))
+        .map(ArmParser::convertTupleToProperty)
+        .findFirst()
+        .orElse(null);
+    }
+    return description;
+  }
+
+  private static Map<String, TupleTree> associateByKey(Collection<TupleTree> tuples) {
+    Map<String, TupleTree> properties = new HashMap<>();
+    for (TupleTree tuple : tuples) {
+      String tupleKey = ((ScalarTree) tuple.key()).value();
+      properties.put(tupleKey, tuple);
+    }
+    return properties;
+  }
+
+  private static void checkUnexpectedProperties(Map<String, TupleTree> byKeys, String id, String filename) {
+    byKeys.entrySet().stream()
+      .filter(element -> !EXPECTED_KEYS_IN_PARAMETERS.contains(element.getKey()))
+      .forEach(element -> {
+        String fileAndPosition = filenameAndPosition(filename, element.getValue().textRange());
+        LOG.debug("Unexpected property `{}` found in parameter {} at {}, ignoring it.", element.getKey(), id, fileAndPosition);
+      });
   }
 
   private static String filenameAndPosition(String filename, TextRange textRange) {
