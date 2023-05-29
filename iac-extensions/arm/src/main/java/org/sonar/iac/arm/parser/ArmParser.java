@@ -37,7 +37,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
-import org.sonar.iac.arm.tree.api.ParameterType;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
@@ -45,26 +45,23 @@ import org.sonar.iac.arm.tree.impl.json.ExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.json.OutputDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.arm.tree.api.ParameterDeclaration;
-import org.sonar.iac.arm.tree.impl.json.FileImpl;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.BasicTextPointer;
-import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
-import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 
 public class ArmParser implements TreeParser<ArmTree> {
 
@@ -97,7 +94,10 @@ public class ArmParser implements TreeParser<ArmTree> {
     List<Statement> statements = new ArrayList<>();
     MappingTree document = (MappingTree) fileTree.documents().get(0);
 
-    extractResourcesSequence(fileTree).ifPresent(res -> statements.addAll(convertResources(res)));
+    extractResourcesSequence(document).ifPresent(sequence -> {
+      List<ResourceDeclaration> resourceDeclarations = convertResources(sequence);
+      statements.addAll(resourceDeclarations);
+    });
 
     extractOutputsMapping(document).ifPresent(mapping -> {
       List<OutputDeclaration> outputDeclarations = convertOutputsDeclaration(mapping);
@@ -105,7 +105,7 @@ public class ArmParser implements TreeParser<ArmTree> {
     });
 
     List<Statement> params = extractParametersSequence(fileTree)
-      .map(parameters -> convertParameters(parameters, filename))
+      .map(this::convertParameters)
       .collect(Collectors.toList());
     statements.addAll(params);
 
@@ -123,7 +123,7 @@ public class ArmParser implements TreeParser<ArmTree> {
       .flatMap(List::stream);
   }
 
-  private static ParameterDeclaration convertParameters(TupleTree tupleTree, String filename) {
+  private ParameterDeclaration convertParameters(TupleTree tupleTree) {
     String id = ((ScalarTree) tupleTree.key()).value();
     Identifier identifier = new IdentifierImpl(id, tupleTree.key().metadata());
 
@@ -131,7 +131,7 @@ public class ArmParser implements TreeParser<ArmTree> {
     Map<String, TupleTree> byKeys = associateByKey(elements);
     Property type = extractParameterByKey(byKeys, "type");
     if (type == null) {
-      String fileAndPosition = filenameAndPosition(filename, tupleTree.metadata().textRange());
+      String fileAndPosition = filenameAndPosition(tupleTree.metadata().textRange());
       String message = String.format("Missing required field 'type' in Parameter %s at %s", id, fileAndPosition);
       throw new ParseException(message, null, null);
     }
@@ -144,7 +144,7 @@ public class ArmParser implements TreeParser<ArmTree> {
     List<Expression> allowedValues = extractParameterAllowedValues(byKeys);
     Property description = extractParameterDescription(byKeys);
 
-    checkUnexpectedProperties(byKeys, id, filename);
+    checkUnexpectedProperties(byKeys, id);
 
     return new ParameterDeclarationImpl(
       identifier,
@@ -206,19 +206,22 @@ public class ArmParser implements TreeParser<ArmTree> {
     return properties;
   }
 
-  private static void checkUnexpectedProperties(Map<String, TupleTree> byKeys, String id, String filename) {
+  private void checkUnexpectedProperties(Map<String, TupleTree> byKeys, String id) {
     byKeys.entrySet().stream()
       .filter(element -> !EXPECTED_KEYS_IN_PARAMETERS.contains(element.getKey()))
       .forEach(element -> {
-        String fileAndPosition = filenameAndPosition(filename, element.getValue().textRange());
+        String fileAndPosition = filenameAndPosition(element.getValue().textRange());
         LOG.debug("Unexpected property `{}` found in parameter {} at {}, ignoring it.", element.getKey(), id, fileAndPosition);
       });
   }
 
-  private static String filenameAndPosition(String filename, TextRange textRange) {
+  private String filenameAndPosition(TextRange textRange) {
     String position = textRange.start().line() + ":" + textRange.start().lineOffset();
-    if (StringUtils.isNotBlank(filename)) {
-      return filename + ":" + position;
+    if (inputFileContext != null) {
+      String filename = inputFileContext.inputFile.filename();
+      if (StringUtils.isNotBlank(filename)) {
+        return filename + ":" + position;
+      }
     }
     return position;
   }
@@ -236,7 +239,7 @@ public class ArmParser implements TreeParser<ArmTree> {
   private static Optional<MappingTree> extractOutputsMapping(MappingTree document) {
     return document.elements().stream()
       .filter(element -> element.key() instanceof ScalarTree)
-      .filter(element -> ((ScalarTree) element.key()).value().equals("outputs"))
+      .filter(element -> "outputs".equals(((ScalarTree) element.key()).value()))
       .map(TupleTree::value)
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
