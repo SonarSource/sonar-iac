@@ -162,7 +162,12 @@ public class ArmParser implements TreeParser<ArmTree> {
     Property result = null;
     TupleTree typeTuple = byKeys.get(name);
     if (typeTuple != null) {
-      result = convertTupleToProperty(typeTuple);
+      try {
+        result = convertTupleToProperty(typeTuple);
+      } catch (ParseException e) {
+        //TODO SONARIAC-841 please remove this try/catch when all types of defaultValue will be supported
+        LOG.debug("Unsupported type of defaultValue, ignoring it");
+      }
     }
     return result;
   }

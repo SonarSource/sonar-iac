@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vaultName": {
+      "type": "string",
+      "defaultValue": "[concat('keyvault-', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Specifies the name of the KeyVault, this value must be globally unique."
+      }
+    },
+    "softDeleteRetentionInDays": {
+      "type": "int",
+      "defaultValue": 7,
+      "minValue": 7,
+      "maxValue": 90,
+      "metadata": {
+        "description": "softDelete data retention days, only used if enableSoftDelete is true. It accepts >=7 and <=90."
+      }
+    },
+    "networkRuleBypassOptions": {
+      "type": "string",
+      "defaultValue": "AzureServices",
+      "allowedValues": [
+        "None",
+        "AzureServices"
+      ],
+      "metadata": {
+        "description": "Tells what traffic can bypass network rules. This can be 'AzureServices' or 'None'. If not specified the default is 'AzureServices'."
+      }
+    },
+    "ipRules": {
+      "type": "array",
+      "defaultValue": [
+      ],
+      "metadata": {
+        "description": "An array of IPv4 addresses or rangea in CIDR notation, e.g. '124.56.78.91' (simple IP address) or '124.56.78.0/24' (all addresses that start with 124.56.78)."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {
+      },
+      "metadata": {
+        "description": "Tags to be assigned to the KeyVault."
+      }
+    },
+    "certData": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Base-64 encoded form of the .pfx file"
+      }
+    },
+    "secretsObject": {
+      "type": "secureObject",
+      "metadata": {
+        "description": "Specifies all secrets {\"secretName\":\"\",\"secretValue\":\"\"} wrapped in a secure object."
+      }
+    }
+  }
+}

@@ -49,7 +49,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     Identifier identifier,
     Property type,
     @Nullable Property defaultValue,
-    @Nullable List<Expression> allowedValues,
+    List<Expression> allowedValues,
     @Nullable Property description,
     @Nullable Property minValue,
     @Nullable Property maxValue,
@@ -79,9 +79,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     addChildrenIfPresent(children, maxValue);
     addChildrenIfPresent(children, minLength);
     addChildrenIfPresent(children, maxLength);
-    if (allowedValues != null) {
-      children.addAll(allowedValues);
-    }
+    children.addAll(allowedValues);
     return children;
   }
 

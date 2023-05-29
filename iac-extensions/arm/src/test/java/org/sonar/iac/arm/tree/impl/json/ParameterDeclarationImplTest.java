@@ -19,18 +19,25 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -117,6 +124,16 @@ class ParameterDeclarationImplTest {
     assertThat(parameter.allowedValues()).map(Expression::value).containsExactly("A", "B", "CCCC");
     assertThat(parameter.description()).hasValue("some description").hasKind(EXPRESSION).hasRange(16, 31, 16, 49);
     assertThat(parameter.textRange()).hasRange(3, 8, 16, 49);
+  }
+
+  @Test
+  void shouldParseParametersOfAllTypes() throws IOException {
+    DefaultInputFile file = IacTestUtils.inputFile("parameters_all_types.json", "json");
+    File tree = (File) parser.parse(file.contents(), mockFile);
+    List<String> names = tree.statements().stream()
+      .map(statement -> ((ParameterDeclarationImpl) statement).identifier().value())
+      .collect(Collectors.toList());
+    assertThat(names).contains("vaultName", "softDeleteRetentionInDays", "networkRuleBypassOptions", "ipRules", "tags", "certData", "secretsObject");
   }
 
   @Test
