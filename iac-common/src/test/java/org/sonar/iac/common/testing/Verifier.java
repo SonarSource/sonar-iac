@@ -96,6 +96,13 @@ public final class Verifier {
     compare(actualIssues, Collections.emptyList());
   }
 
+  public static List<Issue> issues(TreeParser<Tree> parser, Path path, IacCheck check) {
+    Tree root = parse(parser, path);
+    Function<SingleFileVerifier, TestContext> contextSupplier = TestContext::new;
+    SingleFileVerifier verifier = createVerifier(path, root);
+    return runAnalysis(contextSupplier.apply(verifier), check, root);
+  }
+
   private static List<Issue> runAnalysis(TestContext ctx, IacCheck check, Tree root) {
     check.initialize(ctx);
     ctx.scan(root);
@@ -236,6 +243,18 @@ public final class Verifier {
     @Override
     public int hashCode() {
       return Objects.hash(textRange, message, secondaryLocations);
+    }
+
+    public TextRange getTextRange() {
+      return textRange;
+    }
+
+    public String getMessage() {
+      return message;
+    }
+
+    public List<SecondaryLocation> getSecondaryLocations() {
+      return secondaryLocations;
     }
   }
 

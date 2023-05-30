@@ -44,4 +44,13 @@ public class TextRangeAssert extends AbstractAssert<TextRangeAssert, TextRange> 
     });
     return this;
   }
+
+  public TextRangeAssert startsAt(int startLine, int startLineOffset) {
+    isNotNull();
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(actual.start().line()).as("startLine mismatch").isEqualTo(startLine);
+      softly.assertThat(actual.start().lineOffset()).as("startLineOffset mismatch").isEqualTo(startLineOffset);
+    });
+    return this;
+  }
 }
