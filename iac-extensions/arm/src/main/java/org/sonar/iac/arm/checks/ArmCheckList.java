@@ -27,6 +27,7 @@ public class ArmCheckList {
   }
 
   public static List<Class<?>> checks() {
-    return List.of();
+    return List.of(
+      IpRestrictedAdminAccessCheck.class);
   }
 }

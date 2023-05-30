@@ -31,9 +31,9 @@ import org.sonar.iac.common.api.checks.InitContext;
 public class IpRestrictedAdminAccessCheck implements IacCheck {
 
   private static final List<String> TYPES = List.of(
-    "Microsoft.Network/networkSecurityGroups/securityRules",
-    "Microsoft.Network/networkSecurityGroup");
+    "Microsoft.Network/networkSecurityGroups/securityRules");
   private static final List<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = List.of("*", "0.0.0.0/0", "::/0", "Internet");
+
   @Override
   public void initialize(InitContext init) {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {

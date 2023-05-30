@@ -60,12 +60,10 @@ class IpRestrictedAdminAccessCheckTest {
   void shouldRaiseIssue(String filename) {
     List<Verifier.Issue> issues = issues(PATH_PREFIX + filename, CHECK);
     assertThat(issues).hasSize(1);
-    for (Verifier.Issue issue : issues) {
-      System.out.println(issue);
-      assertThat(issue.getMessage()).isEqualTo("Restrict IP addresses authorized to access administration services");
-      assertThat(issue.getTextRange()).startsAt(10,8);
-      assertThat(issue.getSecondaryLocations()).isEmpty();
-    }
+    Verifier.Issue issue = issues.get(0);
+    assertThat(issue.getMessage()).isEqualTo("Restrict IP addresses authorized to access administration services");
+    assertThat(issue.getTextRange()).startsAt(10, 8);
+    assertThat(issue.getSecondaryLocations()).isEmpty();
   }
 
   @MethodSource
