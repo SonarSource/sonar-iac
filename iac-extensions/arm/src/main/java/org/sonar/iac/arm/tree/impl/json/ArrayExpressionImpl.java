@@ -19,47 +19,41 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
+import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-public class PropertyImpl extends AbstractArmTreeImpl implements Property {
+public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExpression {
+  private final List<PropertyValue> values;
+  private final YamlTreeMetadata metadata;
 
-  private final Identifier key;
-  private final PropertyValue value;
-
-  public PropertyImpl(Identifier key, PropertyValue value) {
-    this.key = key;
-    this.value = value;
-  }
-
-  @Override
-  public Identifier key() {
-    return key;
-  }
-
-  @Override
-  public PropertyValue value() {
-    return value;
+  public ArrayExpressionImpl(YamlTreeMetadata metadata, List<PropertyValue> values) {
+    this.metadata = metadata;
+    this.values = values;
   }
 
   @Override
   public TextRange textRange() {
-    return TextRanges.merge(List.of(key.textRange(), value.textRange()));
+    return metadata.textRange();
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(key, value);
+    return Collections.unmodifiableList(values);
   }
 
   @Override
   public Kind getKind() {
-    return Kind.PROPERTY;
+    return Kind.ARRAY_EXPRESSION;
+  }
+
+  @Override
+  public List<PropertyValue> values() {
+    return values;
   }
 }

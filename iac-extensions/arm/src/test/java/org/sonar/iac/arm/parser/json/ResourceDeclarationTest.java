@@ -25,8 +25,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
@@ -36,8 +40,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.ARRAY_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PROPERTY;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -52,8 +59,7 @@ class ResourceDeclarationTest {
       "    {",
       "      \"type\": \"Microsoft.Kusto/clusters\",",
       "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\",",
-      "      \"location\": \"random location\",",
+      "      \"name\": \"myResource\"",
       "    }",
       "  ]",
       "}");
@@ -71,14 +77,10 @@ class ResourceDeclarationTest {
       .hasValue("myResource")
       .hasRange(6, 14, 6, 26);
 
-    List<Property> properties = resourceDeclaration.properties();
-    assertThat(properties).hasSize(1);
-    assertThat(properties.get(0).key().value()).isEqualTo("location");
-    assertThat(properties.get(0).value().value()).isEqualTo("random location");
-    IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 35);
+    assertThat(resourceDeclaration.properties()).isEmpty();
 
     List<Tree> children = resourceDeclaration.children();
-    assertThat(children).hasSize(8);
+    assertThat(children).hasSize(6);
 
     assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "name").hasRange(6, 6, 6, 12);
     assertThat((ArmTree) children.get(1)).is(EXPRESSION).has("value", "myResource").hasRange(6, 14, 6, 26);
@@ -86,8 +88,49 @@ class ResourceDeclarationTest {
     assertThat((ArmTree) children.get(3)).is(EXPRESSION).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
     assertThat((ArmTree) children.get(4)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
     assertThat((ArmTree) children.get(5)).is(EXPRESSION).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
-    assertThat((ArmTree) children.get(6)).is(IDENTIFIER).has("value", "location").hasRange(7, 6, 7, 16);
-    assertThat((ArmTree) children.get(7)).is(EXPRESSION).has("value", "random location").hasRange(7, 18, 7, 35);
+  }
+
+  @Test
+  void shouldParseResourceWithExtraProperties() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"type\": \"Microsoft.Kusto/clusters\",",
+      "      \"apiVersion\": \"2022-12-29\",",
+      "      \"name\": \"myResource\",",
+      "      \"other properties 1\": {\"obj\": \"random location\"},",
+      "      \"other properties 2\": [\"val\"]",
+      "    }",
+      "  ]",
+      "}");
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
+
+    ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
+    List<Property> properties = resourceDeclaration.properties();
+    assertThat(properties).hasSize(2);
+
+    assertThat(properties.get(0).is(PROPERTY)).isTrue();
+    assertThat(properties.get(0).children()).hasSize(2);
+    assertThat(properties.get(0).key().value()).isEqualTo("other properties 1");
+    assertThat(properties.get(0).value().is(OBJECT_EXPRESSION)).isTrue();
+    ObjectExpression objExpression = (ObjectExpression) properties.get(0).value();
+    assertThat(objExpression.properties()).hasSize(1);
+    PropertyValue objValue = objExpression.getPropertyByName("obj").value();
+    assertThat(objValue.is(EXPRESSION)).isTrue();
+    assertThat(((Expression) objValue).value()).isEqualTo("random location");
+
+    assertThat(properties.get(1).key().value()).isEqualTo("other properties 2");
+    assertThat(properties.get(1).value().is(ARRAY_EXPRESSION)).isTrue();
+    ArrayExpression arrayExpression = (ArrayExpression) properties.get(1).value();
+    assertThat(arrayExpression.values()).hasSize(1);
+    assertThat(arrayExpression.children()).hasSize(1);
+    PropertyValue arrValue = arrayExpression.values().get(0);
+    assertThat(arrValue.is(EXPRESSION)).isTrue();
+    assertThat(((Expression) arrValue).value()).isEqualTo("val");
+
+    IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 53);
   }
 
   @Test
@@ -104,18 +147,18 @@ class ResourceDeclarationTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Unsupported type for extractProperties, expected MappingTree or ScalarTree, got 'SequenceTreeImpl'");
+      .hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 6:14");
   }
 
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
     // " ", // surprisingly, this throw a different parseException, apparently a node cannot have empty content
-    "                                                    \"type\":\"myType\"; fields [\"apiVersion\", \"name\"]",
-    "                        \"apiVersion\":\"version\"                     ; fields [\"type\", \"name\"]",
-    "                        \"apiVersion\":\"version\", \"type\":\"myType\"; field [\"name\"]",
-    "\"name\":\"nameValue\"                                                 ; fields [\"type\", \"apiVersion\"]",
-    "\"name\":\"nameValue\",                             \"type\":\"myType\"; field [\"apiVersion\"]",
-    "\"name\":\"nameValue\", \"apiVersion\":\"version\"                     ; field [\"type\"]",
+    "                                                    \"type\":\"myType\"; apiVersion",
+    "                        \"apiVersion\":\"version\"                     ; type",
+    "                        \"apiVersion\":\"version\", \"type\":\"myType\"; name",
+    "\"name\":\"nameValue\"                                                 ; type",
+    "\"name\":\"nameValue\",                             \"type\":\"myType\"; apiVersion",
+    "\"name\":\"nameValue\", \"apiVersion\":\"version\"                     ; type",
   })
   void shouldThrowParseExceptionOnIncompleteResource(String attributes, String errorMessageComponents) {
     String code = code("{",
@@ -126,7 +169,7 @@ class ResourceDeclarationTest {
       "  ]",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing required " + errorMessageComponents + " at 3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute '" + errorMessageComponents + "' at 3:4");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);
@@ -162,7 +205,8 @@ class ResourceDeclarationTest {
     assertThat(resourceDeclaration1.name().value()).isEqualTo("name1");
     assertThat(resourceDeclaration1.properties()).hasSize(1);
     assertThat(resourceDeclaration1.properties().get(0).key().value()).isEqualTo("property1");
-    assertThat(resourceDeclaration1.properties().get(0).value().value()).isEqualTo("value1");
+    assertThat(resourceDeclaration1.properties().get(0).value().is(EXPRESSION)).isTrue();
+    assertThat(((Expression) resourceDeclaration1.properties().get(0).value()).value()).isEqualTo("value1");
 
     ResourceDeclaration resourceDeclaration2 = (ResourceDeclaration) tree.statements().get(1);
     assertThat(resourceDeclaration2.type()).isEqualTo("type2");
@@ -170,6 +214,7 @@ class ResourceDeclarationTest {
     assertThat(resourceDeclaration2.name().value()).isEqualTo("name2");
     assertThat(resourceDeclaration2.properties()).hasSize(1);
     assertThat(resourceDeclaration2.properties().get(0).key().value()).isEqualTo("property2");
-    assertThat(resourceDeclaration2.properties().get(0).value().value()).isEqualTo("value2");
+    assertThat(resourceDeclaration2.properties().get(0).value().is(EXPRESSION)).isTrue();
+    assertThat(((Expression) resourceDeclaration2.properties().get(0).value()).value()).isEqualTo("value2");
   }
 }

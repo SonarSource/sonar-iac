@@ -20,37 +20,51 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.Expression;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
+public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectExpression {
 
-  private final SimpleProperty name;
-  private final SimpleProperty version;
-  private final SimpleProperty type;
   private final List<Property> properties;
+  private Map<String, Property> mapRepresentation = null;
 
-  public ResourceDeclarationImpl(SimpleProperty name, SimpleProperty version, SimpleProperty type, List<Property> properties) {
-    this.name = name;
-    this.version = version;
-    this.type = type;
+  public ObjectExpressionImpl(List<Property> properties) {
     this.properties = properties;
+  }
+
+  @Override
+  public List<Property> properties() {
+    return Collections.unmodifiableList(properties);
+  }
+
+  @Override
+  public Map<String, Property> getMapRepresentation() {
+    if (mapRepresentation == null) {
+      mapRepresentation = new HashMap<>();
+      properties.forEach(property -> {
+        String key = property.key().value();
+        mapRepresentation.put(key, property);
+      });
+    }
+    return mapRepresentation;
+  }
+
+  @Override
+  @CheckForNull
+  public Property getPropertyByName(String propertyName) {
+    return getMapRepresentation().get(propertyName);
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(name.key());
-    children.add(name.value());
-    children.add(version.key());
-    children.add(version.value());
-    children.add(type.key());
-    children.add(type.value());
     properties.forEach(property -> {
       children.add(property.key());
       children.add(property.value());
@@ -59,27 +73,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public Expression name() {
-    return name.value();
-  }
-
-  @Override
-  public String version() {
-    return version.value().value();
-  }
-
-  @Override
-  public String type() {
-    return type.value().value();
-  }
-
-  @Override
-  public List<Property> properties() {
-    return properties;
-  }
-
-  @Override
   public Kind getKind() {
-    return Kind.RESOURCE_DECLARATION;
+    return Kind.OBJECT_EXPRESSION;
   }
 }

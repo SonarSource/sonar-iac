@@ -19,6 +19,16 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-public interface Expression extends PropertyValue {
-  String value();
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+
+public interface ObjectExpression extends PropertyValue {
+
+  List<Property> properties();
+
+  Map<String, Property> getMapRepresentation();
+
+  @CheckForNull
+  Property getPropertyByName(String propertyName);
 }

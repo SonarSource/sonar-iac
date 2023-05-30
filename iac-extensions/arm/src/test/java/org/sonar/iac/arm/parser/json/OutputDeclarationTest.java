@@ -58,8 +58,7 @@ class OutputDeclarationTest {
       "      \"type\": \"my type\",",
       "      \"condition\": \"my condition\",",
       "      \"copy\": {",
-      "        \"count\": \"countValue\",",
-      "        \"input\": \"inputValue\"",
+      "        \"count\": \"countValue\"",
       "      },",
       "      \"value\": \"my output value\"",
       "    }",
@@ -75,9 +74,9 @@ class OutputDeclarationTest {
     assertThat(outputDeclaration.type().value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition().value()).isEqualTo("my condition");
     assertThat(outputDeclaration.copyCount().value()).isEqualTo("countValue");
-    assertThat(outputDeclaration.copyInput().value()).isEqualTo("inputValue");
+    assertThat(outputDeclaration.copyInput()).isNull();
     assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
-    assertThat(outputDeclaration.textRange()).hasRange(3, 4, 10, 32);
+    assertThat(outputDeclaration.textRange()).hasRange(3, 4, 9, 32);
 
     assertThat(outputDeclaration.name())
       .is(IDENTIFIER)
@@ -85,19 +84,17 @@ class OutputDeclarationTest {
       .hasRange(3, 4, 3, 19);
 
     List<Tree> children = outputDeclaration.children();
-    assertThat(children).hasSize(11);
+    assertThat(children).hasSize(9);
 
     assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "myOutputValue").hasRange(3, 4, 3, 19);
     assertThat((ArmTree) children.get(1)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
     assertThat((ArmTree) children.get(2)).is(EXPRESSION).has("value", "my type").hasRange(4, 14, 4, 23);
     assertThat((ArmTree) children.get(3)).is(IDENTIFIER).has("value", "condition").hasRange(5, 6, 5, 17);
     assertThat((ArmTree) children.get(4)).is(EXPRESSION).has("value", "my condition").hasRange(5, 19, 5, 33);
-    assertThat((ArmTree) children.get(5)).is(IDENTIFIER).has("value", "value").hasRange(10, 6, 10, 13);
-    assertThat((ArmTree) children.get(6)).is(EXPRESSION).has("value", "my output value").hasRange(10, 15, 10, 32);
+    assertThat((ArmTree) children.get(5)).is(IDENTIFIER).has("value", "value").hasRange(9, 6, 9, 13);
+    assertThat((ArmTree) children.get(6)).is(EXPRESSION).has("value", "my output value").hasRange(9, 15, 9, 32);
     assertThat((ArmTree) children.get(7)).is(IDENTIFIER).has("value", "count").hasRange(7, 8, 7, 15);
     assertThat((ArmTree) children.get(8)).is(EXPRESSION).has("value", "countValue").hasRange(7, 17, 7, 29);
-    assertThat((ArmTree) children.get(9)).is(IDENTIFIER).has("value", "input").hasRange(8, 8, 8, 15);
-    assertThat((ArmTree) children.get(10)).is(EXPRESSION).has("value", "inputValue").hasRange(8, 17, 8, 29);
   }
 
   @Test
@@ -156,7 +153,7 @@ class OutputDeclarationTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing required field [\"type\"] at 3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at 3:4");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);
@@ -256,7 +253,7 @@ class OutputDeclarationTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Unsupported type for extractProperties, expected MappingTree or ScalarTree, got 'SequenceTreeImpl'");
+    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 5:15");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);
@@ -277,5 +274,41 @@ class OutputDeclarationTest {
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(21);
+  }
+
+  @Test
+  void shouldFailOnCopyUnexpectedFormat() {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      "      \"type\": \"my type\",",
+      "      \"copy\": []",
+      "    }",
+      "  }",
+      "}");
+    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    assertThat(parseException).hasMessage("toObjectExpression: Expecting ObjectExpression, got ArrayExpressionImpl instead at 5:14");
+    assertThat(parseException.getDetails()).isNull();
+    assertThat(parseException.getPosition().line()).isEqualTo(5);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(14);
+  }
+
+  @Test
+  void shouldFailOnCopyInternalUnexpectedFormat() {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      "      \"type\": \"my type\",",
+      "      \"copy\": {",
+      "        \"count\": []",
+      "      }",
+      "    }",
+      "  }",
+      "}");
+    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 6:17");
+    assertThat(parseException.getDetails()).isNull();
+    assertThat(parseException.getPosition().line()).isEqualTo(6);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(17);
   }
 }
