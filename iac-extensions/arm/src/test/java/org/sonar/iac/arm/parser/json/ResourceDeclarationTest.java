@@ -113,12 +113,12 @@ class ResourceDeclarationTest {
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
     // " ", // surprisingly, this throw a different parseException, apparently a node cannot have empty content
-    "                                                    \"type\":\"myType\"; fields [\"apiVersion\", \"name\"]",
-    "                        \"apiVersion\":\"version\"                     ; fields [\"type\", \"name\"]",
-    "                        \"apiVersion\":\"version\", \"type\":\"myType\"; field [\"name\"]",
-    "\"name\":\"nameValue\"                                                 ; fields [\"type\", \"apiVersion\"]",
-    "\"name\":\"nameValue\",                             \"type\":\"myType\"; field [\"apiVersion\"]",
-    "\"name\":\"nameValue\", \"apiVersion\":\"version\"                     ; field [\"type\"]",
+    "                                                    \"type\":\"myType\"; apiVersion",
+    "                        \"apiVersion\":\"version\"                     ; type",
+    "                        \"apiVersion\":\"version\", \"type\":\"myType\"; name",
+    "\"name\":\"nameValue\"                                                 ; type",
+    "\"name\":\"nameValue\",                             \"type\":\"myType\"; apiVersion",
+    "\"name\":\"nameValue\", \"apiVersion\":\"version\"                     ; type",
   })
   void shouldThrowParseExceptionOnIncompleteResource(String attributes, String errorMessageComponents) {
     String code = code("{",
@@ -129,7 +129,7 @@ class ResourceDeclarationTest {
       "  ]",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing required " + errorMessageComponents + " at 3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute '" + errorMessageComponents + "' at 3:4");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);

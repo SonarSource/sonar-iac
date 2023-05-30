@@ -20,9 +20,6 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.PropertyValue;

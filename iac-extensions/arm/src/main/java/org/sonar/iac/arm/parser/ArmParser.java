@@ -271,12 +271,10 @@ public class ArmParser implements TreeParser<ArmTree> {
   private ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
     Map<String, Property> properties = extractProperties(tree);
 
-    SimpleProperty type = extractSimpleProperty(properties, "type");
-    SimpleProperty version = extractSimpleProperty(properties, "apiVersion");
-    SimpleProperty name = extractSimpleProperty(properties, "name");
+    SimpleProperty type = extractMandatorySimpleProperty(tree.metadata(), properties, "type");
+    SimpleProperty version = extractMandatorySimpleProperty(tree.metadata(), properties, "apiVersion");
+    SimpleProperty name = extractMandatorySimpleProperty(tree.metadata(), properties, "name");
     List<Property> otherProperties = new ArrayList<>(properties.values());
-
-    checkMandatoryObject(tree.metadata(), "type", type, "apiVersion", version, "name", name);
 
     return new ResourceDeclarationImpl(name, version, type, otherProperties);
   }
@@ -287,7 +285,7 @@ public class ArmParser implements TreeParser<ArmTree> {
     MappingTree outputMapping = toMappingTree(tupleTree.value());
     Map<String, Property> properties = extractProperties(outputMapping);
 
-    SimpleProperty type = extractSimpleProperty(properties, "type");
+    SimpleProperty type = extractMandatorySimpleProperty(tupleTree.metadata(), properties, "type");
     SimpleProperty condition = extractSimpleProperty(properties, "condition");
     SimpleProperty value = extractSimpleProperty(properties, "value");
     SimpleProperty copyCount = null;
@@ -306,8 +304,6 @@ public class ArmParser implements TreeParser<ArmTree> {
       LOG.debug("Unexpected property '{}' found in output declaration at {}, ignoring it.", unexpectedProperty.getKey(), buildLocation(position));
     }
 
-    checkMandatoryObject(tupleTree.metadata(), "type", type);
-
     return new OutputDeclarationImpl(name, type, condition, copyCount, copyInput, value);
   }
 
@@ -317,32 +313,6 @@ public class ArmParser implements TreeParser<ArmTree> {
       filename = inputFileContext.inputFile.filename() + ":";
     }
     return filename + position.start().line() + ":" + position.start().lineOffset();
-  }
-
-  /**
-   * This method will raise a Parse exception if any of the provided object is null.
-   * It requires first the metadata object to report the location in the exception.
-   * Then it is expecting arguments by pair: the name of the argument (for the exception message) and the object reference to check.
-   */
-  private static void checkMandatoryObject(YamlTreeMetadata metadata, Object... objects) {
-    List<String> missing = new ArrayList<>();
-    for (int i = 0; i < objects.length - 1; i += 2) {
-      String objectName = (String) objects[i];
-      Object objectReference = objects[i + 1];
-      if (objectReference == null) {
-        missing.add(objectName);
-      }
-    }
-
-    if (!missing.isEmpty()) {
-      TextPointer pointer = new BasicTextPointer(metadata.textRange());
-      StringBuilder errorMessage = new StringBuilder()
-        .append("Missing required field")
-        .append(missing.size() > 1 ? "s" : "")
-        .append(" [\"").append(StringUtils.join(missing, "\", \"")).append("\"]")
-        .append(" at ").append(pointer.line()).append(":").append(pointer.lineOffset());
-      throw new ParseException(errorMessage.toString(), pointer, null);
-    }
   }
 
   private static MappingTree toMappingTree(YamlTree tree) {
@@ -410,6 +380,14 @@ public class ArmParser implements TreeParser<ArmTree> {
     } else {
       throw new ParseException("Couldn't convert to PropertyValue, unsupported class " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null);
     }
+  }
+
+  private SimpleProperty extractMandatorySimpleProperty(YamlTreeMetadata metadata, Map<String, Property> properties, String key) {
+    Property value = properties.remove(key);
+    if (value == null) {
+      throw new ParseException("Missing mandatory attribute '" + key + "' at " + buildLocation(metadata.textRange()), new BasicTextPointer(metadata.textRange()), null);
+    }
+    return convertToSimpleProperty(value);
   }
 
   private SimpleProperty extractSimpleProperty(Map<String, Property> properties, String key) {

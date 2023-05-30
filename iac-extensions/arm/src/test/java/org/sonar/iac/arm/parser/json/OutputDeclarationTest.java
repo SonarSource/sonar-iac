@@ -156,7 +156,7 @@ class OutputDeclarationTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing required field [\"type\"] at 3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at 3:4");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);

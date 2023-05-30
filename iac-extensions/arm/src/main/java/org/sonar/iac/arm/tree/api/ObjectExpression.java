@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api;
 import java.util.List;
 import java.util.Map;
 
-public interface ObjectExpression extends ArmTree, PropertyValue {
+public interface ObjectExpression extends PropertyValue {
 
   List<Property> properties();
 
