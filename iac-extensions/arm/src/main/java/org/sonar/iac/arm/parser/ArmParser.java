@@ -253,11 +253,11 @@ public class ArmParser implements TreeParser<ArmTree> {
       .findFirst();
   }
 
-  private static List<ResourceDeclaration> convertResources(SequenceTree resource) {
+  private List<ResourceDeclaration> convertResources(SequenceTree resource) {
     return resource.elements().stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
-      .map(ArmParser::convertToResourceDeclaration)
+      .map(this::convertToResourceDeclaration)
       .collect(Collectors.toList());
   }
 
@@ -267,12 +267,12 @@ public class ArmParser implements TreeParser<ArmTree> {
       .collect(Collectors.toList());
   }
 
-  private static ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
-    Map<String, SimpleProperty> properties = extractSimpleProperties(tree.elements());
+  private ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
+    Map<String, Property> properties = extractProperties(tree);
 
-    SimpleProperty type = properties.remove("type");
-    SimpleProperty version = properties.remove("apiVersion");
-    SimpleProperty name = properties.remove("name");
+    SimpleProperty type = extractSimpleProperty(properties, "type");
+    SimpleProperty version = extractSimpleProperty(properties, "apiVersion");
+    SimpleProperty name = extractSimpleProperty(properties, "name");
     List<Property> otherProperties = new ArrayList<>(properties.values());
 
     checkMandatoryObject(tree.metadata(), "type", type, "apiVersion", version, "name", name);
@@ -284,16 +284,15 @@ public class ArmParser implements TreeParser<ArmTree> {
     Identifier name = convertToIdentifier(tupleTree.key());
 
     MappingTree outputMapping = toMappingTree(tupleTree.value());
-    Map<String, SimpleProperty> properties = extractSimpleProperties(outputMapping.elements());
-    Map<String, PropertyValue> extractProperties = extractProperties(outputMapping);
+    Map<String, Property> properties = extractProperties(outputMapping);
 
-    SimpleProperty type = properties.remove("type");
-    SimpleProperty condition = properties.remove("condition");
-    SimpleProperty copyCount = properties.remove("copy.count");
-    SimpleProperty copyInput = properties.remove("copy.input");
-    SimpleProperty value = properties.remove("value");
+    SimpleProperty type = extractSimpleProperty(properties, "type");
+    SimpleProperty condition = extractSimpleProperty(properties, "condition");
+    SimpleProperty copyCount = extractSimpleProperty(properties, "copy.count");
+    SimpleProperty copyInput = extractSimpleProperty(properties, "copy.input");
+    SimpleProperty value = extractSimpleProperty(properties, "value");
 
-    for (Map.Entry<String, SimpleProperty> unexpectedProperty : properties.entrySet()) {
+    for (Map.Entry<String, Property> unexpectedProperty : properties.entrySet()) {
       TextRange position = unexpectedProperty.getValue().textRange();
       LOG.debug("Unexpected property '{}' found in output declaration at {}, ignoring it.", unexpectedProperty.getKey(), buildLocation(position));
     }
@@ -344,8 +343,8 @@ public class ArmParser implements TreeParser<ArmTree> {
     return (MappingTree) tree;
   }
 
-  private static Map<String, PropertyValue> extractProperties(MappingTree tree) {
-    return convertToObjectExpression(tree).properties();
+  private static Map<String, Property> extractProperties(MappingTree tree) {
+    return convertToObjectExpression(tree).getMapRepresentation();
   }
 
   /**
@@ -437,10 +436,10 @@ public class ArmParser implements TreeParser<ArmTree> {
     }
   }
 
-  private static SimpleProperty extractSimpleProperty(Map<String, Property> properties, String key) {
+  private SimpleProperty extractSimpleProperty(Map<String, Property> properties, String key) {
     Property value = properties.remove(key);
     if (!value.value().is(ArmTree.Kind.EXPRESSION)) {
-      throw new ParseException("Expecting Expression as value, got " + value.getClass().getSimpleName() + " instead", new BasicTextPointer(value.textRange()), null);
+      throw new ParseException("Expecting Expression as value, got " + value.getClass().getSimpleName() + " instead at " + buildLocation(value.textRange()), new BasicTextPointer(value.textRange()), null);
     }
     return new SimplePropertyImpl(value.key(), (Expression) value.value());
   }
