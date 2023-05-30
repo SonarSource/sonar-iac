@@ -37,16 +37,20 @@ class IpRestrictedAdminAccessCheckTest {
 
   private static List<String> shouldRaiseIssue() {
     List<String> result = new ArrayList<>();
-    for (int i = 0; i < 3; i++) {
-      result.add("securityRules-positives-" + i + ".json");
+    for (int i = 0; i < 4; i++) {
+      result.add("securityRules-positive-" + i + ".json");
     }
     return result;
   }
 
   private static List<String> shouldNotRaiseIssue() {
     List<String> result = new ArrayList<>();
+    for (int i = 0; i < 1; i++) {
+      result.add("bad-type-negative-" + i + ".json");
+    }
+
     for (int i = 0; i < 3; i++) {
-      result.add("securityRules-negatives-" + i + ".json");
+      result.add("securityRules-negative-" + i + ".json");
     }
     return result;
   }
@@ -55,6 +59,7 @@ class IpRestrictedAdminAccessCheckTest {
   @ParameterizedTest(name = "should raise issue for {0}")
   void shouldRaiseIssue(String filename) {
     List<Verifier.Issue> issues = issues(PATH_PREFIX + filename, CHECK);
+    assertThat(issues).hasSize(1);
     for (Verifier.Issue issue : issues) {
       System.out.println(issue);
       assertThat(issue.getMessage()).isEqualTo("Restrict IP addresses authorized to access administration services");

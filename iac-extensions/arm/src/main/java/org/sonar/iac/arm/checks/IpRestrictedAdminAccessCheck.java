@@ -30,16 +30,21 @@ import org.sonar.iac.common.api.checks.InitContext;
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck implements IacCheck {
 
-  private static final List<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = List.of("*", "0.0.0.0/0", "::/0");
+  private static final List<String> TYPES = List.of(
+    "Microsoft.Network/networkSecurityGroups/securityRules",
+    "Microsoft.Network/networkSecurityGroup");
+  private static final List<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = List.of("*", "0.0.0.0/0", "::/0", "Internet");
   @Override
   public void initialize(InitContext init) {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
-      Map<String, Property> propertiesByKey = resource.propertiesByKey();
-      Property destinationPortRange = propertiesByKey.get("sourceAddressPrefix");
-      if(destinationPortRange != null) {
-        String value = destinationPortRange.value().value();
-        if (SOURCE_ADDRESS_PREFIX_SENSITIVE.contains(value)) {
-          ctx.reportIssue(destinationPortRange, "Restrict IP addresses authorized to access administration services");
+      if (TYPES.contains(resource.type())) {
+        Map<String, Property> propertiesByKey = resource.propertiesByKey();
+        Property destinationPortRange = propertiesByKey.get("sourceAddressPrefix");
+        if (destinationPortRange != null) {
+          String value = destinationPortRange.value().value();
+          if (SOURCE_ADDRESS_PREFIX_SENSITIVE.contains(value)) {
+            ctx.reportIssue(destinationPortRange, "Restrict IP addresses authorized to access administration services");
+          }
         }
       }
     });
