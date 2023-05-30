@@ -59,9 +59,7 @@ class ResourceDeclarationTest {
       "    {",
       "      \"type\": \"Microsoft.Kusto/clusters\",",
       "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": \"myResource\",",
-      "      \"other properties 1\": {\"obj\": \"random location\"},",
-      "      \"other properties 2\": [\"val\"]",
+      "      \"name\": \"myResource\"",
       "    }",
       "  ]",
       "}");
@@ -79,6 +77,36 @@ class ResourceDeclarationTest {
       .hasValue("myResource")
       .hasRange(6, 14, 6, 26);
 
+    assertThat(resourceDeclaration.properties()).isEmpty();
+
+    List<Tree> children = resourceDeclaration.children();
+    assertThat(children).hasSize(6);
+
+    assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "name").hasRange(6, 6, 6, 12);
+    assertThat((ArmTree) children.get(1)).is(EXPRESSION).has("value", "myResource").hasRange(6, 14, 6, 26);
+    assertThat((ArmTree) children.get(2)).is(IDENTIFIER).has("value", "apiVersion").hasRange(5, 6, 5, 18);
+    assertThat((ArmTree) children.get(3)).is(EXPRESSION).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
+    assertThat((ArmTree) children.get(4)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
+    assertThat((ArmTree) children.get(5)).is(EXPRESSION).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);;
+  }
+  @Test
+  void shouldParseResourceWithExtraProperties() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"type\": \"Microsoft.Kusto/clusters\",",
+      "      \"apiVersion\": \"2022-12-29\",",
+      "      \"name\": \"myResource\",",
+      "      \"other properties 1\": {\"obj\": \"random location\"},",
+      "      \"other properties 2\": [\"val\"]",
+      "    }",
+      "  ]",
+      "}");
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
+
+    ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
     List<Property> properties = resourceDeclaration.properties();
     assertThat(properties).hasSize(2);
 
@@ -96,25 +124,12 @@ class ResourceDeclarationTest {
     assertThat(properties.get(1).value().is(ARRAY_EXPRESSION)).isTrue();
     ArrayExpression arrayExpression = (ArrayExpression) properties.get(1).value();
     assertThat(arrayExpression.values()).hasSize(1);
+    assertThat(arrayExpression.children()).hasSize(1);
     PropertyValue arrValue = arrayExpression.values().get(0);
     assertThat(arrValue.is(EXPRESSION)).isTrue();
     assertThat(((Expression) arrValue).value()).isEqualTo("val");
 
     IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 53);
-
-    List<Tree> children = resourceDeclaration.children();
-    assertThat(children).hasSize(10);
-
-    assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "name").hasRange(6, 6, 6, 12);
-    assertThat((ArmTree) children.get(1)).is(EXPRESSION).has("value", "myResource").hasRange(6, 14, 6, 26);
-    assertThat((ArmTree) children.get(2)).is(IDENTIFIER).has("value", "apiVersion").hasRange(5, 6, 5, 18);
-    assertThat((ArmTree) children.get(3)).is(EXPRESSION).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
-    assertThat((ArmTree) children.get(4)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
-    assertThat((ArmTree) children.get(5)).is(EXPRESSION).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
-    assertThat((ArmTree) children.get(6)).is(IDENTIFIER).has("value", "other properties 1").hasRange(7, 6, 7, 26);
-    assertThat((ArmTree) children.get(7)).is(OBJECT_EXPRESSION).hasRange(7, 29, 7, 53);
-    assertThat((ArmTree) children.get(8)).is(IDENTIFIER).has("value", "other properties 2").hasRange(8, 6, 8, 26);
-    assertThat((ArmTree) children.get(9)).is(ARRAY_EXPRESSION).hasRange(8, 28, 8, 35);
   }
 
   @Test
