@@ -38,7 +38,7 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
-public class OutputDeclarationConverter extends ArmConverter {
+public class OutputDeclarationConverter extends ArmBaseConverter {
 
   private static final Logger LOG = Loggers.get(OutputDeclarationConverter.class);
 
@@ -82,7 +82,7 @@ public class OutputDeclarationConverter extends ArmConverter {
 
     for (Map.Entry<String, Property> unexpectedProperty : properties.entrySet()) {
       TextRange position = unexpectedProperty.getValue().textRange();
-      LOG.debug("Unexpected property '{}' found in output declaration at {}, ignoring it.", unexpectedProperty.getKey(), buildLocation(position));
+      LOG.debug("Unexpected property '{}' found in output declaration at {}, ignoring it.", unexpectedProperty.getKey(), filenameAndPosition(position));
     }
 
     return new OutputDeclarationImpl(name, type, condition, copyCount, copyInput, value);

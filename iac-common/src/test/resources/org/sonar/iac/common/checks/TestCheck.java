@@ -1,4 +1,4 @@
-package org.sonar.iac.common.checks;
+package org.sonar.iac.common.checks
 
 class TestCheck {
 }

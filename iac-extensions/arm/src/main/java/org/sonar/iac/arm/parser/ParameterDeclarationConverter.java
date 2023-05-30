@@ -41,7 +41,7 @@ import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
-public class ParameterDeclarationConverter extends ArmConverter {
+public class ParameterDeclarationConverter extends ArmBaseConverter {
 
   public ParameterDeclarationConverter(@Nullable InputFileContext inputFileContext) {
     super(inputFileContext);

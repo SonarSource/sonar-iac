@@ -35,7 +35,7 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
-public class ResourceDeclarationConverter extends ArmConverter {
+public class ResourceDeclarationConverter extends ArmBaseConverter {
 
   public ResourceDeclarationConverter(@Nullable InputFileContext inputFileContext) {
     super(inputFileContext);

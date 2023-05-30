@@ -53,13 +53,13 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-public class ArmConverter {
+public class ArmBaseConverter {
 
-  private static final Logger LOG = Loggers.get(ArmConverter.class);
+  private static final Logger LOG = Loggers.get(ArmBaseConverter.class);
   @Nullable
   protected final InputFileContext inputFileContext;
 
-  public ArmConverter(@Nullable InputFileContext inputFileContext) {
+  public ArmBaseConverter(@Nullable InputFileContext inputFileContext) {
     this.inputFileContext = inputFileContext;
   }
 
@@ -76,13 +76,8 @@ public class ArmConverter {
         () -> new ParseException("Expecting ScalarTree to convert to Identifier, got " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null));
   }
 
-  public Expression convertToExpression(YamlTree tree) {
-    return Optional.of(tree)
-      .filter(ScalarTree.class::isInstance)
-      .map(ScalarTree.class::cast)
-      .map(scalarTree -> new ExpressionImpl(scalarTree.value(), scalarTree.metadata()))
-      .orElseThrow(
-        () -> new ParseException("Expecting ScalarTree to convert to Expression, got " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null));
+  public Expression convertToExpression(ScalarTree tree) {
+    return new ExpressionImpl(tree.value(), tree.metadata());
   }
 
   public ObjectExpression convertToObjectExpression(MappingTree tree) {
@@ -109,7 +104,7 @@ public class ArmConverter {
     } else if (tree instanceof MappingTree) {
       return convertToObjectExpression((MappingTree) tree);
     } else if (tree instanceof ScalarTree) {
-      return convertToExpression(tree);
+      return convertToExpression((ScalarTree) tree);
     } else {
       throw new ParseException("Couldn't convert to PropertyValue, unsupported class " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null);
     }
@@ -118,7 +113,7 @@ public class ArmConverter {
   public SimpleProperty extractMandatorySimpleProperty(YamlTreeMetadata metadata, Map<String, Property> properties, String key) {
     Property value = properties.remove(key);
     if (value == null) {
-      throw new ParseException("Missing mandatory attribute '" + key + "' at " + buildLocation(metadata.textRange()), new BasicTextPointer(metadata.textRange()), null);
+      throw new ParseException("Missing mandatory attribute '" + key + "' at " + filenameAndPosition(metadata.textRange()), new BasicTextPointer(metadata.textRange()), null);
     }
     return convertToSimpleProperty(value);
   }
@@ -142,7 +137,7 @@ public class ArmConverter {
     }
     if (!(value.value() instanceof ArrayExpression)) {
       throw new ParseException("extractArrayExpression: Expecting ArrayExpression in property value, got " + value.value().getClass().getSimpleName() + " instead at " +
-        buildLocation(value.value().textRange()), new BasicTextPointer(value.value().textRange()), null);
+        filenameAndPosition(value.value().textRange()), new BasicTextPointer(value.value().textRange()), null);
     }
     return (ArrayExpression) value.value();
   }
@@ -154,7 +149,7 @@ public class ArmConverter {
     }
     if (!property.value().is(ArmTree.Kind.EXPRESSION)) {
       throw new ParseException("convertToSimpleProperty: Expecting Expression in property value, got " + property.value().getClass().getSimpleName() + " instead at " +
-        buildLocation(property.value().textRange()), new BasicTextPointer(property.value().textRange()), null);
+        filenameAndPosition(property.value().textRange()), new BasicTextPointer(property.value().textRange()), null);
     }
     return new SimplePropertyImpl(property.key(), (Expression) property.value());
   }
@@ -177,7 +172,7 @@ public class ArmConverter {
   public Expression toExpression(PropertyValue propertyValue) {
     if (!propertyValue.is(ArmTree.Kind.EXPRESSION)) {
       throw new ParseException("toExpression: Expecting Expression, got " + propertyValue.getClass().getSimpleName() + " instead at " +
-        buildLocation(propertyValue.textRange()), new BasicTextPointer(propertyValue.textRange()), null);
+        filenameAndPosition(propertyValue.textRange()), new BasicTextPointer(propertyValue.textRange()), null);
     }
     return (Expression) propertyValue;
   }
@@ -185,20 +180,12 @@ public class ArmConverter {
   public ObjectExpression toObjectExpression(PropertyValue propertyValue) {
     if (!propertyValue.is(ArmTree.Kind.OBJECT_EXPRESSION)) {
       throw new ParseException("toObjectExpression: Expecting ObjectExpression, got " + propertyValue.getClass().getSimpleName() + " instead at " +
-        buildLocation(propertyValue.textRange()), new BasicTextPointer(propertyValue.textRange()), null);
+        filenameAndPosition(propertyValue.textRange()), new BasicTextPointer(propertyValue.textRange()), null);
     }
     return (ObjectExpression) propertyValue;
   }
 
   // Log related methods
-  public String buildLocation(TextRange position) {
-    String filename = "";
-    if (inputFileContext != null) {
-      filename = inputFileContext.inputFile.filename() + ":";
-    }
-    return filename + position.start().line() + ":" + position.start().lineOffset();
-  }
-
   public String filenameAndPosition(TextRange textRange) {
     String position = textRange.start().line() + ":" + textRange.start().lineOffset();
     if (inputFileContext != null) {

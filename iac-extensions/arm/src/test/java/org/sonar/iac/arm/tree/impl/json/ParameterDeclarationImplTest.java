@@ -125,6 +125,38 @@ class ParameterDeclarationImplTest {
   }
 
   @Test
+  void shouldFailOnInvalidAllowedValues() {
+    String code = code("{",
+      "    \"parameters\": {",
+      "        \"exampleParam\": {",
+      "            \"type\": \"string\",",
+      "            \"allowedValues\": \"invalid format\"",
+      "        }",
+      "    }",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("extractArrayExpression: Expecting ArrayExpression in property value, got ExpressionImpl instead at 5:29");
+  }
+
+  @Test
+  void shouldFailOnInvalidAllowedValuesList() {
+    String code = code("{",
+      "    \"parameters\": {",
+      "        \"exampleParam\": {",
+      "            \"type\": \"string\",",
+      "            \"allowedValues\": [\"good\", [\"bad\"]]",
+      "        }",
+      "    }",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("toExpression: Expecting Expression, got ArrayExpressionImpl instead at 5:38");
+  }
+
+  @Test
   void shouldParseParametersOfAllTypes() throws IOException {
     DefaultInputFile file = IacTestUtils.inputFile("parameters_all_types.json", "json");
     File tree = (File) parser.parse(file.contents(), mockFile);
