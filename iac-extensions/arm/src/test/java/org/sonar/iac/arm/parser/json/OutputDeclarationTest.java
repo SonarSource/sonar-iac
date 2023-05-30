@@ -256,7 +256,7 @@ class OutputDeclarationTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Unsupported type for extractProperties, expected MappingTree or ScalarTree, got 'SequenceTreeImpl'");
+    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 5:15");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);

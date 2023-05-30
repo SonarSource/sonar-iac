@@ -20,11 +20,13 @@
 package org.sonar.iac.arm.parser.json;
 
 import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -74,7 +76,8 @@ class ResourceDeclarationTest {
     List<Property> properties = resourceDeclaration.properties();
     assertThat(properties).hasSize(1);
     assertThat(properties.get(0).key().value()).isEqualTo("location");
-    assertThat(properties.get(0).value().value()).isEqualTo("random location");
+    assertThat(properties.get(0).value().is(EXPRESSION)).isTrue();
+    assertThat(((Expression) properties.get(0).value()).value()).isEqualTo("random location");
     IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 35);
 
     List<Tree> children = resourceDeclaration.children();
@@ -104,7 +107,7 @@ class ResourceDeclarationTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Unsupported type for extractProperties, expected MappingTree or ScalarTree, got 'SequenceTreeImpl'");
+      .hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 6:14");
   }
 
   @ParameterizedTest
@@ -162,7 +165,8 @@ class ResourceDeclarationTest {
     assertThat(resourceDeclaration1.name().value()).isEqualTo("name1");
     assertThat(resourceDeclaration1.properties()).hasSize(1);
     assertThat(resourceDeclaration1.properties().get(0).key().value()).isEqualTo("property1");
-    assertThat(resourceDeclaration1.properties().get(0).value().value()).isEqualTo("value1");
+    assertThat(resourceDeclaration1.properties().get(0).value().is(EXPRESSION)).isTrue();
+    assertThat(((Expression) resourceDeclaration1.properties().get(0).value()).value()).isEqualTo("value1");
 
     ResourceDeclaration resourceDeclaration2 = (ResourceDeclaration) tree.statements().get(1);
     assertThat(resourceDeclaration2.type()).isEqualTo("type2");
@@ -170,6 +174,7 @@ class ResourceDeclarationTest {
     assertThat(resourceDeclaration2.name().value()).isEqualTo("name2");
     assertThat(resourceDeclaration2.properties()).hasSize(1);
     assertThat(resourceDeclaration2.properties().get(0).key().value()).isEqualTo("property2");
-    assertThat(resourceDeclaration2.properties().get(0).value().value()).isEqualTo("value2");
+    assertThat(resourceDeclaration2.properties().get(0).value().is(EXPRESSION)).isTrue();
+    assertThat(((Expression) resourceDeclaration2.properties().get(0).value()).value()).isEqualTo("value2");
   }
 }

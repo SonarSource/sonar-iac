@@ -28,33 +28,36 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
+
+import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
 
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
 
   private final Identifier identifier;
-  private final Property type;
-  private final Property defaultValue;
+  private final SimpleProperty type;
+  private final SimpleProperty defaultValue;
   private final List<Expression> allowedValues;
-  private final Property description;
-  private final Property minValue;
-  private final Property maxValue;
-  private final Property minLength;
-  private final Property maxLength;
+  private final SimpleProperty description;
+  private final SimpleProperty minValue;
+  private final SimpleProperty maxValue;
+  private final SimpleProperty minLength;
+  private final SimpleProperty maxLength;
 
   // Methods should not have too many parameters
   @SuppressWarnings("java:S107")
   public ParameterDeclarationImpl(
     Identifier identifier,
-    Property type,
-    @Nullable Property defaultValue,
+    SimpleProperty type,
+    @Nullable SimpleProperty defaultValue,
     List<Expression> allowedValues,
-    @Nullable Property description,
-    @Nullable Property minValue,
-    @Nullable Property maxValue,
-    @Nullable Property minLength,
-    @Nullable Property maxLength) {
+    @Nullable SimpleProperty description,
+    @Nullable SimpleProperty minValue,
+    @Nullable SimpleProperty maxValue,
+    @Nullable SimpleProperty minLength,
+    @Nullable SimpleProperty maxLength) {
 
     this.identifier = identifier;
     this.type = type;
@@ -155,12 +158,5 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @Override
   public Kind getKind() {
     return Kind.PARAMETER_DECLARATION;
-  }
-
-  private static void addChildrenIfPresent(List<Tree> children, @Nullable Property property) {
-    if (property != null) {
-      children.add(property.key());
-      children.add(property.value());
-    }
   }
 }

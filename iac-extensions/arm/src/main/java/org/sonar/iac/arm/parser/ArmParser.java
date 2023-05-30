@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
@@ -136,20 +137,20 @@ public class ArmParser implements TreeParser<ArmTree> {
 
     List<TupleTree> elements = ((MappingTreeImpl) tupleTree.value()).elements();
     Map<String, TupleTree> byKeys = associateByKey(elements);
-    Property type = extractParameterByKey(byKeys, "type");
+    SimpleProperty type = extractParameterByKey(byKeys, "type");
     if (type == null) {
       String fileAndPosition = filenameAndPosition(tupleTree.metadata().textRange());
       String message = String.format("Missing required field 'type' in Parameter %s at %s", id, fileAndPosition);
       throw new ParseException(message, null, null);
     }
 
-    Property defaultValue = extractParameterByKey(byKeys, "defaultValue");
-    Property minValue = extractParameterByKey(byKeys, "minValue");
-    Property maxValue = extractParameterByKey(byKeys, "maxValue");
-    Property minLength = extractParameterByKey(byKeys, "minLength");
-    Property maxLength = extractParameterByKey(byKeys, "maxLength");
+    SimpleProperty defaultValue = extractParameterByKey(byKeys, "defaultValue");
+    SimpleProperty minValue = extractParameterByKey(byKeys, "minValue");
+    SimpleProperty maxValue = extractParameterByKey(byKeys, "maxValue");
+    SimpleProperty minLength = extractParameterByKey(byKeys, "minLength");
+    SimpleProperty maxLength = extractParameterByKey(byKeys, "maxLength");
     List<Expression> allowedValues = extractParameterAllowedValues(byKeys);
-    Property description = extractParameterDescription(byKeys);
+    SimpleProperty description = extractParameterDescription(byKeys);
 
     checkUnexpectedProperties(byKeys, id);
 
@@ -165,12 +166,12 @@ public class ArmParser implements TreeParser<ArmTree> {
       maxLength);
   }
 
-  private static Property extractParameterByKey(Map<String, TupleTree> byKeys, String name) {
-    Property result = null;
+  private static SimpleProperty extractParameterByKey(Map<String, TupleTree> byKeys, String name) {
+    SimpleProperty result = null;
     TupleTree typeTuple = byKeys.get(name);
     if (typeTuple != null) {
       try {
-        result = convertTupleToProperty(typeTuple);
+        result = convertTupleToSimpleProperty(typeTuple);
       } catch (ParseException e) {
         // TODO SONARIAC-841 please remove this try/catch when all types of defaultValue will be supported
         LOG.debug("Unsupported type of defaultValue, ignoring it");
@@ -191,13 +192,13 @@ public class ArmParser implements TreeParser<ArmTree> {
     return allowedValues;
   }
 
-  private static Property extractParameterDescription(Map<String, TupleTree> byKeys) {
-    Property description = null;
+  private static SimpleProperty extractParameterDescription(Map<String, TupleTree> byKeys) {
+    SimpleProperty description = null;
     TupleTree tupleTree = byKeys.get("metadata");
     if (tupleTree != null) {
       description = ((MappingTree) tupleTree.value()).elements().stream()
         .filter(tuple -> "description".equals(((ScalarTree) tuple.key()).value()))
-        .map(ArmParser::convertTupleToProperty)
+        .map(ArmParser::convertTupleToSimpleProperty)
         .findFirst()
         .orElse(null);
     }
@@ -288,9 +289,17 @@ public class ArmParser implements TreeParser<ArmTree> {
 
     SimpleProperty type = extractSimpleProperty(properties, "type");
     SimpleProperty condition = extractSimpleProperty(properties, "condition");
-    SimpleProperty copyCount = extractSimpleProperty(properties, "copy.count");
-    SimpleProperty copyInput = extractSimpleProperty(properties, "copy.input");
     SimpleProperty value = extractSimpleProperty(properties, "value");
+    SimpleProperty copyCount = null;
+    SimpleProperty copyInput = null;
+
+    if (properties.containsKey("copy")) {
+      ObjectExpression copy = toObjectExpression(properties.remove("copy").value());
+      if (copy != null) {
+        copyCount = convertToSimpleProperty(copy.getPropertyByName("count"));
+        copyInput = convertToSimpleProperty(copy.getPropertyByName("input"));
+      }
+    }
 
     for (Map.Entry<String, Property> unexpectedProperty : properties.entrySet()) {
       TextRange position = unexpectedProperty.getValue().textRange();
@@ -347,40 +356,8 @@ public class ArmParser implements TreeParser<ArmTree> {
     return convertToObjectExpression(tree).getMapRepresentation();
   }
 
-  /**
-   * TODO: SONARIAC-840, Property value could potentially be a list of Property (or even an array), change this method behaviour to not concatenate them with a separator.
-   * Transform a collection of TupleTree into a Map of Property to easily find specific properties and process them.
-   * This is a recursive method which will also convert sub-object, adding a prefix at every level.
-   * Example :
-   * {
-   *   "key1" : "value1",
-   *   "key2 : {
-   *     "key3" : "value3"
-   *   }
-   * }
-   * => Will be translated into this Map {"key1":"value1", "key2.key3":"value3"}
-   */
-  private static Map<String, SimpleProperty> extractSimpleProperties(Collection<TupleTree> tuples) {
-    Map<String, SimpleProperty> properties = new HashMap<>();
-    return extractSimpleProperties(properties, "", tuples);
-  }
-
-  private static Map<String, SimpleProperty> extractSimpleProperties(Map<String, SimpleProperty> properties, String prefix, Collection<TupleTree> tuples) {
-    for (TupleTree tuple : tuples) {
-      String tupleKey = ((ScalarTree) tuple.key()).value();
-      YamlTree tupleValue = tuple.value();
-      if (tupleValue instanceof MappingTree) {
-        MappingTree mappingTree = (MappingTree) tupleValue;
-        extractSimpleProperties(properties, prefix + tupleKey + ".", mappingTree.elements());
-      } else if (tupleValue instanceof ScalarTree) {
-        properties.put(prefix + tupleKey, convertTupleToSimpleProperty(tuple));
-      } else {
-        throw new ParseException("Unsupported type for extractProperties, expected MappingTree or ScalarTree, got '" + tupleValue.getClass().getSimpleName() + "'",
-          new BasicTextPointer(tupleValue.metadata().textRange()), null);
-      }
-    }
-
-    return properties;
+  private static Property convertTupleToProperty(TupleTree tuple) {
+    return new PropertyImpl(convertToIdentifier(tuple.key()), convertToPropertyValue(tuple.value()));
   }
 
   private static SimpleProperty convertTupleToSimpleProperty(TupleTree tuple) {
@@ -406,11 +383,10 @@ public class ArmParser implements TreeParser<ArmTree> {
   }
 
   private static ArrayExpression convertToArrayExpression(SequenceTree tree) {
-    return new ArrayExpressionImpl(
+    return new ArrayExpressionImpl(tree.metadata(),
       tree.elements().stream()
-      .map(ArmParser::convertToPropertyValue)
-      .collect(Collectors.toList())
-    );
+        .map(ArmParser::convertToPropertyValue)
+        .collect(Collectors.toList()));
   }
 
   private static ObjectExpression convertToObjectExpression(MappingTree tree) {
@@ -432,15 +408,39 @@ public class ArmParser implements TreeParser<ArmTree> {
     } else if (tree instanceof ScalarTree) {
       return convertToExpression(tree);
     } else {
-      throw new ParseException("Coldn't convert to PropertyValue, unsupported class " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null)
+      throw new ParseException("Couldn't convert to PropertyValue, unsupported class " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null);
     }
   }
 
   private SimpleProperty extractSimpleProperty(Map<String, Property> properties, String key) {
     Property value = properties.remove(key);
-    if (!value.value().is(ArmTree.Kind.EXPRESSION)) {
-      throw new ParseException("Expecting Expression as value, got " + value.getClass().getSimpleName() + " instead at " + buildLocation(value.textRange()), new BasicTextPointer(value.textRange()), null);
+    if (value == null) {
+      return null;
     }
-    return new SimplePropertyImpl(value.key(), (Expression) value.value());
+    return convertToSimpleProperty(value);
+  }
+
+  @CheckForNull
+  private SimpleProperty convertToSimpleProperty(@Nullable Property property) {
+    if (property == null) {
+      return null;
+    }
+    if (!property.value().is(ArmTree.Kind.EXPRESSION)) {
+      throw new ParseException("convertToSimpleProperty: Expecting Expression in property value, got " + property.value().getClass().getSimpleName() + " instead at " +
+        buildLocation(property.value().textRange()), new BasicTextPointer(property.value().textRange()), null);
+    }
+    return new SimplePropertyImpl(property.key(), (Expression) property.value());
+  }
+
+  @CheckForNull
+  private ObjectExpression toObjectExpression(@Nullable PropertyValue propertyValue) {
+    if (propertyValue == null) {
+      return null;
+    }
+    if (!propertyValue.is(ArmTree.Kind.OBJECT_EXPRESSION)) {
+      throw new ParseException("toObjectExpression: Expecting ObjectExpression, got " + propertyValue.getClass().getSimpleName() + " instead at " +
+        buildLocation(propertyValue.textRange()), new BasicTextPointer(propertyValue.textRange()), null);
+    }
+    return (ObjectExpression) propertyValue;
   }
 }
