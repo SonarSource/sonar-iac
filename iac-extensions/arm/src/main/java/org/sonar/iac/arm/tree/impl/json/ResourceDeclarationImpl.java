@@ -28,8 +28,6 @@ import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.arm.tree.impl.json.ArmHelper.propertyValue;
-
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
   private final SimpleProperty name;
