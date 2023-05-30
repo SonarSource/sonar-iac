@@ -278,4 +278,40 @@ class OutputDeclarationTest {
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(21);
   }
+
+  @Test
+  void shouldFailOnCopyUnexpectedFormat() {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      "      \"type\": \"my type\",",
+      "      \"copy\": []",
+      "    }",
+      "  }",
+      "}");
+    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    assertThat(parseException).hasMessage("toObjectExpression: Expecting ObjectExpression, got ArrayExpressionImpl instead at 5:14");
+    assertThat(parseException.getDetails()).isNull();
+    assertThat(parseException.getPosition().line()).isEqualTo(5);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(14);
+  }
+
+  @Test
+  void shouldFailOnCopyInternalUnexpectedFormat() {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      "      \"type\": \"my type\",",
+      "      \"copy\": {",
+      "        \"count\": []",
+      "      }",
+      "    }",
+      "  }",
+      "}");
+    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 6:17");
+    assertThat(parseException.getDetails()).isNull();
+    assertThat(parseException.getPosition().line()).isEqualTo(6);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(17);
+  }
 }

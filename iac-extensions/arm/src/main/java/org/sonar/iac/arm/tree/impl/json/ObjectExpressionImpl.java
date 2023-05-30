@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -56,6 +57,7 @@ public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectE
   }
 
   @Override
+  @CheckForNull
   public Property getPropertyByName(String propertyName) {
     return getMapRepresentation().get(propertyName);
   }

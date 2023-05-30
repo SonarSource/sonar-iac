@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -293,10 +292,8 @@ public class ArmParser implements TreeParser<ArmTree> {
 
     if (properties.containsKey("copy")) {
       ObjectExpression copy = toObjectExpression(properties.remove("copy").value());
-      if (copy != null) {
-        copyCount = convertToSimpleProperty(copy.getPropertyByName("count"));
-        copyInput = convertToSimpleProperty(copy.getPropertyByName("input"));
-      }
+      copyCount = convertToSimpleProperty(copy.getPropertyByName("count"));
+      copyInput = convertToSimpleProperty(copy.getPropertyByName("input"));
     }
 
     for (Map.Entry<String, Property> unexpectedProperty : properties.entrySet()) {
@@ -324,10 +321,6 @@ public class ArmParser implements TreeParser<ArmTree> {
 
   private static Map<String, Property> extractProperties(MappingTree tree) {
     return convertToObjectExpression(tree).getMapRepresentation();
-  }
-
-  private static Property convertTupleToProperty(TupleTree tuple) {
-    return new PropertyImpl(convertToIdentifier(tuple.key()), convertToPropertyValue(tuple.value()));
   }
 
   private static SimpleProperty convertTupleToSimpleProperty(TupleTree tuple) {
@@ -410,11 +403,7 @@ public class ArmParser implements TreeParser<ArmTree> {
     return new SimplePropertyImpl(property.key(), (Expression) property.value());
   }
 
-  @CheckForNull
-  private ObjectExpression toObjectExpression(@Nullable PropertyValue propertyValue) {
-    if (propertyValue == null) {
-      return null;
-    }
+  private ObjectExpression toObjectExpression(PropertyValue propertyValue) {
     if (!propertyValue.is(ArmTree.Kind.OBJECT_EXPRESSION)) {
       throw new ParseException("toObjectExpression: Expecting ObjectExpression, got " + propertyValue.getClass().getSimpleName() + " instead at " +
         buildLocation(propertyValue.textRange()), new BasicTextPointer(propertyValue.textRange()), null);

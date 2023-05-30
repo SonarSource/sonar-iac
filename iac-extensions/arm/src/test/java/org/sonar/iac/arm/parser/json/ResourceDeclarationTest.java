@@ -20,15 +20,17 @@
 package org.sonar.iac.arm.parser.json;
 
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
@@ -38,8 +40,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.ARRAY_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PROPERTY;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -55,7 +60,8 @@ class ResourceDeclarationTest {
       "      \"type\": \"Microsoft.Kusto/clusters\",",
       "      \"apiVersion\": \"2022-12-29\",",
       "      \"name\": \"myResource\",",
-      "      \"location\": \"random location\",",
+      "      \"other properties 1\": {\"obj\": \"random location\"},",
+      "      \"other properties 2\": [\"val\"]",
       "    }",
       "  ]",
       "}");
@@ -74,14 +80,30 @@ class ResourceDeclarationTest {
       .hasRange(6, 14, 6, 26);
 
     List<Property> properties = resourceDeclaration.properties();
-    assertThat(properties).hasSize(1);
-    assertThat(properties.get(0).key().value()).isEqualTo("location");
-    assertThat(properties.get(0).value().is(EXPRESSION)).isTrue();
-    assertThat(((Expression) properties.get(0).value()).value()).isEqualTo("random location");
-    IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 35);
+    assertThat(properties).hasSize(2);
+
+    assertThat(properties.get(0).is(PROPERTY)).isTrue();
+    assertThat(properties.get(0).children()).hasSize(2);
+    assertThat(properties.get(0).key().value()).isEqualTo("other properties 1");
+    assertThat(properties.get(0).value().is(OBJECT_EXPRESSION)).isTrue();
+    ObjectExpression objExpression = (ObjectExpression) properties.get(0).value();
+    assertThat(objExpression.properties()).hasSize(1);
+    PropertyValue objValue = objExpression.getPropertyByName("obj").value();
+    assertThat(objValue.is(EXPRESSION)).isTrue();
+    assertThat(((Expression) objValue).value()).isEqualTo("random location");
+
+    assertThat(properties.get(1).key().value()).isEqualTo("other properties 2");
+    assertThat(properties.get(1).value().is(ARRAY_EXPRESSION)).isTrue();
+    ArrayExpression arrayExpression = (ArrayExpression) properties.get(1).value();
+    assertThat(arrayExpression.values()).hasSize(1);
+    PropertyValue arrValue = arrayExpression.values().get(0);
+    assertThat(arrValue.is(EXPRESSION)).isTrue();
+    assertThat(((Expression) arrValue).value()).isEqualTo("val");
+
+    IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 53);
 
     List<Tree> children = resourceDeclaration.children();
-    assertThat(children).hasSize(8);
+    assertThat(children).hasSize(10);
 
     assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "name").hasRange(6, 6, 6, 12);
     assertThat((ArmTree) children.get(1)).is(EXPRESSION).has("value", "myResource").hasRange(6, 14, 6, 26);
@@ -89,8 +111,10 @@ class ResourceDeclarationTest {
     assertThat((ArmTree) children.get(3)).is(EXPRESSION).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
     assertThat((ArmTree) children.get(4)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
     assertThat((ArmTree) children.get(5)).is(EXPRESSION).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
-    assertThat((ArmTree) children.get(6)).is(IDENTIFIER).has("value", "location").hasRange(7, 6, 7, 16);
-    assertThat((ArmTree) children.get(7)).is(EXPRESSION).has("value", "random location").hasRange(7, 18, 7, 35);
+    assertThat((ArmTree) children.get(6)).is(IDENTIFIER).has("value", "other properties 1").hasRange(7, 6, 7, 26);
+    assertThat((ArmTree) children.get(7)).is(OBJECT_EXPRESSION).hasRange(7, 29, 7, 53);
+    assertThat((ArmTree) children.get(8)).is(IDENTIFIER).has("value", "other properties 2").hasRange(8, 6, 8, 26);
+    assertThat((ArmTree) children.get(9)).is(ARRAY_EXPRESSION).hasRange(8, 28, 8, 35);
   }
 
   @Test

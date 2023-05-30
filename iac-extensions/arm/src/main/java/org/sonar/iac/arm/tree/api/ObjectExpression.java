@@ -21,6 +21,7 @@ package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 
 public interface ObjectExpression extends PropertyValue {
 
@@ -28,5 +29,6 @@ public interface ObjectExpression extends PropertyValue {
 
   Map<String, Property> getMapRepresentation();
 
+  @CheckForNull
   Property getPropertyByName(String propertyName);
 }
