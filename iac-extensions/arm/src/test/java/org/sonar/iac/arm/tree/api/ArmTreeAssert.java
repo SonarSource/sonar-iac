@@ -17,35 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.json;
+package org.sonar.iac.arm.tree.api;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
+import org.assertj.core.api.AbstractAssert;
 
-public class FileImpl extends AbstractArmTreeImpl implements File {
-
-  private final List<Statement> statements;
-
-  public FileImpl(List<Statement> statements) {
-    this.statements = statements;
+public abstract class ArmTreeAssert<SELF extends ArmTreeAssert<SELF, ACTUAL>, ACTUAL extends ArmTree> extends AbstractAssert<SELF, ACTUAL> {
+  protected ArmTreeAssert(ACTUAL actual, Class<?> selfType) {
+    super(actual, selfType);
   }
 
-  @Override
-  public List<Tree> children() {
-    return new ArrayList<>(statements);
-  }
-
-  @Override
-  public List<Statement> statements() {
-    return statements;
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.FILE;
+  public SELF hasKind(ArmTree.Kind kind) {
+    isNotNull();
+    if (actual.getKind() != kind) {
+      failWithMessage("Expected Arm Tree kind to be <%s> but was <%s>", kind, actual.getKind());
+    }
+    return (SELF) this;
   }
 }

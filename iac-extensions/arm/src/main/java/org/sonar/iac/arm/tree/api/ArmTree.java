@@ -37,6 +37,7 @@ public interface ArmTree extends Tree {
   enum Kind implements GrammarRuleKey {
     FILE(File.class),
     RESOURCE_DECLARATION(ResourceDeclaration.class),
+    PARAMETER_DECLARATION(ParameterDeclaration.class),
     EXPRESSION(Expression.class),
     IDENTIFIER(Identifier.class),
     OUTPUT_DECLARATION(OutputDeclaration.class);

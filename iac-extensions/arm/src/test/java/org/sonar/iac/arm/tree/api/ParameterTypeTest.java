@@ -17,35 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.json;
+package org.sonar.iac.arm.tree.api;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
+import org.junit.jupiter.api.Test;
 
-public class FileImpl extends AbstractArmTreeImpl implements File {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final List<Statement> statements;
+class ParameterTypeTest {
 
-  public FileImpl(List<Statement> statements) {
-    this.statements = statements;
+  @Test
+  void shouldReturnArray() {
+    ParameterType parameterType = ParameterType.fromName("array");
+    assertThat(parameterType).isEqualTo(ParameterType.ARRAY);
   }
 
-  @Override
-  public List<Tree> children() {
-    return new ArrayList<>(statements);
-  }
-
-  @Override
-  public List<Statement> statements() {
-    return statements;
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.FILE;
+  @Test
+  void shouldReturnNull() {
+    ParameterType parameterType = ParameterType.fromName("unknown");
+    assertThat(parameterType).isNull();
   }
 }

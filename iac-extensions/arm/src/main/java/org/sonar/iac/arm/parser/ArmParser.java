@@ -21,11 +21,13 @@ package org.sonar.iac.arm.parser;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
@@ -35,6 +37,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
@@ -42,6 +45,7 @@ import org.sonar.iac.arm.tree.impl.json.ExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.json.OutputDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -52,6 +56,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
+import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
@@ -61,6 +66,7 @@ import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 public class ArmParser implements TreeParser<ArmTree> {
 
   private static final Logger LOG = Loggers.get(ArmParser.class);
+  private static final List<String> EXPECTED_KEYS_IN_PARAMETERS = List.of("allowedValues", "metadata", "type", "defaultValue", "minValue", "maxValue", "minLength", "maxLength");
   @Nullable
   private InputFileContext inputFileContext;
 
@@ -92,18 +98,138 @@ public class ArmParser implements TreeParser<ArmTree> {
       List<ResourceDeclaration> resourceDeclarations = convertResources(sequence);
       statements.addAll(resourceDeclarations);
     });
+
     extractOutputsMapping(document).ifPresent(mapping -> {
       List<OutputDeclaration> outputDeclarations = convertOutputsDeclaration(mapping);
       statements.addAll(outputDeclarations);
     });
 
+    List<Statement> params = extractParametersSequence(fileTree)
+      .map(this::convertParameters)
+      .collect(Collectors.toList());
+    statements.addAll(params);
+
     return new FileImpl(statements);
+  }
+
+  private static Stream<TupleTree> extractParametersSequence(FileTree fileTree) {
+    MappingTree document = (MappingTree) fileTree.documents().get(0);
+    return document.elements().stream()
+      .filter(element -> element.key() instanceof ScalarTree)
+      .filter(element -> "parameters".equals(((ScalarTree) element.key()).value()))
+      .map(TupleTree::value)
+      .map(MappingTree.class::cast)
+      .map(MappingTree::elements)
+      .flatMap(List::stream);
+  }
+
+  private ParameterDeclaration convertParameters(TupleTree tupleTree) {
+    String id = ((ScalarTree) tupleTree.key()).value();
+    Identifier identifier = new IdentifierImpl(id, tupleTree.key().metadata());
+
+    List<TupleTree> elements = ((MappingTreeImpl) tupleTree.value()).elements();
+    Map<String, TupleTree> byKeys = associateByKey(elements);
+    Property type = extractParameterByKey(byKeys, "type");
+    if (type == null) {
+      String fileAndPosition = filenameAndPosition(tupleTree.metadata().textRange());
+      String message = String.format("Missing required field 'type' in Parameter %s at %s", id, fileAndPosition);
+      throw new ParseException(message, null, null);
+    }
+
+    Property defaultValue = extractParameterByKey(byKeys, "defaultValue");
+    Property minValue = extractParameterByKey(byKeys, "minValue");
+    Property maxValue = extractParameterByKey(byKeys, "maxValue");
+    Property minLength = extractParameterByKey(byKeys, "minLength");
+    Property maxLength = extractParameterByKey(byKeys, "maxLength");
+    List<Expression> allowedValues = extractParameterAllowedValues(byKeys);
+    Property description = extractParameterDescription(byKeys);
+
+    checkUnexpectedProperties(byKeys, id);
+
+    return new ParameterDeclarationImpl(
+      identifier,
+      type,
+      defaultValue,
+      allowedValues,
+      description,
+      minValue,
+      maxValue,
+      minLength,
+      maxLength);
+  }
+
+  private static Property extractParameterByKey(Map<String, TupleTree> byKeys, String name) {
+    Property result = null;
+    TupleTree typeTuple = byKeys.get(name);
+    if (typeTuple != null) {
+      try {
+        result = convertTupleToProperty(typeTuple);
+      } catch (ParseException e) {
+        // TODO SONARIAC-841 please remove this try/catch when all types of defaultValue will be supported
+        LOG.debug("Unsupported type of defaultValue, ignoring it");
+      }
+    }
+    return result;
+  }
+
+  private static List<Expression> extractParameterAllowedValues(Map<String, TupleTree> byKeys) {
+    List<Expression> allowedValues = Collections.emptyList();
+    TupleTree tupleTree = byKeys.get("allowedValues");
+    if (tupleTree != null) {
+      allowedValues = ((SequenceTree) tupleTree.value()).elements().stream()
+        .map(ScalarTree.class::cast)
+        .map(allowedVal -> new ExpressionImpl(allowedVal.value(), allowedVal.metadata()))
+        .collect(Collectors.toList());
+    }
+    return allowedValues;
+  }
+
+  private static Property extractParameterDescription(Map<String, TupleTree> byKeys) {
+    Property description = null;
+    TupleTree tupleTree = byKeys.get("metadata");
+    if (tupleTree != null) {
+      description = ((MappingTree) tupleTree.value()).elements().stream()
+        .filter(tuple -> "description".equals(((ScalarTree) tuple.key()).value()))
+        .map(ArmParser::convertTupleToProperty)
+        .findFirst()
+        .orElse(null);
+    }
+    return description;
+  }
+
+  private static Map<String, TupleTree> associateByKey(Collection<TupleTree> tuples) {
+    Map<String, TupleTree> properties = new HashMap<>();
+    for (TupleTree tuple : tuples) {
+      String tupleKey = ((ScalarTree) tuple.key()).value();
+      properties.put(tupleKey, tuple);
+    }
+    return properties;
+  }
+
+  private void checkUnexpectedProperties(Map<String, TupleTree> byKeys, String id) {
+    byKeys.entrySet().stream()
+      .filter(element -> !EXPECTED_KEYS_IN_PARAMETERS.contains(element.getKey()))
+      .forEach(element -> {
+        String fileAndPosition = filenameAndPosition(element.getValue().textRange());
+        LOG.debug("Unexpected property `{}` found in parameter {} at {}, ignoring it.", element.getKey(), id, fileAndPosition);
+      });
+  }
+
+  private String filenameAndPosition(TextRange textRange) {
+    String position = textRange.start().line() + ":" + textRange.start().lineOffset();
+    if (inputFileContext != null) {
+      String filename = inputFileContext.inputFile.filename();
+      if (StringUtils.isNotBlank(filename)) {
+        return filename + ":" + position;
+      }
+    }
+    return position;
   }
 
   private static Optional<SequenceTree> extractResourcesSequence(MappingTree document) {
     return document.elements().stream()
       .filter(element -> element.key() instanceof ScalarTree)
-      .filter(element -> ((ScalarTree) element.key()).value().equals("resources"))
+      .filter(element -> "resources".equals(((ScalarTree) element.key()).value()))
       .map(TupleTree::value)
       .filter(SequenceTree.class::isInstance)
       .map(SequenceTree.class::cast)
@@ -113,7 +239,7 @@ public class ArmParser implements TreeParser<ArmTree> {
   private static Optional<MappingTree> extractOutputsMapping(MappingTree document) {
     return document.elements().stream()
       .filter(element -> element.key() instanceof ScalarTree)
-      .filter(element -> ((ScalarTree) element.key()).value().equals("outputs"))
+      .filter(element -> "outputs".equals(((ScalarTree) element.key()).value()))
       .map(TupleTree::value)
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)

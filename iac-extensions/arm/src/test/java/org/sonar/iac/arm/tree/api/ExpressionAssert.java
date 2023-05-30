@@ -17,35 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.json;
+package org.sonar.iac.arm.tree.api;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
+import org.assertj.core.api.Assertions;
+import org.sonar.iac.common.testing.TextRangeAssert;
 
-public class FileImpl extends AbstractArmTreeImpl implements File {
-
-  private final List<Statement> statements;
-
-  public FileImpl(List<Statement> statements) {
-    this.statements = statements;
+public class ExpressionAssert extends ArmTreeAssert<ExpressionAssert, Expression> {
+  private ExpressionAssert(Expression expression) {
+    super(expression, ExpressionAssert.class);
   }
 
-  @Override
-  public List<Tree> children() {
-    return new ArrayList<>(statements);
+  public static ExpressionAssert assertThat(Expression actual) {
+    return new ExpressionAssert(actual);
   }
 
-  @Override
-  public List<Statement> statements() {
-    return statements;
+  public ExpressionAssert hasValue(String value) {
+    Assertions.assertThat(actual.value()).isEqualTo(value);
+    return this;
   }
 
-  @Override
-  public Kind getKind() {
-    return Kind.FILE;
+  public ExpressionAssert hasRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+    TextRangeAssert.assertThat(actual.textRange()).hasRange(startLine, startLineOffset, endLine, endLineOffset);
+    return this;
   }
 }

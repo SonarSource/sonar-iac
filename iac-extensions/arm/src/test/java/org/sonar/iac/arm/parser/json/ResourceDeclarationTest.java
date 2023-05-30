@@ -67,8 +67,8 @@ class ResourceDeclarationTest {
     assertThat(resourceDeclaration.version()).isEqualTo("2022-12-29");
 
     assertThat(resourceDeclaration.name())
-      .is(EXPRESSION)
-      .has("value", "myResource")
+      .hasKind(EXPRESSION)
+      .hasValue("myResource")
       .hasRange(6, 14, 6, 26);
 
     List<Property> properties = resourceDeclaration.properties();
