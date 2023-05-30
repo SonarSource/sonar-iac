@@ -20,18 +20,23 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.PropertyValue;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
-public class PropertyImpl implements Property {
+public class PropertyImpl extends AbstractArmTreeImpl implements Property {
 
   private final Identifier key;
-  private final Expression value;
+  private final PropertyValue value;
 
-  public PropertyImpl(Identifier key, Expression value) {
+  public PropertyImpl(Identifier key, PropertyValue value) {
     this.key = key;
     this.value = value;
   }
@@ -42,12 +47,22 @@ public class PropertyImpl implements Property {
   }
 
   @Override
-  public Expression value() {
+  public PropertyValue value() {
     return value;
   }
 
   @Override
   public TextRange textRange() {
     return TextRanges.merge(List.of(key.textRange(), value.textRange()));
+  }
+
+  @Override
+  public List<Tree> children() {
+    return List.of(key, value);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.PROPERTY;
   }
 }

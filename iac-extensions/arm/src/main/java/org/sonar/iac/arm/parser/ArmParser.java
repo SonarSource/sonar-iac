@@ -34,20 +34,27 @@ import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.impl.json.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.ExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.json.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.json.SimplePropertyImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
@@ -261,11 +268,11 @@ public class ArmParser implements TreeParser<ArmTree> {
   }
 
   private static ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
-    Map<String, Property> properties = extractProperties(tree.elements());
+    Map<String, SimpleProperty> properties = extractSimpleProperties(tree.elements());
 
-    Property type = properties.remove("type");
-    Property version = properties.remove("apiVersion");
-    Property name = properties.remove("name");
+    SimpleProperty type = properties.remove("type");
+    SimpleProperty version = properties.remove("apiVersion");
+    SimpleProperty name = properties.remove("name");
     List<Property> otherProperties = new ArrayList<>(properties.values());
 
     checkMandatoryObject(tree.metadata(), "type", type, "apiVersion", version, "name", name);
@@ -277,15 +284,16 @@ public class ArmParser implements TreeParser<ArmTree> {
     Identifier name = convertToIdentifier(tupleTree.key());
 
     MappingTree outputMapping = toMappingTree(tupleTree.value());
-    Map<String, Property> properties = extractProperties(outputMapping.elements());
+    Map<String, SimpleProperty> properties = extractSimpleProperties(outputMapping.elements());
+    Map<String, PropertyValue> extractProperties = extractProperties(outputMapping);
 
-    Property type = properties.remove("type");
-    Property condition = properties.remove("condition");
-    Property copyCount = properties.remove("copy.count");
-    Property copyInput = properties.remove("copy.input");
-    Property value = properties.remove("value");
+    SimpleProperty type = properties.remove("type");
+    SimpleProperty condition = properties.remove("condition");
+    SimpleProperty copyCount = properties.remove("copy.count");
+    SimpleProperty copyInput = properties.remove("copy.input");
+    SimpleProperty value = properties.remove("value");
 
-    for (Map.Entry<String, Property> unexpectedProperty : properties.entrySet()) {
+    for (Map.Entry<String, SimpleProperty> unexpectedProperty : properties.entrySet()) {
       TextRange position = unexpectedProperty.getValue().textRange();
       LOG.debug("Unexpected property '{}' found in output declaration at {}, ignoring it.", unexpectedProperty.getKey(), buildLocation(position));
     }
@@ -336,6 +344,10 @@ public class ArmParser implements TreeParser<ArmTree> {
     return (MappingTree) tree;
   }
 
+  private static Map<String, PropertyValue> extractProperties(MappingTree tree) {
+    return convertToObjectExpression(tree).properties();
+  }
+
   /**
    * TODO: SONARIAC-840, Property value could potentially be a list of Property (or even an array), change this method behaviour to not concatenate them with a separator.
    * Transform a collection of TupleTree into a Map of Property to easily find specific properties and process them.
@@ -349,20 +361,20 @@ public class ArmParser implements TreeParser<ArmTree> {
    * }
    * => Will be translated into this Map {"key1":"value1", "key2.key3":"value3"}
    */
-  private static Map<String, Property> extractProperties(Collection<TupleTree> tuples) {
-    Map<String, Property> properties = new HashMap<>();
-    return extractProperties(properties, "", tuples);
+  private static Map<String, SimpleProperty> extractSimpleProperties(Collection<TupleTree> tuples) {
+    Map<String, SimpleProperty> properties = new HashMap<>();
+    return extractSimpleProperties(properties, "", tuples);
   }
 
-  private static Map<String, Property> extractProperties(Map<String, Property> properties, String prefix, Collection<TupleTree> tuples) {
+  private static Map<String, SimpleProperty> extractSimpleProperties(Map<String, SimpleProperty> properties, String prefix, Collection<TupleTree> tuples) {
     for (TupleTree tuple : tuples) {
       String tupleKey = ((ScalarTree) tuple.key()).value();
       YamlTree tupleValue = tuple.value();
       if (tupleValue instanceof MappingTree) {
         MappingTree mappingTree = (MappingTree) tupleValue;
-        extractProperties(properties, prefix + tupleKey + ".", mappingTree.elements());
+        extractSimpleProperties(properties, prefix + tupleKey + ".", mappingTree.elements());
       } else if (tupleValue instanceof ScalarTree) {
-        properties.put(prefix + tupleKey, convertTupleToProperty(tuple));
+        properties.put(prefix + tupleKey, convertTupleToSimpleProperty(tuple));
       } else {
         throw new ParseException("Unsupported type for extractProperties, expected MappingTree or ScalarTree, got '" + tupleValue.getClass().getSimpleName() + "'",
           new BasicTextPointer(tupleValue.metadata().textRange()), null);
@@ -372,8 +384,8 @@ public class ArmParser implements TreeParser<ArmTree> {
     return properties;
   }
 
-  private static Property convertTupleToProperty(TupleTree tuple) {
-    return new PropertyImpl(convertToIdentifier(tuple.key()), convertToExpression(tuple.value()));
+  private static SimpleProperty convertTupleToSimpleProperty(TupleTree tuple) {
+    return new SimplePropertyImpl(convertToIdentifier(tuple.key()), convertToExpression(tuple.value()));
   }
 
   private static Identifier convertToIdentifier(YamlTree tree) {
@@ -392,5 +404,44 @@ public class ArmParser implements TreeParser<ArmTree> {
       .map(scalarTree -> new ExpressionImpl(scalarTree.value(), scalarTree.metadata()))
       .orElseThrow(
         () -> new ParseException("Expecting ScalarTree to convert to Expression, got " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null));
+  }
+
+  private static ArrayExpression convertToArrayExpression(SequenceTree tree) {
+    return new ArrayExpressionImpl(
+      tree.elements().stream()
+      .map(ArmParser::convertToPropertyValue)
+      .collect(Collectors.toList())
+    );
+  }
+
+  private static ObjectExpression convertToObjectExpression(MappingTree tree) {
+    List<Property> properties = new ArrayList<>();
+    tree.elements()
+      .forEach(tupleTree -> {
+        Identifier key = convertToIdentifier(tupleTree.key());
+        PropertyValue value = convertToPropertyValue(tupleTree.value());
+        properties.add(new PropertyImpl(key, value));
+      });
+    return new ObjectExpressionImpl(properties);
+  }
+
+  private static PropertyValue convertToPropertyValue(YamlTree tree) {
+    if (tree instanceof SequenceTree) {
+      return convertToArrayExpression((SequenceTree) tree);
+    } else if (tree instanceof MappingTree) {
+      return convertToObjectExpression((MappingTree) tree);
+    } else if (tree instanceof ScalarTree) {
+      return convertToExpression(tree);
+    } else {
+      throw new ParseException("Coldn't convert to PropertyValue, unsupported class " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null)
+    }
+  }
+
+  private static SimpleProperty extractSimpleProperty(Map<String, Property> properties, String key) {
+    Property value = properties.remove(key);
+    if (!value.value().is(ArmTree.Kind.EXPRESSION)) {
+      throw new ParseException("Expecting Expression as value, got " + value.getClass().getSimpleName() + " instead", new BasicTextPointer(value.textRange()), null);
+    }
+    return new SimplePropertyImpl(value.key(), (Expression) value.value());
   }
 }

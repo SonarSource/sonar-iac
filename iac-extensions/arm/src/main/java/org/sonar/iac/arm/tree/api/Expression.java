@@ -19,6 +19,6 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-public interface Expression extends ArmTree {
+public interface Expression extends ArmTree, PropertyValue {
   String value();
 }

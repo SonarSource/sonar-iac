@@ -24,17 +24,20 @@ import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
+import static org.sonar.iac.arm.tree.impl.json.ArmHelper.propertyValue;
+
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
-  private final Property name;
-  private final Property version;
-  private final Property type;
+  private final SimpleProperty name;
+  private final SimpleProperty version;
+  private final SimpleProperty type;
   private final List<Property> properties;
 
-  public ResourceDeclarationImpl(Property name, Property version, Property type, List<Property> properties) {
+  public ResourceDeclarationImpl(SimpleProperty name, SimpleProperty version, SimpleProperty type, List<Property> properties) {
     this.name = name;
     this.version = version;
     this.type = type;
