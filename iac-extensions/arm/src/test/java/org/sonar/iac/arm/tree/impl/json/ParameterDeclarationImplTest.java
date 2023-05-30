@@ -26,12 +26,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ParameterType;
@@ -116,7 +114,7 @@ class ParameterDeclarationImplTest {
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
     assertThat(parameter.identifier().value()).isEqualTo("exampleParam");
     assertThat(parameter.type()).isEqualTo(ParameterType.STRING);
-    assertThat(parameter.defaultValue()).hasValue("a").hasKind(EXPRESSION).hasRange(5, 28, 5, 31);
+    assertThat(parameter.defaultValue()).isExpression().hasValue("a").hasKind(EXPRESSION).hasRange(5, 28, 5, 31);
     assertThat(parameter.minValue()).hasValue("7").hasKind(EXPRESSION).hasRange(6, 24, 6, 25);
     assertThat(parameter.maxValue()).hasValue("90").hasKind(EXPRESSION).hasRange(7, 24, 7, 26);
     assertThat(parameter.minLength()).hasValue("1").hasKind(EXPRESSION).hasRange(8, 25, 8, 26);
@@ -147,7 +145,7 @@ class ParameterDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Missing required field 'type' in Parameter enabledForDeployment at 3:4");
+      .hasMessage("Missing mandatory attribute 'type' at 3:4");
   }
 
   @Test
@@ -161,7 +159,7 @@ class ParameterDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, mockFile))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Missing required field 'type' in Parameter enabledForDeployment at foo.json:3:4");
+      .hasMessage("Missing mandatory attribute 'type' at foo.json:3:4");
   }
 
   @Test

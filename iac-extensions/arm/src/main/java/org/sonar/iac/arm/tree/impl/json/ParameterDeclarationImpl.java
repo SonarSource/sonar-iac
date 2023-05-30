@@ -27,6 +27,8 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
+import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -37,7 +39,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   private final Identifier identifier;
   private final SimpleProperty type;
-  private final SimpleProperty defaultValue;
+  private final Property defaultValue;
   private final List<Expression> allowedValues;
   private final SimpleProperty description;
   private final SimpleProperty minValue;
@@ -50,7 +52,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   public ParameterDeclarationImpl(
     Identifier identifier,
     SimpleProperty type,
-    @Nullable SimpleProperty defaultValue,
+    @Nullable Property defaultValue,
     List<Expression> allowedValues,
     @Nullable SimpleProperty description,
     @Nullable SimpleProperty minValue,
@@ -97,7 +99,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   @Override
   @CheckForNull
-  public Expression defaultValue() {
+  public PropertyValue defaultValue() {
     if (defaultValue != null) {
       return defaultValue.value();
     }
