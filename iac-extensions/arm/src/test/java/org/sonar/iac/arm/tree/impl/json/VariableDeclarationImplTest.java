@@ -59,6 +59,10 @@ class VariableDeclarationImplTest {
     assertThat(arrayVar.value()).isArrayExpression().hasRange(4, 16, 4, 23);
     assertThat(objectVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "objectVar").hasRange(5, 4, 5, 15);
     assertThat(objectVar.value()).isObjectExpression().hasRange(5, 18, 5, 29);
+
+    assertThat(stringVar.children()).hasSize(2);
+    assertThat(arrayVar.children()).hasSize(2);
+    assertThat(objectVar.children()).hasSize(2);
   }
 
   @Test
