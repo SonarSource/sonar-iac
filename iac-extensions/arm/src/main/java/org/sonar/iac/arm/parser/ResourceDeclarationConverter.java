@@ -51,7 +51,11 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
       .flatMap(List::stream);
   }
 
+<<<<<<< HEAD
   private static List<MappingTree> mappingTreeOnly(List<YamlTree> yamlTrees) {
+=======
+  private List<MappingTree> mappingTreeOnly(List<YamlTree> yamlTrees) {
+>>>>>>> 40a280b8 (align converter behavior)
     return yamlTrees.stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
