@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.json;
+package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PROPERTY;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class ResourceDeclarationTest {
+class ResourceDeclarationImplTest {
 
   private final ArmParser parser = new ArmParser();
 

@@ -35,7 +35,6 @@ import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
-import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
@@ -47,12 +46,11 @@ public class ParameterDeclarationConverter extends ArmBaseConverter {
     super(inputFileContext);
   }
 
-  public Stream<TupleTree> extractParametersSequence(FileTree fileTree) {
-    MappingTree document = (MappingTree) fileTree.documents().get(0);
+  public Stream<TupleTree> extractParametersSequence(MappingTree document) {
     return document.elements().stream()
-      .filter(element -> element.key() instanceof ScalarTree)
-      .filter(element -> "parameters".equals(((ScalarTree) element.key()).value()))
+      .filter(filterOnField("parameters"))
       .map(TupleTree::value)
+      .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
       .map(MappingTree::elements)
       .flatMap(List::stream);

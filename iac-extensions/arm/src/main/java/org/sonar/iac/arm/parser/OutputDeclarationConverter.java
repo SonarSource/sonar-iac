@@ -21,8 +21,7 @@ package org.sonar.iac.arm.parser;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -35,7 +34,6 @@ import org.sonar.iac.arm.tree.impl.json.OutputDeclarationImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
 public class OutputDeclarationConverter extends ArmBaseConverter {
@@ -46,23 +44,17 @@ public class OutputDeclarationConverter extends ArmBaseConverter {
     super(inputFileContext);
   }
 
-  public Optional<MappingTree> extractOutputsMapping(MappingTree document) {
+  public Stream<TupleTree> extractOutputsMapping(MappingTree document) {
     return document.elements().stream()
-      .filter(element -> element.key() instanceof ScalarTree)
-      .filter(element -> "outputs".equals(((ScalarTree) element.key()).value()))
+      .filter(filterOnField("outputs"))
       .map(TupleTree::value)
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
-      .findFirst();
+      .map(MappingTree::elements)
+      .flatMap(List::stream);
   }
 
-  public List<OutputDeclaration> convertOutputsDeclaration(MappingTree mapping) {
-    return mapping.elements().stream()
-      .map(this::convertToOutputDeclaration)
-      .collect(Collectors.toList());
-  }
-
-  private OutputDeclaration convertToOutputDeclaration(TupleTree tupleTree) {
+  public OutputDeclaration convertOutputDeclaration(TupleTree tupleTree) {
     Identifier name = convertToIdentifier(tupleTree.key());
 
     MappingTree outputMapping = toMappingTree(tupleTree.value());

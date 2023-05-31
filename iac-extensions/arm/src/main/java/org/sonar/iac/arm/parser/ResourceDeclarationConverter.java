@@ -22,8 +22,8 @@ package org.sonar.iac.arm.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -31,9 +31,9 @@ import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
+import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class ResourceDeclarationConverter extends ArmBaseConverter {
 
@@ -41,25 +41,24 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
     super(inputFileContext);
   }
 
-  public Optional<SequenceTree> extractResourcesSequence(MappingTree document) {
+  public Stream<MappingTree> extractResourcesSequence(MappingTree document) {
     return document.elements().stream()
-      .filter(element -> element.key() instanceof ScalarTree)
-      .filter(element -> "resources".equals(((ScalarTree) element.key()).value()))
+      .filter(filterOnField("resources"))
       .map(TupleTree::value)
       .filter(SequenceTree.class::isInstance)
       .map(SequenceTree.class::cast)
-      .findFirst();
+      .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
+      .flatMap(List::stream);
   }
 
-  public List<ResourceDeclaration> convertResources(SequenceTree resource) {
-    return resource.elements().stream()
+  private List<MappingTree> mappingTreeOnly(List<YamlTree> yamlTrees) {
+    return yamlTrees.stream()
       .filter(MappingTree.class::isInstance)
       .map(MappingTree.class::cast)
-      .map(this::convertToResourceDeclaration)
       .collect(Collectors.toList());
   }
 
-  private ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
+  public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
     Map<String, Property> properties = extractProperties(tree);
 
     SimpleProperty type = extractMandatorySimpleProperty(tree.metadata(), properties, "type");

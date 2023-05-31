@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -67,19 +65,19 @@ public class ArmParser implements TreeParser<ArmTree> {
     MappingTree document = (MappingTree) fileTree.documents().get(0);
 
     ResourceDeclarationConverter resourceConverter = new ResourceDeclarationConverter(inputFileContext);
-    resourceConverter.extractResourcesSequence(document).ifPresent(sequence -> {
-      List<ResourceDeclaration> resourceDeclarations = resourceConverter.convertResources(sequence);
-      statements.addAll(resourceDeclarations);
-    });
+    List<ResourceDeclaration> resources = resourceConverter.extractResourcesSequence(document)
+      .map(resourceConverter::convertToResourceDeclaration)
+      .collect(Collectors.toList());
+    statements.addAll(resources);
 
     OutputDeclarationConverter outputConverter = new OutputDeclarationConverter(inputFileContext);
-    outputConverter.extractOutputsMapping(document).ifPresent(mapping -> {
-      List<OutputDeclaration> outputDeclarations = outputConverter.convertOutputsDeclaration(mapping);
-      statements.addAll(outputDeclarations);
-    });
+    List<OutputDeclaration> outputs = outputConverter.extractOutputsMapping(document)
+      .map(outputConverter::convertOutputDeclaration)
+      .collect(Collectors.toList());
+    statements.addAll(outputs);
 
     ParameterDeclarationConverter parameterConverter = new ParameterDeclarationConverter(inputFileContext);
-    List<Statement> params = parameterConverter.extractParametersSequence(fileTree)
+    List<Statement> params = parameterConverter.extractParametersSequence(document)
       .map(parameterConverter::convertParameters)
       .collect(Collectors.toList());
     statements.addAll(params);

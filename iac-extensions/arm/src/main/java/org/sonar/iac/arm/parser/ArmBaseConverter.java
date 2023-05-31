@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -50,6 +51,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
@@ -65,6 +67,10 @@ public class ArmBaseConverter {
 
   public Map<String, Property> extractProperties(MappingTree tree) {
     return convertToObjectExpression(tree).getMapRepresentation();
+  }
+
+  protected Predicate<TupleTree> filterOnField(String field) {
+    return (tupleTree) -> tupleTree.key() instanceof ScalarTree && field.equals(((ScalarTree) tupleTree.key()).value());
   }
 
   public Identifier convertToIdentifier(YamlTree tree) {
