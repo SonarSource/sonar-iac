@@ -70,11 +70,7 @@ public class ArmBaseConverter {
   }
 
   protected Predicate<TupleTree> filterOnField(String field) {
-<<<<<<< HEAD
     return tupleTree -> tupleTree.key() instanceof ScalarTree && field.equals(((ScalarTree) tupleTree.key()).value());
-=======
-    return (tupleTree) -> tupleTree.key() instanceof ScalarTree && field.equals(((ScalarTree) tupleTree.key()).value());
->>>>>>> 40a280b8 (align converter behavior)
   }
 
   public Identifier convertToIdentifier(YamlTree tree) {
@@ -145,11 +141,7 @@ public class ArmBaseConverter {
     if (value == null) {
       return null;
     }
-<<<<<<< HEAD
     throwErrorIfUnexpectedType("Fail to extract ArrayExpression", ArmTree.Kind.ARRAY_EXPRESSION, value.value());
-=======
-    throwErrorIfUnexpectedType("extractArrayExpression", ArmTree.Kind.ARRAY_EXPRESSION, value.value());
->>>>>>> 87c2d207 (added check method for expected type)
     return (ArrayExpression) value.value();
   }
 
@@ -158,11 +150,7 @@ public class ArmBaseConverter {
     if (property == null) {
       return null;
     }
-<<<<<<< HEAD
     throwErrorIfUnexpectedType("Fail to convert to SimpleProperty", ArmTree.Kind.EXPRESSION, property.value());
-=======
-    throwErrorIfUnexpectedType("convertToSimpleProperty", ArmTree.Kind.EXPRESSION, property);
->>>>>>> 87c2d207 (added check method for expected type)
     return new SimplePropertyImpl(property.key(), (Expression) property.value());
   }
 
@@ -182,16 +170,11 @@ public class ArmBaseConverter {
   }
 
   public Expression toExpression(PropertyValue propertyValue) {
-<<<<<<< HEAD
     throwErrorIfUnexpectedType("Fail to cast to Expression", ArmTree.Kind.EXPRESSION, propertyValue);
-=======
-    throwErrorIfUnexpectedType("toExpression", ArmTree.Kind.EXPRESSION, propertyValue);
->>>>>>> 87c2d207 (added check method for expected type)
     return (Expression) propertyValue;
   }
 
   public ObjectExpression toObjectExpression(PropertyValue propertyValue) {
-<<<<<<< HEAD
     throwErrorIfUnexpectedType("Fail to Cast to ObjectExpression", ArmTree.Kind.OBJECT_EXPRESSION, propertyValue);
     return (ObjectExpression) propertyValue;
   }
@@ -200,16 +183,6 @@ public class ArmBaseConverter {
     if (!object.is(expected)) {
       throw new ParseException(message + ": Expecting " + expected.getAssociatedInterface().getSimpleName() + ", got " + object.getClass().getSimpleName()
         + " instead at " + filenameAndPosition(object.textRange()), new BasicTextPointer(object.textRange()), null);
-=======
-    throwErrorIfUnexpectedType("toObjectExpression", ArmTree.Kind.OBJECT_EXPRESSION, propertyValue);
-    return (ObjectExpression) propertyValue;
-  }
-
-  private void throwErrorIfUnexpectedType(String method, ArmTree.Kind expected, ArmTree object) {
-    if (!object.is(expected)) {
-      throw new ParseException(method + ": Expecting kind " + expected.name() + ", got class " + object.getClass().getSimpleName() + " instead at " +
-        filenameAndPosition(object.textRange()), new BasicTextPointer(object.textRange()), null);
->>>>>>> 87c2d207 (added check method for expected type)
     }
   }
 
