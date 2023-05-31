@@ -253,7 +253,7 @@ class OutputDeclarationTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 5:15");
+    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression, got ArrayExpressionImpl instead at 5:15");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);
@@ -306,7 +306,7 @@ class OutputDeclarationTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 6:17");
+    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression, got ArrayExpressionImpl instead at 6:17");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(6);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(17);

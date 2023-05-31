@@ -137,7 +137,7 @@ class ParameterDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("extractArrayExpression: Expecting ArrayExpression in property value, got ExpressionImpl instead at 5:29");
+      .hasMessage("extractArrayExpression: Expecting ArrayExpression, got ExpressionImpl instead at 5:29");
   }
 
   @Test

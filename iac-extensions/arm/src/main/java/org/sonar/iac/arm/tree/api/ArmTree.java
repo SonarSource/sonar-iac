@@ -51,5 +51,9 @@ public interface ArmTree extends Tree {
     Kind(Class<? extends ArmTree> associatedInterface) {
       this.associatedInterface = associatedInterface;
     }
+
+    public Class<? extends ArmTree> getAssociatedInterface() {
+      return this.associatedInterface;
+    }
   }
 }

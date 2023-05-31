@@ -144,7 +144,7 @@ public class ArmBaseConverter {
     if (property == null) {
       return null;
     }
-    throwErrorIfUnexpectedType("convertToSimpleProperty", ArmTree.Kind.EXPRESSION, property);
+    throwErrorIfUnexpectedType("convertToSimpleProperty", ArmTree.Kind.EXPRESSION, property.value());
     return new SimplePropertyImpl(property.key(), (Expression) property.value());
   }
 
@@ -175,8 +175,8 @@ public class ArmBaseConverter {
 
   private void throwErrorIfUnexpectedType(String method, ArmTree.Kind expected, ArmTree object) {
     if (!object.is(expected)) {
-      throw new ParseException(method + ": Expecting kind " + expected.name() + ", got class " + object.getClass().getSimpleName() + " instead at " +
-        filenameAndPosition(object.textRange()), new BasicTextPointer(object.textRange()), null);
+      throw new ParseException(method + ": Expecting " + expected.getAssociatedInterface().getSimpleName() + ", got " + object.getClass().getSimpleName()
+        + " instead at " + filenameAndPosition(object.textRange()), new BasicTextPointer(object.textRange()), null);
     }
   }
 
