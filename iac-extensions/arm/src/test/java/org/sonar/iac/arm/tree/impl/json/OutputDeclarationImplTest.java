@@ -112,7 +112,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     File tree = (File) parser.parse(code, null);
-    assertThat(tree.statements()).hasSize(0);
+    assertThat(tree.statements()).isEmpty();
   }
 
   @Test
