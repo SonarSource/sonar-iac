@@ -1,3 +1,22 @@
+/*
+ * SonarQube IaC Plugin
+ * Copyright (C) 2021-2023 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
@@ -34,12 +53,12 @@ class VariableDeclarationImplTest {
     VariableDeclaration arrayVar = (VariableDeclaration) tree.statements().get(1);
     VariableDeclaration objectVar = (VariableDeclaration) tree.statements().get(2);
 
-    assertThat(stringVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "stringVar").hasRange(3,4, 3, 15);
-    assertThat(stringVar.value()).isExpression().hasValue("val").hasRange(3,17, 3, 22);
-    assertThat(arrayVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "arrayVar").hasRange(4,4, 4, 14);
-    assertThat(arrayVar.value()).isArrayExpression().hasRange(4,16, 4, 23);
-    assertThat(objectVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "objectVar").hasRange(5,4, 5, 15);
-    assertThat(objectVar.value()).isObjectExpression().hasRange(5,18, 5, 29);
+    assertThat(stringVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "stringVar").hasRange(3, 4, 3, 15);
+    assertThat(stringVar.value()).isExpression().hasValue("val").hasRange(3, 17, 3, 22);
+    assertThat(arrayVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "arrayVar").hasRange(4, 4, 4, 14);
+    assertThat(arrayVar.value()).isArrayExpression().hasRange(4, 16, 4, 23);
+    assertThat(objectVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "objectVar").hasRange(5, 4, 5, 15);
+    assertThat(objectVar.value()).isObjectExpression().hasRange(5, 18, 5, 29);
   }
 
   @Test
