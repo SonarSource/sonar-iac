@@ -70,7 +70,7 @@ public class ArmBaseConverter {
   }
 
   protected Predicate<TupleTree> filterOnField(String field) {
-    return (tupleTree) -> tupleTree.key() instanceof ScalarTree && field.equals(((ScalarTree) tupleTree.key()).value());
+    return tupleTree -> tupleTree.key() instanceof ScalarTree && field.equals(((ScalarTree) tupleTree.key()).value());
   }
 
   public Identifier convertToIdentifier(YamlTree tree) {

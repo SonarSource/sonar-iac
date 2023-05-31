@@ -98,6 +98,24 @@ class OutputDeclarationImplTest {
   }
 
   @Test
+  void shouldIgnoreNonOutpputsFields() {
+    String code = code("{",
+      "  \"not-outputs\": {",
+      "    \"myOutputValue\": {",
+      "      \"type\": \"my type\",",
+      "      \"condition\": \"my condition\",",
+      "      \"copy\": {",
+      "        \"count\": \"countValue\"",
+      "      },",
+      "      \"value\": \"my output value\"",
+      "    }",
+      "  }",
+      "}");
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(0);
+  }
+
+  @Test
   void shouldParseMultipleOutputs() {
     String code = code("{",
       "  \"outputs\": {",
