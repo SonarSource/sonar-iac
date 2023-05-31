@@ -39,7 +39,6 @@ import org.sonar.iac.common.yaml.tree.MappingTree;
 
 public class ArmParser implements TreeParser<ArmTree> {
 
-  private static final Logger LOG = Loggers.get(ArmParser.class);
   @Nullable
   private InputFileContext inputFileContext;
 

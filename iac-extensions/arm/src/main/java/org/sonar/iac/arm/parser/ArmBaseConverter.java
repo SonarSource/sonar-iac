@@ -135,10 +135,7 @@ public class ArmBaseConverter {
     if (value == null) {
       return null;
     }
-    if (!(value.value() instanceof ArrayExpression)) {
-      throw new ParseException("extractArrayExpression: Expecting ArrayExpression in property value, got " + value.value().getClass().getSimpleName() + " instead at " +
-        filenameAndPosition(value.value().textRange()), new BasicTextPointer(value.value().textRange()), null);
-    }
+    throwErrorIfUnexpectedType("extractArrayExpression", ArmTree.Kind.ARRAY_EXPRESSION, value.value());
     return (ArrayExpression) value.value();
   }
 
@@ -147,10 +144,7 @@ public class ArmBaseConverter {
     if (property == null) {
       return null;
     }
-    if (!property.value().is(ArmTree.Kind.EXPRESSION)) {
-      throw new ParseException("convertToSimpleProperty: Expecting Expression in property value, got " + property.value().getClass().getSimpleName() + " instead at " +
-        filenameAndPosition(property.value().textRange()), new BasicTextPointer(property.value().textRange()), null);
-    }
+    throwErrorIfUnexpectedType("convertToSimpleProperty", ArmTree.Kind.EXPRESSION, property);
     return new SimplePropertyImpl(property.key(), (Expression) property.value());
   }
 
@@ -170,19 +164,20 @@ public class ArmBaseConverter {
   }
 
   public Expression toExpression(PropertyValue propertyValue) {
-    if (!propertyValue.is(ArmTree.Kind.EXPRESSION)) {
-      throw new ParseException("toExpression: Expecting Expression, got " + propertyValue.getClass().getSimpleName() + " instead at " +
-        filenameAndPosition(propertyValue.textRange()), new BasicTextPointer(propertyValue.textRange()), null);
-    }
+    throwErrorIfUnexpectedType("toExpression", ArmTree.Kind.EXPRESSION, propertyValue);
     return (Expression) propertyValue;
   }
 
   public ObjectExpression toObjectExpression(PropertyValue propertyValue) {
-    if (!propertyValue.is(ArmTree.Kind.OBJECT_EXPRESSION)) {
-      throw new ParseException("toObjectExpression: Expecting ObjectExpression, got " + propertyValue.getClass().getSimpleName() + " instead at " +
-        filenameAndPosition(propertyValue.textRange()), new BasicTextPointer(propertyValue.textRange()), null);
-    }
+    throwErrorIfUnexpectedType("toObjectExpression", ArmTree.Kind.OBJECT_EXPRESSION, propertyValue);
     return (ObjectExpression) propertyValue;
+  }
+
+  private void throwErrorIfUnexpectedType(String method, ArmTree.Kind expected, ArmTree object) {
+    if (!object.is(expected)) {
+      throw new ParseException(method + ": Expecting kind " + expected.name() + ", got class " + object.getClass().getSimpleName() + " instead at " +
+        filenameAndPosition(object.textRange()), new BasicTextPointer(object.textRange()), null);
+    }
   }
 
   // Log related methods
