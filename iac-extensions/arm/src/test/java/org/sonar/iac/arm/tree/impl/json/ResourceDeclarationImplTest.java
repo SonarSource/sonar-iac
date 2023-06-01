@@ -246,20 +246,20 @@ class ResourceDeclarationImplTest {
     assertThat(resource.properties()).hasSize(1);
     Property property = resource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("properties");
-    assertThat(property.value()).is(OBJECT_EXPRESSION);
+    assertThat(property.value()).hasKind(OBJECT_EXPRESSION);
 
     ObjectExpression objectExpression = (ObjectExpression) property.value();
     assertThat(objectExpression.getMapRepresentation()).hasSize(1);
 
     Property sourceAddressPrefixesProperty = objectExpression.getPropertyByName("sourceAddressPrefixes");
     assertThat(sourceAddressPrefixesProperty.key().value()).isEqualTo("sourceAddressPrefixes");
-    assertThat(sourceAddressPrefixesProperty.value()).is(ARRAY_EXPRESSION);
+    assertThat(sourceAddressPrefixesProperty.value()).hasKind(ARRAY_EXPRESSION);
 
     ArrayExpression arrayExpression = (ArrayExpression) sourceAddressPrefixesProperty.value();
     assertThat(arrayExpression).isNotNull();
     assertThat(arrayExpression.values()).hasSize(1);
 
     PropertyValue value = arrayExpression.values().get(0);
-    assertThat(value).is(EXPRESSION).has("value", "0.0.0.0/0");
+    assertThat(value).hasKind(EXPRESSION).hasValue("0.0.0.0/0");
   }
 }
