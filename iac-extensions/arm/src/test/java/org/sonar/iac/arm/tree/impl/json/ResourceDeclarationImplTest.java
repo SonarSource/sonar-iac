@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -216,5 +217,49 @@ class ResourceDeclarationImplTest {
     assertThat(resourceDeclaration2.properties().get(0).key().value()).isEqualTo("property2");
     assertThat(resourceDeclaration2.properties().get(0).value().is(EXPRESSION)).isTrue();
     assertThat(((Expression) resourceDeclaration2.properties().get(0).value()).value()).isEqualTo("value2");
+  }
+
+  @Test
+  void shouldParseResourceWithComplexProperties() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"name\": \"test with complex properties\",",
+      "      \"type\": \"Microsoft.Network/networkSecurityGroups/securityRules\",",
+      "      \"apiVersion\": \"2022-11-01\",",
+      "      \"properties\": {",
+      "        \"sourceAddressPrefixes\": [\"0.0.0.0/0\"]",
+      "      }",
+      "    }",
+      "  ]",
+      "}");
+
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0)).isInstanceOf(ResourceDeclaration.class);
+
+    ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(0);
+    assertThat(resource.name().value()).isEqualTo("test with complex properties");
+    assertThat(resource.type()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules");
+    assertThat(resource.version()).isEqualTo("2022-11-01");
+
+    assertThat(resource.properties()).hasSize(1);
+    Property property = resource.properties().get(0);
+    assertThat(property.key().value()).isEqualTo("properties");
+    assertThat(property.value()).hasKind(OBJECT_EXPRESSION);
+
+    ObjectExpression objectExpression = (ObjectExpression) property.value();
+    assertThat(objectExpression.getMapRepresentation()).hasSize(1);
+
+    Property sourceAddressPrefixesProperty = objectExpression.getPropertyByName("sourceAddressPrefixes");
+    assertThat(sourceAddressPrefixesProperty.key().value()).isEqualTo("sourceAddressPrefixes");
+    assertThat(sourceAddressPrefixesProperty.value()).hasKind(ARRAY_EXPRESSION);
+
+    ArrayExpression arrayExpression = (ArrayExpression) sourceAddressPrefixesProperty.value();
+    assertThat(arrayExpression).isNotNull();
+    assertThat(arrayExpression.values()).hasSize(1);
+
+    PropertyValue value = arrayExpression.values().get(0);
+    assertThat(value).hasKind(EXPRESSION).hasValue("0.0.0.0/0");
   }
 }
