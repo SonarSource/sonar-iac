@@ -28,5 +28,5 @@ public interface ResourceDeclaration extends Statement {
 
   String type();
 
-  List<Property> properties();
+  List<Property<PropertyValue>> properties();
 }

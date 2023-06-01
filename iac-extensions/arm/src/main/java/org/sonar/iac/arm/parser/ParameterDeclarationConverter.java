@@ -25,13 +25,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
+import org.sonar.iac.arm.tree.api.PropertyValue;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -60,20 +63,21 @@ public class ParameterDeclarationConverter extends ArmBaseConverter {
     String id = ((ScalarTree) tupleTree.key()).value();
     Identifier identifier = new IdentifierImpl(id, tupleTree.key().metadata());
 
-    Map<String, Property> properties = extractProperties(((MappingTreeImpl) tupleTree.value()));
+    Map<String, Property<PropertyValue>> properties = extractProperties(((MappingTreeImpl) tupleTree.value()));
 
-    SimpleProperty type = extractMandatorySimpleProperty(tupleTree.metadata(), properties, "type");
-    Property defaultValue = extractProperty(properties, "defaultValue");
-    SimpleProperty minValue = extractSimpleProperty(properties, "minValue");
-    SimpleProperty maxValue = extractSimpleProperty(properties, "maxValue");
-    SimpleProperty minLength = extractSimpleProperty(properties, "minLength");
-    SimpleProperty maxLength = extractSimpleProperty(properties, "maxLength");
+    Property<StringLiteral> type = extractMandatoryProperty(tupleTree.metadata(), properties, "type", ArmTree.Kind.STRING_LITERAL);
+    Property<PropertyValue> defaultValue = extractProperty(properties, "defaultValue", ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.BOOLEAN_LITERAL, ArmTree.Kind.NUMERIC_LITERAL,
+      ArmTree.Kind.OBJECT_EXPRESSION, ArmTree.Kind.ARRAY_EXPRESSION);
+    Property<NumericLiteral> minValue = extractProperty(properties, "minValue", ArmTree.Kind.NUMERIC_LITERAL);
+    Property<NumericLiteral> maxValue = extractProperty(properties, "maxValue", ArmTree.Kind.NUMERIC_LITERAL);
+    Property<NumericLiteral> minLength = extractProperty(properties, "minLength", ArmTree.Kind.NUMERIC_LITERAL);
+    Property<NumericLiteral> maxLength = extractProperty(properties, "maxLength", ArmTree.Kind.NUMERIC_LITERAL);
     ArrayExpression allowedValues = extractArrayExpression(properties, "allowedValues");
-    SimpleProperty description = null;
+    Property<StringLiteral> description = null;
 
     if (properties.containsKey("metadata")) {
       ObjectExpression copy = toObjectExpression(properties.remove("metadata").value());
-      description = convertToSimpleProperty(copy.getPropertyByName("description"));
+      description = toProperty(copy.getPropertyByName("description"), ArmTree.Kind.STRING_LITERAL);
     }
 
     checkUnexpectedProperties(properties, id);

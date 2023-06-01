@@ -113,7 +113,7 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
 
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
-    List<Property> properties = resourceDeclaration.properties();
+    List<Property<PropertyValue>> properties = resourceDeclaration.properties();
     assertThat(properties).hasSize(2);
 
     assertThat(properties.get(0).is(PROPERTY)).isTrue();
@@ -150,7 +150,7 @@ class ResourceDeclarationImplTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral], got ArrayExpressionImpl instead at 6:14");
+      .hasMessage("Fail to extract mandatory Property 'name': Expecting [StringLiteral], got ArrayExpressionImpl instead at 6:14");
   }
 
   @ParameterizedTest

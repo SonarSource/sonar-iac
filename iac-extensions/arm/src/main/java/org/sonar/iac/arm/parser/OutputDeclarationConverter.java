@@ -25,11 +25,13 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
+import org.sonar.iac.arm.tree.api.PropertyValue;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.json.OutputDeclarationImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -58,21 +60,21 @@ public class OutputDeclarationConverter extends ArmBaseConverter {
     Identifier name = convertToIdentifier(tupleTree.key());
 
     MappingTree outputMapping = toMappingTree(tupleTree.value());
-    Map<String, Property> properties = extractProperties(outputMapping);
+    Map<String, Property<PropertyValue>> properties = extractProperties(outputMapping);
 
-    SimpleProperty type = extractMandatorySimpleProperty(tupleTree.metadata(), properties, "type");
-    SimpleProperty condition = extractSimpleProperty(properties, "condition");
-    SimpleProperty value = extractSimpleProperty(properties, "value");
-    SimpleProperty copyCount = null;
-    SimpleProperty copyInput = null;
+    Property<StringLiteral> type = extractMandatoryProperty(tupleTree.metadata(), properties, "type", ArmTree.Kind.STRING_LITERAL);
+    Property<StringLiteral> condition = extractProperty(properties, "condition", ArmTree.Kind.STRING_LITERAL);
+    Property<StringLiteral> value = extractProperty(properties, "value", ArmTree.Kind.STRING_LITERAL);
+    Property<StringLiteral> copyCount = null;
+    Property<StringLiteral> copyInput = null;
 
     if (properties.containsKey("copy")) {
       ObjectExpression copy = toObjectExpression(properties.remove("copy").value());
-      copyCount = convertToSimpleProperty(copy.getPropertyByName("count"));
-      copyInput = convertToSimpleProperty(copy.getPropertyByName("input"));
+      copyCount = toProperty(copy.getPropertyByName("count"), ArmTree.Kind.STRING_LITERAL);
+      copyInput = toProperty(copy.getPropertyByName("input"), ArmTree.Kind.STRING_LITERAL);
     }
 
-    for (Map.Entry<String, Property> unexpectedProperty : properties.entrySet()) {
+    for (Map.Entry<String, Property<PropertyValue>> unexpectedProperty : properties.entrySet()) {
       TextRange position = unexpectedProperty.getValue().textRange();
       LOG.debug("Unexpected property '{}' found in output declaration at {}, ignoring it.", unexpectedProperty.getKey(), filenameAndPosition(position));
     }

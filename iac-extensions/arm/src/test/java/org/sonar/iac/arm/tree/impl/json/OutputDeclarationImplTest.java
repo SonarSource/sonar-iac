@@ -272,7 +272,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral], got ArrayExpressionImpl instead at 5:15");
+    assertThat(parseException).hasMessage("Fail to extract Property 'value': Expecting [StringLiteral], got ArrayExpressionImpl instead at 5:15");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);
@@ -325,7 +325,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral], got ArrayExpressionImpl instead at 6:17");
+    assertThat(parseException).hasMessage("Fail to cast to Property: Expecting [StringLiteral], got ArrayExpressionImpl instead at 6:17");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(6);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(17);

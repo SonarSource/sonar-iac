@@ -25,11 +25,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.PropertyValue;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -39,27 +39,27 @@ import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
 
   private final Identifier identifier;
-  private final SimpleProperty type;
-  private final Property defaultValue;
+  private final Property<StringLiteral> type;
+  private final Property<PropertyValue> defaultValue;
   private final List<Expression> allowedValues;
-  private final SimpleProperty description;
-  private final SimpleProperty minValue;
-  private final SimpleProperty maxValue;
-  private final SimpleProperty minLength;
-  private final SimpleProperty maxLength;
+  private final Property<StringLiteral> description;
+  private final Property<NumericLiteral> minValue;
+  private final Property<NumericLiteral> maxValue;
+  private final Property<NumericLiteral> minLength;
+  private final Property<NumericLiteral> maxLength;
 
   // Methods should not have too many parameters
   @SuppressWarnings("java:S107")
   public ParameterDeclarationImpl(
     Identifier identifier,
-    SimpleProperty type,
-    @Nullable Property defaultValue,
+    Property<StringLiteral> type,
+    @Nullable Property<PropertyValue> defaultValue,
     List<Expression> allowedValues,
-    @Nullable SimpleProperty description,
-    @Nullable SimpleProperty minValue,
-    @Nullable SimpleProperty maxValue,
-    @Nullable SimpleProperty minLength,
-    @Nullable SimpleProperty maxLength) {
+    @Nullable Property<StringLiteral> description,
+    @Nullable Property<NumericLiteral> minValue,
+    @Nullable Property<NumericLiteral> maxValue,
+    @Nullable Property<NumericLiteral> minLength,
+    @Nullable Property<NumericLiteral> maxLength) {
 
     this.identifier = identifier;
     this.type = type;
@@ -95,7 +95,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   @Override
   public ParameterType type() {
-    return ParameterType.fromName(((StringLiteral) type.value()).value());
+    return ParameterType.fromName(type.value().value());
   }
 
   @Override

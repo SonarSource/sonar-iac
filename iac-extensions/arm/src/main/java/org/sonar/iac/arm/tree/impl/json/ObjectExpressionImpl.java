@@ -27,25 +27,26 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectExpression {
 
-  private final List<Property> properties;
-  private Map<String, Property> mapRepresentation = null;
+  private final List<Property<PropertyValue>> properties;
+  private Map<String, Property<PropertyValue>> mapRepresentation = null;
 
-  public ObjectExpressionImpl(List<Property> properties) {
+  public ObjectExpressionImpl(List<Property<PropertyValue>> properties) {
     this.properties = properties;
   }
 
   @Override
-  public List<Property> properties() {
+  public List<Property<PropertyValue>> properties() {
     return Collections.unmodifiableList(properties);
   }
 
   @Override
-  public Map<String, Property> getMapRepresentation() {
+  public Map<String, Property<PropertyValue>> getMapRepresentation() {
     if (mapRepresentation == null) {
       mapRepresentation = new HashMap<>();
       properties.forEach(property -> {
@@ -58,7 +59,7 @@ public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectE
 
   @Override
   @CheckForNull
-  public Property getPropertyByName(String propertyName) {
+  public Property<PropertyValue> getPropertyByName(String propertyName) {
     return getMapRepresentation().get(propertyName);
   }
 

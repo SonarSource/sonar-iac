@@ -25,7 +25,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
+import org.sonar.iac.arm.tree.api.PropertyValue;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ArmHelper {
@@ -33,14 +34,7 @@ public class ArmHelper {
   private ArmHelper() {
   }
 
-  public static void addChildrenIfPresent(List<Tree> children, @Nullable Property property) {
-    if (property != null) {
-      children.add(property.key());
-      children.add(property.value());
-    }
-  }
-
-  public static void addChildrenIfPresent(List<Tree> children, @Nullable SimpleProperty property) {
+  public static void addChildrenIfPresent(List<Tree> children, @Nullable Property<? extends PropertyValue> property) {
     if (property != null) {
       children.add(property.key());
       children.add(property.value());
@@ -48,9 +42,9 @@ public class ArmHelper {
   }
 
   @CheckForNull
-  public static Expression propertyValue(@Nullable SimpleProperty property) {
+  public static Expression propertyValue(@Nullable Property<StringLiteral> property) {
     return Optional.ofNullable(property)
-      .map(SimpleProperty::value)
+      .map(Property::value)
       .orElse(null);
   }
 }

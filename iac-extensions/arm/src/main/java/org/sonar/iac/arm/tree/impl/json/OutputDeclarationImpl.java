@@ -26,7 +26,8 @@ import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
+import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -36,14 +37,14 @@ import static org.sonar.iac.arm.tree.impl.json.ArmHelper.propertyValue;
 public class OutputDeclarationImpl extends AbstractArmTreeImpl implements OutputDeclaration {
 
   private final Identifier name;
-  private final SimpleProperty type;
-  private final SimpleProperty condition;
-  private final SimpleProperty copyCount;
-  private final SimpleProperty copyInput;
-  private final SimpleProperty value;
+  private final Property<StringLiteral> type;
+  private final Property<StringLiteral> condition;
+  private final Property<StringLiteral> copyCount;
+  private final Property<StringLiteral> copyInput;
+  private final Property<StringLiteral> value;
 
-  public OutputDeclarationImpl(Identifier name, SimpleProperty type, @Nullable SimpleProperty condition, @Nullable SimpleProperty copyCount,
-    @Nullable SimpleProperty copyInput, @Nullable SimpleProperty value) {
+  public OutputDeclarationImpl(Identifier name, Property<StringLiteral> type, @Nullable Property<StringLiteral> condition, @Nullable Property<StringLiteral> copyCount,
+    @Nullable Property<StringLiteral> copyInput, @Nullable Property<StringLiteral> value) {
     this.name = name;
     this.type = type;
     this.condition = condition;

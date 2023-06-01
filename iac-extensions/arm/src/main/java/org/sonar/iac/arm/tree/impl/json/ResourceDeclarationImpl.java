@@ -23,20 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
-  private final SimpleProperty name;
-  private final SimpleProperty version;
-  private final SimpleProperty type;
-  private final List<Property> properties;
+  private final Property<StringLiteral> name;
+  private final Property<StringLiteral> version;
+  private final Property<StringLiteral> type;
+  private final List<Property<PropertyValue>> properties;
 
-  public ResourceDeclarationImpl(SimpleProperty name, SimpleProperty version, SimpleProperty type, List<Property> properties) {
+  public ResourceDeclarationImpl(Property<StringLiteral> name, Property<StringLiteral> version, Property<StringLiteral> type, List<Property<PropertyValue>> properties) {
     this.name = name;
     this.version = version;
     this.type = type;
@@ -66,16 +66,16 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public String version() {
-    return ((StringLiteral) version.value()).value();
+    return version.value().value();
   }
 
   @Override
   public String type() {
-    return ((StringLiteral) type.value()).value();
+    return type.value().value();
   }
 
   @Override
-  public List<Property> properties() {
+  public List<Property<PropertyValue>> properties() {
     return properties;
   }
 

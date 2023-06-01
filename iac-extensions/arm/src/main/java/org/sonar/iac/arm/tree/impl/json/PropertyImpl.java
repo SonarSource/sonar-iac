@@ -28,12 +28,12 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
-public class PropertyImpl extends AbstractArmTreeImpl implements Property {
+public class PropertyImpl<T extends PropertyValue> extends AbstractArmTreeImpl implements Property<T> {
 
   private final Identifier key;
-  private final PropertyValue value;
+  private final T value;
 
-  public PropertyImpl(Identifier key, PropertyValue value) {
+  public PropertyImpl(Identifier key, T value) {
     this.key = key;
     this.value = value;
   }
@@ -44,7 +44,7 @@ public class PropertyImpl extends AbstractArmTreeImpl implements Property {
   }
 
   @Override
-  public PropertyValue value() {
+  public T value() {
     return value;
   }
 

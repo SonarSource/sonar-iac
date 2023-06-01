@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
@@ -38,7 +37,6 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.PropertyValue;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.json.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
@@ -46,7 +44,6 @@ import org.sonar.iac.arm.tree.impl.json.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
-import org.sonar.iac.arm.tree.impl.json.SimplePropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.BasicTextPointer;
@@ -69,7 +66,7 @@ public class ArmBaseConverter {
     this.inputFileContext = inputFileContext;
   }
 
-  public Map<String, Property> extractProperties(MappingTree tree) {
+  public Map<String, Property<PropertyValue>> extractProperties(MappingTree tree) {
     return convertToObjectExpression(tree).getMapRepresentation();
   }
 
@@ -77,6 +74,7 @@ public class ArmBaseConverter {
     return tupleTree -> tupleTree.key() instanceof ScalarTree && field.equals(((ScalarTree) tupleTree.key()).value());
   }
 
+  // Convert methods
   public Identifier convertToIdentifier(YamlTree tree) {
     return Optional.of(tree)
       .filter(ScalarTree.class::isInstance)
@@ -103,12 +101,12 @@ public class ArmBaseConverter {
   }
 
   public ObjectExpression convertToObjectExpression(MappingTree tree) {
-    List<Property> properties = new ArrayList<>();
+    List<Property<PropertyValue>> properties = new ArrayList<>();
     tree.elements()
       .forEach(tupleTree -> {
         Identifier key = convertToIdentifier(tupleTree.key());
         PropertyValue value = convertToPropertyValue(tupleTree.value());
-        properties.add(new PropertyImpl(key, value));
+        properties.add(new PropertyImpl<>(key, value));
       });
     return new ObjectExpressionImpl(properties);
   }
@@ -132,28 +130,38 @@ public class ArmBaseConverter {
     }
   }
 
-  public SimpleProperty extractMandatorySimpleProperty(YamlTreeMetadata metadata, Map<String, Property> properties, String key) {
-    Property value = properties.remove(key);
+  // Extract methods
+  @SuppressWarnings("unchecked")
+  public <T extends PropertyValue> Property<T> extractMandatoryProperty(YamlTreeMetadata metadata, Map<String, Property<PropertyValue>> properties, String key, ArmTree.Kind kind) {
+    Property<PropertyValue> value = properties.remove(key);
     if (value == null) {
       throw new ParseException("Missing mandatory attribute '" + key + "' at " + filenameAndPosition(metadata.textRange()), new BasicTextPointer(metadata.textRange()), null);
     }
-    return convertToSimpleProperty(value);
+    throwErrorIfUnexpectedType("Fail to extract mandatory Property '" + key + "'", value.value(), kind);
+    return (Property<T>) value;
   }
 
-  public SimpleProperty extractSimpleProperty(Map<String, Property> properties, String key) {
-    Property value = properties.remove(key);
+  @SuppressWarnings("unchecked")
+  public <T extends PropertyValue> Property<T> extractProperty(Map<String, Property<PropertyValue>> properties, String key, ArmTree.Kind... kinds) {
+    Property<PropertyValue> value = properties.remove(key);
     if (value == null) {
       return null;
     }
-    return convertToSimpleProperty(value);
+    throwErrorIfUnexpectedType("Fail to extract Property '" + key + "'", value.value(), kinds);
+    return (Property<T>) value;
   }
 
-  public Property extractProperty(Map<String, Property> properties, String key) {
-    return properties.remove(key);
+  @SuppressWarnings("unchecked")
+  public <T extends PropertyValue> Property<T> toProperty(@Nullable Property<PropertyValue> property, ArmTree.Kind kind) {
+    if (property == null) {
+      return null;
+    }
+    throwErrorIfUnexpectedType("Fail to cast to Property", property.value(), kind);
+    return (Property<T>) property;
   }
 
-  public ArrayExpression extractArrayExpression(Map<String, Property> properties, String key) {
-    Property value = properties.remove(key);
+  public ArrayExpression extractArrayExpression(Map<String, Property<PropertyValue>> properties, String key) {
+    Property<PropertyValue> value = properties.remove(key);
     if (value == null) {
       return null;
     }
@@ -161,16 +169,7 @@ public class ArmBaseConverter {
     return (ArrayExpression) value.value();
   }
 
-  @CheckForNull
-  public SimpleProperty convertToSimpleProperty(@Nullable Property property) {
-    if (property == null) {
-      return null;
-    }
-    throwErrorIfUnexpectedType("Fail to convert to SimpleProperty", property.value(), ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.NUMERIC_LITERAL, ArmTree.Kind.NULL_LITERAL, ArmTree.Kind.BOOLEAN_LITERAL);
-    return new SimplePropertyImpl(property.key(), (Expression) property.value());
-  }
-
-  public void checkUnexpectedProperties(Map<String, Property> byKeys, String id) {
+  public void checkUnexpectedProperties(Map<String, Property<PropertyValue>> byKeys, String id) {
     byKeys.forEach((key, value) -> {
       String fileAndPosition = filenameAndPosition(value.textRange());
       LOG.debug("Unexpected property `{}` found in parameter {} at {}, ignoring it.", key, id, fileAndPosition);
@@ -186,7 +185,8 @@ public class ArmBaseConverter {
   }
 
   public Expression toExpression(PropertyValue propertyValue) {
-    throwErrorIfUnexpectedType("Fail to cast to Expression", propertyValue, ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.NUMERIC_LITERAL, ArmTree.Kind.NULL_LITERAL, ArmTree.Kind.BOOLEAN_LITERAL);
+    throwErrorIfUnexpectedType("Fail to cast to Expression", propertyValue, ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.NUMERIC_LITERAL, ArmTree.Kind.NULL_LITERAL,
+      ArmTree.Kind.BOOLEAN_LITERAL);
     return (Expression) propertyValue;
   }
 
@@ -195,7 +195,7 @@ public class ArmBaseConverter {
     return (ObjectExpression) propertyValue;
   }
 
-  private void throwErrorIfUnexpectedType(String method, ArmTree object, ArmTree.Kind... expectedKinds) {
+  protected void throwErrorIfUnexpectedType(String method, ArmTree object, ArmTree.Kind... expectedKinds) {
     for (ArmTree.Kind expectedKind : expectedKinds) {
       if (object.is(expectedKind)) {
         return;

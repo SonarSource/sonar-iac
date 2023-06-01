@@ -25,10 +25,10 @@ import javax.annotation.CheckForNull;
 
 public interface ObjectExpression extends PropertyValue {
 
-  List<Property> properties();
+  List<Property<PropertyValue>> properties();
 
-  Map<String, Property> getMapRepresentation();
+  Map<String, Property<PropertyValue>> getMapRepresentation();
 
   @CheckForNull
-  Property getPropertyByName(String propertyName);
+  Property<PropertyValue> getPropertyByName(String propertyName);
 }
