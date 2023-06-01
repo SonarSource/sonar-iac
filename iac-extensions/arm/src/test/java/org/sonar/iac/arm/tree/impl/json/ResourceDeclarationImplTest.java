@@ -147,7 +147,7 @@ class ResourceDeclarationImplTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("convertToSimpleProperty: Expecting Expression, got ArrayExpressionImpl instead at 6:14");
+      .hasMessage("Fail to convert to SimpleProperty: Expecting Expression, got ArrayExpressionImpl instead at 6:14");
   }
 
   @ParameterizedTest

@@ -141,7 +141,7 @@ public class ArmBaseConverter {
     if (value == null) {
       return null;
     }
-    throwErrorIfUnexpectedType("extractArrayExpression", ArmTree.Kind.ARRAY_EXPRESSION, value.value());
+    throwErrorIfUnexpectedType("Fail to extract ArrayExpression", ArmTree.Kind.ARRAY_EXPRESSION, value.value());
     return (ArrayExpression) value.value();
   }
 
@@ -150,7 +150,7 @@ public class ArmBaseConverter {
     if (property == null) {
       return null;
     }
-    throwErrorIfUnexpectedType("convertToSimpleProperty", ArmTree.Kind.EXPRESSION, property.value());
+    throwErrorIfUnexpectedType("Fail to convert to SimpleProperty", ArmTree.Kind.EXPRESSION, property.value());
     return new SimplePropertyImpl(property.key(), (Expression) property.value());
   }
 
@@ -170,18 +170,18 @@ public class ArmBaseConverter {
   }
 
   public Expression toExpression(PropertyValue propertyValue) {
-    throwErrorIfUnexpectedType("toExpression", ArmTree.Kind.EXPRESSION, propertyValue);
+    throwErrorIfUnexpectedType("Fail to cast to Expression", ArmTree.Kind.EXPRESSION, propertyValue);
     return (Expression) propertyValue;
   }
 
   public ObjectExpression toObjectExpression(PropertyValue propertyValue) {
-    throwErrorIfUnexpectedType("toObjectExpression", ArmTree.Kind.OBJECT_EXPRESSION, propertyValue);
+    throwErrorIfUnexpectedType("Fail to Cast to ObjectExpression", ArmTree.Kind.OBJECT_EXPRESSION, propertyValue);
     return (ObjectExpression) propertyValue;
   }
 
-  private void throwErrorIfUnexpectedType(String method, ArmTree.Kind expected, ArmTree object) {
+  private void throwErrorIfUnexpectedType(String message, ArmTree.Kind expected, ArmTree object) {
     if (!object.is(expected)) {
-      throw new ParseException(method + ": Expecting " + expected.getAssociatedInterface().getSimpleName() + ", got " + object.getClass().getSimpleName()
+      throw new ParseException(message + ": Expecting " + expected.getAssociatedInterface().getSimpleName() + ", got " + object.getClass().getSimpleName()
         + " instead at " + filenameAndPosition(object.textRange()), new BasicTextPointer(object.textRange()), null);
     }
   }

@@ -137,7 +137,7 @@ class ParameterDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("extractArrayExpression: Expecting ArrayExpression, got ExpressionImpl instead at 5:29");
+      .hasMessage("Fail to extract ArrayExpression: Expecting ArrayExpression, got ExpressionImpl instead at 5:29");
   }
 
   @Test
@@ -153,7 +153,7 @@ class ParameterDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("toExpression: Expecting Expression, got ArrayExpressionImpl instead at 5:38");
+      .hasMessage("Fail to cast to Expression: Expecting Expression, got ArrayExpressionImpl instead at 5:38");
   }
 
   @Test
