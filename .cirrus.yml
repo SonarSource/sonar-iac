@@ -11,10 +11,6 @@ env:
   #Possible values for ARTIFACTORY_DEPLOY_REPO: sonarsource-private-qa, sonarsource-public-qa
   ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
   ARTIFACTORY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
-  # burgr notification
-  BURGR_URL: VAULT[development/kv/data/burgr data.url]
-  BURGR_USERNAME: VAULT[development/kv/data/burgr data.cirrus_username]
-  BURGR_PASSWORD: VAULT[development/kv/data/burgr data.cirrus_password]
   # Use bash (instead of sh on linux or cmd.exe on windows)
   CIRRUS_SHELL: bash
   # Allows to run builds for the 50 last commits in a branch:
@@ -39,6 +35,10 @@ promote_secrets: &PROMOTE_SECRETS
   GCF_ACCESS_TOKEN: VAULT[development/kv/data/promote data.token]
   PROMOTE_URL: VAULT[development/kv/data/promote data.url]
   GITHUB_TOKEN: VAULT[development/github/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promotion token]
+  # burgr notification
+  BURGR_URL: VAULT[development/kv/data/burgr data.url]
+  BURGR_USERNAME: VAULT[development/kv/data/burgr data.cirrus_username]
+  BURGR_PASSWORD: VAULT[development/kv/data/burgr data.cirrus_password]
 
 # ----------------------------------------------
 # -------------CONTAINER DEFINITIONS------------
@@ -89,7 +89,7 @@ only_sonarsource_qa: &ONLY_IF_SONARSOURCE_QA
 
 qa_task_filter_template: &QA_TASK_FILTER
   depends_on:
-    - build
+    - Build (Linux)
   <<: *ONLY_IF_SONARSOURCE_QA
 
 # ----------------------------------------------
@@ -97,6 +97,7 @@ qa_task_filter_template: &QA_TASK_FILTER
 # ----------------------------------------------
 
 build_task:
+  name: Build (Linux)
   <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
   env:
@@ -109,10 +110,9 @@ build_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 qa_os_win_task:
+  name: Build (Windows)
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_IF_SONARSOURCE_QA
-  depends_on:
-    - build
   maven_cache:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
@@ -120,9 +120,8 @@ qa_os_win_task:
     - source cirrus-env CI
     - mvn.cmd clean verify
 
-ws_scan_task:
-  depends_on:
-    - build
+sca_scan_task:
+  name: Mend SCA
   <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
   <<: *ONLY_IF_SONARSOURCE_QA
@@ -139,6 +138,7 @@ ws_scan_task:
       path: "whitesource/**/*"
 
 qa_plugin_task:
+  name: Integration Test (Plugin)
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *MAVEN_CACHE
@@ -156,6 +156,7 @@ qa_plugin_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 qa_ruling_task:
+  name: Integration Test (Ruling)
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *MAVEN_CACHE
@@ -169,11 +170,12 @@ qa_ruling_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 promote_task:
+  name: Promote Artifact
   depends_on:
-    - build
-    - qa_plugin
-    - qa_ruling
-    - ws_scan
+    - Build (Linux)
+    - Integration Test (Ruling)
+    - Integration Test (Plugin)
+    - Mend SCA
   <<: *ONLY_IF_SONARSOURCE_QA
   <<: *LINUX_1_CPU_1G
   <<: *MAVEN_CACHE
