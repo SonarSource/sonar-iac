@@ -27,7 +27,7 @@ public interface ParameterDeclaration extends Statement {
 
   ParameterType type();
 
-  Expression defaultValue();
+  PropertyValue defaultValue();
 
   List<Expression> allowedValues();
 

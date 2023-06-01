@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.json;
+package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class OutputDeclarationTest {
+class OutputDeclarationImplTest {
 
   private final ArmParser parser = new ArmParser();
   @RegisterExtension
@@ -95,6 +95,24 @@ class OutputDeclarationTest {
     assertThat((ArmTree) children.get(6)).is(EXPRESSION).has("value", "my output value").hasRange(9, 15, 9, 32);
     assertThat((ArmTree) children.get(7)).is(IDENTIFIER).has("value", "count").hasRange(7, 8, 7, 15);
     assertThat((ArmTree) children.get(8)).is(EXPRESSION).has("value", "countValue").hasRange(7, 17, 7, 29);
+  }
+
+  @Test
+  void shouldIgnoreNonOutpputsFields() {
+    String code = code("{",
+      "  \"not-outputs\": {",
+      "    \"myOutputValue\": {",
+      "      \"type\": \"my type\",",
+      "      \"condition\": \"my condition\",",
+      "      \"copy\": {",
+      "        \"count\": \"countValue\"",
+      "      },",
+      "      \"value\": \"my output value\"",
+      "    }",
+      "  }",
+      "}");
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).isEmpty();
   }
 
   @Test
@@ -253,7 +271,7 @@ class OutputDeclarationTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 5:15");
+    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting Expression, got ArrayExpressionImpl instead at 5:15");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);
@@ -287,7 +305,7 @@ class OutputDeclarationTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("toObjectExpression: Expecting ObjectExpression, got ArrayExpressionImpl instead at 5:14");
+    assertThat(parseException).hasMessage("Fail to Cast to ObjectExpression: Expecting ObjectExpression, got ArrayExpressionImpl instead at 5:14");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(14);
@@ -306,7 +324,7 @@ class OutputDeclarationTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("convertToSimpleProperty: Expecting Expression in property value, got ArrayExpressionImpl instead at 6:17");
+    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting Expression, got ArrayExpressionImpl instead at 6:17");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(6);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(17);
