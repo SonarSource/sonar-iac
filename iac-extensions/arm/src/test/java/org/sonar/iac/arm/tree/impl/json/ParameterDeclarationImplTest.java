@@ -32,6 +32,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -134,7 +135,6 @@ class ParameterDeclarationImplTest {
       "        }",
       "    }",
       "}");
-
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
       .hasMessage("Fail to extract ArrayExpression: Expecting ArrayExpression, got ExpressionImpl instead at 5:29");
@@ -154,6 +154,55 @@ class ParameterDeclarationImplTest {
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
       .hasMessage("Fail to cast to Expression: Expecting Expression, got ArrayExpressionImpl instead at 5:38");
+  }
+
+  @Test
+  void shouldParseDefaultValueAnyFormat() {
+    String code = code("{",
+      "    \"parameters\": {",
+      "        \"string\": {",
+      "            \"type\": \"string\",",
+      "            \"defaultValue\": \"a\"",
+      "        },",
+      "        \"int\": {",
+      "            \"type\": \"int\",",
+      "            \"defaultValue\": 7",
+      "        },",
+      "        \"array\": {",
+      "            \"type\": \"array\",",
+      "            \"defaultValue\": [\"arr\"]",
+      "        },",
+      "        \"object\": {",
+      "            \"type\": \"object\",",
+      "            \"defaultValue\": {\"key\":\"value\"}",
+      "        }",
+      "    }",
+      "}");
+
+    File tree = (File) parser.parse(code, null);
+
+    assertThat(tree.statements()).hasSize(4);
+    ParameterDeclaration parameterString = (ParameterDeclaration) tree.statements().get(0);
+    ParameterDeclaration parameterInt = (ParameterDeclaration) tree.statements().get(1);
+    ParameterDeclaration parameterArray = (ParameterDeclaration) tree.statements().get(2);
+    ParameterDeclaration parameterObject = (ParameterDeclaration) tree.statements().get(3);
+
+    assertThat(parameterString.identifier().value()).isEqualTo("string");
+    assertThat(parameterString.type().name()).isEqualTo("STRING");
+    assertThat(parameterString.defaultValue()).isExpression().hasValue("a");
+
+    assertThat(parameterInt.identifier().value()).isEqualTo("int");
+    assertThat(parameterInt.type().name()).isEqualTo("INT");
+    assertThat(parameterInt.defaultValue()).isExpression().hasValue("7");
+
+    assertThat(parameterArray.identifier().value()).isEqualTo("array");
+    assertThat(parameterArray.type().name()).isEqualTo("ARRAY");
+    assertThat(parameterArray.defaultValue()).isArrayExpression().hasArrayExpressionValues("arr");
+
+    assertThat(parameterObject.identifier().value()).isEqualTo("object");
+    assertThat(parameterObject.type().name()).isEqualTo("OBJECT");
+    assertThat(parameterObject.defaultValue()).isObjectExpression().hasObjectSize(1).hasObjectExpression("key", "value");
+
   }
 
   @Test
