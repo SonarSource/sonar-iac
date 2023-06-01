@@ -32,7 +32,12 @@ public class PropertyValueAssert extends ArmTreeAssert<PropertyValueAssert, Prop
   }
 
   public PropertyValueAssert isExpression() {
-    Assertions.assertThat(actual.is(ArmTree.Kind.EXPRESSION)).isTrue();
+    Assertions.assertThat(actual.is(ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.NUMERIC_LITERAL, ArmTree.Kind.NULL_LITERAL, ArmTree.Kind.BOOLEAN_LITERAL)).isTrue();
+    return this;
+  }
+
+  public PropertyValueAssert is(ArmTree.Kind... kinds) {
+    Assertions.assertThat(actual.is(kinds)).isTrue();
     return this;
   }
 
@@ -47,7 +52,25 @@ public class PropertyValueAssert extends ArmTreeAssert<PropertyValueAssert, Prop
   }
 
   public PropertyValueAssert hasValue(String value) {
-    Assertions.assertThat(((Expression) actual).value()).isEqualTo(value);
+    Assertions.assertThat(actual.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    Assertions.assertThat(((StringLiteral) actual).value()).isEqualTo(value);
+    return this;
+  }
+
+  public PropertyValueAssert hasValue(double value) {
+    Assertions.assertThat(actual.is(ArmTree.Kind.NUMERIC_LITERAL)).isTrue();
+    Assertions.assertThat(((NumericLiteral) actual).value()).isEqualTo(value);
+    return this;
+  }
+
+  public PropertyValueAssert hasValue(boolean value) {
+    Assertions.assertThat(actual.is(ArmTree.Kind.BOOLEAN_LITERAL)).isTrue();
+    Assertions.assertThat(((BooleanLiteral) actual).value()).isEqualTo(value);
+    return this;
+  }
+
+  public PropertyValueAssert isNullLiteral() {
+    Assertions.assertThat(actual.is(ArmTree.Kind.NULL_LITERAL)).isTrue();
     return this;
   }
 

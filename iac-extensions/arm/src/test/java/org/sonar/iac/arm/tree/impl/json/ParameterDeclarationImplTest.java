@@ -30,10 +30,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.testing.IacTestUtils;
@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.arm.tree.api.ArmTree.Kind.EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PARAMETER_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -115,13 +114,13 @@ class ParameterDeclarationImplTest {
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
     assertThat(parameter.identifier().value()).isEqualTo("exampleParam");
     assertThat(parameter.type()).isEqualTo(ParameterType.STRING);
-    assertThat(parameter.defaultValue()).isExpression().hasValue("a").hasKind(EXPRESSION).hasRange(5, 28, 5, 31);
-    assertThat(parameter.minValue()).hasValue("7").hasKind(EXPRESSION).hasRange(6, 24, 6, 25);
-    assertThat(parameter.maxValue()).hasValue("90").hasKind(EXPRESSION).hasRange(7, 24, 7, 26);
-    assertThat(parameter.minLength()).hasValue("1").hasKind(EXPRESSION).hasRange(8, 25, 8, 26);
-    assertThat(parameter.maxLength()).hasValue("10").hasKind(EXPRESSION).hasRange(9, 25, 9, 27);
-    assertThat(parameter.allowedValues()).map(Expression::value).containsExactly("A", "B", "CCCC");
-    assertThat(parameter.description()).hasValue("some description").hasKind(EXPRESSION).hasRange(16, 31, 16, 49);
+    assertThat(parameter.defaultValue()).isExpression().hasValue("a").hasRange(5, 28, 5, 31);
+    assertThat(parameter.minValue()).isExpression().hasValue(7).hasRange(6, 24, 6, 25);
+    assertThat(parameter.maxValue()).isExpression().hasValue(90).hasRange(7, 24, 7, 26);
+    assertThat(parameter.minLength()).isExpression().hasValue(1).hasRange(8, 25, 8, 26);
+    assertThat(parameter.maxLength()).isExpression().hasValue(10).hasRange(9, 25, 9, 27);
+    assertThat(parameter.allowedValues()).map(expression -> ((StringLiteral) expression).value()).containsExactly("A", "B", "CCCC");
+    assertThat(parameter.description()).isExpression().hasValue("some description").hasRange(16, 31, 16, 49);
     assertThat(parameter.textRange()).hasRange(3, 8, 16, 49);
   }
 
@@ -137,7 +136,7 @@ class ParameterDeclarationImplTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Fail to extract ArrayExpression: Expecting ArrayExpression, got ExpressionImpl instead at 5:29");
+      .hasMessage("Fail to extract ArrayExpression: Expecting [ArrayExpression], got StringLiteralImpl instead at 5:29");
   }
 
   @Test
@@ -153,7 +152,7 @@ class ParameterDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Fail to cast to Expression: Expecting Expression, got ArrayExpressionImpl instead at 5:38");
+      .hasMessage("Fail to cast to Expression: Expecting [StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral], got ArrayExpressionImpl instead at 5:38");
   }
 
   private String parserParameterDefaultValue(String parameterName, String type, String defaultValue) {

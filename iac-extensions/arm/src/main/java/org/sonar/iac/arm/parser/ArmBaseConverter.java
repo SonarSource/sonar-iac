@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,11 +40,14 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.json.ArrayExpressionImpl;
-import org.sonar.iac.arm.tree.impl.json.ExpressionImpl;
+import org.sonar.iac.arm.tree.impl.json.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.json.NullLiteralImpl;
+import org.sonar.iac.arm.tree.impl.json.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.SimplePropertyImpl;
+import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
@@ -83,7 +87,19 @@ public class ArmBaseConverter {
   }
 
   public Expression convertToExpression(ScalarTree tree) {
-    return new ExpressionImpl(tree.value(), tree.metadata());
+    if (tree.style() == ScalarTree.Style.PLAIN) {
+      if ("null".equals(tree.value())) {
+        return new NullLiteralImpl(tree.metadata());
+      } else if ("true".equals(tree.value()) || "false".equals(tree.value())) {
+        return new BooleanLiteralImpl("true".equals(tree.value()), tree.metadata());
+      } else {
+        return new NumericLiteralImpl(Double.parseDouble(tree.value()), tree.metadata());
+      }
+    } else if (tree.style() == ScalarTree.Style.DOUBLE_QUOTED) {
+      return new StringLiteralImpl(tree.value(), tree.metadata());
+    } else {
+      throw new ParseException("Unsupported ScalarTree style: " + tree.style().name(), new BasicTextPointer(tree.metadata().textRange()), null);
+    }
   }
 
   public ObjectExpression convertToObjectExpression(MappingTree tree) {
@@ -141,7 +157,7 @@ public class ArmBaseConverter {
     if (value == null) {
       return null;
     }
-    throwErrorIfUnexpectedType("Fail to extract ArrayExpression", ArmTree.Kind.ARRAY_EXPRESSION, value.value());
+    throwErrorIfUnexpectedType("Fail to extract ArrayExpression", value.value(), ArmTree.Kind.ARRAY_EXPRESSION);
     return (ArrayExpression) value.value();
   }
 
@@ -150,7 +166,7 @@ public class ArmBaseConverter {
     if (property == null) {
       return null;
     }
-    throwErrorIfUnexpectedType("Fail to convert to SimpleProperty", ArmTree.Kind.EXPRESSION, property.value());
+    throwErrorIfUnexpectedType("Fail to convert to SimpleProperty", property.value(), ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.NUMERIC_LITERAL, ArmTree.Kind.NULL_LITERAL, ArmTree.Kind.BOOLEAN_LITERAL);
     return new SimplePropertyImpl(property.key(), (Expression) property.value());
   }
 
@@ -170,20 +186,24 @@ public class ArmBaseConverter {
   }
 
   public Expression toExpression(PropertyValue propertyValue) {
-    throwErrorIfUnexpectedType("Fail to cast to Expression", ArmTree.Kind.EXPRESSION, propertyValue);
+    throwErrorIfUnexpectedType("Fail to cast to Expression", propertyValue, ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.NUMERIC_LITERAL, ArmTree.Kind.NULL_LITERAL, ArmTree.Kind.BOOLEAN_LITERAL);
     return (Expression) propertyValue;
   }
 
   public ObjectExpression toObjectExpression(PropertyValue propertyValue) {
-    throwErrorIfUnexpectedType("Fail to Cast to ObjectExpression", ArmTree.Kind.OBJECT_EXPRESSION, propertyValue);
+    throwErrorIfUnexpectedType("Fail to Cast to ObjectExpression", propertyValue, ArmTree.Kind.OBJECT_EXPRESSION);
     return (ObjectExpression) propertyValue;
   }
 
-  private void throwErrorIfUnexpectedType(String message, ArmTree.Kind expected, ArmTree object) {
-    if (!object.is(expected)) {
-      throw new ParseException(message + ": Expecting " + expected.getAssociatedInterface().getSimpleName() + ", got " + object.getClass().getSimpleName()
-        + " instead at " + filenameAndPosition(object.textRange()), new BasicTextPointer(object.textRange()), null);
+  private void throwErrorIfUnexpectedType(String method, ArmTree object, ArmTree.Kind... expectedKinds) {
+    for (ArmTree.Kind expectedKind : expectedKinds) {
+      if (object.is(expectedKind)) {
+        return;
+      }
     }
+    String expected = "[" + StringUtils.join(Arrays.stream(expectedKinds).map(kind -> kind.getAssociatedInterface().getSimpleName()).collect(Collectors.toList()), ", ") + "]";
+    throw new ParseException(method + ": Expecting " + expected + ", got " + object.getClass().getSimpleName()
+      + " instead at " + filenameAndPosition(object.textRange()), new BasicTextPointer(object.textRange()), null);
   }
 
   // Log related methods

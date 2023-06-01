@@ -20,5 +20,4 @@
 package org.sonar.iac.arm.tree.api;
 
 public interface Expression extends PropertyValue {
-  String value();
 }

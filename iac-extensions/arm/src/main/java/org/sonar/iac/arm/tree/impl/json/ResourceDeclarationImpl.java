@@ -25,6 +25,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.SimpleProperty;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -65,12 +66,12 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public String version() {
-    return version.value().value();
+    return ((StringLiteral) version.value()).value();
   }
 
   @Override
   public String type() {
-    return type.value().value();
+    return ((StringLiteral) type.value()).value();
   }
 
   @Override

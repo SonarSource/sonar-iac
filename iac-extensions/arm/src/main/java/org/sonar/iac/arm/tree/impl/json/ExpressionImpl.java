@@ -26,19 +26,12 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-public class ExpressionImpl extends AbstractArmTreeImpl implements Expression {
+public abstract class ExpressionImpl extends AbstractArmTreeImpl implements Expression {
 
-  private final String value;
   private final YamlTreeMetadata metadata;
 
-  public ExpressionImpl(String value, YamlTreeMetadata metadata) {
-    this.value = value;
+  protected ExpressionImpl(YamlTreeMetadata metadata) {
     this.metadata = metadata;
-  }
-
-  @Override
-  public String value() {
-    return value;
   }
 
   @Override
@@ -49,10 +42,5 @@ public class ExpressionImpl extends AbstractArmTreeImpl implements Expression {
   @Override
   public List<Tree> children() {
     return List.of();
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.EXPRESSION;
   }
 }

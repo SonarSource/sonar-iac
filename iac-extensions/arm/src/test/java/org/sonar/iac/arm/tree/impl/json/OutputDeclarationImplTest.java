@@ -39,9 +39,10 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.arm.tree.api.ArmTree.Kind.EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.STRING_LITERAL;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class OutputDeclarationImplTest {
@@ -67,15 +68,15 @@ class OutputDeclarationImplTest {
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();
-    assertThat(tree.statements().get(0).is(EXPRESSION)).isFalse();
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isFalse();
     assertThat(tree.statements().get(0).getKind()).isEqualTo(OUTPUT_DECLARATION);
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
-    assertThat(outputDeclaration.condition().value()).isEqualTo("my condition");
-    assertThat(outputDeclaration.copyCount().value()).isEqualTo("countValue");
+    assertThat(outputDeclaration.type()).hasValue("my type");
+    assertThat(outputDeclaration.condition()).hasValue("my condition");
+    assertThat(outputDeclaration.copyCount()).hasValue("countValue");
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
+    assertThat(outputDeclaration.value()).hasValue("my output value");
     assertThat(outputDeclaration.textRange()).hasRange(3, 4, 9, 32);
 
     assertThat(outputDeclaration.name())
@@ -88,13 +89,13 @@ class OutputDeclarationImplTest {
 
     assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "myOutputValue").hasRange(3, 4, 3, 19);
     assertThat((ArmTree) children.get(1)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
-    assertThat((ArmTree) children.get(2)).is(EXPRESSION).has("value", "my type").hasRange(4, 14, 4, 23);
+    assertThat((ArmTree) children.get(2)).is(STRING_LITERAL).has("value", "my type").hasRange(4, 14, 4, 23);
     assertThat((ArmTree) children.get(3)).is(IDENTIFIER).has("value", "condition").hasRange(5, 6, 5, 17);
-    assertThat((ArmTree) children.get(4)).is(EXPRESSION).has("value", "my condition").hasRange(5, 19, 5, 33);
+    assertThat((ArmTree) children.get(4)).is(STRING_LITERAL).has("value", "my condition").hasRange(5, 19, 5, 33);
     assertThat((ArmTree) children.get(5)).is(IDENTIFIER).has("value", "value").hasRange(9, 6, 9, 13);
-    assertThat((ArmTree) children.get(6)).is(EXPRESSION).has("value", "my output value").hasRange(9, 15, 9, 32);
+    assertThat((ArmTree) children.get(6)).is(STRING_LITERAL).has("value", "my output value").hasRange(9, 15, 9, 32);
     assertThat((ArmTree) children.get(7)).is(IDENTIFIER).has("value", "count").hasRange(7, 8, 7, 15);
-    assertThat((ArmTree) children.get(8)).is(EXPRESSION).has("value", "countValue").hasRange(7, 17, 7, 29);
+    assertThat((ArmTree) children.get(8)).is(STRING_LITERAL).has("value", "countValue").hasRange(7, 17, 7, 29);
   }
 
   @Test
@@ -146,19 +147,19 @@ class OutputDeclarationImplTest {
 
     OutputDeclaration outputDeclaration1 = (OutputDeclaration) tree.statements().get(0);
     assertThat(outputDeclaration1.name().value()).isEqualTo("myOutputValue1");
-    assertThat(outputDeclaration1.type().value()).isEqualTo("my type 1");
-    assertThat(outputDeclaration1.condition().value()).isEqualTo("my condition 1");
-    assertThat(outputDeclaration1.copyCount().value()).isEqualTo("countValue 1");
-    assertThat(outputDeclaration1.copyInput().value()).isEqualTo("inputValue 1");
-    assertThat(outputDeclaration1.value().value()).isEqualTo("my output value 1");
+    assertThat(outputDeclaration1.type()).hasValue("my type 1");
+    assertThat(outputDeclaration1.condition()).hasValue("my condition 1");
+    assertThat(outputDeclaration1.copyCount()).hasValue("countValue 1");
+    assertThat(outputDeclaration1.copyInput()).hasValue("inputValue 1");
+    assertThat(outputDeclaration1.value()).hasValue("my output value 1");
 
     OutputDeclaration outputDeclaration2 = (OutputDeclaration) tree.statements().get(1);
     assertThat(outputDeclaration2.name().value()).isEqualTo("myOutputValue2");
-    assertThat(outputDeclaration2.type().value()).isEqualTo("my type 2");
-    assertThat(outputDeclaration2.condition().value()).isEqualTo("my condition 2");
-    assertThat(outputDeclaration2.copyCount().value()).isEqualTo("countValue 2");
-    assertThat(outputDeclaration2.copyInput().value()).isEqualTo("inputValue 2");
-    assertThat(outputDeclaration2.value().value()).isEqualTo("my output value 2");
+    assertThat(outputDeclaration2.type()).hasValue("my type 2");
+    assertThat(outputDeclaration2.condition()).hasValue("my condition 2");
+    assertThat(outputDeclaration2.copyCount()).hasValue("countValue 2");
+    assertThat(outputDeclaration2.copyInput()).hasValue("inputValue 2");
+    assertThat(outputDeclaration2.value()).hasValue("my output value 2");
   }
 
   @Test
@@ -190,14 +191,14 @@ class OutputDeclarationImplTest {
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();
-    assertThat(tree.statements().get(0).is(EXPRESSION)).isFalse();
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isFalse();
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
+    assertThat(outputDeclaration.type()).hasValue("my type");
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
+    assertThat(outputDeclaration.value()).hasValue("my output value");
 
     assertThat(outputDeclaration.name())
       .is(IDENTIFIER)
@@ -222,14 +223,14 @@ class OutputDeclarationImplTest {
     File tree = (File) parser.parse(code, mockInputFileContext("file.json"));
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();
-    assertThat(tree.statements().get(0).is(EXPRESSION)).isFalse();
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isFalse();
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
+    assertThat(outputDeclaration.type()).hasValue("my type");
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
+    assertThat(outputDeclaration.value()).hasValue("my output value");
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
@@ -271,7 +272,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting Expression, got ArrayExpressionImpl instead at 5:15");
+    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral], got ArrayExpressionImpl instead at 5:15");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);
@@ -305,7 +306,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Fail to Cast to ObjectExpression: Expecting ObjectExpression, got ArrayExpressionImpl instead at 5:14");
+    assertThat(parseException).hasMessage("Fail to Cast to ObjectExpression: Expecting [ObjectExpression], got ArrayExpressionImpl instead at 5:14");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(14);
@@ -324,7 +325,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting Expression, got ArrayExpressionImpl instead at 6:17");
+    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral, NumericLiteral, NullLiteral, BooleanLiteral], got ArrayExpressionImpl instead at 6:17");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(6);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(17);
