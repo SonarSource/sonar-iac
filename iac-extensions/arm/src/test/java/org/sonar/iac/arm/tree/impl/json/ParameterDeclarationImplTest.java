@@ -89,6 +89,26 @@ class ParameterDeclarationImplTest {
   }
 
   @Test
+  void shouldParseMetadataParameter() {
+    String code = code("{",
+      "  \"parameters\": {",
+      "    \"enabledForDeployment\": {",
+      "      \"type\": \"bool\",",
+      "      \"metadata\": {",
+      "          \"description\": \"some description\"",
+      "      }",
+      "    }",
+      "  }",
+      "}");
+
+    File tree = (File) parser.parse(code, null);
+
+    ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
+    assertThat(parameter.identifier().value()).isEqualTo("enabledForDeployment");
+    assertThat(parameter.description()).hasValue("some description").hasKind(STRING_LITERAL).hasRange(6, 25, 6, 43);
+  }
+
+  @Test
   @Disabled("SONARIAC-851")
   void shouldParseFullParameter() {
     String code = code("{",

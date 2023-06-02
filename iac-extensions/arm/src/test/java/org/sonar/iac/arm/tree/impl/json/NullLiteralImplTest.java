@@ -28,6 +28,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -51,6 +52,6 @@ class NullLiteralImplTest extends PropertyTest {
   })
   void shouldFailOnInvalidNumericFormat(String nullValue) {
     String code = getCode("\"invalid_null_value\": " + nullValue);
-    assertThatThrownBy(() -> parser.parse(code, null)).isInstanceOf(NumberFormatException.class);
+    assertThatThrownBy(() -> parser.parse(code, null)).isInstanceOf(ParseException.class);
   }
 }

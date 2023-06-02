@@ -123,10 +123,14 @@ public class ArmBaseConverter {
       } else if ("true".equals(tree.value()) || "false".equals(tree.value())) {
         return new BooleanLiteralImpl("true".equals(tree.value()), tree.metadata());
       } else {
-        return new NumericLiteralImpl(Float.parseFloat(tree.value()), tree.metadata());
+        try {
+          return new NumericLiteralImpl(Float.parseFloat(tree.value()), tree.metadata());
+        } catch (NumberFormatException e) {
+          throw new ParseException("Failed to parse plain value '" + tree.value() + "'", new BasicTextPointer(tree.metadata().textRange()), null);
+        }
       }
     } else if (tree.style() == ScalarTree.Style.DOUBLE_QUOTED) {
-      return new StringLiteralImpl(tree.value(), tree.metadata());
+        return new StringLiteralImpl(tree.value(), tree.metadata());
     } else {
       throw new ParseException("Unsupported ScalarTree style: " + tree.style().name(), new BasicTextPointer(tree.metadata().textRange()), null);
     }

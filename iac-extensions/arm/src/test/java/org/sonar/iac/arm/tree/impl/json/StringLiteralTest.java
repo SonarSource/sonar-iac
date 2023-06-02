@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -28,6 +29,9 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.common.extension.ParseException;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class StringLiteralTest extends PropertyTest {
   private final ArmParser parser = new ArmParser();
@@ -57,5 +61,17 @@ class StringLiteralTest extends PropertyTest {
 
     Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
     ArmAssertions.assertThat(booleanProperty.value()).isKind(ArmTree.Kind.STRING_LITERAL);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "\"test",
+    "'test'",
+    "test"
+  })
+  void shouldFailOnInvalidString(String str) {
+    String code = getCode("\"invalid_string\": " + str);
+    Assertions.setMaxStackTraceElementsDisplayed(20);
+    assertThatThrownBy(() -> parser.parse(code, null)).isInstanceOf(ParseException.class);
   }
 }
