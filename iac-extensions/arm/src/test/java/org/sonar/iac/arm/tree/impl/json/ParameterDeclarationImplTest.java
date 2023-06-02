@@ -125,6 +125,23 @@ class ParameterDeclarationImplTest {
   }
 
   @Test
+  void shouldFailOnStringValueProvidedToNumericField() {
+    String code = code("{",
+      "    \"parameters\": {",
+      "        \"exampleParam\": {",
+      "            \"type\": \"int\",",
+      "            \"defaultValue\": 8,",
+      "            \"minValue\": \"7\",",
+      "        }",
+      "    }",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Fail to extract Property 'minValue': Expecting [NumericLiteral], got StringLiteralImpl instead at 6:24");
+  }
+
+  @Test
   void shouldFailOnInvalidAllowedValues() {
     String code = code("{",
       "    \"parameters\": {",
