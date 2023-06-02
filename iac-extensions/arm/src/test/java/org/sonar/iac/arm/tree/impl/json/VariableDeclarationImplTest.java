@@ -20,6 +20,8 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
@@ -33,6 +35,56 @@ import static org.sonar.iac.arm.ArmAssertions.assertThat;
 class VariableDeclarationImplTest {
 
   private final ArmParser parser = new ArmParser();
+
+  private String parserVariable(String name, String value) {
+    return code("{",
+      "  \"variables\": {",
+      "    \"" + name + "\": " + value,
+      "  }",
+      "}");
+  }
+
+  @Test
+  void shouldParseStringVariable() {
+    String code = parserVariable("stringVar", "\"val\"");
+    File tree = (File) parser.parse(code, null);
+
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
+
+    VariableDeclaration stringVar = (VariableDeclaration) tree.statements().get(0);
+    assertThat(stringVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "stringVar").hasRange(3, 4, 3, 15);
+    assertThat(stringVar.value()).isExpression().hasValue("val").hasRange(3, 17, 3, 22);
+    assertThat(stringVar.children()).hasSize(2);
+  }
+
+  @Test
+  void shouldParseArrayVariable() {
+    String code = parserVariable("arrayVar", "[\"val\"]");
+    File tree = (File) parser.parse(code, null);
+
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
+
+    VariableDeclaration arrayVar = (VariableDeclaration) tree.statements().get(0);
+    assertThat(arrayVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "arrayVar").hasRange(3, 4, 3, 14);
+    assertThat(arrayVar.value()).isArrayExpression().hasRange(3, 16, 3, 23);
+    assertThat(arrayVar.children()).hasSize(2);
+  }
+
+  @Test
+  void shouldParseObjectVariable() {
+    String code = parserVariable("objectVar", "{\"key\":\"val\"}");
+    File tree = (File) parser.parse(code, null);
+
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
+
+    VariableDeclaration objectVar = (VariableDeclaration) tree.statements().get(0);
+    assertThat(objectVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "objectVar").hasRange(3, 4, 3, 15);
+    assertThat(objectVar.value()).isObjectExpression().hasRange(3, 18, 3, 29);
+    assertThat(objectVar.children()).hasSize(2);
+  }
 
   @Test
   void shouldParseVariables() {
