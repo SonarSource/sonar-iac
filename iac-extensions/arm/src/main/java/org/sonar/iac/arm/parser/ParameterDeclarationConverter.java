@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -61,18 +61,18 @@ public class ParameterDeclarationConverter extends ArmBaseConverter {
 
     Map<String, Property> properties = extractProperties(((MappingTreeImpl) tupleTree.value()));
 
-    SimpleProperty type = extractMandatorySimpleProperty(tupleTree.metadata(), properties, "type");
+    Property type = extractMandatoryProperty(tupleTree.metadata(), properties, "type", ArmTree.Kind.STRING_LITERAL);
     Property defaultValue = extractProperty(properties, "defaultValue");
-    SimpleProperty minValue = extractSimpleProperty(properties, "minValue");
-    SimpleProperty maxValue = extractSimpleProperty(properties, "maxValue");
-    SimpleProperty minLength = extractSimpleProperty(properties, "minLength");
-    SimpleProperty maxLength = extractSimpleProperty(properties, "maxLength");
+    Property minValue = extractProperty(properties, "minValue", ArmTree.Kind.NUMERIC_LITERAL);
+    Property maxValue = extractProperty(properties, "maxValue", ArmTree.Kind.NUMERIC_LITERAL);
+    Property minLength = extractProperty(properties, "minLength", ArmTree.Kind.NUMERIC_LITERAL);
+    Property maxLength = extractProperty(properties, "maxLength", ArmTree.Kind.NUMERIC_LITERAL);
     ArrayExpression allowedValues = extractArrayExpression(properties, "allowedValues");
-    SimpleProperty description = null;
+    Property description = null;
 
     if (properties.containsKey("metadata")) {
       ObjectExpression copy = toObjectExpression(properties.remove("metadata").value());
-      description = convertToSimpleProperty(copy.getPropertyByName("description"));
+      description = copy.getPropertyByName("description");
     }
 
     checkUnexpectedProperties(properties, id);

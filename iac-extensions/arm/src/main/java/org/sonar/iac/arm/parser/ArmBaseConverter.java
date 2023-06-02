@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
@@ -37,8 +36,6 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.json.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
@@ -46,7 +43,6 @@ import org.sonar.iac.arm.tree.impl.json.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
-import org.sonar.iac.arm.tree.impl.json.SimplePropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.BasicTextPointer;
@@ -136,24 +132,24 @@ public class ArmBaseConverter {
     }
   }
 
-  public SimpleProperty extractMandatorySimpleProperty(YamlTreeMetadata metadata, Map<String, Property> properties, String key) {
+  public Property extractMandatoryProperty(YamlTreeMetadata metadata, Map<String, Property> properties, String key, ArmTree.Kind... kinds) {
     Property value = properties.remove(key);
     if (value == null) {
       throw new ParseException("Missing mandatory attribute '" + key + "' at " + filenameAndPosition(metadata.textRange()), new BasicTextPointer(metadata.textRange()), null);
     }
-    return convertToSimpleProperty(value);
+    throwErrorIfUnexpectedType("Fail to extract mandatory property '" + key + "'", value.value(), kinds);
+    return value;
   }
 
-  public SimpleProperty extractSimpleProperty(Map<String, Property> properties, String key) {
+  public Property extractProperty(Map<String, Property> properties, String key, ArmTree.Kind... kinds) {
     Property value = properties.remove(key);
     if (value == null) {
       return null;
     }
-    return convertToSimpleProperty(value);
-  }
-
-  public Property extractProperty(Map<String, Property> properties, String key) {
-    return properties.remove(key);
+    if (kinds.length > 0) {
+      throwErrorIfUnexpectedType("Fail to extract mandatory property '" + key + "'", value.value(), kinds);
+    }
+    return value;
   }
 
   public ArrayExpression extractArrayExpression(Map<String, Property> properties, String key) {
@@ -163,15 +159,6 @@ public class ArmBaseConverter {
     }
     throwErrorIfUnexpectedType("Fail to extract ArrayExpression", value.value(), ArmTree.Kind.ARRAY_EXPRESSION);
     return (ArrayExpression) value.value();
-  }
-
-  @CheckForNull
-  public SimpleProperty convertToSimpleProperty(@Nullable Property property) {
-    if (property == null) {
-      return null;
-    }
-    throwErrorIfUnexpectedType("Fail to convert to SimpleProperty", property.value(), ArmTree.Kind.STRING_LITERAL);
-    return new SimplePropertyImpl(property.key(), (StringLiteral) property.value());
   }
 
   public void checkUnexpectedProperties(Map<String, Property> byKeys, String id) {
