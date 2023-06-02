@@ -41,7 +41,6 @@ import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.json.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.BooleanLiteralImpl;
-import org.sonar.iac.arm.tree.impl.json.ExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.json.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.NumericLiteralImpl;

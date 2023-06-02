@@ -31,6 +31,11 @@ public class ExpressionAssert extends ArmTreeAssert<ExpressionAssert, Expression
     return new ExpressionAssert(actual);
   }
 
+  public ExpressionAssert isKind(ArmTree.Kind... kinds) {
+    Assertions.assertThat(actual.is(kinds)).isTrue();
+    return this;
+  }
+
   public ExpressionAssert isLiteral() {
     Assertions.assertThat(actual.is(ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.BOOLEAN_LITERAL, ArmTree.Kind.NUMERIC_LITERAL, ArmTree.Kind.NULL_LITERAL)).isTrue();
     return this;
@@ -48,6 +53,16 @@ public class ExpressionAssert extends ArmTreeAssert<ExpressionAssert, Expression
 
   public ExpressionAssert hasValue(String value) {
     Assertions.assertThat(((StringLiteral) actual).value()).isEqualTo(value);
+    return this;
+  }
+
+  public ExpressionAssert hasValue(boolean value) {
+    Assertions.assertThat(((BooleanLiteral) actual).value()).isEqualTo(value);
+    return this;
+  }
+
+  public ExpressionAssert hasValue(float value) {
+    Assertions.assertThat(((NumericLiteral) actual).value()).isEqualTo(value);
     return this;
   }
 

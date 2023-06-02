@@ -89,7 +89,7 @@ public class ParameterDeclarationConverter extends ArmBaseConverter {
       maxLength);
   }
 
-  private List<Expression> prepareListAllowedValues(@Nullable ArrayExpression allowedValues) {
+  private static List<Expression> prepareListAllowedValues(@Nullable ArrayExpression allowedValues) {
     if (allowedValues == null) {
       return Collections.emptyList();
     }
