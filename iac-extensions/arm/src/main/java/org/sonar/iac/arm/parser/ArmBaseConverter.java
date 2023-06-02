@@ -110,13 +110,13 @@ public class ArmBaseConverter {
     } else if (tree instanceof MappingTree) {
       return convertToObjectExpression((MappingTree) tree);
     } else if (tree instanceof ScalarTree) {
-      return convertToExpressionLiteral((ScalarTree) tree);
+      return convertToLiteralExpression((ScalarTree) tree);
     } else {
       throw new ParseException("Couldn't convert to Expression, unsupported class " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null);
     }
   }
 
-  public Expression convertToExpressionLiteral(ScalarTree tree) {
+  public Expression convertToLiteralExpression(ScalarTree tree) {
     if (tree.style() == ScalarTree.Style.PLAIN) {
       if ("null".equals(tree.value())) {
         return new NullLiteralImpl(tree.metadata());

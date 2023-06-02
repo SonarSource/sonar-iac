@@ -20,14 +20,16 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 
-class BooleanLiteralImplTest extends PropertyTest {
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.getCode;
+
+class BooleanLiteralImplTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
@@ -36,7 +38,7 @@ class BooleanLiteralImplTest extends PropertyTest {
     File tree = (File) parser.parse(code, null);
 
     Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    ArmAssertions.assertThat(booleanProperty.value()).isKind(ArmTree.Kind.BOOLEAN_LITERAL).hasValue(true);
+    assertThat(booleanProperty.value()).isKind(ArmTree.Kind.BOOLEAN_LITERAL).hasValue(true);
   }
 
   @Test
@@ -45,6 +47,6 @@ class BooleanLiteralImplTest extends PropertyTest {
     File tree = (File) parser.parse(code, null);
 
     Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    ArmAssertions.assertThat(booleanProperty.value()).isKind(ArmTree.Kind.BOOLEAN_LITERAL).hasValue(false);
+    assertThat(booleanProperty.value()).isKind(ArmTree.Kind.BOOLEAN_LITERAL).hasValue(false);
   }
 }

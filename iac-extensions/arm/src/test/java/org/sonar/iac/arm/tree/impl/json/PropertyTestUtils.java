@@ -21,8 +21,8 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-public abstract class PropertyTest {
-  protected String getCode(String property) {
+public class PropertyTestUtils {
+  public static String getCode(String property) {
     return code("{",
       "  \"resources\": [",
       "    {",

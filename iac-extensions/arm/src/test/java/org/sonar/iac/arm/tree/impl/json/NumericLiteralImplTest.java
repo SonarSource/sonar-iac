@@ -22,7 +22,6 @@ package org.sonar.iac.arm.tree.impl.json;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
@@ -31,8 +30,10 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.getCode;
 
-class NumericLiteralImplTest extends PropertyTest {
+class NumericLiteralImplTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
@@ -40,8 +41,8 @@ class NumericLiteralImplTest extends PropertyTest {
     String code = getCode("\"numeric\": 7");
     File tree = (File) parser.parse(code, null);
 
-    Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    ArmAssertions.assertThat(booleanProperty.value()).isKind(ArmTree.Kind.NUMERIC_LITERAL).hasValue(7);
+    Property numericProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
+    assertThat(numericProperty.value()).isKind(ArmTree.Kind.NUMERIC_LITERAL).hasValue(7);
   }
 
   @ParameterizedTest
@@ -58,8 +59,8 @@ class NumericLiteralImplTest extends PropertyTest {
     String code = getCode("\"numeric\": " + numeric);
     File tree = (File) parser.parse(code, null);
 
-    Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    ArmAssertions.assertThat(booleanProperty.value()).isKind(ArmTree.Kind.NUMERIC_LITERAL);
+    Property numericProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
+    assertThat(numericProperty.value()).isKind(ArmTree.Kind.NUMERIC_LITERAL);
   }
 
   @ParameterizedTest
