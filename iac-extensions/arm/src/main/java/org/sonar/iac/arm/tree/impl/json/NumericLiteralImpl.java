@@ -24,9 +24,9 @@ import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 public class NumericLiteralImpl extends ExpressionImpl implements NumericLiteral {
 
-  private final Double value;
+  private final double value;
 
-  public NumericLiteralImpl(Double value, YamlTreeMetadata metadata) {
+  public NumericLiteralImpl(double value, YamlTreeMetadata metadata) {
     super(metadata);
     this.value = value;
   }
