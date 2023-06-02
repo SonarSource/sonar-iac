@@ -82,6 +82,12 @@ public class ArmParser implements TreeParser<ArmTree> {
       .collect(Collectors.toList());
     statements.addAll(params);
 
+    VariableDeclarationConverter variableConverter = new VariableDeclarationConverter(inputFileContext);
+    List<Statement> variables = variableConverter.extractVariablesMapping(document)
+      .map(variableConverter::convertVariableDeclaration)
+      .collect(Collectors.toList());
+    statements.addAll(variables);
+
     return new FileImpl(statements);
   }
 }
