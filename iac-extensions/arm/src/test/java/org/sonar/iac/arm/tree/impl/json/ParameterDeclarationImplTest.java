@@ -188,7 +188,7 @@ class ParameterDeclarationImplTest {
 
     assertThat(parameterInt.identifier().value()).isEqualTo("int");
     assertThat(parameterInt.type().name()).isEqualTo("INT");
-    assertThat(parameterInt.defaultValue()).isExpression().hasValue("7");
+    assertThat(parameterInt.defaultValue()).isExpression().hasValue(7);
   }
 
   @Test

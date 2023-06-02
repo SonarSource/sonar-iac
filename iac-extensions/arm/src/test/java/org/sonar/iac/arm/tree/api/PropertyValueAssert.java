@@ -80,7 +80,7 @@ public class PropertyValueAssert extends ArmTreeAssert<PropertyValueAssert, Prop
     for (int i = 0; i < values.length; i++) {
       assertThat(arrayExpression.values().get(i)).isExpression();
       String value = values[i];
-      String arrayValue = ((Expression) arrayExpression.values().get(i)).value();
+      String arrayValue = ((StringLiteral) arrayExpression.values().get(i)).value();
       Assertions.assertThat(value).isEqualTo(arrayValue);
     }
     return this;
@@ -94,7 +94,7 @@ public class PropertyValueAssert extends ArmTreeAssert<PropertyValueAssert, Prop
 
   public PropertyValueAssert hasObjectExpression(String key, String value) {
     ObjectExpression objectExpression = (ObjectExpression) actual;
-    Property property = objectExpression.getPropertyByName(key);
+    Property<PropertyValue> property = objectExpression.getPropertyByName(key);
     Assertions.assertThat(property).isNotNull();
     Assertions.assertThat(property.key().value()).isEqualTo(key);
     assertThat(property.value()).isExpression().hasValue(value);

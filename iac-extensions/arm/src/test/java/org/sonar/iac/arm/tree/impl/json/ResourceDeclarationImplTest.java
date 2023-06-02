@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -215,6 +214,7 @@ class ResourceDeclarationImplTest {
     assertThat(resourceDeclaration2.properties().get(0).key().value()).isEqualTo("property2");
     assertThat(resourceDeclaration2.properties().get(0).value()).isExpression().hasValue("value2");
   }
+
   @Test
   void shouldParseResourceExtraStringProperty() {
     String code = code("{",
@@ -339,19 +339,19 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(0)).isInstanceOf(ResourceDeclaration.class);
 
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resource.name().value()).isEqualTo("test with complex properties");
+    assertThat(resource.name()).isExpression().hasValue("test with complex properties");
     assertThat(resource.type()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules");
     assertThat(resource.version()).isEqualTo("2022-11-01");
 
     assertThat(resource.properties()).hasSize(1);
-    Property property = resource.properties().get(0);
+    Property<PropertyValue> property = resource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("properties");
     assertThat(property.value()).hasKind(OBJECT_EXPRESSION);
 
     ObjectExpression objectExpression = (ObjectExpression) property.value();
     assertThat(objectExpression.getMapRepresentation()).hasSize(1);
 
-    Property sourceAddressPrefixesProperty = objectExpression.getPropertyByName("sourceAddressPrefixes");
+    Property<PropertyValue> sourceAddressPrefixesProperty = objectExpression.getPropertyByName("sourceAddressPrefixes");
     assertThat(sourceAddressPrefixesProperty.key().value()).isEqualTo("sourceAddressPrefixes");
     assertThat(sourceAddressPrefixesProperty.value()).hasKind(ARRAY_EXPRESSION);
 
@@ -360,6 +360,6 @@ class ResourceDeclarationImplTest {
     assertThat(arrayExpression.values()).hasSize(1);
 
     PropertyValue value = arrayExpression.values().get(0);
-    assertThat(value).hasKind(EXPRESSION).hasValue("0.0.0.0/0");
+    assertThat(value).hasKind(STRING_LITERAL).hasValue("0.0.0.0/0");
   }
 }
