@@ -23,12 +23,10 @@ import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.PropertyValue;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
-public class PropertyImpl<T extends PropertyValue> extends AbstractArmTreeImpl implements Property<T> {
+public class PropertyImpl<T extends PropertyValue> implements Property<T> {
 
   private final Identifier key;
   private final T value;
@@ -51,15 +49,5 @@ public class PropertyImpl<T extends PropertyValue> extends AbstractArmTreeImpl i
   @Override
   public TextRange textRange() {
     return TextRanges.merge(List.of(key.textRange(), value.textRange()));
-  }
-
-  @Override
-  public List<Tree> children() {
-    return List.of(key, value);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.PROPERTY;
   }
 }

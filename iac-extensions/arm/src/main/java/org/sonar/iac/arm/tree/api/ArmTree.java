@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
-import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -47,7 +46,6 @@ public interface ArmTree extends Tree {
     BOOLEAN_LITERAL(BooleanLiteral.class),
     NULL_LITERAL(NullLiteral.class),
     IDENTIFIER(Identifier.class),
-    PROPERTY(PropertyImpl.class),
     ARRAY_EXPRESSION(ArrayExpression.class),
     OBJECT_EXPRESSION(ObjectExpression.class);
 

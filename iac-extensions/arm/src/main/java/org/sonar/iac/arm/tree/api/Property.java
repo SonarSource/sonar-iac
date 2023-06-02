@@ -21,7 +21,7 @@ package org.sonar.iac.arm.tree.api;
 
 import org.sonar.iac.common.api.tree.PropertyTree;
 
-public interface Property<T extends PropertyValue> extends PropertyTree, PropertyValue {
+public interface Property<T extends PropertyValue> extends PropertyTree {
   Identifier key();
 
   T value();
