@@ -152,7 +152,7 @@ public class ArmBaseConverter {
         }
       }
     } else if (tree.style() == ScalarTree.Style.DOUBLE_QUOTED) {
-        return new StringLiteralImpl(tree.value(), tree.metadata());
+      return new StringLiteralImpl(tree.value(), tree.metadata());
     } else {
       throw new ParseException("Unsupported ScalarTree style: " + tree.style().name(), new BasicTextPointer(tree.metadata().textRange()), null);
     }
