@@ -23,15 +23,16 @@ import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.SimpleProperty;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 public class SimplePropertyImpl implements SimpleProperty {
 
   private final Identifier key;
-  private final Expression value;
+  private final StringLiteral value;
 
-  public SimplePropertyImpl(Identifier key, Expression value) {
+  public SimplePropertyImpl(Identifier key, StringLiteral value) {
     this.key = key;
     this.value = value;
   }
@@ -42,7 +43,7 @@ public class SimplePropertyImpl implements SimpleProperty {
   }
 
   @Override
-  public Expression value() {
+  public StringLiteral value() {
     return value;
   }
 

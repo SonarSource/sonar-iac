@@ -17,7 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.impl.json;
 
-public interface PropertyValue extends ArmTree {
+import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
+
+public class StringLiteralImpl extends ExpressionImpl implements StringLiteral {
+
+  private final String value;
+
+  public StringLiteralImpl(String value, YamlTreeMetadata metadata) {
+    super(metadata);
+    this.value = value;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.STRING_LITERAL;
+  }
+
+  @Override
+  public String value() {
+    return value;
+  }
 }

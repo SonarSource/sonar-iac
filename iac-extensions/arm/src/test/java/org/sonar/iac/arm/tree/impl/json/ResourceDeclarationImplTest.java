@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -31,8 +30,8 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.testing.IacCommonAssertions;
@@ -42,11 +41,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.ARRAY_EXPRESSION;
-import static org.sonar.iac.arm.tree.api.ArmTree.Kind.EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
-import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PROPERTY;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.STRING_LITERAL;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ResourceDeclarationImplTest {
@@ -67,14 +66,14 @@ class ResourceDeclarationImplTest {
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
-    assertThat(tree.statements().get(0).is(EXPRESSION)).isFalse();
+    assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isFalse();
 
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
     assertThat(resourceDeclaration.type()).isEqualTo("Microsoft.Kusto/clusters");
     assertThat(resourceDeclaration.version()).isEqualTo("2022-12-29");
 
     assertThat(resourceDeclaration.name())
-      .hasKind(EXPRESSION)
+      .hasKind(STRING_LITERAL)
       .hasValue("myResource")
       .hasRange(6, 14, 6, 26);
 
@@ -84,11 +83,11 @@ class ResourceDeclarationImplTest {
     assertThat(children).hasSize(6);
 
     assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "name").hasRange(6, 6, 6, 12);
-    assertThat((ArmTree) children.get(1)).is(EXPRESSION).has("value", "myResource").hasRange(6, 14, 6, 26);
+    assertThat((ArmTree) children.get(1)).is(STRING_LITERAL).has("value", "myResource").hasRange(6, 14, 6, 26);
     assertThat((ArmTree) children.get(2)).is(IDENTIFIER).has("value", "apiVersion").hasRange(5, 6, 5, 18);
-    assertThat((ArmTree) children.get(3)).is(EXPRESSION).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
+    assertThat((ArmTree) children.get(3)).is(STRING_LITERAL).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
     assertThat((ArmTree) children.get(4)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
-    assertThat((ArmTree) children.get(5)).is(EXPRESSION).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
+    assertThat((ArmTree) children.get(5)).is(STRING_LITERAL).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
   }
 
   @Test
@@ -112,24 +111,23 @@ class ResourceDeclarationImplTest {
     List<Property> properties = resourceDeclaration.properties();
     assertThat(properties).hasSize(2);
 
-    assertThat(properties.get(0).is(PROPERTY)).isTrue();
-    assertThat(properties.get(0).children()).hasSize(2);
     assertThat(properties.get(0).key().value()).isEqualTo("other properties 1");
     assertThat(properties.get(0).value().is(OBJECT_EXPRESSION)).isTrue();
     ObjectExpression objExpression = (ObjectExpression) properties.get(0).value();
     assertThat(objExpression.properties()).hasSize(1);
-    PropertyValue objValue = objExpression.getPropertyByName("obj").value();
-    assertThat(objValue.is(EXPRESSION)).isTrue();
-    assertThat(((Expression) objValue).value()).isEqualTo("random location");
+    Expression objValue = objExpression.getPropertyByName("obj").value();
+    assertThat(objValue.is(STRING_LITERAL)).isTrue();
+    assertThat(((StringLiteral) objValue).value()).isEqualTo("random location");
+    assertThat(objValue).isLiteral().hasValue("random location");
 
     assertThat(properties.get(1).key().value()).isEqualTo("other properties 2");
     assertThat(properties.get(1).value().is(ARRAY_EXPRESSION)).isTrue();
     ArrayExpression arrayExpression = (ArrayExpression) properties.get(1).value();
-    assertThat(arrayExpression.values()).hasSize(1);
+    assertThat(arrayExpression.elements()).hasSize(1);
     assertThat(arrayExpression.children()).hasSize(1);
-    PropertyValue arrValue = arrayExpression.values().get(0);
-    assertThat(arrValue.is(EXPRESSION)).isTrue();
-    assertThat(((Expression) arrValue).value()).isEqualTo("val");
+    Expression arrValue = arrayExpression.elements().get(0);
+    assertThat(arrValue.is(STRING_LITERAL)).isTrue();
+    assertThat(arrValue).hasValue("val");
 
     IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 53);
   }
@@ -148,7 +146,7 @@ class ResourceDeclarationImplTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Fail to convert to SimpleProperty: Expecting Expression, got ArrayExpressionImpl instead at 6:14");
+      .hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral], got ArrayExpressionImpl instead at 6:14");
   }
 
   @ParameterizedTest
@@ -203,20 +201,20 @@ class ResourceDeclarationImplTest {
     ResourceDeclaration resourceDeclaration1 = (ResourceDeclaration) tree.statements().get(0);
     assertThat(resourceDeclaration1.type()).isEqualTo("type1");
     assertThat(resourceDeclaration1.version()).isEqualTo("version1");
-    assertThat(resourceDeclaration1.name().value()).isEqualTo("name1");
+    assertThat(resourceDeclaration1.name()).hasValue("name1");
     assertThat(resourceDeclaration1.properties()).hasSize(1);
     assertThat(resourceDeclaration1.properties().get(0).key().value()).isEqualTo("property1");
-    assertThat(resourceDeclaration1.properties().get(0).value().is(EXPRESSION)).isTrue();
-    assertThat(((Expression) resourceDeclaration1.properties().get(0).value()).value()).isEqualTo("value1");
+    assertThat(resourceDeclaration1.properties().get(0).value().is(STRING_LITERAL)).isTrue();
+    assertThat(resourceDeclaration1.properties().get(0).value()).hasValue("value1");
 
     ResourceDeclaration resourceDeclaration2 = (ResourceDeclaration) tree.statements().get(1);
     assertThat(resourceDeclaration2.type()).isEqualTo("type2");
     assertThat(resourceDeclaration2.version()).isEqualTo("version2");
-    assertThat(resourceDeclaration2.name().value()).isEqualTo("name2");
+    assertThat(resourceDeclaration2.name()).hasValue("name2");
     assertThat(resourceDeclaration2.properties()).hasSize(1);
     assertThat(resourceDeclaration2.properties().get(0).key().value()).isEqualTo("property2");
-    assertThat(resourceDeclaration2.properties().get(0).value().is(EXPRESSION)).isTrue();
-    assertThat(((Expression) resourceDeclaration2.properties().get(0).value()).value()).isEqualTo("value2");
+    assertThat(resourceDeclaration2.properties().get(0).value().is(STRING_LITERAL)).isTrue();
+    assertThat(resourceDeclaration2.properties().get(0).value()).hasValue("value2");
   }
 
   @Test
@@ -239,7 +237,7 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(0)).isInstanceOf(ResourceDeclaration.class);
 
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resource.name().value()).isEqualTo("test with complex properties");
+    assertThat(resource.name()).hasValue("test with complex properties");
     assertThat(resource.type()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules");
     assertThat(resource.version()).isEqualTo("2022-11-01");
 
@@ -257,9 +255,9 @@ class ResourceDeclarationImplTest {
 
     ArrayExpression arrayExpression = (ArrayExpression) sourceAddressPrefixesProperty.value();
     assertThat(arrayExpression).isNotNull();
-    assertThat(arrayExpression.values()).hasSize(1);
+    assertThat(arrayExpression.elements()).hasSize(1);
 
-    PropertyValue value = arrayExpression.values().get(0);
-    assertThat(value).hasKind(EXPRESSION).hasValue("0.0.0.0/0");
+    Expression value = arrayExpression.elements().get(0);
+    assertThat(value).hasKind(STRING_LITERAL).hasValue("0.0.0.0/0");
   }
 }

@@ -20,9 +20,9 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -31,9 +31,9 @@ import org.sonar.iac.common.api.tree.impl.TextRanges;
 public class PropertyImpl extends AbstractArmTreeImpl implements Property {
 
   private final Identifier key;
-  private final PropertyValue value;
+  private final Expression value;
 
-  public PropertyImpl(Identifier key, PropertyValue value) {
+  public PropertyImpl(Identifier key, Expression value) {
     this.key = key;
     this.value = value;
   }
@@ -44,7 +44,7 @@ public class PropertyImpl extends AbstractArmTreeImpl implements Property {
   }
 
   @Override
-  public PropertyValue value() {
+  public Expression value() {
     return value;
   }
 

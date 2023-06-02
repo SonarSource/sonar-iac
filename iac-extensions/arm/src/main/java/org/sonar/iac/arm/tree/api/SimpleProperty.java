@@ -24,5 +24,5 @@ import org.sonar.iac.common.api.tree.PropertyTree;
 public interface SimpleProperty extends PropertyTree {
   Identifier key();
 
-  Expression value();
+  StringLiteral value();
 }

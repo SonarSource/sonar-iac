@@ -17,10 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.impl.json;
 
-public interface VariableDeclaration extends Statement {
-  Identifier name();
+import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-  Expression value();
+public class NumericLiteralImpl extends ExpressionImpl implements NumericLiteral {
+
+  private final float value;
+
+  public NumericLiteralImpl(float value, YamlTreeMetadata metadata) {
+    super(metadata);
+    this.value = value;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.NUMERIC_LITERAL;
+  }
+
+  @Override
+  public float value() {
+    return value;
+  }
 }

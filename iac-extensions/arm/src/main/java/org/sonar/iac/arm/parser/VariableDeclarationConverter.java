@@ -22,8 +22,8 @@ package org.sonar.iac.arm.parser;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.json.VariableDeclarationImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -48,7 +48,7 @@ public class VariableDeclarationConverter extends ArmBaseConverter {
 
   public VariableDeclaration convertVariableDeclaration(TupleTree tupleTree) {
     Identifier name = convertToIdentifier(tupleTree.key());
-    PropertyValue value = convertToPropertyValue(tupleTree.value());
+    Expression value = convertToExpression(tupleTree.value());
     return new VariableDeclarationImpl(name, value);
   }
 }

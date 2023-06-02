@@ -22,7 +22,6 @@ package org.sonar.iac.arm.parser;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -94,8 +93,6 @@ public class ParameterDeclarationConverter extends ArmBaseConverter {
     if (allowedValues == null) {
       return Collections.emptyList();
     }
-    return allowedValues.values().stream()
-      .map(this::toExpression)
-      .collect(Collectors.toList());
+    return allowedValues.elements();
   }
 }

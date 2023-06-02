@@ -20,8 +20,6 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
@@ -54,7 +52,7 @@ class VariableDeclarationImplTest {
 
     VariableDeclaration stringVar = (VariableDeclaration) tree.statements().get(0);
     assertThat(stringVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "stringVar").hasRange(3, 4, 3, 15);
-    assertThat(stringVar.value()).isExpression().hasValue("val").hasRange(3, 17, 3, 22);
+    assertThat(stringVar.value()).isLiteral().hasValue("val").hasRange(3, 17, 3, 22);
     assertThat(stringVar.children()).hasSize(2);
   }
 
@@ -106,7 +104,7 @@ class VariableDeclarationImplTest {
     VariableDeclaration objectVar = (VariableDeclaration) tree.statements().get(2);
 
     assertThat(stringVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "stringVar").hasRange(3, 4, 3, 15);
-    assertThat(stringVar.value()).isExpression().hasValue("val").hasRange(3, 17, 3, 22);
+    assertThat(stringVar.value()).isLiteral().hasValue("val").hasRange(3, 17, 3, 22);
     assertThat(arrayVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "arrayVar").hasRange(4, 4, 4, 14);
     assertThat(arrayVar.value()).isArrayExpression().hasRange(4, 16, 4, 23);
     assertThat(objectVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "objectVar").hasRange(5, 4, 5, 15);
