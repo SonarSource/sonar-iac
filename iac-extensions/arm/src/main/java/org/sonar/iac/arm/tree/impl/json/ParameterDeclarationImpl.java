@@ -93,7 +93,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   @Override
   public ParameterType type() {
-    return ParameterType.fromName(((StringLiteral)type.value()).value());
+    return ParameterType.fromName(((StringLiteral) type.value()).value());
   }
 
   @Override
