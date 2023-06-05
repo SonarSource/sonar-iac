@@ -17,10 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.impl.json;
 
-public interface VariableDeclaration extends Statement {
-  Identifier name();
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-  Expression value();
+public class PropertyTestUtils {
+  public static String getCode(String property) {
+    return code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"type\": \"Microsoft.Kusto/clusters\",",
+      "      \"apiVersion\": \"2022-12-29\",",
+      "      \"name\": \"myResource\",",
+      "      " + property,
+      "    }",
+      "  ]",
+      "}");
+  }
 }

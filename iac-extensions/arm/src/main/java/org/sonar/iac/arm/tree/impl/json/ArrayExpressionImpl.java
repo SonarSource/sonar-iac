@@ -22,19 +22,19 @@ package org.sonar.iac.arm.tree.impl.json;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
-import org.sonar.iac.arm.tree.api.PropertyValue;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExpression {
-  private final List<PropertyValue> values;
+  private final List<Expression> elements;
   private final YamlTreeMetadata metadata;
 
-  public ArrayExpressionImpl(YamlTreeMetadata metadata, List<PropertyValue> values) {
+  public ArrayExpressionImpl(YamlTreeMetadata metadata, List<Expression> elements) {
     this.metadata = metadata;
-    this.values = values;
+    this.elements = elements;
   }
 
   @Override
@@ -44,7 +44,7 @@ public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExp
 
   @Override
   public List<Tree> children() {
-    return Collections.unmodifiableList(values);
+    return Collections.unmodifiableList(elements);
   }
 
   @Override
@@ -53,7 +53,7 @@ public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExp
   }
 
   @Override
-  public List<PropertyValue> values() {
-    return values;
+  public List<Expression> elements() {
+    return elements;
   }
 }

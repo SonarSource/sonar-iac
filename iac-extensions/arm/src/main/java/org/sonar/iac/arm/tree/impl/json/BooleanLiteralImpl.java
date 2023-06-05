@@ -17,10 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.impl.json;
 
-public interface VariableDeclaration extends Statement {
-  Identifier name();
+import org.sonar.iac.arm.tree.api.BooleanLiteral;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-  Expression value();
+public class BooleanLiteralImpl extends ExpressionImpl implements BooleanLiteral {
+
+  private final boolean value;
+
+  public BooleanLiteralImpl(boolean value, YamlTreeMetadata metadata) {
+    super(metadata);
+    this.value = value;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.BOOLEAN_LITERAL;
+  }
+
+  @Override
+  public boolean value() {
+    return value;
+  }
 }

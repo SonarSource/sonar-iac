@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 
-public interface ObjectExpression extends PropertyValue {
+public interface ObjectExpression extends Expression {
 
   List<Property> properties();
 

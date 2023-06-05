@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,14 +37,17 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.SimpleProperty;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.json.ArrayExpressionImpl;
-import org.sonar.iac.arm.tree.impl.json.ExpressionImpl;
+import org.sonar.iac.arm.tree.impl.json.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.json.NullLiteralImpl;
+import org.sonar.iac.arm.tree.impl.json.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.json.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.SimplePropertyImpl;
+import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
@@ -82,16 +86,12 @@ public class ArmBaseConverter {
         () -> new ParseException("Expecting ScalarTree to convert to Identifier, got " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null));
   }
 
-  public Expression convertToExpression(ScalarTree tree) {
-    return new ExpressionImpl(tree.value(), tree.metadata());
-  }
-
   public ObjectExpression convertToObjectExpression(MappingTree tree) {
     List<Property> properties = new ArrayList<>();
     tree.elements()
       .forEach(tupleTree -> {
         Identifier key = convertToIdentifier(tupleTree.key());
-        PropertyValue value = convertToPropertyValue(tupleTree.value());
+        Expression value = convertToExpression(tupleTree.value());
         properties.add(new PropertyImpl(key, value));
       });
     return new ObjectExpressionImpl(properties);
@@ -100,19 +100,39 @@ public class ArmBaseConverter {
   public ArrayExpression convertToArrayExpression(SequenceTree tree) {
     return new ArrayExpressionImpl(tree.metadata(),
       tree.elements().stream()
-        .map(this::convertToPropertyValue)
+        .map(this::convertToExpression)
         .collect(Collectors.toList()));
   }
 
-  public PropertyValue convertToPropertyValue(YamlTree tree) {
+  public Expression convertToExpression(YamlTree tree) {
     if (tree instanceof SequenceTree) {
       return convertToArrayExpression((SequenceTree) tree);
     } else if (tree instanceof MappingTree) {
       return convertToObjectExpression((MappingTree) tree);
     } else if (tree instanceof ScalarTree) {
-      return convertToExpression((ScalarTree) tree);
+      return convertToLiteralExpression((ScalarTree) tree);
     } else {
-      throw new ParseException("Couldn't convert to PropertyValue, unsupported class " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null);
+      throw new ParseException("Couldn't convert to Expression, unsupported class " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null);
+    }
+  }
+
+  public Expression convertToLiteralExpression(ScalarTree tree) {
+    if (tree.style() == ScalarTree.Style.PLAIN) {
+      if ("null".equals(tree.value())) {
+        return new NullLiteralImpl(tree.metadata());
+      } else if ("true".equals(tree.value()) || "false".equals(tree.value())) {
+        return new BooleanLiteralImpl("true".equals(tree.value()), tree.metadata());
+      } else {
+        try {
+          return new NumericLiteralImpl(Float.parseFloat(tree.value()), tree.metadata());
+        } catch (NumberFormatException e) {
+          throw new ParseException("Failed to parse plain value '" + tree.value() + "'", new BasicTextPointer(tree.metadata().textRange()), null);
+        }
+      }
+    } else if (tree.style() == ScalarTree.Style.DOUBLE_QUOTED) {
+      return new StringLiteralImpl(tree.value(), tree.metadata());
+    } else {
+      throw new ParseException("Unsupported ScalarTree style: " + tree.style().name(), new BasicTextPointer(tree.metadata().textRange()), null);
     }
   }
 
@@ -141,7 +161,7 @@ public class ArmBaseConverter {
     if (value == null) {
       return null;
     }
-    throwErrorIfUnexpectedType("Fail to extract ArrayExpression", ArmTree.Kind.ARRAY_EXPRESSION, value.value());
+    throwErrorIfUnexpectedType("Fail to extract ArrayExpression", value.value(), ArmTree.Kind.ARRAY_EXPRESSION);
     return (ArrayExpression) value.value();
   }
 
@@ -150,8 +170,8 @@ public class ArmBaseConverter {
     if (property == null) {
       return null;
     }
-    throwErrorIfUnexpectedType("Fail to convert to SimpleProperty", ArmTree.Kind.EXPRESSION, property.value());
-    return new SimplePropertyImpl(property.key(), (Expression) property.value());
+    throwErrorIfUnexpectedType("Fail to convert to SimpleProperty", property.value(), ArmTree.Kind.STRING_LITERAL);
+    return new SimplePropertyImpl(property.key(), (StringLiteral) property.value());
   }
 
   public void checkUnexpectedProperties(Map<String, Property> byKeys, String id) {
@@ -169,19 +189,15 @@ public class ArmBaseConverter {
     return (MappingTree) tree;
   }
 
-  public Expression toExpression(PropertyValue propertyValue) {
-    throwErrorIfUnexpectedType("Fail to cast to Expression", ArmTree.Kind.EXPRESSION, propertyValue);
-    return (Expression) propertyValue;
+  public ObjectExpression toObjectExpression(Expression expression) {
+    throwErrorIfUnexpectedType("Fail to Cast to ObjectExpression", expression, ArmTree.Kind.OBJECT_EXPRESSION);
+    return (ObjectExpression) expression;
   }
 
-  public ObjectExpression toObjectExpression(PropertyValue propertyValue) {
-    throwErrorIfUnexpectedType("Fail to Cast to ObjectExpression", ArmTree.Kind.OBJECT_EXPRESSION, propertyValue);
-    return (ObjectExpression) propertyValue;
-  }
-
-  private void throwErrorIfUnexpectedType(String message, ArmTree.Kind expected, ArmTree object) {
-    if (!object.is(expected)) {
-      throw new ParseException(message + ": Expecting " + expected.getAssociatedInterface().getSimpleName() + ", got " + object.getClass().getSimpleName()
+  private void throwErrorIfUnexpectedType(String message, ArmTree object, ArmTree.Kind... kinds) {
+    if (!object.is(kinds)) {
+      String kindList = StringUtils.join(Arrays.stream(kinds).map(kind -> kind.getAssociatedInterface().getSimpleName()).collect(Collectors.toList()), ", ");
+      throw new ParseException(message + ": Expecting [" + kindList + "], got " + object.getClass().getSimpleName()
         + " instead at " + filenameAndPosition(object.textRange()), new BasicTextPointer(object.textRange()), null);
     }
   }

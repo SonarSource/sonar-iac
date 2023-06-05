@@ -20,8 +20,8 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.PropertyValue;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -29,9 +29,9 @@ import org.sonar.iac.common.api.tree.Tree;
 public class VariableDeclarationImpl extends AbstractArmTreeImpl implements VariableDeclaration {
 
   private final Identifier name;
-  private final PropertyValue value;
+  private final Expression value;
 
-  public VariableDeclarationImpl(Identifier name, PropertyValue value) {
+  public VariableDeclarationImpl(Identifier name, Expression value) {
     this.name = name;
     this.value = value;
   }
@@ -42,7 +42,7 @@ public class VariableDeclarationImpl extends AbstractArmTreeImpl implements Vari
   }
 
   @Override
-  public PropertyValue value() {
+  public Expression value() {
     return value;
   }
 
