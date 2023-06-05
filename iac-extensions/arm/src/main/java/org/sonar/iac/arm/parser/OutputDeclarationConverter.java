@@ -68,8 +68,8 @@ public class OutputDeclarationConverter extends ArmBaseConverter {
 
     if (properties.containsKey("copy")) {
       ObjectExpression copy = toObjectExpression(properties.remove("copy").value());
-      copyCount = copy.getPropertyByName("count");
-      copyInput = copy.getPropertyByName("input");
+      copyCount = checkPropertyType(copy.getPropertyByName("count"), ArmTree.Kind.NUMERIC_LITERAL);
+      copyInput = checkPropertyType(copy.getPropertyByName("input"), ArmTree.Kind.NUMERIC_LITERAL);
     }
 
     for (Map.Entry<String, Property> unexpectedProperty : properties.entrySet()) {

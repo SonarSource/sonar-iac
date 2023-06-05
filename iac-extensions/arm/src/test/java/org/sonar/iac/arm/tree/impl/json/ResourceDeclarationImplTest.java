@@ -90,6 +90,26 @@ class ResourceDeclarationImplTest {
     assertThat((ArmTree) children.get(5)).is(STRING_LITERAL).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
   }
 
+  @ParameterizedTest
+  @CsvSource(delimiterString = ";", value = {
+    "\"type\": 5,                            \"apiVersion\": \"2022-12-29\", \"name\": \"myResource\"",
+    "\"type\": \"Microsoft.Kusto/clusters\", \"apiVersion\": 5,              \"name\": \"myResource\"",
+    "\"type\": \"Microsoft.Kusto/clusters\", \"apiVersion\": \"2022-12-29\", \"name\": 5             ",
+  })
+  void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      invalidPropertyType,
+      "    }",
+      "  ]",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessageContainingAll("Expecting", "got", "instead");
+  }
+
   @Test
   void shouldParseResourceWithExtraProperties() {
     String code = code("{",

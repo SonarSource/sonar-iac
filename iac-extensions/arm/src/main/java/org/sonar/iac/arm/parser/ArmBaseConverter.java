@@ -181,6 +181,14 @@ public class ArmBaseConverter {
     return (ObjectExpression) expression;
   }
 
+  public Property checkPropertyType(@Nullable Property property, ArmTree.Kind... kinds) {
+    if (property == null) {
+      return null;
+    }
+    throwErrorIfUnexpectedType("Property '" + property.key().value() + "' has an invalid type", property.value(), kinds);
+    return property;
+  }
+
   private void throwErrorIfUnexpectedType(String message, ArmTree object, ArmTree.Kind... kinds) {
     if (!object.is(kinds)) {
       String kindList = StringUtils.join(Arrays.stream(kinds).map(kind -> kind.getAssociatedInterface().getSimpleName()).collect(Collectors.toList()), ", ");

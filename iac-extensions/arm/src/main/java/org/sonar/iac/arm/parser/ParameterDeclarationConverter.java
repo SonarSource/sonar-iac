@@ -72,7 +72,7 @@ public class ParameterDeclarationConverter extends ArmBaseConverter {
 
     if (properties.containsKey("metadata")) {
       ObjectExpression copy = toObjectExpression(properties.remove("metadata").value());
-      description = copy.getPropertyByName("description");
+      description = checkPropertyType(copy.getPropertyByName("description"), ArmTree.Kind.STRING_LITERAL);
     }
 
     checkUnexpectedProperties(properties, id);

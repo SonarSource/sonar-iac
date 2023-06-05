@@ -22,6 +22,8 @@ package org.sonar.iac.arm.tree.impl.json;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
@@ -35,6 +37,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -96,6 +99,29 @@ class OutputDeclarationImplTest {
     assertThat((ArmTree) children.get(6)).is(STRING_LITERAL).has("value", "my output value").hasRange(9, 15, 9, 32);
     assertThat((ArmTree) children.get(7)).is(IDENTIFIER).has("value", "count").hasRange(7, 8, 7, 15);
     assertThat((ArmTree) children.get(8)).is(STRING_LITERAL).has("value", "countValue").hasRange(7, 17, 7, 29);
+  }
+
+  @ParameterizedTest
+  @CsvSource(delimiterString = ";", value = {
+    "\"type\": 5",
+    "\"type\": \"code\", \"condition\":5",
+    "\"type\": \"code\", \"value\":5",
+    "\"type\": \"code\", \"copy\": \"string\"",
+    "\"type\": \"code\", \"copy\": { \"count\": \"5 string\"}",
+    "\"type\": \"code\", \"copy\": { \"input\": \"5 string\"}",
+  })
+  void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      invalidPropertyType,
+      "    }",
+      "  }",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessageContainingAll("Expecting", "got", "instead");
   }
 
   @Test

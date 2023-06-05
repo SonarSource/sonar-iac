@@ -25,15 +25,21 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -86,6 +92,31 @@ class ParameterDeclarationImplTest {
     assertThat(parameter.maxLength()).isNull();
 
     assertThat(tree.statements()).hasSize(1);
+  }
+
+  @ParameterizedTest
+  @CsvSource(delimiterString = ";", value = {
+    "\"type\": 5",
+    "\"type\": \"code\", \"minValue\":\"5\"",
+    "\"type\": \"code\", \"maxValue\":\"5\"",
+    "\"type\": \"code\", \"minLength\":\"5\"",
+    "\"type\": \"code\", \"maxLength\":\"5\"",
+    "\"type\": \"code\", \"allowedValues\":\"5\"",
+    "\"type\": \"code\", \"metadata\": \"string\"",
+    "\"type\": \"code\", \"metadata\": { \"description\": 5}",
+  })
+  void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
+    String code = code("{",
+      "  \"parameters\": {",
+      "    \"invalid_parameter\": {",
+      invalidPropertyType,
+      "    }",
+      "  }",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessageContainingAll("Expecting", "got", "instead");
   }
 
   @Test
