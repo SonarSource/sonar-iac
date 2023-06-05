@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
@@ -102,7 +103,7 @@ class OutputDeclarationImplTest {
   }
 
   @ParameterizedTest
-  @CsvSource(delimiterString = ";", value = {
+  @ValueSource(strings = {
     "\"type\": 5",
     "\"type\": \"code\", \"condition\":5",
     "\"type\": \"code\", \"value\":5",

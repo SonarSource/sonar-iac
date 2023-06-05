@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -91,7 +92,7 @@ class ResourceDeclarationImplTest {
   }
 
   @ParameterizedTest
-  @CsvSource(delimiterString = ";", value = {
+  @ValueSource(strings = {
     "\"type\": 5,                            \"apiVersion\": \"2022-12-29\", \"name\": \"myResource\"",
     "\"type\": \"Microsoft.Kusto/clusters\", \"apiVersion\": 5,              \"name\": \"myResource\"",
     "\"type\": \"Microsoft.Kusto/clusters\", \"apiVersion\": \"2022-12-29\", \"name\": 5             ",
