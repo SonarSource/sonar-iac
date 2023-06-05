@@ -22,6 +22,9 @@ package org.sonar.iac.arm.tree.impl.json;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
@@ -35,6 +38,7 @@ import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -96,6 +100,29 @@ class OutputDeclarationImplTest {
     assertThat((ArmTree) children.get(6)).is(STRING_LITERAL).has("value", "my output value").hasRange(9, 15, 9, 32);
     assertThat((ArmTree) children.get(7)).is(IDENTIFIER).has("value", "count").hasRange(7, 8, 7, 15);
     assertThat((ArmTree) children.get(8)).is(STRING_LITERAL).has("value", "countValue").hasRange(7, 17, 7, 29);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "\"type\": 5",
+    "\"type\": \"code\", \"condition\":5",
+    "\"type\": \"code\", \"value\":5",
+    "\"type\": \"code\", \"copy\": \"string\"",
+    "\"type\": \"code\", \"copy\": { \"count\": 5}",
+    "\"type\": \"code\", \"copy\": { \"input\": 5}",
+  })
+  void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      invalidPropertyType,
+      "    }",
+      "  }",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessageContainingAll("Expecting", "got", "instead");
   }
 
   @Test
@@ -272,7 +299,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral], got ArrayExpressionImpl instead at 5:15");
+    assertThat(parseException).hasMessage("Fail to extract property 'value': Expecting [StringLiteral], got ArrayExpressionImpl instead at 5:15");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);
@@ -325,7 +352,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral], got ArrayExpressionImpl instead at 6:17");
+    assertThat(parseException).hasMessage("Property 'count' has an invalid type: Expecting [StringLiteral], got ArrayExpressionImpl instead at 6:17");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(6);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(17);

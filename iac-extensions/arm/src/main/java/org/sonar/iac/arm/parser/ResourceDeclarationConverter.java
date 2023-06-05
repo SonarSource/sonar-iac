@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.SimpleProperty;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
@@ -61,9 +61,9 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
     Map<String, Property> properties = extractProperties(tree);
 
-    SimpleProperty type = extractMandatorySimpleProperty(tree.metadata(), properties, "type");
-    SimpleProperty version = extractMandatorySimpleProperty(tree.metadata(), properties, "apiVersion");
-    SimpleProperty name = extractMandatorySimpleProperty(tree.metadata(), properties, "name");
+    Property type = extractMandatoryProperty(tree.metadata(), properties, "type", ArmTree.Kind.STRING_LITERAL);
+    Property version = extractMandatoryProperty(tree.metadata(), properties, "apiVersion", ArmTree.Kind.STRING_LITERAL);
+    Property name = extractMandatoryProperty(tree.metadata(), properties, "name", ArmTree.Kind.STRING_LITERAL);
     List<Property> otherProperties = new ArrayList<>(properties.values());
 
     return new ResourceDeclarationImpl(name, version, type, otherProperties);

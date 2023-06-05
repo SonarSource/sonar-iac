@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -90,6 +91,26 @@ class ResourceDeclarationImplTest {
     assertThat((ArmTree) children.get(5)).is(STRING_LITERAL).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "\"type\": 5,                            \"apiVersion\": \"2022-12-29\", \"name\": \"myResource\"",
+    "\"type\": \"Microsoft.Kusto/clusters\", \"apiVersion\": 5,              \"name\": \"myResource\"",
+    "\"type\": \"Microsoft.Kusto/clusters\", \"apiVersion\": \"2022-12-29\", \"name\": 5             ",
+  })
+  void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      invalidPropertyType,
+      "    }",
+      "  ]",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessageContainingAll("Expecting", "got", "instead");
+  }
+
   @Test
   void shouldParseResourceWithExtraProperties() {
     String code = code("{",
@@ -130,23 +151,6 @@ class ResourceDeclarationImplTest {
     assertThat(arrValue).hasValue("val");
 
     IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 53);
-  }
-
-  @Test
-  void invalidNameExpression() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": [],",
-      "      \"location\": \"random location\",",
-      "    }",
-      "  ]",
-      "}");
-    assertThatThrownBy(() -> parser.parse(code, null))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral], got ArrayExpressionImpl instead at 6:14");
   }
 
   @ParameterizedTest
