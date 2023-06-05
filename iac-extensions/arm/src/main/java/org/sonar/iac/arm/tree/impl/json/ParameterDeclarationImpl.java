@@ -20,14 +20,17 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
-import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -37,27 +40,27 @@ import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
 
   private final Identifier identifier;
-  private final Property type;
-  private final Property defaultValue;
-  private final List<Expression> allowedValues;
-  private final Property description;
-  private final Property minValue;
-  private final Property maxValue;
-  private final Property minLength;
-  private final Property maxLength;
+  private final StringLiteral type;
+  private final Expression defaultValue;
+  private final ArrayExpression allowedValues;
+  private final StringLiteral description;
+  private final NumericLiteral minValue;
+  private final NumericLiteral maxValue;
+  private final NumericLiteral minLength;
+  private final NumericLiteral maxLength;
 
   // Methods should not have too many parameters
   @SuppressWarnings("java:S107")
   public ParameterDeclarationImpl(
     Identifier identifier,
-    Property type,
-    @Nullable Property defaultValue,
-    List<Expression> allowedValues,
-    @Nullable Property description,
-    @Nullable Property minValue,
-    @Nullable Property maxValue,
-    @Nullable Property minLength,
-    @Nullable Property maxLength) {
+    StringLiteral type,
+    @Nullable Expression defaultValue,
+    @Nullable ArrayExpression allowedValues,
+    @Nullable StringLiteral description,
+    @Nullable NumericLiteral minValue,
+    @Nullable NumericLiteral maxValue,
+    @Nullable NumericLiteral minLength,
+    @Nullable NumericLiteral maxLength) {
 
     this.identifier = identifier;
     this.type = type;
@@ -74,15 +77,14 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(identifier);
-    children.add(type.key());
-    children.add(type.value());
+    children.add(type);
     addChildrenIfPresent(children, defaultValue);
     addChildrenIfPresent(children, description);
     addChildrenIfPresent(children, minValue);
     addChildrenIfPresent(children, maxValue);
     addChildrenIfPresent(children, minLength);
     addChildrenIfPresent(children, maxLength);
-    children.addAll(allowedValues);
+    addChildrenIfPresent(children, allowedValues);
     return children;
   }
 
@@ -93,66 +95,58 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   @Override
   public ParameterType type() {
-    return ParameterType.fromName(((StringLiteral) type.value()).value());
+    return ParameterType.fromName(type.value());
   }
 
   @Override
   @CheckForNull
   public Expression defaultValue() {
-    if (defaultValue != null) {
-      return defaultValue.value();
-    }
-    return null;
+    return defaultValue;
   }
 
   @Override
   public List<Expression> allowedValues() {
-    return allowedValues;
+    return Optional.ofNullable(allowedValues).map(ArrayExpression::elements).orElse(Collections.emptyList());
   }
 
   @Override
   @CheckForNull
-  public Expression description() {
-    if (description != null) {
-      return description.value();
-    }
-    return null;
+  public String description() {
+    return Optional.ofNullable(description)
+      .map(StringLiteral::value)
+      .orElse(null);
   }
 
   @Override
   @CheckForNull
-  public Expression minValue() {
-    if (minValue != null) {
-      return minValue.value();
-    }
-    return null;
+  public Float minValue() {
+    return Optional.ofNullable(minValue)
+      .map(NumericLiteral::value)
+      .orElse(null);
   }
 
   @Override
   @CheckForNull
-  public Expression maxValue() {
-    if (maxValue != null) {
-      return maxValue.value();
-    }
-    return null;
+  public Float maxValue() {
+    return Optional.ofNullable(maxValue)
+      .map(NumericLiteral::value)
+      .orElse(null);
   }
 
   @Override
   @CheckForNull
-  public Expression minLength() {
-    if (minLength != null) {
-      return minLength.value();
-    }
-    return null;
+  public Float minLength() {
+    return Optional.ofNullable(minLength)
+      .map(NumericLiteral::value)
+      .orElse(null);
   }
 
   @Override
   @CheckForNull
-  public Expression maxLength() {
-    if (maxLength != null) {
-      return maxLength.value();
-    }
-    return null;
+  public Float maxLength() {
+    return Optional.ofNullable(maxLength)
+      .map(NumericLiteral::value)
+      .orElse(null);
   }
 
   @Override

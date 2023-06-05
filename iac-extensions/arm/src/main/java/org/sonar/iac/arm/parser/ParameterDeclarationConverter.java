@@ -19,24 +19,21 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
-import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.impl.json.IdentifierImpl;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.json.ParameterDeclarationImpl;
+import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
-import org.sonar.iac.common.yaml.tree.MappingTreeImpl;
-import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
 public class ParameterDeclarationConverter extends ArmBaseConverter {
@@ -55,44 +52,24 @@ public class ParameterDeclarationConverter extends ArmBaseConverter {
       .flatMap(List::stream);
   }
 
-  public ParameterDeclaration convertParameters(TupleTree tupleTree) {
-    String id = ((ScalarTree) tupleTree.key()).value();
-    Identifier identifier = new IdentifierImpl(id, tupleTree.key().metadata());
+  public ParameterDeclaration convertParameters(TupleTree tree) {
+    Identifier identifier = toIdentifier(tree.key());
+    StringLiteral type = PropertyUtils.get(tree.value(), "type").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "type"));
+    Expression defaultValue = PropertyUtils.get(tree.value(), "defaultValue").map(this::toExpression).orElse(null);
+    NumericLiteral minValue = PropertyUtils.get(tree.value(), "minValue").map(this::toNumericLiteral).orElse(null);
+    NumericLiteral maxValue = PropertyUtils.get(tree.value(), "maxValue").map(this::toNumericLiteral).orElse(null);
+    NumericLiteral minLength = PropertyUtils.get(tree.value(), "minLength").map(this::toNumericLiteral).orElse(null);
+    NumericLiteral maxLength = PropertyUtils.get(tree.value(), "maxLength").map(this::toNumericLiteral).orElse(null);
+    ArrayExpression allowedValues = PropertyUtils.get(tree.value(), "allowedValues").map(this::toArrayExpression).orElse(null);
+    StringLiteral description = PropertyUtils.get(tree.value(), "metadata").map(this::extractDescriptionFromMetadata).orElse(null);
 
-    Map<String, Property> properties = extractProperties(((MappingTreeImpl) tupleTree.value()));
-
-    Property type = extractMandatoryProperty(tupleTree.metadata(), properties, "type", ArmTree.Kind.STRING_LITERAL);
-    Property defaultValue = extractProperty(properties, "defaultValue");
-    Property minValue = extractProperty(properties, "minValue", ArmTree.Kind.NUMERIC_LITERAL);
-    Property maxValue = extractProperty(properties, "maxValue", ArmTree.Kind.NUMERIC_LITERAL);
-    Property minLength = extractProperty(properties, "minLength", ArmTree.Kind.NUMERIC_LITERAL);
-    Property maxLength = extractProperty(properties, "maxLength", ArmTree.Kind.NUMERIC_LITERAL);
-    ArrayExpression allowedValues = extractArrayExpression(properties, "allowedValues");
-    Property description = null;
-
-    if (properties.containsKey("metadata")) {
-      ObjectExpression copy = toObjectExpression(properties.remove("metadata").value());
-      description = checkPropertyType(copy.getPropertyByName("description"), ArmTree.Kind.STRING_LITERAL);
-    }
-
-    checkUnexpectedProperties(properties, id);
-
-    return new ParameterDeclarationImpl(
-      identifier,
-      type,
-      defaultValue,
-      prepareListAllowedValues(allowedValues),
-      description,
-      minValue,
-      maxValue,
-      minLength,
-      maxLength);
+    return new ParameterDeclarationImpl(identifier, type, defaultValue, allowedValues, description, minValue, maxValue, minLength, maxLength);
   }
 
-  private static List<Expression> prepareListAllowedValues(@Nullable ArrayExpression allowedValues) {
-    if (allowedValues == null) {
-      return Collections.emptyList();
-    }
-    return allowedValues.elements();
+  @CheckForNull
+  private StringLiteral extractDescriptionFromMetadata(PropertyTree metadataProperty) {
+    return PropertyUtils.get(metadataProperty.value(), "description")
+      .map(this::toStringLiteral)
+      .orElse(null);
   }
 }

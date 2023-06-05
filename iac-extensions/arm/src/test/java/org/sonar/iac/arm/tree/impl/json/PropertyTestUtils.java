@@ -29,7 +29,9 @@ public class PropertyTestUtils {
       "      \"type\": \"Microsoft.Kusto/clusters\",",
       "      \"apiVersion\": \"2022-12-29\",",
       "      \"name\": \"myResource\",",
-      "      " + property,
+      "      \"properties\": {",
+      "        " + property,
+      "      }",
       "    }",
       "  ]",
       "}");

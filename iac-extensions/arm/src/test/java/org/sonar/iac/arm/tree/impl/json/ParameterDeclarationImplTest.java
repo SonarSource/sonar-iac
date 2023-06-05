@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -34,13 +33,9 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
-import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -99,11 +94,9 @@ class ParameterDeclarationImplTest {
   @ValueSource(strings = {
     "\"type\": 5",
     "\"type\": \"code\", \"minValue\":\"5\"",
-    "\"type\": \"code\", \"maxValue\":\"5\"",
-    "\"type\": \"code\", \"minLength\":\"5\"",
+    "\"type\": \"code\", \"maxValue\":[]",
     "\"type\": \"code\", \"maxLength\":\"5\"",
     "\"type\": \"code\", \"allowedValues\":\"5\"",
-    "\"type\": \"code\", \"metadata\": \"string\"",
     "\"type\": \"code\", \"metadata\": { \"description\": 5}",
   })
   void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
@@ -117,7 +110,7 @@ class ParameterDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessageContainingAll("Expecting", "got", "instead");
+      .hasMessageContainingAll("Couldn't convert", "into", "at", "expecting", "got", "instead");
   }
 
   @Test
@@ -137,11 +130,10 @@ class ParameterDeclarationImplTest {
 
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
     assertThat(parameter.identifier().value()).isEqualTo("enabledForDeployment");
-    assertThat(parameter.description()).hasValue("some description").hasKind(STRING_LITERAL).hasRange(6, 25, 6, 43);
+    assertThat(parameter.description()).isEqualTo("some description");
   }
 
   @Test
-  @Disabled("SONARIAC-851")
   void shouldParseFullParameter() {
     String code = code("{",
       "    \"parameters\": {",
@@ -170,12 +162,12 @@ class ParameterDeclarationImplTest {
     assertThat(parameter.identifier().value()).isEqualTo("exampleParam");
     assertThat(parameter.type()).isEqualTo(ParameterType.STRING);
     assertThat(parameter.defaultValue()).isLiteral().hasValue("a").hasKind(STRING_LITERAL).hasRange(5, 28, 5, 31);
-    assertThat(parameter.minValue()).hasValue("7").hasKind(STRING_LITERAL).hasRange(6, 24, 6, 25);
-    assertThat(parameter.maxValue()).hasValue("90").hasKind(STRING_LITERAL).hasRange(7, 24, 7, 26);
-    assertThat(parameter.minLength()).hasValue("1").hasKind(STRING_LITERAL).hasRange(8, 25, 8, 26);
-    assertThat(parameter.maxLength()).hasValue("10").hasKind(STRING_LITERAL).hasRange(9, 25, 9, 27);
+    assertThat(parameter.minValue()).isEqualTo(7);
+    assertThat(parameter.maxValue()).isEqualTo(90);
+    assertThat(parameter.minLength()).isEqualTo(1);
+    assertThat(parameter.maxLength()).isEqualTo(10);
     assertThat(parameter.allowedValues()).map(a -> (StringLiteral) a).map(StringLiteral::value).containsExactly("A", "B", "CCCC");
-    assertThat(parameter.description()).hasValue("some description").hasKind(STRING_LITERAL).hasRange(16, 31, 16, 49);
+    assertThat(parameter.description()).isEqualTo("some description");
     assertThat(parameter.textRange()).hasRange(3, 8, 16, 49);
   }
 
@@ -191,7 +183,22 @@ class ParameterDeclarationImplTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Fail to extract ArrayExpression: Expecting [ArrayExpression], got StringLiteralImpl instead at 5:29");
+      .hasMessage("Couldn't convert 'allowedValues' into ArrayExpression at 5:29: expecting SequenceTree, got ScalarTreeImpl instead");
+  }
+
+  @Test
+  void shouldFailOnInvalidFloatValue() {
+    String code = code("{",
+      "    \"parameters\": {",
+      "        \"exampleParam\": {",
+      "            \"type\": \"string\",",
+      "            \"minLength\":test",
+      "        }",
+      "    }",
+      "}");
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Failed to parse float value 'test' at 5:24");
   }
 
   @Test
@@ -236,7 +243,6 @@ class ParameterDeclarationImplTest {
   }
 
   @Test
-  @Disabled("SONARIAC-851 : while replacing SimpleProperty, should allow Numeric types for this field")
   void shouldParseDefaultValueInt() {
     String code = parserParameterDefaultValue("int", "int", "7");
     File tree = (File) parser.parse(code, null);
@@ -245,7 +251,7 @@ class ParameterDeclarationImplTest {
 
     assertThat(parameterInt.identifier().value()).isEqualTo("int");
     assertThat(parameterInt.type().name()).isEqualTo("INT");
-    assertThat(parameterInt.defaultValue()).isLiteral().hasValue("7");
+    assertThat(parameterInt.defaultValue()).isLiteral().hasValue(7);
   }
 
   @Test
@@ -273,7 +279,6 @@ class ParameterDeclarationImplTest {
   }
 
   @Test
-  @Disabled("SONARIAC-851 : while replacing SimpleProperty, should allow all types for this field")
   void shouldParseParametersOfAllTypes() throws IOException {
     DefaultInputFile file = IacTestUtils.inputFile("parameters_all_types.json", "json");
     File tree = (File) parser.parse(file.contents(), mockFile);
@@ -309,23 +314,6 @@ class ParameterDeclarationImplTest {
     assertThatThrownBy(() -> parser.parse(code, mockFile))
       .isInstanceOf(ParseException.class)
       .hasMessage("Missing mandatory attribute 'type' at foo.json:3:4");
-  }
-
-  @Test
-  void shouldLogWhenUnexpectedField() {
-    String code = code("{",
-      "  \"parameters\": {",
-      "    \"enabledForDeployment\": {",
-      "      \"type\": \"bool\",",
-      "      \"unknown\": \"dummy\"",
-      "    }",
-      "  }",
-      "}");
-    parser.parse(code, null);
-
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .isEqualTo("Unexpected property `unknown` found in parameter enabledForDeployment at 5:6, ignoring it.");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
   }
 
   private static InputFileContext mockFile() {

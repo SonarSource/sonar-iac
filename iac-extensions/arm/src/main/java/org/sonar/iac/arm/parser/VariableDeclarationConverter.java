@@ -47,8 +47,8 @@ public class VariableDeclarationConverter extends ArmBaseConverter {
   }
 
   public VariableDeclaration convertVariableDeclaration(TupleTree tupleTree) {
-    Identifier name = convertToIdentifier(tupleTree.key());
-    Expression value = convertToExpression(tupleTree.value());
+    Identifier name = toIdentifier(tupleTree.key());
+    Expression value = toExpression(tupleTree.value());
     return new VariableDeclarationImpl(name, value);
   }
 }

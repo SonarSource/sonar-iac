@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-public interface Identifier extends ArmTree {
-  String value();
+import org.sonar.iac.common.api.tree.TextTree;
+
+public interface Identifier extends ArmTree, TextTree {
 }

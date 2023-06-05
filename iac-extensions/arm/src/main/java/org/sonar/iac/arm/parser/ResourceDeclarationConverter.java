@@ -19,16 +19,17 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
+import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
@@ -59,12 +60,13 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
   }
 
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
-    Map<String, Property> properties = extractProperties(tree);
-
-    Property type = extractMandatoryProperty(tree.metadata(), properties, "type", ArmTree.Kind.STRING_LITERAL);
-    Property version = extractMandatoryProperty(tree.metadata(), properties, "apiVersion", ArmTree.Kind.STRING_LITERAL);
-    Property name = extractMandatoryProperty(tree.metadata(), properties, "name", ArmTree.Kind.STRING_LITERAL);
-    List<Property> otherProperties = new ArrayList<>(properties.values());
+    StringLiteral type = PropertyUtils.get(tree, "type").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "type"));
+    StringLiteral version = PropertyUtils.get(tree, "apiVersion").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "apiVersion"));
+    StringLiteral name = PropertyUtils.get(tree, "name").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "name"));
+    List<Property> otherProperties = PropertyUtils.get(tree, "properties")
+      .map(PropertyTree::value)
+      .map(this::toProperties)
+      .orElse(Collections.emptyList());
 
     return new ResourceDeclarationImpl(name, version, type, otherProperties);
   }
