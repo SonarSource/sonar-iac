@@ -147,7 +147,7 @@ public class ArmBaseConverter {
       return null;
     }
     if (kinds.length > 0) {
-      throwErrorIfUnexpectedType("Fail to extract mandatory property '" + key + "'", value.value(), kinds);
+      throwErrorIfUnexpectedType("Fail to extract property '" + key + "'", value.value(), kinds);
     }
     return value;
   }

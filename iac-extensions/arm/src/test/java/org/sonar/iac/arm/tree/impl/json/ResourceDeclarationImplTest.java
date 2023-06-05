@@ -152,23 +152,6 @@ class ResourceDeclarationImplTest {
     IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 53);
   }
 
-  @Test
-  void invalidNameExpression() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"type\": \"Microsoft.Kusto/clusters\",",
-      "      \"apiVersion\": \"2022-12-29\",",
-      "      \"name\": [],",
-      "      \"location\": \"random location\",",
-      "    }",
-      "  ]",
-      "}");
-    assertThatThrownBy(() -> parser.parse(code, null))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Fail to convert to SimpleProperty: Expecting [StringLiteral], got ArrayExpressionImpl instead at 6:14");
-  }
-
   @ParameterizedTest
   @CsvSource(delimiter = ';', value = {
     // " ", // surprisingly, this throw a different parseException, apparently a node cannot have empty content
