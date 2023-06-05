@@ -21,7 +21,6 @@ package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
 import org.sonar.iac.common.api.tree.HasProperties;
-import java.util.Map;
 
 public interface ResourceDeclaration extends Statement, HasProperties {
   StringLiteral name();
@@ -31,6 +30,4 @@ public interface ResourceDeclaration extends Statement, HasProperties {
   StringLiteral type();
 
   List<Property> properties();
-
-  Map<String, Property> propertiesByKey();
 }

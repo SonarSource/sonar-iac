@@ -78,15 +78,6 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public Map<String, Property> propertiesByKey() {
-    Map<String, Property> result = new HashMap<>();
-    for (Property property : properties) {
-      result.put(property.key().value(), property);
-    }
-    return result;
-  }
-
-  @Override
   public Kind getKind() {
     return Kind.RESOURCE_DECLARATION;
   }
