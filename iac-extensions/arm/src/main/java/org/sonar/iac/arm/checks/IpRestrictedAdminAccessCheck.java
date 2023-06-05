@@ -44,18 +44,18 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
-      if (TYPES.contains(resource.type()) && valueIs(resource, "sourceAddressPrefix", this::isDestinationSensitive)) {
+      if (TYPES.contains(resource.type()) && valueIs(resource, "sourceAddressPrefix", IpRestrictedAdminAccessCheck::isDestinationSensitive)) {
         ctx.reportIssue(value(resource, "sourceAddressPrefix").get(), MESSAGE);
       }
     });
   }
 
-  private boolean isDestinationSensitive(Tree tree) {
+  private static boolean isDestinationSensitive(Tree tree) {
     Expression property = (Expression) tree;
     return isStringValue(property, SOURCE_ADDRESS_PREFIX_SENSITIVE::contains);
   }
 
-  private boolean isStringValue(Expression expression, Predicate<String> predicate) {
+  private static boolean isStringValue(Expression expression, Predicate<String> predicate) {
     return expression.is(ArmTree.Kind.STRING_LITERAL) && predicate.test(((StringLiteral) expression).value());
   }
 }

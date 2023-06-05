@@ -10,6 +10,7 @@
         "sourceAddressPrefix": "*"
       }
     },
+
     {
       "type": "Microsoft.Network/networkSecurityGroups/securityRules",
       "apiVersion": "2022-11-01",
@@ -42,6 +43,7 @@
         "sourceAddressPrefix": "Internet"
       }
     },
+
     {
       "type": "Microsoft.Network/networkSecurityGroups/securityRules",
       "apiVersion": "2022-11-01",
@@ -64,6 +66,14 @@
       "name": "Compliant",
       "properties": {
         "sourceAddressPrefix": "VirtualNetwork"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Compliant: invalid type value",
+      "properties": {
+        "sourceAddressPrefix": 5
       }
     }
   ]

@@ -29,9 +29,9 @@ class IpRestrictedAdminAccessCheckTest {
   @Test
   void test_json() {
     ArmVerifier.verify("IpRestrictedAdminAccessCheck/test.json", new IpRestrictedAdminAccessCheck(),
-      new Verifier.Issue(range(18, 31, 18, 34), "Restrict IP addresses authorized to access administration services."),
-      new Verifier.Issue(range(26, 31, 26, 42)),
-      new Verifier.Issue(range(34, 31, 34, 37)),
-      new Verifier.Issue(range(42, 31, 42, 41)));
+      new Verifier.Issue(range(19, 31, 19, 34), "Restrict IP addresses authorized to access administration services."),
+      new Verifier.Issue(range(27, 31, 27, 42)),
+      new Verifier.Issue(range(35, 31, 35, 37)),
+      new Verifier.Issue(range(43, 31, 43, 41)));
   }
 }
