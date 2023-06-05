@@ -42,30 +42,8 @@ public class ArmVerifier {
 
   }
 
-  public static void verify(String fileName, IacCheck check) {
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
-    Function<SingleFileVerifier, Verifier.TestContext> ctxSupplier = null;
-    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, ctxSupplier);
-  }
-
   public static void verify(String fileName, IacCheck check, Verifier.Issue... expectedIssues) {
     Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, expectedIssues);
-  }
-
-  public static void verifyNoIssue(String fileName, IacCheck check) {
-    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
-  }
-
-  public static List<Verifier.Issue> issues(String fileName, IacCheck check) {
-    return Verifier.issues(PARSER, BASE_DIR.resolve(fileName), check);
-  }
-
-  private static String readFile(Path path) {
-    try {
-      return Files.readString(path);
-    } catch (IOException e) {
-      throw new IllegalStateException("Cannot read " + path, e);
-    }
   }
 
 }

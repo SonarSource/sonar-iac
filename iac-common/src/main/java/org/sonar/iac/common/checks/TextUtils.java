@@ -22,6 +22,7 @@ package org.sonar.iac.common.checks;
 import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 

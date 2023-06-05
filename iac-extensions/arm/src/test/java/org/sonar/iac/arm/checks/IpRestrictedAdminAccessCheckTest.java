@@ -19,56 +19,19 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.testing.Verifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.arm.checks.ArmVerifier.issues;
-import static org.sonar.iac.arm.checks.ArmVerifier.verifyNoIssue;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class IpRestrictedAdminAccessCheckTest {
 
-  private static final String PATH_PREFIX = "IpRestrictedAdminAccessCheck/";
-  private static final IpRestrictedAdminAccessCheck CHECK = new IpRestrictedAdminAccessCheck();
-
-  private static List<String> shouldRaiseIssue() {
-    List<String> result = new ArrayList<>();
-    for (int i = 0; i < 4; i++) {
-      result.add("securityRules-positive-" + i + ".json");
-    }
-    return result;
-  }
-
-  private static List<String> shouldNotRaiseIssue() {
-    List<String> result = new ArrayList<>();
-    for (int i = 0; i < 1; i++) {
-      result.add("bad-type-negative-" + i + ".json");
-    }
-
-    for (int i = 0; i < 3; i++) {
-      result.add("securityRules-negative-" + i + ".json");
-    }
-    return result;
-  }
-
-  @MethodSource
-  @ParameterizedTest(name = "should raise issue for {0}")
-  void shouldRaiseIssue(String filename) {
-    List<Verifier.Issue> issues = issues(PATH_PREFIX + filename, CHECK);
-    assertThat(issues).hasSize(1);
-    Verifier.Issue issue = issues.get(0);
-    assertThat(issue.getMessage()).isEqualTo("Restrict IP addresses authorized to access administration services");
-    assertThat(issue.getTextRange()).startsAt(10, 8);
-    assertThat(issue.getSecondaryLocations()).isEmpty();
-  }
-
-  @MethodSource
-  @ParameterizedTest(name = "should NOT raise issue for {0}")
-  void shouldNotRaiseIssue(String filename) {
-    verifyNoIssue(PATH_PREFIX + filename, CHECK);
+  @Test
+  void test_json() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/test.json", new IpRestrictedAdminAccessCheck(),
+      new Verifier.Issue(range(18, 31, 18, 34), "Restrict IP addresses authorized to access administration services."),
+      new Verifier.Issue(range(26, 31, 26, 42)),
+      new Verifier.Issue(range(34, 31, 34, 37)),
+      new Verifier.Issue(range(42, 31, 42, 41)));
   }
 }

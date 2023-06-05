@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "unknown/type/no/issue/in/this/case",
+      "apiVersion": "2022-11-01",
+      "name": "Should not raise an issue: type is not concerned",
+      "properties": {
+        "sourceAddressPrefix": "*"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Raise an issue: sensitive sourceAddressPrefix case 1",
+      "properties": {
+        "sourceAddressPrefix": "*"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Raise an issue: sensitive sourceAddressPrefix case 2",
+      "properties": {
+        "sourceAddressPrefix": "0.0.0.0/0"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Raise an issue: sensitive sourceAddressPrefix case 3",
+      "properties": {
+        "sourceAddressPrefix": "::/0"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Raise an issue: sensitive sourceAddressPrefix case 4",
+      "properties": {
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Compliant",
+      "properties": {
+        "sourceAddressPrefix": "1.1.1.1"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Compliant",
+      "properties": {
+        "sourceAddressPrefix": "1.1.1.1/1"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Compliant",
+      "properties": {
+        "sourceAddressPrefix": "VirtualNetwork"
+      }
+    }
+  ]
+}

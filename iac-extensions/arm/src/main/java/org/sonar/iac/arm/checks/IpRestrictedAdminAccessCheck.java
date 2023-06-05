@@ -20,26 +20,23 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.common.checks.PropertyUtils.has;
 import static org.sonar.iac.common.checks.PropertyUtils.value;
 import static org.sonar.iac.common.checks.PropertyUtils.valueIs;
 
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck implements IacCheck {
 
+  private static final String MESSAGE = "Restrict IP addresses authorized to access administration services.";
   private static final List<String> TYPES = List.of(
     "Microsoft.Network/networkSecurityGroups/securityRules");
   private static final List<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = List.of("*", "0.0.0.0/0", "::/0", "Internet");
@@ -48,14 +45,14 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
   public void initialize(InitContext init) {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
       if (TYPES.contains(resource.type()) && valueIs(resource, "sourceAddressPrefix", this::isDestinationSensitive)) {
-        ctx.reportIssue(value(resource, "sourceAddressPrefix").get(), "Restrict IP addresses authorized to access administration services");
+        ctx.reportIssue(value(resource, "sourceAddressPrefix").get(), MESSAGE);
       }
     });
   }
 
   private boolean isDestinationSensitive(Tree tree) {
-    Property property = (Property) tree;
-    return isStringValue(property.value(), SOURCE_ADDRESS_PREFIX_SENSITIVE::contains);
+    Expression property = (Expression) tree;
+    return isStringValue(property, SOURCE_ADDRESS_PREFIX_SENSITIVE::contains);
   }
 
   private boolean isStringValue(Expression expression, Predicate<String> predicate) {
