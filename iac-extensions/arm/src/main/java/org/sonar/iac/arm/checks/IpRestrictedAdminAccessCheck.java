@@ -21,9 +21,11 @@ package org.sonar.iac.arm.checks;
 
 import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
@@ -39,11 +41,29 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
       if (RESOURCE_TYPE.equals(resource.type().value())) {
         PropertyUtils.get(resource, "sourceAddressPrefix").ifPresent(propertyTree -> {
-          if (TextUtils.matchesValue(propertyTree.value(), SOURCE_ADDRESS_PREFIX_SENSITIVE::contains).isTrue()) {
+          if (isSensitiveSourceAddress(propertyTree.value())) {
+            ctx.reportIssue(propertyTree, MESSAGE);
+          }
+        });
+        PropertyUtils.get(resource, "sourceAddressPrefixes").ifPresent(propertyTree -> {
+          if (containsSensitiveSourceAddress(propertyTree.value())) {
             ctx.reportIssue(propertyTree, MESSAGE);
           }
         });
       }
     });
+  }
+
+  private static boolean isSensitiveSourceAddress(Tree value) {
+    return TextUtils.matchesValue(value, SOURCE_ADDRESS_PREFIX_SENSITIVE::contains).isTrue();
+  }
+
+  private static boolean containsSensitiveSourceAddress(Tree value) {
+    if (value instanceof ArrayExpression) {
+      ArrayExpression array = (ArrayExpression) value;
+      return array.elements().stream()
+        .anyMatch(IpRestrictedAdminAccessCheck::isSensitiveSourceAddress);
+    }
+    return false;
   }
 }
