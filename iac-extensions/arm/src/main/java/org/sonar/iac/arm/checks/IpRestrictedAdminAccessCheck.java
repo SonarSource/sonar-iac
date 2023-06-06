@@ -22,11 +22,11 @@ package org.sonar.iac.arm.checks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -53,7 +53,7 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
   public void initialize(InitContext init) {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
       if (RESOURCE_TYPE.equals(resource.type().value())) {
-        ResourcePropertiesChecker checker = new ResourcePropertiesChecker(resource);
+        ResourceWithIpRestrictedAdminAccessChecker checker = new ResourceWithIpRestrictedAdminAccessChecker(resource);
         if (checker.isSensitive()) {
           checker.reportIssue(ctx);
         }
@@ -61,67 +61,68 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
     });
   }
 
-  static class ResourcePropertiesChecker {
+  static class ResourceWithIpRestrictedAdminAccessChecker {
     StringLiteral name;
-    Optional<Tree> direction;
-    Optional<Tree> access;
-    Optional<Tree> protocol;
-    Optional<Tree> destinationPortRange;
-    Optional<Tree> destinationPortRanges;
-    Optional<Tree> sourceAddressPrefix;
-    Optional<Tree> sourceAddressPrefixes;
+    @Nullable Tree direction;
+    @Nullable Tree access;
+    @Nullable Tree protocol;
+    @Nullable Tree destinationPortRange;
+    @Nullable Tree destinationPortRanges;
+    @Nullable Tree sourceAddressPrefix;
+    @Nullable Tree sourceAddressPrefixes;
 
-    ResourcePropertiesChecker(ResourceDeclaration resource) {
+    ResourceWithIpRestrictedAdminAccessChecker(ResourceDeclaration resource) {
       name = resource.name();
-      direction = PropertyUtils.value(resource, "direction");
-      access = PropertyUtils.value(resource, "access");
-      protocol = PropertyUtils.value(resource, "protocol");
-      destinationPortRange = PropertyUtils.value(resource, "destinationPortRange");
-      destinationPortRanges = PropertyUtils.value(resource, "destinationPortRanges");
-      sourceAddressPrefix = PropertyUtils.value(resource, "sourceAddressPrefix");
-      sourceAddressPrefixes = PropertyUtils.value(resource, "sourceAddressPrefixes");
+      direction = PropertyUtils.value(resource, "direction").orElse(null);
+      access = PropertyUtils.value(resource, "access").orElse(null);
+      protocol = PropertyUtils.value(resource, "protocol").orElse(null);
+      destinationPortRange = PropertyUtils.value(resource, "destinationPortRange").orElse(null);
+      destinationPortRanges = PropertyUtils.value(resource, "destinationPortRanges").orElse(null);
+      sourceAddressPrefix = PropertyUtils.value(resource, "sourceAddressPrefix").orElse(null);
+      sourceAddressPrefixes = PropertyUtils.value(resource, "sourceAddressPrefixes").orElse(null);
     }
 
     boolean isSensitive() {
-      return direction.filter(tree -> TextUtils.matchesValue(tree, "Inbound"::equalsIgnoreCase).isTrue()).isPresent()
-        && access.filter(tree -> TextUtils.matchesValue(tree, "Allow"::equalsIgnoreCase).isTrue()).isPresent()
-        && protocol.filter(tree -> TextUtils.matchesValue(tree, str -> SENSITIVE_PROTOCOL.contains(str.toUpperCase(Locale.ROOT))).isTrue()).isPresent()
-        && (destinationPortRange.filter(ResourcePropertiesChecker::isSensitivePort).isPresent()
-          || destinationPortRanges.filter(isArrayWith(ResourcePropertiesChecker::isSensitivePort)).isPresent())
-        && (sourceAddressPrefix.filter(ResourcePropertiesChecker::isSensitiveSourceAddressString).isPresent()
-          || sourceAddressPrefixes.filter(isArrayWith(ResourcePropertiesChecker::isSensitiveSourceAddressString)).isPresent());
+      return TextUtils.matchesValue(direction, "Inbound"::equalsIgnoreCase).isTrue()
+        && TextUtils.matchesValue(access, "Allow"::equalsIgnoreCase).isTrue()
+        && TextUtils.matchesValue(protocol, str -> SENSITIVE_PROTOCOL.contains(str.toUpperCase(Locale.ROOT))).isTrue()
+        && (isSensitivePort(destinationPortRange) || isArrayWith(destinationPortRanges, this::isSensitivePort))
+        && (isSensitiveSourceAddressString(sourceAddressPrefix) || isArrayWith(sourceAddressPrefixes, this::isSensitiveSourceAddressString));
     }
 
     void reportIssue(CheckContext ctx) {
       List<SecondaryLocation> secondaryLocations = new ArrayList<>();
-      sourceAddressPrefix.ifPresent(tree -> secondaryLocations.add(new SecondaryLocation(tree, "Sensitive source address prefix")));
-      sourceAddressPrefixes.ifPresent(tree -> secondaryLocations.add(new SecondaryLocation(tree, "Sensitive source(s) address prefix(es)")));
-      secondaryLocations.add(new SecondaryLocation(direction.get(), "Sensitive direction"));
-      secondaryLocations.add(new SecondaryLocation(direction.get(), "Sensitive direction"));
-      secondaryLocations.add(new SecondaryLocation(access.get(), "Sensitive access"));
-      secondaryLocations.add(new SecondaryLocation(protocol.get(), "Sensitive protocol"));
-      destinationPortRange.ifPresent(tree -> secondaryLocations.add(new SecondaryLocation(tree, "Sensitive destination port range")));
-      destinationPortRanges.ifPresent(tree -> secondaryLocations.add(new SecondaryLocation(tree, "Sensitive destination(s) port range(s)")));
+      if (sourceAddressPrefix != null) {
+        secondaryLocations.add(new SecondaryLocation(sourceAddressPrefix, "Sensitive source address prefix"));
+      } else {
+        secondaryLocations.add(new SecondaryLocation(sourceAddressPrefixes, "Sensitive source(s) address prefix(es)"));
+      }
+      secondaryLocations.add(new SecondaryLocation(direction, "Sensitive direction"));
+      secondaryLocations.add(new SecondaryLocation(access, "Sensitive access"));
+      secondaryLocations.add(new SecondaryLocation(protocol, "Sensitive protocol"));
+      if (destinationPortRange != null) {
+        secondaryLocations.add(new SecondaryLocation(destinationPortRange, "Sensitive destination port range"));
+      } else {
+        secondaryLocations.add(new SecondaryLocation(destinationPortRanges, "Sensitive destination(s) port range(s)"));
+      }
 
       ctx.reportIssue(name, MESSAGE, secondaryLocations);
     }
 
-    private static Predicate<Tree> isArrayWith(Predicate<Tree> predicate) {
-      return tree -> {
-        if (tree instanceof ArrayExpression) {
-          ArrayExpression array = (ArrayExpression) tree;
-          return array.elements().stream()
-            .anyMatch(predicate);
-        }
-        return false;
-      };
+    private static boolean isArrayWith(@Nullable Tree tree, Predicate<Tree> predicate) {
+      if (tree instanceof ArrayExpression) {
+        ArrayExpression array = (ArrayExpression) tree;
+        return array.elements().stream()
+          .anyMatch(predicate);
+      }
+      return false;
     }
 
-    private static boolean isSensitiveSourceAddressString(Tree value) {
+    private boolean isSensitiveSourceAddressString(Tree value) {
       return TextUtils.matchesValue(value, SOURCE_ADDRESS_PREFIX_SENSITIVE::contains).isTrue();
     }
 
-    private static boolean isSensitivePort(Tree tree) {
+    private boolean isSensitivePort(Tree tree) {
       return TextUtils.getValue(tree)
         .filter(value -> SENSITIVE_PORT.contains(value) || isSensitivePortRange(value))
         .isPresent();
