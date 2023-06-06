@@ -33,8 +33,8 @@ class IpRestrictedAdminAccessCheckTest {
       new Verifier.Issue(range(27, 8, 27, 42)),
       new Verifier.Issue(range(35, 8, 35, 37)),
       new Verifier.Issue(range(43, 8, 43, 41)),
-      new Verifier.Issue(range(52, 8, 52, 36)),
-      new Verifier.Issue(range(60, 8, 60, 47)),
-      new Verifier.Issue(range(68, 8, 68, 59)));
+      new Verifier.Issue(range(52, 8, 52, 38)),
+      new Verifier.Issue(range(60, 8, 60, 49)),
+      new Verifier.Issue(range(68, 8, 68, 61)));
   }
 }

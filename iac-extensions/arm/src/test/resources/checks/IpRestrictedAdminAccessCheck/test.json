@@ -49,7 +49,7 @@
       "apiVersion": "2022-11-01",
       "name": "Raise an issue: sensitive sourceAddressPrefix in array case 1",
       "properties": {
-        "sourceAddressPrefix": ["*"]
+        "sourceAddressPrefixes": ["*"]
       }
     },
     {
@@ -57,7 +57,7 @@
       "apiVersion": "2022-11-01",
       "name": "Raise an issue: sensitive sourceAddressPrefix in array case 2",
       "properties": {
-        "sourceAddressPrefix": ["1.1.1.1", "*"]
+        "sourceAddressPrefixes": ["1.1.1.1", "*"]
       }
     },
     {
@@ -65,7 +65,7 @@
       "apiVersion": "2022-11-01",
       "name": "Raise an issue: sensitive sourceAddressPrefix in array case 3",
       "properties": {
-        "sourceAddressPrefix": [{"another": "object"}, "*"]
+        "sourceAddressPrefixes": [{"another": "object"}, "*"]
       }
     },
 
@@ -75,6 +75,22 @@
       "name": "Compliant",
       "properties": {
         "sourceAddressPrefix": "1.1.1.1"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Compliant",
+      "properties": {
+        "sourceAddressPrefix": ["*"]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-11-01",
+      "name": "Compliant",
+      "properties": {
+        "sourceAddressPrefixes": "*"
       }
     },
     {

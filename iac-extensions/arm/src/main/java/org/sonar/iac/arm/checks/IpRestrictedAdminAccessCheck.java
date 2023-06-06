@@ -41,7 +41,12 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
       if (RESOURCE_TYPE.equals(resource.type().value())) {
         PropertyUtils.get(resource, "sourceAddressPrefix").ifPresent(propertyTree -> {
-          if (isSensitiveString(propertyTree.value()) || isSensitiveArray(propertyTree.value())) {
+          if (isSensitiveString(propertyTree.value())) {
+            ctx.reportIssue(propertyTree, MESSAGE);
+          }
+        });
+        PropertyUtils.get(resource, "sourceAddressPrefixes").ifPresent(propertyTree -> {
+          if (isSensitiveArray(propertyTree.value())) {
             ctx.reportIssue(propertyTree, MESSAGE);
           }
         });
