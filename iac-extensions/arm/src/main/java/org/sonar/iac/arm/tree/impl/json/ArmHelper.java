@@ -20,11 +20,8 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
-import java.util.Optional;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ArmHelper {
