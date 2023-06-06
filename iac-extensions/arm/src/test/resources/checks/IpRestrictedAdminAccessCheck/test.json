@@ -122,7 +122,7 @@
       "apiVersion": "2022-11-01",
       "name": "Compliant",
       "properties": {
-        "sourceAddressPrefix": ["1.1.1.1"]
+        "sourceAddressPrefixes": ["1.1.1.1"]
       }
     },
     {
@@ -130,7 +130,7 @@
       "apiVersion": "2022-11-01",
       "name": "Compliant",
       "properties": {
-        "sourceAddressPrefix": []
+        "sourceAddressPrefixes": []
       }
     },
     {
@@ -138,7 +138,7 @@
       "apiVersion": "2022-11-01",
       "name": "Compliant",
       "properties": {
-        "sourceAddressPrefix": {}
+        "sourceAddressPrefixes": {}
       }
     },
     {
