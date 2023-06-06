@@ -23,27 +23,25 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
-import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
-import static org.sonar.iac.arm.tree.impl.json.ArmHelper.propertyValue;
 
 public class OutputDeclarationImpl extends AbstractArmTreeImpl implements OutputDeclaration {
 
   private final Identifier name;
-  private final Property type;
-  private final Property condition;
-  private final Property copyCount;
-  private final Property copyInput;
-  private final Property value;
+  private final StringLiteral type;
+  private final StringLiteral condition;
+  private final StringLiteral copyCount;
+  private final StringLiteral copyInput;
+  private final StringLiteral value;
 
-  public OutputDeclarationImpl(Identifier name, Property type, @Nullable Property condition, @Nullable Property copyCount,
-    @Nullable Property copyInput, @Nullable Property value) {
+  public OutputDeclarationImpl(Identifier name, StringLiteral type, @Nullable StringLiteral condition, @Nullable StringLiteral copyCount,
+    @Nullable StringLiteral copyInput, @Nullable StringLiteral value) {
     this.name = name;
     this.type = type;
     this.condition = condition;
@@ -58,40 +56,39 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   }
 
   @Override
-  public Expression type() {
-    return type.value();
+  public StringLiteral type() {
+    return type;
   }
 
   @CheckForNull
   @Override
-  public Expression condition() {
-    return propertyValue(condition);
+  public StringLiteral condition() {
+    return condition;
   }
 
   @CheckForNull
   @Override
-  public Expression copyCount() {
-    return propertyValue(copyCount);
+  public StringLiteral copyCount() {
+    return copyCount;
   }
 
   @CheckForNull
   @Override
-  public Expression copyInput() {
-    return propertyValue(copyInput);
+  public StringLiteral copyInput() {
+    return copyInput;
   }
 
   @CheckForNull
   @Override
-  public Expression value() {
-    return propertyValue(value);
+  public StringLiteral value() {
+    return value;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(name);
-    children.add(type.key());
-    children.add(type.value());
+    children.add(type);
     addChildrenIfPresent(children, condition);
     addChildrenIfPresent(children, value);
     addChildrenIfPresent(children, copyCount);

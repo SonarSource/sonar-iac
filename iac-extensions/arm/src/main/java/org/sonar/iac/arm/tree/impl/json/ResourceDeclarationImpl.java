@@ -21,7 +21,6 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -30,12 +29,12 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
-  private final Property name;
-  private final Property version;
-  private final Property type;
+  private final StringLiteral name;
+  private final StringLiteral version;
+  private final StringLiteral type;
   private final List<Property> properties;
 
-  public ResourceDeclarationImpl(Property name, Property version, Property type, List<Property> properties) {
+  public ResourceDeclarationImpl(StringLiteral name, StringLiteral version, StringLiteral type, List<Property> properties) {
     this.name = name;
     this.version = version;
     this.type = type;
@@ -45,12 +44,9 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
-    children.add(name.key());
-    children.add(name.value());
-    children.add(version.key());
-    children.add(version.value());
-    children.add(type.key());
-    children.add(type.value());
+    children.add(name);
+    children.add(version);
+    children.add(type);
     properties.forEach(property -> {
       children.add(property.key());
       children.add(property.value());
@@ -59,18 +55,18 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public Expression name() {
-    return name.value();
+  public StringLiteral name() {
+    return name;
   }
 
   @Override
-  public String version() {
-    return ((StringLiteral) version.value()).value();
+  public StringLiteral version() {
+    return version;
   }
 
   @Override
-  public String type() {
-    return ((StringLiteral) type.value()).value();
+  public StringLiteral type() {
+    return type;
   }
 
   @Override

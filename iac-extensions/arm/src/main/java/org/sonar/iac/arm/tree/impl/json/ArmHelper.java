@@ -20,11 +20,8 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
-import java.util.Optional;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ArmHelper {
@@ -32,17 +29,9 @@ public class ArmHelper {
   private ArmHelper() {
   }
 
-  public static void addChildrenIfPresent(List<Tree> children, @Nullable Property property) {
-    if (property != null) {
-      children.add(property.key());
-      children.add(property.value());
+  public static void addChildrenIfPresent(List<Tree> children, @Nullable ArmTree tree) {
+    if (tree != null) {
+      children.add(tree);
     }
-  }
-
-  @CheckForNull
-  public static Expression propertyValue(@Nullable Property property) {
-    return Optional.ofNullable(property)
-      .map(Property::value)
-      .orElse(null);
   }
 }

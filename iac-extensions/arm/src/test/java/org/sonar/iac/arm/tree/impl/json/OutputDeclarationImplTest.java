@@ -23,12 +23,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
@@ -76,11 +74,11 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(0).getKind()).isEqualTo(OUTPUT_DECLARATION);
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type()).isLiteral().hasValue("my type");
-    assertThat(outputDeclaration.condition()).isLiteral().hasValue("my condition");
-    assertThat(outputDeclaration.copyCount()).isLiteral().hasValue("countValue");
+    assertThat(outputDeclaration.type()).hasValue("my type");
+    assertThat(outputDeclaration.condition()).hasValue("my condition");
+    assertThat(outputDeclaration.copyCount()).hasValue("countValue");
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).isLiteral().hasValue("my output value");
+    assertThat(outputDeclaration.value()).hasValue("my output value");
     assertThat(outputDeclaration.textRange()).hasRange(3, 4, 9, 32);
 
     assertThat(outputDeclaration.name())
@@ -89,17 +87,13 @@ class OutputDeclarationImplTest {
       .hasRange(3, 4, 3, 19);
 
     List<Tree> children = outputDeclaration.children();
-    assertThat(children).hasSize(9);
+    assertThat(children).hasSize(5);
 
     assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "myOutputValue").hasRange(3, 4, 3, 19);
-    assertThat((ArmTree) children.get(1)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
-    assertThat((ArmTree) children.get(2)).is(STRING_LITERAL).has("value", "my type").hasRange(4, 14, 4, 23);
-    assertThat((ArmTree) children.get(3)).is(IDENTIFIER).has("value", "condition").hasRange(5, 6, 5, 17);
-    assertThat((ArmTree) children.get(4)).is(STRING_LITERAL).has("value", "my condition").hasRange(5, 19, 5, 33);
-    assertThat((ArmTree) children.get(5)).is(IDENTIFIER).has("value", "value").hasRange(9, 6, 9, 13);
-    assertThat((ArmTree) children.get(6)).is(STRING_LITERAL).has("value", "my output value").hasRange(9, 15, 9, 32);
-    assertThat((ArmTree) children.get(7)).is(IDENTIFIER).has("value", "count").hasRange(7, 8, 7, 15);
-    assertThat((ArmTree) children.get(8)).is(STRING_LITERAL).has("value", "countValue").hasRange(7, 17, 7, 29);
+    assertThat((ArmTree) children.get(1)).is(STRING_LITERAL).has("value", "my type").hasRange(4, 14, 4, 23);
+    assertThat((ArmTree) children.get(2)).is(STRING_LITERAL).has("value", "my condition").hasRange(5, 19, 5, 33);
+    assertThat((ArmTree) children.get(3)).is(STRING_LITERAL).has("value", "my output value").hasRange(9, 15, 9, 32);
+    assertThat((ArmTree) children.get(4)).is(STRING_LITERAL).has("value", "countValue").hasRange(7, 17, 7, 29);
   }
 
   @ParameterizedTest
@@ -107,8 +101,7 @@ class OutputDeclarationImplTest {
     "\"type\": 5",
     "\"type\": \"code\", \"condition\":5",
     "\"type\": \"code\", \"value\":5",
-    "\"type\": \"code\", \"copy\": \"string\"",
-    "\"type\": \"code\", \"copy\": { \"count\": 5}",
+    "\"type\": \"code\", \"copy\": { \"count\": []}",
     "\"type\": \"code\", \"copy\": { \"input\": 5}",
   })
   void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
@@ -122,7 +115,7 @@ class OutputDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessageContainingAll("Expecting", "got", "instead");
+      .hasMessageContainingAll("Couldn't convert", "into StringLiteral", "expecting", "got", "instead");
   }
 
   @Test
@@ -174,19 +167,19 @@ class OutputDeclarationImplTest {
 
     OutputDeclaration outputDeclaration1 = (OutputDeclaration) tree.statements().get(0);
     assertThat(outputDeclaration1.name().value()).isEqualTo("myOutputValue1");
-    assertThat(outputDeclaration1.type()).isLiteral().hasValue("my type 1");
-    assertThat(outputDeclaration1.condition()).isLiteral().hasValue("my condition 1");
-    assertThat(outputDeclaration1.copyCount()).isLiteral().hasValue("countValue 1");
-    assertThat(outputDeclaration1.copyInput()).isLiteral().hasValue("inputValue 1");
-    assertThat(outputDeclaration1.value()).isLiteral().hasValue("my output value 1");
+    assertThat(outputDeclaration1.type()).hasValue("my type 1");
+    assertThat(outputDeclaration1.condition()).hasValue("my condition 1");
+    assertThat(outputDeclaration1.copyCount()).hasValue("countValue 1");
+    assertThat(outputDeclaration1.copyInput()).hasValue("inputValue 1");
+    assertThat(outputDeclaration1.value()).hasValue("my output value 1");
 
     OutputDeclaration outputDeclaration2 = (OutputDeclaration) tree.statements().get(1);
     assertThat(outputDeclaration2.name().value()).isEqualTo("myOutputValue2");
-    assertThat(outputDeclaration2.type()).isLiteral().hasValue("my type 2");
-    assertThat(outputDeclaration2.condition()).isLiteral().hasValue("my condition 2");
-    assertThat(outputDeclaration2.copyCount()).isLiteral().hasValue("countValue 2");
-    assertThat(outputDeclaration2.copyInput()).isLiteral().hasValue("inputValue 2");
-    assertThat(outputDeclaration2.value()).isLiteral().hasValue("my output value 2");
+    assertThat(outputDeclaration2.type()).hasValue("my type 2");
+    assertThat(outputDeclaration2.condition()).hasValue("my condition 2");
+    assertThat(outputDeclaration2.copyCount()).hasValue("countValue 2");
+    assertThat(outputDeclaration2.copyInput()).hasValue("inputValue 2");
+    assertThat(outputDeclaration2.value()).hasValue("my output value 2");
   }
 
   @Test
@@ -221,11 +214,11 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(0).is(STRING_LITERAL)).isFalse();
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type()).isLiteral().hasValue("my type");
+    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).isLiteral().hasValue("my output value");
+    assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
 
     assertThat(outputDeclaration.name())
       .is(IDENTIFIER)
@@ -233,7 +226,7 @@ class OutputDeclarationImplTest {
       .hasRange(3, 4, 3, 19);
 
     List<Tree> children = outputDeclaration.children();
-    assertThat(children).hasSize(5);
+    assertThat(children).hasSize(3);
   }
 
   @Test
@@ -253,32 +246,11 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(0).is(STRING_LITERAL)).isFalse();
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type()).isLiteral().hasValue("my type");
+    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).isLiteral().hasValue("my output value");
-
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .isEqualTo("Unexpected property 'unknown' found in output declaration at file.json:6:6, ignoring it.");
-  }
-
-  @Test
-  void shouldLogDebugWithoutFileDetails() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"type\": \"my type\",",
-      "      \"value\": \"my output value\",",
-      "      \"unknown\": \"unexpected attribute\"",
-      "    }",
-      "  }",
-      "}");
-    parser.parse(code, null);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
-      .isEqualTo("Unexpected property 'unknown' found in output declaration at 6:6, ignoring it.");
+    assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
   }
 
   InputFileContext mockInputFileContext(String filename) {
@@ -299,7 +271,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Fail to extract property 'value': Expecting [StringLiteral], got ArrayExpressionImpl instead at 5:15");
+    assertThat(parseException).hasMessage("Couldn't convert 'value' into StringLiteral at 5:15: expecting ScalarTree, got SequenceTreeImpl instead");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(5);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);
@@ -316,27 +288,10 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Expected MappingTree, got SequenceTreeImpl");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at 3:4");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(21);
-  }
-
-  @Test
-  void shouldFailOnCopyUnexpectedFormat() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"type\": \"my type\",",
-      "      \"copy\": []",
-      "    }",
-      "  }",
-      "}");
-    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Fail to Cast to ObjectExpression: Expecting [ObjectExpression], got ArrayExpressionImpl instead at 5:14");
-    assertThat(parseException.getDetails()).isNull();
-    assertThat(parseException.getPosition().line()).isEqualTo(5);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(14);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);
   }
 
   @Test
@@ -352,7 +307,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Property 'count' has an invalid type: Expecting [StringLiteral], got ArrayExpressionImpl instead at 6:17");
+    assertThat(parseException).hasMessage("Couldn't convert 'count' into StringLiteral at 6:17: expecting ScalarTree, got SequenceTreeImpl instead");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(6);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(17);

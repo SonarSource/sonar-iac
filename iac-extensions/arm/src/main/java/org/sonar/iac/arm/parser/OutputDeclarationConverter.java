@@ -20,25 +20,21 @@
 package org.sonar.iac.arm.parser;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
-import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.json.OutputDeclarationImpl;
-import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
 public class OutputDeclarationConverter extends ArmBaseConverter {
-
-  private static final Logger LOG = Loggers.get(OutputDeclarationConverter.class);
 
   public OutputDeclarationConverter(@Nullable InputFileContext inputFileContext) {
     super(inputFileContext);
@@ -54,29 +50,22 @@ public class OutputDeclarationConverter extends ArmBaseConverter {
       .flatMap(List::stream);
   }
 
-  public OutputDeclaration convertOutputDeclaration(TupleTree tupleTree) {
-    Identifier name = convertToIdentifier(tupleTree.key());
-
-    MappingTree outputMapping = toMappingTree(tupleTree.value());
-    Map<String, Property> properties = extractProperties(outputMapping);
-
-    Property type = extractMandatoryProperty(tupleTree.metadata(), properties, "type", ArmTree.Kind.STRING_LITERAL);
-    Property condition = extractProperty(properties, "condition", ArmTree.Kind.STRING_LITERAL);
-    Property value = extractProperty(properties, "value", ArmTree.Kind.STRING_LITERAL);
-    Property copyCount = null;
-    Property copyInput = null;
-
-    if (properties.containsKey("copy")) {
-      ObjectExpression copy = toObjectExpression(properties.remove("copy").value());
-      copyCount = checkPropertyType(copy.getPropertyByName("count"), ArmTree.Kind.STRING_LITERAL);
-      copyInput = checkPropertyType(copy.getPropertyByName("input"), ArmTree.Kind.STRING_LITERAL);
-    }
-
-    for (Map.Entry<String, Property> unexpectedProperty : properties.entrySet()) {
-      TextRange position = unexpectedProperty.getValue().textRange();
-      LOG.debug("Unexpected property '{}' found in output declaration at {}, ignoring it.", unexpectedProperty.getKey(), filenameAndPosition(position));
-    }
+  public OutputDeclaration convertOutputDeclaration(TupleTree tree) {
+    Identifier name = toIdentifier(tree.key());
+    StringLiteral type = PropertyUtils.get(tree.value(), "type").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "type"));
+    StringLiteral condition = PropertyUtils.get(tree.value(), "condition").map(this::toStringLiteral).orElse(null);
+    StringLiteral value = PropertyUtils.get(tree.value(), "value").map(this::toStringLiteral).orElse(null);
+    Optional<PropertyTree> copy = PropertyUtils.get(tree.value(), "copy");
+    StringLiteral copyCount = copy.map(c -> extractProperty(c, "count")).orElse(null);
+    StringLiteral copyInput = copy.map(c -> extractProperty(c, "input")).orElse(null);
 
     return new OutputDeclarationImpl(name, type, condition, copyCount, copyInput, value);
+  }
+
+  @CheckForNull
+  private StringLiteral extractProperty(PropertyTree property, String name) {
+    return PropertyUtils.get(property.value(), name)
+      .map(this::toStringLiteral)
+      .orElse(null);
   }
 }

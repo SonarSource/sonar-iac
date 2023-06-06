@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.api;
 
 import org.assertj.core.api.Assertions;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
 public class ExpressionAssert extends ArmTreeAssert<ExpressionAssert, Expression> {
@@ -85,11 +86,7 @@ public class ExpressionAssert extends ArmTreeAssert<ExpressionAssert, Expression
   }
 
   public ExpressionAssert hasObjectExpression(String key, String value) {
-    ObjectExpression objectExpression = (ObjectExpression) actual;
-    Property property = objectExpression.getPropertyByName(key);
-    Assertions.assertThat(property).isNotNull();
-    Assertions.assertThat(property.key().value()).isEqualTo(key);
-    assertThat(property.value()).isLiteral().hasValue(value);
+    Assertions.assertThat(PropertyUtils.valueIs(actual, key, tree -> ((StringLiteral) tree).value().equals(value))).isTrue();
     return this;
   }
 

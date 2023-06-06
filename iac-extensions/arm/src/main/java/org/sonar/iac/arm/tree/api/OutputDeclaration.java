@@ -24,17 +24,17 @@ import javax.annotation.CheckForNull;
 public interface OutputDeclaration extends Statement {
   Identifier name();
 
-  Expression type();
+  StringLiteral type();
 
   @CheckForNull
-  Expression condition();
+  StringLiteral condition();
 
   @CheckForNull
-  Expression copyCount();
+  StringLiteral copyCount();
 
   @CheckForNull
-  Expression copyInput();
+  StringLiteral copyInput();
 
   @CheckForNull
-  Expression value();
+  StringLiteral value();
 }

@@ -34,6 +34,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.testing.IacCommonAssertions;
 
@@ -42,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.ARRAY_EXPRESSION;
-import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
@@ -70,8 +70,8 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isFalse();
 
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resourceDeclaration.type()).isEqualTo("Microsoft.Kusto/clusters");
-    assertThat(resourceDeclaration.version()).isEqualTo("2022-12-29");
+    assertThat(resourceDeclaration.type()).hasValue("Microsoft.Kusto/clusters");
+    assertThat(resourceDeclaration.version()).hasValue("2022-12-29");
 
     assertThat(resourceDeclaration.name())
       .hasKind(STRING_LITERAL)
@@ -81,14 +81,11 @@ class ResourceDeclarationImplTest {
     assertThat(resourceDeclaration.properties()).isEmpty();
 
     List<Tree> children = resourceDeclaration.children();
-    assertThat(children).hasSize(6);
+    assertThat(children).hasSize(3);
 
-    assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "name").hasRange(6, 6, 6, 12);
-    assertThat((ArmTree) children.get(1)).is(STRING_LITERAL).has("value", "myResource").hasRange(6, 14, 6, 26);
-    assertThat((ArmTree) children.get(2)).is(IDENTIFIER).has("value", "apiVersion").hasRange(5, 6, 5, 18);
-    assertThat((ArmTree) children.get(3)).is(STRING_LITERAL).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
-    assertThat((ArmTree) children.get(4)).is(IDENTIFIER).has("value", "type").hasRange(4, 6, 4, 12);
-    assertThat((ArmTree) children.get(5)).is(STRING_LITERAL).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
+    assertThat((ArmTree) children.get(0)).is(STRING_LITERAL).has("value", "myResource").hasRange(6, 14, 6, 26);
+    assertThat((ArmTree) children.get(1)).is(STRING_LITERAL).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
+    assertThat((ArmTree) children.get(2)).is(STRING_LITERAL).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
   }
 
   @ParameterizedTest
@@ -108,7 +105,7 @@ class ResourceDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessageContainingAll("Expecting", "got", "instead");
+      .hasMessageContainingAll("Couldn't convert", "into StringLiteral", "expecting ScalarTree.Style.DOUBLE_QUOTED, got PLAIN instead");
   }
 
   @Test
@@ -119,8 +116,10 @@ class ResourceDeclarationImplTest {
       "      \"type\": \"Microsoft.Kusto/clusters\",",
       "      \"apiVersion\": \"2022-12-29\",",
       "      \"name\": \"myResource\",",
-      "      \"other properties 1\": {\"obj\": \"random location\"},",
-      "      \"other properties 2\": [\"val\"]",
+      "      \"properties\": {",
+      "        \"other properties 1\": {\"obj\": \"random location\"},",
+      "        \"other properties 2\": [\"val\"]",
+      "      },",
       "    }",
       "  ]",
       "}");
@@ -136,10 +135,7 @@ class ResourceDeclarationImplTest {
     assertThat(properties.get(0).value().is(OBJECT_EXPRESSION)).isTrue();
     ObjectExpression objExpression = (ObjectExpression) properties.get(0).value();
     assertThat(objExpression.properties()).hasSize(1);
-    Expression objValue = objExpression.getPropertyByName("obj").value();
-    assertThat(objValue.is(STRING_LITERAL)).isTrue();
-    assertThat(((StringLiteral) objValue).value()).isEqualTo("random location");
-    assertThat(objValue).isLiteral().hasValue("random location");
+    assertThat(PropertyUtils.valueIs(objExpression, "obj", t -> ((StringLiteral) t).value().equals("random location"))).isTrue();
 
     assertThat(properties.get(1).key().value()).isEqualTo("other properties 2");
     assertThat(properties.get(1).value().is(ARRAY_EXPRESSION)).isTrue();
@@ -150,7 +146,25 @@ class ResourceDeclarationImplTest {
     assertThat(arrValue.is(STRING_LITERAL)).isTrue();
     assertThat(arrValue).hasValue("val");
 
-    IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(7, 6, 7, 53);
+    IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(8, 8, 8, 55);
+  }
+
+  @Test
+  void shouldFailOnInvalidProperties() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"type\": \"Microsoft.Kusto/clusters\",",
+      "      \"apiVersion\": \"2022-12-29\",",
+      "      \"name\": \"myResource\",",
+      "      \"properties\": [\"key\"]",
+      "    }",
+      "  ]",
+      "}");
+
+    assertThatThrownBy(() -> parser.parse(code, null))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Couldn't convert properties: expecting object of class 'SequenceTreeImpl' to implement HasProperties");
   }
 
   @ParameterizedTest
@@ -185,14 +199,12 @@ class ResourceDeclarationImplTest {
       "    {",
       "      \"type\": \"type1\",",
       "      \"apiVersion\": \"version1\",",
-      "      \"name\": \"name1\",",
-      "      \"property1\": \"value1\",",
+      "      \"name\": \"name1\"",
       "    },",
       "    {",
       "      \"type\": \"type2\",",
       "      \"apiVersion\": \"version2\",",
-      "      \"name\": \"name2\",",
-      "      \"property2\": \"value2\",",
+      "      \"name\": \"name2\"",
       "    }",
       "  ]",
       "}");
@@ -203,22 +215,16 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(1)).isInstanceOf(ResourceDeclaration.class);
 
     ResourceDeclaration resourceDeclaration1 = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resourceDeclaration1.type()).isEqualTo("type1");
-    assertThat(resourceDeclaration1.version()).isEqualTo("version1");
+    assertThat(resourceDeclaration1.type()).hasValue("type1");
+    assertThat(resourceDeclaration1.version()).hasValue("version1");
     assertThat(resourceDeclaration1.name()).hasValue("name1");
-    assertThat(resourceDeclaration1.properties()).hasSize(1);
-    assertThat(resourceDeclaration1.properties().get(0).key().value()).isEqualTo("property1");
-    assertThat(resourceDeclaration1.properties().get(0).value().is(STRING_LITERAL)).isTrue();
-    assertThat(resourceDeclaration1.properties().get(0).value()).hasValue("value1");
+    assertThat(resourceDeclaration1.properties()).isEmpty();
 
     ResourceDeclaration resourceDeclaration2 = (ResourceDeclaration) tree.statements().get(1);
-    assertThat(resourceDeclaration2.type()).isEqualTo("type2");
-    assertThat(resourceDeclaration2.version()).isEqualTo("version2");
+    assertThat(resourceDeclaration2.type()).hasValue("type2");
+    assertThat(resourceDeclaration2.version()).hasValue("version2");
     assertThat(resourceDeclaration2.name()).hasValue("name2");
-    assertThat(resourceDeclaration2.properties()).hasSize(1);
-    assertThat(resourceDeclaration2.properties().get(0).key().value()).isEqualTo("property2");
-    assertThat(resourceDeclaration2.properties().get(0).value().is(STRING_LITERAL)).isTrue();
-    assertThat(resourceDeclaration2.properties().get(0).value()).hasValue("value2");
+    assertThat(resourceDeclaration2.properties()).isEmpty();
   }
 
   @Test
@@ -242,26 +248,12 @@ class ResourceDeclarationImplTest {
 
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(0);
     assertThat(resource.name()).hasValue("test with complex properties");
-    assertThat(resource.type()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules");
-    assertThat(resource.version()).isEqualTo("2022-11-01");
+    assertThat(resource.type()).hasValue("Microsoft.Network/networkSecurityGroups/securityRules");
+    assertThat(resource.version()).hasValue("2022-11-01");
 
     assertThat(resource.properties()).hasSize(1);
     Property property = resource.properties().get(0);
-    assertThat(property.key().value()).isEqualTo("properties");
-    assertThat(property.value()).hasKind(OBJECT_EXPRESSION);
-
-    ObjectExpression objectExpression = (ObjectExpression) property.value();
-    assertThat(objectExpression.getMapRepresentation()).hasSize(1);
-
-    Property sourceAddressPrefixesProperty = objectExpression.getPropertyByName("sourceAddressPrefixes");
-    assertThat(sourceAddressPrefixesProperty.key().value()).isEqualTo("sourceAddressPrefixes");
-    assertThat(sourceAddressPrefixesProperty.value()).hasKind(ARRAY_EXPRESSION);
-
-    ArrayExpression arrayExpression = (ArrayExpression) sourceAddressPrefixesProperty.value();
-    assertThat(arrayExpression).isNotNull();
-    assertThat(arrayExpression.elements()).hasSize(1);
-
-    Expression value = arrayExpression.elements().get(0);
-    assertThat(value).hasKind(STRING_LITERAL).hasValue("0.0.0.0/0");
+    assertThat(property.key().value()).isEqualTo("sourceAddressPrefixes");
+    assertThat(property.value()).hasKind(ARRAY_EXPRESSION).hasArrayExpressionValues("0.0.0.0/0");
   }
 }

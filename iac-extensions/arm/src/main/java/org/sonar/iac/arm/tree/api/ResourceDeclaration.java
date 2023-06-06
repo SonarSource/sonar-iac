@@ -20,13 +20,14 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
+import org.sonar.iac.common.api.tree.HasProperties;
 
-public interface ResourceDeclaration extends Statement {
-  Expression name();
+public interface ResourceDeclaration extends Statement, HasProperties {
+  StringLiteral name();
 
-  String version();
+  StringLiteral version();
 
-  String type();
+  StringLiteral type();
 
   List<Property> properties();
 }
