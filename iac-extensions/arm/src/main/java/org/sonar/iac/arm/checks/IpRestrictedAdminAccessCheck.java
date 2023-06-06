@@ -63,13 +63,20 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
 
   static class ResourceWithIpRestrictedAdminAccessChecker {
     StringLiteral name;
-    @Nullable Tree direction;
-    @Nullable Tree access;
-    @Nullable Tree protocol;
-    @Nullable Tree destinationPortRange;
-    @Nullable Tree destinationPortRanges;
-    @Nullable Tree sourceAddressPrefix;
-    @Nullable Tree sourceAddressPrefixes;
+    @Nullable
+    Tree direction;
+    @Nullable
+    Tree access;
+    @Nullable
+    Tree protocol;
+    @Nullable
+    Tree destinationPortRange;
+    @Nullable
+    Tree destinationPortRanges;
+    @Nullable
+    Tree sourceAddressPrefix;
+    @Nullable
+    Tree sourceAddressPrefixes;
 
     ResourceWithIpRestrictedAdminAccessChecker(ResourceDeclaration resource) {
       name = resource.name();
