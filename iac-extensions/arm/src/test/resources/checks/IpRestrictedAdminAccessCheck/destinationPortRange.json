@@ -1,0 +1,140 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise an issue: sensitive case destinationPortRange values 1",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case destinationPortRange values 2",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "22",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case destinationPortRange values 3",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "3389",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case destinationPortRange values 4",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "10-22",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case destinationPortRange values 5",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "1-5000",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case destinationPortRange values 6",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "3000-4000",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    
+    {
+      "name": "Raise an issue: sensitive case destinationPortRanges values 1",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRanges" : ["*"],
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case destinationPortRanges values 2",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRanges" : ["*", "22"],
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case destinationPortRanges values 2",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRanges" : ["80", "22"],
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    
+    {
+      "name": "Compliant: destinationPortRanges is not sensitive 1",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRanges" : ["80"],
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Compliant: destinationPortRanges is not sensitive 1",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRanges" : ["10-20", "50-80"],
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Compliant: destinationPortRanges is not sensitive 2",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRanges" : [],
+        "sourceAddressPrefix": "Internet"
+      }
+    }
+  ]
+}

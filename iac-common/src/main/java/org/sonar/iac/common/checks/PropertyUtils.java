@@ -54,10 +54,6 @@ public class PropertyUtils {
     return value(tree, key).filter(predicate).isPresent();
   }
 
-  public static boolean valueStringIs(@Nullable Tree tree, String key, Predicate<String> predicate) {
-    return value(tree, key).filter(t -> TextUtils.matchesValue(t, predicate).isTrue()).isPresent();
-  }
-
   // Check whether a particular property can be unambiguously considered absent.
   public static boolean isMissing(@Nullable Tree tree, String key) {
     return has(tree, key).isFalse();

@@ -19,7 +19,11 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.Verifier;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
@@ -27,14 +31,55 @@ import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 class IpRestrictedAdminAccessCheckTest {
 
   @Test
-  void test_json() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/test.json", new IpRestrictedAdminAccessCheck(),
-      new Verifier.Issue(range(19, 8, 19, 34), "Restrict IP addresses authorized to access administration services."),
-      new Verifier.Issue(range(27, 8, 27, 42)),
-      new Verifier.Issue(range(35, 8, 35, 37)),
-      new Verifier.Issue(range(43, 8, 43, 41)),
-      new Verifier.Issue(range(52, 8, 52, 38)),
-      new Verifier.Issue(range(60, 8, 60, 49)),
-      new Verifier.Issue(range(68, 8, 68, 61)));
+  void testSourceAddressPrefix() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/sourceAddressPrefix.json", new IpRestrictedAdminAccessCheck(),
+      new Verifier.Issue(range(6, 14, 6, 75), "Restrict IP addresses authorized to access administration services.",
+        List.of(secondary(9, 22, 9, 31, "Sensitive direction"),
+          secondary(10, 19, 10, 26, "Sensitive access"),
+          secondary(11, 21, 11, 26, "Sensitive protocol"),
+          secondary(12, 33, 12, 36, "Sensitive destination port range"),
+          secondary(13, 31, 13, 34, "Sensitive source address prefix"))),
+      new Verifier.Issue(range(17, 14, 17, 75)),
+      new Verifier.Issue(range(28, 14, 28, 75)),
+      new Verifier.Issue(range(39, 14, 39, 75)),
+      new Verifier.Issue(range(51, 14, 51, 70)),
+      new Verifier.Issue(range(62, 14, 62, 70)),
+      new Verifier.Issue(range(73, 14, 73, 70)));
+  }
+
+  @Test
+  void testDestinationPortRange() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/destinationPortRange.json", new IpRestrictedAdminAccessCheck(),
+      new Verifier.Issue(range(6, 14, 6, 76)),
+      new Verifier.Issue(range(17, 14, 17, 76)),
+      new Verifier.Issue(range(28, 14, 28, 76)),
+      new Verifier.Issue(range(39, 14, 39, 76)),
+      new Verifier.Issue(range(50, 14, 50, 76)),
+      new Verifier.Issue(range(61, 14, 61, 76)),
+      new Verifier.Issue(range(73, 14, 73, 77)),
+      new Verifier.Issue(range(84, 14, 84, 77)),
+      new Verifier.Issue(range(95, 14, 95, 77)));
+  }
+
+  @Test
+  void testProtocol() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/protocol.json", new IpRestrictedAdminAccessCheck(),
+      new Verifier.Issue(range(6, 14, 6, 64)),
+      new Verifier.Issue(range(17, 14, 17, 64)),
+      new Verifier.Issue(range(28, 14, 28, 64)));
+  }
+
+  @Test
+  void testOther() {
+    ArmVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/other.json", new IpRestrictedAdminAccessCheck());
+  }
+
+  @Test
+  void testMissingValues() {
+    ArmVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/missing_values.json", new IpRestrictedAdminAccessCheck());
+  }
+
+  private SecondaryLocation secondary(int startLine, int startOffset, int endLine, int endOffset, String message) {
+    return new SecondaryLocation(new TextRange(new TextPointer(startLine, startOffset), new TextPointer(endLine, endOffset)), message);
   }
 }
