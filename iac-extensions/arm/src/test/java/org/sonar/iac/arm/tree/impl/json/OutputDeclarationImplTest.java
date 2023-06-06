@@ -76,11 +76,11 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(0).getKind()).isEqualTo(OUTPUT_DECLARATION);
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type()).isEqualTo("my type");
-    assertThat(outputDeclaration.condition()).isEqualTo("my condition");
-    assertThat(outputDeclaration.copyCount()).isEqualTo("countValue");
+    assertThat(outputDeclaration.type()).hasValue("my type");
+    assertThat(outputDeclaration.condition()).hasValue("my condition");
+    assertThat(outputDeclaration.copyCount()).hasValue("countValue");
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).isEqualTo("my output value");
+    assertThat(outputDeclaration.value()).hasValue("my output value");
     assertThat(outputDeclaration.textRange()).hasRange(3, 4, 9, 32);
 
     assertThat(outputDeclaration.name())
@@ -169,19 +169,19 @@ class OutputDeclarationImplTest {
 
     OutputDeclaration outputDeclaration1 = (OutputDeclaration) tree.statements().get(0);
     assertThat(outputDeclaration1.name().value()).isEqualTo("myOutputValue1");
-    assertThat(outputDeclaration1.type()).isEqualTo("my type 1");
-    assertThat(outputDeclaration1.condition()).isEqualTo("my condition 1");
-    assertThat(outputDeclaration1.copyCount()).isEqualTo("countValue 1");
-    assertThat(outputDeclaration1.copyInput()).isEqualTo("inputValue 1");
-    assertThat(outputDeclaration1.value()).isEqualTo("my output value 1");
+    assertThat(outputDeclaration1.type()).hasValue("my type 1");
+    assertThat(outputDeclaration1.condition()).hasValue("my condition 1");
+    assertThat(outputDeclaration1.copyCount()).hasValue("countValue 1");
+    assertThat(outputDeclaration1.copyInput()).hasValue("inputValue 1");
+    assertThat(outputDeclaration1.value()).hasValue("my output value 1");
 
     OutputDeclaration outputDeclaration2 = (OutputDeclaration) tree.statements().get(1);
     assertThat(outputDeclaration2.name().value()).isEqualTo("myOutputValue2");
-    assertThat(outputDeclaration2.type()).isEqualTo("my type 2");
-    assertThat(outputDeclaration2.condition()).isEqualTo("my condition 2");
-    assertThat(outputDeclaration2.copyCount()).isEqualTo("countValue 2");
-    assertThat(outputDeclaration2.copyInput()).isEqualTo("inputValue 2");
-    assertThat(outputDeclaration2.value()).isEqualTo("my output value 2");
+    assertThat(outputDeclaration2.type()).hasValue("my type 2");
+    assertThat(outputDeclaration2.condition()).hasValue("my condition 2");
+    assertThat(outputDeclaration2.copyCount()).hasValue("countValue 2");
+    assertThat(outputDeclaration2.copyInput()).hasValue("inputValue 2");
+    assertThat(outputDeclaration2.value()).hasValue("my output value 2");
   }
 
   @Test
@@ -216,11 +216,11 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(0).is(STRING_LITERAL)).isFalse();
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type()).isEqualTo("my type");
+    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).isEqualTo("my output value");
+    assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
 
     assertThat(outputDeclaration.name())
       .is(IDENTIFIER)
@@ -248,11 +248,11 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(0).is(STRING_LITERAL)).isFalse();
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type()).isEqualTo("my type");
+    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).isEqualTo("my output value");
+    assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
   }
 
   InputFileContext mockInputFileContext(String filename) {

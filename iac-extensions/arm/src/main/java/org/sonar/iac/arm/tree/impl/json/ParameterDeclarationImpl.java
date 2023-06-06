@@ -111,42 +111,32 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   @Override
   @CheckForNull
-  public String description() {
-    return Optional.ofNullable(description)
-      .map(StringLiteral::value)
-      .orElse(null);
+  public StringLiteral description() {
+    return description;
   }
 
   @Override
   @CheckForNull
-  public Float minValue() {
-    return Optional.ofNullable(minValue)
-      .map(NumericLiteral::value)
-      .orElse(null);
+  public NumericLiteral minValue() {
+    return minValue;
   }
 
   @Override
   @CheckForNull
-  public Float maxValue() {
-    return Optional.ofNullable(maxValue)
-      .map(NumericLiteral::value)
-      .orElse(null);
+  public NumericLiteral maxValue() {
+    return maxValue;
   }
 
   @Override
   @CheckForNull
-  public Float minLength() {
-    return Optional.ofNullable(minLength)
-      .map(NumericLiteral::value)
-      .orElse(null);
+  public NumericLiteral minLength() {
+    return minLength;
   }
 
   @Override
   @CheckForNull
-  public Float maxLength() {
-    return Optional.ofNullable(maxLength)
-      .map(NumericLiteral::value)
-      .orElse(null);
+  public NumericLiteral maxLength() {
+    return maxLength;
   }
 
   @Override

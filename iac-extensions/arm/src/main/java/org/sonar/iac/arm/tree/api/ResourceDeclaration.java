@@ -23,11 +23,11 @@ import java.util.List;
 import org.sonar.iac.common.api.tree.HasProperties;
 
 public interface ResourceDeclaration extends Statement, HasProperties {
-  Expression name();
+  StringLiteral name();
 
-  String version();
+  StringLiteral version();
 
-  String type();
+  StringLiteral type();
 
   List<Property> properties();
 }

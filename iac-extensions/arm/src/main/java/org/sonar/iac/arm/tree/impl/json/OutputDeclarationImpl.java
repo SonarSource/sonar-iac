@@ -30,7 +30,6 @@ import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
-import static org.sonar.iac.arm.tree.impl.json.ArmHelper.valueOrNull;
 
 public class OutputDeclarationImpl extends AbstractArmTreeImpl implements OutputDeclaration {
 
@@ -57,32 +56,32 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   }
 
   @Override
-  public String type() {
-    return type.value();
+  public StringLiteral type() {
+    return type;
   }
 
   @CheckForNull
   @Override
-  public String condition() {
-    return valueOrNull(condition);
+  public StringLiteral condition() {
+    return condition;
   }
 
   @CheckForNull
   @Override
-  public String copyCount() {
-    return valueOrNull(copyCount);
+  public StringLiteral copyCount() {
+    return copyCount;
   }
 
   @CheckForNull
   @Override
-  public String copyInput() {
-    return valueOrNull(copyInput);
+  public StringLiteral copyInput() {
+    return copyInput;
   }
 
   @CheckForNull
   @Override
-  public String value() {
-    return valueOrNull(value);
+  public StringLiteral value() {
+    return value;
   }
 
   @Override

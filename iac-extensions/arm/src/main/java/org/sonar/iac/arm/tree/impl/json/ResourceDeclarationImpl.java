@@ -56,18 +56,18 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public Expression name() {
+  public StringLiteral name() {
     return name;
   }
 
   @Override
-  public String version() {
-    return version.value();
+  public StringLiteral version() {
+    return version;
   }
 
   @Override
-  public String type() {
-    return type.value();
+  public StringLiteral type() {
+    return type;
   }
 
   @Override

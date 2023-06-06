@@ -37,11 +37,4 @@ public class ArmHelper {
       children.add(tree);
     }
   }
-
-  @CheckForNull
-  public static String valueOrNull(@Nullable StringLiteral stringLiteral) {
-    return Optional.ofNullable(stringLiteral)
-      .map(StringLiteral::value)
-      .orElse(null);
-  }
 }

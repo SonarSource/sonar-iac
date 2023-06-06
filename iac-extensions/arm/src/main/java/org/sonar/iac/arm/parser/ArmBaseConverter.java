@@ -21,7 +21,6 @@ package org.sonar.iac.arm.parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -45,6 +44,7 @@ import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -65,22 +65,22 @@ public class ArmBaseConverter {
 
   public StringLiteral toStringLiteral(PropertyTree property) {
     if (!(property.value() instanceof ScalarTree)) {
-      throw convertError(property, "StringLiteral", "ScalarTree");
+      throw convertError(property, StringLiteral.class.getSimpleName(), ScalarTree.class.getSimpleName());
     }
     ScalarTree value = (ScalarTree) property.value();
     if (value.style() != ScalarTree.Style.DOUBLE_QUOTED) {
-      throw convertError(property, value, "StringLiteral", "ScalarTree.Style.DOUBLE_QUOTED");
+      throw convertError(property, value, StringLiteral.class.getSimpleName(), "ScalarTree.Style.DOUBLE_QUOTED");
     }
     return new StringLiteralImpl(value.value(), value.metadata());
   }
 
   public NumericLiteral toNumericLiteral(PropertyTree property) {
     if (!(property.value() instanceof ScalarTree)) {
-      throw convertError(property, "NumericLiteral", "ScalarTree");
+      throw convertError(property, NumericLiteral.class.getSimpleName(), ScalarTree.class.getSimpleName());
     }
     ScalarTree value = (ScalarTree) property.value();
     if (value.style() != ScalarTree.Style.PLAIN) {
-      throw convertError(property, value, "NumericLiteral", "ScalarTree.Style.PLAIN");
+      throw convertError(property, value, NumericLiteral.class.getSimpleName(), "ScalarTree.Style.PLAIN");
     }
     try {
       return new NumericLiteralImpl(Float.parseFloat(value.value()), value.metadata());
@@ -91,18 +91,17 @@ public class ArmBaseConverter {
 
   public ArrayExpression toArrayExpression(PropertyTree property) {
     if (!(property.value() instanceof SequenceTree)) {
-      throw convertError(property, "ArrayExpression", "SequenceTree");
+      throw convertError(property, ArrayExpression.class.getSimpleName(), SequenceTree.class.getSimpleName());
     }
     return toArrayExpression((SequenceTree) property.value());
   }
 
   public Identifier toIdentifier(YamlTree tree) {
-    return Optional.of(tree)
-      .filter(ScalarTree.class::isInstance)
-      .map(ScalarTree.class::cast)
-      .map(scalarTree -> new IdentifierImpl(scalarTree.value(), scalarTree.metadata()))
-      .orElseThrow(
-        () -> new ParseException("Expecting ScalarTree to convert to Identifier, got " + tree.getClass().getSimpleName(), new BasicTextPointer(tree.metadata().textRange()), null));
+    if (!(tree instanceof ScalarTree)) {
+      throw convertError(tree, Identifier.class.getSimpleName(), ScalarTree.class.getSimpleName());
+    }
+    ScalarTree scalarTree = (ScalarTree) tree;
+    return new IdentifierImpl(scalarTree.value(), scalarTree.metadata());
   }
 
   public ObjectExpression toObjectExpression(MappingTree tree) {
@@ -197,12 +196,22 @@ public class ArmBaseConverter {
 
   private ParseException convertError(PropertyTree property, String targetType, String expectedType) {
     YamlTree value = (YamlTree) property.value();
-    return new ParseException("Couldn't convert '" + ((ScalarTree) property.key()).value() + "' into " + targetType + " at " + filenameAndPosition(value.textRange()) +
-      ": expecting " + expectedType + ", got " + value.getClass().getSimpleName() + " instead", new BasicTextPointer(value.textRange()), null);
+    String errorMessage = convertErrorMessage(property.key(), targetType, property.value().textRange(), expectedType, value.getClass().getSimpleName());
+    return new ParseException(errorMessage, new BasicTextPointer(value.textRange()), null);
+  }
+
+  private ParseException convertError(Tree tree, String targetType, String expectedType) {
+    String errorMessage = convertErrorMessage(tree, targetType, tree.textRange(), expectedType, tree.getClass().getSimpleName());
+    return new ParseException(errorMessage, new BasicTextPointer(tree.textRange()), null);
   }
 
   private ParseException convertError(PropertyTree property, ScalarTree value, String targetType, String expectedStyle) {
-    return new ParseException("Couldn't convert '" + ((ScalarTree) property.key()).value() + "' into " + targetType + " at " + filenameAndPosition(value.textRange()) +
-      ": expecting " + expectedStyle + ", got " + value.style() + " instead", new BasicTextPointer(value.textRange()), null);
+    String errorMessage = convertErrorMessage(property.key(), targetType, value.textRange(), expectedStyle, value.style().name());
+    return new ParseException(errorMessage, new BasicTextPointer(value.textRange()), null);
+  }
+
+  private String convertErrorMessage(Tree objectToConvert, String targetType, TextRange location, String expectedValue, String valueFound) {
+    String toConvert = TextUtils.getValue(objectToConvert).orElse(objectToConvert.toString());
+    return "Couldn't convert '" + toConvert + "' into " + targetType + " at " + filenameAndPosition(location) + ": expecting " + expectedValue + ", got " + valueFound + " instead";
   }
 }

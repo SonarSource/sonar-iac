@@ -130,7 +130,7 @@ class ParameterDeclarationImplTest {
 
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
     assertThat(parameter.identifier().value()).isEqualTo("enabledForDeployment");
-    assertThat(parameter.description()).isEqualTo("some description");
+    assertThat(parameter.description()).hasValue("some description");
   }
 
   @Test
@@ -162,12 +162,12 @@ class ParameterDeclarationImplTest {
     assertThat(parameter.identifier().value()).isEqualTo("exampleParam");
     assertThat(parameter.type()).isEqualTo(ParameterType.STRING);
     assertThat(parameter.defaultValue()).isLiteral().hasValue("a").hasKind(STRING_LITERAL).hasRange(5, 28, 5, 31);
-    assertThat(parameter.minValue()).isEqualTo(7);
-    assertThat(parameter.maxValue()).isEqualTo(90);
-    assertThat(parameter.minLength()).isEqualTo(1);
-    assertThat(parameter.maxLength()).isEqualTo(10);
+    assertThat(parameter.minValue()).hasValue(7);
+    assertThat(parameter.maxValue()).hasValue(90);
+    assertThat(parameter.minLength()).hasValue(1);
+    assertThat(parameter.maxLength()).hasValue(10);
     assertThat(parameter.allowedValues()).map(a -> (StringLiteral) a).map(StringLiteral::value).containsExactly("A", "B", "CCCC");
-    assertThat(parameter.description()).isEqualTo("some description");
+    assertThat(parameter.description()).hasValue("some description");
     assertThat(parameter.textRange()).hasRange(3, 8, 16, 49);
   }
 

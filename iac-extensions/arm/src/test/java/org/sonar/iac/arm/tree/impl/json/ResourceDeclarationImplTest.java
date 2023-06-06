@@ -70,8 +70,8 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isFalse();
 
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resourceDeclaration.type()).isEqualTo("Microsoft.Kusto/clusters");
-    assertThat(resourceDeclaration.version()).isEqualTo("2022-12-29");
+    assertThat(resourceDeclaration.type()).hasValue("Microsoft.Kusto/clusters");
+    assertThat(resourceDeclaration.version()).hasValue("2022-12-29");
 
     assertThat(resourceDeclaration.name())
       .hasKind(STRING_LITERAL)
@@ -215,14 +215,14 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(1)).isInstanceOf(ResourceDeclaration.class);
 
     ResourceDeclaration resourceDeclaration1 = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resourceDeclaration1.type()).isEqualTo("type1");
-    assertThat(resourceDeclaration1.version()).isEqualTo("version1");
+    assertThat(resourceDeclaration1.type()).hasValue("type1");
+    assertThat(resourceDeclaration1.version()).hasValue("version1");
     assertThat(resourceDeclaration1.name()).hasValue("name1");
     assertThat(resourceDeclaration1.properties()).isEmpty();
 
     ResourceDeclaration resourceDeclaration2 = (ResourceDeclaration) tree.statements().get(1);
-    assertThat(resourceDeclaration2.type()).isEqualTo("type2");
-    assertThat(resourceDeclaration2.version()).isEqualTo("version2");
+    assertThat(resourceDeclaration2.type()).hasValue("type2");
+    assertThat(resourceDeclaration2.version()).hasValue("version2");
     assertThat(resourceDeclaration2.name()).hasValue("name2");
     assertThat(resourceDeclaration2.properties()).isEmpty();
   }
@@ -248,8 +248,8 @@ class ResourceDeclarationImplTest {
 
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(0);
     assertThat(resource.name()).hasValue("test with complex properties");
-    assertThat(resource.type()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules");
-    assertThat(resource.version()).isEqualTo("2022-11-01");
+    assertThat(resource.type()).hasValue("Microsoft.Network/networkSecurityGroups/securityRules");
+    assertThat(resource.version()).hasValue("2022-11-01");
 
     assertThat(resource.properties()).hasSize(1);
     Property property = resource.properties().get(0);

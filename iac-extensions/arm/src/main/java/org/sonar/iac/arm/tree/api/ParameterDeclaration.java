@@ -31,13 +31,13 @@ public interface ParameterDeclaration extends Statement {
 
   List<Expression> allowedValues();
 
-  String description();
+  StringLiteral description();
 
-  Float minValue();
+  NumericLiteral minValue();
 
-  Float maxValue();
+  NumericLiteral maxValue();
 
-  Float minLength();
+  NumericLiteral minLength();
 
-  Float maxLength();
+  NumericLiteral maxLength();
 }
