@@ -37,7 +37,7 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
-      if (RESOURCE_TYPE.equals(resource.type())) {
+      if (RESOURCE_TYPE.equals(resource.type().value())) {
         PropertyUtils.get(resource, "sourceAddressPrefix").ifPresent(propertyTree -> {
           if (TextUtils.matchesValue(propertyTree.value(), SOURCE_ADDRESS_PREFIX_SENSITIVE::contains).isTrue()) {
             ctx.reportIssue(propertyTree, MESSAGE);
