@@ -94,7 +94,6 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
 
     void reportIssue(CheckContext ctx) {
       List<SecondaryLocation> secondaryLocations = new ArrayList<>();
-
       sourceAddressPrefix.ifPresent(tree -> secondaryLocations.add(new SecondaryLocation(tree, "Sensitive source address prefix")));
       sourceAddressPrefixes.ifPresent(tree -> secondaryLocations.add(new SecondaryLocation(tree, "Sensitive source(s) address prefix(es)")));
       secondaryLocations.add(new SecondaryLocation(direction.get(), "Sensitive direction"));
