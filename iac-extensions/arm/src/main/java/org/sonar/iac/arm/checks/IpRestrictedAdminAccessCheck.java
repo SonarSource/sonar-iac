@@ -21,6 +21,7 @@ package org.sonar.iac.arm.checks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -84,7 +85,7 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
     boolean isSensitive() {
       return direction.filter(tree -> TextUtils.matchesValue(tree, "Inbound"::equalsIgnoreCase).isTrue()).isPresent()
         && access.filter(tree -> TextUtils.matchesValue(tree, "Allow"::equalsIgnoreCase).isTrue()).isPresent()
-        && protocol.filter(tree -> TextUtils.matchesValue(tree, str -> SENSITIVE_PROTOCOL.contains(str.toUpperCase())).isTrue()).isPresent()
+        && protocol.filter(tree -> TextUtils.matchesValue(tree, str -> SENSITIVE_PROTOCOL.contains(str.toUpperCase(Locale.ROOT))).isTrue()).isPresent()
         && (destinationPortRange.filter(ResourcePropertiesChecker::isSensitivePort).isPresent()
           || destinationPortRanges.filter(isArrayWith(ResourcePropertiesChecker::isSensitivePort)).isPresent())
         && (sourceAddressPrefix.filter(ResourcePropertiesChecker::isSensitiveSourceAddressString).isPresent()
