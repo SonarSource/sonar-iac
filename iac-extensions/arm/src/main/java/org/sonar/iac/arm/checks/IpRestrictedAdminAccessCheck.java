@@ -41,12 +41,12 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
       if (RESOURCE_TYPE.equals(resource.type().value())) {
         PropertyUtils.get(resource, "sourceAddressPrefix").ifPresent(propertyTree -> {
-          if (isSensitiveString(propertyTree.value())) {
+          if (isSensitiveSourceAddress(propertyTree.value())) {
             ctx.reportIssue(propertyTree, MESSAGE);
           }
         });
         PropertyUtils.get(resource, "sourceAddressPrefixes").ifPresent(propertyTree -> {
-          if (isSensitiveArray(propertyTree.value())) {
+          if (containsSensitiveSourceAddress(propertyTree.value())) {
             ctx.reportIssue(propertyTree, MESSAGE);
           }
         });
@@ -54,15 +54,15 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
     });
   }
 
-  private static boolean isSensitiveString(Tree value) {
+  private static boolean isSensitiveSourceAddress(Tree value) {
     return TextUtils.matchesValue(value, SOURCE_ADDRESS_PREFIX_SENSITIVE::contains).isTrue();
   }
 
-  private static boolean isSensitiveArray(Tree value) {
+  private static boolean containsSensitiveSourceAddress(Tree value) {
     if (value instanceof ArrayExpression) {
       ArrayExpression array = (ArrayExpression) value;
       return array.elements().stream()
-        .anyMatch(IpRestrictedAdminAccessCheck::isSensitiveString);
+        .anyMatch(IpRestrictedAdminAccessCheck::isSensitiveSourceAddress);
     }
     return false;
   }
