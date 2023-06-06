@@ -83,8 +83,8 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
     }
 
     boolean isSensitive() {
-      return TextUtils.matchesValue(direction, "Inbound"::equalsIgnoreCase).isTrue()
-        && TextUtils.matchesValue(access, "Allow"::equalsIgnoreCase).isTrue()
+      return TextUtils.isValue(direction, "Inbound").isTrue()
+        && TextUtils.isValue(access, "Allow").isTrue()
         && TextUtils.matchesValue(protocol, str -> SENSITIVE_PROTOCOL.contains(str.toUpperCase(Locale.ROOT))).isTrue()
         && (isSensitivePort(destinationPortRange) || isArrayWith(destinationPortRanges, this::isSensitivePort))
         && (isSensitiveSourceAddressString(sourceAddressPrefix) || isArrayWith(sourceAddressPrefixes, this::isSensitiveSourceAddressString));
