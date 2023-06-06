@@ -19,18 +19,13 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.function.Function;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.testing.Verifier;
-import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
 public class ArmVerifier {
 

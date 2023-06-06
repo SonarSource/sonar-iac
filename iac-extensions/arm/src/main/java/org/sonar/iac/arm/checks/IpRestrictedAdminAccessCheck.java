@@ -19,43 +19,31 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import java.util.function.Predicate;
+import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.api.tree.Tree;
-
-import static org.sonar.iac.common.checks.PropertyUtils.value;
-import static org.sonar.iac.common.checks.PropertyUtils.valueIs;
+import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck implements IacCheck {
 
   private static final String MESSAGE = "Restrict IP addresses authorized to access administration services.";
-  private static final List<String> TYPES = List.of(
-    "Microsoft.Network/networkSecurityGroups/securityRules");
-  private static final List<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = List.of("*", "0.0.0.0/0", "::/0", "Internet");
+  private static final String RESOURCE_TYPE = "Microsoft.Network/networkSecurityGroups/securityRules";
+  private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", "0.0.0.0/0", "::/0", "Internet");
 
   @Override
   public void initialize(InitContext init) {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
-      if (TYPES.contains(resource.type()) && valueIs(resource, "sourceAddressPrefix", IpRestrictedAdminAccessCheck::isDestinationSensitive)) {
-        ctx.reportIssue(value(resource, "sourceAddressPrefix").get(), MESSAGE);
+      if (RESOURCE_TYPE.equals(resource.type())) {
+        PropertyUtils.get(resource, "sourceAddressPrefix").ifPresent(propertyTree -> {
+          if (TextUtils.matchesValue(propertyTree.value(), SOURCE_ADDRESS_PREFIX_SENSITIVE::contains).isTrue()) {
+            ctx.reportIssue(propertyTree, MESSAGE);
+          }
+        });
       }
     });
-  }
-
-  private static boolean isDestinationSensitive(Tree tree) {
-    Expression property = (Expression) tree;
-    return isStringValue(property, SOURCE_ADDRESS_PREFIX_SENSITIVE::contains);
-  }
-
-  private static boolean isStringValue(Expression expression, Predicate<String> predicate) {
-    return expression.is(ArmTree.Kind.STRING_LITERAL) && predicate.test(((StringLiteral) expression).value());
   }
 }
