@@ -86,9 +86,9 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
         && access.filter(tree -> TextUtils.matchesValue(tree, "Allow"::equalsIgnoreCase).isTrue()).isPresent()
         && protocol.filter(tree -> TextUtils.matchesValue(tree, str -> SENSITIVE_PROTOCOL.contains(str.toUpperCase())).isTrue()).isPresent()
         && (destinationPortRange.filter(ResourcePropertiesChecker::isSensitivePort).isPresent()
-          || destinationPortRanges.filter(tree -> isArrayWith(tree, ResourcePropertiesChecker::isSensitivePort)).isPresent())
+          || destinationPortRanges.filter(isArrayWith(ResourcePropertiesChecker::isSensitivePort)).isPresent())
         && (sourceAddressPrefix.filter(ResourcePropertiesChecker::isSensitiveSourceAddressString).isPresent()
-          || sourceAddressPrefixes.filter(tree -> isArrayWith(tree, ResourcePropertiesChecker::isSensitiveSourceAddressString)).isPresent());
+          || sourceAddressPrefixes.filter(isArrayWith(ResourcePropertiesChecker::isSensitiveSourceAddressString)).isPresent());
     }
 
     void reportIssue(CheckContext ctx) {
@@ -106,13 +106,15 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
       ctx.reportIssue(name, MESSAGE, secondaryLocations);
     }
 
-    private static boolean isArrayWith(Tree tree, Predicate<Tree> predicate) {
-      if (tree instanceof ArrayExpression) {
-        ArrayExpression array = (ArrayExpression) tree;
-        return array.elements().stream()
-          .anyMatch(predicate);
-      }
-      return false;
+    private static Predicate<Tree> isArrayWith(Predicate<Tree> predicate) {
+      return tree -> {
+        if (tree instanceof ArrayExpression) {
+          ArrayExpression array = (ArrayExpression) tree;
+          return array.elements().stream()
+            .anyMatch(predicate);
+        }
+        return false;
+      };
     }
 
     private static boolean isSensitiveSourceAddressString(Tree value) {
