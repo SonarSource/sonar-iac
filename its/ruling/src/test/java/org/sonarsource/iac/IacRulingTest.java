@@ -54,7 +54,8 @@ class IacRulingTest {
     "terraform",
     "cloudformation",
     "kubernetes",
-    "docker");
+    "docker",
+    "azureresourcemanager");
 
   @BeforeAll
   public static void setUp() {

@@ -19,15 +19,19 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.testing.Verifier;
 
-public class ArmCheckList {
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
-  private ArmCheckList() {
-  }
+class IpRestrictedAdminAccessCheckTest {
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      IpRestrictedAdminAccessCheck.class);
+  @Test
+  void test_json() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/test.json", new IpRestrictedAdminAccessCheck(),
+      new Verifier.Issue(range(19, 8, 19, 34), "Restrict IP addresses authorized to access administration services."),
+      new Verifier.Issue(range(27, 8, 27, 42)),
+      new Verifier.Issue(range(35, 8, 35, 37)),
+      new Verifier.Issue(range(43, 8, 43, 41)));
   }
 }

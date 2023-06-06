@@ -28,6 +28,7 @@ import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -35,7 +36,7 @@ import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 
-public class ArmParser implements TreeParser<ArmTree> {
+public class ArmParser implements TreeParser<Tree> {
 
   @Nullable
   private InputFileContext inputFileContext;

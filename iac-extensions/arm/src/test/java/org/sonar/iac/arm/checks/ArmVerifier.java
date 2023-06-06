@@ -19,15 +19,26 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.testing.Verifier;
 
-public class ArmCheckList {
+public class ArmVerifier {
 
-  private ArmCheckList() {
+  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+
+  private static final TreeParser<Tree> PARSER = new ArmParser();
+
+  private ArmVerifier() {
+
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      IpRestrictedAdminAccessCheck.class);
+  public static void verify(String fileName, IacCheck check, Verifier.Issue... expectedIssues) {
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, expectedIssues);
   }
+
 }

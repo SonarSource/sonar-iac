@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-public interface StringLiteral extends Expression {
-  String value();
+import org.sonar.iac.common.api.tree.TextTree;
+
+public interface StringLiteral extends Expression, TextTree {
 }
