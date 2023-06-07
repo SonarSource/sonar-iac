@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class IpRestrictedAdminAccessCheckBase {
+public class IpRestrictedAdminAccessCheckBase {
 
   public static final String MESSAGE = "Restrict IP addresses authorized to access administration services.";
   public static final String ALL_IPV4 = "0.0.0.0/0";
