@@ -107,7 +107,7 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
     @Nullable
     Tree sourceAddressPrefixes;
 
-    ResourceWithIpRestrictedAdminAccessChecker(ResourceDeclaration resource, @Nullable Tree properties) {
+    ResourceWithIpRestrictedAdminAccessChecker(ResourceDeclaration resource, Tree properties) {
       name = resource.name();
       direction = PropertyUtils.value(properties, "direction").orElse(null);
       access = PropertyUtils.value(properties, "access").orElse(null);
