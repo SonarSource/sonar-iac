@@ -43,6 +43,7 @@ class IpRestrictedAdminAccessCheckBaseTest {
     assertThat(rangeContainsSshOrRdpPort("10-30")).isTrue();
     assertThat(rangeContainsSshOrRdpPort("22-22")).isTrue();
     assertThat(rangeContainsSshOrRdpPort("10-4000")).isTrue();
+    assertThat(rangeContainsSshOrRdpPort("500-4000")).isTrue();
     assertThat(rangeContainsSshOrRdpPort("5-20")).isFalse();
     assertThat(rangeContainsSshOrRdpPort("25-300")).isFalse();
     assertThat(rangeContainsSshOrRdpPort("3400-3500")).isFalse();
