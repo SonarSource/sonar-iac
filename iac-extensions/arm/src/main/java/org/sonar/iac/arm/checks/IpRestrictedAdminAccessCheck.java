@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -38,16 +36,14 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckBase;
 
 @Rule(key = "S6321")
-public class IpRestrictedAdminAccessCheck implements IacCheck {
+public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBase implements IacCheck {
 
-  private static final String MESSAGE = "Restrict IP addresses authorized to access administration services.";
   private static final String RESOURCE_TYPE = "Microsoft.Network/networkSecurityGroups/securityRules";
-  private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", "0.0.0.0/0", "::/0", "Internet");
+  private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", ALL_IPV4, ALL_IPV6, "Internet");
   private static final Set<String> SENSITIVE_PROTOCOL = Set.of("*", "TCP");
-  private static final Set<String> SENSITIVE_PORT = Set.of("*", "22", "3389");
-  private static final Pattern patternPortRange = Pattern.compile("^(?<min>\\d+)-(?<max>\\d+)$");
 
   @Override
   public void initialize(InitContext init) {
@@ -131,22 +127,8 @@ public class IpRestrictedAdminAccessCheck implements IacCheck {
 
     private boolean isSensitivePort(Tree tree) {
       return TextUtils.getValue(tree)
-        .filter(value -> SENSITIVE_PORT.contains(value) || isSensitivePortRange(value))
+        .filter(value -> SENSITIVE_PORTS.contains(value) || rangeContainsSshOrRdpPort(value))
         .isPresent();
-    }
-
-    private static boolean isSensitivePortRange(String portRange) {
-      Matcher matcher = patternPortRange.matcher(portRange);
-      if (matcher.find()) {
-        int min = Integer.parseInt(matcher.group("min"));
-        int max = Integer.parseInt(matcher.group("max"));
-        return inRange(22, min, max) || inRange(3389, min, max);
-      }
-      return false;
-    }
-
-    private static boolean inRange(int number, int min, int max) {
-      return number >= min && number <= max;
     }
   }
 }
