@@ -50,8 +50,8 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
     "Microsoft.Network/networkSecurityGroup", List.of("securityRules", "*", "properties"),
     "Microsoft.Network/virtualNetworks/subnets", List.of("networkSecurityGroup", "properties", "securityRules", "*", "properties"),
     "Microsoft.Network/virtualNetworks", List.of("subnets", "*", "properties", "networkSecurityGroup", "properties", "securityRules", "*", "properties"),
-    "Microsoft.Network/networkInterfaces", List.of("ipConfigurations", "*", "properties", "subnet", "properties", "networkSecurityGroup", "properties", "securityRules", "*", "properties")
-  );
+    "Microsoft.Network/networkInterfaces",
+    List.of("ipConfigurations", "*", "properties", "subnet", "properties", "networkSecurityGroup", "properties", "securityRules", "*", "properties"));
   private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", ALL_IPV4, ALL_IPV6, "Internet");
   private static final Set<String> SENSITIVE_PROTOCOL = Set.of("*", "TCP");
 
