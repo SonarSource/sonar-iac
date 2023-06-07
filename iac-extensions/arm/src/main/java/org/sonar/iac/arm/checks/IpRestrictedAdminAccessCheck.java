@@ -20,8 +20,12 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -41,20 +45,49 @@ import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckBase;
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBase implements IacCheck {
 
-  private static final String RESOURCE_TYPE = "Microsoft.Network/networkSecurityGroups/securityRules";
+  private static final Map<String, List<String>> PATH_PER_RESOURCE_TYPE = Map.of(
+    "Microsoft.Network/networkSecurityGroups/securityRules", List.of(),
+    "Microsoft.Network/networkSecurityGroup", List.of("securityRules", "*", "properties"),
+    "Microsoft.Network/virtualNetworks/subnets", List.of("networkSecurityGroup", "properties", "securityRules", "*", "properties"),
+    "Microsoft.Network/virtualNetworks", List.of("subnets", "*", "properties", "networkSecurityGroup", "properties", "securityRules", "*", "properties"),
+    "Microsoft.Network/networkInterfaces", List.of("ipConfigurations", "*", "properties", "subnet", "properties", "networkSecurityGroup", "properties", "securityRules", "*", "properties")
+  );
   private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", ALL_IPV4, ALL_IPV6, "Internet");
   private static final Set<String> SENSITIVE_PROTOCOL = Set.of("*", "TCP");
 
   @Override
   public void initialize(InitContext init) {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
-      if (RESOURCE_TYPE.equals(resource.type().value())) {
-        ResourceWithIpRestrictedAdminAccessChecker checker = new ResourceWithIpRestrictedAdminAccessChecker(resource);
-        if (checker.isSensitive()) {
-          checker.reportIssue(ctx);
+      List<String> path = PATH_PER_RESOURCE_TYPE.get(resource.type().value());
+      if (path != null) {
+        List<Tree> listProperties = resolveProperties(new LinkedList<>(path), resource);
+        for (Tree properties : listProperties) {
+          ResourceWithIpRestrictedAdminAccessChecker checker = new ResourceWithIpRestrictedAdminAccessChecker(resource, properties);
+          if (checker.isSensitive()) {
+            checker.reportIssue(ctx);
+          }
         }
       }
     });
+  }
+
+  private List<Tree> resolveProperties(Queue<String> path, Tree tree) {
+    while (!path.isEmpty() && tree != null) {
+      String nextPath = path.poll();
+      if (nextPath.equals("*")) {
+        if (tree instanceof ArrayExpression) {
+          ArrayExpression array = (ArrayExpression) tree;
+          List<Tree> trees = new ArrayList<>();
+          array.elements().forEach(element -> trees.addAll(resolveProperties(new LinkedList<>(path), element)));
+          return trees;
+        } else {
+          return Collections.emptyList();
+        }
+      } else {
+        tree = PropertyUtils.value(tree, nextPath).orElse(null);
+      }
+    }
+    return tree != null ? List.of(tree) : Collections.emptyList();
   }
 
   static class ResourceWithIpRestrictedAdminAccessChecker {
@@ -74,15 +107,15 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
     @Nullable
     Tree sourceAddressPrefixes;
 
-    ResourceWithIpRestrictedAdminAccessChecker(ResourceDeclaration resource) {
+    ResourceWithIpRestrictedAdminAccessChecker(ResourceDeclaration resource, @Nullable Tree properties) {
       name = resource.name();
-      direction = PropertyUtils.value(resource, "direction").orElse(null);
-      access = PropertyUtils.value(resource, "access").orElse(null);
-      protocol = PropertyUtils.value(resource, "protocol").orElse(null);
-      destinationPortRange = PropertyUtils.value(resource, "destinationPortRange").orElse(null);
-      destinationPortRanges = PropertyUtils.value(resource, "destinationPortRanges").orElse(null);
-      sourceAddressPrefix = PropertyUtils.value(resource, "sourceAddressPrefix").orElse(null);
-      sourceAddressPrefixes = PropertyUtils.value(resource, "sourceAddressPrefixes").orElse(null);
+      direction = PropertyUtils.value(properties, "direction").orElse(null);
+      access = PropertyUtils.value(properties, "access").orElse(null);
+      protocol = PropertyUtils.value(properties, "protocol").orElse(null);
+      destinationPortRange = PropertyUtils.value(properties, "destinationPortRange").orElse(null);
+      destinationPortRanges = PropertyUtils.value(properties, "destinationPortRanges").orElse(null);
+      sourceAddressPrefix = PropertyUtils.value(properties, "sourceAddressPrefix").orElse(null);
+      sourceAddressPrefixes = PropertyUtils.value(properties, "sourceAddressPrefixes").orElse(null);
     }
 
     boolean isSensitive() {

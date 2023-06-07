@@ -8,11 +8,89 @@
       "properties": {
         "securityRules" : [
           {
-            "direction" : "Inbound",
-            "access" : "Allow",
-            "protocol" : "TCP",
-            "destinationPortRange" : "*",
-            "sourceAddressPrefix": "*"
+            "properties": {
+              "direction" : "Inbound",
+              "access" : "Allow",
+              "protocol" : "TCP",
+              "destinationPortRange" : "*",
+              "sourceAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+    
+    {
+      "name": "Raise 2 issues, with each having same main location but different secondary locations",
+      "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
+      "properties": {
+        "securityRules" : [
+          {
+            "properties": {
+              "direction" : "Inbound",
+              "access" : "Allow",
+              "protocol" : "TCP",
+              "destinationPortRange" : "*",
+              "sourceAddressPrefix": "*"
+            }
+          },
+          {
+            "properties": {
+              "direction" : "Inbound",
+              "access" : "Allow",
+              "protocol" : "TCP",
+              "destinationPortRange" : "*",
+              "sourceAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+    
+    {
+      "name": "Raise issue on second security rule only",
+      "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
+      "properties": {
+        "securityRules" : [
+          {
+            "properties": {
+              "direction" : "Inbound",
+              "access" : "Allow",
+              "protocol" : "UDP",
+              "destinationPortRange" : "*",
+              "sourceAddressPrefix": "*"
+            }
+          },
+          {
+            "properties": {
+              "direction" : "Inbound",
+              "access" : "Allow",
+              "protocol" : "TCP",
+              "destinationPortRange" : "*",
+              "sourceAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+    
+    {
+      "name": "No issue to raise",
+      "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
+      "properties": {
+        "securityRules" : [
+        ]
+      }
+    },
+    
+    {
+      "name": "No issue to raise",
+      "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
+      "properties": {
+        "securityRules" : [
+          {
+            "properties": {
+            }
           }
         ]
       }

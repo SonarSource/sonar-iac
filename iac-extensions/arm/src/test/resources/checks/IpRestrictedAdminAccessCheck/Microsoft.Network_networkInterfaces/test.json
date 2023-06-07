@@ -1,0 +1,37 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise an issue",
+      "type": "Microsoft.Network/networkInterfaces", "apiVersion": "2022-11-01",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "properties": {
+              "subnet": {
+                "properties": {
+                  "networkSecurityGroup": {
+                    "properties": {
+                      "securityRules": [
+                        {
+                          "properties": {
+                            "direction" : "Inbound",
+                            "access" : "Allow",
+                            "protocol" : "TCP",
+                            "destinationPortRange" : "*",
+                            "sourceAddressPrefix": "*"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
