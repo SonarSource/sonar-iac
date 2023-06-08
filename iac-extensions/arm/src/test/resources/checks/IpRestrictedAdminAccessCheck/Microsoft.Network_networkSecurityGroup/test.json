@@ -6,7 +6,7 @@
       "name": "Raise an issue",
       "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
       "properties": {
-        "securityRules" : [
+        "securityRules": [
           {
             "properties": {
               "direction" : "Inbound",
@@ -24,7 +24,7 @@
       "name": "Raise 2 issues, with each having same main location but different secondary locations",
       "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
       "properties": {
-        "securityRules" : [
+        "securityRules": [
           {
             "properties": {
               "direction" : "Inbound",
@@ -51,7 +51,7 @@
       "name": "Raise issue on second security rule only",
       "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
       "properties": {
-        "securityRules" : [
+        "securityRules": [
           {
             "properties": {
               "direction" : "Inbound",
@@ -78,7 +78,7 @@
       "name": "No issue to raise",
       "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
       "properties": {
-        "securityRules" : [
+        "securityRules": [
         ]
       }
     },
@@ -87,12 +87,28 @@
       "name": "No issue to raise",
       "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
       "properties": {
-        "securityRules" : [
+        "securityRules": [
           {
             "properties": {
             }
           }
         ]
+      }
+    },
+	
+	{
+      "name": "No issue to raise: no ArrayExpression where expected",
+      "type": "Microsoft.Network/networkSecurityGroup", "apiVersion": "2022-11-01",
+      "properties": {
+        "securityRules": {
+          "properties": {
+            "direction" : "Inbound",
+            "access" : "Allow",
+            "protocol" : "TCP",
+            "destinationPortRange" : "*",
+            "sourceAddressPrefix": "*"
+          }
+        }
       }
     }
   ]
