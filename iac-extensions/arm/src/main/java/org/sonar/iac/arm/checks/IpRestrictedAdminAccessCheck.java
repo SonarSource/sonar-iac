@@ -71,7 +71,7 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
     });
   }
 
-  private List<Tree> resolveProperties(Queue<String> path, Tree tree) {
+  private static List<Tree> resolveProperties(Queue<String> path, Tree tree) {
     while (!path.isEmpty() && tree != null) {
       String nextPath = path.poll();
       if (nextPath.equals("*")) {
