@@ -23,12 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.snakeyaml.engine.v2.exceptions.ScannerException;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.impl.json.FileImpl;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -49,15 +53,16 @@ public class ArmParser implements TreeParser<Tree> {
 
   private FileTree parseJson(String source) {
     YamlParser yamlParser = new YamlParser();
+    InputFile inputFile = inputFileContext != null ? inputFileContext.inputFile : null;
     try {
       return yamlParser.parse(source, inputFileContext);
+    } catch (ScannerException e) {
+      TextPointer position = e.getContextMark()
+        .map(mark -> new BasicTextPointer(mark.getLine() + 1, mark.getColumn()))
+        .orElse(null);
+      throw ParseException.throwParseException("parse", inputFile, e, position);
     } catch (Exception e) {
-      String message = "Failed to parse";
-      if (inputFileContext != null) {
-        String filename = inputFileContext.inputFile.filename();
-        message = message + " " + filename;
-      }
-      throw new ParseException(message, null, e.getMessage());
+      throw ParseException.throwParseException("parse", inputFile, e, null);
     }
   }
 

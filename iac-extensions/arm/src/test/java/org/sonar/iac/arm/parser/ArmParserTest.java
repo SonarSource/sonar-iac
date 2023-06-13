@@ -45,17 +45,13 @@ class ArmParserTest {
     assertThat(tree.parent()).isNull();
     assertThatThrownBy(tree::textRange)
       .isInstanceOf(IllegalArgumentException.class);
-
-    // TODO it is a temp test for coverage it will covered later when implementing more advance features
-    tree.setParent(tree);
-    assertThat(tree.parent()).isSameAs(tree);
   }
 
   @Test
   void shouldThrowExceptionWhenParseError() {
     assertThatThrownBy(() -> parser.parse("{", null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Failed to parse");
+      .hasMessage("Cannot parse 'null'");
   }
 
   @Test
@@ -66,6 +62,6 @@ class ArmParserTest {
 
     assertThatThrownBy(() -> parser.parse("{", inputFileContext))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Failed to parse foo.json");
+      .hasMessage("Cannot parse 'foo.json'");
   }
 }

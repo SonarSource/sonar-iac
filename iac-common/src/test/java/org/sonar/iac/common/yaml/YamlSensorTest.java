@@ -80,7 +80,7 @@ class YamlSensorTest extends AbstractSensorTest {
     when(yamlEngineException.getMessage()).thenReturn("message");
 
     InputFile inputFile = mock(InputFile.class);
-    when(inputFile.toString()).thenReturn("TestFile");
+    when(inputFile.filename()).thenReturn("TestFile");
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
 
     ParseException e = sensor().toParseException("action", inputFile, yamlEngineException);
@@ -97,7 +97,7 @@ class YamlSensorTest extends AbstractSensorTest {
     when(yamlEngineException.getMessage()).thenReturn("message");
 
     InputFile inputFile = mock(InputFile.class);
-    when(inputFile.toString()).thenReturn("TestFile");
+    when(inputFile.filename()).thenReturn("TestFile");
 
     ParseException e = sensor().toParseException("action", inputFile, yamlEngineException);
     assertThat(e)
@@ -112,7 +112,7 @@ class YamlSensorTest extends AbstractSensorTest {
     when(exception.getMessage()).thenReturn("message");
 
     InputFile inputFile = mock(InputFile.class);
-    when(inputFile.toString()).thenReturn("TestFile");
+    when(inputFile.filename()).thenReturn("TestFile");
     when(inputFile.newPointer(2, 0)).thenReturn(new DefaultTextPointer(1, 0));
 
     ParseException e = sensor().toParseException("action", inputFile, exception);
