@@ -22,6 +22,49 @@
           }
         }
       }
+    },
+
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/virtualNetworks/subnets", "apiVersion": "2022-11-01",
+      "properties": {
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction" : "Inbound",
+                  "access" : "Allow",
+                  "protocol" : "UDP",
+                  "destinationPortRange" : "*",
+                  "sourceAddressPrefix": "*"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/virtualNetworks/subnets", "apiVersion": "2022-11-01",
+      "properties": {
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction" : "Inbound",
+                  "access" : "Allow",
+                  "destinationPortRange" : "*",
+                  "sourceAddressPrefix": "*"
+                }
+              }
+            ]
+          }
+        }
+      }
     }
   ]
 }

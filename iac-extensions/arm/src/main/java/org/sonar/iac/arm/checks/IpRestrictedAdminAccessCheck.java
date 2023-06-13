@@ -71,6 +71,19 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
     });
   }
 
+  /**
+   * This method is used to retrieve the list of tree elements which can be resolved using a provided queue of path.
+   * The result is a list of Tree because it can resolve to multiple element since it is supporting the token '*' to means that an array is expected.
+   * Example:
+   *   Provided list of path: "connections", "*", "entry"
+   *   Provided Tree representation:
+   *   {
+   *     "connections": [
+   *       { "entry":"val1" }, --> will be in the result list
+   *       { "entry":"val2" }  --> will also be in the result list
+   *     ]
+   *   }
+   */
   private static List<Tree> resolveProperties(Queue<String> path, Tree tree) {
     while (!path.isEmpty() && tree != null) {
       String nextPath = path.poll();
