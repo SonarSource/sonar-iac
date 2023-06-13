@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise an issue: sensitive case sourceAddressPrefix values 1",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefix": "*"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case sourceAddressPrefix values 2",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefix": "0.0.0.0/0"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case sourceAddressPrefix values 3",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefix": "::/0"
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case sourceAddressPrefix values 4",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    
+    {
+      "name": "Raise an issue: sensitive case sourceAddressPrefixes 1",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefixes": ["Internet"]
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case sourceAddressPrefixes 2",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefixes": ["192.168.1.1", "Internet"]
+      }
+    },
+    {
+      "name": "Raise an issue: sensitive case sourceAddressPrefixes 3",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefixes": ["*", "Internet"]
+      }
+    },
+    {
+      "name": "Compliant: valid sourceAddressPrefixes 1",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefixes": ["192.168.1.1"]
+      }
+    },
+    {
+      "name": "Compliant: valid sourceAddressPrefixes 2",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefixes": []
+      }
+    },
+    {
+      "name": "Compliant: not an array sourceAddressPrefixes 3",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "*",
+        "sourceAddressPrefixes": 5
+      }
+    }
+  ]
+}

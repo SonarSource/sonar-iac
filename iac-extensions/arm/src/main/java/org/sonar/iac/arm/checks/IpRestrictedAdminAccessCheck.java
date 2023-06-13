@@ -19,51 +19,116 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckBase;
 
 @Rule(key = "S6321")
-public class IpRestrictedAdminAccessCheck implements IacCheck {
+public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBase implements IacCheck {
 
-  private static final String MESSAGE = "Restrict IP addresses authorized to access administration services.";
   private static final String RESOURCE_TYPE = "Microsoft.Network/networkSecurityGroups/securityRules";
-  private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", "0.0.0.0/0", "::/0", "Internet");
+  private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", ALL_IPV4, ALL_IPV6, "Internet");
+  private static final Set<String> SENSITIVE_PROTOCOL = Set.of("*", "TCP");
 
   @Override
   public void initialize(InitContext init) {
     init.register(ResourceDeclaration.class, (ctx, resource) -> {
       if (RESOURCE_TYPE.equals(resource.type().value())) {
-        PropertyUtils.get(resource, "sourceAddressPrefix").ifPresent(propertyTree -> {
-          if (isSensitiveSourceAddress(propertyTree.value())) {
-            ctx.reportIssue(propertyTree, MESSAGE);
-          }
-        });
-        PropertyUtils.get(resource, "sourceAddressPrefixes").ifPresent(propertyTree -> {
-          if (containsSensitiveSourceAddress(propertyTree.value())) {
-            ctx.reportIssue(propertyTree, MESSAGE);
-          }
-        });
+        ResourceWithIpRestrictedAdminAccessChecker checker = new ResourceWithIpRestrictedAdminAccessChecker(resource);
+        if (checker.isSensitive()) {
+          checker.reportIssue(ctx);
+        }
       }
     });
   }
 
-  private static boolean isSensitiveSourceAddress(Tree value) {
-    return TextUtils.matchesValue(value, SOURCE_ADDRESS_PREFIX_SENSITIVE::contains).isTrue();
-  }
+  static class ResourceWithIpRestrictedAdminAccessChecker {
+    StringLiteral name;
+    @Nullable
+    Tree direction;
+    @Nullable
+    Tree access;
+    @Nullable
+    Tree protocol;
+    @Nullable
+    Tree destinationPortRange;
+    @Nullable
+    Tree destinationPortRanges;
+    @Nullable
+    Tree sourceAddressPrefix;
+    @Nullable
+    Tree sourceAddressPrefixes;
 
-  private static boolean containsSensitiveSourceAddress(Tree value) {
-    if (value instanceof ArrayExpression) {
-      ArrayExpression array = (ArrayExpression) value;
-      return array.elements().stream()
-        .anyMatch(IpRestrictedAdminAccessCheck::isSensitiveSourceAddress);
+    ResourceWithIpRestrictedAdminAccessChecker(ResourceDeclaration resource) {
+      name = resource.name();
+      direction = PropertyUtils.value(resource, "direction").orElse(null);
+      access = PropertyUtils.value(resource, "access").orElse(null);
+      protocol = PropertyUtils.value(resource, "protocol").orElse(null);
+      destinationPortRange = PropertyUtils.value(resource, "destinationPortRange").orElse(null);
+      destinationPortRanges = PropertyUtils.value(resource, "destinationPortRanges").orElse(null);
+      sourceAddressPrefix = PropertyUtils.value(resource, "sourceAddressPrefix").orElse(null);
+      sourceAddressPrefixes = PropertyUtils.value(resource, "sourceAddressPrefixes").orElse(null);
     }
-    return false;
+
+    boolean isSensitive() {
+      return TextUtils.isValue(direction, "Inbound").isTrue()
+        && TextUtils.isValue(access, "Allow").isTrue()
+        && TextUtils.matchesValue(protocol, str -> SENSITIVE_PROTOCOL.contains(str.toUpperCase(Locale.ROOT))).isTrue()
+        && (isSensitivePort(destinationPortRange) || isArrayWith(destinationPortRanges, this::isSensitivePort))
+        && (isSensitiveSourceAddressString(sourceAddressPrefix) || isArrayWith(sourceAddressPrefixes, this::isSensitiveSourceAddressString));
+    }
+
+    void reportIssue(CheckContext ctx) {
+      List<SecondaryLocation> secondaryLocations = new ArrayList<>();
+      if (sourceAddressPrefix != null) {
+        secondaryLocations.add(new SecondaryLocation(sourceAddressPrefix, "Sensitive source address prefix"));
+      } else {
+        secondaryLocations.add(new SecondaryLocation(sourceAddressPrefixes, "Sensitive source(s) address prefix(es)"));
+      }
+      secondaryLocations.add(new SecondaryLocation(direction, "Sensitive direction"));
+      secondaryLocations.add(new SecondaryLocation(access, "Sensitive access"));
+      secondaryLocations.add(new SecondaryLocation(protocol, "Sensitive protocol"));
+      if (destinationPortRange != null) {
+        secondaryLocations.add(new SecondaryLocation(destinationPortRange, "Sensitive destination port range"));
+      } else {
+        secondaryLocations.add(new SecondaryLocation(destinationPortRanges, "Sensitive destination(s) port range(s)"));
+      }
+
+      ctx.reportIssue(name, MESSAGE, secondaryLocations);
+    }
+
+    private static boolean isArrayWith(@Nullable Tree tree, Predicate<Tree> predicate) {
+      if (tree instanceof ArrayExpression) {
+        ArrayExpression array = (ArrayExpression) tree;
+        return array.elements().stream()
+          .anyMatch(predicate);
+      }
+      return false;
+    }
+
+    private boolean isSensitiveSourceAddressString(Tree value) {
+      return TextUtils.matchesValue(value, SOURCE_ADDRESS_PREFIX_SENSITIVE::contains).isTrue();
+    }
+
+    private boolean isSensitivePort(Tree tree) {
+      return TextUtils.getValue(tree)
+        .filter(IpRestrictedAdminAccessCheckBase::rangeContainsSshOrRdpPort)
+        .isPresent();
+    }
   }
 }

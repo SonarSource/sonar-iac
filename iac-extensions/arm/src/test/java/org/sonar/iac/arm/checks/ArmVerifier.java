@@ -41,4 +41,8 @@ public class ArmVerifier {
     Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check, expectedIssues);
   }
 
+  public static void verifyNoIssue(String fileName, IacCheck check) {
+    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
+  }
+
 }

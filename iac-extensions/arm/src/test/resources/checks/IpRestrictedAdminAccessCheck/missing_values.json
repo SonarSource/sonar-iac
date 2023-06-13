@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Do not raise an issue: missing direction",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "22",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Do not raise an issue: missing access",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "protocol" : "TCP",
+        "destinationPortRange" : "22",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Do not raise an issue: missing protocol",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "destinationPortRange" : "22",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Do not raise an issue: missing destinationPortRange",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "sourceAddressPrefix": "Internet"
+      }
+    },
+    {
+      "name": "Do not raise an issue: missing sourceAddressPrefix",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+      "properties": {
+        "direction" : "Inbound",
+        "access" : "Allow",
+        "protocol" : "TCP",
+        "destinationPortRange" : "22",
+      }
+    }
+  ]
+}
