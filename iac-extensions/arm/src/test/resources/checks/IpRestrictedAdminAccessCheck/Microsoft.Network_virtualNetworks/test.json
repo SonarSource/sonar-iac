@@ -1,0 +1,122 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise an issue",
+      "type": "Microsoft.Network/virtualNetworks", "apiVersion": "2022-11-01",
+      "properties": {
+        "subnets": [
+          {
+            "properties": {
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction" : "Inbound",
+                        "access" : "Allow",
+                        "protocol" : "TCP",
+                        "destinationPortRange" : "*",
+                        "sourceAddressPrefix": "*"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    
+    {  
+      "name": "Raise an issue: check on multiple elements per list",
+      "type": "Microsoft.Network/virtualNetworks", "apiVersion": "2022-11-01",
+      "properties": {
+        "subnets": [
+          {},
+          {
+            "properties": {
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {},
+                    {
+                      "properties": {
+                        "direction" : "Inbound",
+                        "access" : "Allow",
+                        "protocol" : "TCP",
+                        "destinationPortRange" : "*",
+                        "sourceAddressPrefix": "*"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/virtualNetworks", "apiVersion": "2022-11-01",
+      "properties": {
+        "subnets": [
+          {},
+          {
+            "properties": {
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {},
+                    {
+                      "properties": {
+                        "direction" : "Inbound",
+                        "access" : "Allow",
+                        "protocol" : "UDP",
+                        "destinationPortRange" : "*",
+                        "sourceAddressPrefix": "*"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/virtualNetworks", "apiVersion": "2022-11-01",
+      "properties": {
+        "subnets": [
+          {},
+          {
+            "properties": {
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {},
+                    {
+                      "properties": {
+                        "direction" : "Inbound",
+                        "access" : "Allow",
+                        "destinationPortRange" : "*",
+                        "sourceAddressPrefix": "*"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
