@@ -45,13 +45,19 @@ import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckBase;
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBase implements IacCheck {
 
+  private static final String SECURITY_RULES = "securityRules";
+  private static final String PROPERTIES = "properties";
+  private static final String NETWORK_SECURITY_GROUP = "networkSecurityGroup";
+  private static final String SUBNETS = "subnets";
+  private static final String SUBNET = "subnet";
+  private static final String ARRAY_TOKEN = "*";
   private static final Map<String, List<String>> PATH_PER_RESOURCE_TYPE = Map.of(
     "Microsoft.Network/networkSecurityGroups/securityRules", List.of(),
-    "Microsoft.Network/networkSecurityGroup", List.of("securityRules", "*", "properties"),
-    "Microsoft.Network/virtualNetworks/subnets", List.of("networkSecurityGroup", "properties", "securityRules", "*", "properties"),
-    "Microsoft.Network/virtualNetworks", List.of("subnets", "*", "properties", "networkSecurityGroup", "properties", "securityRules", "*", "properties"),
+    "Microsoft.Network/networkSecurityGroup", List.of(SECURITY_RULES, ARRAY_TOKEN, PROPERTIES),
+    "Microsoft.Network/virtualNetworks/subnets", List.of(NETWORK_SECURITY_GROUP, PROPERTIES, SECURITY_RULES, ARRAY_TOKEN, PROPERTIES),
+    "Microsoft.Network/virtualNetworks", List.of(SUBNETS, ARRAY_TOKEN, PROPERTIES, NETWORK_SECURITY_GROUP, PROPERTIES, SECURITY_RULES, ARRAY_TOKEN, PROPERTIES),
     "Microsoft.Network/networkInterfaces",
-    List.of("ipConfigurations", "*", "properties", "subnet", "properties", "networkSecurityGroup", "properties", "securityRules", "*", "properties"));
+    List.of("ipConfigurations", ARRAY_TOKEN, PROPERTIES, SUBNET, PROPERTIES, NETWORK_SECURITY_GROUP, PROPERTIES, SECURITY_RULES, ARRAY_TOKEN, PROPERTIES));
   private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", ALL_IPV4, ALL_IPV6, "Internet");
   private static final Set<String> SENSITIVE_PROTOCOL = Set.of("*", "TCP");
 
@@ -87,7 +93,7 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
   private static List<Tree> resolveProperties(Queue<String> path, Tree tree) {
     while (!path.isEmpty() && tree != null) {
       String nextPath = path.poll();
-      if (nextPath.equals("*")) {
+      if (nextPath.equals(ARRAY_TOKEN)) {
         if (tree instanceof ArrayExpression) {
           ArrayExpression array = (ArrayExpression) tree;
           List<Tree> trees = new ArrayList<>();
