@@ -127,7 +127,7 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
 
     private boolean isSensitivePort(Tree tree) {
       return TextUtils.getValue(tree)
-        .filter(value -> SENSITIVE_PORTS.contains(value) || rangeContainsSshOrRdpPort(value))
+        .filter(IpRestrictedAdminAccessCheckBase::rangeContainsSshOrRdpPort)
         .isPresent();
     }
   }
