@@ -69,7 +69,7 @@ class DockerParserTest {
       "# comment which will be removed",
       "unknown");
     InputFile inputFile = mock(InputFile.class);
-    Mockito.when(inputFile.toString()).thenReturn("filename.abc");
+    Mockito.when(inputFile.filename()).thenReturn("filename.abc");
     InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
     ParseException exception = assertThrows(ParseException.class, () -> parse(code, DockerLexicalGrammar.INSTRUCTION, inputFileContext));
     assertThat(exception.getMessage()).isEqualTo("Cannot parse 'filename.abc'");

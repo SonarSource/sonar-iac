@@ -27,7 +27,10 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.arm.checks.ArmCheckList;
+import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
+import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.yaml.YamlSensor;
 
 public class ArmSensor extends YamlSensor {
@@ -57,5 +60,10 @@ public class ArmSensor extends YamlSensor {
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext) {
     return new FileIdentificationPredicate(sensorContext.config().get(ArmSettings.FILE_IDENTIFIER_KEY).orElse(""));
+  }
+
+  @Override
+  protected TreeParser<Tree> treeParser() {
+    return new ArmParser();
   }
 }

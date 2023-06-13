@@ -108,6 +108,13 @@ class IacRulingTest {
     run_ruling_test("docker", properties);
   }
 
+  @Test
+  void test_arm() throws IOException {
+    Map<String, String> properties = new HashMap<>();
+    properties.put("sonar.inclusions", "sources/azureresourcemanager/**/*.json, ruling/src/test/resources/sources/azureresourcemanager/**/*.json");
+    run_ruling_test("azureresourcemanager", properties);
+  }
+
   @Disabled("This test is only a helper to diagnose failures on the local system")
   @Test
   void test_local() throws IOException {
