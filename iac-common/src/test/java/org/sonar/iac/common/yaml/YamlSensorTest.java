@@ -123,6 +123,18 @@ class YamlSensorTest extends AbstractSensorTest {
   }
 
   @Test
+  void toParseException_NullInputFile() {
+    Exception exception = mock(Exception.class);
+    when(exception.getMessage()).thenReturn("message");
+
+    ParseException e = sensor().toParseException("action", null, exception);
+    assertThat(e)
+      .hasMessage("Cannot action 'null'")
+      .extracting(ParseException::getPosition)
+      .isNull();
+  }
+
+  @Test
   void mainFilePredicate() {
     FilePredicate predicate = sensor().mainFilePredicate(context);
 
