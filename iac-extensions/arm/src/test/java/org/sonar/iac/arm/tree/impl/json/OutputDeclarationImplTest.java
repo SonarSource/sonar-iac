@@ -100,7 +100,6 @@ class OutputDeclarationImplTest {
   @ValueSource(strings = {
     "\"type\": 5",
     "\"type\": \"code\", \"condition\":5",
-    "\"type\": \"code\", \"value\":5",
     "\"type\": \"code\", \"copy\": { \"count\": []}",
     "\"type\": \"code\", \"copy\": { \"input\": 5}",
   })
@@ -218,7 +217,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
+    assertThat(outputDeclaration.value()).hasValue("my output value");
 
     assertThat(outputDeclaration.name())
       .is(IDENTIFIER)
@@ -250,7 +249,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value().value()).isEqualTo("my output value");
+    assertThat(outputDeclaration.value()).hasValue("my output value");
   }
 
   InputFileContext mockInputFileContext(String filename) {
@@ -258,23 +257,6 @@ class OutputDeclarationImplTest {
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(filename);
     return new InputFileContext(sensorContext, inputFile);
-  }
-
-  @Test
-  void shouldFailOnUnexpectedFormat() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"type\": \"my type\",",
-      "      \"value\": []",
-      "    }",
-      "  }",
-      "}");
-    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Couldn't convert 'value' into StringLiteral at 5:15: expecting ScalarTree, got SequenceTreeImpl instead");
-    assertThat(parseException.getDetails()).isNull();
-    assertThat(parseException.getPosition().line()).isEqualTo(5);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);
   }
 
   @Test

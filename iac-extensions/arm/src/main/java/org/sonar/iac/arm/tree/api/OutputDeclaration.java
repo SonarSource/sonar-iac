@@ -36,5 +36,5 @@ public interface OutputDeclaration extends Statement {
   StringLiteral copyInput();
 
   @CheckForNull
-  StringLiteral value();
+  Expression value();
 }
