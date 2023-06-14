@@ -37,7 +37,7 @@ class ParseExceptionTest {
   @BeforeEach
   public void init() {
     inputFile = mock(InputFile.class);
-    when(inputFile.filename()).thenReturn("TestFile.abc");
+    when(inputFile.toString()).thenReturn("dir1/dir2/TestFile.abc");
   }
 
   @Test
@@ -45,7 +45,7 @@ class ParseExceptionTest {
     ParseException actual = ParseException.throwParseException("action", inputFile, cause, position);
 
     assertThat(actual)
-      .hasMessage("Cannot action 'TestFile.abc:1:3'")
+      .hasMessage("Cannot action 'dir1/dir2/TestFile.abc:1:3'")
       .extracting(ParseException::getPosition)
       .isEqualTo(position);
     assertThat(actual)
@@ -71,7 +71,7 @@ class ParseExceptionTest {
     ParseException actual = ParseException.throwParseException("action", inputFile, cause, null);
 
     assertThat(actual)
-      .hasMessage("Cannot action 'TestFile.abc'")
+      .hasMessage("Cannot action 'dir1/dir2/TestFile.abc'")
       .extracting(ParseException::getPosition)
       .isNull();
     assertThat(actual)

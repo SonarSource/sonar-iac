@@ -312,13 +312,14 @@ class ParameterDeclarationImplTest {
 
     assertThatThrownBy(() -> parser.parse(code, mockFile))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Missing mandatory attribute 'type' at foo.json:3:4");
+      .hasMessage("Missing mandatory attribute 'type' at dir1/dir2/foo.json:3:4");
   }
 
   private static InputFileContext mockFile() {
     InputFile inputFile = mock(InputFile.class);
     InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
     when(inputFile.filename()).thenReturn("foo.json");
+    when(inputFile.toString()).thenReturn("dir1/dir2/foo.json");
     return inputFileContext;
   }
 }

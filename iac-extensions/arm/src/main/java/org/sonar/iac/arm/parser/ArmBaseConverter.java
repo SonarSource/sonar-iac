@@ -179,7 +179,7 @@ public class ArmBaseConverter {
   public String filenameAndPosition(TextRange textRange) {
     String position = textRange.start().line() + ":" + textRange.start().lineOffset();
     if (inputFileContext != null) {
-      String filename = inputFileContext.inputFile.filename();
+      String filename = inputFileContext.inputFile.toString();
       if (filename != null && !filename.isBlank()) {
         return filename + ":" + position;
       }
