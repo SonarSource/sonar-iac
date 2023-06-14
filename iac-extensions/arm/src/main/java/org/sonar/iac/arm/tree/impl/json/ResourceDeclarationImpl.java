@@ -34,12 +34,14 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private final StringLiteral version;
   private final StringLiteral type;
   private final List<Property> properties;
+  private final List<ResourceDeclaration> childResources;
 
-  public ResourceDeclarationImpl(Identifier name, StringLiteral version, StringLiteral type, List<Property> properties) {
+  public ResourceDeclarationImpl(Identifier name, StringLiteral version, StringLiteral type, List<Property> properties, List<ResourceDeclaration> childResources) {
     this.name = name;
     this.version = version;
     this.type = type;
     this.properties = properties;
+    this.childResources = childResources;
   }
 
   @Override
@@ -52,6 +54,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
       children.add(property.key());
       children.add(property.value());
     });
+    children.addAll(childResources);
     return children;
   }
 
@@ -73,6 +76,11 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   public List<Property> properties() {
     return properties;
+  }
+
+  @Override
+  public List<ResourceDeclaration> childResources() {
+    return childResources;
   }
 
   @Override

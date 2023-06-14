@@ -68,7 +68,14 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
       .map(PropertyTree::value)
       .map(this::toProperties)
       .orElse(Collections.emptyList());
+    List<ResourceDeclaration> childResources = PropertyUtils.get(tree, "resources")
+      .map(PropertyTree::value)
+      .filter(SequenceTree.class::isInstance)
+      .map(SequenceTree.class::cast)
+      .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
+      .map(m -> m.stream().map(this::convertToResourceDeclaration).collect(Collectors.toList()))
+      .orElse(Collections.emptyList());
 
-    return new ResourceDeclarationImpl(name, version, type, otherProperties);
+    return new ResourceDeclarationImpl(name, version, type, otherProperties, childResources);
   }
 }

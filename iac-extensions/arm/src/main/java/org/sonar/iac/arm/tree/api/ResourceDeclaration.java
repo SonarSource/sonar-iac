@@ -30,4 +30,6 @@ public interface ResourceDeclaration extends Statement, HasProperties {
   StringLiteral type();
 
   List<Property> properties();
+
+  List<ResourceDeclaration> childResources();
 }

@@ -77,6 +77,7 @@ class ResourceDeclarationImplTest {
     assertThat(resourceDeclaration.name().textRange()).hasRange(6, 14, 6, 26);
 
     assertThat(resourceDeclaration.properties()).isEmpty();
+    assertThat(resourceDeclaration.childResources()).isEmpty();
 
     List<Tree> children = resourceDeclaration.children();
     assertThat(children).hasSize(3);
@@ -252,5 +253,46 @@ class ResourceDeclarationImplTest {
     Property property = resource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("sourceAddressPrefixes");
     assertThat(property.value()).asArrayExpression().containsValuesExactly("0.0.0.0/0");
+  }
+
+  @Test
+  void shouldParseResourceWithChildResourcesInIt() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"name\": \"parent resource\",",
+      "      \"type\": \"Microsoft.Network/networkSecurityGroups\",",
+      "      \"apiVersion\": \"2022-11-01\",",
+      "      \"resources\": [",
+      "        {",
+      "          \"name\": \"child resource\",",
+      "          \"type\": \"securityRules\",",
+      "          \"apiVersion\": \"2022-11-01\",",
+      "          \"properties\": {\"attr\": \"value\"}",
+      "        }",
+      "      ]",
+      "    }",
+      "  ]",
+      "}");
+
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0)).isInstanceOf(ResourceDeclaration.class);
+
+    ResourceDeclaration parentResource = (ResourceDeclaration) tree.statements().get(0);
+    assertThat(parentResource.name()).hasValue("parent resource");
+    assertThat(parentResource.type()).hasValue("Microsoft.Network/networkSecurityGroups");
+    assertThat(parentResource.version()).hasValue("2022-11-01");
+    assertThat(parentResource.properties()).isEmpty();
+    assertThat(parentResource.childResources()).hasSize(1);
+
+    ResourceDeclaration childResource = parentResource.childResources().get(0);
+    assertThat(childResource.name()).hasValue("child resource");
+    assertThat(childResource.type()).hasValue("securityRules");
+    assertThat(childResource.version()).hasValue("2022-11-01");
+    assertThat(childResource.properties()).hasSize(1);
+    Property property = childResource.properties().get(0);
+    assertThat(property.key().value()).isEqualTo("attr");
+    assertThat(property.value()).hasKind(STRING_LITERAL).hasValue("value");
   }
 }
