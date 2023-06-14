@@ -260,6 +260,28 @@ class OutputDeclarationImplTest {
   }
 
   @Test
+  void shouldParseWithValueBeingAnArray() {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      "      \"type\": \"my type\",",
+      "      \"value\": [\"val1\", \"val2\"]",
+      "    }",
+      "  }",
+      "}");
+    File tree = (File) parser.parse(code, mockInputFileContext("file.json"));
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();
+
+    OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
+    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
+    assertThat(outputDeclaration.condition()).isNull();
+    assertThat(outputDeclaration.copyCount()).isNull();
+    assertThat(outputDeclaration.copyInput()).isNull();
+    assertThat(outputDeclaration.value()).isKind(ArmTree.Kind.ARRAY_EXPRESSION).hasArrayExpressionValues("val1", "val2");
+  }
+
+  @Test
   void shouldFailOnInvalidOutputObject() {
     String code = code("{",
       "  \"outputs\": {",
