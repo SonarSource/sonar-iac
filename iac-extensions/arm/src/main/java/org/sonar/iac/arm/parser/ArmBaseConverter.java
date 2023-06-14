@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -181,7 +180,7 @@ public class ArmBaseConverter {
     String position = textRange.start().line() + ":" + textRange.start().lineOffset();
     if (inputFileContext != null) {
       String filename = inputFileContext.inputFile.filename();
-      if (StringUtils.isNotBlank(filename)) {
+      if (filename != null && !filename.isBlank()) {
         return filename + ":" + position;
       }
     }

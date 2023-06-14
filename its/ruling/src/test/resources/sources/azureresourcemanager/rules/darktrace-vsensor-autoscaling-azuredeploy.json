@@ -346,7 +346,7 @@
     {
       "type": "Microsoft.Network/networkSecurityGroups/securityRules",
       "apiVersion": "2022-05-01",
-      "name": "[concat(variables('networkSecurityGroupName'),'/AllowOutboundMasterPort')]",
+      "name": "Raise an issue: sensitive case sourceAddressPrefix",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
       ],
@@ -355,12 +355,12 @@
         "description": "Allow HTTPS traffic from vSensor to Master on custom port",
         "protocol": "Tcp",
         "sourcePortRange": "*",
-        "destinationPortRange": "[parameters('appliancePort')]",
+        "destinationPortRange" : "*",
         "sourceAddressPrefix": "*",
         "destinationAddressPrefix": "*",
         "access": "Allow",
         "priority": 1004,
-        "direction": "Outbound"
+        "direction" : "Inbound"
       }
     },
     {
