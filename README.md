@@ -8,7 +8,8 @@ It is a component of the [SonarQube](https://www.sonarqube.org/) platform and it
 It allows to produce stable and easily supported code by helping you find and correct vulnerabilities and code smells in your projects.
 
 # Features
-* 80+ rules
+* 100+ rules
+* Supports Azure Resource Manager JSON
 * Supports CloudFormation JSON/YAML
 * Supports Kubernetes YAML
 * Supports Dockerfiles
@@ -37,8 +38,12 @@ main plugin class, and which are structured in a way similar to other analyzers 
 
 #### Using sonar-rule-api:
 
-When using the [sonar-rule-api](https://github.com/SonarSource/sonar-rule-api) to generate or update metadata of rules it has to be done in the different extension folders: to update/generate rule for CloudFormation, run
- sonar-rule-api in `iac-extensions/cloudformation`, for Kubernetes in `iac-extensions/kubernetes` and for Terraform in `iac-extensions/terraform`.
+When using the [sonar-rule-api](https://github.com/SonarSource/sonar-rule-api) to generate or update metadata of rules it has to be done in the different extension folders: to update/generate rule 
+for AzureResourceManager, run sonar-rule-api in `iac-extensions/arm`, 
+for CloudFormation, run sonar-rule-api in `iac-extensions/cloudformation`, 
+for Docker, in `iac-extensions/docker`,
+for Kubernetes in `iac-extensions/kubernetes` and 
+for Terraform in `iac-extensions/terraform`.
 
 ## Build & Test
 The project uses Maven as a build tool.
