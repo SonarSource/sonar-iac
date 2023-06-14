@@ -58,7 +58,7 @@ class ArmParserTest {
   void shouldThrowExceptionWithFileNameWhenParseError() {
     InputFile inputFile = mock(InputFile.class);
     InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
-    when(inputFile.filename()).thenReturn("foo.json");
+    when(inputFile.toString()).thenReturn("foo.json");
 
     assertThatThrownBy(() -> parser.parse("{", inputFileContext))
       .isInstanceOf(ParseException.class)

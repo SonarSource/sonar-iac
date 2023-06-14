@@ -31,7 +31,7 @@ public class ParseException extends RuntimeException {
 
   public static ParseException throwParseException(String action, @Nullable InputFile inputFile, Exception cause, @Nullable TextPointer position) {
     String message;
-    String filename = inputFile != null ? inputFile.filename() : "null";
+    String filename = inputFile != null ? inputFile.toString() : "null";
     if (position != null) {
       message = String.format("Cannot %s '%s:%s:%s'", action, filename, position.line(), position.lineOffset() + 1);
     } else {
