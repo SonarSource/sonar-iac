@@ -122,7 +122,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
         fixedException = new RecognitionException(correctedLineAndColumn[0], newErrorMessage, originalException.getCause());
       }
 
-      return ParseException.throwParseException("parse", inputFile, fixedException, position);
+      return ParseException.throwGeneralParseException("parse", inputFile, fixedException, position);
     }
 
     /**

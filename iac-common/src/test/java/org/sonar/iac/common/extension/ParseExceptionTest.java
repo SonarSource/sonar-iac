@@ -42,7 +42,7 @@ class ParseExceptionTest {
 
   @Test
   void shouldCreateException() {
-    ParseException actual = ParseException.throwParseException("action", inputFile, cause, position);
+    ParseException actual = ParseException.throwGeneralParseException("action", inputFile, cause, position);
 
     assertThat(actual)
       .hasMessage("Cannot action 'dir1/dir2/TestFile.abc:1:3'")
@@ -55,7 +55,7 @@ class ParseExceptionTest {
 
   @Test
   void shouldCreateExceptionNullInputFile() {
-    ParseException actual = ParseException.throwParseException("action", null, cause, position);
+    ParseException actual = ParseException.throwGeneralParseException("action", null, cause, position);
 
     assertThat(actual)
       .hasMessage("Cannot action 'null:1:3'")
@@ -68,7 +68,7 @@ class ParseExceptionTest {
 
   @Test
   void shouldCreateNullPosition() {
-    ParseException actual = ParseException.throwParseException("action", inputFile, cause, null);
+    ParseException actual = ParseException.throwGeneralParseException("action", inputFile, cause, null);
 
     assertThat(actual)
       .hasMessage("Cannot action 'dir1/dir2/TestFile.abc'")

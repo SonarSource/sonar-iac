@@ -60,9 +60,9 @@ public class ArmParser implements TreeParser<Tree> {
       TextPointer position = e.getContextMark()
         .map(mark -> new BasicTextPointer(mark.getLine() + 1, mark.getColumn()))
         .orElse(null);
-      throw ParseException.throwParseException("parse", inputFile, e, position);
+      throw ParseException.throwGeneralParseException("parse", inputFile, e, position);
     } catch (Exception e) {
-      throw ParseException.throwParseException("parse", inputFile, e, null);
+      throw ParseException.throwGeneralParseException("parse", inputFile, e, null);
     }
   }
 

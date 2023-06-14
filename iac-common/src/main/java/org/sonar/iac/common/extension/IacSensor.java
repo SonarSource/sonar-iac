@@ -142,7 +142,7 @@ public abstract class IacSensor implements Sensor {
     if (cause instanceof RecognitionException) {
       position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
     }
-    return ParseException.throwParseException(action, inputFile, cause, position);
+    return ParseException.throwGeneralParseException(action, inputFile, cause, position);
   }
 
   private boolean isActive(SensorContext sensorContext) {

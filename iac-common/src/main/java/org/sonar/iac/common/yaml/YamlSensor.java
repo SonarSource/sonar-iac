@@ -94,7 +94,7 @@ public abstract class YamlSensor extends IacSensor {
       if (problemMark.isPresent()) {
         position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);
       }
-      return ParseException.throwParseException(action, inputFile, cause, position);
+      return ParseException.throwGeneralParseException(action, inputFile, cause, position);
     }
     return super.toParseException(action, inputFile, cause);
   }

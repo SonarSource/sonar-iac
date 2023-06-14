@@ -191,7 +191,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at 3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:5");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);
@@ -256,6 +256,7 @@ class OutputDeclarationImplTest {
     SensorContext sensorContext = mock(SensorContext.class);
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(filename);
+    when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
     return new InputFileContext(sensorContext, inputFile);
   }
 
@@ -276,9 +277,25 @@ class OutputDeclarationImplTest {
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
     assertThat(outputDeclaration.type().value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition()).isNull();
-    assertThat(outputDeclaration.copyCount()).isNull();
-    assertThat(outputDeclaration.copyInput()).isNull();
     assertThat(outputDeclaration.value()).isKind(ArmTree.Kind.ARRAY_EXPRESSION).hasArrayExpressionValues("val1", "val2");
+  }
+
+  @Test
+  void shouldFailOnUnexpectedFormatWithFilename() {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      "      \"type\": \"my type\",",
+      "      \"value\": []",
+      "    }",
+      "  }",
+      "}");
+    InputFileContext inputFileContext = mockInputFileContext("foo.json");
+    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, inputFileContext), ParseException.class);
+    assertThat(parseException).hasMessage("Couldn't convert 'value' into StringLiteral: expecting ScalarTree, got SequenceTreeImpl instead at dir1/dir2/foo.json:5:16");
+    assertThat(parseException.getDetails()).isNull();
+    assertThat(parseException.getPosition().line()).isEqualTo(5);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(15);
   }
 
   @Test
@@ -292,7 +309,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at 3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:5");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);
@@ -311,7 +328,7 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Couldn't convert 'count' into StringLiteral at 6:17: expecting ScalarTree, got SequenceTreeImpl instead");
+    assertThat(parseException).hasMessage("Couldn't convert 'count' into StringLiteral: expecting ScalarTree, got SequenceTreeImpl instead at null:6:18");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(6);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(17);
