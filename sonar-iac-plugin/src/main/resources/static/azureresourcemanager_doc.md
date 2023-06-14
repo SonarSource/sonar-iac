@@ -5,10 +5,10 @@ key: azureresourcemanager
 
 ## Supported Versions
 
-| Format | Version    | Status              |
-|--------|------------|---------------------|
-| JSON   | 2023-06-01 | Partially Supported |
-| Bicep  | any        | Not Supported       |
+| Format | Version          | Status              |
+|--------|------------------|---------------------|
+| JSON   | up to 2023-06-01 | Partially Supported |
+| Bicep  | any              | Not Supported       |
 
 ## Language-Specific Properties
 
