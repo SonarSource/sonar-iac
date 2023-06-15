@@ -20,36 +20,41 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.common.extension.ParseException;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.parseProperty;
 
-class NullLiteralImplTest {
+class ArrayExpressionImplTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
-  void shouldParseNullValue() {
-    Property nullProperty = parseProperty(parser, "\"null_value\": null");
-    assertThat(nullProperty.value())
-      .isNullLiteral()
-      .hasRange(LINE_OFFSET + 1, 14, LINE_OFFSET + 1, 18);
+  void shouldParseArrayExpression() {
+    Property arrayProperty = parseProperty(parser, "\"array_prop\": [\"val\"]");
+    assertThat(arrayProperty.value())
+      .asArrayExpression()
+      .containsValuesExactly("val")
+      .hasRange(LINE_OFFSET + 1, 14, LINE_OFFSET + 1, 21);
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "NULL",
-    "Null",
-    ""
-  })
-  void shouldFailOnInvalidNumericFormat(String nullValue) {
-    assertThatThrownBy(() -> parseProperty(parser, "\"invalid_null_value\": " + nullValue)).isInstanceOf(ParseException.class);
+  @Test
+  void shouldParseEmptyArrayExpression() {
+    Property arrayProperty = parseProperty(parser, "\"array_prop\": []");
+    assertThat(arrayProperty.value()).asArrayExpression().containsValuesExactly();
+  }
+
+  @Test
+  void shouldParseArrayExpressionFilledWithDifferentTypesOfValues() {
+    Property arrayProperty = parseProperty(parser, "\"array_prop\": [\"val\", 5, {\"key\":\"val\"}, [\"val\"]]");
+    assertThat(arrayProperty.value()).asArrayExpression();
+
+    ArrayExpression array = (ArrayExpression) arrayProperty.value();
+    assertThat(array.elements().get(0)).asStringLiteral().hasValue("val");
+    assertThat(array.elements().get(1)).asNumericLiteral().hasValue(5);
+    assertThat(array.elements().get(2)).asObjectExpression().hasSize(1).containsKeyValue("key", "val");
+    assertThat(array.elements().get(3)).asArrayExpression().containsValuesExactly("val");
   }
 }

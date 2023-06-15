@@ -118,7 +118,7 @@ class OutputDeclarationImplTest {
   }
 
   @Test
-  void shouldIgnoreNonOutpputsFields() {
+  void shouldIgnoreNonOutputsFields() {
     String code = code("{",
       "  \"not-outputs\": {",
       "    \"myOutputValue\": {",
@@ -229,60 +229,6 @@ class OutputDeclarationImplTest {
   }
 
   @Test
-  void shouldParseCorrectlyAndLogDebugUnexpectedProperties() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"type\": \"my type\",",
-      "      \"value\": \"my output value\",",
-      "      \"unknown\": \"unexpected attribute\"",
-      "    }",
-      "  }",
-      "}");
-    File tree = (File) parser.parse(code, mockInputFileContext("file.json"));
-    assertThat(tree.statements()).hasSize(1);
-    assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();
-    assertThat(tree.statements().get(0).is(STRING_LITERAL)).isFalse();
-
-    OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
-    assertThat(outputDeclaration.condition()).isNull();
-    assertThat(outputDeclaration.copyCount()).isNull();
-    assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).asStringLiteral().hasValue("my output value");
-  }
-
-  InputFileContext mockInputFileContext(String filename) {
-    SensorContext sensorContext = mock(SensorContext.class);
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.filename()).thenReturn(filename);
-    when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
-    return new InputFileContext(sensorContext, inputFile);
-  }
-
-  @Test
-  void shouldParseWithValueBeingAnArray() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"type\": \"my type\",",
-      "      \"value\": [\"val1\", \"val2\"]",
-      "    }",
-      "  }",
-      "}");
-    File tree = (File) parser.parse(code, mockInputFileContext("file.json"));
-    assertThat(tree.statements()).hasSize(1);
-    assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();
-
-    OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
-    assertThat(outputDeclaration.condition()).isNull();
-    assertThat(outputDeclaration.copyCount()).isNull();
-    assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).asArrayExpression().containsValuesExactly("val1", "val2");
-  }
-
-  @Test
   void shouldFailOnInvalidOutputObject() {
     String code = code("{",
       "  \"outputs\": {",
@@ -334,5 +280,13 @@ class OutputDeclarationImplTest {
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(6);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(16);
+  }
+
+  InputFileContext mockInputFileContext(String filename) {
+    SensorContext sensorContext = mock(SensorContext.class);
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.filename()).thenReturn(filename);
+    when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
+    return new InputFileContext(sensorContext, inputFile);
   }
 }

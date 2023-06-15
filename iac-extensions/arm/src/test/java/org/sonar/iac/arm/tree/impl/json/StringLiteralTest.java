@@ -23,25 +23,24 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.getCode;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.parseProperty;
 
 class StringLiteralTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
   void shouldParseStringValue() {
-    String code = getCode("\"string_prop\": \"val\"");
-    File tree = (File) parser.parse(code, null);
-
-    Property stringProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(stringProperty.value()).asStringLiteral().hasValue("val");
+    Property stringProperty = parseProperty(parser, "\"string_prop\": \"val\"");
+    assertThat(stringProperty.value())
+      .asStringLiteral()
+      .hasValue("val")
+      .hasRange(LINE_OFFSET + 1, 15, LINE_OFFSET + 1, 20);
   }
 
   @ParameterizedTest
@@ -55,10 +54,7 @@ class StringLiteralTest {
     "\"true\""
   })
   void shouldParseValidString(String str) {
-    String code = getCode("\"valid_string\": " + str);
-    File tree = (File) parser.parse(code, null);
-
-    Property stringProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
+    Property stringProperty = parseProperty(parser, "\"valid_string\": " + str);
     assertThat(stringProperty.value()).asStringLiteral();
   }
 
@@ -69,7 +65,6 @@ class StringLiteralTest {
     "test"
   })
   void shouldFailOnInvalidString(String str) {
-    String code = getCode("\"invalid_string\": " + str);
-    assertThatThrownBy(() -> parser.parse(code, null)).isInstanceOf(ParseException.class);
+    assertThatThrownBy(() -> parseProperty(parser, "\"invalid_string\": " + str)).isInstanceOf(ParseException.class);
   }
 }

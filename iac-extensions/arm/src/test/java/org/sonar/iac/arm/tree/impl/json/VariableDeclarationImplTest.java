@@ -43,76 +43,22 @@ class VariableDeclarationImplTest {
   }
 
   @Test
-  void shouldParseStringVariable() {
-    String code = parserVariable("stringVar", "\"val\"");
-    File tree = (File) parser.parse(code, null);
-
-    assertThat(tree.statements()).hasSize(1);
-    assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
-
-    VariableDeclaration stringVar = (VariableDeclaration) tree.statements().get(0);
-    assertThat(stringVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "stringVar").hasRange(3, 4, 3, 15);
-    assertThat(stringVar.value()).asStringLiteral().hasValue("val").hasRange(3, 17, 3, 22);
-    assertThat(stringVar.children()).hasSize(2);
-  }
-
-  @Test
-  void shouldParseArrayVariable() {
-    String code = parserVariable("arrayVar", "[\"val\"]");
-    File tree = (File) parser.parse(code, null);
-
-    assertThat(tree.statements()).hasSize(1);
-    assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
-
-    VariableDeclaration arrayVar = (VariableDeclaration) tree.statements().get(0);
-    assertThat(arrayVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "arrayVar").hasRange(3, 4, 3, 14);
-    assertThat(arrayVar.value()).asArrayExpression().hasRange(3, 16, 3, 23);
-    assertThat(arrayVar.children()).hasSize(2);
-  }
-
-  @Test
-  void shouldParseObjectVariable() {
-    String code = parserVariable("objectVar", "{\"key\":\"val\"}");
-    File tree = (File) parser.parse(code, null);
-
-    assertThat(tree.statements()).hasSize(1);
-    assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
-
-    VariableDeclaration objectVar = (VariableDeclaration) tree.statements().get(0);
-    assertThat(objectVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "objectVar").hasRange(3, 4, 3, 15);
-    assertThat(objectVar.value()).asObjectExpression().containsKeyValue("key", "val").hasRange(3, 18, 3, 29);
-    assertThat(objectVar.children()).hasSize(2);
-  }
-
-  @Test
-  void shouldParseVariables() {
+  void shouldParseVariable() {
     String code = code("{",
       "  \"variables\": {",
-      "    \"stringVar\": \"val\",",
-      "    \"arrayVar\": [\"val\"],",
-      "    \"objectVar\": {\"key\":\"val\"},",
+      "    \"var\": \"val\"",
       "  }",
       "}");
     File tree = (File) parser.parse(code, null);
-    assertThat(tree.statements()).hasSize(3);
+    assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
-    assertThat(tree.statements().get(1).is(VARIABLE_DECLARATION)).isTrue();
-    assertThat(tree.statements().get(2).is(VARIABLE_DECLARATION)).isTrue();
 
-    VariableDeclaration stringVar = (VariableDeclaration) tree.statements().get(0);
-    VariableDeclaration arrayVar = (VariableDeclaration) tree.statements().get(1);
-    VariableDeclaration objectVar = (VariableDeclaration) tree.statements().get(2);
+    VariableDeclaration var = (VariableDeclaration) tree.statements().get(0);
 
-    assertThat(stringVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "stringVar").hasRange(3, 4, 3, 15);
-    assertThat(stringVar.value()).asStringLiteral().hasValue("val").hasRange(3, 17, 3, 22);
-    assertThat(arrayVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "arrayVar").hasRange(4, 4, 4, 14);
-    assertThat(arrayVar.value()).asArrayExpression().containsValuesExactly("val").hasRange(4, 16, 4, 23);
-    assertThat(objectVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "objectVar").hasRange(5, 4, 5, 15);
-    assertThat(objectVar.value()).asObjectExpression().hasSize(1).containsKeyValue("key", "val").hasRange(5, 18, 5, 29);
+    assertThat(var.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "var").hasRange(3, 4, 3, 9);
+    assertThat(var.value()).asStringLiteral().hasValue("val").hasRange(3, 11, 3, 16);
 
-    assertThat(stringVar.children()).hasSize(2);
-    assertThat(arrayVar.children()).hasSize(2);
-    assertThat(objectVar.children()).hasSize(2);
+    assertThat(var.children()).hasSize(2);
   }
 
   @Test

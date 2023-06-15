@@ -20,32 +20,47 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.common.extension.ParseException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.getCode;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.parseProperty;
 
 class BooleanLiteralImplTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
   void shouldParseTrueValue() {
-    String code = getCode("\"bool\": true");
-    File tree = (File) parser.parse(code, null);
-
-    Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(booleanProperty.value()).asBooleanLiteral().isTrue();
+    Property booleanProperty = parseProperty(parser, "\"bool\": true");
+    assertThat(booleanProperty.value())
+      .asBooleanLiteral()
+      .isTrue()
+      .hasRange(LINE_OFFSET + 1, 8, LINE_OFFSET + 1, 12);
   }
 
   @Test
   void shouldParseFalseValue() {
-    String code = getCode("\"bool\": false");
-    File tree = (File) parser.parse(code, null);
+    Property booleanProperty = parseProperty(parser, "\"bool\": false");
+    assertThat(booleanProperty.value())
+      .asBooleanLiteral()
+      .isFalse()
+      .hasRange(LINE_OFFSET + 1, 8, LINE_OFFSET + 1, 13);
+  }
 
-    Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(booleanProperty.value()).asBooleanLiteral().isFalse();
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "TRUE",
+    "FALSE",
+    "trUE"
+  })
+  void shouldFailOnInvalidBoolean(String str) {
+    assertThatThrownBy(() -> parseProperty(parser, "\"invalid_boolean\": " + str)).isInstanceOf(ParseException.class);
   }
 }

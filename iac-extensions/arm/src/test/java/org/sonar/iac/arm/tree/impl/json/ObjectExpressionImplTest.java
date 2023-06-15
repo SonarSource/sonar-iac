@@ -20,36 +20,29 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.common.extension.ParseException;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.parseProperty;
 
-class NullLiteralImplTest {
+class ObjectExpressionImplTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
-  void shouldParseNullValue() {
-    Property nullProperty = parseProperty(parser, "\"null_value\": null");
-    assertThat(nullProperty.value())
-      .isNullLiteral()
-      .hasRange(LINE_OFFSET + 1, 14, LINE_OFFSET + 1, 18);
+  void shouldParseObjectExpression() {
+    Property objectProperty = parseProperty(parser, "\"object_prop\": {\"key\":\"val\"}");
+    assertThat(objectProperty.value())
+      .asObjectExpression()
+      .containsKeyValue("key", "val")
+      .hasRange(LINE_OFFSET + 1, 16, LINE_OFFSET + 1, 27);
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "NULL",
-    "Null",
-    ""
-  })
-  void shouldFailOnInvalidNumericFormat(String nullValue) {
-    assertThatThrownBy(() -> parseProperty(parser, "\"invalid_null_value\": " + nullValue)).isInstanceOf(ParseException.class);
+  @Test
+  void shouldParseEmptyObjectExpression() {
+    Property objectProperty = parseProperty(parser, "\"object_prop\": {}");
+    assertThat(objectProperty.value()).asObjectExpression().hasSize(0);
   }
 }

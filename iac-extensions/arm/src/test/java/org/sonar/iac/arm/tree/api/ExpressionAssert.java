@@ -41,6 +41,7 @@ public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expre
   }
 
   public ObjectExpressionAssert asObjectExpression() {
+
     Assertions.assertThat(actual.is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
     return ObjectExpressionAssert.assertThat(((ObjectExpression) actual));
   }

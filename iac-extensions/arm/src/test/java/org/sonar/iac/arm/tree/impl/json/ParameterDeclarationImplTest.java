@@ -118,7 +118,7 @@ class ParameterDeclarationImplTest {
       "    \"enabledForDeployment\": {",
       "      \"type\": \"bool\",",
       "      \"metadata\": {",
-      "          \"description\": \"some description\"",
+      "        \"description\": \"some description\"",
       "      }",
       "    }",
       "  }",
@@ -225,55 +225,6 @@ class ParameterDeclarationImplTest {
       "        }",
       "    }",
       "}");
-  }
-
-  @Test
-  void shouldParseDefaultValueString() {
-    String code = parserParameterDefaultValue("string", "string", "\"a\"");
-    File tree = (File) parser.parse(code, null);
-
-    assertThat(tree.statements()).hasSize(1);
-    ParameterDeclaration parameterString = (ParameterDeclaration) tree.statements().get(0);
-
-    assertThat(parameterString.identifier().value()).isEqualTo("string");
-    assertThat(parameterString.type().name()).isEqualTo("STRING");
-    assertThat(parameterString.defaultValue()).asStringLiteral().hasValue("a");
-  }
-
-  @Test
-  void shouldParseDefaultValueInt() {
-    String code = parserParameterDefaultValue("int", "int", "7");
-    File tree = (File) parser.parse(code, null);
-    assertThat(tree.statements()).hasSize(1);
-    ParameterDeclaration parameterInt = (ParameterDeclaration) tree.statements().get(0);
-
-    assertThat(parameterInt.identifier().value()).isEqualTo("int");
-    assertThat(parameterInt.type().name()).isEqualTo("INT");
-    assertThat(parameterInt.defaultValue()).asNumericLiteral().hasValue(7);
-  }
-
-  @Test
-  void shouldParseDefaultValueArray() {
-    String code = parserParameterDefaultValue("array", "array", "[\"arr\"]");
-    File tree = (File) parser.parse(code, null);
-    assertThat(tree.statements()).hasSize(1);
-    ParameterDeclaration parameterArray = (ParameterDeclaration) tree.statements().get(0);
-
-    assertThat(parameterArray.identifier().value()).isEqualTo("array");
-    assertThat(parameterArray.type().name()).isEqualTo("ARRAY");
-    assertThat(parameterArray.defaultValue()).asArrayExpression().containsValuesExactly("arr");
-  }
-
-  @Test
-  void shouldParseDefaultValueObject() {
-    String code = parserParameterDefaultValue("object", "object", "{\"key\":\"value\"}");
-    File tree = (File) parser.parse(code, null);
-    assertThat(tree.statements()).hasSize(1);
-    ParameterDeclaration parameterObject = (ParameterDeclaration) tree.statements().get(0);
-
-    assertThat(parameterObject.identifier().value()).isEqualTo("object");
-    assertThat(parameterObject.type().name()).isEqualTo("OBJECT");
-    assertThat(parameterObject.defaultValue()).asObjectExpression().hasSize(1).containsKeyValue("key", "value");
   }
 
   @Test
