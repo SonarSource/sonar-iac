@@ -288,31 +288,39 @@ class ParameterDeclarationImplTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenTypeIsMissing() {
+  void shouldParseParameterFile() {
     String code = code("{",
-      "  \"parameters\": {",
-      "    \"enabledForDeployment\": {",
+      "    \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\",",
+      "    \"contentVersion\": \"1.0.0.0\",",
+      "    \"parameters\": {",
+      "        \"existingVirtualNetworkName\": {",
+      "            \"value\": \"GEN-VNET-NAME\"",
+      "        },",
+      "        \"existingVirtualNetworkResourceGroup\": {  ",
+      "            \"value\": \"GEN-VNET-RESOURCEGROUP-NAME\" ",
+      "        } ",
       "    }",
-      "  }",
-      "}");
+      "}\n");
 
-    assertThatThrownBy(() -> parser.parse(code, null))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Missing mandatory attribute 'type' at 3:4");
-  }
+    File tree = (File) parser.parse(code, mockFile);
 
-  @Test
-  void shouldThrowExceptionWhenTypeIsMissingFilename() {
-    String code = code("{",
-      "  \"parameters\": {",
-      "    \"enabledForDeployment\": {",
-      "    }",
-      "  }",
-      "}");
+    ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
+    assertThat(parameter.identifier().value()).isEqualTo("existingVirtualNetworkName");
+    assertThat(parameter.type()).isNull();
+    assertThat(parameter.getKind()).isEqualTo(PARAMETER_DECLARATION);
+    assertThat(parameter.is(PARAMETER_DECLARATION)).isTrue();
+    assertThat(parameter.is(RESOURCE_DECLARATION)).isFalse();
+    assertThat(parameter.textRange()).hasRange(5, 8, 5, 36);
 
-    assertThatThrownBy(() -> parser.parse(code, mockFile))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Missing mandatory attribute 'type' at dir1/dir2/foo.json:3:4");
+    assertThat(parameter.defaultValue()).isNull();
+    assertThat(parameter.allowedValues()).isEmpty();
+    assertThat(parameter.description()).isNull();
+    assertThat(parameter.minValue()).isNull();
+    assertThat(parameter.maxValue()).isNull();
+    assertThat(parameter.minLength()).isNull();
+    assertThat(parameter.maxLength()).isNull();
+
+    assertThat(tree.statements()).hasSize(2);
   }
 
   private static InputFileContext mockFile() {
