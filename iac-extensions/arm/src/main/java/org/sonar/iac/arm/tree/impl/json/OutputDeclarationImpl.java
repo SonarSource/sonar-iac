@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -38,10 +39,10 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   private final StringLiteral condition;
   private final StringLiteral copyCount;
   private final StringLiteral copyInput;
-  private final StringLiteral value;
+  private final Expression value;
 
   public OutputDeclarationImpl(Identifier name, StringLiteral type, @Nullable StringLiteral condition, @Nullable StringLiteral copyCount,
-    @Nullable StringLiteral copyInput, @Nullable StringLiteral value) {
+    @Nullable StringLiteral copyInput, @Nullable Expression value) {
     this.name = name;
     this.type = type;
     this.condition = condition;
@@ -80,7 +81,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
 
   @CheckForNull
   @Override
-  public StringLiteral value() {
+  public Expression value() {
     return value;
   }
 

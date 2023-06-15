@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -54,7 +55,7 @@ public class OutputDeclarationConverter extends ArmBaseConverter {
     Identifier name = toIdentifier(tree.key());
     StringLiteral type = PropertyUtils.get(tree.value(), "type").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "type"));
     StringLiteral condition = PropertyUtils.get(tree.value(), "condition").map(this::toStringLiteral).orElse(null);
-    StringLiteral value = PropertyUtils.get(tree.value(), "value").map(this::toStringLiteral).orElse(null);
+    Expression value = PropertyUtils.get(tree.value(), "value").map(this::toExpression).orElse(null);
     Optional<PropertyTree> copy = PropertyUtils.get(tree.value(), "copy");
     StringLiteral copyCount = copy.map(c -> extractProperty(c, "count")).orElse(null);
     StringLiteral copyInput = copy.map(c -> extractProperty(c, "input")).orElse(null);
