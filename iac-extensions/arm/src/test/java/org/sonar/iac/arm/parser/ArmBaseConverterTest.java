@@ -79,12 +79,11 @@ class ArmBaseConverterTest {
     ArmBaseConverter converter = new ArmBaseConverter(inputFileContext);
     TupleTree tree = new TupleTreeImpl(new SequenceTreeImpl(List.of(), yamlTreeMetadata), new SequenceTreeImpl(List.of(), yamlTreeMetadata), yamlTreeMetadata);
 
-    ParseException exception = catchThrowableOfType(() -> converter.toIdentifier((YamlTree) tree), ParseException.class);
+    ParseException exception = catchThrowableOfType(() -> converter.toExpression((YamlTree) tree), ParseException.class);
 
     assertThat(exception)
       .isInstanceOf(ParseException.class)
-      .hasMessageStartingWith("Couldn't convert 'org.sonar.iac.common.yaml.tree.TupleTreeImpl@")
-      .hasMessageEndingWith("into Identifier: expecting ScalarTree, got TupleTreeImpl instead at dir1/dir2/foo.json:1:5");
+      .hasMessage("Couldn't convert to Expression, unsupported class TupleTreeImpl at dir1/dir2/foo.json:1:5");
     assertThat(exception.getDetails()).isNull();
     assertThat(exception.getPosition().line()).isEqualTo(1);
     assertThat(exception.getPosition().lineOffset()).isEqualTo(4);
