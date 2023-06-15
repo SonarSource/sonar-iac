@@ -356,8 +356,6 @@ class ResourceDeclarationImplTest {
     assertThat(innerChildResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules/firewall");
     assertThat(innerChildResource.version()).hasValue("2022-11-01");
 
-
-
     assertThat(tree.statements()).hasSize(1);
   }
 }
