@@ -42,7 +42,6 @@ import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
@@ -197,17 +196,6 @@ public class ArmBaseConverter {
 
   protected Predicate<TupleTree> filterOnField(String field) {
     return tupleTree -> tupleTree.key() instanceof ScalarTree && field.equals(((ScalarTree) tupleTree.key()).value());
-  }
-
-  public String filenameAndPosition(TextRange textRange) {
-    String position = textRange.start().line() + ":" + textRange.start().lineOffset();
-    if (inputFileContext != null) {
-      String filename = inputFileContext.inputFile.toString();
-      if (filename != null && !filename.isBlank()) {
-        return filename + ":" + position;
-      }
-    }
-    return position;
   }
 
   // Error generation

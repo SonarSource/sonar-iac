@@ -23,8 +23,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,15 +35,17 @@ class ParseExceptionTest {
   private final RuntimeException cause = new RuntimeException("cause");
   private final TextPointer position = new BasicTextPointer(1, 2);
   private InputFile inputFile;
+  private InputFileContext inputFileContext;
 
   @BeforeEach
   public void init() {
     inputFile = mock(InputFile.class);
     when(inputFile.toString()).thenReturn("dir1/dir2/TestFile.abc");
+    inputFileContext = new InputFileContext(null, inputFile);
   }
 
   @Test
-  void shouldCreateException() {
+  void shouldCreateGeneralException() {
     ParseException actual = ParseException.throwGeneralParseException("action", inputFile, cause, position);
 
     assertThat(actual)
@@ -77,5 +81,33 @@ class ParseExceptionTest {
     assertThat(actual)
       .extracting(ParseException::getDetails)
       .isEqualTo("cause");
+  }
+
+  @Test
+  void shouldCreateExceptionNullContextNullPosition() {
+    ParseException actual = ParseException.throwParseException("message", null, null);
+
+    assertThat(actual).hasMessage("message at null");
+    assertThat(actual.getPosition()).isNull();
+    assertThat(actual.getDetails()).isNull();
+  }
+
+  @Test
+  void shouldCreateExceptionNullContext() {
+    ParseException actual = ParseException.throwParseException("message", null, new BasicTextPointer(2, 6));
+
+    assertThat(actual).hasMessage("message at null:2:7");
+    assertThat(actual.getPosition().line()).isEqualTo(2);
+    assertThat(actual.getPosition().lineOffset()).isEqualTo(6);
+    assertThat(actual.getDetails()).isNull();
+  }
+
+  @Test
+  void shouldCreateExceptionNullPosition() {
+    ParseException actual = ParseException.throwParseException("message", inputFileContext, null);
+
+    assertThat(actual).hasMessage("message at dir1/dir2/TestFile.abc");
+    assertThat(actual.getPosition()).isNull();
+    assertThat(actual.getDetails()).isNull();
   }
 }
