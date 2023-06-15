@@ -63,6 +63,16 @@ public class ArmBaseConverter {
   }
 
   public StringLiteral toStringLiteral(PropertyTree property) {
+    ScalarTree value = toDoubleQuoteScalarTree(property);
+    return new StringLiteralImpl(value.value(), value.metadata());
+  }
+
+  public Identifier toIdentifier(PropertyTree property) {
+    ScalarTree value = toDoubleQuoteScalarTree(property);
+    return new IdentifierImpl(value.value(), value.metadata());
+  }
+
+  private ScalarTree toDoubleQuoteScalarTree(PropertyTree property) {
     if (!(property.value() instanceof ScalarTree)) {
       throw convertError(property, StringLiteral.class.getSimpleName(), ScalarTree.class.getSimpleName());
     }
@@ -70,7 +80,7 @@ public class ArmBaseConverter {
     if (value.style() != ScalarTree.Style.DOUBLE_QUOTED) {
       throw convertError(property, value, StringLiteral.class.getSimpleName(), "ScalarTree.Style.DOUBLE_QUOTED");
     }
-    return new StringLiteralImpl(value.value(), value.metadata());
+    return value;
   }
 
   public NumericLiteral toNumericLiteral(PropertyTree property) {

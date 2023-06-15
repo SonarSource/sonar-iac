@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -62,7 +63,7 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
     StringLiteral type = PropertyUtils.get(tree, "type").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "type"));
     StringLiteral version = PropertyUtils.get(tree, "apiVersion").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "apiVersion"));
-    StringLiteral name = PropertyUtils.get(tree, "name").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "name"));
+    Identifier name = PropertyUtils.get(tree, "name").map(this::toIdentifier).orElseThrow(() -> missingMandatoryAttributeError(tree, "name"));
     List<Property> otherProperties = PropertyUtils.get(tree, "properties")
       .map(PropertyTree::value)
       .map(this::toProperties)
