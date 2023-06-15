@@ -281,24 +281,6 @@ class OutputDeclarationImplTest {
   }
 
   @Test
-  void shouldFailOnUnexpectedFormatWithFilename() {
-    String code = code("{",
-      "  \"outputs\": {",
-      "    \"myOutputValue\": {",
-      "      \"type\": \"my type\",",
-      "      \"value\": []",
-      "    }",
-      "  }",
-      "}");
-    InputFileContext inputFileContext = mockInputFileContext("foo.json");
-    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, inputFileContext), ParseException.class);
-    assertThat(parseException).hasMessage("Couldn't convert 'value' into StringLiteral: expecting ScalarTree, got SequenceTreeImpl instead at dir1/dir2/foo.json:5:15");
-    assertThat(parseException.getDetails()).isNull();
-    assertThat(parseException.getPosition().line()).isEqualTo(5);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(14);
-  }
-
-  @Test
   void shouldFailOnInvalidOutputObject() {
     String code = code("{",
       "  \"outputs\": {",
@@ -310,6 +292,24 @@ class OutputDeclarationImplTest {
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
     assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:4");
+    assertThat(parseException.getDetails()).isNull();
+    assertThat(parseException.getPosition().line()).isEqualTo(3);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(3);
+  }
+
+  @Test
+  void shouldFailOnInvalidOutputObjectWithFilename() {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": [",
+      "      \"type\",",
+      "      \"value\"",
+      "    ]",
+      "  }",
+      "}");
+    InputFileContext inputFileContext = mockInputFileContext("foo.json");
+    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, inputFileContext), ParseException.class);
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at dir1/dir2/foo.json:3:4");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(3);
