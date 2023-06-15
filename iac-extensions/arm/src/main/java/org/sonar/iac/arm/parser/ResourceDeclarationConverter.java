@@ -90,7 +90,7 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
     }
   }
 
-  private String buildParentType(@Nullable String parentType, StringLiteral type) {
+  private static String buildParentType(@Nullable String parentType, StringLiteral type) {
     if (parentType == null) {
       return type.value();
     } else {

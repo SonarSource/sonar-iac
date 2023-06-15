@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
-import org.sonar.iac.arm.tree.impl.json.GroupResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
