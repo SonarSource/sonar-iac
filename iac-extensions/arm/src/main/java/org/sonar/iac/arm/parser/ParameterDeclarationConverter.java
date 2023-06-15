@@ -54,7 +54,7 @@ public class ParameterDeclarationConverter extends ArmBaseConverter {
 
   public ParameterDeclaration convertParameters(TupleTree tree) {
     Identifier identifier = toIdentifier(tree.key());
-    StringLiteral type = PropertyUtils.get(tree.value(), "type").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "type"));
+    StringLiteral type = PropertyUtils.get(tree.value(), "type").map(this::toStringLiteral).orElse(null);
     Expression defaultValue = PropertyUtils.get(tree.value(), "defaultValue").map(this::toExpression).orElse(null);
     NumericLiteral minValue = PropertyUtils.get(tree.value(), "minValue").map(this::toNumericLiteral).orElse(null);
     NumericLiteral maxValue = PropertyUtils.get(tree.value(), "maxValue").map(this::toNumericLiteral).orElse(null);

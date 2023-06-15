@@ -53,7 +53,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @SuppressWarnings("java:S107")
   public ParameterDeclarationImpl(
     Identifier identifier,
-    StringLiteral type,
+    @Nullable StringLiteral type,
     @Nullable Expression defaultValue,
     @Nullable ArrayExpression allowedValues,
     @Nullable StringLiteral description,
@@ -77,7 +77,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(identifier);
-    children.add(type);
+    addChildrenIfPresent(children, type);
     addChildrenIfPresent(children, defaultValue);
     addChildrenIfPresent(children, description);
     addChildrenIfPresent(children, minValue);
@@ -94,8 +94,12 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
+  @CheckForNull
   public ParameterType type() {
-    return ParameterType.fromName(type.value());
+    if (type != null) {
+      return ParameterType.fromName(type.value());
+    }
+    return null;
   }
 
   @Override
