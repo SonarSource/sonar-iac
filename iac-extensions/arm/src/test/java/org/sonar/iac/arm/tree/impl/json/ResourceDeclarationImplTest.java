@@ -276,7 +276,6 @@ class ResourceDeclarationImplTest {
       "}");
 
     File tree = (File) parser.parse(code, null);
-    assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0)).isInstanceOf(ResourceDeclaration.class);
 
     ResourceDeclaration parentResource = (ResourceDeclaration) tree.statements().get(0);
@@ -285,6 +284,12 @@ class ResourceDeclarationImplTest {
     assertThat(parentResource.version()).hasValue("2022-11-01");
     assertThat(parentResource.properties()).isEmpty();
     assertThat(parentResource.childResources()).hasSize(1);
+    assertThat(parentResource.children()).hasSize(4);
+
+    assertThat(((ArmTree) parentResource.children().get(0)).is(STRING_LITERAL)).isTrue();
+    assertThat(((ArmTree) parentResource.children().get(1)).is(STRING_LITERAL)).isTrue();
+    assertThat(((ArmTree) parentResource.children().get(2)).is(STRING_LITERAL)).isTrue();
+    assertThat(((ArmTree) parentResource.children().get(3)).is(RESOURCE_DECLARATION)).isTrue();
 
     ResourceDeclaration childResource = parentResource.childResources().get(0);
     assertThat(childResource.name()).hasValue("child resource");
@@ -294,5 +299,7 @@ class ResourceDeclarationImplTest {
     Property property = childResource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("attr");
     assertThat(property.value()).hasKind(STRING_LITERAL).hasValue("value");
+
+    assertThat(tree.statements()).hasSize(1);
   }
 }
