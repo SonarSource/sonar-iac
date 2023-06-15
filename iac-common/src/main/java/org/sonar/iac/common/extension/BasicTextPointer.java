@@ -32,7 +32,9 @@ public class BasicTextPointer implements TextPointer {
   }
 
   public BasicTextPointer(TextRange range) {
-    this(range.start().line(), range.start().lineOffset());
+    // The Yaml Parser returns lineOffset where first position is 1,
+    // but TextPointer expect that first position is 0 (zero).
+    this(range.start().line(), range.start().lineOffset() - 1);
   }
 
   public int line() {
