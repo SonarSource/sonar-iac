@@ -31,7 +31,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
-import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -110,7 +109,7 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
   }
 
   static class ResourceWithIpRestrictedAdminAccessChecker {
-    Identifier name;
+    Tree primaryLocation;
     @Nullable
     Tree direction;
     @Nullable
@@ -127,7 +126,7 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
     Tree sourceAddressPrefixes;
 
     ResourceWithIpRestrictedAdminAccessChecker(ResourceDeclaration resource, Tree properties) {
-      name = resource.name();
+      primaryLocation = resource.type();
       direction = PropertyUtils.value(properties, "direction").orElse(null);
       access = PropertyUtils.value(properties, "access").orElse(null);
       protocol = PropertyUtils.value(properties, "protocol").orElse(null);
@@ -161,7 +160,7 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
         secondaryLocations.add(new SecondaryLocation(destinationPortRanges, "Sensitive destination(s) port range(s)"));
       }
 
-      ctx.reportIssue(name, MESSAGE, secondaryLocations);
+      ctx.reportIssue(primaryLocation, MESSAGE, secondaryLocations);
     }
 
     private static boolean isArrayWith(@Nullable Tree tree, Predicate<Tree> predicate) {
