@@ -36,7 +36,8 @@
       <artifactId>sonar-iac-common</artifactId>
       <classifier>tests</classifier>
       <version>${project.version}</version>
-    </dependency>
+      <scope>test</scope>
+  </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>

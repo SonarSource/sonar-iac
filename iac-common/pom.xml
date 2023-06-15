@@ -67,7 +67,7 @@
     </dependency>
   </dependencies>
 
-    <build>
+  <build>
     <plugins>
       <!-- Generates file target/sonar-iac-common-${VERSION}-tests.jar which can be used in other POMs for the JUnit tests -->
       <plugin>
