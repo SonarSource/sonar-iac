@@ -28,6 +28,7 @@ import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.GroupResourceDeclaration;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -42,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.ARRAY_EXPRESSION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.GROUP_RESOURCE_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
@@ -77,7 +79,6 @@ class ResourceDeclarationImplTest {
     assertThat(resourceDeclaration.name().textRange()).hasRange(6, 14, 6, 26);
 
     assertThat(resourceDeclaration.properties()).isEmpty();
-    assertThat(resourceDeclaration.childResources()).isEmpty();
 
     List<Tree> children = resourceDeclaration.children();
     assertThat(children).hasSize(3);
@@ -276,29 +277,86 @@ class ResourceDeclarationImplTest {
       "}");
 
     File tree = (File) parser.parse(code, null);
-    assertThat(tree.statements().get(0)).isInstanceOf(ResourceDeclaration.class);
+    assertThat(tree.statements().get(0).is(GROUP_RESOURCE_DECLARATION)).isTrue();
 
-    ResourceDeclaration parentResource = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(parentResource.name()).hasValue("parent resource");
+    GroupResourceDeclaration parentResource = (GroupResourceDeclaration) tree.statements().get(0);
+    assertThat(parentResource.name().value()).isEqualTo("parent resource");
     assertThat(parentResource.type()).hasValue("Microsoft.Network/networkSecurityGroups");
+    assertThat(parentResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups");
     assertThat(parentResource.version()).hasValue("2022-11-01");
     assertThat(parentResource.properties()).isEmpty();
     assertThat(parentResource.childResources()).hasSize(1);
     assertThat(parentResource.children()).hasSize(4);
 
-    assertThat(((ArmTree) parentResource.children().get(0)).is(STRING_LITERAL)).isTrue();
+    assertThat(((ArmTree) parentResource.children().get(0)).is(IDENTIFIER)).isTrue();
     assertThat(((ArmTree) parentResource.children().get(1)).is(STRING_LITERAL)).isTrue();
     assertThat(((ArmTree) parentResource.children().get(2)).is(STRING_LITERAL)).isTrue();
     assertThat(((ArmTree) parentResource.children().get(3)).is(RESOURCE_DECLARATION)).isTrue();
 
     ResourceDeclaration childResource = parentResource.childResources().get(0);
-    assertThat(childResource.name()).hasValue("child resource");
+    assertThat(childResource.name().value()).isEqualTo("child resource");
     assertThat(childResource.type()).hasValue("securityRules");
+    assertThat(childResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules");
     assertThat(childResource.version()).hasValue("2022-11-01");
     assertThat(childResource.properties()).hasSize(1);
     Property property = childResource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("attr");
     assertThat(property.value()).hasKind(STRING_LITERAL).hasValue("value");
+
+    assertThat(tree.statements()).hasSize(1);
+  }
+
+  @Test
+  void shouldParseResourceWithTwoInnerChildResource() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"name\": \"parent resource\",",
+      "      \"type\": \"Microsoft.Network/networkSecurityGroups\",",
+      "      \"apiVersion\": \"2022-11-01\",",
+      "      \"resources\": [",
+      "        {",
+      "          \"name\": \"child resource\",",
+      "          \"type\": \"securityRules\",",
+      "          \"apiVersion\": \"2022-11-01\",",
+      "          \"resources\": [",
+      "            {",
+      "              \"name\": \"inner child resource\",",
+      "              \"type\": \"firewall\",",
+      "              \"apiVersion\": \"2022-11-01\"",
+      "            }",
+      "          ]",
+      "        }",
+      "      ]",
+      "    }",
+      "  ]",
+      "}");
+
+    File tree = (File) parser.parse(code, null);
+
+    GroupResourceDeclaration parentResource = (GroupResourceDeclaration) tree.statements().get(0);
+    assertThat(parentResource.is(GROUP_RESOURCE_DECLARATION)).isTrue();
+    assertThat(parentResource.name().value()).isEqualTo("parent resource");
+    assertThat(parentResource.type()).hasValue("Microsoft.Network/networkSecurityGroups");
+    assertThat(parentResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups");
+    assertThat(parentResource.version()).hasValue("2022-11-01");
+    assertThat(parentResource.properties()).isEmpty();
+
+    GroupResourceDeclaration childResource = (GroupResourceDeclaration) parentResource.childResources().get(0);
+    assertThat(childResource.is(GROUP_RESOURCE_DECLARATION)).isTrue();
+    assertThat(childResource.name().value()).isEqualTo("child resource");
+    assertThat(childResource.type()).hasValue("securityRules");
+    assertThat(childResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules");
+    assertThat(childResource.version()).hasValue("2022-11-01");
+
+    ResourceDeclaration innerChildResource = childResource.childResources().get(0);
+    assertThat(innerChildResource.is(RESOURCE_DECLARATION)).isTrue();
+    assertThat(innerChildResource.name().value()).isEqualTo("inner child resource");
+    assertThat(innerChildResource.type()).hasValue("firewall");
+    assertThat(innerChildResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules/firewall");
+    assertThat(innerChildResource.version()).hasValue("2022-11-01");
+
+
 
     assertThat(tree.statements()).hasSize(1);
   }

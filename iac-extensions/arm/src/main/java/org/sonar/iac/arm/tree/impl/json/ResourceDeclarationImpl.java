@@ -21,6 +21,7 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -33,15 +34,16 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private final Identifier name;
   private final StringLiteral version;
   private final StringLiteral type;
+  @Nullable
+  private final String parentType;
   private final List<Property> properties;
-  private final List<ResourceDeclaration> childResources;
 
-  public ResourceDeclarationImpl(Identifier name, StringLiteral version, StringLiteral type, List<Property> properties, List<ResourceDeclaration> childResources) {
+  public ResourceDeclarationImpl(Identifier name, StringLiteral version, StringLiteral type, @Nullable String parentType, List<Property> properties) {
     this.name = name;
     this.version = version;
     this.type = type;
+    this.parentType = parentType;
     this.properties = properties;
-    this.childResources = childResources;
   }
 
   @Override
@@ -54,7 +56,6 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
       children.add(property.key());
       children.add(property.value());
     });
-    children.addAll(childResources);
     return children;
   }
 
@@ -74,13 +75,17 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public List<Property> properties() {
-    return properties;
+  public String fullType() {
+    if (parentType != null) {
+      return parentType + "/" + type.value();
+    } else {
+      return type.value();
+    }
   }
 
   @Override
-  public List<ResourceDeclaration> childResources() {
-    return childResources;
+  public List<Property> properties() {
+    return properties;
   }
 
   @Override
