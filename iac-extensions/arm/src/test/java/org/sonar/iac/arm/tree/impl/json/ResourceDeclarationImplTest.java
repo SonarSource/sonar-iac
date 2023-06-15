@@ -43,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.ARRAY_EXPRESSION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
@@ -73,17 +74,15 @@ class ResourceDeclarationImplTest {
     assertThat(resourceDeclaration.type()).hasValue("Microsoft.Kusto/clusters");
     assertThat(resourceDeclaration.version()).hasValue("2022-12-29");
 
-    assertThat(resourceDeclaration.name())
-      .hasKind(STRING_LITERAL)
-      .hasValue("myResource")
-      .hasRange(6, 14, 6, 26);
+    assertThat(resourceDeclaration.name().value()).isEqualTo("myResource");
+    assertThat(resourceDeclaration.name().textRange()).hasRange(6, 14, 6, 26);
 
     assertThat(resourceDeclaration.properties()).isEmpty();
 
     List<Tree> children = resourceDeclaration.children();
     assertThat(children).hasSize(3);
 
-    assertThat((ArmTree) children.get(0)).is(STRING_LITERAL).has("value", "myResource").hasRange(6, 14, 6, 26);
+    assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "myResource").hasRange(6, 14, 6, 26);
     assertThat((ArmTree) children.get(1)).is(STRING_LITERAL).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
     assertThat((ArmTree) children.get(2)).is(STRING_LITERAL).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
   }
@@ -217,13 +216,13 @@ class ResourceDeclarationImplTest {
     ResourceDeclaration resourceDeclaration1 = (ResourceDeclaration) tree.statements().get(0);
     assertThat(resourceDeclaration1.type()).hasValue("type1");
     assertThat(resourceDeclaration1.version()).hasValue("version1");
-    assertThat(resourceDeclaration1.name()).hasValue("name1");
+    assertThat(resourceDeclaration1.name().value()).isEqualTo("name1");
     assertThat(resourceDeclaration1.properties()).isEmpty();
 
     ResourceDeclaration resourceDeclaration2 = (ResourceDeclaration) tree.statements().get(1);
     assertThat(resourceDeclaration2.type()).hasValue("type2");
     assertThat(resourceDeclaration2.version()).hasValue("version2");
-    assertThat(resourceDeclaration2.name()).hasValue("name2");
+    assertThat(resourceDeclaration2.name().value()).isEqualTo("name2");
     assertThat(resourceDeclaration2.properties()).isEmpty();
   }
 
@@ -247,7 +246,7 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(0)).isInstanceOf(ResourceDeclaration.class);
 
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resource.name()).hasValue("test with complex properties");
+    assertThat(resource.name().value()).isEqualTo("test with complex properties");
     assertThat(resource.type()).hasValue("Microsoft.Network/networkSecurityGroups/securityRules");
     assertThat(resource.version()).hasValue("2022-11-01");
 

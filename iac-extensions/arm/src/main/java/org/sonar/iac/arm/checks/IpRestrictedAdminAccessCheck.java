@@ -31,8 +31,8 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -110,7 +110,7 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
   }
 
   static class ResourceWithIpRestrictedAdminAccessChecker {
-    StringLiteral name;
+    Identifier name;
     @Nullable
     Tree direction;
     @Nullable
