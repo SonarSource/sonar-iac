@@ -42,7 +42,7 @@ class NumericLiteralImplTest {
     File tree = (File) parser.parse(code, null);
 
     Property numericProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(numericProperty.value()).isKind(ArmTree.Kind.NUMERIC_LITERAL).hasValue(7);
+    assertThat(numericProperty.value()).isNumericLiteral().hasValue(7);
   }
 
   @ParameterizedTest
@@ -60,7 +60,7 @@ class NumericLiteralImplTest {
     File tree = (File) parser.parse(code, null);
 
     Property numericProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(numericProperty.value()).isKind(ArmTree.Kind.NUMERIC_LITERAL);
+    assertThat(numericProperty.value()).isNumericLiteral();
   }
 
   @ParameterizedTest

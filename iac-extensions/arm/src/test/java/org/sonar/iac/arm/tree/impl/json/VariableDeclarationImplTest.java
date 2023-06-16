@@ -52,7 +52,7 @@ class VariableDeclarationImplTest {
 
     VariableDeclaration stringVar = (VariableDeclaration) tree.statements().get(0);
     assertThat(stringVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "stringVar").hasRange(3, 4, 3, 15);
-    assertThat(stringVar.value()).isLiteral().hasValue("val").hasRange(3, 17, 3, 22);
+    assertThat(stringVar.value()).isStringLiteral().hasValue("val").hasRange(3, 17, 3, 22);
     assertThat(stringVar.children()).hasSize(2);
   }
 
@@ -80,7 +80,7 @@ class VariableDeclarationImplTest {
 
     VariableDeclaration objectVar = (VariableDeclaration) tree.statements().get(0);
     assertThat(objectVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "objectVar").hasRange(3, 4, 3, 15);
-    assertThat(objectVar.value()).isObjectExpression().hasRange(3, 18, 3, 29);
+    assertThat(objectVar.value()).isObjectExpression().hasValue("key", "val").hasRange(3, 18, 3, 29);
     assertThat(objectVar.children()).hasSize(2);
   }
 
@@ -104,11 +104,11 @@ class VariableDeclarationImplTest {
     VariableDeclaration objectVar = (VariableDeclaration) tree.statements().get(2);
 
     assertThat(stringVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "stringVar").hasRange(3, 4, 3, 15);
-    assertThat(stringVar.value()).isLiteral().hasValue("val").hasRange(3, 17, 3, 22);
+    assertThat(stringVar.value()).isStringLiteral().hasValue("val").hasRange(3, 17, 3, 22);
     assertThat(arrayVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "arrayVar").hasRange(4, 4, 4, 14);
-    assertThat(arrayVar.value()).isArrayExpression().hasRange(4, 16, 4, 23);
+    assertThat(arrayVar.value()).isArrayExpression().hasValues("val").hasRange(4, 16, 4, 23);
     assertThat(objectVar.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "objectVar").hasRange(5, 4, 5, 15);
-    assertThat(objectVar.value()).isObjectExpression().hasRange(5, 18, 5, 29);
+    assertThat(objectVar.value()).isObjectExpression().hasSize(1).hasValue("key", "val").hasRange(5, 18, 5, 29);
 
     assertThat(stringVar.children()).hasSize(2);
     assertThat(arrayVar.children()).hasSize(2);

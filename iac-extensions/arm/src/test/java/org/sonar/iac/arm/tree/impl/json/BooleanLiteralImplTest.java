@@ -38,7 +38,7 @@ class BooleanLiteralImplTest {
     File tree = (File) parser.parse(code, null);
 
     Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(booleanProperty.value()).isKind(ArmTree.Kind.BOOLEAN_LITERAL).hasValue(true);
+    assertThat(booleanProperty.value()).isBooleanLiteral().hasValue(true);
   }
 
   @Test
@@ -47,6 +47,6 @@ class BooleanLiteralImplTest {
     File tree = (File) parser.parse(code, null);
 
     Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(booleanProperty.value()).isKind(ArmTree.Kind.BOOLEAN_LITERAL).hasValue(false);
+    assertThat(booleanProperty.value()).isBooleanLiteral().hasValue(false);
   }
 }

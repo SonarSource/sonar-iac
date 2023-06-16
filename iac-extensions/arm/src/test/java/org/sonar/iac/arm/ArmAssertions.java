@@ -23,6 +23,10 @@ import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ExpressionAssert;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.NumericLiteralAssert;
+import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.StringLiteralAssert;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.TextRangeAssert;
 
@@ -37,5 +41,13 @@ public class ArmAssertions {
 
   public static ExpressionAssert assertThat(Expression actual) {
     return ExpressionAssert.assertThat(actual);
+  }
+
+  public static StringLiteralAssert assertThat(StringLiteral actual) {
+    return StringLiteralAssert.assertThat(actual);
+  }
+
+  public static NumericLiteralAssert assertThat(NumericLiteral actual) {
+    return NumericLiteralAssert.assertThat(actual);
   }
 }
