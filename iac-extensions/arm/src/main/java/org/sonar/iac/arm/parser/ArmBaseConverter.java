@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -43,6 +44,7 @@ import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
@@ -64,9 +66,37 @@ public class ArmBaseConverter {
     this.inputFileContext = inputFileContext;
   }
 
+  public StringLiteral toStringLiteralOrNull(YamlTree tree, String key) {
+    return PropertyUtils.get(tree, key).
+      map(this::toStringLiteral)
+      .orElse(null);
+  }
+
+  public StringLiteral toStringLiteralOrException(TupleTree tree, String key) {
+    return PropertyUtils.get(tree.value(), key)
+      .map(this::toStringLiteral)
+      .orElseThrow(() -> missingMandatoryAttributeError(tree, key));
+  }
+
+  public StringLiteral toStringLiteralOrException(MappingTree tree, String key) {
+    return PropertyUtils.get(tree, key)
+      .map(this::toStringLiteral)
+      .orElseThrow(() -> missingMandatoryAttributeError(tree, key));
+  }
+
   public StringLiteral toStringLiteral(PropertyTree property) {
     ScalarTree value = toDoubleQuoteScalarTree(property);
     return new StringLiteralImpl(value.value(), value.metadata());
+  }
+
+  public StringLiteral toNestedStringLiteralOrNull(YamlTree tree, String parentKey, String childKey) {
+    return PropertyUtils.get(tree, parentKey).map(m -> extractPropertyOrNull(m, childKey)).orElse(null);
+  }
+
+  public Identifier toIdentifierOrException(MappingTree tree, String key) {
+    return PropertyUtils.get(tree, key)
+      .map(this::toIdentifier)
+      .orElseThrow(() -> missingMandatoryAttributeError(tree, key));
   }
 
   public Identifier toIdentifier(PropertyTree property) {
@@ -91,6 +121,12 @@ public class ArmBaseConverter {
       throw convertError(property, value, StringLiteral.class.getSimpleName(), "ScalarTree.Style.DOUBLE_QUOTED");
     }
     return value;
+  }
+
+  public NumericLiteral toNumericLiteralOrNull(YamlTree tree, String key) {
+    return PropertyUtils.get(tree, key)
+      .map(this::toNumericLiteral)
+      .orElse(null);
   }
 
   public NumericLiteral toNumericLiteral(PropertyTree property) {
@@ -122,6 +158,10 @@ public class ArmBaseConverter {
     return new ObjectExpressionImpl(properties);
   }
 
+  public ArrayExpression toArrayExpressionOrNull(YamlTree tree, String key) {
+    return PropertyUtils.get(tree, key).map(this::toArrayExpression).orElse(null);
+  }
+
   public ArrayExpression toArrayExpression(PropertyTree property) {
     if (!(property.value() instanceof SequenceTree)) {
       throw convertError(property, ArrayExpression.class.getSimpleName(), SequenceTree.class.getSimpleName());
@@ -134,6 +174,10 @@ public class ArmBaseConverter {
       tree.elements().stream()
         .map(this::toExpression)
         .collect(Collectors.toList()));
+  }
+
+  public Expression toExpressionOrNull(TupleTree tree, String key) {
+    return PropertyUtils.get(tree.value(), key).map(this::toExpression).orElse(null);
   }
 
   public Expression toExpression(PropertyTree tree) {
@@ -195,6 +239,13 @@ public class ArmBaseConverter {
       properties.add(new PropertyImpl(key, value));
     }
     return properties;
+  }
+
+  @CheckForNull
+  public StringLiteral extractPropertyOrNull(PropertyTree property, String name) {
+    return PropertyUtils.get(property.value(), name)
+      .map(this::toStringLiteral)
+      .orElse(null);
   }
 
   protected Stream<TupleTree> extractMappingToTupleTreeOnField(MappingTree document, String fieldName) {

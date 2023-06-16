@@ -61,9 +61,9 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
   }
 
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
-    StringLiteral type = PropertyUtils.get(tree, "type").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "type"));
-    StringLiteral version = PropertyUtils.get(tree, "apiVersion").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "apiVersion"));
-    Identifier name = PropertyUtils.get(tree, "name").map(this::toIdentifier).orElseThrow(() -> missingMandatoryAttributeError(tree, "name"));
+    StringLiteral type = toStringLiteralOrException(tree, "type");
+    StringLiteral version = toStringLiteralOrException(tree, "apiVersion");
+    Identifier name = toIdentifierOrException(tree, "name");
     List<Property> otherProperties = PropertyUtils.get(tree, "properties")
       .map(PropertyTree::value)
       .map(this::toProperties)

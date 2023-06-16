@@ -19,17 +19,13 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.util.Optional;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.json.OutputDeclarationImpl;
-import org.sonar.iac.common.api.tree.PropertyTree;
-import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
@@ -46,20 +42,12 @@ public class OutputDeclarationConverter extends ArmBaseConverter {
 
   public OutputDeclaration convertOutputDeclaration(TupleTree tree) {
     Identifier name = toIdentifier(tree.key());
-    StringLiteral type = PropertyUtils.get(tree.value(), "type").map(this::toStringLiteral).orElseThrow(() -> missingMandatoryAttributeError(tree, "type"));
-    StringLiteral condition = PropertyUtils.get(tree.value(), "condition").map(this::toStringLiteral).orElse(null);
-    Expression value = PropertyUtils.get(tree.value(), "value").map(this::toExpression).orElse(null);
-    Optional<PropertyTree> copy = PropertyUtils.get(tree.value(), "copy");
-    StringLiteral copyCount = copy.map(c -> extractProperty(c, "count")).orElse(null);
-    StringLiteral copyInput = copy.map(c -> extractProperty(c, "input")).orElse(null);
+    StringLiteral type = toStringLiteralOrException(tree, "type");
+    StringLiteral condition = toStringLiteralOrNull(tree.value(), "condition");
+    Expression value = toExpressionOrNull(tree, "value");
+    StringLiteral copyCount = toNestedStringLiteralOrNull(tree.value(), "copy", "count");
+    StringLiteral copyInput = toNestedStringLiteralOrNull(tree.value(), "copy", "input");
 
     return new OutputDeclarationImpl(name, type, condition, copyCount, copyInput, value);
-  }
-
-  @CheckForNull
-  private StringLiteral extractProperty(PropertyTree property, String name) {
-    return PropertyUtils.get(property.value(), name)
-      .map(this::toStringLiteral)
-      .orElse(null);
   }
 }
