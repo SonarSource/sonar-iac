@@ -48,6 +48,8 @@ import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 
+import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
+
 public abstract class YamlSensor extends IacSensor {
 
   protected static final String JSON_LANGUAGE_KEY = "json";
@@ -94,7 +96,7 @@ public abstract class YamlSensor extends IacSensor {
       if (problemMark.isPresent()) {
         position = inputFile.newPointer(problemMark.get().getLine() + 1, 0);
       }
-      return ParseException.throwGeneralParseException(action, inputFile, cause, position);
+      return createGeneralParseException(action, inputFile, cause, position);
     }
     return super.toParseException(action, inputFile, cause);
   }

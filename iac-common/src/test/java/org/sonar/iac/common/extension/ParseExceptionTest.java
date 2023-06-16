@@ -26,9 +26,10 @@ import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
+import static org.sonar.iac.common.extension.ParseException.createParseException;
 
 class ParseExceptionTest {
 
@@ -46,7 +47,7 @@ class ParseExceptionTest {
 
   @Test
   void shouldCreateGeneralException() {
-    ParseException actual = ParseException.throwGeneralParseException("action", inputFile, cause, position);
+    ParseException actual = createGeneralParseException("action", inputFile, cause, position);
 
     assertThat(actual)
       .hasMessage("Cannot action 'dir1/dir2/TestFile.abc:1:3'")
@@ -59,7 +60,7 @@ class ParseExceptionTest {
 
   @Test
   void shouldCreateExceptionNullInputFile() {
-    ParseException actual = ParseException.throwGeneralParseException("action", null, cause, position);
+    ParseException actual = createGeneralParseException("action", null, cause, position);
 
     assertThat(actual)
       .hasMessage("Cannot action 'null:1:3'")
@@ -72,7 +73,7 @@ class ParseExceptionTest {
 
   @Test
   void shouldCreateNullPosition() {
-    ParseException actual = ParseException.throwGeneralParseException("action", inputFile, cause, null);
+    ParseException actual = createGeneralParseException("action", inputFile, cause, null);
 
     assertThat(actual)
       .hasMessage("Cannot action 'dir1/dir2/TestFile.abc'")
@@ -85,7 +86,7 @@ class ParseExceptionTest {
 
   @Test
   void shouldCreateExceptionNullContextNullPosition() {
-    ParseException actual = ParseException.throwParseException("message", null, null);
+    ParseException actual = createParseException("message", null, null);
 
     assertThat(actual).hasMessage("message at null");
     assertThat(actual.getPosition()).isNull();
@@ -94,7 +95,7 @@ class ParseExceptionTest {
 
   @Test
   void shouldCreateExceptionNullContext() {
-    ParseException actual = ParseException.throwParseException("message", null, new BasicTextPointer(2, 6));
+    ParseException actual = createParseException("message", null, new BasicTextPointer(2, 6));
 
     assertThat(actual).hasMessage("message at null:2:7");
     assertThat(actual.getPosition().line()).isEqualTo(2);
@@ -104,7 +105,7 @@ class ParseExceptionTest {
 
   @Test
   void shouldCreateExceptionNullPosition() {
-    ParseException actual = ParseException.throwParseException("message", inputFileContext, null);
+    ParseException actual = createParseException("message", inputFileContext, null);
 
     assertThat(actual).hasMessage("message at dir1/dir2/TestFile.abc");
     assertThat(actual.getPosition()).isNull();

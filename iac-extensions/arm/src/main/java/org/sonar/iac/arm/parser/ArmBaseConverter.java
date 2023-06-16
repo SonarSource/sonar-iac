@@ -52,6 +52,8 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
+import static org.sonar.iac.common.extension.ParseException.createParseException;
+
 public class ArmBaseConverter {
 
   @Nullable
@@ -93,7 +95,7 @@ public class ArmBaseConverter {
     try {
       return new NumericLiteralImpl(Float.parseFloat(value.value()), value.metadata());
     } catch (NumberFormatException e) {
-      throw ParseException.throwParseException(
+      throw createParseException(
         "Failed to parse float value '" + value.value(),
         inputFileContext,
         new BasicTextPointer(value.textRange()));
@@ -145,7 +147,7 @@ public class ArmBaseConverter {
     } else if (tree instanceof ScalarTree) {
       return toLiteralExpression((ScalarTree) tree);
     } else {
-      throw ParseException.throwParseException("Couldn't convert to Expression, unsupported class " + tree.getClass().getSimpleName(),
+      throw createParseException("Couldn't convert to Expression, unsupported class " + tree.getClass().getSimpleName(),
         inputFileContext,
         new BasicTextPointer(tree.metadata().textRange()));
     }
@@ -161,7 +163,7 @@ public class ArmBaseConverter {
         try {
           return new NumericLiteralImpl(Float.parseFloat(tree.value()), tree.metadata());
         } catch (NumberFormatException e) {
-          throw ParseException.throwParseException(
+          throw createParseException(
             "Failed to parse plain value '" + tree.value() + "'",
             inputFileContext,
             new BasicTextPointer(tree.metadata().textRange()));
@@ -170,7 +172,7 @@ public class ArmBaseConverter {
     } else if (tree.style() == ScalarTree.Style.DOUBLE_QUOTED) {
       return new StringLiteralImpl(tree.value(), tree.metadata());
     } else {
-      throw ParseException.throwParseException(
+      throw createParseException(
         "Unsupported ScalarTree style: " + tree.style().name(),
         inputFileContext,
         new BasicTextPointer(tree.metadata().textRange()));
@@ -179,7 +181,7 @@ public class ArmBaseConverter {
 
   protected List<Property> toProperties(Tree tree) {
     if (!(tree instanceof HasProperties)) {
-      throw ParseException.throwParseException(
+      throw createParseException(
         "Couldn't convert properties: expecting object of class '" + tree.getClass().getSimpleName() + "' to implement HasProperties",
         inputFileContext,
         new BasicTextPointer(tree.textRange()));
@@ -200,7 +202,7 @@ public class ArmBaseConverter {
 
   // Error generation
   protected ParseException missingMandatoryAttributeError(YamlTree tree, String key) {
-    return ParseException.throwParseException(
+    return createParseException(
       "Missing mandatory attribute '" + key + "'",
       inputFileContext,
       new BasicTextPointer(tree.metadata().textRange()));
@@ -209,17 +211,17 @@ public class ArmBaseConverter {
   private ParseException convertError(PropertyTree property, String targetType, String expectedType) {
     YamlTree value = (YamlTree) property.value();
     String errorMessage = convertErrorMessage(property.key(), targetType, expectedType, value.getClass().getSimpleName());
-    return ParseException.throwParseException(errorMessage, inputFileContext, new BasicTextPointer(value.textRange()));
+    return createParseException(errorMessage, inputFileContext, new BasicTextPointer(value.textRange()));
   }
 
   private ParseException convertError(Tree tree, String targetType, String expectedType) {
     String errorMessage = convertErrorMessage(tree, targetType, expectedType, tree.getClass().getSimpleName());
-    return ParseException.throwParseException(errorMessage, inputFileContext, new BasicTextPointer(tree.textRange()));
+    return createParseException(errorMessage, inputFileContext, new BasicTextPointer(tree.textRange()));
   }
 
   private ParseException convertError(PropertyTree property, ScalarTree value, String targetType, String expectedStyle) {
     String errorMessage = convertErrorMessage(property.key(), targetType, expectedStyle, value.style().name());
-    return ParseException.throwParseException(errorMessage, inputFileContext, new BasicTextPointer(value.textRange()));
+    return createParseException(errorMessage, inputFileContext, new BasicTextPointer(value.textRange()));
   }
 
   private static String convertErrorMessage(Tree objectToConvert, String targetType, String expectedValue, String valueFound) {
