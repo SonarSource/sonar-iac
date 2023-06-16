@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api;
 import org.assertj.core.api.Assertions;
 
 public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expression> {
-  ExpressionAssert(Expression expression) {
+  private ExpressionAssert(Expression expression) {
     super(expression, ExpressionAssert.class);
   }
 
@@ -41,7 +41,6 @@ public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expre
   }
 
   public ObjectExpressionAssert asObjectExpression() {
-
     Assertions.assertThat(actual.is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
     return ObjectExpressionAssert.assertThat(((ObjectExpression) actual));
   }
