@@ -67,8 +67,8 @@ public class ArmBaseConverter {
   }
 
   public StringLiteral toStringLiteralOrNull(YamlTree tree, String key) {
-    return PropertyUtils.get(tree, key).
-      map(this::toStringLiteral)
+    return PropertyUtils.get(tree, key)
+      .map(this::toStringLiteral)
       .orElse(null);
   }
 
