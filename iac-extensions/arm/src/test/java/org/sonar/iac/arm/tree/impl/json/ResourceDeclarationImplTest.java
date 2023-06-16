@@ -140,7 +140,7 @@ class ResourceDeclarationImplTest {
     ArrayExpression arrayExpression = (ArrayExpression) properties.get(1).value();
     assertThat(arrayExpression.elements()).hasSize(1);
     assertThat(arrayExpression.children()).hasSize(1);
-    assertThat(arrayExpression.elements().get(0)).isStringLiteral().hasValue("val");
+    assertThat(arrayExpression.elements().get(0)).asStringLiteral().hasValue("val");
 
     IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(8, 8, 8, 55);
   }
@@ -251,6 +251,6 @@ class ResourceDeclarationImplTest {
     assertThat(resource.properties()).hasSize(1);
     Property property = resource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("sourceAddressPrefixes");
-    assertThat(property.value()).isArrayExpression().hasValues("0.0.0.0/0");
+    assertThat(property.value()).asArrayExpression().containsValuesExactly("0.0.0.0/0");
   }
 }

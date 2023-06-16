@@ -22,12 +22,21 @@ package org.sonar.iac.arm.tree.api;
 import org.assertj.core.api.Assertions;
 
 public class BooleanLiteralAssert extends HasTextRangeAssert<BooleanLiteralAssert, BooleanLiteral> {
-  protected BooleanLiteralAssert(BooleanLiteral booleanLiteral) {
+  BooleanLiteralAssert(BooleanLiteral booleanLiteral) {
     super(booleanLiteral, BooleanLiteralAssert.class);
   }
 
-  public BooleanLiteralAssert hasValue(boolean value) {
-    Assertions.assertThat(actual.value()).isEqualTo(value);
+  public static BooleanLiteralAssert assertThat(BooleanLiteral actual) {
+    return new BooleanLiteralAssert(actual);
+  }
+
+  public BooleanLiteralAssert isTrue() {
+    Assertions.assertThat(actual.value()).isTrue();
+    return this;
+  }
+
+  public BooleanLiteralAssert isFalse() {
+    Assertions.assertThat(actual.value()).isFalse();
     return this;
   }
 }

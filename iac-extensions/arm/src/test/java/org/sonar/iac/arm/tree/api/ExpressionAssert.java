@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api;
 import org.assertj.core.api.Assertions;
 
 public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expression> {
-  protected ExpressionAssert(Expression expression) {
+  ExpressionAssert(Expression expression) {
     super(expression, ExpressionAssert.class);
   }
 
@@ -30,7 +30,7 @@ public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expre
     return new ExpressionAssert(actual);
   }
 
-  public ArrayExpressionAssert isArrayExpression() {
+  public ArrayExpressionAssert asArrayExpression() {
     Assertions.assertThat(actual.is(ArmTree.Kind.ARRAY_EXPRESSION)).isTrue();
     return new ArrayExpressionAssert((ArrayExpression) actual);
   }
@@ -40,22 +40,22 @@ public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expre
     return this;
   }
 
-  public ObjectExpressionAssert isObjectExpression() {
+  public ObjectExpressionAssert asObjectExpression() {
     Assertions.assertThat(actual.is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
     return new ObjectExpressionAssert((ObjectExpression) actual);
   }
 
-  public StringLiteralAssert isStringLiteral() {
+  public StringLiteralAssert asStringLiteral() {
     Assertions.assertThat(actual.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
     return new StringLiteralAssert((StringLiteral) actual);
   }
 
-  public NumericLiteralAssert isNumericLiteral() {
+  public NumericLiteralAssert asNumericLiteral() {
     Assertions.assertThat(actual.is(ArmTree.Kind.NUMERIC_LITERAL)).isTrue();
     return new NumericLiteralAssert((NumericLiteral) actual);
   }
 
-  public BooleanLiteralAssert isBooleanLiteral() {
+  public BooleanLiteralAssert asBooleanLiteral() {
     Assertions.assertThat(actual.is(ArmTree.Kind.BOOLEAN_LITERAL)).isTrue();
     return new BooleanLiteralAssert((BooleanLiteral) actual);
   }

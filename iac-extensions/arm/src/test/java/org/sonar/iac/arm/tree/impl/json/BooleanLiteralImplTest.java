@@ -21,7 +21,6 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -38,7 +37,7 @@ class BooleanLiteralImplTest {
     File tree = (File) parser.parse(code, null);
 
     Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(booleanProperty.value()).isBooleanLiteral().hasValue(true);
+    assertThat(booleanProperty.value()).asBooleanLiteral().isTrue();
   }
 
   @Test
@@ -47,6 +46,6 @@ class BooleanLiteralImplTest {
     File tree = (File) parser.parse(code, null);
 
     Property booleanProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(booleanProperty.value()).isBooleanLiteral().hasValue(false);
+    assertThat(booleanProperty.value()).asBooleanLiteral().isFalse();
   }
 }

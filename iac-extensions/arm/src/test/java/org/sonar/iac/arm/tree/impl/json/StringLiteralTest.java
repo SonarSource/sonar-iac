@@ -41,7 +41,7 @@ class StringLiteralTest {
     File tree = (File) parser.parse(code, null);
 
     Property stringProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(stringProperty.value()).isStringLiteral().hasValue("val");
+    assertThat(stringProperty.value()).asStringLiteral().hasValue("val");
   }
 
   @ParameterizedTest
@@ -59,7 +59,7 @@ class StringLiteralTest {
     File tree = (File) parser.parse(code, null);
 
     Property stringProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(stringProperty.value()).isStringLiteral();
+    assertThat(stringProperty.value()).asStringLiteral();
   }
 
   @ParameterizedTest

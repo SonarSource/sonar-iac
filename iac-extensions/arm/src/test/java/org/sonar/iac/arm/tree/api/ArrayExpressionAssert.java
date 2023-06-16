@@ -21,17 +21,19 @@ package org.sonar.iac.arm.tree.api;
 
 import org.assertj.core.api.Assertions;
 
-import static org.sonar.iac.arm.tree.api.ExpressionAssert.assertThat;
-
 public class ArrayExpressionAssert extends HasTextRangeAssert<ArrayExpressionAssert, ArrayExpression> {
-  protected ArrayExpressionAssert(ArrayExpression arrayExpression) {
+  ArrayExpressionAssert(ArrayExpression arrayExpression) {
     super(arrayExpression, ArrayExpressionAssert.class);
   }
 
-  public ArrayExpressionAssert hasValues(String... values) {
+  public static ArrayExpressionAssert assertThat(ArrayExpression actual) {
+    return new ArrayExpressionAssert(actual);
+  }
+
+  public ArrayExpressionAssert containsValuesExactly(String... values) {
     Assertions.assertThat(actual.elements()).hasSize(values.length);
     for (int i = 0; i < values.length; i++) {
-      assertThat(actual.elements().get(i)).isStringLiteral().hasValue(values[i]);
+      ExpressionAssert.assertThat(actual.elements().get(i)).asStringLiteral().hasValue(values[i]);
     }
     return this;
   }

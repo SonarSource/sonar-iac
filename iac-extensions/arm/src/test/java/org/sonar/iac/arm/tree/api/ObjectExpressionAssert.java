@@ -22,14 +22,16 @@ package org.sonar.iac.arm.tree.api;
 import org.assertj.core.api.Assertions;
 import org.sonar.iac.common.checks.PropertyUtils;
 
-import static org.sonar.iac.arm.tree.api.ExpressionAssert.assertThat;
-
 public class ObjectExpressionAssert extends HasTextRangeAssert<ObjectExpressionAssert, ObjectExpression> {
-  protected ObjectExpressionAssert(ObjectExpression objectExpression) {
+  ObjectExpressionAssert(ObjectExpression objectExpression) {
     super(objectExpression, ObjectExpressionAssert.class);
   }
 
-  public ObjectExpressionAssert hasValue(String key, String value) {
+  public static ObjectExpressionAssert assertThat(ObjectExpression actual) {
+    return new ObjectExpressionAssert(actual);
+  }
+
+  public ObjectExpressionAssert containsKeyValue(String key, String value) {
     Assertions.assertThat(PropertyUtils.valueIs(actual, key, tree -> ((StringLiteral) tree).value().equals(value))).isTrue();
     return this;
   }

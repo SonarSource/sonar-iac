@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api;
 import org.assertj.core.api.Assertions;
 
 public class StringLiteralAssert extends HasTextRangeAssert<StringLiteralAssert, StringLiteral> {
-  protected StringLiteralAssert(StringLiteral stringLiteral) {
+  StringLiteralAssert(StringLiteral stringLiteral) {
     super(stringLiteral, StringLiteralAssert.class);
   }
 
