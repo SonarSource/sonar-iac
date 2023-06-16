@@ -21,7 +21,7 @@ package org.sonar.iac.arm.tree.api;
 
 import org.sonar.iac.common.testing.TextRangeAssert;
 
-public class HasTextRangeAssert<SELF extends ArmTreeAssert<SELF, ACTUAL>, ACTUAL extends ArmTree> extends ArmTreeAssert<SELF, ACTUAL>{
+public class HasTextRangeAssert<SELF extends ArmTreeAssert<SELF, ACTUAL>, ACTUAL extends ArmTree> extends ArmTreeAssert<SELF, ACTUAL> {
   protected HasTextRangeAssert(ACTUAL actual, Class<?> selfType) {
     super(actual, selfType);
   }
