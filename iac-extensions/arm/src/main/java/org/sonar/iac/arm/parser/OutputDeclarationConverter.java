@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -42,13 +41,7 @@ public class OutputDeclarationConverter extends ArmBaseConverter {
   }
 
   public Stream<TupleTree> extractOutputsMapping(MappingTree document) {
-    return document.elements().stream()
-      .filter(filterOnField("outputs"))
-      .map(TupleTree::value)
-      .filter(MappingTree.class::isInstance)
-      .map(MappingTree.class::cast)
-      .map(MappingTree::elements)
-      .flatMap(List::stream);
+    return extractMappingToTupleTreeOnField(document, "outputs");
   }
 
   public OutputDeclaration convertOutputDeclaration(TupleTree tree) {

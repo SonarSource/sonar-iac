@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -37,13 +36,7 @@ public class VariableDeclarationConverter extends ArmBaseConverter {
   }
 
   public Stream<TupleTree> extractVariablesMapping(MappingTree document) {
-    return document.elements().stream()
-      .filter(filterOnField("variables"))
-      .map(TupleTree::value)
-      .filter(MappingTree.class::isInstance)
-      .map(MappingTree.class::cast)
-      .map(MappingTree::elements)
-      .flatMap(List::stream);
+    return extractMappingToTupleTreeOnField(document, "variables");
   }
 
   public VariableDeclaration convertVariableDeclaration(TupleTree tupleTree) {

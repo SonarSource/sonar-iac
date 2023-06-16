@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.arm.parser;
 
-import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -43,13 +42,7 @@ public class ParameterDeclarationConverter extends ArmBaseConverter {
   }
 
   public Stream<TupleTree> extractParametersSequence(MappingTree document) {
-    return document.elements().stream()
-      .filter(filterOnField("parameters"))
-      .map(TupleTree::value)
-      .filter(MappingTree.class::isInstance)
-      .map(MappingTree.class::cast)
-      .map(MappingTree::elements)
-      .flatMap(List::stream);
+    return extractMappingToTupleTreeOnField(document, "parameters");
   }
 
   public ParameterDeclaration convertParameters(TupleTree tree) {

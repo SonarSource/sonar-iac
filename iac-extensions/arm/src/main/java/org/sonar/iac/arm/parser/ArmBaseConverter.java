@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -73,6 +74,14 @@ public class ArmBaseConverter {
     return new IdentifierImpl(value.value(), value.metadata());
   }
 
+  public Identifier toIdentifier(YamlTree tree) {
+    if (!(tree instanceof ScalarTree)) {
+      throw convertError(tree, Identifier.class.getSimpleName(), ScalarTree.class.getSimpleName());
+    }
+    ScalarTree scalarTree = (ScalarTree) tree;
+    return new IdentifierImpl(scalarTree.value(), scalarTree.metadata());
+  }
+
   private ScalarTree toDoubleQuoteScalarTree(PropertyTree property) {
     if (!(property.value() instanceof ScalarTree)) {
       throw convertError(property, StringLiteral.class.getSimpleName(), ScalarTree.class.getSimpleName());
@@ -102,21 +111,6 @@ public class ArmBaseConverter {
     }
   }
 
-  public ArrayExpression toArrayExpression(PropertyTree property) {
-    if (!(property.value() instanceof SequenceTree)) {
-      throw convertError(property, ArrayExpression.class.getSimpleName(), SequenceTree.class.getSimpleName());
-    }
-    return toArrayExpression((SequenceTree) property.value());
-  }
-
-  public Identifier toIdentifier(YamlTree tree) {
-    if (!(tree instanceof ScalarTree)) {
-      throw convertError(tree, Identifier.class.getSimpleName(), ScalarTree.class.getSimpleName());
-    }
-    ScalarTree scalarTree = (ScalarTree) tree;
-    return new IdentifierImpl(scalarTree.value(), scalarTree.metadata());
-  }
-
   public ObjectExpression toObjectExpression(MappingTree tree) {
     List<Property> properties = new ArrayList<>();
     tree.elements()
@@ -126,6 +120,13 @@ public class ArmBaseConverter {
         properties.add(new PropertyImpl(key, value));
       });
     return new ObjectExpressionImpl(properties);
+  }
+
+  public ArrayExpression toArrayExpression(PropertyTree property) {
+    if (!(property.value() instanceof SequenceTree)) {
+      throw convertError(property, ArrayExpression.class.getSimpleName(), SequenceTree.class.getSimpleName());
+    }
+    return toArrayExpression((SequenceTree) property.value());
   }
 
   public ArrayExpression toArrayExpression(SequenceTree tree) {
@@ -194,6 +195,16 @@ public class ArmBaseConverter {
       properties.add(new PropertyImpl(key, value));
     }
     return properties;
+  }
+
+  protected Stream<TupleTree> extractMappingToTupleTreeOnField(MappingTree document, String fieldName) {
+    return document.elements().stream()
+      .filter(filterOnField(fieldName))
+      .map(TupleTree::value)
+      .filter(MappingTree.class::isInstance)
+      .map(MappingTree.class::cast)
+      .map(MappingTree::elements)
+      .flatMap(List::stream);
   }
 
   protected Predicate<TupleTree> filterOnField(String field) {
