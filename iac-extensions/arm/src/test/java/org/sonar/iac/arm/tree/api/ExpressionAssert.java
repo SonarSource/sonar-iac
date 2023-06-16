@@ -32,7 +32,7 @@ public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expre
 
   public ArrayExpressionAssert asArrayExpression() {
     Assertions.assertThat(actual.is(ArmTree.Kind.ARRAY_EXPRESSION)).isTrue();
-    return new ArrayExpressionAssert((ArrayExpression) actual);
+    return ArrayExpressionAssert.assertThat((ArrayExpression) actual);
   }
 
   public ExpressionAssert isNullLiteral() {
@@ -42,21 +42,21 @@ public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expre
 
   public ObjectExpressionAssert asObjectExpression() {
     Assertions.assertThat(actual.is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
-    return new ObjectExpressionAssert((ObjectExpression) actual);
+    return ObjectExpressionAssert.assertThat(((ObjectExpression) actual));
   }
 
   public StringLiteralAssert asStringLiteral() {
     Assertions.assertThat(actual.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    return new StringLiteralAssert((StringLiteral) actual);
+    return StringLiteralAssert.assertThat((StringLiteral) actual);
   }
 
   public NumericLiteralAssert asNumericLiteral() {
     Assertions.assertThat(actual.is(ArmTree.Kind.NUMERIC_LITERAL)).isTrue();
-    return new NumericLiteralAssert((NumericLiteral) actual);
+    return NumericLiteralAssert.assertThat((NumericLiteral) actual);
   }
 
   public BooleanLiteralAssert asBooleanLiteral() {
     Assertions.assertThat(actual.is(ArmTree.Kind.BOOLEAN_LITERAL)).isTrue();
-    return new BooleanLiteralAssert((BooleanLiteral) actual);
+    return BooleanLiteralAssert.assertThat((BooleanLiteral) actual);
   }
 }

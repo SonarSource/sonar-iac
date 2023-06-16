@@ -23,7 +23,7 @@ import org.assertj.core.api.Assertions;
 import org.sonar.iac.common.checks.PropertyUtils;
 
 public class ObjectExpressionAssert extends HasTextRangeAssert<ObjectExpressionAssert, ObjectExpression> {
-  ObjectExpressionAssert(ObjectExpression objectExpression) {
+  private ObjectExpressionAssert(ObjectExpression objectExpression) {
     super(objectExpression, ObjectExpressionAssert.class);
   }
 

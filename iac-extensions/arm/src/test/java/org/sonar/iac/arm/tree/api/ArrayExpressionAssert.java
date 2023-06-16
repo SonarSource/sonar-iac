@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api;
 import org.assertj.core.api.Assertions;
 
 public class ArrayExpressionAssert extends HasTextRangeAssert<ArrayExpressionAssert, ArrayExpression> {
-  ArrayExpressionAssert(ArrayExpression arrayExpression) {
+  private ArrayExpressionAssert(ArrayExpression arrayExpression) {
     super(arrayExpression, ArrayExpressionAssert.class);
   }
 
