@@ -42,7 +42,7 @@ class NullLiteralImplTest {
     File tree = (File) parser.parse(code, null);
 
     Property nullProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(nullProperty.value()).isKind(ArmTree.Kind.NULL_LITERAL);
+    assertThat(nullProperty.value()).isNullLiteral();
   }
 
   @ParameterizedTest

@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -42,7 +41,7 @@ class NumericLiteralImplTest {
     File tree = (File) parser.parse(code, null);
 
     Property numericProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(numericProperty.value()).isKind(ArmTree.Kind.NUMERIC_LITERAL).hasValue(7);
+    assertThat(numericProperty.value()).asNumericLiteral().hasValue(7);
   }
 
   @ParameterizedTest
@@ -60,7 +59,7 @@ class NumericLiteralImplTest {
     File tree = (File) parser.parse(code, null);
 
     Property numericProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(numericProperty.value()).isKind(ArmTree.Kind.NUMERIC_LITERAL);
+    assertThat(numericProperty.value()).asNumericLiteral();
   }
 
   @ParameterizedTest

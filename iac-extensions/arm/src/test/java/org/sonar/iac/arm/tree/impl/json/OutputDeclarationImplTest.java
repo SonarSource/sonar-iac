@@ -78,7 +78,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration.condition()).hasValue("my condition");
     assertThat(outputDeclaration.copyCount()).hasValue("countValue");
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).hasValue("my output value");
+    assertThat(outputDeclaration.value()).asStringLiteral().hasValue("my output value");
     assertThat(outputDeclaration.textRange()).hasRange(3, 4, 9, 32);
 
     assertThat(outputDeclaration.name())
@@ -170,7 +170,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration1.condition()).hasValue("my condition 1");
     assertThat(outputDeclaration1.copyCount()).hasValue("countValue 1");
     assertThat(outputDeclaration1.copyInput()).hasValue("inputValue 1");
-    assertThat(outputDeclaration1.value()).hasValue("my output value 1");
+    assertThat(outputDeclaration1.value()).asStringLiteral().hasValue("my output value 1");
 
     OutputDeclaration outputDeclaration2 = (OutputDeclaration) tree.statements().get(1);
     assertThat(outputDeclaration2.name().value()).isEqualTo("myOutputValue2");
@@ -178,7 +178,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration2.condition()).hasValue("my condition 2");
     assertThat(outputDeclaration2.copyCount()).hasValue("countValue 2");
     assertThat(outputDeclaration2.copyInput()).hasValue("inputValue 2");
-    assertThat(outputDeclaration2.value()).hasValue("my output value 2");
+    assertThat(outputDeclaration2.value()).asStringLiteral().hasValue("my output value 2");
   }
 
   @Test
@@ -217,7 +217,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).hasValue("my output value");
+    assertThat(outputDeclaration.value()).asStringLiteral().hasValue("my output value");
 
     assertThat(outputDeclaration.name())
       .is(IDENTIFIER)
@@ -249,7 +249,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();
-    assertThat(outputDeclaration.value()).hasValue("my output value");
+    assertThat(outputDeclaration.value()).asStringLiteral().hasValue("my output value");
   }
 
   InputFileContext mockInputFileContext(String filename) {
@@ -277,7 +277,9 @@ class OutputDeclarationImplTest {
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
     assertThat(outputDeclaration.type().value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition()).isNull();
-    assertThat(outputDeclaration.value()).isKind(ArmTree.Kind.ARRAY_EXPRESSION).hasArrayExpressionValues("val1", "val2");
+    assertThat(outputDeclaration.copyCount()).isNull();
+    assertThat(outputDeclaration.copyInput()).isNull();
+    assertThat(outputDeclaration.value()).asArrayExpression().containsValuesExactly("val1", "val2");
   }
 
   @Test

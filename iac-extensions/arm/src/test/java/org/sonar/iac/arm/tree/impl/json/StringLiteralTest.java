@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -42,7 +41,7 @@ class StringLiteralTest {
     File tree = (File) parser.parse(code, null);
 
     Property stringProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(stringProperty.value()).isKind(ArmTree.Kind.STRING_LITERAL).hasValue("val");
+    assertThat(stringProperty.value()).asStringLiteral().hasValue("val");
   }
 
   @ParameterizedTest
@@ -60,7 +59,7 @@ class StringLiteralTest {
     File tree = (File) parser.parse(code, null);
 
     Property stringProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(stringProperty.value()).isKind(ArmTree.Kind.STRING_LITERAL);
+    assertThat(stringProperty.value()).asStringLiteral();
   }
 
   @ParameterizedTest

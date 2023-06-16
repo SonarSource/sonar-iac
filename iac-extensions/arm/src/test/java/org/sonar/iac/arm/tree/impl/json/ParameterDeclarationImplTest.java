@@ -47,7 +47,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PARAMETER_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
-import static org.sonar.iac.arm.tree.api.ArmTree.Kind.STRING_LITERAL;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ParameterDeclarationImplTest {
@@ -160,7 +159,7 @@ class ParameterDeclarationImplTest {
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
     assertThat(parameter.identifier().value()).isEqualTo("exampleParam");
     assertThat(parameter.type()).isEqualTo(ParameterType.STRING);
-    assertThat(parameter.defaultValue()).isLiteral().hasValue("a").hasKind(STRING_LITERAL).hasRange(5, 28, 5, 31);
+    assertThat(parameter.defaultValue()).asStringLiteral().hasValue("a").hasRange(5, 28, 5, 31);
     assertThat(parameter.minValue()).hasValue(7);
     assertThat(parameter.maxValue()).hasValue(90);
     assertThat(parameter.minLength()).hasValue(1);
@@ -238,7 +237,7 @@ class ParameterDeclarationImplTest {
 
     assertThat(parameterString.identifier().value()).isEqualTo("string");
     assertThat(parameterString.type().name()).isEqualTo("STRING");
-    assertThat(parameterString.defaultValue()).isLiteral().hasValue("a");
+    assertThat(parameterString.defaultValue()).asStringLiteral().hasValue("a");
   }
 
   @Test
@@ -250,7 +249,7 @@ class ParameterDeclarationImplTest {
 
     assertThat(parameterInt.identifier().value()).isEqualTo("int");
     assertThat(parameterInt.type().name()).isEqualTo("INT");
-    assertThat(parameterInt.defaultValue()).isLiteral().hasValue(7);
+    assertThat(parameterInt.defaultValue()).asNumericLiteral().hasValue(7);
   }
 
   @Test
@@ -262,7 +261,7 @@ class ParameterDeclarationImplTest {
 
     assertThat(parameterArray.identifier().value()).isEqualTo("array");
     assertThat(parameterArray.type().name()).isEqualTo("ARRAY");
-    assertThat(parameterArray.defaultValue()).isArrayExpression().hasArrayExpressionValues("arr");
+    assertThat(parameterArray.defaultValue()).asArrayExpression().containsValuesExactly("arr");
   }
 
   @Test
@@ -274,7 +273,7 @@ class ParameterDeclarationImplTest {
 
     assertThat(parameterObject.identifier().value()).isEqualTo("object");
     assertThat(parameterObject.type().name()).isEqualTo("OBJECT");
-    assertThat(parameterObject.defaultValue()).isObjectExpression().hasObjectSize(1).hasObjectExpression("key", "value");
+    assertThat(parameterObject.defaultValue()).asObjectExpression().hasSize(1).containsKeyValue("key", "value");
   }
 
   @Test
