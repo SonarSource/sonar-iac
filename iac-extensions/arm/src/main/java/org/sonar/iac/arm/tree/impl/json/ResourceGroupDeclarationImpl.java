@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.HasResources;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
@@ -32,9 +31,9 @@ public class ResourceGroupDeclarationImpl extends ResourceDeclarationImpl implem
 
   private final List<ResourceDeclaration> childResources;
 
-  public ResourceGroupDeclarationImpl(@Nullable ResourceDeclaration parentResource, Identifier name, StringLiteral version, StringLiteral type, List<Property> properties,
+  public ResourceGroupDeclarationImpl(Identifier name, StringLiteral version, StringLiteral type, List<Property> properties,
     List<ResourceDeclaration> childResources) {
-    super(parentResource, name, version, type, properties);
+    super(name, version, type, properties);
     this.childResources = childResources;
   }
 

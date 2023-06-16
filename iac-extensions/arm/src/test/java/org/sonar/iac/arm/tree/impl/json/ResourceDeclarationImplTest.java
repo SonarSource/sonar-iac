@@ -281,7 +281,6 @@ class ResourceDeclarationImplTest {
     ResourceGroupDeclarationImpl parentResource = (ResourceGroupDeclarationImpl) tree.statements().get(0);
     assertThat(parentResource.name().value()).isEqualTo("parent resource");
     assertThat(parentResource.type()).hasValue("Microsoft.Network/networkSecurityGroups");
-    assertThat(parentResource.parentResource()).isNull();
     assertThat(parentResource.version()).hasValue("2022-11-01");
     assertThat(parentResource.properties()).isEmpty();
     assertThat(parentResource.childResources()).hasSize(1);
@@ -295,12 +294,13 @@ class ResourceDeclarationImplTest {
     ResourceDeclaration childResource = parentResource.childResources().get(0);
     assertThat(childResource.name().value()).isEqualTo("child resource");
     assertThat(childResource.type()).hasValue("securityRules");
-    assertThat(childResource.parentResource()).isEqualTo(parentResource);
     assertThat(childResource.version()).hasValue("2022-11-01");
     assertThat(childResource.properties()).hasSize(1);
     Property property = childResource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("attr");
     assertThat(property.value()).hasKind(STRING_LITERAL).hasValue("value");
+
+    assertThat(parentResource.childResources()).containsExactly(childResource);
 
     assertThat(tree.statements()).hasSize(1);
   }
@@ -337,7 +337,6 @@ class ResourceDeclarationImplTest {
     assertThat(parentResource.is(RESOURCE_GROUP_DECLARATION)).isTrue();
     assertThat(parentResource.name().value()).isEqualTo("parent resource");
     assertThat(parentResource.type()).hasValue("Microsoft.Network/networkSecurityGroups");
-    assertThat(parentResource.parentResource()).isNull();
     assertThat(parentResource.version()).hasValue("2022-11-01");
     assertThat(parentResource.properties()).isEmpty();
 
@@ -345,15 +344,16 @@ class ResourceDeclarationImplTest {
     assertThat(childResource.is(RESOURCE_GROUP_DECLARATION)).isTrue();
     assertThat(childResource.name().value()).isEqualTo("child resource");
     assertThat(childResource.type()).hasValue("securityRules");
-    assertThat(childResource.parentResource()).isEqualTo(parentResource);
     assertThat(childResource.version()).hasValue("2022-11-01");
 
     ResourceDeclaration innerChildResource = childResource.childResources().get(0);
     assertThat(innerChildResource.is(RESOURCE_DECLARATION)).isTrue();
     assertThat(innerChildResource.name().value()).isEqualTo("inner child resource");
     assertThat(innerChildResource.type()).hasValue("firewall");
-    assertThat(innerChildResource.parentResource()).isEqualTo(childResource);
     assertThat(innerChildResource.version()).hasValue("2022-11-01");
+
+    assertThat(parentResource.childResources()).containsExactly(childResource);
+    assertThat(childResource.childResources()).containsExactly(innerChildResource);
 
     assertThat(tree.statements()).hasSize(1);
   }

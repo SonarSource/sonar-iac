@@ -82,11 +82,11 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
         .filter(SequenceTree.class::isInstance)
         .map(SequenceTree.class::cast)
         .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
-        .map(m -> m.stream().map(mappingTree -> convertToResourceDeclaration(mappingTree, parentResource)).collect(Collectors.toList()))
+        .map(m -> m.stream().map(this::convertToResourceDeclaration).collect(Collectors.toList()))
         .orElse(Collections.emptyList());
-      return new ResourceGroupDeclarationImpl(parentResource, name, version, type, otherProperties, childResources);
+      return new ResourceGroupDeclarationImpl(name, version, type, otherProperties, childResources);
     } else {
-      return new ResourceDeclarationImpl(parentResource, name, version, type, otherProperties);
+      return new ResourceDeclarationImpl(name, version, type, otherProperties);
     }
   }
 }

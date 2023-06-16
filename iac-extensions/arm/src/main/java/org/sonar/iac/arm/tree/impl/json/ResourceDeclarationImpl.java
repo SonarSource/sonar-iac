@@ -21,8 +21,6 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -32,15 +30,12 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
-  @Nullable
-  private final ResourceDeclaration parentResource;
   private final Identifier name;
   private final StringLiteral version;
   private final StringLiteral type;
   private final List<Property> properties;
 
-  public ResourceDeclarationImpl(@Nullable ResourceDeclaration parentResource, Identifier name, StringLiteral version, StringLiteral type, List<Property> properties) {
-    this.parentResource = parentResource;
+  public ResourceDeclarationImpl(Identifier name, StringLiteral version, StringLiteral type, List<Property> properties) {
     this.name = name;
     this.version = version;
     this.type = type;
@@ -73,12 +68,6 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   public StringLiteral type() {
     return type;
-  }
-
-  @Override
-  @CheckForNull
-  public ResourceDeclaration parentResource() {
-    return parentResource;
   }
 
   @Override
