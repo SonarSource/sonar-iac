@@ -70,6 +70,7 @@
     <version.junit>5.8.1</version.junit>
     <version.assertj>3.23.1</version.assertj>
     <version.mockito>4.6.1</version.mockito>
+    <version.archunit>1.0.1</version.archunit>
     <version.snakeyaml>2.6</version.snakeyaml>
     <version.spotless>2.34.0</version.spotless>
     <gitRepositoryName>sonar-iac</gitRepositoryName>
@@ -190,6 +191,12 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${version.mockito}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tngtech.archunit</groupId>
+        <artifactId>archunit-junit5</artifactId>
+        <version>${version.archunit}</version>
         <scope>test</scope>
       </dependency>
 
