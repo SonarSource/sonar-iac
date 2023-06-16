@@ -20,16 +20,18 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.iac.common.api.tree.HasProperties;
 
 public interface ResourceDeclaration extends Statement, HasProperties {
+  @CheckForNull
+  ResourceDeclaration parentResource();
+
   Identifier name();
 
   StringLiteral version();
 
   StringLiteral type();
-
-  String fullType();
 
   List<Property> properties();
 }

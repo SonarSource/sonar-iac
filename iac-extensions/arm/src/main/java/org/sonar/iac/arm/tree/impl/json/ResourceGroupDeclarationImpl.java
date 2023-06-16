@@ -21,20 +21,20 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.GroupResourceDeclaration;
+import org.sonar.iac.arm.tree.api.HasResources;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class GroupResourceDeclarationImpl extends ResourceDeclarationImpl implements GroupResourceDeclaration {
+public class ResourceGroupDeclarationImpl extends ResourceDeclarationImpl implements HasResources {
 
   private final List<ResourceDeclaration> childResources;
 
-  public GroupResourceDeclarationImpl(Identifier name, StringLiteral version, StringLiteral type, @Nullable String parentType, List<Property> properties,
+  public ResourceGroupDeclarationImpl(@Nullable ResourceDeclaration parentResource, Identifier name, StringLiteral version, StringLiteral type, List<Property> properties,
     List<ResourceDeclaration> childResources) {
-    super(name, version, type, parentType, properties);
+    super(parentResource, name, version, type, properties);
     this.childResources = childResources;
   }
 
@@ -47,7 +47,7 @@ public class GroupResourceDeclarationImpl extends ResourceDeclarationImpl implem
 
   @Override
   public Kind getKind() {
-    return Kind.GROUP_RESOURCE_DECLARATION;
+    return Kind.RESOURCE_GROUP_DECLARATION;
   }
 
   @Override

@@ -28,7 +28,6 @@ import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.GroupResourceDeclaration;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -43,11 +42,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.ARRAY_EXPRESSION;
-import static org.sonar.iac.arm.tree.api.ArmTree.Kind.GROUP_RESOURCE_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_GROUP_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.STRING_LITERAL;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -277,12 +276,12 @@ class ResourceDeclarationImplTest {
       "}");
 
     File tree = (File) parser.parse(code, null);
-    assertThat(tree.statements().get(0).is(GROUP_RESOURCE_DECLARATION)).isTrue();
+    assertThat(tree.statements().get(0).is(RESOURCE_GROUP_DECLARATION)).isTrue();
 
-    GroupResourceDeclaration parentResource = (GroupResourceDeclaration) tree.statements().get(0);
+    ResourceGroupDeclarationImpl parentResource = (ResourceGroupDeclarationImpl) tree.statements().get(0);
     assertThat(parentResource.name().value()).isEqualTo("parent resource");
     assertThat(parentResource.type()).hasValue("Microsoft.Network/networkSecurityGroups");
-    assertThat(parentResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups");
+    assertThat(parentResource.parentResource()).isNull();
     assertThat(parentResource.version()).hasValue("2022-11-01");
     assertThat(parentResource.properties()).isEmpty();
     assertThat(parentResource.childResources()).hasSize(1);
@@ -296,7 +295,7 @@ class ResourceDeclarationImplTest {
     ResourceDeclaration childResource = parentResource.childResources().get(0);
     assertThat(childResource.name().value()).isEqualTo("child resource");
     assertThat(childResource.type()).hasValue("securityRules");
-    assertThat(childResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules");
+    assertThat(childResource.parentResource()).isEqualTo(parentResource);
     assertThat(childResource.version()).hasValue("2022-11-01");
     assertThat(childResource.properties()).hasSize(1);
     Property property = childResource.properties().get(0);
@@ -334,26 +333,26 @@ class ResourceDeclarationImplTest {
 
     File tree = (File) parser.parse(code, null);
 
-    GroupResourceDeclaration parentResource = (GroupResourceDeclaration) tree.statements().get(0);
-    assertThat(parentResource.is(GROUP_RESOURCE_DECLARATION)).isTrue();
+    ResourceGroupDeclarationImpl parentResource = (ResourceGroupDeclarationImpl) tree.statements().get(0);
+    assertThat(parentResource.is(RESOURCE_GROUP_DECLARATION)).isTrue();
     assertThat(parentResource.name().value()).isEqualTo("parent resource");
     assertThat(parentResource.type()).hasValue("Microsoft.Network/networkSecurityGroups");
-    assertThat(parentResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups");
+    assertThat(parentResource.parentResource()).isNull();
     assertThat(parentResource.version()).hasValue("2022-11-01");
     assertThat(parentResource.properties()).isEmpty();
 
-    GroupResourceDeclaration childResource = (GroupResourceDeclaration) parentResource.childResources().get(0);
-    assertThat(childResource.is(GROUP_RESOURCE_DECLARATION)).isTrue();
+    ResourceGroupDeclarationImpl childResource = (ResourceGroupDeclarationImpl) parentResource.childResources().get(0);
+    assertThat(childResource.is(RESOURCE_GROUP_DECLARATION)).isTrue();
     assertThat(childResource.name().value()).isEqualTo("child resource");
     assertThat(childResource.type()).hasValue("securityRules");
-    assertThat(childResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules");
+    assertThat(childResource.parentResource()).isEqualTo(parentResource);
     assertThat(childResource.version()).hasValue("2022-11-01");
 
     ResourceDeclaration innerChildResource = childResource.childResources().get(0);
     assertThat(innerChildResource.is(RESOURCE_DECLARATION)).isTrue();
     assertThat(innerChildResource.name().value()).isEqualTo("inner child resource");
     assertThat(innerChildResource.type()).hasValue("firewall");
-    assertThat(innerChildResource.fullType()).isEqualTo("Microsoft.Network/networkSecurityGroups/securityRules/firewall");
+    assertThat(innerChildResource.parentResource()).isEqualTo(childResource);
     assertThat(innerChildResource.version()).hasValue("2022-11-01");
 
     assertThat(tree.statements()).hasSize(1);

@@ -29,7 +29,7 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.impl.json.GroupResourceDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -66,7 +66,7 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
     return convertToResourceDeclaration(tree, null);
   }
 
-  public ResourceDeclaration convertToResourceDeclaration(MappingTree tree, @Nullable String parentType) {
+  public ResourceDeclaration convertToResourceDeclaration(MappingTree tree, @Nullable ResourceDeclaration parentResource) {
     StringLiteral type = toStringLiteralOrException(tree, "type");
     StringLiteral version = toStringLiteralOrException(tree, "apiVersion");
     Identifier name = toIdentifierOrException(tree, "name");
@@ -82,19 +82,11 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
         .filter(SequenceTree.class::isInstance)
         .map(SequenceTree.class::cast)
         .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
-        .map(m -> m.stream().map(mappingTree -> convertToResourceDeclaration(mappingTree, buildParentType(parentType, type))).collect(Collectors.toList()))
+        .map(m -> m.stream().map(mappingTree -> convertToResourceDeclaration(mappingTree, parentResource)).collect(Collectors.toList()))
         .orElse(Collections.emptyList());
-      return new GroupResourceDeclarationImpl(name, version, type, parentType, otherProperties, childResources);
+      return new ResourceGroupDeclarationImpl(parentResource, name, version, type, otherProperties, childResources);
     } else {
-      return new ResourceDeclarationImpl(name, version, type, parentType, otherProperties);
-    }
-  }
-
-  private static String buildParentType(@Nullable String parentType, StringLiteral type) {
-    if (parentType == null) {
-      return type.value();
-    } else {
-      return parentType + "/" + type.value();
+      return new ResourceDeclarationImpl(parentResource, name, version, type, otherProperties);
     }
   }
 }
