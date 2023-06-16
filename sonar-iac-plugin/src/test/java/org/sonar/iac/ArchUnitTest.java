@@ -45,9 +45,9 @@ public class ArchUnitTest {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
         boolean satisfied = javaClass.getConstructors().stream()
-          .anyMatch(constructor -> constructor.getModifiers().contains(JavaModifier.PUBLIC));
+          .allMatch(constructor -> constructor.getModifiers().contains(JavaModifier.PUBLIC));
         String message = javaClass.getDescription() + (satisfied ? " has" : " does not have")
-          + " a public constructor";
+          + " all public constructors";
         events.add(new SimpleConditionEvent(javaClass, satisfied, message));
       }
     });
