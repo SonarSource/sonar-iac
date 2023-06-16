@@ -48,6 +48,8 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
+import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
+
 public abstract class IacSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(IacSensor.class);
@@ -142,7 +144,7 @@ public abstract class IacSensor implements Sensor {
     if (cause instanceof RecognitionException) {
       position = inputFile.newPointer(((RecognitionException) cause).getLine(), 0);
     }
-    return ParseException.throwParseException(action, inputFile, cause, position);
+    return createGeneralParseException(action, inputFile, cause, position);
   }
 
   private boolean isActive(SensorContext sensorContext) {

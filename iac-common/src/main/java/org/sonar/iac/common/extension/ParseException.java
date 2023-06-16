@@ -23,21 +23,32 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public class ParseException extends RuntimeException {
 
   private final transient TextPointer position;
   private final transient String details;
 
-  public static ParseException throwParseException(String action, @Nullable InputFile inputFile, Exception cause, @Nullable TextPointer position) {
-    String message;
+  public static ParseException createGeneralParseException(String action, @Nullable InputFile inputFile, Exception cause, @Nullable TextPointer position) {
+    String message = String.format("Cannot %s '%s'", action, filenameAndPosition(inputFile, position));
+    return new ParseException(message, position, cause.getMessage());
+  }
+
+  public static ParseException createParseException(String message, @Nullable InputFileContext inputFileContext, @Nullable TextPointer position) {
+    if (inputFileContext != null) {
+      return new ParseException(message + " at " + filenameAndPosition(inputFileContext.inputFile, position), position, null);
+    }
+    return new ParseException(message + " at " + filenameAndPosition(null, position), position, null);
+  }
+
+  private static String filenameAndPosition(@Nullable InputFile inputFile, @Nullable TextPointer position) {
     String filename = inputFile != null ? inputFile.toString() : "null";
     if (position != null) {
-      message = String.format("Cannot %s '%s:%s:%s'", action, filename, position.line(), position.lineOffset() + 1);
+      return String.format("%s:%s:%s", filename, position.line(), position.lineOffset() + 1);
     } else {
-      message = String.format("Cannot %s '%s'", action, filename);
+      return filename;
     }
-    return new ParseException(message, position, cause.getMessage());
   }
 
   public ParseException(String message, @Nullable TextPointer position, @Nullable String details) {

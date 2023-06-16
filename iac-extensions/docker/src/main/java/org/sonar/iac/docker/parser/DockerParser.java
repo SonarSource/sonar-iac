@@ -36,6 +36,8 @@ import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
+import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
+
 public class DockerParser extends ActionParser<DockerTree> implements TreeParser<Tree> {
 
   private final DockerPreprocessor preprocessor = new DockerPreprocessor();
@@ -122,7 +124,7 @@ public class DockerParser extends ActionParser<DockerTree> implements TreeParser
         fixedException = new RecognitionException(correctedLineAndColumn[0], newErrorMessage, originalException.getCause());
       }
 
-      return ParseException.throwParseException("parse", inputFile, fixedException, position);
+      return createGeneralParseException("parse", inputFile, fixedException, position);
     }
 
     /**

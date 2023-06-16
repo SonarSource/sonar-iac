@@ -161,9 +161,10 @@ class ResourceDeclarationImplTest {
       "  ]",
       "}");
 
-    assertThatThrownBy(() -> parser.parse(code, null))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Couldn't convert properties: expecting object of class 'SequenceTreeImpl' to implement HasProperties");
+    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
+    assertThat(parseException).hasMessage("Couldn't convert properties: expecting object of class 'SequenceTreeImpl' to implement HasProperties at null:7:20");
+    assertThat(parseException.getPosition().line()).isEqualTo(7);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(19);
   }
 
   @ParameterizedTest
@@ -185,10 +186,10 @@ class ResourceDeclarationImplTest {
       "  ]",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing mandatory attribute '" + errorMessageComponents + "' at 3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute '" + errorMessageComponents + "' at null:3:4");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(4);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(3);
   }
 
   @Test

@@ -19,33 +19,29 @@
  */
 package org.sonar.iac.common.extension;
 
-import org.sonar.api.batch.fs.TextPointer;
+import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
-public class BasicTextPointer implements TextPointer {
-  private final int line;
-  private final int lineOffset;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public BasicTextPointer(int line, int lineOffset) {
-    this.line = line;
-    this.lineOffset = lineOffset;
+class BasicTextPointerTest {
+
+  @Test
+  void shouldCreateBasicTextPointerFromTextRange() {
+    TextRange range = TextRanges.range(2, 5, 10, 15);
+    BasicTextPointer textPointer = new BasicTextPointer(range);
+    assertThat(textPointer.line()).isEqualTo(2);
+    assertThat(textPointer.lineOffset()).isEqualTo(4);
   }
 
-  public BasicTextPointer(TextRange range) {
-    // The Yaml Parser returns lineOffset where first position is 1,
-    // but TextPointer expect that first position is 0 (zero).
-    this(range.start().line(), range.start().lineOffset() - 1);
-  }
+  @Test
+  void shouldCompareBasicTextPointers() {
+    BasicTextPointer pointer1 = new BasicTextPointer(1, 5);
+    BasicTextPointer pointer2 = new BasicTextPointer(3, 0);
 
-  public int line() {
-    return this.line;
-  }
-
-  public int lineOffset() {
-    return this.lineOffset;
-  }
-
-  public int compareTo(TextPointer o) {
-    return this.line == o.line() ? Integer.compare(this.lineOffset, o.lineOffset()) : Integer.compare(this.line, o.line());
+    assertThat(pointer1).isEqualByComparingTo(pointer1);
+    assertThat(pointer1.compareTo(pointer2)).isEqualTo(-1);
+    assertThat(pointer2.compareTo(pointer1)).isEqualTo(1);
   }
 }

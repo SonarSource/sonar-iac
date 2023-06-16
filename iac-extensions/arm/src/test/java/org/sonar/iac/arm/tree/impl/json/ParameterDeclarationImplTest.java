@@ -182,7 +182,7 @@ class ParameterDeclarationImplTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Couldn't convert 'allowedValues' into ArrayExpression at 5:29: expecting SequenceTree, got ScalarTreeImpl instead");
+      .hasMessage("Couldn't convert 'allowedValues' into ArrayExpression: expecting SequenceTree, got ScalarTreeImpl instead at null:5:29");
   }
 
   @Test
@@ -197,7 +197,7 @@ class ParameterDeclarationImplTest {
       "}");
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Failed to parse float value 'test' at 5:24");
+      .hasMessage("Failed to parse float value 'test at null:5:24");
   }
 
   @Test
