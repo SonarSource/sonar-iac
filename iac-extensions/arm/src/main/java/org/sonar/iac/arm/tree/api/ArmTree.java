@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -39,6 +40,7 @@ public interface ArmTree extends Tree {
     FILE(File.class),
     OUTPUT_DECLARATION(OutputDeclaration.class),
     PARAMETER_DECLARATION(ParameterDeclaration.class),
+    RESOURCE_GROUP_DECLARATION(ResourceGroupDeclarationImpl.class),
     RESOURCE_DECLARATION(ResourceDeclaration.class),
     VARIABLE_DECLARATION(VariableDeclaration.class),
     IDENTIFIER(Identifier.class),

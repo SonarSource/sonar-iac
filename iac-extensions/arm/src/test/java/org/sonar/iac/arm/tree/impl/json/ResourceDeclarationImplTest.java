@@ -46,6 +46,7 @@ import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
+import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_GROUP_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.STRING_LITERAL;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -252,5 +253,108 @@ class ResourceDeclarationImplTest {
     Property property = resource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("sourceAddressPrefixes");
     assertThat(property.value()).asArrayExpression().containsValuesExactly("0.0.0.0/0");
+  }
+
+  @Test
+  void shouldParseResourceWithChildResourcesInIt() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"name\": \"parent resource\",",
+      "      \"type\": \"Microsoft.Network/networkSecurityGroups\",",
+      "      \"apiVersion\": \"2022-11-01\",",
+      "      \"resources\": [",
+      "        {",
+      "          \"name\": \"child resource\",",
+      "          \"type\": \"securityRules\",",
+      "          \"apiVersion\": \"2022-11-01\",",
+      "          \"properties\": {\"attr\": \"value\"}",
+      "        }",
+      "      ]",
+      "    }",
+      "  ]",
+      "}");
+
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements().get(0).is(RESOURCE_GROUP_DECLARATION)).isTrue();
+
+    ResourceGroupDeclarationImpl parentResource = (ResourceGroupDeclarationImpl) tree.statements().get(0);
+    assertThat(parentResource.name().value()).isEqualTo("parent resource");
+    assertThat(parentResource.type()).hasValue("Microsoft.Network/networkSecurityGroups");
+    assertThat(parentResource.version()).hasValue("2022-11-01");
+    assertThat(parentResource.properties()).isEmpty();
+    assertThat(parentResource.childResources()).hasSize(1);
+    assertThat(parentResource.children()).hasSize(4);
+
+    assertThat(((ArmTree) parentResource.children().get(0)).is(IDENTIFIER)).isTrue();
+    assertThat(((ArmTree) parentResource.children().get(1)).is(STRING_LITERAL)).isTrue();
+    assertThat(((ArmTree) parentResource.children().get(2)).is(STRING_LITERAL)).isTrue();
+    assertThat(((ArmTree) parentResource.children().get(3)).is(RESOURCE_DECLARATION)).isTrue();
+
+    ResourceDeclaration childResource = parentResource.childResources().get(0);
+    assertThat(childResource.name().value()).isEqualTo("child resource");
+    assertThat(childResource.type()).hasValue("securityRules");
+    assertThat(childResource.version()).hasValue("2022-11-01");
+    assertThat(childResource.properties()).hasSize(1);
+    Property property = childResource.properties().get(0);
+    assertThat(property.key().value()).isEqualTo("attr");
+    assertThat(property.value()).asStringLiteral().hasValue("value");
+
+    assertThat(parentResource.childResources()).containsExactly(childResource);
+
+    assertThat(tree.statements()).hasSize(1);
+  }
+
+  @Test
+  void shouldParseResourceWithTwoInnerChildResource() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"name\": \"parent resource\",",
+      "      \"type\": \"Microsoft.Network/networkSecurityGroups\",",
+      "      \"apiVersion\": \"2022-11-01\",",
+      "      \"resources\": [",
+      "        {",
+      "          \"name\": \"child resource\",",
+      "          \"type\": \"securityRules\",",
+      "          \"apiVersion\": \"2022-11-01\",",
+      "          \"resources\": [",
+      "            {",
+      "              \"name\": \"inner child resource\",",
+      "              \"type\": \"firewall\",",
+      "              \"apiVersion\": \"2022-11-01\"",
+      "            }",
+      "          ]",
+      "        }",
+      "      ]",
+      "    }",
+      "  ]",
+      "}");
+
+    File tree = (File) parser.parse(code, null);
+
+    ResourceGroupDeclarationImpl parentResource = (ResourceGroupDeclarationImpl) tree.statements().get(0);
+    assertThat(parentResource.is(RESOURCE_GROUP_DECLARATION)).isTrue();
+    assertThat(parentResource.name().value()).isEqualTo("parent resource");
+    assertThat(parentResource.type()).hasValue("Microsoft.Network/networkSecurityGroups");
+    assertThat(parentResource.version()).hasValue("2022-11-01");
+    assertThat(parentResource.properties()).isEmpty();
+
+    ResourceGroupDeclarationImpl childResource = (ResourceGroupDeclarationImpl) parentResource.childResources().get(0);
+    assertThat(childResource.is(RESOURCE_GROUP_DECLARATION)).isTrue();
+    assertThat(childResource.name().value()).isEqualTo("child resource");
+    assertThat(childResource.type()).hasValue("securityRules");
+    assertThat(childResource.version()).hasValue("2022-11-01");
+
+    ResourceDeclaration innerChildResource = childResource.childResources().get(0);
+    assertThat(innerChildResource.is(RESOURCE_DECLARATION)).isTrue();
+    assertThat(innerChildResource.name().value()).isEqualTo("inner child resource");
+    assertThat(innerChildResource.type()).hasValue("firewall");
+    assertThat(innerChildResource.version()).hasValue("2022-11-01");
+
+    assertThat(parentResource.childResources()).containsExactly(childResource);
+    assertThat(childResource.childResources()).containsExactly(innerChildResource);
+
+    assertThat(tree.statements()).hasSize(1);
   }
 }

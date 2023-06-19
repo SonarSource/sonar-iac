@@ -21,6 +21,7 @@ package org.sonar.iac.arm.parser;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -28,6 +29,7 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -69,6 +71,23 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
       .map(this::toProperties)
       .orElse(Collections.emptyList());
 
+    return PropertyUtils.get(tree, "resources")
+      .map(childResources -> toResourceGroupDeclaration(type, version, name, otherProperties, childResources))
+      .orElseGet(() -> toResourceDeclaration(type, version, name, otherProperties));
+  }
+
+  private static ResourceDeclaration toResourceDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties) {
     return new ResourceDeclarationImpl(name, version, type, otherProperties);
+  }
+
+  private ResourceDeclaration toResourceGroupDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties,
+    PropertyTree childResourcesProperty) {
+    List<ResourceDeclaration> childResources = Optional.of(childResourcesProperty.value())
+      .filter(SequenceTree.class::isInstance)
+      .map(SequenceTree.class::cast)
+      .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
+      .map(m -> m.stream().map(this::convertToResourceDeclaration).collect(Collectors.toList()))
+      .orElse(Collections.emptyList());
+    return new ResourceGroupDeclarationImpl(name, version, type, otherProperties, childResources);
   }
 }
