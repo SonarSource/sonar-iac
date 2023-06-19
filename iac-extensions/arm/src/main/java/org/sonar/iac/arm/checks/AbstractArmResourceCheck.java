@@ -42,9 +42,6 @@ abstract class AbstractArmResourceCheck implements IacCheck {
 
   protected void provideResource(CheckContext ctx, ResourceDeclaration resource) {
     String resourceType = resource.type().value();
-    if (resourceConsumers.containsKey(resourceType)) {
-      resourceConsumers.get(resourceType).forEach(consumer -> consumer.accept(ctx, resource));
-    }
     processResource(ctx, resource, resourceType);
   }
 
