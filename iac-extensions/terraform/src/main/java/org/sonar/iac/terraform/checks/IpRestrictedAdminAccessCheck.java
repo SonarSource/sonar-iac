@@ -22,13 +22,12 @@ package org.sonar.iac.terraform.checks;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckBase;
 import org.sonar.iac.terraform.checks.aws.AwsIpRestrictedAdminAccessCheckPart;
 import org.sonar.iac.terraform.checks.azure.AzureIpRestrictedAdminAccessCheckPart;
 import org.sonar.iac.terraform.checks.gcp.GcpIpRestrictedAdminAccessCheckPart;
 
 @Rule(key = "S6321")
-public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBase implements IacCheck {
+public class IpRestrictedAdminAccessCheck implements IacCheck {
 
   public static final String SECONDARY_MSG = "Related protocol setting.";
 

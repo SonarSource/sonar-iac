@@ -22,9 +22,9 @@ package org.sonar.iac.common.checks;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckBase.rangeContainsSshOrRdpPort;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.rangeContainsSshOrRdpPort;
 
-class IpRestrictedAdminAccessCheckBaseTest {
+class IpRestrictedAdminAccessCheckUtilsTest {
 
   @Test
   void testSimplePort() {

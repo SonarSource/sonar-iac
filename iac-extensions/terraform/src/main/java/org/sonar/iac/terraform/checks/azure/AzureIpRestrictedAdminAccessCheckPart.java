@@ -26,16 +26,16 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
-import org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck;
 
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV4;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV6;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.MESSAGE;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV4;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV6;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
 
 public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck {
@@ -67,7 +67,7 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
 
   private static Optional<ExpressionTree> sensitiveDestinationPortRange(BlockTree rule) {
     Predicate<ExpressionTree> rangeContainsSensitivePort = range -> TextUtils.getValue(range)
-      .filter(IpRestrictedAdminAccessCheck::rangeContainsSshOrRdpPort).isPresent();
+      .filter(IpRestrictedAdminAccessCheckUtils::rangeContainsSshOrRdpPort).isPresent();
 
     return PropertyUtils.get(rule, "destination_port_range", AttributeTree.class)
       .map(AttributeTree::value)
