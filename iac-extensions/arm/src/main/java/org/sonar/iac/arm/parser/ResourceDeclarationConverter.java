@@ -80,11 +80,11 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
       .orElseGet(() -> toResourceDeclaration(type, version, name, otherProperties));
   }
 
-  private ResourceDeclaration toResourceDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties) {
+  private static ResourceDeclaration toResourceDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties) {
     return new ResourceDeclarationImpl(name, version, type, otherProperties);
   }
 
-  private ResourceDeclaration toResourceGroupDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties,
+  private static ResourceDeclaration toResourceGroupDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties,
     PropertyTree childResourcesProperty) {
     List<ResourceDeclaration> childResources = Optional.of(childResourcesProperty.value())
       .filter(SequenceTree.class::isInstance)
