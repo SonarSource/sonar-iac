@@ -33,7 +33,8 @@ public class IpRestrictedAdminAccessCheckUtils {
   public static final Set<String> SENSITIVE_PORTS = Set.of("*", String.valueOf(SSH_PORT), String.valueOf(RDP_PORT));
   private static final Pattern PORT_RANGE_PATTERN = Pattern.compile("^(?<from>\\d{1,5})-(?<to>\\d{1,5})$");
 
-  protected IpRestrictedAdminAccessCheckUtils() {
+  private IpRestrictedAdminAccessCheckUtils() {
+    // utils class
   }
 
   public static boolean rangeContainsSshOrRdpPort(String range) {
