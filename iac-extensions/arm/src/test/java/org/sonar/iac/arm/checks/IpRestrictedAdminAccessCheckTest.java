@@ -27,6 +27,8 @@ import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.Verifier;
 
+import static org.sonar.iac.arm.checks.ArmVerifier.issue;
+import static org.sonar.iac.arm.checks.ArmVerifier.secondary;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class IpRestrictedAdminAccessCheckTest {
@@ -144,17 +146,5 @@ class IpRestrictedAdminAccessCheckTest {
       issue(range(11, 18, 11, 33)),
       issue(range(32, 22, 32, 37)),
       issue(range(51, 18, 51, 55)));
-  }
-
-  private SecondaryLocation secondary(int startLine, int startOffset, int endLine, int endOffset, String message) {
-    return new SecondaryLocation(new TextRange(new TextPointer(startLine, startOffset), new TextPointer(endLine, endOffset)), message);
-  }
-
-  private Verifier.Issue issue(TextRange range) {
-    return new Verifier.Issue(range);
-  }
-
-  private Verifier.Issue issue(TextRange textRange, @Nullable String message, List<SecondaryLocation> secondaryLocations) {
-    return new Verifier.Issue(textRange, message, secondaryLocations);
   }
 }
