@@ -24,14 +24,14 @@ import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
-import org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV4;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV6;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.MESSAGE;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV4;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV6;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
@@ -40,7 +40,8 @@ public class GcpIpRestrictedAdminAccessCheckPart extends AbstractNewResourceChec
 
   private static final Set<String> SENSITIVE_PREFIXES = Set.of(ALL_IPV4, ALL_IPV6, "0::0/0", "::0/0");
 
-  private static final Predicate<ExpressionTree> RANGE_CONTAINS_SENSITIVE_PORTS = range -> TextUtils.matchesValue(range, IpRestrictedAdminAccessCheck::rangeContainsSshOrRdpPort)
+  private static final Predicate<ExpressionTree> RANGE_CONTAINS_SENSITIVE_PORTS = range -> TextUtils
+    .matchesValue(range, IpRestrictedAdminAccessCheckUtils::rangeContainsSshOrRdpPort)
     .isTrue();
 
   private static final Predicate<ExpressionTree> SENSITIVE_IP_RANGE = range -> TextUtils.matchesValue(range, SENSITIVE_PREFIXES::contains).isTrue();

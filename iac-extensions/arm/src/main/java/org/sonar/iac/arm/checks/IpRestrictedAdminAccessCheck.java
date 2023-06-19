@@ -40,10 +40,14 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckBase;
+import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils;
+
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV4;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV6;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
 
 @Rule(key = "S6321")
-public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBase implements IacCheck {
+public class IpRestrictedAdminAccessCheck implements IacCheck {
 
   private static final String SECURITY_RULES = "securityRules";
   private static final String PROPERTIES = "properties";
@@ -179,7 +183,7 @@ public class IpRestrictedAdminAccessCheck extends IpRestrictedAdminAccessCheckBa
 
     private boolean isSensitivePort(Tree tree) {
       return TextUtils.getValue(tree)
-        .filter(IpRestrictedAdminAccessCheckBase::rangeContainsSshOrRdpPort)
+        .filter(IpRestrictedAdminAccessCheckUtils::rangeContainsSshOrRdpPort)
         .isPresent();
     }
   }

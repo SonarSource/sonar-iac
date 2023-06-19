@@ -23,17 +23,17 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class IpRestrictedAdminAccessCheckBase {
+public class IpRestrictedAdminAccessCheckUtils {
 
   public static final String MESSAGE = "Restrict IP addresses authorized to access administration services.";
   public static final String ALL_IPV4 = "0.0.0.0/0";
   public static final String ALL_IPV6 = "::/0";
   public static final int SSH_PORT = 22;
   public static final int RDP_PORT = 3389;
-  protected static final Set<String> SENSITIVE_PORTS = Set.of("*", String.valueOf(SSH_PORT), String.valueOf(RDP_PORT));
+  public static final Set<String> SENSITIVE_PORTS = Set.of("*", String.valueOf(SSH_PORT), String.valueOf(RDP_PORT));
   private static final Pattern PORT_RANGE_PATTERN = Pattern.compile("^(?<from>\\d{1,5})-(?<to>\\d{1,5})$");
 
-  protected IpRestrictedAdminAccessCheckBase() {
+  protected IpRestrictedAdminAccessCheckUtils() {
   }
 
   public static boolean rangeContainsSshOrRdpPort(String range) {

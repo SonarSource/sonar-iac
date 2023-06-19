@@ -32,11 +32,11 @@ import org.sonar.iac.terraform.api.tree.PrefixExpressionTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
 
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV4;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.ALL_IPV6;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.MESSAGE;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV4;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV6;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
+import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.rangeContainsSshOrRdpPort;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
-import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.rangeContainsSshOrRdpPort;
 
 public class AwsIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck {
 
