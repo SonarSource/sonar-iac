@@ -27,6 +27,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.extension.ParseException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
@@ -41,6 +42,8 @@ class NullLiteralImplTest {
     assertThat(nullProperty.value())
       .isNullLiteral()
       .hasRange(LINE_OFFSET + 1, 14, LINE_OFFSET + 1, 18);
+    assertThat(nullProperty.value().getKind()).isEqualTo(ArmTree.Kind.NULL_LITERAL);
+    assertThat(nullProperty.value().children()).isEmpty();
   }
 
   @ParameterizedTest

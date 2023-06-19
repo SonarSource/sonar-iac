@@ -21,9 +21,10 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.parseProperty;
@@ -38,6 +39,10 @@ class ObjectExpressionImplTest {
       .asObjectExpression()
       .containsKeyValue("key", "val")
       .hasRange(LINE_OFFSET + 1, 16, LINE_OFFSET + 1, 27);
+    assertThat(objectProperty.value().getKind()).isEqualTo(ArmTree.Kind.OBJECT_EXPRESSION);
+    assertThat(objectProperty.value().children()).hasSize(2);
+    assertThat(((ArmTree) objectProperty.value().children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
+    assertThat(((ArmTree) objectProperty.value().children().get(1)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
   }
 
   @Test

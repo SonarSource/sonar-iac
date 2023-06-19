@@ -21,9 +21,11 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Property;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.parseProperty;
@@ -38,18 +40,20 @@ class ArrayExpressionImplTest {
       .asArrayExpression()
       .containsValuesExactly("val")
       .hasRange(LINE_OFFSET + 1, 14, LINE_OFFSET + 1, 21);
+    assertThat(arrayProperty.value().getKind()).isEqualTo(ArmTree.Kind.ARRAY_EXPRESSION);
+    assertThat(arrayProperty.value().children()).hasSize(1);
+    assertThat(((ArmTree) arrayProperty.value().children().get(0)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
   }
 
   @Test
   void shouldParseEmptyArrayExpression() {
     Property arrayProperty = parseProperty(parser, "\"array_prop\": []");
-    assertThat(arrayProperty.value()).asArrayExpression().containsValuesExactly();
+    assertThat(arrayProperty.value()).asArrayExpression().isEmpty();
   }
 
   @Test
   void shouldParseArrayExpressionFilledWithDifferentTypesOfValues() {
     Property arrayProperty = parseProperty(parser, "\"array_prop\": [\"val\", 5, {\"key\":\"val\"}, [\"val\"]]");
-    assertThat(arrayProperty.value()).asArrayExpression();
 
     ArrayExpression array = (ArrayExpression) arrayProperty.value();
     assertThat(array.elements().get(0)).asStringLiteral().hasValue("val");

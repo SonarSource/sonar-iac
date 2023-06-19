@@ -23,9 +23,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.extension.ParseException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
@@ -41,6 +43,8 @@ class NumericLiteralImplTest {
       .asNumericLiteral()
       .hasValue(7)
       .hasRange(LINE_OFFSET + 1, 11, LINE_OFFSET + 1, 12);
+    assertThat(numericProperty.value().getKind()).isEqualTo(ArmTree.Kind.NUMERIC_LITERAL);
+    assertThat(numericProperty.value().children()).isEmpty();
   }
 
   @ParameterizedTest

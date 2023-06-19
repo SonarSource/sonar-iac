@@ -37,4 +37,9 @@ public class ArrayExpressionAssert extends HasTextRangeAssert<ArrayExpressionAss
     }
     return this;
   }
+
+  public ArrayExpressionAssert isEmpty() {
+    Assertions.assertThat(actual.elements()).isEmpty();
+    return this;
+  }
 }
