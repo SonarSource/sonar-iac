@@ -24,18 +24,17 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -47,38 +46,42 @@ import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUti
 import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
 
 @Rule(key = "S6321")
-public class IpRestrictedAdminAccessCheck implements IacCheck {
-
-  private static final String SECURITY_RULES = "securityRules";
-  private static final String PROPERTIES = "properties";
-  private static final String NETWORK_SECURITY_GROUP = "networkSecurityGroup";
-  private static final String SUBNETS = "subnets";
-  private static final String SUBNET = "subnet";
+public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
   private static final String ARRAY_TOKEN = "*";
-  private static final Map<String, List<String>> PATH_PER_RESOURCE_TYPE = Map.of(
-    "Microsoft.Network/networkSecurityGroups/securityRules", List.of(),
-    "Microsoft.Network/networkSecurityGroup", List.of(SECURITY_RULES, ARRAY_TOKEN, PROPERTIES),
-    "Microsoft.Network/virtualNetworks/subnets", List.of(NETWORK_SECURITY_GROUP, PROPERTIES, SECURITY_RULES, ARRAY_TOKEN, PROPERTIES),
-    "Microsoft.Network/virtualNetworks", List.of(SUBNETS, ARRAY_TOKEN, PROPERTIES, NETWORK_SECURITY_GROUP, PROPERTIES, SECURITY_RULES, ARRAY_TOKEN, PROPERTIES),
-    "Microsoft.Network/networkInterfaces",
-    List.of("ipConfigurations", ARRAY_TOKEN, PROPERTIES, SUBNET, PROPERTIES, NETWORK_SECURITY_GROUP, PROPERTIES, SECURITY_RULES, ARRAY_TOKEN, PROPERTIES));
   private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", ALL_IPV4, ALL_IPV6, "Internet");
   private static final Set<String> SENSITIVE_PROTOCOL = Set.of("*", "TCP");
 
   @Override
-  public void initialize(InitContext init) {
-    init.register(ResourceDeclaration.class, (ctx, resource) -> {
-      List<String> path = PATH_PER_RESOURCE_TYPE.get(resource.type().value());
-      if (path != null) {
-        List<Tree> listProperties = resolveProperties(new LinkedList<>(path), resource);
-        for (Tree properties : listProperties) {
-          ResourceWithIpRestrictedAdminAccessChecker checker = new ResourceWithIpRestrictedAdminAccessChecker(resource, properties);
-          if (checker.isSensitive()) {
-            checker.reportIssue(ctx);
-          }
-        }
+  protected void registerResourceConsumer() {
+    register("Microsoft.Network/networkSecurityGroups/securityRules",
+      (ctx, resource) -> checkResourcePath(ctx, resource, Collections.emptyList()));
+
+    register("Microsoft.Network/networkSecurityGroup",
+      (ctx, resource) -> checkResourcePath(ctx, resource, propertyPath("securityRules/*/properties")));
+
+    register("Microsoft.Network/virtualNetworks/subnets",
+      (ctx, resource) -> checkResourcePath(ctx, resource, propertyPath("networkSecurityGroup/properties/securityRules/*/properties")));
+
+    register("Microsoft.Network/virtualNetworks",
+      (ctx, resource) -> checkResourcePath(ctx, resource, propertyPath("subnets/*/properties/networkSecurityGroup/properties/securityRules/*/properties")));
+
+    register("Microsoft.Network/networkInterfaces",
+      (ctx, resource) -> checkResourcePath(ctx, resource,
+        propertyPath("ipConfigurations/*/properties/subnet/properties/networkSecurityGroup/properties/securityRules/*/properties")));
+  }
+
+  private static void checkResourcePath(CheckContext ctx, ResourceDeclaration resource, List<String> path) {
+    List<Tree> listProperties = resolveProperties(new LinkedList<>(path), resource);
+    for (Tree properties : listProperties) {
+      ResourceWithIpRestrictedAdminAccessChecker checker = new ResourceWithIpRestrictedAdminAccessChecker(resource, properties);
+      if (checker.isSensitive()) {
+        checker.reportIssue(ctx);
       }
-    });
+    }
+  }
+
+  private static List<String> propertyPath(String path) {
+    return Stream.of(path.split("/")).collect(Collectors.toList());
   }
 
   /**
