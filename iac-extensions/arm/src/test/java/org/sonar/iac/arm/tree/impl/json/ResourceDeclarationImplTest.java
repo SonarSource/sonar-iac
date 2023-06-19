@@ -298,7 +298,7 @@ class ResourceDeclarationImplTest {
     assertThat(childResource.properties()).hasSize(1);
     Property property = childResource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("attr");
-    assertThat(property.value()).hasKind(STRING_LITERAL).hasValue("value");
+    assertThat(property.value()).asStringLiteral().hasValue("value");
 
     assertThat(parentResource.childResources()).containsExactly(childResource);
 

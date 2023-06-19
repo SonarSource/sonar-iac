@@ -63,10 +63,6 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
   }
 
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
-    return convertToResourceDeclaration(tree, null);
-  }
-
-  public ResourceDeclaration convertToResourceDeclaration(MappingTree tree, @Nullable ResourceDeclaration parentResource) {
     StringLiteral type = toStringLiteralOrException(tree, "type");
     StringLiteral version = toStringLiteralOrException(tree, "apiVersion");
     Identifier name = toIdentifierOrException(tree, "name");
