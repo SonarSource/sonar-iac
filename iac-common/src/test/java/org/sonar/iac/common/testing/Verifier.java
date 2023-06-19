@@ -44,6 +44,7 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.TreeContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -137,6 +138,22 @@ public final class Verifier {
     } catch (IOException e) {
       throw new IllegalStateException("Cannot read " + path, e);
     }
+  }
+
+  public static Issue issue(int startLine, int startColumn, int endLine, int endColumn) {
+    return new Issue(TextRanges.range(startLine, startColumn, endLine, endColumn));
+  }
+
+  public static Issue issue(TextRange range) {
+    return new Issue(range);
+  }
+
+  public static Issue issue(int startLine, int startColumn, int endLine, int endColumn, @Nullable String message, SecondaryLocation ... secondaryLocations) {
+    return new Issue(TextRanges.range(startLine, startColumn, endLine, endColumn), message, List.of(secondaryLocations));
+  }
+
+  public static Issue issue(TextRange textRange, @Nullable String message, SecondaryLocation ... secondaryLocations) {
+    return new Issue(textRange, message, List.of(secondaryLocations));
   }
 
   public static class TestContext extends TreeContext implements InitContext, CheckContext {

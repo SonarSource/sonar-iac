@@ -1,0 +1,46 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2021-04-01-preview",
+      "name": "Should raise issue for Enabled",
+      "properties": {
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2021-04-01-preview",
+      "name": "Should raise issue for EnabledForSessionHostsOnly",
+      "properties": {
+        "publicNetworkAccess": "EnabledForSessionHostsOnly"
+      }
+    },
+    {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2021-04-01-preview",
+      "name": "Should raise issue for EnabledForClientsOnly",
+      "properties": {
+        "publicNetworkAccess": "EnabledForClientsOnly"
+      }
+    },
+    {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2021-04-01-preview",
+      "name": "Should NOT raise issue for Disabled",
+      "properties": {
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2021-04-01-preview",
+      "name": "Should NOT raise issue for unknown value",
+      "properties": {
+        "publicNetworkAccess": "unknown"
+      }
+    }
+  ]
+}

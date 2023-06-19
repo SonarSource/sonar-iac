@@ -20,8 +20,9 @@
 package org.sonar.iac.common.api.checks;
 
 import java.util.Objects;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 public class SecondaryLocation {
 
@@ -42,12 +43,18 @@ public class SecondaryLocation {
     return new SecondaryLocation(tree, message);
   }
 
+  public static SecondaryLocation secondary(int startLine, int startOffset, int endLine, int endOffset, String message) {
+    return new SecondaryLocation(TextRanges.range(startLine, startOffset, endLine, endOffset), message);
+  }
+
   @Override
   public boolean equals(Object o) {
-    if (this == o)
+    if (this == o) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
+    }
     SecondaryLocation other = (SecondaryLocation) o;
     return this.textRange.equals(other.textRange) && Objects.equals(this.message, other.message);
   }
