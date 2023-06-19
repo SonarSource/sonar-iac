@@ -20,15 +20,15 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -56,17 +56,21 @@ public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
       (ctx, resource) -> checkResourcePath(ctx, resource, Collections.emptyList()));
 
     register("Microsoft.Network/networkSecurityGroup",
-      (ctx, resource) -> checkResourcePath(ctx, resource, propertyPath("securityRules/*/properties")));
+      checkResourcePath("securityRules/*/properties"));
 
     register("Microsoft.Network/virtualNetworks/subnets",
-      (ctx, resource) -> checkResourcePath(ctx, resource, propertyPath("networkSecurityGroup/properties/securityRules/*/properties")));
+      checkResourcePath("networkSecurityGroup/properties/securityRules/*/properties"));
 
     register("Microsoft.Network/virtualNetworks",
-      (ctx, resource) -> checkResourcePath(ctx, resource, propertyPath("subnets/*/properties/networkSecurityGroup/properties/securityRules/*/properties")));
+      checkResourcePath("subnets/*/properties/networkSecurityGroup/properties/securityRules/*/properties"));
 
     register("Microsoft.Network/networkInterfaces",
-      (ctx, resource) -> checkResourcePath(ctx, resource,
-        propertyPath("ipConfigurations/*/properties/subnet/properties/networkSecurityGroup/properties/securityRules/*/properties")));
+      checkResourcePath("ipConfigurations/*/properties/subnet/properties/networkSecurityGroup/properties/securityRules/*/properties"));
+  }
+
+  private static BiConsumer<CheckContext, ResourceDeclaration> checkResourcePath(String path) {
+    List<String> pathElements = Arrays.asList(path.split("/"));
+    return (ctx, resource) -> checkResourcePath(ctx, resource, pathElements);
   }
 
   private static void checkResourcePath(CheckContext ctx, ResourceDeclaration resource, List<String> path) {
@@ -77,10 +81,6 @@ public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
         checker.reportIssue(ctx);
       }
     }
-  }
-
-  private static List<String> propertyPath(String path) {
-    return Stream.of(path.split("/")).collect(Collectors.toList());
   }
 
   /**

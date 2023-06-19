@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Parent resource case 1 : parent/parent -> child",
+      "type": "Microsoft.Network/networkSecurityGroups", "apiVersion": "2022-11-01",
+      "resources": [
+        {
+          "name": "inner child",
+          "type": "securityRules", "apiVersion": "2022-11-01",
+          "properties": {
+            "direction" : "Inbound",
+            "access" : "Allow",
+            "protocol" : "TCP",
+            "destinationPortRange" : "*",
+            "sourceAddressPrefix": "*"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parent resource case 2 : parent -> parent 2 -> child",
+      "type": "Microsoft.Network", "apiVersion": "2022-11-01",
+      "resources": [
+        {
+          "name": "parent 2",
+          "type": "networkSecurityGroups", "apiVersion": "2022-11-01",
+          "resources": [
+            {
+              "name": "child",
+              "type": "securityRules", "apiVersion": "2022-11-01",
+              "properties": {
+                "direction" : "Inbound",
+                "access" : "Allow",
+                "protocol" : "TCP",
+                "destinationPortRange" : "*",
+                "sourceAddressPrefix": "*"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Parent resource case 3 : parent -> child/child",
+      "type": "Microsoft.Network", "apiVersion": "2022-11-01",
+      "resources": [
+        {
+          "name": "child/child",
+          "type": "networkSecurityGroups/securityRules", "apiVersion": "2022-11-01",
+          "properties": {
+            "direction" : "Inbound",
+            "access" : "Allow",
+            "protocol" : "TCP",
+            "destinationPortRange" : "*",
+            "sourceAddressPrefix": "*"
+          }
+        }
+      ]
+    }
+  ]
+}

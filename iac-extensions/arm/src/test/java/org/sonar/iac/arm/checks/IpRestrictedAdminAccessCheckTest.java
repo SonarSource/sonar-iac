@@ -138,6 +138,14 @@ class IpRestrictedAdminAccessCheckTest {
           secondary(23, 51, 23, 54, "Sensitive source address prefix"))));
   }
 
+  @Test
+  void testInnerChild() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/innerChilds/test.json", new IpRestrictedAdminAccessCheck(),
+      issue(range(11, 18, 11, 33)),
+      issue(range(32, 22, 32, 37)),
+      issue(range(51, 18, 51, 55)));
+  }
+
   private SecondaryLocation secondary(int startLine, int startOffset, int endLine, int endOffset, String message) {
     return new SecondaryLocation(new TextRange(new TextPointer(startLine, startOffset), new TextPointer(endLine, endOffset)), message);
   }
