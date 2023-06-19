@@ -19,20 +19,25 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.io.File;
 import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.iac.common.testing.AbstractCheckListTest;
 
-public class ArmCheckList {
 
-  private ArmCheckList() {
+class ArmCheckListTest extends AbstractCheckListTest {
+
+  @Override
+  protected List<Class<?>> checks() {
+    return ArmCheckList.checks();
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CertificateBasedAuthenticationCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class);
+  @Override
+  protected File checkClassDir() {
+    return new File("src/main/java/org/sonar/iac/arm/checks/");
+  }
+
+  @Override
+  protected boolean hasTodoCommentCheck() {
+    return false;
   }
 }
