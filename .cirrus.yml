@@ -89,7 +89,7 @@ only_sonarsource_qa: &ONLY_IF_SONARSOURCE_QA
 
 qa_task_filter_template: &QA_TASK_FILTER
   depends_on:
-    - Build (Linux)
+    - build
   <<: *ONLY_IF_SONARSOURCE_QA
 
 # ----------------------------------------------
@@ -97,7 +97,6 @@ qa_task_filter_template: &QA_TASK_FILTER
 # ----------------------------------------------
 
 build_task:
-  name: Build (Linux)
   <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
   env:
@@ -110,7 +109,6 @@ build_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 qa_os_win_task:
-  name: Build (Windows)
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_IF_SONARSOURCE_QA
   maven_cache:
@@ -121,7 +119,6 @@ qa_os_win_task:
     - mvn.cmd clean verify
 
 sca_scan_task:
-  name: Mend SCA
   <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
   <<: *ONLY_IF_SONARSOURCE_QA
@@ -138,7 +135,6 @@ sca_scan_task:
       path: "whitesource/**/*"
 
 qa_plugin_task:
-  name: Integration Test (Plugin)
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *MAVEN_CACHE
@@ -156,7 +152,6 @@ qa_plugin_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 qa_ruling_task:
-  name: Integration Test (Ruling)
   <<: *QA_TASK_FILTER
   <<: *LINUX_4_CPU_8G_JAVA_17
   <<: *MAVEN_CACHE
@@ -170,12 +165,10 @@ qa_ruling_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 promote_task:
-  name: Promote Artifact
   depends_on:
-    - Build (Linux)
-    - Integration Test (Ruling)
-    - Integration Test (Plugin)
-    - Mend SCA
+    - build
+    - qa_ruling
+    - qa_plugin
   <<: *ONLY_IF_SONARSOURCE_QA
   <<: *LINUX_1_CPU_1G
   <<: *MAVEN_CACHE
