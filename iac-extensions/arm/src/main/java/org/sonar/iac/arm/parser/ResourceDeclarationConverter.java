@@ -75,18 +75,22 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
       .map(this::toProperties)
       .orElse(Collections.emptyList());
 
-    Optional<PropertyTree> optChildResources = PropertyUtils.get(tree, "resources");
-    if (optChildResources.isPresent()) {
-      List<ResourceDeclaration> childResources = optChildResources
-        .map(PropertyTree::value)
-        .filter(SequenceTree.class::isInstance)
-        .map(SequenceTree.class::cast)
-        .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
-        .map(m -> m.stream().map(this::convertToResourceDeclaration).collect(Collectors.toList()))
-        .orElse(Collections.emptyList());
-      return new ResourceGroupDeclarationImpl(name, version, type, otherProperties, childResources);
-    } else {
-      return new ResourceDeclarationImpl(name, version, type, otherProperties);
-    }
+    return PropertyUtils.get(tree, "resources")
+      .map(childResources -> toResourceGroupDeclaration(type, version, name, otherProperties, childResources))
+      .orElseGet(() -> toResourceDeclaration(type, version, name, otherProperties));
+  }
+
+  private ResourceDeclaration toResourceDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties) {
+    return new ResourceDeclarationImpl(name, version, type, otherProperties);
+  }
+
+  private ResourceDeclaration toResourceGroupDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties, PropertyTree childResourcesProperty) {
+    List<ResourceDeclaration> childResources = Optional.of(childResourcesProperty.value())
+      .filter(SequenceTree.class::isInstance)
+      .map(SequenceTree.class::cast)
+      .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
+      .map(m -> m.stream().map(this::convertToResourceDeclaration).collect(Collectors.toList()))
+      .orElse(Collections.emptyList());
+    return new ResourceGroupDeclarationImpl(name, version, type, otherProperties, childResources);
   }
 }
