@@ -19,10 +19,24 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
+import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 public class PropertyTestUtils {
-  public static String getCode(String property) {
+
+  public static final int LINE_OFFSET = 7;
+
+  public static Property parseProperty(ArmParser parser, String property) {
+    String code = getCode(property);
+    File tree = (File) parser.parse(code, null);
+    return ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
+  }
+
+  private static String getCode(String property) {
     return code("{",
       "  \"resources\": [",
       "    {",
@@ -30,7 +44,7 @@ public class PropertyTestUtils {
       "      \"apiVersion\": \"2022-12-29\",",
       "      \"name\": \"myResource\",",
       "      \"properties\": {",
-      "        " + property,
+      property,
       "      }",
       "    }",
       "  ]",

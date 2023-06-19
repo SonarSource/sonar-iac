@@ -24,25 +24,26 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.extension.ParseException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.getCode;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.parseProperty;
 
 class NullLiteralImplTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
   void shouldParseNullValue() {
-    String code = getCode("\"null_value\": null");
-    File tree = (File) parser.parse(code, null);
-
-    Property nullProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(nullProperty.value()).isNullLiteral();
+    Property nullProperty = parseProperty(parser, "\"null_value\": null");
+    assertThat(nullProperty.value())
+      .isNullLiteral()
+      .hasRange(LINE_OFFSET + 1, 14, LINE_OFFSET + 1, 18);
+    assertThat(nullProperty.value().getKind()).isEqualTo(ArmTree.Kind.NULL_LITERAL);
+    assertThat(nullProperty.value().children()).isEmpty();
   }
 
   @ParameterizedTest
@@ -52,7 +53,6 @@ class NullLiteralImplTest {
     ""
   })
   void shouldFailOnInvalidNumericFormat(String nullValue) {
-    String code = getCode("\"invalid_null_value\": " + nullValue);
-    assertThatThrownBy(() -> parser.parse(code, null)).isInstanceOf(ParseException.class);
+    assertThatThrownBy(() -> parseProperty(parser, "\"invalid_null_value\": " + nullValue)).isInstanceOf(ParseException.class);
   }
 }

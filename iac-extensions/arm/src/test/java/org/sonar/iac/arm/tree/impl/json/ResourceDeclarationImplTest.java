@@ -226,36 +226,6 @@ class ResourceDeclarationImplTest {
   }
 
   @Test
-  void shouldParseResourceWithComplexProperties() {
-    String code = code("{",
-      "  \"resources\": [",
-      "    {",
-      "      \"name\": \"test with complex properties\",",
-      "      \"type\": \"Microsoft.Network/networkSecurityGroups/securityRules\",",
-      "      \"apiVersion\": \"2022-11-01\",",
-      "      \"properties\": {",
-      "        \"sourceAddressPrefixes\": [\"0.0.0.0/0\"]",
-      "      }",
-      "    }",
-      "  ]",
-      "}");
-
-    File tree = (File) parser.parse(code, null);
-    assertThat(tree.statements()).hasSize(1);
-    assertThat(tree.statements().get(0)).isInstanceOf(ResourceDeclaration.class);
-
-    ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resource.name().value()).isEqualTo("test with complex properties");
-    assertThat(resource.type()).hasValue("Microsoft.Network/networkSecurityGroups/securityRules");
-    assertThat(resource.version()).hasValue("2022-11-01");
-
-    assertThat(resource.properties()).hasSize(1);
-    Property property = resource.properties().get(0);
-    assertThat(property.key().value()).isEqualTo("sourceAddressPrefixes");
-    assertThat(property.value()).asArrayExpression().containsValuesExactly("0.0.0.0/0");
-  }
-
-  @Test
   void shouldParseResourceWithChildResourcesInIt() {
     String code = code("{",
       "  \"resources\": [",

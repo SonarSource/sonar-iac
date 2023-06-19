@@ -23,25 +23,28 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.extension.ParseException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.getCode;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
+import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.parseProperty;
 
 class NumericLiteralImplTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
   void shouldParseNumericValue() {
-    String code = getCode("\"numeric\": 7");
-    File tree = (File) parser.parse(code, null);
-
-    Property numericProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
-    assertThat(numericProperty.value()).asNumericLiteral().hasValue(7);
+    Property numericProperty = parseProperty(parser, "\"numeric\": 7");
+    assertThat(numericProperty.value())
+      .asNumericLiteral()
+      .hasValue(7)
+      .hasRange(LINE_OFFSET + 1, 11, LINE_OFFSET + 1, 12);
+    assertThat(numericProperty.value().getKind()).isEqualTo(ArmTree.Kind.NUMERIC_LITERAL);
+    assertThat(numericProperty.value().children()).isEmpty();
   }
 
   @ParameterizedTest
@@ -55,10 +58,7 @@ class NumericLiteralImplTest {
     "1.0E-2"
   })
   void shouldParseAllNumericFormat(String numeric) {
-    String code = getCode("\"numeric\": " + numeric);
-    File tree = (File) parser.parse(code, null);
-
-    Property numericProperty = ((ResourceDeclaration) tree.statements().get(0)).properties().get(0);
+    Property numericProperty = parseProperty(parser, "\"numeric\": " + numeric);
     assertThat(numericProperty.value()).asNumericLiteral();
   }
 
@@ -70,7 +70,6 @@ class NumericLiteralImplTest {
     "1'000"
   })
   void shouldFailOnInvalidNumericFormat(String numeric) {
-    String code = getCode("\"numeric\": " + numeric);
-    assertThatThrownBy(() -> parser.parse(code, null)).isInstanceOf(ParseException.class);
+    assertThatThrownBy(() -> parseProperty(parser, "\"numeric\": " + numeric)).isInstanceOf(ParseException.class);
   }
 }

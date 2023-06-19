@@ -20,55 +20,34 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.LINE_OFFSET;
 import static org.sonar.iac.arm.tree.impl.json.PropertyTestUtils.parseProperty;
 
-class StringLiteralTest {
+class ObjectExpressionImplTest {
   private final ArmParser parser = new ArmParser();
 
   @Test
-  void shouldParseStringValue() {
-    Property stringProperty = parseProperty(parser, "\"string_prop\": \"val\"");
-    assertThat(stringProperty.value())
-      .asStringLiteral()
-      .hasValue("val")
-      .hasRange(LINE_OFFSET + 1, 15, LINE_OFFSET + 1, 20);
-    assertThat(stringProperty.value().getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
-    assertThat(stringProperty.value().children()).isEmpty();
+  void shouldParseObjectExpression() {
+    Property objectProperty = parseProperty(parser, "\"object_prop\": {\"key\":\"val\"}");
+    assertThat(objectProperty.value())
+      .asObjectExpression()
+      .containsKeyValue("key", "val")
+      .hasRange(LINE_OFFSET + 1, 16, LINE_OFFSET + 1, 27);
+    assertThat(objectProperty.value().getKind()).isEqualTo(ArmTree.Kind.OBJECT_EXPRESSION);
+    assertThat(objectProperty.value().children()).hasSize(2);
+    assertThat(((ArmTree) objectProperty.value().children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
+    assertThat(((ArmTree) objectProperty.value().children().get(1)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "\"\"",
-    "\"with\\\" inside\"",
-    "\"\n\"",
-    "\"\t\"",
-    "\"3\"",
-    "\"null\"",
-    "\"true\""
-  })
-  void shouldParseValidString(String str) {
-    Property stringProperty = parseProperty(parser, "\"valid_string\": " + str);
-    assertThat(stringProperty.value()).asStringLiteral();
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "\"test",
-    "'test'",
-    "test"
-  })
-  void shouldFailOnInvalidString(String str) {
-    assertThatThrownBy(() -> parseProperty(parser, "\"invalid_string\": " + str)).isInstanceOf(ParseException.class);
+  @Test
+  void shouldParseEmptyObjectExpression() {
+    Property objectProperty = parseProperty(parser, "\"object_prop\": {}");
+    assertThat(objectProperty.value()).asObjectExpression().hasSize(0);
   }
 }
