@@ -148,11 +148,11 @@ public final class Verifier {
     return new Issue(range);
   }
 
-  public static Issue issue(int startLine, int startColumn, int endLine, int endColumn, @Nullable String message, SecondaryLocation ... secondaryLocations) {
+  public static Issue issue(int startLine, int startColumn, int endLine, int endColumn, @Nullable String message, SecondaryLocation... secondaryLocations) {
     return new Issue(TextRanges.range(startLine, startColumn, endLine, endColumn), message, List.of(secondaryLocations));
   }
 
-  public static Issue issue(TextRange textRange, @Nullable String message, SecondaryLocation ... secondaryLocations) {
+  public static Issue issue(TextRange textRange, @Nullable String message, SecondaryLocation... secondaryLocations) {
     return new Issue(textRange, message, List.of(secondaryLocations));
   }
 
