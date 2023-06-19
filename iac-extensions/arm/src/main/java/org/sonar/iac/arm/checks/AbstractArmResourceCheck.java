@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import org.sonar.iac.arm.tree.api.HasResources;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -43,6 +44,23 @@ abstract class AbstractArmResourceCheck implements IacCheck {
     String resourceType = resource.type().value();
     if (resourceConsumers.containsKey(resourceType)) {
       resourceConsumers.get(resourceType).forEach(consumer -> consumer.accept(ctx, resource));
+    }
+    processResource(ctx, resource, resourceType);
+  }
+
+  private void provideChildResources(CheckContext ctx, HasResources hasResource, String parentType) {
+    for (ResourceDeclaration resource : hasResource.childResources()) {
+      String resourceType = parentType + "/" + resource.type().value();
+      processResource(ctx, resource, resourceType);
+    }
+  }
+
+  private void processResource(CheckContext ctx, ResourceDeclaration resource, String resourceType) {
+    if (resourceConsumers.containsKey(resourceType)) {
+      resourceConsumers.get(resourceType).forEach(consumer -> consumer.accept(ctx, resource));
+    }
+    if (resource instanceof HasResources) {
+      provideChildResources(ctx, (HasResources) resource, resourceType);
     }
   }
 
