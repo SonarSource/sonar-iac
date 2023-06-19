@@ -128,10 +128,10 @@ class IpRestrictedAdminAccessCheckTest {
     ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkInterfaces/test.json", new IpRestrictedAdminAccessCheck(),
       issue(range(7, 14, 7, 51), "Restrict IP addresses authorized to access administration services.",
         secondary(19, 42, 19, 51, "Sensitive direction"),
-          secondary(20, 39, 20, 46, "Sensitive access"),
-          secondary(21, 41, 21, 46, "Sensitive protocol"),
-          secondary(22, 53, 22, 56, "Sensitive destination port range"),
-          secondary(23, 51, 23, 54, "Sensitive source address prefix")));
+        secondary(20, 39, 20, 46, "Sensitive access"),
+        secondary(21, 41, 21, 46, "Sensitive protocol"),
+        secondary(22, 53, 22, 56, "Sensitive destination port range"),
+        secondary(23, 51, 23, 54, "Sensitive source address prefix")));
   }
 
   @Test
@@ -141,6 +141,5 @@ class IpRestrictedAdminAccessCheckTest {
       issue(32, 22, 32, 37),
       issue(51, 18, 51, 55));
   }
-
 
 }
