@@ -41,6 +41,21 @@
       "properties": {
         "publicNetworkAccess": "unknown"
       }
+    },
+    {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2021-04-01-preview",
+      "name": "Should NOT raise issue for missing publicNetworkAccess",
+      "properties": {
+      }
+    },
+    {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2021-04-01-preview",
+      "name": "Should NOT raise issue for publicNetworkAccess as not StringLiteral",
+      "properties": {
+        "publicNetworkAccess": []
+      }
     }
   ]
 }
