@@ -22,7 +22,6 @@ package org.sonar.iac.arm.checks;
 import org.junit.jupiter.api.Test;
 
 import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class IpRestrictedAdminAccessCheckTest {
@@ -30,7 +29,7 @@ class IpRestrictedAdminAccessCheckTest {
   @Test
   void testSourceAddressPrefix() {
     ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/sourceAddressPrefix.json", new IpRestrictedAdminAccessCheck(),
-      issue(range(7, 14, 7, 69), "Restrict IP addresses authorized to access administration services.",
+      issue(7, 14, 7, 69, "Restrict IP addresses authorized to access administration services.",
         secondary(9, 22, 9, 31, "Sensitive direction"),
         secondary(10, 19, 10, 26, "Sensitive access"),
         secondary(11, 21, 11, 26, "Sensitive protocol"),
@@ -126,7 +125,7 @@ class IpRestrictedAdminAccessCheckTest {
   @Test
   void testResourceMicrosoftNetwork_networkInterfaces() {
     ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkInterfaces/test.json", new IpRestrictedAdminAccessCheck(),
-      issue(range(7, 14, 7, 51), "Restrict IP addresses authorized to access administration services.",
+      issue(7, 14, 7, 51, "Restrict IP addresses authorized to access administration services.",
         secondary(19, 42, 19, 51, "Sensitive direction"),
         secondary(20, 39, 20, 46, "Sensitive access"),
         secondary(21, 41, 21, 46, "Sensitive protocol"),

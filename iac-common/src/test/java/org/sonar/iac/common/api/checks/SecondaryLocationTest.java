@@ -67,6 +67,6 @@ class SecondaryLocationTest {
     SecondaryLocation location1 = SecondaryLocation.secondary(2, 5, 8, 12, "message");
     SecondaryLocation location2 = SecondaryLocation.secondary(2, 5, 8, 12, "message");
 
-    assertThat(location1).hasSameHashCodeAs(location2.hashCode());
+    assertThat(location1).hasSameHashCodeAs(location2);
   }
 }
