@@ -31,7 +31,6 @@ public class ArmCheckList {
     return List.of(
       CertificateBasedAuthenticationCheck.class,
       IpRestrictedAdminAccessCheck.class,
-      IpRestrictedAdminAccessCheck.class,
       ParsingErrorCheck.class,
       PublicNetworkAccessCheck.class);
   }
