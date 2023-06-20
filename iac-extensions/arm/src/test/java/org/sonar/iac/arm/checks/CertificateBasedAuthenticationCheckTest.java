@@ -43,4 +43,14 @@ class CertificateBasedAuthenticationCheckTest {
       issue(36, 12, 36, 45),
       issue(47, 21, 49, 11));
   }
+
+  @Test
+  void testRegistries() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ContainerRegistry_registries/registries_tokens.json", new CertificateBasedAuthenticationCheck(),
+      issue(16, 10, 20, 11, "This authentication method is not certificate-based. Make sure it is safe here."),
+      issue(30, 10, 31, 11, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here."),
+      issue(42, 23, 45, 9, "Omitting \"certificates\" disables certificate-based authentication. Make sure it is safe here."),
+      issue(53, 23, 54, 9),
+      issue(73, 14, 77, 15));
+  }
 }
