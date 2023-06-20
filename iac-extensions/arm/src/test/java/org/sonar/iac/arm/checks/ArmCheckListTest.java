@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.List;
 import org.sonar.iac.common.testing.AbstractCheckListTest;
 
-
 class ArmCheckListTest extends AbstractCheckListTest {
 
   @Override

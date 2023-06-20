@@ -1,0 +1,336 @@
+<p>Disabling certificate-based authentication can reduce an organization’s ability to react against attacks on its critical functions and data.</p>
+<p>Azure offers various authentication options to access resources: Anonymous connections, Basic authentication, password-based authentication, and
+certificate-based authentication.</p>
+<p>Choosing certificate-based authentication helps bring client/host trust by allowing the host to verify the client and vice versa. It cannot be
+forged or forwarded by a man-in-the-middle eavesdropper, and the certificate’s private key is never sent over the network so it’s harder to steal than
+a password.</p>
+<p>In case of a security incident, certificates help bring investigators traceability and allow security operations teams to react faster. For
+example, all compromised certificates could be revoked individually, or an issuing certificate could be revoked which causes all the certificates it
+issued to become untrusted.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This Azure resource is essential for the information system infrastructure. </li>
+  <li> This Azure resource is essential for mission-critical functions. </li>
+  <li> Compliance policies require access to this resource to be authenticated with certificates. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Enable certificate-based authentication.</p>
+<h2>Sensitive Code Example</h2>
+<p>Where the use of client certificates is controlled by a boolean value, such as:</p>
+<ul>
+  <li> <code>Microsoft.Web/sites</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-arm-template#siteproperties">clientCertEnabled</a> </li>
+  <li> <code>Microsoft.SignalRService/signalR</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.signalrservice/signalr?pivots=deployment-language-arm-template#signalrtlssettings">tls → clientCertEnabled</a> </li>
+  <li> <code>Microsoft.SignalRService/webPubSub</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.signalrservice/webpubsub?pivots=deployment-language-arm-template#webpubsubtlssettings-1">tls → clientCertEnabled</a> </li>
+  <li> <code>Microsoft.ApiManagement/service/gateways/hostnameConfigurations</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/gateways/hostnameconfigurations?pivots=deployment-language-arm-template#gatewayhostnameconfigurationcontractproperties">negotiateClientCertificate</a> </li>
+</ul>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.SignalRService/webPubSub",
+      "apiVersion": "2020-07-01-preview",
+      "name": "example",
+      "properties": {
+        "tls": {
+          "clientCertEnabled": false
+        }
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "name": "example",
+      "properties": {
+        "clientCertEnabled": false
+      }
+    }
+  ]
+}
+</pre>
+<p>Where the use of client certificates can be made optional, such as:</p>
+<ul>
+  <li> <code>Microsoft.Web/sites</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-arm-template#siteproperties">clientCertMode</a> </li>
+  <li> <code>Microsoft.App/containerApps</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps?pivots=deployment-language-arm-template#ingress">configuration →
+  ingress → clientCertificateMode</a> </li>
+</ul>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "name": "example",
+      "properties": {
+        "clientCertEnabled": true,
+        "clientCertMode": "Optional"
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-03-01",
+      "name": "example",
+      "properties": {
+        "ingress": {
+          "clientCertificateMode": "accept"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Where client certificates can be used to authenticate outbound requests, such as:</p>
+<ul>
+  <li> <code>Microsoft.DataFactory/factories/linkedservices</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.datafactory/factories/linkedservices?pivots=deployment-language-arm-template#httplinkedservicetypeproperties">typeProperties → authenticationType</a> where the request type is <code>Web</code> or <code>HttpServer</code> </li>
+  <li> <code>Microsoft.DataFactory/factories/pipelines</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.datafactory/factories/pipelines?pivots=deployment-language-arm-template#webactivityauthentication">activites → typeProperties → authentication → type</a> where the activity type is <code>WebActivity</code> or <code>WebHook</code> </li>
+  <li> <code>Microsoft.Scheduler/jobCollections/jobs</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.scheduler/jobcollections/jobs?pivots=deployment-language-arm-template#httprequest-1">action → request → authentication → type</a> </li>
+  <li> <code>Microsoft.Scheduler/jobCollections/jobs</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.scheduler/jobcollections/jobs?pivots=deployment-language-arm-template#joberroraction-1">action → errorAction → request → authentication → type</a> </li>
+</ul>
+<pre data-diff-id="5" data-diff-type="noncompliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "name": "example",
+      "properties": {
+        "type": "Web",
+        "typeProperties": {
+          "authenticationType": "Basic"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Where a list of permitted client certificates must be provided, such as:</p>
+<ul>
+  <li> <code>Microsoft.DocumentDB/cassandraClusters</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/cassandraclusters?pivots=deployment-language-arm-template#clusterresourceproperties-1">clientCertificates</a> </li>
+  <li> <code>Microsoft.Network/applicationGateways</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-arm-template#applicationgatewaypropertiesformat-1">trustedClientCertificates</a> </li>
+  <li> <code>Microsoft.ServiceFabric/clusters</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.servicefabric/clusters?pivots=deployment-language-arm-template#clusterproperties-1">clientCertificateCommonNames</a> or <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.servicefabric/clusters?pivots=deployment-language-arm-template#clusterproperties-1">clientCertificateThumbprints</a> </li>
+</ul>
+<pre data-diff-id="6" data-diff-type="noncompliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/cassandraClusters",
+      "apiVersion": "2021-10-15",
+      "name": "example",
+      "properties": {
+        "clientCertificates": []
+      }
+    }
+  ]
+}
+</pre>
+<p>Where a resouce can use both certificate-based and password-based authentication, such as:</p>
+<ul>
+  <li> <code>Microsoft.ContainerRegistry/registries/tokens</code> with <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries/tokens?pivots=deployment-language-arm-template#tokencredentialsproperties-1">credentials → certficates</a> and <code>credentials</code> → <code>passwords</code> </li>
+</ul>
+<pre data-diff-id="7" data-diff-type="noncompliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "name": "example",
+      "properties": {
+        "credentials": {
+          "passwords": [
+            {
+              "name": "password1"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>Where the use of client certificates is controlled by a boolean value:</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.SignalRService/webPubSub",
+      "apiVersion": "2020-07-01-preview",
+      "name": "example",
+      "properties": {
+        "tls": {
+          "clientCertEnabled": true
+        }
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "name": "example",
+      "properties": {
+        "clientCertEnabled": true,
+        "clientCertMode": "Required"
+      }
+    }
+  ]
+}
+</pre>
+<p>Where the use of client certificates can be made optional:</p>
+<pre data-diff-id="3" data-diff-type="compliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "name": "example",
+      "properties": {
+        "clientCertEnabled": true,
+        "clientCertMode": "Required"
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="4" data-diff-type="compliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-03-01",
+      "name": "example",
+      "properties": {
+        "ingress": {
+          "clientCertificateMode": "require"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Where client certificates can be used to authenticate outbound requests:</p>
+<pre data-diff-id="5" data-diff-type="compliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "name": "example",
+      "properties": {
+        "type": "Web",
+        "typeProperties": {
+          "authenticationType": "ClientCertificate"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Where a list of permitted client certificates must be provided:</p>
+<pre data-diff-id="6" data-diff-type="compliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/cassandraClusters",
+      "apiVersion": "2021-10-15",
+      "name": "example",
+      "properties": {
+        "clientCertificates": [
+          {
+            "pem": "[base64-encoded certificate]"
+          }
+        ]
+      }
+    }
+  ]
+}
+</pre>
+<p>Where a resouce can use both certificate-based and password-based authentication:</p>
+<pre data-diff-id="7" data-diff-type="compliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "name": "example",
+      "properties": {
+        "credentials": {
+          "certificates": [
+            {
+              "name": "certificate1",
+              "encodedPemCertificate": "[base64-encoded certificate]"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://learn.microsoft.com/en-us/azure/templates/">Azure Resource Manager templates</a> </li>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+</ul>
+
