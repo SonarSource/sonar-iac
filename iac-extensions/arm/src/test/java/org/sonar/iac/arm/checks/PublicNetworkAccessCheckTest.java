@@ -17,24 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.plugin;
+package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.checks.ArmVerifier.verify;
+import static org.sonar.iac.common.testing.Verifier.issue;
 
-class ArmProfileDefinitionTest {
+class PublicNetworkAccessCheckTest {
 
   @Test
-  void should_create_sonar_way_profile() {
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    ArmProfileDefinition definition = new ArmProfileDefinition();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("azureresourcemanager", "Sonar way");
-    assertThat(profile.language()).isEqualTo("azureresourcemanager");
-    assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSize(2);
+  void shouldCheckPublicNetworkAccess() {
+    verify("PublicNetworkAccessCheckTest/Microsoft.Desktop_hostPools/test.json",
+      new PublicNetworkAccessCheck(),
+      issue(10, 31, 10, 40, "Make sure allowing public network access is safe here."),
+      issue(18, 31, 18, 59),
+      issue(26, 31, 26, 54));
   }
 }

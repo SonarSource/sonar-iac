@@ -19,20 +19,18 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
-import static org.sonar.iac.arm.checks.ArmVerifier.issue;
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.testing.Verifier.issue;
 
 class CertificateBasedAuthenticationCheckTest {
 
   @Test
   void testHostnameConfigurations() {
     ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ApiManagement_service_gateways_hostnameConfigurations/test.json", new CertificateBasedAuthenticationCheck(),
-      issue(range(7, 14, 7, 79), "Omitting \"negotiateClientCertificate\" disables certificate-based authentication. Make sure it is safe here.", Collections.emptyList()),
-      issue(range(16, 39, 16, 44), "Make sure that disabling certificate-based authentication is safe here.", Collections.emptyList()),
-      issue(range(21, 14, 21, 79)),
-      issue(range(34, 43, 34, 48)));
+      issue(7, 14, 7, 79, "Omitting \"negotiateClientCertificate\" disables certificate-based authentication. Make sure it is safe here."),
+      issue(16, 39, 16, 44, "Make sure that disabling certificate-based authentication is safe here."),
+      issue(21, 14, 21, 79),
+      issue(34, 43, 34, 48));
   }
 }

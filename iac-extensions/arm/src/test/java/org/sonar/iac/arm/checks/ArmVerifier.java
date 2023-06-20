@@ -21,14 +21,9 @@ package org.sonar.iac.arm.checks;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.common.api.checks.IacCheck;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextPointer;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.testing.Verifier;
 
@@ -48,17 +43,5 @@ public class ArmVerifier {
 
   public static void verifyNoIssue(String fileName, IacCheck check) {
     Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
-  }
-
-  public static Verifier.Issue issue(TextRange range) {
-    return new Verifier.Issue(range);
-  }
-
-  public static Verifier.Issue issue(TextRange textRange, @Nullable String message, List<SecondaryLocation> secondaryLocations) {
-    return new Verifier.Issue(textRange, message, secondaryLocations);
-  }
-
-  public static SecondaryLocation secondary(int startLine, int startOffset, int endLine, int endOffset, String message) {
-    return new SecondaryLocation(new TextRange(new TextPointer(startLine, startOffset), new TextPointer(endLine, endOffset)), message);
   }
 }
