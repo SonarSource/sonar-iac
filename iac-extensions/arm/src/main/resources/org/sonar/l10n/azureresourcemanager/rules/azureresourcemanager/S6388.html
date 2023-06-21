@@ -1,0 +1,1256 @@
+<p>Using unencrypted cloud storages can lead to data exposure. In the case that adversaries gain physical access to the storage medium they are able
+to access unencrypted information.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The service contains sensitive information that could cause harm when leaked. </li>
+  <li> There are compliance requirements for the service to store data encrypted. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It’s recommended to encrypt cloud storages that contain sensitive information.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.azurearcdata/sqlserverinstances/databases">Microsoft.AzureArcData/sqlServerInstances/databases</a>:</p>
+<p>Disabled encryption on SQL service instance database:</p>
+<pre data-diff-id="1201" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.AzureArcData/sqlServerInstances/databases",
+      "apiVersion": "2023-03-15-preview",
+      "properties": {
+        "databaseOptions": {
+          "isEncrypted": false
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/snapshots">Microsoft.Compute/snapshots</a>:</p>
+<p>Disabled disk encryption with settings collection:</p>
+<pre data-diff-id="402" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "properties": {
+        "encryptionSettingsCollection": {
+          "enabled": false
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines">Microsoft.Compute/virtualMachines</a>:</p>
+<p>Disabled encryption at host level:</p>
+<pre data-diff-id="101" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "securityProfile": {
+          "encryptionAtHost": false
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Disabled encryption for managed disk:</p>
+<pre data-diff-id="102" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "storageProfile": {
+          "dataDisks": [
+            {
+              "id": "myDiskId",
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Disabled encryption for OS disk:</p>
+<pre data-diff-id="104" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "storageProfile": {
+          "osDisk": {
+            "encryptionSettings": {
+              "enabled": false
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Disabled encryption for OS managed disk:</p>
+<pre data-diff-id="105" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "storageProfile": {
+          "osDisk": {
+            "managedDisk": {
+              "id": "myDiskId",
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachinescalesets/virtualmachines">Microsoft.Compute/virtualMachineScaleSets</a>:</p>
+<p>Disabled encryption at host level:</p>
+<pre data-diff-id="201" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "virtualMachineProfile": {
+          "securityProfile": {
+            "encryptionAtHost": false
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Disabled encryption for data disk:</p>
+<pre data-diff-id="202" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "dataDisks": [
+              {
+                "name": "myDataDisk"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Disabled encryption for OS disk:</p>
+<pre data-diff-id="204" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "name": "myOsDisk"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/managedclusters">Microsoft.ContainerService/managedClusters</a>:</p>
+<p>Disabled encryption at host and set the disk encryption set ID:</p>
+<pre data-diff-id="1101" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "agentPoolProfiles": [
+          {
+            "enableEncryptionAtHost": false
+          }
+        ]
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.datalakestore/accounts">Microsoft.DataLakeStore/accounts</a>:</p>
+<p>Disabled encryption for Data Lake Store:</p>
+<pre data-diff-id="501" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2016-11-01",
+      "properties": {
+        "encryptionState": "Disabled"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformysql/servers">Microsoft.DBforMySQL/servers</a>:</p>
+<p>Disabled infrastructure double encryption for MySQL server:</p>
+<pre data-diff-id="601" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DBforMySQL/servers",
+      "apiVersion": "2017-12-01",
+      "properties": {
+        "infrastructureEncryption": "Disabled"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/2017-12-01/servers">Microsoft.DBforPostgreSQL/servers</a>:</p>
+<p>Disabled infrastructure double encryption for PostgreSQL server:</p>
+<pre data-diff-id="701" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DBforPostgreSQL/servers",
+      "apiVersion": "2017-12-01",
+      "properties": {
+        "infrastructureEncryption": "Disabled"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/fr-fr/azure/templates/microsoft.documentdb/cassandraclusters/datacenters">Microsoft.DocumentDB/cassandraClusters/dataCenters</a>:</p>
+<p>Disabled encryption for a Cassandra Cluster datacenter’s managed disk and backup:</p>
+<pre data-diff-id="901" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/cassandraClusters/dataCenters",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "diskCapacity": 4
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.hdinsight/clusters">Microsoft.HDInsight/clusters</a>:</p>
+<p>Disabled encryption for data disk:</p>
+<pre data-diff-id="1301" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "computeProfile": {
+          "roles": [
+            {
+              "encryptDataDisks": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Disabled encryption for data disk at application level:</p>
+<pre data-diff-id="1302" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.HDInsight/clusters/applications",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "computeProfile": {
+          "roles": [
+            {
+              "encryptDataDisks": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Disabled encryption for resource disk:</p>
+<pre data-diff-id="1303" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "diskEncryptionProperties": {
+          "encryptionAtHost": false
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.kusto/clusters">Microsoft.Kusto/clusters</a>:</p>
+<p>Disabled encryption for disk:</p>
+<pre data-diff-id="1401" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Kusto/clusters",
+      "apiVersion": "2022-12-29",
+      "properties": {
+        "enableDiskEncryption": false
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults">Microsoft.RecoveryServices/vaults</a>:</p>
+<p>Disabled encryption for disk:</p>
+<pre data-diff-id="1501" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "encryption": {
+          "infrastructureEncryption": "Disabled"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Disabled encryption on infastructure for backup:</p>
+<pre data-diff-id="1502" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.RecoveryServices/vaults/backupEncryptionConfigs",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "infrastructureEncryptionState": "Disabled"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.redhatopenshift/openshiftclusters">Microsoft.RedHatOpenShift/openShiftClusters</a>:</p>
+<p>Disabled disk encryption for master profile and worker profiles:</p>
+<pre data-diff-id="1601" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.RedHatOpenShift/openShiftClusters",
+      "apiVersion": "2022-09-04",
+      "properties": {
+        "masterProfile": {
+          "encryptionAtHost": "Disabled"
+        },
+        "workerProfiles": [
+          {
+            "encryptionAtHost": "Disabled"
+          }
+        ]
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sqlvirtualmachine/sqlvirtualmachines">Microsoft.SqlVirtualMachine/sqlVirtualMachines</a>:</p>
+<p>Disabled encryption for SQL Virtual Machine:</p>
+<pre data-diff-id="801" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.SqlVirtualMachine/sqlVirtualMachines",
+      "apiVersion": "2022-08-01-preview",
+      "properties": {
+        "autoBackupSettings": {
+          "enableEncryption": false
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts">Microsoft.Storage/storageAccounts</a>:</p>
+<p>Disabled enforcing of infrastructure encryption for double encryption of data:</p>
+<pre data-diff-id="1001" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "encryption": {
+          "requireInfrastructureEncryption": false
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts/encryptionscopes?pivots=deployment-language-bicep">Microsoft.Storage/storageAccounts/encryptionScopes</a>:</p>
+<p>Disabled enforcing of infrastructure encryption for double encryption of data at encryption scope level:</p>
+<pre data-diff-id="1002" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts/encryptionScopes",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "requireInfrastructureEncryption": false
+      }
+    }
+  ]
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.azurearcdata/sqlserverinstances/databases">Microsoft.AzureArcData/sqlServerInstances/databases</a>:</p>
+<p>Enabled encryption on SQL service instance database:</p>
+<pre data-diff-id="1201" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.AzureArcData/sqlServerInstances/databases",
+      "apiVersion": "2023-03-15-preview",
+      "properties": {
+        "databaseOptions": {
+          "isEncrypted": true
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/disks">Microsoft.Compute/disks</a>:</p>
+<p>Enabled encryption for managed disk:</p>
+<pre data-diff-id="301" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "properties": {
+        "encryption": {
+          "diskEncryptionSetId": "string",
+          "type": "string"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption through setting <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/disks?pivots=deployment-language-arm-template#encryptionsettingscollection-1">encryptionSettingsCollection</a>:</p>
+<pre data-diff-id="302" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "properties": {
+        "encryptionSettingsCollection": {
+          "enabled": true,
+          "encryptionSettings": [
+            {
+              "diskEncryptionKey": {
+                "secretUrl": "string",
+                "sourceVault": {
+                  "id": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption through a security profile for an OS disk:</p>
+<pre data-diff-id="303" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "properties": {
+        "securityProfile": {
+          "secureVMDiskEncryptionSetId": "string",
+          "securityType": "{'ConfidentialVM_DiskEncryptedWithCustomerKey' | 'ConfidentialVM_DiskEncryptedWithPlatformKey' | 'ConfidentialVM_VMGuestStateOnlyEncryptedWithPlatformKey' | 'TrustedLaunch'}"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/snapshots">Microsoft.Compute/snapshots</a>:</p>
+<p>Enabled disk encryption for snapshot:</p>
+<pre data-diff-id="401" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "properties": {
+        "encryption": {
+          "diskEncryptionSetId": "string",
+          "type": "{'EncryptionAtRestWithCustomerKey' | 'EncryptionAtRestWithPlatformAndCustomerKeys' | 'EncryptionAtRestWithPlatformKey'}"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled disk encryption with settings collection:</p>
+<pre data-diff-id="402" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "properties": {
+        "encryptionSettingsCollection": {
+          "enabled": true,
+          "encryptionSettings": [
+            {
+              "diskEncryptionKey": {
+                "secretUrl": "",
+                "sourceVault": {
+                  "id": "string"
+                }
+              }
+            }
+          ],
+          "encryptionSettingsVersion": "{'1.0' | '1.1'}"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled disk encryption through security profile:</p>
+<pre data-diff-id="403" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "properties": {
+        "securityProfile": {
+          "secureVMDiskEncryptionSetId": "string",
+          "securityType": "{'ConfidentialVM_DiskEncryptedWithCustomerKey' | 'ConfidentialVM_DiskEncryptedWithPlatformKey' | 'ConfidentialVM_VMGuestStateOnlyEncryptedWithPlatformKey' |'TrustedLaunch'}"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines">Microsoft.Compute/virtualMachines</a>:</p>
+<p>Enabled encryption at host level:</p>
+<pre data-diff-id="101" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "securityProfile": {
+          "encryptionAtHost": true
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for managed disk:</p>
+<pre data-diff-id="102" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "storageProfile": {
+          "dataDisks": [
+            {
+              "id": "myDiskId",
+              "managedDisk": {
+                "diskEncryptionSet": {
+                  "id": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for managed disk through security profile:</p>
+<pre data-diff-id="103" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "storageProfile": {
+          "dataDisks": [
+            {
+              "id": "myDiskId",
+              "managedDisk": {
+                "securityProfile": {
+                  "diskEncryptionSet": {
+                    "id": "string"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for OS disk:</p>
+<pre data-diff-id="104" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "storageProfile": {
+          "osDisk": {
+            "encryptionSettings": {
+              "enabled": true,
+              "diskEncryptionKey": {
+                "secretUrl": "string",
+                "sourceVault": {
+                  "id": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for OS managed disk:</p>
+<pre data-diff-id="105" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "storageProfile": {
+          "osDisk": {
+            "managedDisk": {
+              "id": "myDiskId",
+              "diskEncryptionSet": {
+                "id": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for OS managed disk through security profile:</p>
+<pre data-diff-id="106" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "storageProfile": {
+          "osDisk": {
+            "managedDisk": {
+              "securityProfile": {
+                "diskEncryptionSet": {
+                  "id": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachinescalesets/virtualmachines">Microsoft.Compute/virtualMachineScaleSets</a>:</p>
+<p>Enabled encryption at host level:</p>
+<pre data-diff-id="201" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "virtualMachineProfile": {
+          "securityProfile": {
+            "encryptionAtHost": true
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for data disk:</p>
+<pre data-diff-id="202" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "dataDisks": [
+              {
+                "name": "myDataDisk",
+                "managedDisk": {
+                  "diskEncryptionSet": {
+                    "id": "string"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for data disk through security profile:</p>
+<pre data-diff-id="203" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "dataDisks": [
+              {
+                "name": "myDataDisk",
+                "managedDisk": {
+                  "securityProfile": {
+                    "diskEncryptionSet": {
+                      "id": "string"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for OS disk:</p>
+<pre data-diff-id="204" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "name": "myOsDisk",
+              "managedDisk": {
+                "diskEncryptionSet": {
+                  "id": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for OS disk through security profile:</p>
+<pre data-diff-id="205" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "name": "myOsDisk",
+              "managedDisk": {
+                "securityProfile": {
+                  "diskEncryptionSet": {
+                    "id": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/managedclusters">Microsoft.ContainerService/managedClusters</a>:</p>
+<p>Enabled encryption at host and set the disk encryption set ID:</p>
+<pre data-diff-id="1101" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "agentPoolProfiles": [
+          {
+            "enableEncryptionAtHost": true
+          }
+        ]
+        "diskEncryptionSetID": "string"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.datalakestore/accounts">Microsoft.DataLakeStore/accounts</a>:</p>
+<p>Enabled encryption for Data Lake Store:</p>
+<pre data-diff-id="501" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2016-11-01",
+      "properties": {
+        "encryptionState": "Enabled"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformysql/servers">Microsoft.DBforMySQL/servers</a>:</p>
+<p>Enabled infrastructure double encryption for MySQL server:</p>
+<pre data-diff-id="601" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DBforMySQL/servers",
+      "apiVersion": "2017-12-01",
+      "properties": {
+        "infrastructureEncryption": "Enabled"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/2017-12-01/servers">Microsoft.DBforPostgreSQL/servers</a>:</p>
+<p>Enabled infrastructure double encryption for PostgreSQL server:</p>
+<pre data-diff-id="701" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DBforPostgreSQL/servers",
+      "apiVersion": "2017-12-01",
+      "properties": {
+        "infrastructureEncryption": "Enabled"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/fr-fr/azure/templates/microsoft.documentdb/cassandraclusters/datacenters">Microsoft.DocumentDB/cassandraClusters/dataCenters</a>:</p>
+<p>Enabled encryption for a Cassandra Cluster datacenter’s managed disk and backup:</p>
+<pre data-diff-id="901" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/cassandraClusters/dataCenters",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "diskCapacity": 4,
+        "backupStorageCustomerKeyUri": "string",
+        "managedDiskCustomerKeyUri": "string"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.hdinsight/clusters">Microsoft.HDInsight/clusters</a>:</p>
+<p>Enabled encryption for data disk:</p>
+<pre data-diff-id="1301" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "computeProfile": {
+          "roles": [
+            {
+              "encryptDataDisks": true
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for data disk at application level:</p>
+<pre data-diff-id="1302" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.HDInsight/clusters/applications",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "computeProfile": {
+          "roles": [
+            {
+              "encryptDataDisks": true
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption for resource disk:</p>
+<pre data-diff-id="1303" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "diskEncryptionProperties": {
+          "encryptionAtHost": true
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.kusto/clusters">Microsoft.Kusto/clusters</a>:</p>
+<p>Enabled encryption for disk:</p>
+<pre data-diff-id="1401" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Kusto/clusters",
+      "apiVersion": "2022-12-29",
+      "properties": {
+        "enableDiskEncryption": true
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults">Microsoft.RecoveryServices/vaults</a>:</p>
+<p>Enabled encryption on infrastructure:</p>
+<pre data-diff-id="1501" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "encryption": {
+          "infrastructureEncryption": "Enabled"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>Enabled encryption on infastructure for backup:</p>
+<pre data-diff-id="1502" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.RecoveryServices/vaults/backupEncryptionConfigs",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "encryptionAtRestType": "{'CustomerManaged' | 'MicrosoftManaged'}",
+        "infrastructureEncryptionState": "Enabled"
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.redhatopenshift/openshiftclusters">Microsoft.RedHatOpenShift/openShiftClusters</a>:</p>
+<p>Enabled disk encryption for master profile and worker profiles:</p>
+<pre data-diff-id="1601" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.RedHatOpenShift/openShiftClusters",
+      "apiVersion": "2022-09-04",
+      "properties": {
+        "masterProfile": {
+          "diskEncryptionSetId": "string",
+          "encryptionAtHost": "Enabled"
+        },
+        "workerProfiles": [
+          {
+            "diskEncryptionSetId": "string",
+            "encryptionAtHost": "Enabled"
+          }
+        ]
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sqlvirtualmachine/sqlvirtualmachines">Microsoft.SqlVirtualMachine/sqlVirtualMachines</a>:</p>
+<p>Enabled encryption for SQL Virtual Machine:</p>
+<pre data-diff-id="801" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.SqlVirtualMachine/sqlVirtualMachines",
+      "apiVersion": "2022-08-01-preview",
+      "properties": {
+        "autoBackupSettings": {
+          "enableEncryption": true,
+          "password": "string"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts">Microsoft.Storage/storageAccounts</a>:</p>
+<p>Enabled enforcing of infrastructure encryption for double encryption of data:</p>
+<pre data-diff-id="1001" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "encryption": {
+          "requireInfrastructureEncryption": true
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts/encryptionscopes?pivots=deployment-language-bicep">Microsoft.Storage/storageAccounts/encryptionScopes</a>:</p>
+<p>Enabled enforcing of infrastructure encryption for double encryption of data at encryption scope level:</p>
+<pre data-diff-id="1002" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts/encryptionScopes",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "requireInfrastructureEncryption": true
+      }
+    }
+  ]
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
+  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
+  <li> <a href="https://docs.aws.amazon.com/efs/latest/ug/encryption.html">Data encryption in Amazon EFS</a> </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
+  Exposure </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/311">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+  <li> <a href="https://learn.microsoft.com/en-us/azure/backup/backup-encryption">Encryption in Azure Backup</a> </li>
+  <li> <a href="https://learn.microsoft.com/en-us/azure/mysql/single-server/concepts-security">Security in Azure Database for MySQL</a> </li>
+  <li> <a href="https://learn.microsoft.com/en-us/azure/postgresql/single-server/concepts-security">Security in Azure Database for PostgreSQL</a>
+  </li>
+  <li> <a href="https://learn.microsoft.com/en-us/azure/storage/common/infrastructure-encryption-enable?tabs=portal">Infrastructure double encryption
+  of data</a> </li>
+</ul>
+
