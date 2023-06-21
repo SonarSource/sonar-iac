@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -52,5 +53,14 @@ class CertificateBasedAuthenticationCheckTest {
       issue(42, 23, 45, 9, "Omitting \"certificates\" disables certificate-based authentication. Make sure it is safe here."),
       issue(53, 23, 54, 9),
       issue(73, 14, 77, 15));
+  }
+
+  @Test
+  void testFactoriesLinkedServices() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_linkedservices/test.json", new CertificateBasedAuthenticationCheck(),
+      issue(12, 10, 12, 39, "This authentication method is not certificate-based. Make sure it is safe here.",
+        SecondaryLocation.secondary(10, 8, 10, 21, "Service type.")),
+      issue(23, 10, 23, 39),
+      issue(39, 14, 39, 43));
   }
 }
