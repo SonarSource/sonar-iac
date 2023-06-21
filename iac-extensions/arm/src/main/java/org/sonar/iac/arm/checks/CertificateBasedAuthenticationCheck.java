@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.checks;
 
+import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -26,6 +27,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 
+@Rule(key = "S6382")
 public class CertificateBasedAuthenticationCheck extends AbstractArmResourceCheck {
 
   private static final String MISSING_CERTIFICATE = "Omitting \"%s\" disables certificate-based authentication. Make sure it is safe here.";

@@ -1,0 +1,28 @@
+{
+  "title": "Disabling certificate-based authentication is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1h"
+  },
+  "tags": [
+    "cwe",
+    "azure"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6382",
+  "sqKey": "S6382",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      668
+    ],
+    "PCI DSS 3.2": [
+      "6.5.10"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  }
+}

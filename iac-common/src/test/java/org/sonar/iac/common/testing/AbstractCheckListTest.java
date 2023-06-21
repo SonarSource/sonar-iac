@@ -34,6 +34,7 @@ import static org.apache.commons.io.filefilter.FileFilterUtils.prefixFileFilter;
 import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
 import static org.apache.commons.io.filefilter.FileFilterUtils.trueFileFilter;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public abstract class AbstractCheckListTest {
 
@@ -41,9 +42,19 @@ public abstract class AbstractCheckListTest {
 
   protected abstract File checkClassDir();
 
+  protected boolean hasTodoCommentCheck() {
+    return true;
+  }
+
   @Test
   void containsParsingErrorCheck() {
-    assertThat(checks()).contains(ParsingErrorCheck.class, ToDoCommentCheck.class);
+    assertThat(checks()).contains(ParsingErrorCheck.class);
+  }
+
+  @Test
+  void containsToDoCommentCheck() {
+    assumeTrue(hasTodoCommentCheck());
+    assertThat(checks()).contains(ToDoCommentCheck.class);
   }
 
   /**
@@ -54,7 +65,7 @@ public abstract class AbstractCheckListTest {
     IOFileFilter filter = and(suffixFileFilter("Check.java"), notFileFilter(prefixFileFilter("Abstract")));
     Collection<File> files = FileUtils.listFiles(checkClassDir(), filter, trueFileFilter());
     // We can increase the files size by 2 because the ParsingErrorCheck and ToDoCommentCheck is located in iac-commons
-    assertThat(checks()).hasSize(files.size() + 2);
+    assertThat(checks()).hasSize(files.size() + 1 + (hasTodoCommentCheck() ? 1 : 0));
   }
 
   /**

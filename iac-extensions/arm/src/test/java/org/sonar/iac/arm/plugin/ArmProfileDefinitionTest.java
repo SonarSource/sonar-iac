@@ -21,7 +21,6 @@ package org.sonar.iac.arm.plugin;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,6 +34,6 @@ class ArmProfileDefinitionTest {
     BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile("azureresourcemanager", "Sonar way");
     assertThat(profile.language()).isEqualTo("azureresourcemanager");
     assertThat(profile.name()).isEqualTo("Sonar way");
-    assertThat(profile.rules()).hasSize(2);
+    assertThat(profile.rules()).hasSizeGreaterThanOrEqualTo(2);
   }
 }

@@ -2,6 +2,7 @@
   "name": "Sonar way",
   "ruleKeys": [
     "S6321",
+    "S6382",
     "S6329"
   ]
 }
