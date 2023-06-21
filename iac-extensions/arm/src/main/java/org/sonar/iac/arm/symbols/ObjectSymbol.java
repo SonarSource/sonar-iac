@@ -20,39 +20,30 @@
 package org.sonar.iac.arm.symbols;
 
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.dsl.MapSymbol;
+import org.sonar.iac.common.dsl.Symbol;
 
-public class ResourceSymbol extends HasPropertiesSymbol<ResourceSymbol, ResourceDeclaration> {
+public class ObjectSymbol extends HasPropertiesSymbol<ObjectSymbol, ObjectExpression> {
 
-  public final String type;
-  public final String version;
-
-  public static ResourceSymbol fromPresent(CheckContext ctx, ResourceDeclaration tree) {
-    return new ResourceSymbol(ctx, tree.type().value(), tree);
+  public static ObjectSymbol fromPresent(CheckContext ctx, ObjectExpression tree, @Nullable String name, @Nullable MapSymbol parent) {
+    return new ObjectSymbol(ctx, tree, name, parent);
   }
 
-  public static ResourceSymbol fromParent(ResourceSymbol parent, ResourceDeclaration child) {
-    String type = parent.type + "/" + child.type().value();
-    return new ResourceSymbol(parent.ctx, type, child);
+  public static ObjectSymbol fromAbsent(CheckContext ctx, @Nullable String name, @Nullable MapSymbol parent) {
+    return new ObjectSymbol(ctx, null, name, parent);
   }
 
-  protected ResourceSymbol(CheckContext ctx, String type, ResourceDeclaration tree) {
-    super(ctx, tree, tree.name().value(), null);
-    this.type = type;
-    this.version = tree.version().value();
-  }
-
-  @Override
-  public ResourceSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
-    throw new UnsupportedOperationException("Resource symbols should always exists");
+  protected ObjectSymbol(CheckContext ctx, @Nullable ObjectExpression tree, @Nullable String name, @Nullable Symbol<? extends Tree> parent) {
+    super(ctx, tree, name, parent);
   }
 
   @Nullable
   @Override
   protected HasTextRange toHighlight() {
-    return tree != null ? tree.type() : null;
+    return tree;
   }
 }

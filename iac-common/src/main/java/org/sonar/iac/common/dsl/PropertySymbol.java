@@ -17,42 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.symbols;
+package org.sonar.iac.common.dsl;
 
+import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 
-public class ResourceSymbol extends HasPropertiesSymbol<ResourceSymbol, ResourceDeclaration> {
+public class PropertySymbol<S extends PropertySymbol<S, T>, T extends PropertyTree & Tree> extends Symbol<T> {
 
-  public final String type;
-  public final String version;
-
-  public static ResourceSymbol fromPresent(CheckContext ctx, ResourceDeclaration tree) {
-    return new ResourceSymbol(ctx, tree.type().value(), tree);
-  }
-
-  public static ResourceSymbol fromParent(ResourceSymbol parent, ResourceDeclaration child) {
-    String type = parent.type + "/" + child.type().value();
-    return new ResourceSymbol(parent.ctx, type, child);
-  }
-
-  protected ResourceSymbol(CheckContext ctx, String type, ResourceDeclaration tree) {
-    super(ctx, tree, tree.name().value(), null);
-    this.type = type;
-    this.version = tree.version().value();
+  protected PropertySymbol(CheckContext ctx, @Nullable T tree, String name, @Nullable Symbol<? extends Tree> parent) {
+    super(ctx, tree, name, parent);
   }
 
   @Override
-  public ResourceSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
-    throw new UnsupportedOperationException("Resource symbols should always exists");
+  public S reportIfAbsent(String message, SecondaryLocation... secondaries) {
+    super.reportIfAbsent(message, secondaries);
+    return (S) this;
   }
 
   @Nullable
   @Override
   protected HasTextRange toHighlight() {
-    return tree != null ? tree.type() : null;
+    return tree;
+  }
+
+  @CheckForNull
+  public String asString() {
+    return Optional.ofNullable(tree).flatMap(tree -> TextUtils.getValue(tree.value())).orElse(null);
   }
 }

@@ -21,8 +21,11 @@ package org.sonar.iac.arm.symbols;
 
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.checks.PropertyUtils;
 
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -41,5 +44,31 @@ public class AbstractArmSymbolTest {
       "}");
     File file = (File) PARSER.parse(wrappedCode, null);
     return (ResourceDeclaration) file.statements().get(0);
+  }
+
+  static Property parseProperty(String propertyCode) {
+    String wrappedPropertyCode = code("{",
+      "    \"name\": \"dummy resource\",",
+      "    \"type\": \"resource type\",",
+      "    \"apiVersion\": \"version\",",
+      "    \"properties\": {",
+      propertyCode,
+      "    }",
+      "}");
+    ResourceDeclaration resourceDeclaration = parseResource(wrappedPropertyCode);
+    return resourceDeclaration.properties().get(0);
+  }
+
+  static ObjectExpression parseObjectExpression(String objectCode) {
+    String wrappedPropertyCode = code("{",
+      "    \"name\": \"dummy resource\",",
+      "    \"type\": \"resource type\",",
+      "    \"apiVersion\": \"version\",",
+      "    \"properties\": {",
+      "      \"object\": " + objectCode,
+      "    }",
+      "}");
+    ResourceDeclaration resourceDeclaration = parseResource(wrappedPropertyCode);
+    return (ObjectExpression) resourceDeclaration.properties().get(0).value();
   }
 }
