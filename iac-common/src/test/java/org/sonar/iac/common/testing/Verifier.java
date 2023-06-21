@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.testing;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,6 +81,19 @@ public final class Verifier {
     SingleFileVerifier verifier = createVerifier(path, root);
     runAnalysis(contextSupplier.apply(verifier), check, root);
     verifier.assertOneOrMoreIssues();
+  }
+
+  public static void verify(TreeParser<Tree> parser, String content, IacCheck check, Issue... expectedIssues) {
+    Tree root = parser.parse(content, null);
+    File tempFile;
+    try {
+      tempFile = File.createTempFile("tmp-parser-", "");
+      tempFile.deleteOnExit();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root)), check, root);
+    compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
   public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check) {
