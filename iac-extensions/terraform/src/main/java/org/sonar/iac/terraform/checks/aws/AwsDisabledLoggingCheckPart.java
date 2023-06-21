@@ -33,7 +33,7 @@ import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ListSymbol;
-import org.sonar.iac.terraform.symbols.Symbol;
+import org.sonar.iac.common.dsl.Symbol;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
 import static org.sonar.iac.terraform.checks.DisabledLoggingCheck.MESSAGE;
