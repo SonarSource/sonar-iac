@@ -162,7 +162,7 @@ public final class Verifier {
     private final SingleFileVerifier verifier;
     private final List<Issue> raisedIssues = new ArrayList<>();
 
-    public TestContext(SingleFileVerifier verifier) {
+    public TestContext(@Nullable SingleFileVerifier verifier) {
       this.verifier = verifier;
       visitor = new TreeVisitor<>();
     }
@@ -196,7 +196,11 @@ public final class Verifier {
       reportIssue(toHighlight.textRange(), message, secondaryLocations);
     }
 
-    private void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+    protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+      if (verifier == null) {
+        throw new UnsupportedOperationException("Verifier is not provided for this context. It is not expected to report an issue in this context.");
+      }
+
       Issue issue = new Issue(textRange, message, secondaryLocations);
       if (!raisedIssues.contains(issue)) {
         TextPointer start = textRange.start();
