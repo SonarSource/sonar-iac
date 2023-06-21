@@ -32,6 +32,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.params.provider.Arguments.of;
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
 import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
+import static org.sonar.iac.arm.checks.ArmVerifier.verifyNoIssue;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class PublicNetworkAccessCheckTest {
@@ -176,9 +177,13 @@ class PublicNetworkAccessCheckTest {
       issue(10, 31, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
+  @Test
+  void shouldRaiseNoIssuesForUnknownType() {
+    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplifed/unknown-type.json", CHECK);
+  }
+
   private static String readTemplateAndReplace(String type, String apiVersion) {
-    Path dir = Paths.get("src", "test", "resources", "checks", "PublicNetworkAccessCheckTest", "publicNetworkAccess-Simplifed");
-    Path filePath = dir.resolve("template.json");
+    Path filePath = Paths.get("src", "test", "resources", "checks", "PublicNetworkAccessCheckTest", "publicNetworkAccess-Simplifed").resolve("template.json");
     String content;
     try {
       content = Files.readString(filePath);

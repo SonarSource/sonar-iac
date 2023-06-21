@@ -19,125 +19,106 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6329")
 public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
 
   private static final Set<String> SENSITIVE_VALUES = Set.of("Enabled", "EnabledForSessionHostsOnly", "EnabledForClientsOnly");
+  private static final List<String> PUBLIC_NETWORK_ACCESS_SIMPLIFIED_TYPES = List.of(
+    "Microsoft.AgFoodPlatform/farmBeats",
+    "Microsoft.ApiManagement/service",
+    "Microsoft.AppConfiguration/configurationStores",
+    "Microsoft.Attestation/attestationProviders",
+    "Microsoft.Authorization/privateLinkAssociations",
+    "Microsoft.Automation/automationAccounts",
+    "Microsoft.Batch/batchAccounts",
+    "Microsoft.BotService/botServices",
+    "Microsoft.Cache/redis",
+    "Microsoft.CognitiveServices/accounts",
+    "Microsoft.Compute/disks",
+    "Microsoft.Compute/snapshots",
+    "Microsoft.ContainerRegistry/registries",
+    "Microsoft.ContainerService/managedClusters",
+    "Microsoft.DBforMariaDB/servers",
+    "Microsoft.DBforMySQL/servers",
+    "Microsoft.DBforPostgreSQL/servers",
+    "Microsoft.Dashboard/grafana",
+    "Microsoft.DataFactory/factories",
+    "Microsoft.Databricks/workspaces",
+    "Microsoft.DesktopVirtualization/workspaces",
+    "Microsoft.DeviceUpdate/accounts",
+    "Microsoft.Devices/IotHubs",
+    "Microsoft.Devices/provisioningServices",
+    "Microsoft.DigitalTwins/digitalTwinsInstances",
+    "Microsoft.DocumentDB/databaseAccounts",
+    "Microsoft.EventGrid/domains",
+    "Microsoft.EventGrid/partnerNamespaces",
+    "Microsoft.EventGrid/topics",
+    "Microsoft.EventHub/namespaces",
+    "Microsoft.EventHub/namespaces/networkRuleSets",
+    "Microsoft.HealthcareApis/services",
+    "Microsoft.HealthcareApis/workspaces",
+    "Microsoft.HealthcareApis/workspaces/dicomservices",
+    "Microsoft.HealthcareApis/workspaces/fhirservices",
+    "Microsoft.HybridCompute/privateLinkScopes",
+    "Microsoft.Insights/scheduledQueryRules",
+    "Microsoft.IoTCentral/iotApps",
+    "Microsoft.KeyVault/managedHSMs",
+    "Microsoft.KeyVault/vaults",
+    "Microsoft.KubernetesConfiguration/privateLinkScopes",
+    "Microsoft.Kusto/clusters",
+    "Microsoft.M365SecurityAndCompliance/privateLinkServicesForEDMUpload",
+    "Microsoft.M365SecurityAndCompliance/privateLinkServicesForM365ComplianceCenter",
+    "Microsoft.M365SecurityAndCompliance/privateLinkServicesForM365SecurityCenter",
+    "Microsoft.M365SecurityAndCompliance/privateLinkServicesForMIPPolicySync",
+    "Microsoft.M365SecurityAndCompliance/privateLinkServicesForO365ManagementActivityAPI",
+    "Microsoft.M365SecurityAndCompliance/privateLinkServicesForSCCPowershell",
+    "Microsoft.MachineLearningServices/registries",
+    "Microsoft.MachineLearningServices/workspaces",
+    "Microsoft.MachineLearningServices/workspaces/onlineEndpoints",
+    "Microsoft.Media/mediaservices",
+    "Microsoft.Migrate/assessmentProjects",
+    "Microsoft.Migrate/migrateProjects",
+    "Microsoft.OffAzure/MasterSites",
+    "Microsoft.Purview/accounts",
+    "Microsoft.RecoveryServices/vaults",
+    "Microsoft.Relay/namespaces",
+    "Microsoft.Relay/namespaces/networkRuleSets",
+    "Microsoft.Search/searchServices",
+    "Microsoft.SecurityAndCompliance/privateLinkServicesForEDMUpload",
+    "Microsoft.SecurityAndCompliance/privateLinkServicesForM365ComplianceCenter",
+    "Microsoft.SecurityAndCompliance/privateLinkServicesForM365SecurityCenter",
+    "Microsoft.SecurityAndCompliance/privateLinkServicesForMIPPolicySync",
+    "Microsoft.SecurityAndCompliance/privateLinkServicesForO365ManagementActivityAPI",
+    "Microsoft.SecurityAndCompliance/privateLinkServicesForSCCPowershell",
+    "Microsoft.ServiceBus/namespaces",
+    "Microsoft.ServiceBus/namespaces/networkRuleSets",
+    "Microsoft.SignalRService/signalR",
+    "Microsoft.SignalRService/webPubSub",
+    "Microsoft.Sql/servers",
+    "Microsoft.Storage/storageAccounts",
+    "Microsoft.Synapse/workspaces",
+    "Microsoft.TimeSeriesInsights/environments",
+    "Microsoft.Web/sites",
+    "Microsoft.Web/sites/config",
+    "Microsoft.Web/sites/slots",
+    "Microsoft.Web/sites/slots/config",
+    "Microsoft.Web/staticSites");
 
   @Override
-  // Method has 101 lines, which is greater than 100 authorized - it will be refactored when SONARIAC-890 will be done
-  @SuppressWarnings("java:S138")
   protected void registerResourceConsumer() {
     register("Microsoft.DesktopVirtualization/hostPools", checkPublicNetworkAccess());
 
-    register("Microsoft.AgFoodPlatform/farmBeats", checkPublicNetworkAccessSimplified());
-    register("Microsoft.ApiManagement/service", checkPublicNetworkAccessSimplified());
-    register("Microsoft.AppConfiguration/configurationStores", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Attestation/attestationProviders", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Authorization/privateLinkAssociations", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Automation/automationAccounts", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Automation/automationAccounts", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Batch/batchAccounts", checkPublicNetworkAccessSimplified());
-    register("Microsoft.BotService/botServices", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Cache/redis", checkPublicNetworkAccessSimplified());
-    register("Microsoft.CognitiveServices/accounts", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Compute/disks", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Compute/snapshots", checkPublicNetworkAccessSimplified());
-    register("Microsoft.ContainerRegistry/registries", checkPublicNetworkAccessSimplified());
-    register("Microsoft.ContainerService/managedClusters", checkPublicNetworkAccessSimplified());
-    register("Microsoft.DBforMariaDB/servers", checkPublicNetworkAccessSimplified());
-    register("Microsoft.DBforMySQL/servers", checkPublicNetworkAccessSimplified());
-    register("Microsoft.DBforPostgreSQL/servers", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Dashboard/grafana", checkPublicNetworkAccessSimplified());
-    register("Microsoft.DataFactory/factories", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Databricks/workspaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.DesktopVirtualization/workspaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.DeviceUpdate/accounts", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Devices/IotHubs", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Devices/provisioningServices", checkPublicNetworkAccessSimplified());
-    register("Microsoft.DigitalTwins/digitalTwinsInstances", checkPublicNetworkAccessSimplified());
-    register("Microsoft.DocumentDB/databaseAccounts", checkPublicNetworkAccessSimplified());
-    register("Microsoft.EventGrid/domains", checkPublicNetworkAccessSimplified());
-    register("Microsoft.EventGrid/partnerNamespaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.EventGrid/topics", checkPublicNetworkAccessSimplified());
-    register("Microsoft.EventHub/namespaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.EventHub/namespaces/networkRuleSets", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HealthcareApis/services", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HealthcareApis/services", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HealthcareApis/workspaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HealthcareApis/workspaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HealthcareApis/workspaces/dicomservices", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HealthcareApis/workspaces/dicomservices", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HealthcareApis/workspaces/fhirservices", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HealthcareApis/workspaces/fhirservices", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HybridCompute/privateLinkScopes", checkPublicNetworkAccessSimplified());
-    register("Microsoft.HybridCompute/privateLinkScopes", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Insights/scheduledQueryRules", checkPublicNetworkAccessSimplified());
-    register("Microsoft.IoTCentral/iotApps", checkPublicNetworkAccessSimplified());
-    register("Microsoft.KeyVault/managedHSMs", checkPublicNetworkAccessSimplified());
-    register("Microsoft.KeyVault/managedHSMs", checkPublicNetworkAccessSimplified());
-    register("Microsoft.KeyVault/vaults", checkPublicNetworkAccessSimplified());
-    register("Microsoft.KeyVault/vaults", checkPublicNetworkAccessSimplified());
-    register("Microsoft.KubernetesConfiguration/privateLinkScopes", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Kusto/clusters", checkPublicNetworkAccessSimplified());
-    register("Microsoft.M365SecurityAndCompliance/privateLinkServicesForEDMUpload", checkPublicNetworkAccessSimplified());
-    register("Microsoft.M365SecurityAndCompliance/privateLinkServicesForM365ComplianceCenter", checkPublicNetworkAccessSimplified());
-    register("Microsoft.M365SecurityAndCompliance/privateLinkServicesForM365SecurityCenter", checkPublicNetworkAccessSimplified());
-    register("Microsoft.M365SecurityAndCompliance/privateLinkServicesForMIPPolicySync", checkPublicNetworkAccessSimplified());
-    register("Microsoft.M365SecurityAndCompliance/privateLinkServicesForO365ManagementActivityAPI", checkPublicNetworkAccessSimplified());
-    register("Microsoft.M365SecurityAndCompliance/privateLinkServicesForSCCPowershell", checkPublicNetworkAccessSimplified());
-    register("Microsoft.MachineLearningServices/registries", checkPublicNetworkAccessSimplified());
-    register("Microsoft.MachineLearningServices/registries", checkPublicNetworkAccessSimplified());
-    register("Microsoft.MachineLearningServices/workspaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.MachineLearningServices/workspaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.MachineLearningServices/workspaces/onlineEndpoints", checkPublicNetworkAccessSimplified());
-    register("Microsoft.MachineLearningServices/workspaces/onlineEndpoints", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Media/mediaservices", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Migrate/assessmentProjects", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Migrate/migrateProjects", checkPublicNetworkAccessSimplified());
-    register("Microsoft.OffAzure/MasterSites", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Purview/accounts", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Purview/accounts", checkPublicNetworkAccessSimplified());
-    register("Microsoft.RecoveryServices/vaults", checkPublicNetworkAccessSimplified());
-    register("Microsoft.RecoveryServices/vaults", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Relay/namespaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Relay/namespaces/networkRuleSets", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Search/searchServices", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Search/searchServices", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SecurityAndCompliance/privateLinkServicesForEDMUpload", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SecurityAndCompliance/privateLinkServicesForM365ComplianceCenter", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SecurityAndCompliance/privateLinkServicesForM365SecurityCenter", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SecurityAndCompliance/privateLinkServicesForMIPPolicySync", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SecurityAndCompliance/privateLinkServicesForO365ManagementActivityAPI", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SecurityAndCompliance/privateLinkServicesForSCCPowershell", checkPublicNetworkAccessSimplified());
-    register("Microsoft.ServiceBus/namespaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.ServiceBus/namespaces/networkRuleSets", checkPublicNetworkAccessSimplified());
-    register("Microsoft.ServiceBus/namespaces/networkRuleSets", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SignalRService/signalR", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SignalRService/signalR", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SignalRService/webPubSub", checkPublicNetworkAccessSimplified());
-    register("Microsoft.SignalRService/webPubSub", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Sql/servers", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Sql/servers", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Storage/storageAccounts", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Synapse/workspaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Synapse/workspaces", checkPublicNetworkAccessSimplified());
-    register("Microsoft.TimeSeriesInsights/environments", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Web/sites", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Web/sites/config", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Web/sites/slots", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Web/sites/slots/config", checkPublicNetworkAccessSimplified());
-    register("Microsoft.Web/staticSites", checkPublicNetworkAccessSimplified());
+    PUBLIC_NETWORK_ACCESS_SIMPLIFIED_TYPES.forEach(type -> register(type, checkPublicNetworkAccessSimplified()));
   }
 
   private static BiConsumer<CheckContext, ResourceDeclaration> checkPublicNetworkAccess() {
@@ -153,10 +134,10 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
   }
 
   private static boolean isSensitivePublicNetworkAccess(Tree tree) {
-    return ((ArmTree) tree).is(ArmTree.Kind.STRING_LITERAL) && SENSITIVE_VALUES.contains(((StringLiteral) tree).value());
+    return TextUtils.matchesValue(tree, SENSITIVE_VALUES::contains).isTrue();
   }
 
   private static boolean isSensitivePublicNetworkAccessSimplified(Tree tree) {
-    return ((ArmTree) tree).is(ArmTree.Kind.STRING_LITERAL) && "Enabled".equals(((StringLiteral) tree).value());
+    return TextUtils.matchesValue(tree, "Enabled"::contains).isTrue();
   }
 }
