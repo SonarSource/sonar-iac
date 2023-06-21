@@ -35,7 +35,7 @@ class PrivilegedUserCheckTest {
 
   private final PrivilegedUserCheck check = new PrivilegedUserCheck();
 
-  @ParameterizedTest()
+  @ParameterizedTest
   @MethodSource
   void testNonCompliant(String testFile) {
     DockerVerifier.verify(testFile, check);
@@ -45,7 +45,7 @@ class PrivilegedUserCheckTest {
     return provideTestFiles("PrivilegedUserCheck/Noncompliant");
   }
 
-  @ParameterizedTest()
+  @ParameterizedTest
   @MethodSource
   void testCompliant(String testFile) {
     DockerVerifier.verifyNoIssue(testFile, check);
