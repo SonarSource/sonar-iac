@@ -50,6 +50,8 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   private static final String WRONG_AUTHENTICATION_METHOD_MESSAGE = "This authentication method is not certificate-based. Make sure it is safe here.";
 
   private static final Set<String> SENSITIVE_LINKED_SERVICES_TYPE = Set.of("Web", "HttpServer");
+  private static final Set<String> SENSITIVE_PIPELINES_TYPE = Set.of("WebActivity", "WebHook");
+  private static final Set<String> SENSITIVE_PIPELINES_AUTHENTICATION_TYPE = Set.of("Basic", "ServicePrincipal");
 
   @Override
   protected void registerResourceConsumer() {
@@ -64,6 +66,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     register("Microsoft.ServiceFabric/clusters", CertificateBasedAuthenticationCheck::checkServiceFabric);
     register("Microsoft.Web/sites", CertificateBasedAuthenticationCheck::checkWebSites);
     register("Microsoft.Web/sites/slots", CertificateBasedAuthenticationCheck::checkWebSitesSlots);
+    register("Microsoft.DataFactory/factories/pipelines", CertificateBasedAuthenticationCheck::checkPipelines);
   }
 
   private static void checkContainerApps(ContextualResource resource) {
@@ -150,6 +153,18 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
       .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE);
     resource.property("clientCertMode")
       .reportIf(isValue(str -> !"Required".equals(str)), ALLOWING_NO_CERTIFICATE_MESSAGE);
+  }
+
+  private static void checkPipelines(ContextualResource resource) {
+    resource.list("activities").objects().forEach(activity -> {
+      ContextualProperty type = activity.property("type");
+      ContextualProperty authenticationType = activity.object("typeProperties").property("authenticationType");
+
+      if (type.is(isValue(SENSITIVE_PIPELINES_TYPE::contains))
+        && authenticationType.is(isValue(SENSITIVE_PIPELINES_AUTHENTICATION_TYPE::contains))) {
+        authenticationType.report(WRONG_AUTHENTICATION_METHOD_MESSAGE, type.toSecondary("Pipeline type"));
+      }
+    });
   }
 
   private static Predicate<Expression> isFalse() {

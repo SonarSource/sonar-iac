@@ -57,7 +57,8 @@ class CertificateBasedAuthenticationCheckTest {
 
   @Test
   void testFactoriesLinkedServices() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_linkedservices/test.json", new CertificateBasedAuthenticationCheck(),
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_linkedservices/factories_linkedservices.json",
+      new CertificateBasedAuthenticationCheck(),
       issue(12, 10, 12, 39, "This authentication method is not certificate-based. Make sure it is safe here.",
         SecondaryLocation.secondary(10, 8, 10, 21, "Service type")),
       issue(23, 10, 23, 39),
@@ -113,5 +114,14 @@ class CertificateBasedAuthenticationCheckTest {
       issue(53, 12, 53, 38),
       issue(61, 12, 61, 40),
       issue(71, 8, 71, 34));
+  }
+
+  @Test
+  void testFactoriesPipelines() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_pipelines/factories_pipeline.json", new CertificateBasedAuthenticationCheck(),
+      issue(14, 14, 14, 43, "This authentication method is not certificate-based. Make sure it is safe here.",
+        SecondaryLocation.secondary(12, 12, 12, 33, "Pipeline type")),
+      issue(34, 18, 34, 47),
+      issue(51, 14, 51, 54));
   }
 }
