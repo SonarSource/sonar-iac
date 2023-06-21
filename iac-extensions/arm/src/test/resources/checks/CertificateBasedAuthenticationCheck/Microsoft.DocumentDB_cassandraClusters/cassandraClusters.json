@@ -1,0 +1,35 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: property 'clientCertificates' is missing",
+      "type": "Microsoft.DocumentDB/cassandraClusters",
+      "apiVersion": "2021-10-15",
+      "properties": {
+      }
+    },
+    {
+      "name": "Sensitive: property 'clientCertificates' array is empty",
+      "type": "Microsoft.DocumentDB/cassandraClusters",
+      "apiVersion": "2021-10-15",
+      "properties": {
+        "clientCertificates": [
+        ]
+      }
+    },
+    
+    {
+      "name": "Compliant: property 'clientCertificates' array is defined and not empty",
+      "type": "Microsoft.DocumentDB/cassandraClusters",
+      "apiVersion": "2021-10-15",
+      "properties": {
+        "clientCertificates": [
+          {
+            "...": "certificate details"
+          }
+        ]
+      }
+    }
+  ]
+}
