@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "storageProfile": {
+          "dataDisks": [
+            {
+              "managedDisk": {
+              }
+            },
+            {
+              "managedDisk": {
+                "diskEncryptionSet": {
+                  "id": ""
+                }
+              }
+            },
+            {
+              "managedDisk": {
+                "diskEncryptionSet": {
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "storageProfile": {
+          "dataDisks": [
+            {
+              "managedDisk": {
+                "diskEncryptionSet": {
+                  "id": "testId"
+                }
+              }
+            },
+            {
+              "anotherKindOfDisk": {
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -25,12 +25,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -46,7 +46,6 @@ import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUti
 
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
-  private static final String ARRAY_TOKEN = "*";
   private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", ALL_IPV4, ALL_IPV6, "Internet");
   private static final Set<String> SENSITIVE_PROTOCOL = Set.of("*", "TCP");
 
@@ -74,45 +73,13 @@ public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkResourcePath(CheckContext ctx, ResourceDeclaration resource, List<String> path) {
-    List<Tree> listProperties = resolveProperties(new LinkedList<>(path), resource);
+    List<Tree> listProperties = CheckUtils.resolveProperties(new LinkedList<>(path), resource);
     for (Tree properties : listProperties) {
       ResourceWithIpRestrictedAdminAccessChecker checker = new ResourceWithIpRestrictedAdminAccessChecker(resource, properties);
       if (checker.isSensitive()) {
         checker.reportIssue(ctx);
       }
     }
-  }
-
-  /**
-   * This method is used to retrieve the list of tree elements which can be resolved using a provided queue of path.
-   * The result is a list of Tree because it can resolve to multiple element since it is supporting the token '*' to means that an array is expected.
-   * Example:
-   *   Provided list of path: "connections", "*", "entry"
-   *   Provided Tree representation:
-   *   {
-   *     "connections": [
-   *       { "entry":"val1" }, --> will be in the result list
-   *       { "entry":"val2" }  --> will also be in the result list
-   *     ]
-   *   }
-   */
-  private static List<Tree> resolveProperties(Queue<String> path, Tree tree) {
-    while (!path.isEmpty() && tree != null) {
-      String nextPath = path.poll();
-      if (nextPath.equals(ARRAY_TOKEN)) {
-        if (tree instanceof ArrayExpression) {
-          ArrayExpression array = (ArrayExpression) tree;
-          List<Tree> trees = new ArrayList<>();
-          array.elements().forEach(element -> trees.addAll(resolveProperties(new LinkedList<>(path), element)));
-          return trees;
-        } else {
-          return Collections.emptyList();
-        }
-      } else {
-        tree = PropertyUtils.value(tree, nextPath).orElse(null);
-      }
-    }
-    return tree != null ? List.of(tree) : Collections.emptyList();
   }
 
   static class ResourceWithIpRestrictedAdminAccessChecker {

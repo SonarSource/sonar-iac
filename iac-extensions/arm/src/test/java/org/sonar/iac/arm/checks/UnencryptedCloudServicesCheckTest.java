@@ -19,20 +19,22 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.IacCheck;
 
-public class ArmCheckList {
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.testing.Verifier.issue;
 
-  private ArmCheckList() {
+class UnencryptedCloudServicesCheckTest {
+
+  IacCheck check = new UnencryptedCloudServicesCheck();
+
+  @Test
+  void testSourceAddressPrefix() {
+    ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachines.json", check,
+      issue(range(25, 16, 26, 17), "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
+      issue(range(13, 29, 14, 15), "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
+      issue(range(18, 16, 20, 17)));
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CertificateBasedAuthenticationCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class,
-      UnencryptedCloudServicesCheck.class);
-  }
 }
