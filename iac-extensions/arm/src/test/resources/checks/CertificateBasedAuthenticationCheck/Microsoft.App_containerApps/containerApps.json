@@ -1,0 +1,112 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise an issue: value is ignore",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "clientCertificateMode": "ignore"
+          }
+        }
+      }
+    },
+    {
+      "name": "Raise an issue: value is accept",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "clientCertificateMode": "accept"
+          }
+        }
+      }
+    },
+    {
+      "name": "Raise an issue: date 1 year after",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2023-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "clientCertificateMode": "ignore"
+          }
+        }
+      }
+    },
+    {
+      "name": "Raise an issue: property is missing",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "another_attr": "value"
+          }
+        }
+      }
+    },
+    
+    {
+      "name": "Compliant: require value",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "clientCertificateMode": "require"
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: date before 2022-10-01",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "clientCertificateMode": "ignore"
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: unknown string value",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "clientCertificateMode": "unknown string value"
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: unexpected expression type",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "clientCertificateMode": 5
+          }
+        }
+      }
+    },
+    {
+      "name": "Do not raise an issue: parent propery 'ingress' is not event present",
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "configuration": {
+        }
+      }
+    }
+  ]
+}
