@@ -155,7 +155,8 @@ public class ArmBaseConverter {
         Expression value = toExpression(tupleTree.value());
         properties.add(new PropertyImpl(key, value));
       });
-    return new ObjectExpressionImpl(properties);
+    // Objects can be empty so the text range calculation based on children can not be applied
+    return new ObjectExpressionImpl(properties, tree.textRange());
   }
 
   public ArrayExpression toArrayExpressionOrNull(YamlTree tree, String key) {

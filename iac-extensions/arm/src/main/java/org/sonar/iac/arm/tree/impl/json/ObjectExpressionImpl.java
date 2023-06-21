@@ -26,13 +26,15 @@ import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectExpression {
 
   private final List<Property> properties;
 
-  public ObjectExpressionImpl(List<Property> properties) {
+  public ObjectExpressionImpl(List<Property> properties, TextRange textRange) {
     this.properties = properties;
+    this.textRange = textRange;
   }
 
   @Override

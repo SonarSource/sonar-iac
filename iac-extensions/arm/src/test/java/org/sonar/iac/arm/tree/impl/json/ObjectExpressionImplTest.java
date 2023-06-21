@@ -38,7 +38,7 @@ class ObjectExpressionImplTest {
     assertThat(objectProperty.value())
       .asObjectExpression()
       .containsKeyValue("key", "val")
-      .hasRange(LINE_OFFSET + 1, 16, LINE_OFFSET + 1, 27);
+      .hasRange(LINE_OFFSET + 1, 15, LINE_OFFSET + 1, 28);
     assertThat(objectProperty.value().getKind()).isEqualTo(ArmTree.Kind.OBJECT_EXPRESSION);
     assertThat(objectProperty.value().children()).hasSize(2);
     assertThat(((ArmTree) objectProperty.value().children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
@@ -48,6 +48,8 @@ class ObjectExpressionImplTest {
   @Test
   void shouldParseEmptyObjectExpression() {
     Property objectProperty = parseProperty(parser, "\"object_prop\": {}");
-    assertThat(objectProperty.value()).asObjectExpression().hasSize(0);
+    assertThat(objectProperty.value()).asObjectExpression()
+      .hasSize(0)
+      .hasRange(8, 15, 8, 17);
   }
 }

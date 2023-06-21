@@ -143,7 +143,7 @@ class ResourceDeclarationImplTest {
     assertThat(arrayExpression.children()).hasSize(1);
     assertThat(arrayExpression.elements().get(0)).asStringLiteral().hasValue("val");
 
-    IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(8, 8, 8, 55);
+    IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(8, 8, 8, 56);
   }
 
   @Test
