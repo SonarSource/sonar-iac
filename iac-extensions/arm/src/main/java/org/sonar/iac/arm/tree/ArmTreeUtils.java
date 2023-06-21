@@ -19,15 +19,8 @@
  */
 package org.sonar.iac.arm.tree;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import org.sonar.iac.arm.tree.api.ArrayExpression;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.PropertyUtils;
 
 public class ArmTreeUtils {
 

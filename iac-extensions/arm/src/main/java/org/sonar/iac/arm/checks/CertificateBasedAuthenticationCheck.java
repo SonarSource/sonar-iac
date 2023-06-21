@@ -19,18 +19,19 @@
  */
 package org.sonar.iac.arm.checks;
 
-import org.sonar.check.Rule;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
+import org.sonar.check.Rule;
 import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6382")
 public class CertificateBasedAuthenticationCheck extends AbstractArmResourceCheck {
@@ -59,19 +60,19 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   }
 
   private static void checkContainerApps(CheckContext ctx, ResourceDeclaration resource) {
-    if (isResourceVersionBefore(resource, "2022-10-01")) {
-      List<Tree> resolvedTrees = CheckUtils.resolveProperties(new LinkedList<>(PATH_CONTAINER_APPS), resource);
-      for (Tree resolvedTree : resolvedTrees) {
-        PropertyUtils.get(resolvedTree, "clientCertificateMode")
+    if (isResourceVersionEqualsOrAfter(resource, "2022-10-01")) {
+      List<Tree> containers = CheckUtils.resolveProperties(new LinkedList<>(PATH_CONTAINER_APPS), resource);
+      for (Tree container : containers) {
+        PropertyUtils.get(container, "clientCertificateMode")
           .ifPresentOrElse(
             property -> {
-              if (isStringValue(property.value(), "accept")) {
+              if (isValue(property.value(), "accept"::equals)) {
                 ctx.reportIssue(property, ALLOWING_NO_CERTIFICATE_MESSAGE);
-              } else if (isStringValue(property.value(), "ignore")) {
+              } else if (isValue(property.value(), "ignore"::equals)) {
                 ctx.reportIssue(property, DISABLED_CERTIFICATE_MESSAGE);
               }
             },
-            () -> ctx.reportIssue(resolvedTree, String.format(MISSING_CERTIFICATE_MESSAGE, "clientCertificateMode")));
+            () -> ctx.reportIssue(container, String.format(MISSING_CERTIFICATE_MESSAGE, "clientCertificateMode")));
       }
     }
   }
@@ -80,11 +81,11 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     return ((ArmTree) tree).is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) tree).value();
   }
 
-  private static boolean isStringValue(Tree tree, String value) {
-    return ((ArmTree) tree).is(ArmTree.Kind.STRING_LITERAL) && ((StringLiteral) tree).value().equals(value);
+  private static boolean isValue(Tree tree, Predicate<String> predicate) {
+    return TextUtils.matchesValue(tree, predicate).isTrue();
   }
 
-  private static boolean isResourceVersionBefore(ResourceDeclaration resource, String version) {
+  private static boolean isResourceVersionEqualsOrAfter(ResourceDeclaration resource, String version) {
     return resource.version().value().compareTo(version) >= 0;
   }
 }

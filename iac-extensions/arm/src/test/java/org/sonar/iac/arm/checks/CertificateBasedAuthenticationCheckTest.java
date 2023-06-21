@@ -27,7 +27,8 @@ class CertificateBasedAuthenticationCheckTest {
 
   @Test
   void testHostnameConfigurations() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ApiManagement_service_gateways_hostnameConfigurations/test.json", new CertificateBasedAuthenticationCheck(),
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ApiManagement_service_gateways_hostnameConfigurations/hostnameConfigurations.json",
+      new CertificateBasedAuthenticationCheck(),
       issue(7, 14, 7, 79, "Omitting \"negotiateClientCertificate\" disables certificate-based authentication. Make sure it is safe here."),
       issue(16, 8, 16, 44, "Make sure that disabling certificate-based authentication is safe here."),
       issue(21, 14, 21, 79),
@@ -36,12 +37,10 @@ class CertificateBasedAuthenticationCheckTest {
 
   @Test
   void testContainerApps() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.App_containerApps/test.json", new CertificateBasedAuthenticationCheck(),
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.App_containerApps/containerApps.json", new CertificateBasedAuthenticationCheck(),
       issue(12, 12, 12, 45, "Make sure that disabling certificate-based authentication is safe here."),
       issue(24, 12, 24, 45, "Connections without client certificates will be permitted. Make sure it is safe here."),
       issue(36, 12, 36, 45),
-      // TODO fix reporting by inverting two bellow lines once SONARIAC-888 is completed
-      // issue(range(47, 11, 47, 20)));
-      issue(48, 12, 48, 35));
+      issue(47, 21, 49, 11));
   }
 }
