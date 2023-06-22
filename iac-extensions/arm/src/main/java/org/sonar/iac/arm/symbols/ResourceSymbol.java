@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.arm.symbols;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -51,7 +51,7 @@ public class ResourceSymbol extends MapSymbol<ResourceSymbol, ResourceDeclaratio
     throw new UnsupportedOperationException("Resource symbols should always exists");
   }
 
-  @Nullable
+  @CheckForNull
   @Override
   protected HasTextRange toHighlight() {
     return tree != null ? tree.type() : null;

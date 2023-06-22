@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.symbols;
+package org.sonar.iac.arm;
 
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
@@ -27,13 +27,13 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-public class AbstractArmSymbolTest {
+public class ArmTestUtils {
 
   private static final ArmParser PARSER = new ArmParser();
 
-  CheckContext ctx = mock(CheckContext.class);
+  public static final CheckContext CTX = mock(CheckContext.class);
 
-  protected static ResourceDeclaration parseResource(String code) {
+  public static ResourceDeclaration parseResource(String code) {
     String wrappedCode = code("{",
       "  \"resources\": [",
       code,
@@ -42,4 +42,5 @@ public class AbstractArmSymbolTest {
     File file = (File) PARSER.parse(wrappedCode, null);
     return (ResourceDeclaration) file.statements().get(0);
   }
+
 }

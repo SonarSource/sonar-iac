@@ -20,15 +20,17 @@
 package org.sonar.iac.arm.symbols;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.sonar.iac.arm.ArmTestUtils.CTX;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class ResourceSymbolTest extends AbstractArmSymbolTest {
+class ResourceSymbolTest {
 
-  static ResourceDeclaration SIMPLE_RESOURCE_DECL = parseResource(code(
+  static ResourceDeclaration SIMPLE_RESOURCE_DECL = ArmTestUtils.parseResource(code(
     "{",
     "  \"type\": \"Microsoft.Kusto/clusters\",",
     "  \"apiVersion\": \"2022-12-29\",",
@@ -37,7 +39,7 @@ class ResourceSymbolTest extends AbstractArmSymbolTest {
 
   @Test
   void createSymbolFromResourceDeclaration() {
-    ResourceSymbol symbol = ResourceSymbol.fromPresent(ctx, SIMPLE_RESOURCE_DECL);
+    ResourceSymbol symbol = ResourceSymbol.fromPresent(CTX, SIMPLE_RESOURCE_DECL);
 
     assertThat(symbol.name).isEqualTo("myResource");
     assertThat(symbol.type).isEqualTo("Microsoft.Kusto/clusters");
@@ -46,7 +48,7 @@ class ResourceSymbolTest extends AbstractArmSymbolTest {
 
   @Test
   void raiseExceptionWhenReportIssueOnResource() {
-    ResourceSymbol symbol = ResourceSymbol.fromPresent(ctx, SIMPLE_RESOURCE_DECL);
+    ResourceSymbol symbol = ResourceSymbol.fromPresent(CTX, SIMPLE_RESOURCE_DECL);
 
     Exception exception = assertThrows(UnsupportedOperationException.class, () -> symbol.reportIfAbsent("test"));
     assertThat(exception.getMessage()).isEqualTo("Resource symbols should always exists");

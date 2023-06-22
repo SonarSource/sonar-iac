@@ -60,7 +60,7 @@ public abstract class Symbol<T extends Tree> {
     return this;
   }
 
-  @Nullable
+  @CheckForNull
   public SecondaryLocation toSecondary(String message) {
     HasTextRange toHighlight = toHighlight();
     if (toHighlight != null) {

@@ -29,15 +29,15 @@ import org.sonar.iac.common.testing.Verifier;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class AbstractDslArmCheckTest {
 
-  final static ArmParser PARSER = new ArmParser();
-  final Verifier.TestContext ctx = new Verifier.TestContext(null);
+  final static ArmParser parser = new ArmParser();
+  final static Verifier.TestContext ctx = new Verifier.TestContext(null);
 
   @Test
   void provideResourceSymbolWhenTypeExists() {
@@ -92,7 +92,7 @@ class AbstractDslArmCheckTest {
     };
     check.initialize(ctx);
     ctx.scan(parseResources("testType"));
-    verify(consumer, never()).accept(any(ResourceSymbol.class));
+    verifyNoInteractions(consumer);
   }
 
   @Test
@@ -122,7 +122,7 @@ class AbstractDslArmCheckTest {
       "  ]",
       "}");
 
-    Tree tree = PARSER.parse(code, null);
+    Tree tree = parser.parse(code, null);
     check.initialize(ctx);
     ctx.scan(tree);
     verify(consumer, times(1)).accept(any(ResourceSymbol.class));
@@ -144,7 +144,7 @@ class AbstractDslArmCheckTest {
       "  ]",
       "}"));
 
-    return PARSER.parse(sb.toString(), null);
+    return parser.parse(sb.toString(), null);
   }
 
 }

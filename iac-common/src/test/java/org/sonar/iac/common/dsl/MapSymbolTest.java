@@ -21,6 +21,7 @@ package org.sonar.iac.common.dsl;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -33,13 +34,12 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class MapSymbolTest {
 
@@ -79,7 +79,7 @@ class MapSymbolTest {
   @Test
   void reportWhenAbsent() {
     absent.report("message");
-    verify(ctx, never()).reportIssue(any(), any(), anyList());
+    verifyNoInteractions(ctx);
   }
 
   @Test
@@ -88,20 +88,20 @@ class MapSymbolTest {
     TestMapSymbol symbol = new TestMapSymbol(ctx, null, "testSymbol", parent);
     SecondaryLocation secondary = present.toSecondary("secondary");
     symbol.reportIfAbsent("message", secondary);
-    verify(ctx, times(1)).reportIssue(eq(tree), eq("message"), anyList());
+    verify(ctx, times(1)).reportIssue(eq(tree), eq("message"), eq(List.of(secondary)));
   }
 
   @Test
   void reportIfAbsentWhenPresent() {
     present.reportIfAbsent("message");
-    verify(ctx, never()).reportIssue(any(), any(), anyList());
+    verifyNoInteractions(ctx);
   }
 
   @Test
   void reportIfAbsentWithoutParent() {
     TestMapSymbol symbol = new TestMapSymbol(ctx, null, "testSymbol", null);
     symbol.reportIfAbsent("message");
-    verify(ctx, never()).reportIssue(any(), any(), anyList());
+    verifyNoInteractions(ctx);
   }
 
   static class TestMapSymbol extends MapSymbol<TestMapSymbol, TestTree> {
@@ -110,7 +110,7 @@ class MapSymbolTest {
       super(ctx, tree, name, parent);
     }
 
-    @Nullable
+    @CheckForNull
     @Override
     protected HasTextRange toHighlight() {
       return tree;
