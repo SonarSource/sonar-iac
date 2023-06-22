@@ -70,4 +70,12 @@ class CertificateBasedAuthenticationCheckTest {
       issue(7, 14, 7, 54, "Omitting \"clientCertificates\" disables certificate-based authentication. Make sure it is safe here."),
       issue(17, 8, 18, 9, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here."));
   }
+
+  @Test
+  void testJobCollections() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Scheduler_jobCollections_jobs/jobCollections.json", new CertificateBasedAuthenticationCheck(),
+      issue(13, 14, 13, 29, "This authentication method is not certificate-based. Make sure it is safe here."),
+      issue(28, 16, 28, 31),
+      issue(49, 20, 49, 35));
+  }
 }

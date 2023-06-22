@@ -37,6 +37,8 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S6382")
 public class CertificateBasedAuthenticationCheck extends AbstractArmResourceCheck {
 
+  private static final String CLIENT_CERTIFICIATE_VALUE = "ClientCertificate";
+
   private static final String MISSING_CERTIFICATE_MESSAGE = "Omitting \"%s\" disables certificate-based authentication. Make sure it is safe here.";
   private static final String DISABLED_CERTIFICATE_MESSAGE = "Make sure that disabling certificate-based authentication is safe here.";
   private static final String ALLOWING_NO_CERTIFICATE_MESSAGE = "Connections without client certificates will be permitted. Make sure it is safe here.";
@@ -56,6 +58,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     register("Microsoft.ContainerRegistry/registries/tokens", CertificateBasedAuthenticationCheck::checkRegistriesTokens);
     register("Microsoft.DataFactory/factories/linkedservices", CertificateBasedAuthenticationCheck::checkLinkedServices);
     register("Microsoft.DocumentDB/cassandraClusters", CertificateBasedAuthenticationCheck::checkCassandraClusters);
+    register("Microsoft.Scheduler/jobCollections/jobs", CertificateBasedAuthenticationCheck::checkJobCollections);
   }
 
   private static void checkContainerApps(ContextualResource resource) {
@@ -86,7 +89,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     ContextualProperty authenticationType = resource.object("typeProperties").property("authenticationType");
 
     if (type.is(isValue(SENSITIVE_LINKED_SERVICES_TYPE::contains))
-      && authenticationType.is(isValue(str -> !"ClientCertificate".equals(str)))) {
+      && authenticationType.is(isValue(str -> !CLIENT_CERTIFICIATE_VALUE.equals(str)))) {
       authenticationType.report(WRONG_AUTHENTICATION_METHOD_MESSAGE, type.toSecondary("Service type"));
     }
   }
@@ -95,6 +98,20 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     resource.property("clientCertificates")
       .reportIf(isEmptyArray(), EMPTY_CERTIFICATE_LIST_MESSAGE)
       .reportIfAbsent(NO_CERTIFICATE_LIST_MESSAGE);
+  }
+
+  private static void checkJobCollections(ContextualResource resource) {
+    resource.object("action")
+      .object("request")
+      .object("authentication")
+      .property("type")
+      .reportIf(isValue(str -> !CLIENT_CERTIFICIATE_VALUE.equals(str)), WRONG_AUTHENTICATION_METHOD_MESSAGE);
+    resource.object("action")
+      .object("errorAction")
+      .object("request")
+      .object("authentication")
+      .property("type")
+      .reportIf(isValue(str -> !CLIENT_CERTIFICIATE_VALUE.equals(str)), WRONG_AUTHENTICATION_METHOD_MESSAGE);
   }
 
   private static boolean isBooleanFalse(Tree tree) {
