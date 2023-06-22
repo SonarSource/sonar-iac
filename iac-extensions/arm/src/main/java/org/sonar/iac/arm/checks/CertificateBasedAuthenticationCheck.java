@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
@@ -31,6 +33,7 @@ import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 
@@ -59,6 +62,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     register("Microsoft.DataFactory/factories/linkedservices", CertificateBasedAuthenticationCheck::checkLinkedServices);
     register("Microsoft.DocumentDB/cassandraClusters", CertificateBasedAuthenticationCheck::checkCassandraClusters);
     register("Microsoft.Scheduler/jobCollections/jobs", CertificateBasedAuthenticationCheck::checkJobCollections);
+    register("Microsoft.ServiceFabric/clusters", CertificateBasedAuthenticationCheck::checkServiceFabric);
   }
 
   private static void checkContainerApps(ContextualResource resource) {
@@ -111,6 +115,24 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
       .object("authentication")
       .property("type")
       .reportIf(isValue(str -> !CLIENT_CERTIFICIATE_VALUE.equals(str)), WRONG_AUTHENTICATION_METHOD_MESSAGE);
+  }
+
+  private static void checkServiceFabric(ContextualResource resource) {
+    ContextualProperty clientCertificateCommonNames = resource.property("clientCertificateCommonNames");
+    ContextualProperty clientCertificateThumbprints = resource.property("clientCertificateThumbprints");
+
+    if (clientCertificateCommonNames.isAbsent() && clientCertificateThumbprints.isAbsent()) {
+      resource.report(String.format(NO_CERTIFICATE_LIST_MESSAGE, "clientCertificateCommonNames/clientCertificateThumbprints"));
+    } else {
+      boolean isCommonNamesCertProvided = clientCertificateCommonNames.isPresent() && clientCertificateCommonNames.is(isArrayWithValues());
+      boolean isThumbprintsCertProvided = clientCertificateThumbprints.isPresent() && clientCertificateThumbprints.is(isArrayWithValues());
+      if (!isCommonNamesCertProvided && !isThumbprintsCertProvided) {
+        List<SecondaryLocation> secondaries = new ArrayList<>();
+        clientCertificateCommonNames.ifPresent(tree -> secondaries.add(clientCertificateCommonNames.toSecondary("Empty certificate list")));
+        clientCertificateThumbprints.ifPresent(tree -> secondaries.add(clientCertificateThumbprints.toSecondary("Empty certificate list")));
+        resource.report(EMPTY_CERTIFICATE_LIST_MESSAGE, secondaries);
+      }
+    }
   }
 
   private static boolean isBooleanFalse(Tree tree) {

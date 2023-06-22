@@ -20,6 +20,7 @@
 package org.sonar.iac.common.checkdsl;
 
 import java.util.List;
+import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -76,6 +77,12 @@ public abstract class ContextualTree<S extends ContextualTree<S, T>, T extends T
 
   public boolean isPresent() {
     return tree != null;
+  }
+
+  public void ifPresent(Consumer<T> action) {
+    if (tree != null) {
+      action.accept(tree);
+    }
   }
 
   public boolean isAbsent() {
