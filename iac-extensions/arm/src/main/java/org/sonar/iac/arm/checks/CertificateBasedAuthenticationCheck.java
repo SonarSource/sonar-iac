@@ -39,7 +39,7 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S6382")
 public class CertificateBasedAuthenticationCheck extends AbstractArmResourceCheck {
 
-  private static final String CLIENT_CERTIFICIATE_VALUE = "ClientCertificate";
+  private static final String CLIENT_CERTIFICATE_ENABLED_PROPERTY = "clientCertEnabled";
 
   private static final String MISSING_CERTIFICATE_MESSAGE = "Omitting \"%s\" disables certificate-based authentication. Make sure it is safe here.";
   private static final String DISABLED_CERTIFICATE_MESSAGE = "Make sure that disabling certificate-based authentication is safe here.";
@@ -68,6 +68,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     register("Microsoft.Web/sites/slots", CertificateBasedAuthenticationCheck::checkWebSitesSlots);
     register("Microsoft.DataFactory/factories/pipelines", CertificateBasedAuthenticationCheck::checkPipelines);
     register("Microsoft.Network/applicationGateways", CertificateBasedAuthenticationCheck::checkApplicationGateways);
+    register(List.of("Microsoft.SignalRService/signalR", "Microsoft.SignalRService/webPubSub"), CertificateBasedAuthenticationCheck::checkSignalRService);
   }
 
   private static void checkContainerApps(ContextualResource resource) {
@@ -98,7 +99,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     ContextualProperty authenticationType = resource.object("typeProperties").property("authenticationType");
 
     if (type.is(isValue(SENSITIVE_LINKED_SERVICES_TYPE::contains))
-      && authenticationType.is(isValue(str -> !CLIENT_CERTIFICIATE_VALUE.equals(str)))) {
+      && authenticationType.is(isValue(str -> !"ClientCertificate".equals(str)))) {
       authenticationType.report(WRONG_AUTHENTICATION_METHOD_MESSAGE, type.toSecondary("Service type"));
     }
   }
@@ -125,7 +126,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
       .object("request")
       .object("authentication")
       .property("type")
-      .reportIf(isValue(str -> !CLIENT_CERTIFICIATE_VALUE.equals(str)), WRONG_AUTHENTICATION_METHOD_MESSAGE);
+      .reportIf(isValue(str -> !"ClientCertificate".equals(str)), WRONG_AUTHENTICATION_METHOD_MESSAGE);
   }
 
   private static void checkServiceFabric(ContextualResource resource) {
@@ -147,7 +148,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   }
 
   private static void checkWebSites(ContextualResource resource) {
-    resource.property("clientCertEnabled")
+    resource.property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
       .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE)
       .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
     resource.property("clientCertMode")
@@ -156,7 +157,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   }
 
   private static void checkWebSitesSlots(ContextualResource resource) {
-    resource.property("clientCertEnabled")
+    resource.property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
       .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE);
     resource.property("clientCertMode")
       .reportIf(isValue(str -> !"Required".equals(str)), ALLOWING_NO_CERTIFICATE_MESSAGE);
@@ -172,6 +173,12 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
         authenticationType.report(WRONG_AUTHENTICATION_METHOD_MESSAGE, type.toSecondary("Pipeline type"));
       }
     });
+  }
+
+  private static void checkSignalRService(ContextualResource resource) {
+    resource.object("tls").property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
+      .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE)
+      .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
   }
 
   private static Predicate<Expression> isFalse() {
