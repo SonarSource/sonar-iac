@@ -31,10 +31,10 @@ public abstract class Symbol<T extends Tree> {
 
   public final CheckContext ctx;
   public final @Nullable T tree;
-  public final String name;
+  public final @Nullable String name;
   public final @Nullable Symbol<? extends Tree> parent;
 
-  protected Symbol(CheckContext ctx, @Nullable T tree, String name, @Nullable Symbol<? extends Tree> parent) {
+  protected Symbol(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable Symbol<? extends Tree> parent) {
     this.ctx = ctx;
     this.tree = tree;
     this.name = name;

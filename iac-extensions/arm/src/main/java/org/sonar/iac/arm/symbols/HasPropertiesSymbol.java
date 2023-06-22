@@ -36,7 +36,7 @@ import org.sonar.iac.common.dsl.MapSymbol;
 import org.sonar.iac.common.dsl.Symbol;
 
 public class HasPropertiesSymbol<S extends HasPropertiesSymbol<S, T>, T extends ArmTree & HasProperties> extends MapSymbol<HasPropertiesSymbol<S, T>, T> {
-  protected HasPropertiesSymbol(CheckContext ctx, @Nullable T tree, String name, @Nullable Symbol<? extends Tree> parent) {
+  protected HasPropertiesSymbol(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable Symbol<? extends Tree> parent) {
     super(ctx, tree, name, parent);
   }
 

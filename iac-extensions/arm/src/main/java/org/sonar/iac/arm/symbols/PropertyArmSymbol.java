@@ -26,8 +26,8 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.dsl.MapSymbol;
 import org.sonar.iac.common.dsl.PropertySymbol;
 import org.sonar.iac.common.dsl.Symbol;
 
@@ -36,11 +36,11 @@ public class PropertyArmSymbol extends PropertySymbol<PropertyArmSymbol, Propert
     super(ctx, tree, name, parent);
   }
 
-  public static PropertyArmSymbol fromPresent(CheckContext ctx, Property tree, @Nullable MapSymbol parent) {
+  public static PropertyArmSymbol fromPresent(CheckContext ctx, Property tree, @Nullable HasPropertiesSymbol<? extends HasPropertiesSymbol<?, ?>, ? extends HasProperties> parent) {
     return new PropertyArmSymbol(ctx, tree, tree.key().value(), parent);
   }
 
-  public static PropertyArmSymbol fromAbsent(CheckContext ctx, String name, @Nullable MapSymbol parent) {
+  public static PropertyArmSymbol fromAbsent(CheckContext ctx, String name, @Nullable HasPropertiesSymbol<? extends HasPropertiesSymbol<?, ?>, ? extends HasProperties> parent) {
     return new PropertyArmSymbol(ctx, null, name, parent);
   }
 

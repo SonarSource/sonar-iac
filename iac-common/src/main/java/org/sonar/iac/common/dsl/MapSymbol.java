@@ -27,7 +27,7 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public abstract class MapSymbol<S extends MapSymbol<S, T>, T extends Tree & HasProperties> extends Symbol<T> {
 
-  protected MapSymbol(CheckContext ctx, @Nullable T tree, String name, @Nullable Symbol<? extends Tree> parent) {
+  protected MapSymbol(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable Symbol<? extends Tree> parent) {
     super(ctx, tree, name, parent);
   }
 
