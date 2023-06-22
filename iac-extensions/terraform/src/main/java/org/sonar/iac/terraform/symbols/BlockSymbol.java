@@ -26,11 +26,11 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.dsl.MapSymbol;
+import org.sonar.iac.common.dsl.Symbol;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
-public class BlockSymbol extends MapSymbol<BlockSymbol, BlockTree> {
+public class BlockSymbol extends Symbol<BlockSymbol, BlockTree> {
 
   protected BlockSymbol(CheckContext ctx, BlockTree tree, String name, BlockSymbol parent) {
     super(ctx, tree, name, parent);

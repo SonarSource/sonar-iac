@@ -19,21 +19,40 @@
  */
 package org.sonar.iac.common.dsl;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 
-public abstract class MapSymbol<S extends MapSymbol<S, T>, T extends Tree & HasProperties> extends Symbol<T> {
-
-  protected MapSymbol(CheckContext ctx, @Nullable T tree, String name, @Nullable Symbol<? extends Tree> parent) {
+public abstract class CommonPropertySymbol<S extends CommonPropertySymbol<S, T, E>, T extends PropertyTree & Tree, E extends Tree> extends Symbol<S, T> {
+  protected CommonPropertySymbol(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable Symbol<? extends Symbol<?, ?>, ? extends Tree> parent) {
     super(ctx, tree, name, parent);
   }
 
-  @Override
-  public S reportIfAbsent(String message, SecondaryLocation... secondaries) {
-    super.reportIfAbsent(message, secondaries);
+  public S reportIf(Predicate<E> predicate, String message, SecondaryLocation... secondaries) {
+    if (tree != null && predicate.test((E) tree.value())) {
+      return report(message, List.of(secondaries));
+    }
     return (S) this;
   }
+
+  public boolean is(Predicate<E> predicate) {
+    if (tree != null) {
+      return predicate.test((E) tree.value());
+    } else {
+      return predicate.test(null);
+    }
+  }
+
+  @CheckForNull
+  public String asString() {
+    return Optional.ofNullable(tree).flatMap(tree -> TextUtils.getValue(tree.value())).orElse(null);
+  }
+
 }

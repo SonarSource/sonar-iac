@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.dsl;
+package org.sonar.iac.arm.symbols;
 
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasProperties;
-import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -88,7 +86,7 @@ class MapSymbolTest {
     TestMapSymbol symbol = new TestMapSymbol(ctx, null, "testSymbol", parent);
     SecondaryLocation secondary = present.toSecondary("secondary");
     symbol.reportIfAbsent("message", secondary);
-    verify(ctx, times(1)).reportIssue(eq(tree), eq("message"), eq(List.of(secondary)));
+    verify(ctx, times(1)).reportIssue(tree, "message", List.of(secondary));
   }
 
   @Test
@@ -105,15 +103,8 @@ class MapSymbolTest {
   }
 
   static class TestMapSymbol extends MapSymbol<TestMapSymbol, TestTree> {
-
-    protected TestMapSymbol(CheckContext ctx, @Nullable TestTree tree, String name, @Nullable Symbol<? extends Tree> parent) {
+    protected TestMapSymbol(CheckContext ctx, @Nullable TestTree tree, @Nullable String name, @Nullable MapSymbol<?, ?> parent) {
       super(ctx, tree, name, parent);
-    }
-
-    @CheckForNull
-    @Override
-    protected HasTextRange toHighlight() {
-      return tree;
     }
   }
 

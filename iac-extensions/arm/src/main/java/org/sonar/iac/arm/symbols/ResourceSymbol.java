@@ -24,26 +24,25 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.dsl.MapSymbol;
 
-public class ResourceSymbol extends MapSymbol<ResourceSymbol, ResourceDeclaration> {
+public final class ResourceSymbol extends MapSymbol<ResourceSymbol, ResourceDeclaration> {
 
   public final String type;
   public final String version;
 
+  private ResourceSymbol(CheckContext ctx, ResourceDeclaration tree, String type) {
+    super(ctx, tree, tree.name().value(), null);
+    this.type = type;
+    this.version = tree.version().value();
+  }
+
   public static ResourceSymbol fromPresent(CheckContext ctx, ResourceDeclaration tree) {
-    return new ResourceSymbol(ctx, tree.type().value(), tree);
+    return new ResourceSymbol(ctx, tree, tree.type().value());
   }
 
   public static ResourceSymbol fromParent(ResourceSymbol parent, ResourceDeclaration child) {
     String type = parent.type + "/" + child.type().value();
-    return new ResourceSymbol(parent.ctx, type, child);
-  }
-
-  protected ResourceSymbol(CheckContext ctx, String type, ResourceDeclaration tree) {
-    super(ctx, tree, tree.name().value(), null);
-    this.type = type;
-    this.version = tree.version().value();
+    return new ResourceSymbol(parent.ctx, child, type);
   }
 
   @Override
