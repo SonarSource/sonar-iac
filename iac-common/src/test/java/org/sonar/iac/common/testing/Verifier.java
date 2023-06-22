@@ -210,7 +210,7 @@ public final class Verifier {
       reportIssue(toHighlight.textRange(), message, secondaryLocations);
     }
 
-    private void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+    protected void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
       Issue issue = new Issue(textRange, message, secondaryLocations);
       if (!raisedIssues.contains(issue)) {
         TextPointer start = textRange.start();

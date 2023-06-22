@@ -24,13 +24,13 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.dsl.MapSymbol;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
-public class BlockSymbol extends Symbol<BlockTree> {
+public class BlockSymbol extends MapSymbol<BlockSymbol, BlockTree> {
 
   protected BlockSymbol(CheckContext ctx, BlockTree tree, String name, BlockSymbol parent) {
     super(ctx, tree, name, parent);
@@ -79,12 +79,6 @@ public class BlockSymbol extends Symbol<BlockTree> {
 
   public BlockSymbol consume(Consumer<BlockSymbol> consumer) {
     consumer.accept(this);
-    return this;
-  }
-
-  @Override
-  public BlockSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
-    super.reportIfAbsent(message, secondaries);
     return this;
   }
 

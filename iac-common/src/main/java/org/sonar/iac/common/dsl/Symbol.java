@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.symbols;
+package org.sonar.iac.common.dsl;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -60,7 +60,7 @@ public abstract class Symbol<T extends Tree> {
     return this;
   }
 
-  @Nullable
+  @CheckForNull
   public SecondaryLocation toSecondary(String message) {
     HasTextRange toHighlight = toHighlight();
     if (toHighlight != null) {
