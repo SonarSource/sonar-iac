@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.symbols;
+package org.sonar.iac.arm.checkdsl;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -27,25 +27,25 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.dsl.Symbol;
+import org.sonar.iac.common.checkdsl.ContextualTree;
 
-public abstract class MapSymbol<S extends MapSymbol<S, T>, T extends HasProperties & Tree> extends Symbol<MapSymbol<S, T>, T> {
+public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends HasProperties & Tree> extends ContextualTree<ContextualMap<S, T>, T> {
 
-  protected MapSymbol(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable MapSymbol<?, ?> parent) {
+  protected ContextualMap(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable ContextualMap<?, ?> parent) {
     super(ctx, tree, name, parent);
   }
 
-  public PropertySymbol property(String name) {
+  public ContextualProperty property(String name) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.get(tree, name, Property.class))
-      .map(property -> PropertySymbol.fromPresent(ctx, property, this))
-      .orElse(PropertySymbol.fromAbsent(ctx, name, this));
+      .map(property -> ContextualProperty.fromPresent(ctx, property, this))
+      .orElse(ContextualProperty.fromAbsent(ctx, name, this));
   }
 
-  public ObjectSymbol object(String name) {
+  public ContextualObject object(String name) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.value(tree, name, ObjectExpression.class))
-      .map(objectExpression -> ObjectSymbol.fromPresent(ctx, objectExpression, name, this))
-      .orElse(ObjectSymbol.fromAbsent(ctx, name, this));
+      .map(objectExpression -> ContextualObject.fromPresent(ctx, objectExpression, name, this))
+      .orElse(ContextualObject.fromAbsent(ctx, name, this));
   }
 }

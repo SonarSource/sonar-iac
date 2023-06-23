@@ -24,14 +24,14 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.dsl.Symbol;
+import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessToString;
 
-public class ReferenceSymbol extends Symbol<ReferenceSymbol, AttributeTree> {
+public class ReferenceSymbol extends ContextualTree<ReferenceSymbol, AttributeTree> {
 
   private AttributeAccessTree reference;
 

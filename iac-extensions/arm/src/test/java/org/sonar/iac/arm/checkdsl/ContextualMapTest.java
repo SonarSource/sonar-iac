@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.symbols;
+package org.sonar.iac.arm.checkdsl;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,12 +39,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-class MapSymbolTest {
+class ContextualMapTest {
 
   TestTree tree = new TestTree();
   CheckContext ctx = mock(CheckContext.class);
-  TestMapSymbol present = new TestMapSymbol(ctx, tree, "testSymbol", null);
-  TestMapSymbol absent = new TestMapSymbol(ctx, null, "testSymbol", null);
+  TestContextualMap present = new TestContextualMap(ctx, tree, "test", null);
+  TestContextualMap absent = new TestContextualMap(ctx, null, "test", null);
 
   @Test
   void isPresent() {
@@ -82,10 +82,10 @@ class MapSymbolTest {
 
   @Test
   void reportIfAbsent() {
-    TestMapSymbol parent = new TestMapSymbol(ctx, tree, "parentSymbol", null);
-    TestMapSymbol symbol = new TestMapSymbol(ctx, null, "testSymbol", parent);
+    TestContextualMap parent = new TestContextualMap(ctx, tree, "parent", null);
+    TestContextualMap contextualMap = new TestContextualMap(ctx, null, "test", parent);
     SecondaryLocation secondary = present.toSecondary("secondary");
-    symbol.reportIfAbsent("message", secondary);
+    contextualMap.reportIfAbsent("message", secondary);
     verify(ctx, times(1)).reportIssue(tree, "message", List.of(secondary));
   }
 
@@ -97,13 +97,13 @@ class MapSymbolTest {
 
   @Test
   void reportIfAbsentWithoutParent() {
-    TestMapSymbol symbol = new TestMapSymbol(ctx, null, "testSymbol", null);
-    symbol.reportIfAbsent("message");
+    TestContextualMap contextualMap = new TestContextualMap(ctx, null, "testSymbol", null);
+    contextualMap.reportIfAbsent("message");
     verifyNoInteractions(ctx);
   }
 
-  static class TestMapSymbol extends MapSymbol<TestMapSymbol, TestTree> {
-    protected TestMapSymbol(CheckContext ctx, @Nullable TestTree tree, @Nullable String name, @Nullable MapSymbol<?, ?> parent) {
+  static class TestContextualMap extends ContextualMap<TestContextualMap, TestTree> {
+    protected TestContextualMap(CheckContext ctx, @Nullable TestTree tree, @Nullable String name, @Nullable ContextualMap<?, ?> parent) {
       super(ctx, tree, name, parent);
     }
   }

@@ -20,11 +20,11 @@
 package org.sonar.iac.terraform.symbols;
 
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.dsl.CommonPropertySymbol;
+import org.sonar.iac.common.checkdsl.ContextualPropertyTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 
-public class AttributeSymbol extends CommonPropertySymbol<AttributeSymbol, AttributeTree, ExpressionTree> {
+public class AttributeSymbol extends ContextualPropertyTree<AttributeSymbol, AttributeTree, ExpressionTree> {
 
   protected AttributeSymbol(CheckContext ctx, AttributeTree tree, String name, BlockSymbol parent) {
     super(ctx, tree, name, parent);

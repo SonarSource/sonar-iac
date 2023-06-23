@@ -33,7 +33,7 @@ import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ListSymbol;
-import org.sonar.iac.common.dsl.Symbol;
+import org.sonar.iac.common.checkdsl.ContextualTree;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.S3_BUCKET;
 import static org.sonar.iac.terraform.checks.DisabledLoggingCheck.MESSAGE;
@@ -76,7 +76,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewResourceCheck {
 
       Stream<AttributeSymbol> logSettings = Stream.of("cloudwatch_logs", "firehose", "s3")
         .map(brokerLogs::block)
-        .filter(Symbol::isPresent)
+        .filter(ContextualTree::isPresent)
         .map(l -> l.attribute("enabled"));
 
       if (logSettings.noneMatch(l -> l.is(isFalse().negate()))) {
