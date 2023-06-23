@@ -29,13 +29,14 @@ import static org.sonar.iac.arm.ArmTestUtils.parseObject;
 class ContextualObjectTest {
 
   ContextualObject absent = ContextualObject.fromAbsent(CTX, "absentObject", null);
-  ObjectExpression objectWithProp = parseObject("{\"key1\": \"value\", \"key2\": {} }");
+  ObjectExpression objectWithProp = parseObject("{\"key1\": \"value\", \"key2\": {} , \"key3\": []}");
   ContextualObject present = ContextualObject.fromPresent(CTX, objectWithProp, null, null);
 
   @Test
   void property() {
     assertThat(present.property("key1").isPresent()).isTrue();
     assertThat(present.property("key2").isPresent()).isTrue();
+    assertThat(present.property("key3").isPresent()).isTrue();
     assertThat(present.property("unknown").isPresent()).isFalse();
     assertThat(absent.property("key1").isPresent()).isFalse();
   }
@@ -44,7 +45,17 @@ class ContextualObjectTest {
   void object() {
     assertThat(present.object("key1").isPresent()).isFalse();
     assertThat(present.object("key2").isPresent()).isTrue();
+    assertThat(present.object("key3").isPresent()).isFalse();
     assertThat(present.object("unknown").isPresent()).isFalse();
-    assertThat(absent.object("key1").isPresent()).isFalse();
+    assertThat(absent.object("key2").isPresent()).isFalse();
+  }
+
+  @Test
+  void list() {
+    assertThat(present.list("key1").isPresent()).isFalse();
+    assertThat(present.list("key2").isPresent()).isFalse();
+    assertThat(present.list("key3").isPresent()).isTrue();
+    assertThat(present.list("unknown").isPresent()).isFalse();
+    assertThat(absent.list("key3").isPresent()).isFalse();
   }
 }

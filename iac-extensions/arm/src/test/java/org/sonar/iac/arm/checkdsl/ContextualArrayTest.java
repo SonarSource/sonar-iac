@@ -19,21 +19,25 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
-import javax.annotation.Nullable;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.checkdsl.ContextualTree;
 
-public class ContextualObject extends ContextualMap<ContextualObject, ObjectExpression> {
-  protected ContextualObject(CheckContext ctx, @Nullable ObjectExpression tree, @Nullable String name, ContextualTree<?, ?> parent) {
-    super(ctx, tree, name, parent);
-  }
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.CTX;
+import static org.sonar.iac.arm.ArmTestUtils.parseObject;
 
-  public static ContextualObject fromPresent(CheckContext ctx, ObjectExpression tree, @Nullable String name, ContextualTree<?, ?> parent) {
-    return new ContextualObject(ctx, tree, name, parent);
-  }
+class ContextualArrayTest {
 
-  public static ContextualObject fromAbsent(CheckContext ctx, @Nullable String name, ContextualMap<?, ?> parent) {
-    return new ContextualObject(ctx, null, name, parent);
+  ContextualArray absent = ContextualArray.fromAbsent(CTX, "absentObject", null);
+  ObjectExpression objectWithLists = parseObject("{\"emptyKey\": [], \"filledKey\": [{\"key\": \"value\"}] }");
+  ContextualArray present = ContextualArray.fromPresent(CTX, (ArrayExpression) objectWithLists.properties().get(1).value(), "filledKey", null);
+  ContextualArray empty = ContextualArray.fromPresent(CTX, (ArrayExpression) objectWithLists.properties().get(0).value(), "emptyKey", null);
+
+  @Test
+  void objects() {
+    assertThat(present.objects()).hasSize(1);
+    assertThat(absent.objects()).isEmpty();
+    assertThat(empty.objects()).isEmpty();
   }
 }
