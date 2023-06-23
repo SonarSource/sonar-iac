@@ -29,6 +29,7 @@ import org.sonar.iac.common.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -49,6 +50,8 @@ class ContextualListTreeTest {
     absent.reportItemIf(allwaysTrue, "absentMsg");
 
     verify(ctx, times(1)).reportIssue(tree, "presentMsg", Collections.emptyList());
+    verify(ctx, never()).reportIssue(tree, "emptyMsg", Collections.emptyList());
+    verify(ctx, never()).reportIssue(tree, "absentMsg", Collections.emptyList());
   }
 
   @Test
@@ -72,6 +75,8 @@ class ContextualListTreeTest {
     absent.reportIfEmpty("absentMsg");
 
     verify(ctx, times(1)).reportIssue(tree, "emptyMsg", Collections.emptyList());
+    verify(ctx, never()).reportIssue(tree, "emptyMsg", Collections.emptyList());
+    verify(ctx, never()).reportIssue(tree, "absentMsg", Collections.emptyList());
   }
 
   static class TestContextualListTree extends ContextualListTree<TestContextualListTree, Tree, Tree> {
