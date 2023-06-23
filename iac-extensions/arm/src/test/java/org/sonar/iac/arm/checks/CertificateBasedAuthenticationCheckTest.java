@@ -59,7 +59,7 @@ class CertificateBasedAuthenticationCheckTest {
   void testFactoriesLinkedServices() {
     ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_linkedservices/test.json", new CertificateBasedAuthenticationCheck(),
       issue(12, 10, 12, 39, "This authentication method is not certificate-based. Make sure it is safe here.",
-        SecondaryLocation.secondary(10, 8, 10, 21, "Service type.")),
+        SecondaryLocation.secondary(10, 8, 10, 21, "Service type")),
       issue(23, 10, 23, 39),
       issue(39, 14, 39, 43));
   }

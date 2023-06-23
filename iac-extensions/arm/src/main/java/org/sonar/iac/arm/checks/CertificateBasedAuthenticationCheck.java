@@ -86,7 +86,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
     if (type.is(isValue(SENSITIVE_LINKED_SERVICES_TYPE::contains))
       && authenticationType.is(isValue(str -> !"ClientCertificate".equals(str)))) {
-      authenticationType.report(WRONG_AUTHENTICATION_METHOD_MESSAGE, type.toSecondary("Service type."));
+      authenticationType.report(WRONG_AUTHENTICATION_METHOD_MESSAGE, type.toSecondary("Service type"));
     }
   }
 
