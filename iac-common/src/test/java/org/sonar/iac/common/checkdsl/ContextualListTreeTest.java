@@ -75,7 +75,7 @@ class ContextualListTreeTest {
     absent.reportIfEmpty("absentMsg");
 
     verify(ctx, times(1)).reportIssue(tree, "emptyMsg", Collections.emptyList());
-    verify(ctx, never()).reportIssue(tree, "emptyMsg", Collections.emptyList());
+    verify(ctx, never()).reportIssue(tree, "presentMsg", Collections.emptyList());
     verify(ctx, never()).reportIssue(tree, "absentMsg", Collections.emptyList());
   }
 
