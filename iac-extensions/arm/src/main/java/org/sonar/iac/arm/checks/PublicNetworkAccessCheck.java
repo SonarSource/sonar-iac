@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checks.ipaddress.IpAddressValidator;
+import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -118,7 +119,6 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     "Microsoft.Web/staticSites");
 
   private static final List<String> PUBLIC_IP_ADDRESS_RANGE_TYPES = List.of(
-    "Microsoft.DBForMySql/flexibleServers/firewallRules",
     "Microsoft.DBForPostgreSql/flexibleServers/firewallRules",
     "Microsoft.DBforMariaDB/servers/firewallRules",
     "Microsoft.DBforMySQL/flexibleServers/firewallRules",
@@ -140,6 +140,7 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     register("Microsoft.DesktopVirtualization/hostPools", checkPublicNetworkAccess());
 
     PUBLIC_NETWORK_ACCESS_SIMPLIFIED_TYPES.forEach(type -> register(type, checkPublicNetworkAccessSimplified()));
+    register("Microsoft.DBforMySQL/flexibleServers", checkPublicNetworkAccessInNetwork());
 
     PUBLIC_IP_ADDRESS_RANGE_TYPES.forEach(type -> register(type, checkIpRange()));
   }
@@ -154,6 +155,12 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     return (ctx, resource) -> PropertyUtils.value(resource, "publicNetworkAccess")
       .filter(PublicNetworkAccessCheck::isSensitivePublicNetworkAccessSimplified)
       .ifPresent(value -> ctx.reportIssue(value, PUBLIC_NETWORK_ACCESS_MESSAGE));
+  }
+
+  private static BiConsumer<CheckContext, ResourceDeclaration> checkPublicNetworkAccessInNetwork() {
+    return (ctx, resource) -> CheckUtils.resolveProperties("network/publicNetworkAccess", resource).stream()
+      .filter(PublicNetworkAccessCheck::isSensitivePublicNetworkAccessSimplified)
+      .forEach(value -> ctx.reportIssue(value, PUBLIC_NETWORK_ACCESS_MESSAGE));
   }
 
   private static boolean isSensitivePublicNetworkAccess(Tree tree) {

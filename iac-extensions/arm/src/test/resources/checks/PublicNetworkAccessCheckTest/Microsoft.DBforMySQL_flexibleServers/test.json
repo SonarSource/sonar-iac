@@ -1,0 +1,65 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers",
+      "apiVersion": "2022-09-30-preview",
+      "name": "Noncompliant: publicNetworkAccess is enabled",
+      "properties": {
+        "network": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers",
+      "apiVersion": "2022-09-30-preview",
+      "name": "Compliant: publicNetworkAccess is disabled",
+      "properties": {
+        "network": {
+          "publicNetworkAccess": "Disabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers",
+      "apiVersion": "2022-09-30-preview",
+      "name": "Compliant: publicNetworkAccess is unknown",
+      "properties": {
+        "network": {
+          "publicNetworkAccess": "unknown"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers",
+      "apiVersion": "2022-09-30-preview",
+      "name": "Compliant: publicNetworkAccess is not a String Litaeral",
+      "properties": {
+        "network": {
+          "publicNetworkAccess": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers",
+      "apiVersion": "2022-09-30-preview",
+      "name": "Compliant: publicNetworkAccess is not defined",
+      "properties": {
+        "network": {
+        }
+      }
+    },
+    {
+      "type": "unknown.type",
+      "apiVersion": "2022-09-30-preview",
+      "name": "Compliant: property defined for unknown type",
+      "properties": {
+        "network": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    }
+  ]
+}

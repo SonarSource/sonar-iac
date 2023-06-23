@@ -182,7 +182,6 @@ class PublicNetworkAccessCheckTest {
 
   static Stream<String> shouldCheckRangePublicIPAddress() {
     return Stream.of(
-      "Microsoft.DBForMySql/flexibleServers/firewallRules",
       "Microsoft.DBForPostgreSql/flexibleServers/firewallRules",
       "Microsoft.DBforMariaDB/servers/firewallRules",
       "Microsoft.DBforMySQL/flexibleServers/firewallRules",
@@ -227,6 +226,13 @@ class PublicNetworkAccessCheckTest {
   @Test
   void shouldRaiseNoIssueForPublicIPAddressForUnknownType() {
     verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/unknown-type.json", CHECK);
+  }
+
+  @Test
+  void shouldCheckDbForMySqlFlexibleServers() {
+    verify("PublicNetworkAccessCheckTest/Microsoft.DBforMySQL_flexibleServers/test.json",
+      CHECK,
+      issue(11,33,11,42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   private static String readTemplateAndReplace(String path, String type) {
