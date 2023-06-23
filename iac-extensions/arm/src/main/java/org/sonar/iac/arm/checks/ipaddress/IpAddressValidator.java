@@ -40,8 +40,7 @@ public class IpAddressValidator {
     new Range(new Ip("198.18.0.0").toLong(), new Ip("198.19.255.255").toLong()),
     new Range(new Ip("198.51.100.0").toLong(), new Ip("198.51.100.255").toLong()),
     new Range(new Ip("203.0.113.0").toLong(), new Ip("203.0.113.255").toLong()),
-    new Range(new Ip("240.0.0.0").toLong(), new Ip("240.255.255.254").toLong())
-  );
+    new Range(new Ip("240.0.0.0").toLong(), new Ip("240.255.255.254").toLong()));
 
   @Nullable
   private final ArmTree startIpAddress;
@@ -59,9 +58,8 @@ public class IpAddressValidator {
     return new IpAddressValidator(startIpAddress, endIpAddress);
   }
 
-
   public void reportIssueIfPublicIPAddress(CheckContext ctx, String message, String secondaryLocationMessage) {
-    if(startIpAddress == null && endIpAddress == null) {
+    if (startIpAddress == null && endIpAddress == null) {
       return;
     }
     String start = null;
@@ -69,13 +67,13 @@ public class IpAddressValidator {
     if (startIpAddress != null && startIpAddress.is(ArmTree.Kind.STRING_LITERAL)) {
       start = TextUtils.getValue(startIpAddress).orElse("0.0.0.0");
     }
-    if(endIpAddress != null && endIpAddress.is(ArmTree.Kind.STRING_LITERAL)) {
+    if (endIpAddress != null && endIpAddress.is(ArmTree.Kind.STRING_LITERAL)) {
       end = TextUtils.getValue(endIpAddress).orElse("255.255.255.255");
     }
-    if(start == null && end == null) {
+    if (start == null && end == null) {
       return;
     }
-    if(start == null) {
+    if (start == null) {
       start = "0.0.0.0";
     }
     if (end == null) {
@@ -94,7 +92,7 @@ public class IpAddressValidator {
       Tree tree = (startIpAddress != null) ? startIpAddress : endIpAddress;
       Tree secondary = (startIpAddress != null && endIpAddress != null) ? endIpAddress : null;
 
-      if(secondary != null) {
+      if (secondary != null) {
         SecondaryLocation secondaryLocation = new SecondaryLocation(secondary, secondaryLocationMessage);
         ctx.reportIssue(tree, message, List.of(secondaryLocation));
       } else {

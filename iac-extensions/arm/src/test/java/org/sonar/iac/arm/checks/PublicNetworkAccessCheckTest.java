@@ -180,7 +180,6 @@ class PublicNetworkAccessCheckTest {
     verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplifed/unknown-type.json", CHECK);
   }
 
-
   static Stream<String> shouldCheckRangePublicIPAddress() {
     return Stream.of(
       "Microsoft.DBForMySql/flexibleServers/firewallRules",
@@ -195,8 +194,7 @@ class PublicNetworkAccessCheckTest {
       "Microsoft.DataLakeStore/accounts/firewallRules",
       "Microsoft.DocumentDB/mongoClusters/firewallRules",
       "Microsoft.Sql/servers/firewallRules",
-      "Microsoft.Synapse/workspaces/firewallRules"
-    );
+      "Microsoft.Synapse/workspaces/firewallRules");
   }
 
   @MethodSource
@@ -207,24 +205,25 @@ class PublicNetworkAccessCheckTest {
       issue(10, 26, 10, 35, MESSAGE_PUBLIC_IP_ACCESS, secondary(11, 24, 11, 41, AND_HERE)),
       issue(19, 24, 19, 33, MESSAGE_PUBLIC_IP_ACCESS),
       issue(27, 26, 27, 37),
-      issue(35,26,35, 35),
-      issue(44,26,44,36, MESSAGE_PUBLIC_IP_ACCESS, secondary(45, 24,45, 40, AND_HERE)),
-      issue(53,26,53,39, MESSAGE_PUBLIC_IP_ACCESS, secondary(54, 24, 54, 41, AND_HERE)),
-      issue(62,26,62,39, MESSAGE_PUBLIC_IP_ACCESS, secondary(63, 24, 63, 40, AND_HERE)),
-      issue(71,26,71,38, MESSAGE_PUBLIC_IP_ACCESS, secondary(72,24,72, 41, AND_HERE)),
-      issue(80,26,80,37, MESSAGE_PUBLIC_IP_ACCESS, secondary(81, 24, 81, 37, AND_HERE)),
-      issue(89,26,89,37,MESSAGE_PUBLIC_IP_ACCESS, secondary(90,24,90,41,AND_HERE)),
-      issue(98,26,98,39,MESSAGE_PUBLIC_IP_ACCESS, secondary(99,24,99,40,AND_HERE)),
-      issue(107,26,107,38,MESSAGE_PUBLIC_IP_ACCESS, secondary(108,24,108,39,AND_HERE)),
-      issue(116,26,116,40,MESSAGE_PUBLIC_IP_ACCESS, secondary(117,24,117,39,AND_HERE)),
-      issue(125,26,125,39,MESSAGE_PUBLIC_IP_ACCESS, secondary(126,24,126,41,AND_HERE)),
-      issue(134,26,134,43,MESSAGE_PUBLIC_IP_ACCESS, secondary(135,24,135,41,AND_HERE)),
-      issue(143,26,143,43,MESSAGE_PUBLIC_IP_ACCESS),
-      issue(151,26,151,37,MESSAGE_PUBLIC_IP_ACCESS, secondary(152, 24, 152, 37, AND_HERE)),
-      issue(160,26,160,37,MESSAGE_PUBLIC_IP_ACCESS, secondary(161, 24, 161, 37, AND_HERE))
+      issue(35, 26, 35, 35),
+      issue(44, 26, 44, 36, MESSAGE_PUBLIC_IP_ACCESS, secondary(45, 24, 45, 40, AND_HERE)),
+      issue(53, 26, 53, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(54, 24, 54, 41, AND_HERE)),
+      issue(62, 26, 62, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(63, 24, 63, 40, AND_HERE)),
+      issue(71, 26, 71, 38, MESSAGE_PUBLIC_IP_ACCESS, secondary(72, 24, 72, 41, AND_HERE)),
+      issue(80, 26, 80, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(81, 24, 81, 37, AND_HERE)),
+      issue(89, 26, 89, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(90, 24, 90, 41, AND_HERE)),
+      issue(98, 26, 98, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(99, 24, 99, 40, AND_HERE)),
+      issue(107, 26, 107, 38, MESSAGE_PUBLIC_IP_ACCESS, secondary(108, 24, 108, 39, AND_HERE)),
+      issue(116, 26, 116, 40, MESSAGE_PUBLIC_IP_ACCESS, secondary(117, 24, 117, 39, AND_HERE)),
+      issue(125, 26, 125, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(126, 24, 126, 41, AND_HERE)),
+      issue(134, 26, 134, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(135, 24, 135, 41, AND_HERE)),
+      issue(143, 26, 143, 43, MESSAGE_PUBLIC_IP_ACCESS),
+      issue(151, 26, 151, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(152, 24, 152, 37, AND_HERE)),
+      issue(160, 26, 160, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(161, 24, 161, 37, AND_HERE))
 
     );
   }
+
   private static String readTemplateAndReplace(String path, String type) {
     String content;
     try {

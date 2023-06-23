@@ -130,8 +130,7 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     "Microsoft.DataLakeStore/accounts/firewallRules",
     "Microsoft.DocumentDB/mongoClusters/firewallRules",
     "Microsoft.Sql/servers/firewallRules",
-    "Microsoft.Synapse/workspaces/firewallRules"
-  );
+    "Microsoft.Synapse/workspaces/firewallRules");
   private static final String PUBLIC_NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
   private static final String PUBLIC_IP_ADDRESS_MESSAGE = "Make sure that allowing public IP addresses is safe here.";
   private static final String PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION = "and here";
