@@ -30,6 +30,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -53,6 +54,7 @@ class SymbolTest {
     absent.report("absent");
 
     verify(ctx, times(1)).reportIssue(tree, "present", Collections.emptyList());
+    verify(ctx, never()).reportIssue(tree, "absent", Collections.emptyList());
   }
 
   @Test
@@ -82,6 +84,7 @@ class SymbolTest {
     absent.reportIfAbsent("absent");
 
     verify(ctx, times(1)).reportIssue(parentTree, "absent", Collections.emptyList());
+    verify(ctx, never()).reportIssue(parentTree, "present", Collections.emptyList());
   }
 
   @Test
