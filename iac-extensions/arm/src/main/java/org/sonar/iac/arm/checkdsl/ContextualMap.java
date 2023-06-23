@@ -21,6 +21,7 @@ package org.sonar.iac.arm.checkdsl;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -31,7 +32,7 @@ import org.sonar.iac.common.checkdsl.ContextualTree;
 
 public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends HasProperties & Tree> extends ContextualTree<ContextualMap<S, T>, T> {
 
-  protected ContextualMap(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable ContextualMap<?, ?> parent) {
+  protected ContextualMap(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable ContextualTree<?, ?> parent) {
     super(ctx, tree, name, parent);
   }
 
@@ -47,5 +48,12 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
       .flatMap(tree -> PropertyUtils.value(tree, name, ObjectExpression.class))
       .map(objectExpression -> ContextualObject.fromPresent(ctx, objectExpression, name, this))
       .orElse(ContextualObject.fromAbsent(ctx, name, this));
+  }
+
+  public ContextualArray list(String name) {
+    return Optional.ofNullable(tree)
+      .flatMap(tree -> PropertyUtils.value(tree, name, ArrayExpression.class))
+      .map(arrayExpression -> ContextualArray.fromPresent(ctx, arrayExpression, name, this))
+      .orElse(ContextualArray.fromAbsent(ctx, name, this));
   }
 }

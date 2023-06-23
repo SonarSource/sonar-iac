@@ -21,25 +21,19 @@ package org.sonar.iac.terraform.symbols;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.checkdsl.ContextualTree;
+import org.sonar.iac.common.checkdsl.ContextualListTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 
-public class ListSymbol extends ContextualTree<ListSymbol, AttributeTree> {
+public class ListSymbol extends ContextualListTree<ListSymbol, AttributeTree, ExpressionTree> {
 
-  private final List<ExpressionTree> items;
-
-  private ListSymbol(CheckContext ctx, AttributeTree tree, String name, BlockSymbol parent, List<ExpressionTree> items) {
-    super(ctx, tree, name, parent);
-    this.items = items;
+  private ListSymbol(CheckContext ctx, @Nullable AttributeTree tree, String name, BlockSymbol parent, List<ExpressionTree> items) {
+    super(ctx, tree, name, parent, items);
   }
 
   public static ListSymbol fromPresent(CheckContext ctx, AttributeTree tree, BlockSymbol parent) {
@@ -56,22 +50,7 @@ public class ListSymbol extends ContextualTree<ListSymbol, AttributeTree> {
     return new ListSymbol(ctx, null, name, parent, Collections.emptyList());
   }
 
-  public ListSymbol reportItemIf(Predicate<ExpressionTree> predicate, String message, SecondaryLocation... secondaryLocations) {
-    items.stream().filter(predicate).forEach(item -> ctx.reportIssue(item, message, List.of(secondaryLocations)));
-    return this;
-  }
-
-  public ListSymbol reportIfEmpty(String message, SecondaryLocation... secondaryLocations) {
-    if (isEmpty()) {
-      report(message, secondaryLocations);
-    }
-    return this;
-  }
-
-  public Stream<ExpressionTree> getItemIf(Predicate<ExpressionTree> predicate) {
-    return items.stream().filter(predicate);
-  }
-
+  @Override
   public boolean isEmpty() {
     return tree != null && items.isEmpty() && !isByReference();
   }
