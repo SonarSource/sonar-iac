@@ -29,6 +29,8 @@ import org.sonar.iac.common.checks.TextUtils;
 
 public class IpAddressValidator {
 
+  // Make sure using this hardcoded IP address is safe here.
+  @SuppressWarnings("java:S1313")
   private static final List<Range> SAFE_RANGES = List.of(
     new Range(new Ip("10.0.0.0").toLong(), new Ip("10.255.255.255").toLong()),
     new Range(new Ip("100.64.0.0").toLong(), new Ip("100.127.255.255").toLong()),
@@ -41,6 +43,8 @@ public class IpAddressValidator {
     new Range(new Ip("198.51.100.0").toLong(), new Ip("198.51.100.255").toLong()),
     new Range(new Ip("203.0.113.0").toLong(), new Ip("203.0.113.255").toLong()),
     new Range(new Ip("240.0.0.0").toLong(), new Ip("240.255.255.254").toLong()));
+  private static final String DEFAULT_START_IP = "0.0.0.0";
+  private static final String DEFAULT_END_IP = "255.255.255.255";
 
   @Nullable
   private final ArmTree startIpAddress;
@@ -51,7 +55,6 @@ public class IpAddressValidator {
   private IpAddressValidator(@Nullable ArmTree startIpAddress, @Nullable ArmTree endIpAddress) {
     this.startIpAddress = startIpAddress;
     this.endIpAddress = endIpAddress;
-
   }
 
   public static IpAddressValidator fromStartToEnd(@Nullable ArmTree startIpAddress, @Nullable ArmTree endIpAddress) {
@@ -59,45 +62,62 @@ public class IpAddressValidator {
   }
 
   public void reportIssueIfPublicIPAddress(CheckContext ctx, String message, String secondaryLocationMessage) {
+    ValidationResult validation = validateTrees();
+
+    if (validation.isValid()) {
+      long startLong = validation.startIp().toLong();
+      long endInt = validation.endIp().toLong();
+      for (Range safeRange : SAFE_RANGES) {
+        if (safeRange.contains(startLong) && safeRange.contains(endInt)) {
+          return;
+        }
+      }
+      reportIssue(ctx, message, secondaryLocationMessage);
+    }
+  }
+
+  private ValidationResult validateTrees() {
     if (startIpAddress == null && endIpAddress == null) {
-      return;
+      return new ValidationResult(false, null, null);
     }
     String start = null;
     String end = null;
     if (startIpAddress != null && startIpAddress.is(ArmTree.Kind.STRING_LITERAL)) {
-      start = TextUtils.getValue(startIpAddress).orElse("0.0.0.0");
+      start = TextUtils.getValue(startIpAddress).orElse(DEFAULT_START_IP);
     }
     if (endIpAddress != null && endIpAddress.is(ArmTree.Kind.STRING_LITERAL)) {
-      end = TextUtils.getValue(endIpAddress).orElse("255.255.255.255");
+      end = TextUtils.getValue(endIpAddress).orElse(DEFAULT_END_IP);
     }
     if (start == null && end == null) {
-      return;
+      return new ValidationResult(false, null, null);
     }
     if (start == null) {
-      start = "0.0.0.0";
+      start = DEFAULT_START_IP;
     }
     if (end == null) {
-      end = "255.255.255.255";
+      end = DEFAULT_END_IP;
     }
-    if (Ip.isAddressValid(start) && Ip.isAddressValid(end)) {
-      long startInt = new Ip(start).toLong();
-      long endInt = new Ip(end).toLong();
 
-      for (Range safeRange : SAFE_RANGES) {
-        if (safeRange.contains(startInt) && safeRange.contains(endInt)) {
-          return;
-        }
-      }
+    boolean isStartValid = Ip.isAddressValid(start);
+    boolean isEndValid = Ip.isAddressValid(end);
+    if (!isStartValid && !isEndValid) {
+      return new ValidationResult(false, null, null);
+    }
+    return new ValidationResult(
+      true,
+      isStartValid ? new Ip(start) : new Ip(DEFAULT_START_IP),
+      isEndValid ? new Ip(end) : new Ip(DEFAULT_END_IP));
+  }
 
-      Tree tree = (startIpAddress != null) ? startIpAddress : endIpAddress;
-      Tree secondary = (startIpAddress != null && endIpAddress != null) ? endIpAddress : null;
+  private void reportIssue(CheckContext ctx, String message, String secondaryLocationMessage) {
+    Tree tree = (startIpAddress != null) ? startIpAddress : endIpAddress;
+    Tree secondary = (startIpAddress != null && endIpAddress != null) ? endIpAddress : null;
 
-      if (secondary != null) {
-        SecondaryLocation secondaryLocation = new SecondaryLocation(secondary, secondaryLocationMessage);
-        ctx.reportIssue(tree, message, List.of(secondaryLocation));
-      } else {
-        ctx.reportIssue(tree, message);
-      }
+    if (secondary != null) {
+      SecondaryLocation secondaryLocation = new SecondaryLocation(secondary, secondaryLocationMessage);
+      ctx.reportIssue(tree, message, List.of(secondaryLocation));
+    } else {
+      ctx.reportIssue(tree, message);
     }
   }
 
@@ -158,6 +178,30 @@ public class IpAddressValidator {
 
     public boolean contains(long x) {
       return x >= startInclusive && x <= endInclusive;
+    }
+  }
+
+  static class ValidationResult {
+    private final boolean valid;
+    private final Ip startIp;
+    private final Ip endIp;
+
+    ValidationResult(boolean valid, @Nullable Ip startIp, @Nullable Ip endIp) {
+      this.valid = valid;
+      this.startIp = startIp;
+      this.endIp = endIp;
+    }
+
+    public boolean isValid() {
+      return valid;
+    }
+
+    public Ip startIp() {
+      return startIp;
+    }
+
+    public Ip endIp() {
+      return endIp;
     }
   }
 }

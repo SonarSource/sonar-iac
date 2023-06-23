@@ -164,6 +164,24 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
+      "name": "Should raise issue for unknown startIpAddress",
+      "properties": {
+        "startIpAddress": "unknown",
+        "endIpAddress": "250.0.0.0"
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Should raise issue for unknown endIpAddress",
+      "properties": {
+        "startIpAddress": "250.0.0.0",
+        "endIpAddress": "unknown"
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
       "name": "Should NOT raise issue for private networks only",
       "properties": {
         "startIpAddress": "10.0.0.0",
@@ -220,7 +238,7 @@
       "apiVersion": "dummy",
       "name": "Should NOT raise issue for private networks only",
       "properties": {
-        "startIpAddress": "192.168.0.0v",
+        "startIpAddress": "192.168.0.0",
         "endIpAddress": "192.168.255.255"
       }
     },
@@ -281,24 +299,6 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for unknown startIpAddress",
-      "properties": {
-        "startIpAddress": "unknown",
-        "endIpAddress": "250.0.0.0"
-      }
-    },
-    {
-      "type": "${type}",
-      "apiVersion": "dummy",
-      "name": "Should NOT raise issue for unknown endIpAddress",
-      "properties": {
-        "startIpAddress": "250.0.0.0",
-        "endIpAddress": "unknown"
-      }
-    },
-    {
-      "type": "${type}",
-      "apiVersion": "dummy",
       "name": "Should NOT raise issue for IP 6",
       "properties": {
         "startIpAddress": "2001:0db8:0000:0000:0000:8a2e:0370:7334",
@@ -325,6 +325,15 @@
       "apiVersion": "dummy",
       "name": "Should NOT raise issue for endIpAddress as not StringLiteral",
       "properties": {
+        "endIpAddress": []
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Should NOT raise issue for startIpAddress & endIpAddress as not StringLiteral",
+      "properties": {
+        "startIpAddress": {},
         "endIpAddress": []
       }
     }

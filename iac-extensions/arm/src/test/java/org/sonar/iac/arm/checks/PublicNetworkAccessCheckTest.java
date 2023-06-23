@@ -219,7 +219,9 @@ class PublicNetworkAccessCheckTest {
       issue(134, 26, 134, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(135, 24, 135, 41, AND_HERE)),
       issue(143, 26, 143, 43, MESSAGE_PUBLIC_IP_ACCESS),
       issue(151, 26, 151, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(152, 24, 152, 37, AND_HERE)),
-      issue(160, 26, 160, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(161, 24, 161, 37, AND_HERE))
+      issue(160, 26, 160, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(161, 24, 161, 37, AND_HERE)),
+      issue(169, 26, 169, 35, MESSAGE_PUBLIC_IP_ACCESS, secondary(170, 24, 170, 35, AND_HERE)),
+      issue(178, 26, 178, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(179, 24, 179, 33, AND_HERE))
 
     );
   }
