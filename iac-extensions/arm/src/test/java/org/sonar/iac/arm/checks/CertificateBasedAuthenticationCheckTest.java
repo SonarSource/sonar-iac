@@ -89,4 +89,28 @@ class CertificateBasedAuthenticationCheckTest {
       issue(25, 14, 25, 48),
       issue(34, 14, 34, 48));
   }
+
+  @Test  void testWebSites() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Web_sites/Web_sites.json", new CertificateBasedAuthenticationCheck(),
+      issue(7, 14, 7, 35, "Omitting \"clientCertEnabled\" disables certificate-based authentication. Make sure it is safe here."),
+      issue(7, 14, 7, 35, "Omitting \"clientCertMode\" disables certificate-based authentication. Make sure it is safe here."),
+      issue(14, 14, 14, 35),
+      issue(17, 8, 17, 34, "Make sure that disabling certificate-based authentication is safe here."),
+      issue(22, 14, 22, 35),
+      issue(34, 8, 34, 36, "Connections without client certificates will be permitted. Make sure it is safe here."),
+      issue(42, 8, 42, 34),
+      issue(48, 14, 48, 35));
+  }
+
+  @Test
+  void testWebSitesSlots() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Web_sites/Web_sites_slots.json", new CertificateBasedAuthenticationCheck(),
+      issue(10, 8, 10, 34, "Make sure that disabling certificate-based authentication is safe here."),
+      issue(18, 8, 18, 36, "Connections without client certificates will be permitted. Make sure it is safe here."),
+      issue(27, 8, 27, 36),
+      issue(35, 8, 35, 34),
+      issue(53, 12, 53, 38),
+      issue(61, 12, 61, 40),
+      issue(71, 8, 71, 34));
+  }
 }

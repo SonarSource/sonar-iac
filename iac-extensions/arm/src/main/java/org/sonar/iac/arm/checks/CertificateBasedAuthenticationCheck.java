@@ -34,7 +34,6 @@ import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6382")
@@ -55,7 +54,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.ApiManagement/service/gateways/hostnameConfigurations", resource -> resource.property("negotiateClientCertificate")
-      .reportIf(CertificateBasedAuthenticationCheck::isBooleanFalse, DISABLED_CERTIFICATE_MESSAGE)
+      .reportIf(isBooleanFalse(), DISABLED_CERTIFICATE_MESSAGE)
       .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE));
     register("Microsoft.App/containerApps", CertificateBasedAuthenticationCheck::checkContainerApps);
     register("Microsoft.ContainerRegistry/registries/tokens", CertificateBasedAuthenticationCheck::checkRegistriesTokens);
@@ -63,6 +62,8 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     register("Microsoft.DocumentDB/cassandraClusters", CertificateBasedAuthenticationCheck::checkCassandraClusters);
     register("Microsoft.Scheduler/jobCollections/jobs", CertificateBasedAuthenticationCheck::checkJobCollections);
     register("Microsoft.ServiceFabric/clusters", CertificateBasedAuthenticationCheck::checkServiceFabric);
+    register("Microsoft.Web/sites", CertificateBasedAuthenticationCheck::checkWebSites);
+    register("Microsoft.Web/sites/slots", CertificateBasedAuthenticationCheck::checkWebSitesSlots);
   }
 
   private static void checkContainerApps(ContextualResource resource) {
@@ -135,8 +136,24 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     }
   }
 
-  private static boolean isBooleanFalse(Tree tree) {
-    return ((ArmTree) tree).is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) tree).value();
+  private static void checkWebSites(ContextualResource resource) {
+    resource.property("clientCertEnabled")
+      .reportIf(isBooleanFalse(), DISABLED_CERTIFICATE_MESSAGE)
+      .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
+    resource.property("clientCertMode")
+      .reportIf(isValue(str -> !"Required".equals(str)), ALLOWING_NO_CERTIFICATE_MESSAGE)
+      .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
+  }
+
+  private static void checkWebSitesSlots(ContextualResource resource) {
+    resource.property("clientCertEnabled")
+      .reportIf(isBooleanFalse(), DISABLED_CERTIFICATE_MESSAGE);
+    resource.property("clientCertMode")
+      .reportIf(isValue(str -> !"Required".equals(str)), ALLOWING_NO_CERTIFICATE_MESSAGE);
+  }
+
+  private static Predicate<Expression> isBooleanFalse() {
+    return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
   }
 
   private static Predicate<Expression> isValue(Predicate<String> predicate) {
