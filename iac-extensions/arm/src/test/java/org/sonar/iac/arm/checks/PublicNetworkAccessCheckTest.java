@@ -232,7 +232,7 @@ class PublicNetworkAccessCheckTest {
   void shouldCheckDbForMySqlFlexibleServers() {
     verify("PublicNetworkAccessCheckTest/Microsoft.DBforMySQL_flexibleServers/test.json",
       CHECK,
-      issue(11,33,11,42, MESSAGE_PUBLIC_NETWORK_ACCESS));
+      issue(11, 33, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   private static String readTemplateAndReplace(String path, String type) {
