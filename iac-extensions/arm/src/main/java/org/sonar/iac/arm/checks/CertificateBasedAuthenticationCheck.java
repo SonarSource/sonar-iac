@@ -19,18 +19,16 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
-import org.sonar.iac.arm.tree.ArmTreeUtils;
+import org.sonar.iac.arm.checkdsl.ContextualMap;
+import org.sonar.iac.arm.checkdsl.ContextualObject;
+import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6382")
@@ -39,8 +37,6 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   private static final String MISSING_CERTIFICATE_MESSAGE = "Omitting \"%s\" disables certificate-based authentication. Make sure it is safe here.";
   private static final String DISABLED_CERTIFICATE_MESSAGE = "Make sure that disabling certificate-based authentication is safe here.";
   private static final String ALLOWING_NO_CERTIFICATE_MESSAGE = "Connections without client certificates will be permitted. Make sure it is safe here.";
-
-  private static final List<String> PATH_CONTAINER_APPS = ArmTreeUtils.computePath("configuration/ingress");
 
   @Override
   protected void registerResourceConsumer() {
@@ -51,20 +47,14 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     register("Microsoft.App/containerApps", CertificateBasedAuthenticationCheck::checkContainerApps);
   }
 
-  private static void checkContainerApps(CheckContext ctx, ResourceDeclaration resource) {
+  private static void checkContainerApps(ContextualResource resource) {
     if (isResourceVersionEqualsOrAfter(resource, "2022-10-01")) {
-      List<Tree> containers = CheckUtils.resolveProperties(new LinkedList<>(PATH_CONTAINER_APPS), resource);
-      for (Tree container : containers) {
-        PropertyUtils.get(container, "clientCertificateMode")
-          .ifPresentOrElse(
-            property -> {
-              if (isValue(property.value(), "accept"::equals)) {
-                ctx.reportIssue(property, ALLOWING_NO_CERTIFICATE_MESSAGE);
-              } else if (isValue(property.value(), "ignore"::equals)) {
-                ctx.reportIssue(property, DISABLED_CERTIFICATE_MESSAGE);
-              }
-            },
-            () -> ctx.reportIssue(container, String.format(MISSING_CERTIFICATE_MESSAGE, "clientCertificateMode")));
+      ContextualMap<ContextualObject, ObjectExpression> ingress = resource.object("configuration").object("ingress");
+      if (ingress.isPresent()) {
+        ingress.property("clientCertificateMode")
+          .reportIf(isValue("accept"), ALLOWING_NO_CERTIFICATE_MESSAGE)
+          .reportIf(isValue("ignore"), DISABLED_CERTIFICATE_MESSAGE)
+          .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
       }
     }
   }
@@ -73,11 +63,11 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     return ((ArmTree) tree).is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) tree).value();
   }
 
-  private static boolean isValue(Tree tree, Predicate<String> predicate) {
-    return TextUtils.matchesValue(tree, predicate).isTrue();
+  private static Predicate<Expression> isValue(String str) {
+    return expr -> TextUtils.matchesValue(expr, str::equals).isTrue();
   }
 
-  private static boolean isResourceVersionEqualsOrAfter(ResourceDeclaration resource, String version) {
-    return resource.version().value().compareTo(version) >= 0;
+  private static boolean isResourceVersionEqualsOrAfter(ContextualResource resource, String version) {
+    return resource.version.compareTo(version) >= 0;
   }
 }
