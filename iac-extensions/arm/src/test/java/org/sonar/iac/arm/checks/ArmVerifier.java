@@ -29,7 +29,7 @@ import org.sonar.iac.common.testing.Verifier;
 
 public class ArmVerifier {
 
-  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
 
   private static final TreeParser<Tree> PARSER = new ArmParser();
 
