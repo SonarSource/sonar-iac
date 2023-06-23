@@ -19,20 +19,12 @@
  */
 package org.sonar.iac.terraform.symbols;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.dsl.Symbol;
+import org.sonar.iac.common.dsl.CommonPropertySymbol;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 
-public class AttributeSymbol extends Symbol<AttributeTree> {
+public class AttributeSymbol extends CommonPropertySymbol<AttributeSymbol, AttributeTree, ExpressionTree> {
 
   protected AttributeSymbol(CheckContext ctx, AttributeTree tree, String name, BlockSymbol parent) {
     super(ctx, tree, name, parent);
@@ -45,37 +37,4 @@ public class AttributeSymbol extends Symbol<AttributeTree> {
   public static AttributeSymbol fromAbsent(CheckContext ctx, String name, BlockSymbol parent) {
     return new AttributeSymbol(ctx, null, name, parent);
   }
-
-  public AttributeSymbol reportIf(Predicate<ExpressionTree> predicate, String message, SecondaryLocation... secondaries) {
-    if (tree != null && predicate.test(tree.value())) {
-      return (AttributeSymbol) report(message, List.of(secondaries));
-    }
-    return this;
-  }
-
-  public boolean is(Predicate<ExpressionTree> predicate) {
-    if (tree != null) {
-      return predicate.test(tree.value());
-    } else {
-      return predicate.test(null);
-    }
-  }
-
-  @Override
-  public AttributeSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
-    super.reportIfAbsent(message, secondaries);
-    return this;
-  }
-
-  @CheckForNull
-  public String asString() {
-    return Optional.ofNullable(tree).flatMap(tree -> TextUtils.getValue(tree.value())).orElse(null);
-  }
-
-  @Nullable
-  @Override
-  protected HasTextRange toHighlight() {
-    return tree;
-  }
-
 }

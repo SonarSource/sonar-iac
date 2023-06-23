@@ -27,37 +27,37 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
 
-public abstract class Symbol<T extends Tree> {
+public abstract class Symbol<S extends Symbol<S, T>, T extends Tree> {
 
   public final CheckContext ctx;
   public final @Nullable T tree;
-  public final String name;
-  public final @Nullable Symbol<? extends Tree> parent;
+  public final @Nullable String name;
+  private final @Nullable Symbol<? extends Symbol<?, ?>, ? extends Tree> parent;
 
-  protected Symbol(CheckContext ctx, @Nullable T tree, String name, @Nullable Symbol<? extends Tree> parent) {
+  protected Symbol(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable Symbol<? extends Symbol<?, ?>, ? extends Tree> parent) {
     this.ctx = ctx;
     this.tree = tree;
     this.name = name;
     this.parent = parent;
   }
 
-  public Symbol<T> reportIfAbsent(String message, SecondaryLocation... secondaries) {
+  public S reportIfAbsent(String message, SecondaryLocation... secondaries) {
     if (tree == null && parent != null) {
       parent.report(String.format(message, name), List.of(secondaries));
     }
-    return this;
+    return (S) this;
   }
 
-  public Symbol<T> report(String message, SecondaryLocation... secondaryLocations) {
+  public S report(String message, SecondaryLocation... secondaryLocations) {
     return report(message, List.of(secondaryLocations));
   }
 
-  public Symbol<T> report(String message, List<SecondaryLocation> secondaries) {
+  public S report(String message, List<SecondaryLocation> secondaries) {
     HasTextRange toHighlight = toHighlight();
     if (toHighlight != null) {
       ctx.reportIssue(toHighlight, message, secondaries);
     }
-    return this;
+    return (S) this;
   }
 
   @CheckForNull
@@ -70,7 +70,9 @@ public abstract class Symbol<T extends Tree> {
   }
 
   @CheckForNull
-  protected abstract HasTextRange toHighlight();
+  protected HasTextRange toHighlight() {
+    return tree;
+  }
 
   public boolean isPresent() {
     return tree != null;

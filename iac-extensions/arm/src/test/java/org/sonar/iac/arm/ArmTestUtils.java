@@ -21,6 +21,8 @@ package org.sonar.iac.arm;
 
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 
@@ -41,6 +43,32 @@ public class ArmTestUtils {
       "}");
     File file = (File) PARSER.parse(wrappedCode, null);
     return (ResourceDeclaration) file.statements().get(0);
+  }
+
+  public static Property parseProperty(String propertyCode) {
+    String wrappedPropertyCode = code("{",
+      "    \"name\": \"dummy resource\",",
+      "    \"type\": \"resource type\",",
+      "    \"apiVersion\": \"version\",",
+      "    \"properties\": {",
+      propertyCode,
+      "    }",
+      "}");
+    ResourceDeclaration resourceDeclaration = parseResource(wrappedPropertyCode);
+    return resourceDeclaration.properties().get(0);
+  }
+
+  public static ObjectExpression parseObject(String objectCode) {
+    String wrappedPropertyCode = code("{",
+      "    \"name\": \"dummy resource\",",
+      "    \"type\": \"resource type\",",
+      "    \"apiVersion\": \"version\",",
+      "    \"properties\": {",
+      "      \"object\": " + objectCode,
+      "    }",
+      "}");
+    ResourceDeclaration resourceDeclaration = parseResource(wrappedPropertyCode);
+    return (ObjectExpression) resourceDeclaration.properties().get(0).value();
   }
 
 }

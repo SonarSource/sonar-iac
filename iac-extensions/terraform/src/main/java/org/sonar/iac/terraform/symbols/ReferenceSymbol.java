@@ -31,7 +31,7 @@ import org.sonar.iac.terraform.api.tree.TerraformTree;
 
 import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAccessToString;
 
-public class ReferenceSymbol extends Symbol<AttributeTree> {
+public class ReferenceSymbol extends Symbol<ReferenceSymbol, AttributeTree> {
 
   private AttributeAccessTree reference;
 

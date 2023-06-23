@@ -33,7 +33,7 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 
-public class ListSymbol extends Symbol<AttributeTree> {
+public class ListSymbol extends Symbol<ListSymbol, AttributeTree> {
 
   private final List<ExpressionTree> items;
 
@@ -83,11 +83,6 @@ public class ListSymbol extends Symbol<AttributeTree> {
 
   public boolean isByReference() {
     return tree != null && !tree.value().is(TerraformTree.Kind.TUPLE);
-  }
-
-  @Override
-  public ListSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
-    return (ListSymbol) super.reportIfAbsent(message, secondaries);
   }
 
   @Nullable

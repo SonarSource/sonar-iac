@@ -17,12 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.symbols;
 
-import org.sonar.iac.common.api.tree.PropertyTree;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.dsl.CommonPropertySymbol;
 
-public interface Property extends PropertyTree, ArmTree {
-  Identifier key();
+public class PropertySymbol extends CommonPropertySymbol<PropertySymbol, Property, Expression> {
 
-  Expression value();
+  public PropertySymbol(CheckContext ctx, @Nullable Property tree, String name, MapSymbol parent) {
+    super(ctx, tree, name, parent);
+  }
+
+  public static PropertySymbol fromPresent(CheckContext ctx, Property tree, MapSymbol parent) {
+    return new PropertySymbol(ctx, tree, tree.key().value(), parent);
+  }
+
+  public static PropertySymbol fromAbsent(CheckContext ctx, String name, MapSymbol parent) {
+    return new PropertySymbol(ctx, null, name, parent);
+  }
 }
