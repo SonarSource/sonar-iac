@@ -1,0 +1,91 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: 'Web' + not 'ClientCertificate'",
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "type": "Web",
+        "typeProperties": {
+          "authenticationType": "Basic"
+        }
+      }
+    },
+    {
+      "name": "Sensitive: 'HttpServer' + not 'ClientCertificate'",
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "type": "HttpServer",
+        "typeProperties": {
+          "authenticationType": "Basic"
+        }
+      }
+    },
+    {
+      "name": "Sensitive: 'Web' + not 'ClientCertificate' in nested resource",
+      "type": "Microsoft.DataFactory/factories",
+      "apiVersion": "2018-06-01",
+      "resources": [
+        {
+          "name": "Sensitive nested resource",
+          "type": "linkedservices",
+          "apiVersion": "2018-06-01",
+          "properties": {
+            "type": "Web",
+            "typeProperties": {
+              "authenticationType": "Basic"
+            }
+          }
+        }
+      ]
+    },
+    
+    {
+      "name": "Compliant: 'Web' + 'ClientCertificate'",
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "type": "Web",
+        "typeProperties": {
+          "authenticationType": "ClientCertificate"
+        }
+      }
+    },
+    {
+      "name": "Compliant: 'HttpServer' + 'ClientCertificate'",
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "type": "HttpServer",
+        "typeProperties": {
+          "authenticationType": "ClientCertificate"
+        }
+      }
+    },
+    {
+      "name": "Compliant: other than 'Web'/'HttpServer' + not 'ClientCertificate'",
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "type": "Other",
+        "typeProperties": {
+          "authenticationType": "Basic"
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "type": "Web",
+        "typeProperties": {
+          "authenticationType": "ClientCertificate"
+        }
+      }
+    }
+  ]
+}
