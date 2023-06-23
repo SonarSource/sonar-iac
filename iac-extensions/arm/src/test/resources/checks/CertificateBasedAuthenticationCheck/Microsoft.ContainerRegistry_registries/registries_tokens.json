@@ -112,6 +112,29 @@
       }
     },
     {
+      "name": "Compliant nested resource",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2022-12-01",
+      "resources": [
+        {
+          "name": "nested resource",
+          "type": "tokens",
+          "apiVersion": "2022-12-01",
+          "properties": {
+            "credentials": {
+              "certificates": [
+                {
+                  "...": "certificate details"
+                }
+              ],
+              "passwords": [
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Extra use case: certificates is not an array",
       "type": "Microsoft.ContainerRegistry/registries/tokens",
       "apiVersion": "2022-12-01",
