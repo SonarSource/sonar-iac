@@ -17,5 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.iac.arm.symbols;
+package org.sonar.iac.arm.checkdsl;
+
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.common.api.checks.CheckContext;
+
+public class ContextualObject extends ContextualMap<ContextualObject, ObjectExpression> {
+  protected ContextualObject(CheckContext ctx, @Nullable ObjectExpression tree, @Nullable String name, ContextualMap<?, ?> parent) {
+    super(ctx, tree, name, parent);
+  }
+
+  public static ContextualObject fromPresent(CheckContext ctx, ObjectExpression tree, @Nullable String name, ContextualMap<?, ?> parent) {
+    return new ContextualObject(ctx, tree, name, parent);
+  }
+
+  public static ContextualObject fromAbsent(CheckContext ctx, @Nullable String name, ContextualMap<?, ?> parent) {
+    return new ContextualObject(ctx, null, name, parent);
+  }
+}

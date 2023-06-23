@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.symbols;
+package org.sonar.iac.arm.checkdsl;
 
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -25,29 +25,28 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 
-public final class ResourceSymbol extends MapSymbol<ResourceSymbol, ResourceDeclaration> {
+public final class ContextualResource extends ContextualMap<ContextualResource, ResourceDeclaration> {
 
   public final String type;
   public final String version;
 
-  private ResourceSymbol(CheckContext ctx, ResourceDeclaration tree, String type) {
+  private ContextualResource(CheckContext ctx, ResourceDeclaration tree, String type) {
     super(ctx, tree, tree.name().value(), null);
     this.type = type;
     this.version = tree.version().value();
   }
 
-  public static ResourceSymbol fromPresent(CheckContext ctx, ResourceDeclaration tree) {
-    return new ResourceSymbol(ctx, tree, tree.type().value());
+  public static ContextualResource fromPresent(CheckContext ctx, ResourceDeclaration tree) {
+    return new ContextualResource(ctx, tree, tree.type().value());
   }
 
-  public static ResourceSymbol fromParent(ResourceSymbol parent, ResourceDeclaration child) {
-    String type = parent.type + "/" + child.type().value();
-    return new ResourceSymbol(parent.ctx, child, type);
+  public static ContextualResource fromPresent(CheckContext ctx, ResourceDeclaration tree, String resourceType) {
+    return new ContextualResource(ctx, tree, resourceType);
   }
 
   @Override
-  public ResourceSymbol reportIfAbsent(String message, SecondaryLocation... secondaries) {
-    throw new UnsupportedOperationException("Resource symbols should always exists");
+  public ContextualResource reportIfAbsent(String message, SecondaryLocation... secondaries) {
+    throw new UnsupportedOperationException("Resource tree should always exists");
   }
 
   @CheckForNull

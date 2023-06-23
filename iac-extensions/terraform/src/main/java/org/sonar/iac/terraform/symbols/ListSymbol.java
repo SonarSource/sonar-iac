@@ -27,13 +27,13 @@ import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.dsl.Symbol;
+import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 
-public class ListSymbol extends Symbol<ListSymbol, AttributeTree> {
+public class ListSymbol extends ContextualTree<ListSymbol, AttributeTree> {
 
   private final List<ExpressionTree> items;
 

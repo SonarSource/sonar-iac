@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.symbols;
+package org.sonar.iac.arm.checkdsl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -26,11 +26,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.CTX;
 import static org.sonar.iac.arm.ArmTestUtils.parseObject;
 
-class ObjectSymbolTest {
+class ContextualObjectTest {
 
-  ObjectSymbol absent = ObjectSymbol.fromAbsent(CTX, "absentObject", null);
+  ContextualObject absent = ContextualObject.fromAbsent(CTX, "absentObject", null);
   ObjectExpression objectWithProp = parseObject("{\"key1\": \"value\", \"key2\": {} }");
-  ObjectSymbol present = ObjectSymbol.fromPresent(CTX, objectWithProp, null, null);
+  ContextualObject present = ContextualObject.fromPresent(CTX, objectWithProp, null, null);
 
   @Test
   void property() {

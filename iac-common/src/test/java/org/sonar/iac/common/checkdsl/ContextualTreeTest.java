@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.dsl;
+package org.sonar.iac.common.checkdsl;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,17 +36,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-class SymbolTest {
+class ContextualTreeTest {
 
   final CheckContext ctx = mock(CheckContext.class);
   final Tree tree = mock(Tree.class);
 
   final Tree parentTree = mock(Tree.class);
 
-  final TestSymbol parent = new TestSymbol(ctx, parentTree, null);
+  final TestContextualTree parent = new TestContextualTree(ctx, parentTree, null);
 
-  final TestSymbol present = new TestSymbol(ctx, tree, parent);
-  final TestSymbol absent = new TestSymbol(ctx, null, parent);
+  final TestContextualTree present = new TestContextualTree(ctx, tree, parent);
+  final TestContextualTree absent = new TestContextualTree(ctx, null, parent);
 
   @Test
   void report() {
@@ -89,7 +89,7 @@ class SymbolTest {
 
   @Test
   void reportIfAbsentWithoutParent() {
-    TestSymbol symbol = new TestSymbol(ctx, null, null);
+    TestContextualTree symbol = new TestContextualTree(ctx, null, null);
     symbol.reportIfAbsent("test");
 
     verifyNoInteractions(ctx);
@@ -107,9 +107,9 @@ class SymbolTest {
     assertThat(absent.isAbsent()).isTrue();
   }
 
-  static class TestSymbol extends Symbol<TestSymbol, Tree> {
+  static class TestContextualTree extends ContextualTree<TestContextualTree, Tree> {
 
-    protected TestSymbol(CheckContext ctx, @Nullable Tree tree, @Nullable Symbol<? extends Symbol<?, ?>, ? extends Tree> parent) {
+    protected TestContextualTree(CheckContext ctx, @Nullable Tree tree, @Nullable ContextualTree<? extends ContextualTree<?, ?>, ? extends Tree> parent) {
       super(ctx, tree, "test", parent);
     }
   }

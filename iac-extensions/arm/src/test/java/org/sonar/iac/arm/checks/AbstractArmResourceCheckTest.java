@@ -20,10 +20,13 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.ArmParser;
-import org.sonar.iac.arm.symbols.ResourceSymbol;
+import org.sonar.iac.arm.checkdsl.ContextualResource;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.testing.Verifier;
 
@@ -34,74 +37,85 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class AbstractDslArmCheckTest {
+class AbstractArmResourceCheckTest {
 
   final static ArmParser parser = new ArmParser();
   final static Verifier.TestContext ctx = new Verifier.TestContext(null);
 
+  final Consumer<ContextualResource> contextualConsumer = mock(Consumer.class);
+  final BiConsumer<CheckContext, ResourceDeclaration> treeConsumer = mock(BiConsumer.class);
+
   @Test
   void provideResourceSymbolWhenTypeExists() {
-    Consumer consumer = mock(Consumer.class);
-    AbstractDslArmCheck check = new AbstractDslArmCheck() {
+    AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {
-        register("testType", consumer);
+        register("testType", contextualConsumer);
+        register("testType", treeConsumer);
       }
     };
     check.initialize(ctx);
     ctx.scan(parseResources("testType"));
-    verify(consumer, times(1)).accept(any(ResourceSymbol.class));
+
+    verify(contextualConsumer, times(1)).accept(any(ContextualResource.class));
+    verify(treeConsumer, times(1)).accept(any(CheckContext.class), any(ResourceDeclaration.class));
   }
 
   @Test
   void provideMultipleResourceSymbolsOfSameType() {
-    Consumer consumer = mock(Consumer.class);
-    AbstractDslArmCheck check = new AbstractDslArmCheck() {
+    AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {
-        register("testType", consumer);
+        register("testType", contextualConsumer);
+        register("testType", treeConsumer);
       }
     };
     check.initialize(ctx);
     ctx.scan(parseResources("testType", "testType"));
-    verify(consumer, times(2)).accept(any(ResourceSymbol.class));
+
+    verify(contextualConsumer, times(2)).accept(any(ContextualResource.class));
+    verify(treeConsumer, times(2)).accept(any(CheckContext.class), any(ResourceDeclaration.class));
   }
 
   @Test
   void provideMultipleResourceSymbolsOfDifferentTypes() {
-    Consumer consumer = mock(Consumer.class);
-    AbstractDslArmCheck check = new AbstractDslArmCheck() {
+    AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {
-        register(List.of("testType1", "testType2"), consumer);
+        register(List.of("testType1", "testType2"), contextualConsumer);
+        register(List.of("testType1", "testType2"), treeConsumer);
       }
     };
     check.initialize(ctx);
     ctx.scan(parseResources("testType1", "testType2"));
-    verify(consumer, times(2)).accept(any(ResourceSymbol.class));
+
+    verify(contextualConsumer, times(2)).accept(any(ContextualResource.class));
+    verify(treeConsumer, times(2)).accept(any(CheckContext.class), any(ResourceDeclaration.class));
   }
 
   @Test
   void provideNoSymbolWhenTypeDoesNotExits() {
-    Consumer consumer = mock(Consumer.class);
-    AbstractDslArmCheck check = new AbstractDslArmCheck() {
+    AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {
-        register("anotherType", consumer);
+        register("anotherType", contextualConsumer);
+        register("anotherType", treeConsumer);
       }
     };
     check.initialize(ctx);
     ctx.scan(parseResources("testType"));
-    verifyNoInteractions(consumer);
+
+    verifyNoInteractions(contextualConsumer);
+    verifyNoInteractions(treeConsumer);
   }
 
   @Test
   void provideCorrectChildResource() {
-    Consumer consumer = mock(Consumer.class);
-    AbstractDslArmCheck check = new AbstractDslArmCheck() {
+    AbstractArmResourceCheck check = new AbstractArmResourceCheck() {
       @Override
       protected void registerResourceConsumer() {
-        register("parentType/childType", consumer);
+        register("parentType/childType", contextualConsumer);
+        register("parentType/childType", treeConsumer);
       }
     };
 
@@ -125,7 +139,9 @@ class AbstractDslArmCheckTest {
     Tree tree = parser.parse(code, null);
     check.initialize(ctx);
     ctx.scan(tree);
-    verify(consumer, times(1)).accept(any(ResourceSymbol.class));
+
+    verify(contextualConsumer, times(1)).accept(any(ContextualResource.class));
+    verify(treeConsumer, times(1)).accept(any(CheckContext.class), any(ResourceDeclaration.class));
   }
 
   private Tree parseResources(String... resourceTypes) {

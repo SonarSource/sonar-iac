@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.HasResources;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -32,7 +34,8 @@ import org.sonar.iac.common.api.checks.InitContext;
 
 abstract class AbstractArmResourceCheck implements IacCheck {
 
-  private final Map<String, List<BiConsumer<CheckContext, ResourceDeclaration>>> resourceConsumers = new HashMap<>();
+  private final Map<String, List<BiConsumer<CheckContext, ResourceDeclaration>>> resourceTreeConsumers = new HashMap<>();
+  private final Map<String, List<Consumer<ContextualResource>>> contextualResourceConsumer = new HashMap<>();
 
   @Override
   public void initialize(InitContext init) {
@@ -45,25 +48,38 @@ abstract class AbstractArmResourceCheck implements IacCheck {
     processResource(ctx, resource, resourceType);
   }
 
-  private void provideChildResources(CheckContext ctx, HasResources hasResource, String parentType) {
-    for (ResourceDeclaration resource : hasResource.childResources()) {
-      String resourceType = parentType + "/" + resource.type().value();
-      processResource(ctx, resource, resourceType);
-    }
-  }
-
   private void processResource(CheckContext ctx, ResourceDeclaration resource, String resourceType) {
-    if (resourceConsumers.containsKey(resourceType)) {
-      resourceConsumers.get(resourceType).forEach(consumer -> consumer.accept(ctx, resource));
+    if (resourceTreeConsumers.containsKey(resourceType)) {
+      resourceTreeConsumers.get(resourceType).forEach(consumer -> consumer.accept(ctx, resource));
     }
+    if (contextualResourceConsumer.containsKey(resourceType)) {
+      ContextualResource symbol = ContextualResource.fromPresent(ctx, resource, resourceType);
+      contextualResourceConsumer.get(resourceType).forEach(consumer -> consumer.accept(symbol));
+    }
+
     if (resource instanceof HasResources) {
-      provideChildResources(ctx, (HasResources) resource, resourceType);
+      for (ResourceDeclaration child : ((HasResources) resource).childResources()) {
+        String childResourceType = resourceType + "/" + child.type().value();
+        processResource(ctx, child, childResourceType);
+      }
     }
   }
 
   protected abstract void registerResourceConsumer();
 
   protected void register(String resourceType, BiConsumer<CheckContext, ResourceDeclaration> consumer) {
-    resourceConsumers.computeIfAbsent(resourceType, i -> new ArrayList<>()).add(consumer);
+    resourceTreeConsumers.computeIfAbsent(resourceType, i -> new ArrayList<>()).add(consumer);
+  }
+
+  protected void register(List<String> resourceTypes, BiConsumer<CheckContext, ResourceDeclaration> consumer) {
+    resourceTypes.forEach(resourceType -> register(resourceType, consumer));
+  }
+
+  protected void register(String resourceType, Consumer<ContextualResource> consumer) {
+    contextualResourceConsumer.computeIfAbsent(resourceType, i -> new ArrayList<>()).add(consumer);
+  }
+
+  protected void register(List<String> resourceTypes, Consumer<ContextualResource> consumer) {
+    resourceTypes.forEach(resourceType -> register(resourceType, consumer));
   }
 }

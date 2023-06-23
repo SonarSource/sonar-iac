@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.dsl;
+package org.sonar.iac.common.checkdsl;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -27,14 +27,14 @@ import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
 
-public abstract class Symbol<S extends Symbol<S, T>, T extends Tree> {
+public abstract class ContextualTree<S extends ContextualTree<S, T>, T extends Tree> {
 
   public final CheckContext ctx;
   public final @Nullable T tree;
   public final @Nullable String name;
-  private final @Nullable Symbol<? extends Symbol<?, ?>, ? extends Tree> parent;
+  private final @Nullable ContextualTree<? extends ContextualTree<?, ?>, ? extends Tree> parent;
 
-  protected Symbol(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable Symbol<? extends Symbol<?, ?>, ? extends Tree> parent) {
+  protected ContextualTree(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable ContextualTree<? extends ContextualTree<?, ?>, ? extends Tree> parent) {
     this.ctx = ctx;
     this.tree = tree;
     this.name = name;

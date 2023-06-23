@@ -17,25 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.symbols;
+package org.sonar.iac.arm.checkdsl;
 
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.dsl.CommonPropertySymbol;
+import org.sonar.iac.common.checkdsl.ContextualPropertyTree;
 
-public class PropertySymbol extends CommonPropertySymbol<PropertySymbol, Property, Expression> {
+public class ContextualProperty extends ContextualPropertyTree<ContextualProperty, Property, Expression> {
 
-  public PropertySymbol(CheckContext ctx, @Nullable Property tree, String name, MapSymbol parent) {
+  public ContextualProperty(CheckContext ctx, @Nullable Property tree, String name, ContextualMap parent) {
     super(ctx, tree, name, parent);
   }
 
-  public static PropertySymbol fromPresent(CheckContext ctx, Property tree, MapSymbol parent) {
-    return new PropertySymbol(ctx, tree, tree.key().value(), parent);
+  public static ContextualProperty fromPresent(CheckContext ctx, Property tree, ContextualMap parent) {
+    return new ContextualProperty(ctx, tree, tree.key().value(), parent);
   }
 
-  public static PropertySymbol fromAbsent(CheckContext ctx, String name, MapSymbol parent) {
-    return new PropertySymbol(ctx, null, name, parent);
+  public static ContextualProperty fromAbsent(CheckContext ctx, String name, ContextualMap parent) {
+    return new ContextualProperty(ctx, null, name, parent);
   }
 }

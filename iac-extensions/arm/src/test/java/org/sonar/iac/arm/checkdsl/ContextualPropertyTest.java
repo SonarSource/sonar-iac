@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.symbols;
+package org.sonar.iac.arm.checkdsl;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,11 +34,11 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.iac.arm.ArmTestUtils.CTX;
 import static org.sonar.iac.arm.ArmTestUtils.parseProperty;
 
-class PropertySymbolTest {
+class ContextualPropertyTest {
 
-  PropertySymbol absent = PropertySymbol.fromAbsent(CTX, "absentProperty", null);
+  ContextualProperty absent = ContextualProperty.fromAbsent(CTX, "absentProperty", null);
   Property property = parseProperty("\"key\": \"value\"");
-  PropertySymbol present = PropertySymbol.fromPresent(CTX, property, null);
+  ContextualProperty present = ContextualProperty.fromPresent(CTX, property, null);
 
   @Test
   void reportIfOnPresentProperty() {

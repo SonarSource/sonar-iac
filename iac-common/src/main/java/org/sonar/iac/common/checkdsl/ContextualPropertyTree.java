@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.dsl;
+package org.sonar.iac.common.checkdsl;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +30,8 @@ import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 
-public abstract class CommonPropertySymbol<S extends CommonPropertySymbol<S, T, E>, T extends PropertyTree & Tree, E extends Tree> extends Symbol<S, T> {
-  protected CommonPropertySymbol(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable Symbol<? extends Symbol<?, ?>, ? extends Tree> parent) {
+public abstract class ContextualPropertyTree<S extends ContextualPropertyTree<S, T, E>, T extends PropertyTree & Tree, E extends Tree> extends ContextualTree<S, T> {
+  protected ContextualPropertyTree(CheckContext ctx, @Nullable T tree, @Nullable String name, @Nullable ContextualTree<? extends ContextualTree<?, ?>, ? extends Tree> parent) {
     super(ctx, tree, name, parent);
   }
 

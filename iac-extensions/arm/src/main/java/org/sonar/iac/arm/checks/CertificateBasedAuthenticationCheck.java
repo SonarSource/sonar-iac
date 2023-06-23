@@ -44,19 +44,11 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.ApiManagement/service/gateways/hostnameConfigurations", CertificateBasedAuthenticationCheck::checkHostnameConfigurations);
-    register("Microsoft.App/containerApps", CertificateBasedAuthenticationCheck::checkContainerApps);
-  }
+    register("Microsoft.ApiManagement/service/gateways/hostnameConfigurations", resource -> resource.property("negotiateClientCertificate")
+      .reportIf(CertificateBasedAuthenticationCheck::isBooleanFalse, DISABLED_CERTIFICATE_MESSAGE)
+      .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE));
 
-  private static void checkHostnameConfigurations(CheckContext ctx, ResourceDeclaration resource) {
-    PropertyUtils.get(resource, "negotiateClientCertificate")
-      .ifPresentOrElse(
-        property -> {
-          if (isBooleanFalse(property.value())) {
-            ctx.reportIssue(property, DISABLED_CERTIFICATE_MESSAGE);
-          }
-        },
-        () -> ctx.reportIssue(resource.type(), String.format(MISSING_CERTIFICATE_MESSAGE, "negotiateClientCertificate")));
+    register("Microsoft.App/containerApps", CertificateBasedAuthenticationCheck::checkContainerApps);
   }
 
   private static void checkContainerApps(CheckContext ctx, ResourceDeclaration resource) {

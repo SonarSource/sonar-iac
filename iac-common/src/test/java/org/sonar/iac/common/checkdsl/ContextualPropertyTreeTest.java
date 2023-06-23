@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.dsl;
+package org.sonar.iac.common.checkdsl;
 
 import java.util.Collections;
 import java.util.function.Predicate;
@@ -35,14 +35,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-class CommonPropertySymbolTest {
+class ContextualPropertyTreeTest {
 
   final CheckContext ctx = mock(CheckContext.class);
   final TestPropertyTree tree = mock(TestPropertyTree.class);
 
-  final TestPropertySymbol present = new TestPropertySymbol(ctx, tree, null);
+  final TestContextualPropertyTree present = new TestContextualPropertyTree(ctx, tree, null);
 
-  final TestPropertySymbol absent = new TestPropertySymbol(ctx, null, null);
+  final TestContextualPropertyTree absent = new TestContextualPropertyTree(ctx, null, null);
 
   final Predicate<Tree> allwaysTrue = t -> true;
 
@@ -75,12 +75,12 @@ class CommonPropertySymbolTest {
     TextTree text = mock(TextTree.class);
     when(text.value()).thenReturn("value");
     when(tree.value()).thenReturn(text);
-    TestPropertySymbol symbol = new TestPropertySymbol(ctx, tree, null);
+    TestContextualPropertyTree symbol = new TestContextualPropertyTree(ctx, tree, null);
     assertThat(symbol.asString()).isEqualTo("value");
   }
 
-  private static class TestPropertySymbol extends CommonPropertySymbol<TestPropertySymbol, TestPropertyTree, Tree> {
-    TestPropertySymbol(CheckContext ctx, @Nullable TestPropertyTree tree, @Nullable Symbol<? extends Symbol<?, ?>, ? extends Tree> parent) {
+  private static class TestContextualPropertyTree extends ContextualPropertyTree<TestContextualPropertyTree, TestPropertyTree, Tree> {
+    TestContextualPropertyTree(CheckContext ctx, @Nullable TestPropertyTree tree, @Nullable ContextualTree<? extends ContextualTree<?, ?>, ? extends Tree> parent) {
       super(ctx, tree, "test", parent);
     }
   }
