@@ -1,0 +1,174 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: password are mentionned",
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "properties": {
+        "credentials": {
+          "certificates": [
+            {
+              "...": "certificate details"
+            }
+          ],
+          "passwords": [
+            {
+              "...": "password details"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sensitive: certificates is empty",
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "properties": {
+        "credentials": {
+          "certificates": [
+          ],
+          "passwords": [
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sensitive: certificates property is missing",
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "properties": {
+        "credentials": {
+          "passwords": [
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sensitive: both certificates and password property are missing",
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "properties": {
+        "credentials": {
+        }
+      }
+    },
+    {
+      "name": "Sesitive nested resource",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2022-12-01",
+      "resources": [
+        {
+          "name": "nested resource",
+          "type": "tokens",
+          "apiVersion": "2022-12-01",
+          "properties": {
+            "credentials": {
+              "certificates": [
+                {
+                  "...": "certificate details"
+                }
+              ],
+              "passwords": [
+                {
+                  "...": "password details"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    
+    {
+      "name": "Compliant: certificates are present and passwords are empty",
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "properties": {
+        "credentials": {
+          "certificates": [
+            {
+              "...": "certificate details"
+            }
+          ],
+          "passwords": [
+          ]
+        }
+      }
+    },
+    {
+      "name": "Compliant: certificates are present and no passwords property",
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "properties": {
+        "credentials": {
+          "certificates": [
+            {
+              "...": "certificate details"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Compliant nested resource",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2022-12-01",
+      "resources": [
+        {
+          "name": "nested resource",
+          "type": "tokens",
+          "apiVersion": "2022-12-01",
+          "properties": {
+            "credentials": {
+              "certificates": [
+                {
+                  "...": "certificate details"
+                }
+              ],
+              "passwords": [
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Extra use case: certificates is not an array",
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "properties": {
+        "credentials": {
+          "certificates": {
+            "...": "certificate details"
+          }
+        }
+      }
+    },
+    {
+      "name": "Extra use case: no credentials properties",
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Extra use case: passwords is not an array",
+      "type": "Microsoft.ContainerRegistry/registries/tokens",
+      "apiVersion": "2022-12-01",
+      "properties": {
+        "credentials": {
+          "certificates": [
+            {
+              "...": "certificate details"
+            }
+          ],
+          "passwords": {
+            "...": "password details"
+          }
+        }
+      }
+    }
+  ]
+}
