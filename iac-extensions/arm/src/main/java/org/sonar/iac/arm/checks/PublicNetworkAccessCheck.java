@@ -20,9 +20,12 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checks.ipaddress.IpAddressValidator;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
@@ -114,23 +117,43 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     "Microsoft.Web/sites/slots/config",
     "Microsoft.Web/staticSites");
 
+  private static final List<String> PUBLIC_IP_ADDRESS_RANGE_TYPES = List.of(
+    "Microsoft.DBForMySql/flexibleServers/firewallRules",
+    "Microsoft.DBForPostgreSql/flexibleServers/firewallRules",
+    "Microsoft.DBforMariaDB/servers/firewallRules",
+    "Microsoft.DBforMySQL/flexibleServers/firewallRules",
+    "Microsoft.DBforMySQL/servers/firewallRules",
+    "Microsoft.DBforPostgreSQL/flexibleServers/firewallRules",
+    "Microsoft.DBforPostgreSQL/serverGroupsv2/firewallRules",
+    "Microsoft.DBforPostgreSQL/servers/firewallRules",
+    "Microsoft.DataLakeAnalytics/accounts/firewallRules",
+    "Microsoft.DataLakeStore/accounts/firewallRules",
+    "Microsoft.DocumentDB/mongoClusters/firewallRules",
+    "Microsoft.Sql/servers/firewallRules",
+    "Microsoft.Synapse/workspaces/firewallRules");
+  private static final String PUBLIC_NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
+  private static final String PUBLIC_IP_ADDRESS_MESSAGE = "Make sure that allowing public IP addresses is safe here.";
+  private static final String PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION = "and here";
+
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.DesktopVirtualization/hostPools", checkPublicNetworkAccess());
 
     PUBLIC_NETWORK_ACCESS_SIMPLIFIED_TYPES.forEach(type -> register(type, checkPublicNetworkAccessSimplified()));
+
+    PUBLIC_IP_ADDRESS_RANGE_TYPES.forEach(type -> register(type, checkIpRange()));
   }
 
   private static BiConsumer<CheckContext, ResourceDeclaration> checkPublicNetworkAccess() {
     return (ctx, resource) -> PropertyUtils.value(resource, "publicNetworkAccess")
       .filter(PublicNetworkAccessCheck::isSensitivePublicNetworkAccess)
-      .ifPresent(value -> ctx.reportIssue(value, "Make sure allowing public network access is safe here."));
+      .ifPresent(value -> ctx.reportIssue(value, PUBLIC_NETWORK_ACCESS_MESSAGE));
   }
 
   private static BiConsumer<CheckContext, ResourceDeclaration> checkPublicNetworkAccessSimplified() {
     return (ctx, resource) -> PropertyUtils.value(resource, "publicNetworkAccess")
       .filter(PublicNetworkAccessCheck::isSensitivePublicNetworkAccessSimplified)
-      .ifPresent(value -> ctx.reportIssue(value, "Make sure allowing public network access is safe here."));
+      .ifPresent(value -> ctx.reportIssue(value, PUBLIC_NETWORK_ACCESS_MESSAGE));
   }
 
   private static boolean isSensitivePublicNetworkAccess(Tree tree) {
@@ -139,5 +162,14 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
 
   private static boolean isSensitivePublicNetworkAccessSimplified(Tree tree) {
     return TextUtils.matchesValue(tree, "Enabled"::contains).isTrue();
+  }
+
+  private static BiConsumer<CheckContext, ResourceDeclaration> checkIpRange() {
+    return (ctx, resource) -> {
+      Optional<Tree> startIpAddress = PropertyUtils.value(resource, "startIpAddress");
+      Optional<Tree> endIpAddress = PropertyUtils.value(resource, "endIpAddress");
+      IpAddressValidator validator = new IpAddressValidator((ArmTree) startIpAddress.orElse(null), (ArmTree) endIpAddress.orElse(null));
+      validator.reportIssueIfPublicIPAddress(ctx, PUBLIC_IP_ADDRESS_MESSAGE, PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION);
+    };
   }
 }
