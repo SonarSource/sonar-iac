@@ -221,9 +221,12 @@ class PublicNetworkAccessCheckTest {
       issue(151, 26, 151, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(152, 24, 152, 37, AND_HERE)),
       issue(160, 26, 160, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(161, 24, 161, 37, AND_HERE)),
       issue(169, 26, 169, 35, MESSAGE_PUBLIC_IP_ACCESS, secondary(170, 24, 170, 35, AND_HERE)),
-      issue(178, 26, 178, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(179, 24, 179, 33, AND_HERE))
+      issue(178, 26, 178, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(179, 24, 179, 33, AND_HERE)));
+  }
 
-    );
+  @Test
+  void shouldRaiseNoIssueForPublicIPAddressForUnknownType() {
+    verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/unknown-type.json", CHECK);
   }
 
   private static String readTemplateAndReplace(String path, String type) {

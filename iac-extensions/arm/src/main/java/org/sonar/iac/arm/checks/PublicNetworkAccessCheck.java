@@ -168,9 +168,7 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     return (ctx, resource) -> {
       Optional<Tree> startIpAddress = PropertyUtils.value(resource, "startIpAddress");
       Optional<Tree> endIpAddress = PropertyUtils.value(resource, "endIpAddress");
-      IpAddressValidator validator = IpAddressValidator.fromStartToEnd(
-        (ArmTree) startIpAddress.orElse(null),
-        (ArmTree) endIpAddress.orElse(null));
+      IpAddressValidator validator = new IpAddressValidator((ArmTree) startIpAddress.orElse(null), (ArmTree) endIpAddress.orElse(null));
       validator.reportIssueIfPublicIPAddress(ctx, PUBLIC_IP_ADDRESS_MESSAGE, PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION);
     };
   }

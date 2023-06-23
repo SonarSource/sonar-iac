@@ -36,7 +36,6 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.sonar.iac.arm.checks.ipaddress.IpAddressValidator.fromStartToEnd;
 import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
@@ -66,7 +65,7 @@ class IpAddressValidatorTest {
   void shouldReportIssue(String start, String end) {
     ArmTree startIpAddress = new StringLiteralImpl(start, startMetadata);
     ArmTree endIpAddress = new StringLiteralImpl(end, endMetadata);
-    IpAddressValidator validator = fromStartToEnd(startIpAddress, endIpAddress);
+    IpAddressValidator validator = new IpAddressValidator(startIpAddress, endIpAddress);
     CheckContext ctx = mock(CheckContext.class);
 
     validator.reportIssueIfPublicIPAddress(ctx, MESSAGE, SECONDARY_MESSAGE);
@@ -80,7 +79,7 @@ class IpAddressValidatorTest {
   @Test
   void shouldReportIssueForNullStart() {
     ArmTree endIpAddress = new StringLiteralImpl("255.255.255.255", endMetadata);
-    IpAddressValidator validator = fromStartToEnd(null, endIpAddress);
+    IpAddressValidator validator = new IpAddressValidator(null, endIpAddress);
     CheckContext ctx = mock(CheckContext.class);
 
     validator.reportIssueIfPublicIPAddress(ctx, MESSAGE, SECONDARY_MESSAGE);
@@ -93,7 +92,7 @@ class IpAddressValidatorTest {
   @Test
   void shouldReportIssueForNullEnd() {
     ArmTree startIpAddress = new StringLiteralImpl("0.0.0.0", startMetadata);
-    IpAddressValidator validator = fromStartToEnd(startIpAddress, null);
+    IpAddressValidator validator = new IpAddressValidator(startIpAddress, null);
     CheckContext ctx = mock(CheckContext.class);
 
     validator.reportIssueIfPublicIPAddress(ctx, MESSAGE, SECONDARY_MESSAGE);
@@ -107,7 +106,7 @@ class IpAddressValidatorTest {
   void shouldReportIssueWhenStartIsNotStringLiteral() {
     ArmTree startIpAddress = new ObjectExpressionImpl(List.of(), range(1, 1, 1, 1));
     ArmTree endIpAddress = new StringLiteralImpl("255.255.255.255", endMetadata);
-    IpAddressValidator validator = fromStartToEnd(startIpAddress, endIpAddress);
+    IpAddressValidator validator = new IpAddressValidator(startIpAddress, endIpAddress);
     CheckContext ctx = mock(CheckContext.class);
 
     validator.reportIssueIfPublicIPAddress(ctx, MESSAGE, SECONDARY_MESSAGE);
@@ -122,7 +121,7 @@ class IpAddressValidatorTest {
   void shouldReportIssueWhenEndIsNotStringLiteral() {
     ArmTree startIpAddress = new StringLiteralImpl("0.0.0.0", startMetadata);
     ArmTree endIpAddress = new ObjectExpressionImpl(List.of(), range(1, 1, 1, 1));
-    IpAddressValidator validator = fromStartToEnd(startIpAddress, endIpAddress);
+    IpAddressValidator validator = new IpAddressValidator(startIpAddress, endIpAddress);
     CheckContext ctx = mock(CheckContext.class);
 
     validator.reportIssueIfPublicIPAddress(ctx, MESSAGE, SECONDARY_MESSAGE);
@@ -137,7 +136,7 @@ class IpAddressValidatorTest {
   void shouldNotReportIssueForPrivateNetworks() {
     ArmTree startIpAddress = new StringLiteralImpl("10.0.0.1", startMetadata);
     ArmTree endIpAddress = new StringLiteralImpl("10.255.255.255", endMetadata);
-    IpAddressValidator validator = fromStartToEnd(startIpAddress, endIpAddress);
+    IpAddressValidator validator = new IpAddressValidator(startIpAddress, endIpAddress);
     CheckContext ctx = mock(CheckContext.class);
 
     validator.reportIssueIfPublicIPAddress(ctx, MESSAGE, SECONDARY_MESSAGE);
@@ -147,7 +146,7 @@ class IpAddressValidatorTest {
 
   @Test
   void shouldNotReportIssueForNulls() {
-    IpAddressValidator validator = fromStartToEnd(null, null);
+    IpAddressValidator validator = new IpAddressValidator(null, null);
     CheckContext ctx = mock(CheckContext.class);
 
     validator.reportIssueIfPublicIPAddress(ctx, MESSAGE, SECONDARY_MESSAGE);
@@ -159,7 +158,7 @@ class IpAddressValidatorTest {
   void shouldNotReportIssueWhenStartAndEndIsNotStringLiteral() {
     ArmTree startIpAddress = new ObjectExpressionImpl(List.of(), range(1, 1, 1, 1));
     ArmTree endIpAddress = new ObjectExpressionImpl(List.of(), range(2, 2, 2, 2));
-    IpAddressValidator validator = fromStartToEnd(startIpAddress, endIpAddress);
+    IpAddressValidator validator = new IpAddressValidator(startIpAddress, endIpAddress);
     CheckContext ctx = mock(CheckContext.class);
 
     validator.reportIssueIfPublicIPAddress(ctx, MESSAGE, SECONDARY_MESSAGE);
@@ -171,7 +170,7 @@ class IpAddressValidatorTest {
   void shouldNotReportIssueForStartAndEndIsUnknown() {
     ArmTree startIpAddress = new StringLiteralImpl("unknown", startMetadata);
     ArmTree endIpAddress = new StringLiteralImpl("unknown", endMetadata);
-    IpAddressValidator validator = fromStartToEnd(startIpAddress, endIpAddress);
+    IpAddressValidator validator = new IpAddressValidator(startIpAddress, endIpAddress);
     CheckContext ctx = mock(CheckContext.class);
 
     validator.reportIssueIfPublicIPAddress(ctx, MESSAGE, SECONDARY_MESSAGE);

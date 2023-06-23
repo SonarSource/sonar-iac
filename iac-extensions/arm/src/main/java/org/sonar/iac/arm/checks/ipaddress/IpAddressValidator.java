@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.checks.ipaddress;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -32,17 +33,18 @@ public class IpAddressValidator {
   // Make sure using this hardcoded IP address is safe here.
   @SuppressWarnings("java:S1313")
   private static final List<Range> SAFE_RANGES = List.of(
-    new Range(new Ip("10.0.0.0").toLong(), new Ip("10.255.255.255").toLong()),
-    new Range(new Ip("100.64.0.0").toLong(), new Ip("100.127.255.255").toLong()),
-    new Range(new Ip("169.254.0.0").toLong(), new Ip("169.254.255.255").toLong()),
-    new Range(new Ip("172.16.0.0").toLong(), new Ip("172.31.255.255").toLong()),
-    new Range(new Ip("192.0.0.0").toLong(), new Ip("192.0.0.255").toLong()),
-    new Range(new Ip("192.0.2.0").toLong(), new Ip("192.0.2.255").toLong()),
-    new Range(new Ip("192.168.0.0").toLong(), new Ip("192.168.255.255").toLong()),
-    new Range(new Ip("198.18.0.0").toLong(), new Ip("198.19.255.255").toLong()),
-    new Range(new Ip("198.51.100.0").toLong(), new Ip("198.51.100.255").toLong()),
-    new Range(new Ip("203.0.113.0").toLong(), new Ip("203.0.113.255").toLong()),
-    new Range(new Ip("240.0.0.0").toLong(), new Ip("240.255.255.254").toLong()));
+    ipRange("10.0.0.0", "10.255.255.255"),
+    ipRange("100.64.0.0", "100.127.255.255"),
+    ipRange("169.254.0.0", "169.254.255.255"),
+    ipRange("172.16.0.0", "172.31.255.255"),
+    ipRange("192.0.0.0", "192.0.0.255"),
+    ipRange("192.0.2.0", "192.0.2.255"),
+    ipRange("192.168.0.0", "192.168.255.255"),
+    ipRange("198.18.0.0", "198.19.255.255"),
+    ipRange("198.51.100.0", "198.51.100.255"),
+    ipRange("203.0.113.0", "203.0.113.255"),
+    ipRange("240.0.0.0", "240.255.255.254"));
+
   private static final String DEFAULT_START_IP = "0.0.0.0";
   private static final String DEFAULT_END_IP = "255.255.255.255";
 
@@ -52,13 +54,9 @@ public class IpAddressValidator {
   @Nullable
   private final ArmTree endIpAddress;
 
-  private IpAddressValidator(@Nullable ArmTree startIpAddress, @Nullable ArmTree endIpAddress) {
+  public IpAddressValidator(@Nullable ArmTree startIpAddress, @Nullable ArmTree endIpAddress) {
     this.startIpAddress = startIpAddress;
     this.endIpAddress = endIpAddress;
-  }
-
-  public static IpAddressValidator fromStartToEnd(@Nullable ArmTree startIpAddress, @Nullable ArmTree endIpAddress) {
-    return new IpAddressValidator(startIpAddress, endIpAddress);
   }
 
   public void reportIssueIfPublicIPAddress(CheckContext ctx, String message, String secondaryLocationMessage) {
@@ -80,14 +78,8 @@ public class IpAddressValidator {
     if (startIpAddress == null && endIpAddress == null) {
       return new ValidationResult(false, null, null);
     }
-    String start = null;
-    String end = null;
-    if (startIpAddress != null && startIpAddress.is(ArmTree.Kind.STRING_LITERAL)) {
-      start = TextUtils.getValue(startIpAddress).orElse(DEFAULT_START_IP);
-    }
-    if (endIpAddress != null && endIpAddress.is(ArmTree.Kind.STRING_LITERAL)) {
-      end = TextUtils.getValue(endIpAddress).orElse(DEFAULT_END_IP);
-    }
+    String start = valueOrElseDefaultIfStringLiteralOrNull(startIpAddress, DEFAULT_START_IP);
+    String end = valueOrElseDefaultIfStringLiteralOrNull(endIpAddress, DEFAULT_END_IP);
     if (start == null && end == null) {
       return new ValidationResult(false, null, null);
     }
@@ -119,6 +111,18 @@ public class IpAddressValidator {
     } else {
       ctx.reportIssue(tree, message);
     }
+  }
+
+  @CheckForNull
+  private static String valueOrElseDefaultIfStringLiteralOrNull(@Nullable ArmTree tree, String defaultIpAddress) {
+    if (tree != null && tree.is(ArmTree.Kind.STRING_LITERAL)) {
+      return TextUtils.getValue(tree).orElse(defaultIpAddress);
+    }
+    return null;
+  }
+
+  private static Range ipRange(String startIp, String endIp) {
+    return new Range(new Ip(startIp).toLong(), new Ip(endIp).toLong());
   }
 
   static class Ip {
