@@ -1,0 +1,104 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: type is 'WebActivity' and authenticationType is 'Basic'",
+      "type": "Microsoft.DataFactory/factories/pipelines",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "activities": [
+          {
+            "type": "WebActivity",
+            "typeProperties": {
+              "authenticationType": "Basic"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Sensitive case of nested resource",
+      "type": "Microsoft.DataFactory/factories",
+      "apiVersion": "2018-06-01",
+      "resources": [
+        {
+          "name": "Nested resource",
+          "type": "pipelines",
+          "apiVersion": "2018-06-01",
+          "properties": {
+            "activities": [
+              {
+                "type": "WebActivity",
+                "typeProperties": {
+                  "authenticationType": "Basic"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sensitive: type is 'WebHook' and authenticationType is 'ServicePrincipal'",
+      "type": "Microsoft.DataFactory/factories/pipelines",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "activities": [
+          {
+            "type": "WebHook",
+            "typeProperties": {
+              "authenticationType": "ServicePrincipal"
+            }
+          }
+        ]
+      }
+    },
+    
+    {
+      "name": "Compliant: type is 'WebActivity' but authentication type is 'ClientCertificate'",
+      "type": "Microsoft.DataFactory/factories/pipelines",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "activities": [
+          {
+            "type": "WebActivity",
+            "typeProperties": {
+              "authenticationType": "ClientCertificate"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Compliant: type is 'Other' even when authentication type is 'ServicePrincipal'",
+      "type": "Microsoft.DataFactory/factories/pipelines",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "activities": [
+          {
+            "type": "Other",
+            "typeProperties": {
+              "authenticationType": "ServicePrincipal"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Compliant: both values are not sensitive, type is 'Other' and authentication type is 'ClientCertificate'",
+      "type": "Microsoft.DataFactory/factories/pipelines",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "activities": [
+          {
+            "type": "Other",
+            "typeProperties": {
+              "authenticationType": "ClientCertificate"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
