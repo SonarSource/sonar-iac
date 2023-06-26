@@ -63,4 +63,11 @@ class CertificateBasedAuthenticationCheckTest {
       issue(23, 10, 23, 39),
       issue(39, 14, 39, 43));
   }
+
+  @Test
+  void testCassandraClusters() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DocumentDB_cassandraClusters/cassandraClusters.json", new CertificateBasedAuthenticationCheck(),
+      issue(7, 14, 7, 54, "Omitting \"clientCertificates\" disables certificate-based authentication. Make sure it is safe here."),
+      issue(17, 8, 18, 9, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here."));
+  }
 }

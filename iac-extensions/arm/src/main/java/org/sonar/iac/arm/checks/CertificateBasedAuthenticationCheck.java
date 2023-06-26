@@ -55,6 +55,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     register("Microsoft.App/containerApps", CertificateBasedAuthenticationCheck::checkContainerApps);
     register("Microsoft.ContainerRegistry/registries/tokens", CertificateBasedAuthenticationCheck::checkRegistriesTokens);
     register("Microsoft.DataFactory/factories/linkedservices", CertificateBasedAuthenticationCheck::checkLinkedServices);
+    register("Microsoft.DocumentDB/cassandraClusters", CertificateBasedAuthenticationCheck::checkCassandraClusters);
   }
 
   private static void checkContainerApps(ContextualResource resource) {
@@ -88,6 +89,12 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
       && authenticationType.is(isValue(str -> !"ClientCertificate".equals(str)))) {
       authenticationType.report(WRONG_AUTHENTICATION_METHOD_MESSAGE, type.toSecondary("Service type"));
     }
+  }
+
+  private static void checkCassandraClusters(ContextualResource resource) {
+    resource.property("clientCertificates")
+      .reportIf(isEmptyArray(), EMPTY_CERTIFICATE_LIST_MESSAGE)
+      .reportIfAbsent(NO_CERTIFICATE_LIST_MESSAGE);
   }
 
   private static boolean isBooleanFalse(Tree tree) {
