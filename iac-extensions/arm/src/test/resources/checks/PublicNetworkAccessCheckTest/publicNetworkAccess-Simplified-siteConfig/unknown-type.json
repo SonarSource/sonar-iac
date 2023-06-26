@@ -1,0 +1,55 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "unkown-type",
+      "apiVersion": "dummy",
+      "name": "Should NOT raise issue for Enabled",
+      "properties": {
+        "siteConfig": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "unkown-type",
+      "apiVersion": "dummy",
+      "name": "Should NOT raise issue for Disabled",
+      "properties": {
+        "siteConfig": {
+          "publicNetworkAccess": "Disabled"
+        }
+      }
+    },
+    {
+      "type": "unkown-type",
+      "apiVersion": "dummy",
+      "name": "Should NOT raise issue for unknown value",
+      "properties": {
+        "siteConfig": {
+          "publicNetworkAccess": "unknown"
+        }
+      }
+    },
+    {
+      "type": "unkown-type",
+      "apiVersion": "dummy",
+      "name": "Should NOT raise issue for missing publicNetworkAccess",
+      "properties": {
+        "siteConfig": {
+        }
+      }
+    },
+    {
+      "type": "unkown-type",
+      "apiVersion": "dummy",
+      "name": "Should NOT raise issue for publicNetworkAccess as not StringLiteral",
+      "properties": {
+        "siteConfig": {
+          "publicNetworkAccess": []
+        }
+      }
+    }
+  ]
+}

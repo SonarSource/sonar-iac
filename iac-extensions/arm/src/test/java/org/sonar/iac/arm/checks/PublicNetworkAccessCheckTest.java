@@ -170,14 +170,14 @@ class PublicNetworkAccessCheckTest {
   @MethodSource
   @ParameterizedTest(name = "[${index}] should check Public Network Access Simplified for type {0}")
   void shouldCheckPublicNetworkAccessSimplified(String type) {
-    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplifed/template.json", type);
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified/template.json", type);
 
     verifyContent(content, CHECK, issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   @Test
   void shouldRaiseNoIssuesForUnknownType() {
-    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplifed/unknown-type.json", CHECK);
+    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified/unknown-type.json", CHECK);
   }
 
   static Stream<String> shouldCheckRangePublicIPAddress() {
@@ -236,10 +236,29 @@ class PublicNetworkAccessCheckTest {
   }
 
   @Test
-  void shouldCheckDbForInsightsDataCollectionEndpoints() {
+  void shouldCheckInsightsDataCollectionEndpoints() {
     verify("PublicNetworkAccessCheckTest/Microsoft.Insights_dataCollectionEndpoints/test.json",
       CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
+  }
+
+  static Stream<String> shouldCheckPublicNetworkAccessSimplifiedInSiteConfig() {
+    return Stream.of(
+      "Microsoft.Web/sites",
+      "Microsoft.Web/sites/slots");
+  }
+
+  @MethodSource
+  @ParameterizedTest(name = "[${index}] should check range public IP Address for type {0}")
+  void shouldCheckPublicNetworkAccessSimplifiedInSiteConfig(String type) {
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-siteConfig/template.json", type);
+    verifyContent(content, CHECK,
+      issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
+  }
+
+  @Test
+  void shouldCheckPublicNetworkAccessSimplifiedInSiteConfigUnknownType() {
+    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-siteConfig/unknown-type.json", CHECK);
   }
 
   private static String readTemplateAndReplace(String path, String type) {
