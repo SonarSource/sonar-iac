@@ -101,13 +101,12 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   }
 
   private static void checkJobCollections(ContextualResource resource) {
-    resource.object("action")
-      .object("request")
-      .object("authentication")
-      .property("type")
-      .reportIf(isValue(str -> !CLIENT_CERTIFICIATE_VALUE.equals(str)), WRONG_AUTHENTICATION_METHOD_MESSAGE);
-    resource.object("action")
-      .object("errorAction")
+    checkRequestAuthenticationType(resource.object("action"));
+    checkRequestAuthenticationType(resource.object("action").object("errorAction"));
+  }
+
+  private static void checkRequestAuthenticationType(ContextualObject action) {
+    action
       .object("request")
       .object("authentication")
       .property("type")
