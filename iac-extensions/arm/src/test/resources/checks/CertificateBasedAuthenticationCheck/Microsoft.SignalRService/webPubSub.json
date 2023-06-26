@@ -1,0 +1,36 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: clientCertEnabled is not set",
+      "type": "Microsoft.SignalRService/webPubSub",
+      "apiVersion": "2021-10-01",
+      "properties": {
+        "tls": {
+        }
+      }
+    },
+    {
+      "name": "Sensitive: clientCertEnabled is set to false",
+      "type": "Microsoft.SignalRService/webPubSub",
+      "apiVersion": "2021-10-01",
+      "properties": {
+        "tls": {
+          "clientCertEnabled": false
+        }
+      }
+    },
+    
+    {
+      "name": "Compliant: clientCertEnabled is set to true",
+      "type": "Microsoft.SignalRService/webPubSub",
+      "apiVersion": "2021-10-01",
+      "properties": {
+        "tls": {
+          "clientCertEnabled": true
+        }
+      }
+    }
+  ]
+}

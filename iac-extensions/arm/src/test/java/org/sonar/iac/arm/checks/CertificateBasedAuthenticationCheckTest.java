@@ -131,4 +131,18 @@ class CertificateBasedAuthenticationCheckTest {
       issue(7, 14, 7, 53, "Omitting \"trustedRootCertificates\" disables certificate-based authentication. Make sure it is safe here."),
       issue(17, 8, 18, 9, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here."));
   }
+
+  @Test
+  void testSignalRServiceSignalR() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.SignalRService/signalR.json", new CertificateBasedAuthenticationCheck(),
+      issue(10, 15, 11, 9, "Omitting \"clientCertEnabled\" disables certificate-based authentication. Make sure it is safe here."),
+      issue(20, 10, 20, 36, "Make sure that disabling certificate-based authentication is safe here."));
+  }
+
+  @Test
+  void testSignalRServiceWebPubSub() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.SignalRService/webPubSub.json", new CertificateBasedAuthenticationCheck(),
+      issue(10, 15, 11, 9, "Omitting \"clientCertEnabled\" disables certificate-based authentication. Make sure it is safe here."),
+      issue(20, 10, 20, 36, "Make sure that disabling certificate-based authentication is safe here."));
+  }
 }
