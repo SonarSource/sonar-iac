@@ -1,0 +1,189 @@
+<p>Reducing the backup retention duration can reduce an organization’s ability to re-establish service in case of a security incident.</p>
+<p>Data backups allow to overcome corruption or unavailability of data by recovering as efficiently as possible from a security incident.</p>
+<p>Backup retention duration, coverage, and backup locations are essential criteria regarding functional continuity.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This component is essential for the information system infrastructure. </li>
+  <li> This component is essential for mission-critical functions. </li>
+  <li> Compliance policies require this component to be backed up for a specific amount of time. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Increase the backup retention period to an amount of time sufficient enough to be able to restore service in case of an incident.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-backup?pivots=deployment-language-arm-template">Azure App
+Service</a>:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "webApp",
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "name": "webApp/backup",
+      "properties": {
+        "backupSchedule": {
+          "frequencyInterval": 1,
+          "frequencyUnit": "Day",
+          "keepAtLeastOneBackup": true,
+          "retentionPeriodInDays": 2
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', 'webApp')]"
+      ]
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts?pivots=deployment-language-arm-template">Azure
+Cosmos DB</a> accounts:</p>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupIntervalInMinutes": 1440,
+            "backupRetentionIntervalInHours": 8
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults/backuppolicies?pivots=deployment-language-arm-template">Azure
+Backup</a> vault policies:</p>
+<pre data-diff-id="6" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2023-01-01",
+      "name": "testVault",
+      "resources": [
+        {
+          "type": "backupPolicies",
+          "apiVersion": "2023-01-01",
+          "name": "testVault/backupPolicy",
+          "properties": {
+            "backupManagementType": "AzureSql",
+            "retentionPolicy": {
+              "retentionPolicyType": "SimpleRetentionPolicy",
+              "retentionDuration": {
+                "count": 2,
+                "durationType": "Days"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-backup?pivots=deployment-language-arm-template">Azure App
+Service</a>:</p>
+<pre data-diff-id="2" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "webApp",
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "name": "webApp/backup",
+      "properties": {
+        "backupSchedule": {
+          "frequencyInterval": 1,
+          "frequencyUnit": "Day",
+          "keepAtLeastOneBackup": true,
+          "retentionPeriodInDays": 15
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', 'webApp')]"
+      ]
+    }
+  ]
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/databaseaccounts?pivots=deployment-language-arm-template">Azure
+Cosmos DB</a> accounts:</p>
+<pre data-diff-id="4" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupIntervalInMinutes": 1440,
+            "backupRetentionIntervalInHours": 360
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>For <a
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.recoveryservices/vaults/backuppolicies?pivots=deployment-language-arm-template">Azure
+Backup</a> vault policies:</p>
+<pre data-diff-id="6" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2023-01-01",
+      "name": "testVault",
+      "resources": [
+        {
+          "type": "backupPolicies",
+          "apiVersion": "2023-01-01",
+          "name": "testVault/backupPolicy",
+          "properties": {
+            "backupManagementType": "AzureSql",
+            "retentionPolicy": {
+              "retentionPolicyType": "SimpleRetentionPolicy",
+              "retentionDuration": {
+                "count": 8,
+                "durationType": "Days"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+</pre>
+

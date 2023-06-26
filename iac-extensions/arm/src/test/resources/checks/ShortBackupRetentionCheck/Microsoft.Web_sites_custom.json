@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: retention period is less than custom period 15",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 7
+        }
+      }
+    },
+    
+    {
+      "name": "Compliant: retention period is greater than 15",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 20
+        }
+      }
+    }
+  ]
+}

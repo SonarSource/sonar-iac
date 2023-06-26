@@ -19,21 +19,29 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 
-public class ArmCheckList {
+import static org.sonar.iac.common.testing.Verifier.issue;
 
-  private ArmCheckList() {
+class ShortBackupRetentionCheckTest {
+
+  private final ShortBackupRetentionCheck check = new ShortBackupRetentionCheck();
+
+  @Test
+  void testWebSites() {
+    ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.Web_sites.json",
+      check,
+      issue(11, 10, 11, 36, "Make sure that defining a short backup retention duration is safe here."),
+      issue(21, 10, 21, 36),
+      issue(31, 10, 31, 37),
+      issue(46, 14, 46, 40));
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CertificateBasedAuthenticationCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class,
-      ShortBackupRetentionCheck.class,
-      UnencryptedCloudServicesCheck.class);
+  @Test
+  void testWebSitesCustomRetentionPeriod() {
+    check.retentionPeriod = 15;
+    ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.Web_sites_custom.json",
+      check,
+      issue(11, 10, 11, 36, "Make sure that defining a short backup retention duration is safe here."));
   }
 }
