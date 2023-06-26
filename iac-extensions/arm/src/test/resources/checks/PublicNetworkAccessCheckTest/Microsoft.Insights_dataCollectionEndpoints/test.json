@@ -1,0 +1,65 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2021-04-01",
+      "name": "Should raise issue for Enabled",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2021-04-01",
+      "name": "Should NOT raise issue for Disabled",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Disabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2021-04-01",
+      "name": "Should NOT raise issue for unknown",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "unknown"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2021-04-01",
+      "name": "Should NOT raise issue for missing property",
+      "properties": {
+        "networkAcls": {
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2021-04-01",
+      "name": "Should NOT raise issue for publicNetworkAccess as not StringLiteral",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": {}
+        }
+      }
+    },
+    {
+      "type": "unknown-type",
+      "apiVersion": "2021-04-01",
+      "name": "Should NOT raise issue for unknown type",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    }
+  ]
+}

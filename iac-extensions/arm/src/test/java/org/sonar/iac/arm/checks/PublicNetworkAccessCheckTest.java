@@ -235,6 +235,13 @@ class PublicNetworkAccessCheckTest {
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
+  @Test
+  void shouldCheckDbForInsightsDataCollectionEndpoints() {
+    verify("PublicNetworkAccessCheckTest/Microsoft.Insights_dataCollectionEndpoints/test.json",
+      CHECK,
+      issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
+  }
+
   private static String readTemplateAndReplace(String path, String type) {
     String content;
     try {
