@@ -90,7 +90,8 @@ class CertificateBasedAuthenticationCheckTest {
       issue(34, 14, 34, 48));
   }
 
-  @Test  void testWebSites() {
+  @Test
+  void testWebSites() {
     ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Web_sites/Web_sites.json", new CertificateBasedAuthenticationCheck(),
       issue(7, 14, 7, 35, "Omitting \"clientCertEnabled\" disables certificate-based authentication. Make sure it is safe here."),
       issue(7, 14, 7, 35, "Omitting \"clientCertMode\" disables certificate-based authentication. Make sure it is safe here."),
