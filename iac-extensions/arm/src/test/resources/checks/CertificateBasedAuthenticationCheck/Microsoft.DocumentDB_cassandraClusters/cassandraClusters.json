@@ -30,6 +30,15 @@
           }
         ]
       }
+    },
+    {
+      "name": "Compliant: resource type is not concerned by this rule",
+      "type": "another type",
+      "apiVersion": "2021-10-15",
+      "properties": {
+        "clientCertificates": [
+        ]
+      }
     }
   ]
 }
