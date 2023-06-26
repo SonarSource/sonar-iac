@@ -1,0 +1,72 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: both clientCertEnabled and clientCertMode are missing",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Sensitive: clientCertEnabled is false and clientCertMode is missing",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": false
+      }
+    },
+    {
+      "name": "Sensitive: clientCertEnabled is true but clientCertMode is missing",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": true
+      }
+    },
+    {
+      "name": "Sensitive: clientCertEnabled is true but clientCertMode is not 'Required'",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": true,
+        "clientCertMode": "Optional"
+      }
+    },
+    {
+      "name": "Sensitive: clientCertEnabled is false and clientCertMode is 'Required'",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": false,
+        "clientCertMode": "Required"
+      }
+    },
+    {
+      "name": "Sensitive: clientCertEnabled is missing and clientCertMode is not 'Required'",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertMode": "Required"
+      }
+    },
+    
+    {
+      "name": "Compliant: clientCertEnabled is true and clientCertMode is 'Required'",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": true,
+        "clientCertMode": "Required"
+      }
+    },
+    {
+      "name": "Compliant: the resource type is not in the scope of the rule",
+      "type": "another type",
+      "apiVersion": "2015-08-01",
+      "properties": {
+      }
+    }
+  ]
+}

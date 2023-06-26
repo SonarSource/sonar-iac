@@ -1,0 +1,146 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: clientCertEnabled is false",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": false
+      }
+    },
+    {
+      "name": "Sensitive: clientCertMode is not 'Required'",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertMode": "Optional"
+      }
+    },
+    {
+      "name": "Sensitive: clientCertEnabled is true but clientCertMode is not 'Required'",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": true,
+        "clientCertMode": "Optional"
+      }
+    },
+    {
+      "name": "Sensitive: clientCertEnabled is false but clientCertMode is 'Required'",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": false,
+        "clientCertMode": "Required"
+      }
+    },
+    {
+      "name": "Sensitive x2: parent resource is compliant but nested child resource override with unsafe values",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": true,
+        "clientCertMode": "Required"
+      },
+      "resources": [
+        {
+          "name": "Nested child 1",
+          "type": "slots",
+          "apiVersion": "2015-08-01",
+          "properties": {
+            "clientCertEnabled": false
+          }
+        },
+        {
+          "name": "Nested child 2",
+          "type": "slots",
+          "apiVersion": "2015-08-01",
+          "properties": {
+            "clientCertMode": "Optional"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sensitive: parent is sensitive, even if child override with compliant value it's still sensitive",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": false,
+        "clientCertMode": "Required"
+      },
+      "resources": [
+        {
+          "name": "Nested child",
+          "type": "slots",
+          "apiVersion": "2015-08-01",
+          "properties": {
+            "clientCertEnabled": true
+          }
+        }
+      ]
+    },
+    
+    {
+      "name": "Compliant: clientCertEnabled is missing and clientCertMode is defined and is 'Required'",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertMode": "Required"
+      }
+    },
+    {
+      "name": "Compliant: clientCertEnabled is true and clientCertMode is missing",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": true
+      }
+    },
+    {
+      "name": "Compliant: clientCertEnabled is true and clientCertMode is 'Required'",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": true,
+        "clientCertMode": "Required"
+      }
+    },
+    {
+      "name": "Compliant: parent is compliant and child override with compliant value",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": true,
+        "clientCertMode": "Required"
+      },
+      "resources": [
+        {
+          "name": "Nested child",
+          "type": "slots",
+          "apiVersion": "2015-08-01",
+          "properties": {
+            "clientCertEnabled": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compliant: both clientCertEnabled and clientCertMode are missing",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2015-08-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Compliant: the resource type is not in the scope of the rule",
+      "type": "another type",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": false
+      }
+    }
+  ]
+}
