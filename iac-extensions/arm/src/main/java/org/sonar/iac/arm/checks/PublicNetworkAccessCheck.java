@@ -132,6 +132,11 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     "Microsoft.DocumentDB/mongoClusters/firewallRules",
     "Microsoft.Sql/servers/firewallRules",
     "Microsoft.Synapse/workspaces/firewallRules");
+
+  private static final List<String> PUBLIC_NETWORK_ACCESS_SIMPLIFIED_IN_SITE_CONFIG = List.of(
+    "Microsoft.Web/sites",
+    "Microsoft.Web/sites/slots");
+
   private static final String PUBLIC_NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
   private static final String PUBLIC_IP_ADDRESS_MESSAGE = "Make sure that allowing public IP addresses is safe here.";
   private static final String PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION = "and here";
@@ -145,6 +150,7 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
 
     register("Microsoft.DBforMySQL/flexibleServers", checkPublicNetworkAccessSimplifiedIn("network"));
     register("Microsoft.Insights/dataCollectionEndpoints", checkPublicNetworkAccessSimplifiedIn("networkAcls"));
+    register(PUBLIC_NETWORK_ACCESS_SIMPLIFIED_IN_SITE_CONFIG, checkPublicNetworkAccessSimplifiedIn("siteConfig"));
 
     register(PUBLIC_IP_ADDRESS_RANGE_TYPES, checkIpRange());
   }
