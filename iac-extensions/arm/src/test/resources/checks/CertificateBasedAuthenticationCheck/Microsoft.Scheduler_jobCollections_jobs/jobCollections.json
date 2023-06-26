@@ -1,0 +1,90 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: no certificate authentication on action.request.authentication.type",
+      "type": "Microsoft.Scheduler/jobCollections/jobs",
+      "apiVersion": "2016-01-01",
+      "properties": {
+        "action": {
+          "request": {
+            "authentication": {
+              "type": "Basic"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: no certificate authentication on action.errorAction.request.authentication.type",
+      "type": "Microsoft.Scheduler/jobCollections/jobs",
+      "apiVersion": "2016-01-01",
+      "properties": {
+        "action": {
+          "errorAction": {
+            "request": {
+              "authentication": {
+                "type": "Basic"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: nested child resource with sensitive configuration",
+      "type": "Microsoft.Scheduler/jobCollections",
+      "apiVersion": "2016-01-01",
+      "resources": [
+        {
+          "name": "nested child",
+          "type": "jobs",
+          "apiVersion": "2016-01-01",
+          "properties": {
+            "action": {
+              "errorAction": {
+                "request": {
+                  "authentication": {
+                    "type": "Basic"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Scheduler/jobCollections/jobs",
+      "apiVersion": "2016-01-01",
+      "properties": {
+        "action": {
+          "request": {
+            "authentication": {
+              "type": "ClientCertificate"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Scheduler/jobCollections/jobs",
+      "apiVersion": "2016-01-01",
+      "properties": {
+        "action": {
+          "errorAction": {
+            "request": {
+              "authentication": {
+                "type": "ClientCertificate"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
