@@ -44,9 +44,9 @@ class PublicNetworkAccessCheckTest {
   void shouldCheckPublicNetworkAccess() {
     verify("PublicNetworkAccessCheckTest/Microsoft.Desktop_hostPools/test.json",
       CHECK,
-      issue(10, 31, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS),
-      issue(18, 31, 18, 59),
-      issue(26, 31, 26, 54));
+      issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(18, 8, 18, 59),
+      issue(26, 8, 26, 54));
   }
 
   static Stream<String> shouldCheckPublicNetworkAccessSimplified() {
@@ -172,7 +172,7 @@ class PublicNetworkAccessCheckTest {
   void shouldCheckPublicNetworkAccessSimplified(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplifed/template.json", type);
 
-    verifyContent(content, CHECK, issue(10, 31, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS));
+    verifyContent(content, CHECK, issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   @Test
@@ -182,7 +182,6 @@ class PublicNetworkAccessCheckTest {
 
   static Stream<String> shouldCheckRangePublicIPAddress() {
     return Stream.of(
-      "Microsoft.DBForMySql/flexibleServers/firewallRules",
       "Microsoft.DBForPostgreSql/flexibleServers/firewallRules",
       "Microsoft.DBforMariaDB/servers/firewallRules",
       "Microsoft.DBforMySQL/flexibleServers/firewallRules",
@@ -227,6 +226,13 @@ class PublicNetworkAccessCheckTest {
   @Test
   void shouldRaiseNoIssueForPublicIPAddressForUnknownType() {
     verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/unknown-type.json", CHECK);
+  }
+
+  @Test
+  void shouldCheckDbForMySqlFlexibleServers() {
+    verify("PublicNetworkAccessCheckTest/Microsoft.DBforMySQL_flexibleServers/test.json",
+      CHECK,
+      issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   private static String readTemplateAndReplace(String path, String type) {

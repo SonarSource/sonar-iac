@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.checks.ipaddress.IpAddressValidator;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -118,7 +120,6 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     "Microsoft.Web/staticSites");
 
   private static final List<String> PUBLIC_IP_ADDRESS_RANGE_TYPES = List.of(
-    "Microsoft.DBForMySql/flexibleServers/firewallRules",
     "Microsoft.DBForPostgreSql/flexibleServers/firewallRules",
     "Microsoft.DBforMariaDB/servers/firewallRules",
     "Microsoft.DBforMySQL/flexibleServers/firewallRules",
@@ -134,6 +135,7 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
   private static final String PUBLIC_NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
   private static final String PUBLIC_IP_ADDRESS_MESSAGE = "Make sure that allowing public IP addresses is safe here.";
   private static final String PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION = "and here";
+  private static final String PUBLIC_NETWORK_ACCESS_PROPERTY = "publicNetworkAccess";
 
   @Override
   protected void registerResourceConsumer() {
@@ -141,19 +143,25 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
 
     PUBLIC_NETWORK_ACCESS_SIMPLIFIED_TYPES.forEach(type -> register(type, checkPublicNetworkAccessSimplified()));
 
+    register("Microsoft.DBforMySQL/flexibleServers", checkPublicNetworkAccessInNetwork());
+
     PUBLIC_IP_ADDRESS_RANGE_TYPES.forEach(type -> register(type, checkIpRange()));
   }
 
-  private static BiConsumer<CheckContext, ResourceDeclaration> checkPublicNetworkAccess() {
-    return (ctx, resource) -> PropertyUtils.value(resource, "publicNetworkAccess")
-      .filter(PublicNetworkAccessCheck::isSensitivePublicNetworkAccess)
-      .ifPresent(value -> ctx.reportIssue(value, PUBLIC_NETWORK_ACCESS_MESSAGE));
+  private static Consumer<ContextualResource> checkPublicNetworkAccess() {
+    return resource -> resource.property(PUBLIC_NETWORK_ACCESS_PROPERTY)
+      .reportIf(PublicNetworkAccessCheck::isSensitivePublicNetworkAccess, PUBLIC_NETWORK_ACCESS_MESSAGE);
   }
 
-  private static BiConsumer<CheckContext, ResourceDeclaration> checkPublicNetworkAccessSimplified() {
-    return (ctx, resource) -> PropertyUtils.value(resource, "publicNetworkAccess")
-      .filter(PublicNetworkAccessCheck::isSensitivePublicNetworkAccessSimplified)
-      .ifPresent(value -> ctx.reportIssue(value, PUBLIC_NETWORK_ACCESS_MESSAGE));
+  private static Consumer<ContextualResource> checkPublicNetworkAccessSimplified() {
+    return resource -> resource.property(PUBLIC_NETWORK_ACCESS_PROPERTY)
+      .reportIf(PublicNetworkAccessCheck::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
+  }
+
+  private static Consumer<ContextualResource> checkPublicNetworkAccessInNetwork() {
+    return resource -> resource.object("network")
+      .property(PUBLIC_NETWORK_ACCESS_PROPERTY)
+      .reportIf(PublicNetworkAccessCheck::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
   }
 
   private static boolean isSensitivePublicNetworkAccess(Tree tree) {
