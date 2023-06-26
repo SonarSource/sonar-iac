@@ -141,11 +141,12 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
   protected void registerResourceConsumer() {
     register("Microsoft.DesktopVirtualization/hostPools", checkPublicNetworkAccess());
 
-    PUBLIC_NETWORK_ACCESS_SIMPLIFIED_TYPES.forEach(type -> register(type, checkPublicNetworkAccessSimplified()));
+    register(PUBLIC_NETWORK_ACCESS_SIMPLIFIED_TYPES, checkPublicNetworkAccessSimplified());
 
-    register("Microsoft.DBforMySQL/flexibleServers", checkPublicNetworkAccessInNetwork());
+    register("Microsoft.DBforMySQL/flexibleServers", checkPublicNetworkAccessSimplifiedIn("network"));
+    register("Microsoft.Insights/dataCollectionEndpoints", checkPublicNetworkAccessSimplifiedIn("networkAcls"));
 
-    PUBLIC_IP_ADDRESS_RANGE_TYPES.forEach(type -> register(type, checkIpRange()));
+    register(PUBLIC_IP_ADDRESS_RANGE_TYPES, checkIpRange());
   }
 
   private static Consumer<ContextualResource> checkPublicNetworkAccess() {
@@ -158,8 +159,8 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
       .reportIf(PublicNetworkAccessCheck::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
   }
 
-  private static Consumer<ContextualResource> checkPublicNetworkAccessInNetwork() {
-    return resource -> resource.object("network")
+  private static Consumer<ContextualResource> checkPublicNetworkAccessSimplifiedIn(String objectName) {
+    return resource -> resource.object(objectName)
       .property(PUBLIC_NETWORK_ACCESS_PROPERTY)
       .reportIf(PublicNetworkAccessCheck::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
   }
