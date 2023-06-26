@@ -272,8 +272,7 @@ class PublicNetworkAccessCheckTest {
       issue(75, 12, 75, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(90, 12, 90, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(105, 12, 105, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
-      issue(120, 12, 120, 44, MESSAGE_PUBLIC_NETWORK_ACCESS)
-    );
+      issue(120, 12, 120, 44, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   private static String readTemplateAndReplace(String path, String type) {
