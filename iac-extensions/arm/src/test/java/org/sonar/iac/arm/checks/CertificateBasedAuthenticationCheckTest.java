@@ -124,4 +124,11 @@ class CertificateBasedAuthenticationCheckTest {
       issue(34, 18, 34, 47),
       issue(51, 14, 51, 54));
   }
+
+  @Test
+  void testApplicationGateways() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Network_applicationGateways/applicationGateways.json", new CertificateBasedAuthenticationCheck(),
+      issue(7, 14, 7, 53, "Omitting \"trustedRootCertificates\" disables certificate-based authentication. Make sure it is safe here."),
+      issue(17, 8, 18, 9, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here."));
+  }
 }

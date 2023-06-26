@@ -67,6 +67,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     register("Microsoft.Web/sites", CertificateBasedAuthenticationCheck::checkWebSites);
     register("Microsoft.Web/sites/slots", CertificateBasedAuthenticationCheck::checkWebSitesSlots);
     register("Microsoft.DataFactory/factories/pipelines", CertificateBasedAuthenticationCheck::checkPipelines);
+    register("Microsoft.Network/applicationGateways", CertificateBasedAuthenticationCheck::checkApplicationGateways);
   }
 
   private static void checkContainerApps(ContextualResource resource) {
@@ -104,6 +105,12 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
   private static void checkCassandraClusters(ContextualResource resource) {
     resource.property("clientCertificates")
+      .reportIf(isEmptyArray(), EMPTY_CERTIFICATE_LIST_MESSAGE)
+      .reportIfAbsent(NO_CERTIFICATE_LIST_MESSAGE);
+  }
+
+  private static void checkApplicationGateways(ContextualResource resource) {
+    resource.property("trustedRootCertificates")
       .reportIf(isEmptyArray(), EMPTY_CERTIFICATE_LIST_MESSAGE)
       .reportIfAbsent(NO_CERTIFICATE_LIST_MESSAGE);
   }
