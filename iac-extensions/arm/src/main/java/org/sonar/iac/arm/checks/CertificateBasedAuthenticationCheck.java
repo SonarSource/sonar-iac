@@ -54,7 +54,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.ApiManagement/service/gateways/hostnameConfigurations", resource -> resource.property("negotiateClientCertificate")
-      .reportIf(isBooleanFalse(), DISABLED_CERTIFICATE_MESSAGE)
+      .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE)
       .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE));
     register("Microsoft.App/containerApps", CertificateBasedAuthenticationCheck::checkContainerApps);
     register("Microsoft.ContainerRegistry/registries/tokens", CertificateBasedAuthenticationCheck::checkRegistriesTokens);
@@ -138,7 +138,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
   private static void checkWebSites(ContextualResource resource) {
     resource.property("clientCertEnabled")
-      .reportIf(isBooleanFalse(), DISABLED_CERTIFICATE_MESSAGE)
+      .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE)
       .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
     resource.property("clientCertMode")
       .reportIf(isValue(str -> !"Required".equals(str)), ALLOWING_NO_CERTIFICATE_MESSAGE)
@@ -147,12 +147,12 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
   private static void checkWebSitesSlots(ContextualResource resource) {
     resource.property("clientCertEnabled")
-      .reportIf(isBooleanFalse(), DISABLED_CERTIFICATE_MESSAGE);
+      .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE);
     resource.property("clientCertMode")
       .reportIf(isValue(str -> !"Required".equals(str)), ALLOWING_NO_CERTIFICATE_MESSAGE);
   }
 
-  private static Predicate<Expression> isBooleanFalse() {
+  private static Predicate<Expression> isFalse() {
     return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
   }
 

@@ -133,6 +133,14 @@
       "apiVersion": "2015-08-01",
       "properties": {
       }
+    },
+    {
+      "name": "Compliant: the resource type is not in the scope of the rule",
+      "type": "another type",
+      "apiVersion": "2015-08-01",
+      "properties": {
+        "clientCertEnabled": false
+      }
     }
   ]
 }
