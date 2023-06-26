@@ -1,0 +1,90 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: both properties are not defined",
+      "type": "Microsoft.ServiceFabric/clusters",
+      "apiVersion": "2016-03-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Sensitive: both properties are defined but empty",
+      "type": "Microsoft.ServiceFabric/clusters",
+      "apiVersion": "2016-03-01",
+      "properties": {
+        "clientCertificateCommonNames": [
+        ],
+        "clientCertificateThumbprints": [
+        ]
+      }
+    },
+    {
+      "name": "Sensitive: only one property is defined but empty",
+      "type": "Microsoft.ServiceFabric/clusters",
+      "apiVersion": "2016-03-01",
+      "properties": {
+        "clientCertificateThumbprints": [
+        ]
+      }
+    },
+    {
+      "name": "Sensitive: only one property is defined but empty (bis)",
+      "type": "Microsoft.ServiceFabric/clusters",
+      "apiVersion": "2016-03-01",
+      "properties": {
+        "clientCertificateCommonNames": [
+        ]
+      }
+    },
+    
+    {
+      "name": "Compliant: one properties defined and not empty, the other is not defined",
+      "type": "Microsoft.ServiceFabric/clusters",
+      "apiVersion": "2016-03-01",
+      "properties": {
+        "clientCertificateCommonNames": [
+          {
+            "...": "certificate details"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Compliant: one properties defined and not empty, the other is not defined (bis)",
+      "type": "Microsoft.ServiceFabric/clusters",
+      "apiVersion": "2016-03-01",
+      "properties": {
+        "clientCertificateThumbprints": [
+          {
+            "...": "certificate details"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Compliant: one properties defined and not empty, the other is defined and empty",
+      "type": "Microsoft.ServiceFabric/clusters",
+      "apiVersion": "2016-03-01",
+      "properties": {
+        "clientCertificateCommonNames": [
+        ],
+        "clientCertificateThumbprints": [
+          {
+            "...": "certificate details"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Compliant: resource type is not impacted by the check",
+      "type": "another type",
+      "apiVersion": "2016-03-01",
+      "properties": {
+        "clientCertificateThumbprints": [
+        ]
+      }
+    }
+  ]
+}

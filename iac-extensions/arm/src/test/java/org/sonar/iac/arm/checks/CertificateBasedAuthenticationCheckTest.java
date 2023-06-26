@@ -78,4 +78,15 @@ class CertificateBasedAuthenticationCheckTest {
       issue(28, 16, 28, 31),
       issue(49, 20, 49, 35));
   }
+
+  @Test
+  void testServiceFabric() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ServiceFabric_clusters/ServiceFabricClusters.json", new CertificateBasedAuthenticationCheck(),
+      issue(7, 14, 7, 48, "Omitting \"clientCertificateCommonNames/clientCertificateThumbprints\" disables certificate-based authentication. Make sure it is safe here."),
+      issue(14, 14, 14, 48, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.",
+        SecondaryLocation.secondary(17, 8, 18, 9, "Empty certificate list"),
+        SecondaryLocation.secondary(19, 8, 20, 9, "Empty certificate list")),
+      issue(25, 14, 25, 48),
+      issue(34, 14, 34, 48));
+  }
 }

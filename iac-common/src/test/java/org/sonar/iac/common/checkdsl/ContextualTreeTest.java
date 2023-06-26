@@ -21,6 +21,7 @@ package org.sonar.iac.common.checkdsl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -29,6 +30,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -99,6 +101,16 @@ class ContextualTreeTest {
   void isPresent() {
     assertThat(present.isPresent()).isTrue();
     assertThat(absent.isPresent()).isFalse();
+  }
+
+  @Test
+  void ifPresent() {
+    Consumer<Tree> consumerPresent = mock(Consumer.class);
+    Consumer<Tree> consumerAbsent = mock(Consumer.class);
+    present.ifPresent(consumerPresent);
+    absent.ifPresent(consumerAbsent);
+    verify(consumerPresent, times(1)).accept(any());
+    verify(consumerAbsent, never()).accept(any());
   }
 
   @Test
