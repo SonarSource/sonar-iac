@@ -261,6 +261,21 @@ class PublicNetworkAccessCheckTest {
     verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-siteConfig/unknown-type.json", CHECK);
   }
 
+  @Test
+  void shouldCheckSubResourcesForPublicNetworkAccess() {
+    verify("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-subResources/test.json",
+      CHECK,
+      issue(15, 12, 15, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(30, 12, 30, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(45, 12, 45, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(60, 12, 60, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(75, 12, 75, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(90, 12, 90, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(105, 12, 105, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(120, 12, 120, 44, MESSAGE_PUBLIC_NETWORK_ACCESS)
+    );
+  }
+
   private static String readTemplateAndReplace(String path, String type) {
     String content;
     try {
