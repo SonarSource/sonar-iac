@@ -1,0 +1,128 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: properties.backupPolicy.type is Periodic and backupRetentionIntervalInHours / 24 < 30 days",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupRetentionIntervalInHours": 24
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: properties.backupPolicy.type is Periodic and backupRetentionIntervalInHours is not set (default 8 hour)",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: properties.backupPolicy.type is Periodic and not even periodicModeProperties is set (still default to 8 hour)",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic"
+        }
+      }
+    },
+    {
+      "name": "Sensitive: properties.backupPolicy.type is Periodic and not even periodicModeProperties / 24 < 30",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupRetentionIntervalInHours": 5.5
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: backupRetentionIntervalInHours is 719, which is just below the 720 hours (30 days) threshold",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupRetentionIntervalInHours": 719
+          }
+        }
+      }
+    },
+    
+    {
+      "name": "Compliant: no attributes are set",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+        }
+      }
+    },
+    {
+      "name": "Compliant: properties.backupPolicy.type is not 'Periodic'",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Other",
+          "periodicModeProperties": {
+            "backupRetentionIntervalInHours": 24
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: backupRetentionIntervalInHours / 24 > 30",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupRetentionIntervalInHours": 1000
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: backupRetentionIntervalInHours is 720, which is just below the 720 hours (30 days) threshold",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupRetentionIntervalInHours": 720
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: type is not set",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "periodicModeProperties": {
+            "backupRetentionIntervalInHours": 24
+          }
+        }
+      }
+    }
+  ]
+}

@@ -34,7 +34,8 @@ import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.TextUtils;
+
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 
 @Rule(key = "S6382")
 public class CertificateBasedAuthenticationCheck extends AbstractArmResourceCheck {
@@ -183,10 +184,6 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
   private static Predicate<Expression> isFalse() {
     return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
-  }
-
-  private static Predicate<Expression> isValue(Predicate<String> predicate) {
-    return expr -> TextUtils.matchesValue(expr, predicate).isTrue();
   }
 
   private static boolean isResourceVersionEqualsOrAfter(ContextualResource resource, String version) {

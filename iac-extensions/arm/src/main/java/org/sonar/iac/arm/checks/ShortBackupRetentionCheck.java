@@ -22,38 +22,54 @@ package org.sonar.iac.arm.checks;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
+
 @Rule(key = "S6364")
 public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
 
   private static final String RETENTION_PERIOD_TOO_SHORT_MESSAGE = "Make sure that defining a short backup retention duration is safe here.";
+  private static final String NO_RETENTION_PERIOD_PROPERTY_MESSAGE = "Omitting \"%s\" causes a short backup retention period to be set. " + RETENTION_PERIOD_TOO_SHORT_MESSAGE;
 
   private static final int DEFAULT_RETENTION_PERIOD = 30;
 
   @RuleProperty(
     key = "backup_retention_duration",
-    description = "Default minimum retention period in day.",
-    defaultValue = "" + DEFAULT_RETENTION_PERIOD)
-  public int retentionPeriod = DEFAULT_RETENTION_PERIOD;
+    defaultValue = "" + DEFAULT_RETENTION_PERIOD,
+    description = "Default minimum retention period in days.")
+  public int retentionPeriodInDays = DEFAULT_RETENTION_PERIOD;
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Web/sites/config", this::checkBackupRetentionDay);
+    register("Microsoft.Web/sites/config", this::checkBackupRetentionWebSitesConfig);
+    register("Microsoft.DocumentDB/databaseAccounts", this::checkBackupRetentionDatabaseAccounts);
   }
 
-  private void checkBackupRetentionDay(ContextualResource resource) {
+  private void checkBackupRetentionWebSitesConfig(ContextualResource resource) {
     if ("backup".equals(resource.name)) {
       resource.object("backupSchedule")
         .property("retentionPeriodInDays")
-        .reportIf(isLessThan(retentionPeriod), RETENTION_PERIOD_TOO_SHORT_MESSAGE);
+        .reportIf(isNumericValue(backupRetentionIntervalInDays -> backupRetentionIntervalInDays < retentionPeriodInDays), RETENTION_PERIOD_TOO_SHORT_MESSAGE);
     }
   }
 
-  private static Predicate<Expression> isLessThan(int value) {
-    return expr -> expr.is(ArmTree.Kind.NUMERIC_LITERAL) && ((NumericLiteral) expr).value() < value;
+  private void checkBackupRetentionDatabaseAccounts(ContextualResource resource) {
+    ContextualObject backupPolicy = resource.object("backupPolicy");
+    if (backupPolicy.property("type").is(isValue("Periodic"::equals))) {
+      backupPolicy.object("periodicModeProperties")
+        .reportIfAbsent(String.format(NO_RETENTION_PERIOD_PROPERTY_MESSAGE, "periodicModeProperties.backupRetentionIntervalInHours"))
+        .property("backupRetentionIntervalInHours")
+        .reportIf(isNumericValue(backupRetentionIntervalInHours -> backupRetentionIntervalInHours / 24.0 < retentionPeriodInDays), RETENTION_PERIOD_TOO_SHORT_MESSAGE)
+        .reportIfAbsent(NO_RETENTION_PERIOD_PROPERTY_MESSAGE);
+    }
+  }
+
+  private static Predicate<Expression> isNumericValue(Predicate<Float> predicate) {
+    return expr -> expr.is(ArmTree.Kind.NUMERIC_LITERAL) && predicate.test(((NumericLiteral) expr).value());
   }
 }
