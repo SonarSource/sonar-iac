@@ -5,7 +5,7 @@
     {
       "type": "Microsoft.DBforMySQL/servers",
       "apiVersion": "2017-12-01",
-      "name": "[variables('serverName')]",
+      "name": "Raise an issue: older TLS versions shouldn't be allowed",
       "properties": {
         "minimalTlsVersion": "TLS1_0"
       }
@@ -13,13 +13,13 @@
     {
       "type": "Microsoft.DBforMySQL/servers",
       "apiVersion": "2017-12-01",
-      "name": "[variables('serverName')]",
+      "name": "Raise an issue: TLS version is absent",
       "properties": {}
     },
     {
       "type": "Microsoft.DBforPostgreSQL/servers",
       "apiVersion": "2017-12-01",
-      "name": "[variables('serverName')]",
+      "name": "Raise an issue: older TLS versions shouldn't be allowed",
       "properties": {
         "minimalTlsVersion": "TLS1_0"
       }
@@ -27,13 +27,13 @@
     {
       "type": "Microsoft.DBforPostgreSQL/servers",
       "apiVersion": "2017-12-01",
-      "name": "[variables('serverName')]",
+      "name": "Raise an issue: TLS version is absent",
       "properties": {}
     },
     {
       "type": "Microsoft.DBforMariaDB/servers",
       "apiVersion": "2017-12-01",
-      "name": "[variables('serverName')]",
+      "name": "Raise an issue: older TLS versions shouldn't be allowed",
       "properties": {
         "minimalTlsVersion": "TLS1_0"
       }
@@ -41,13 +41,13 @@
     {
       "type": "Microsoft.DBforMariaDB/servers",
       "apiVersion": "2017-12-01",
-      "name": "[variables('serverName')]",
+      "name": "Raise an issue: TLS version is absent",
       "properties": {}
     },
     {
       "type": "Microsoft.DBforMySQL/servers",
       "apiVersion": "2017-12-01",
-      "name": "[variables('serverName')]",
+      "name": "Compliant",
       "properties": {
         "minimalTlsVersion": "TLS1_2"
       }
@@ -55,7 +55,7 @@
     {
       "type": "Microsoft.DBforPostgreSQL/servers",
       "apiVersion": "2017-12-01",
-      "name": "[variables('serverName')]",
+      "name": "Compliant",
       "properties": {
         "minimalTlsVersion": "TLS1_2"
       }
@@ -63,7 +63,7 @@
     {
       "type": "Microsoft.DBforMariaDB/servers",
       "apiVersion": "2017-12-01",
-      "name": "[variables('serverName')]",
+      "name": "Compliant",
       "properties": {
         "minimalTlsVersion": "TLS1_2"
       }

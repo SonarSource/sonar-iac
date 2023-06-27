@@ -5,7 +5,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2022-09-01",
-      "name": "[variables('storageAccountName')]",
+      "name": "Raise an issue: older TLS versions shouldn't be allowed",
       "properties": {
         "minimumTlsVersion": "TLS1_0"
       }
@@ -13,12 +13,12 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2022-09-01",
-      "name": "[variables('storageAccountName')]"
+      "name": "Raise an issue: TLS version is absent"
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2022-09-01",
-      "name": "[variables('storageAccountName')]",
+      "name": "Compliant",
       "properties": {
         "minimumTlsVersion": "TLS1_2"
       }
