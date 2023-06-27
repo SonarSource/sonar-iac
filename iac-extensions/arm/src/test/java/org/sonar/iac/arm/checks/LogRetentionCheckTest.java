@@ -19,16 +19,22 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.checks.IacCheck;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import static org.sonar.iac.arm.checks.ArmVerifier.BASE_DIR;
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
+import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class LogRetentionCheckTest {
 
-  IacCheck check = new LogRetentionCheck();
+  LogRetentionCheck check = new LogRetentionCheck();
 
   @Test
   void testLogRetentionFireWallPolicies() {
@@ -43,6 +49,16 @@ class LogRetentionCheckTest {
       issue(range(77, 14, 77, 32)));
   }
 
+  static Stream<String> shouldCheckLogRetentionAsSimpleProperty() {
+    return Stream.of(
+      "Microsoft.Sql/servers/auditingSettings",
+      "Microsoft.Sql/servers/databases/securityAlertPolicies",
+      "Microsoft.Sql/servers/auditingPolicies",
+      "Microsoft.Synapse/workspaces/auditingSettings",
+      "Microsoft.Synapse/workspaces/sqlPools/securityAlertPolicies",
+      "Microsoft.DBforMariaDB/servers/securityAlertPolicies");
+  }
+
   @Test
   void testLogRetentionFlowLogs() {
     verify("LogRetentionCheck/Microsoft.Network_networkWatchers_flowLogs/test.json", check,
@@ -54,5 +70,32 @@ class LogRetentionCheckTest {
       issue(range(54, 10, 54, 26), "Disabling \"enabled\" results in a short log retention duration. Make sure it is safe here."),
       issue(range(60, 14, 60, 58), "Omitting \"retentionPolicy\" results in a short log retention duration. Make sure it is safe here."),
       issue(range(77, 14, 77, 23)));
+  }
+
+  private static String readTemplateAndReplace(String path, String type) {
+    String content;
+    try {
+      content = Files.readString(BASE_DIR.resolve(path));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return content.replace("${type}", type);
+  }
+
+  @Test
+  void testLogRetentionFireWallPoliciesWithCustomValue() {
+    check.retentionPeriodInDays = 30;
+    verify("LogRetentionCheck/Microsoft.Network_firewallPolicies/custom_value.json", check,
+      issue(range(12, 10, 12, 29), "Make sure that defining a short log retention duration is safe here."));
+  }
+
+  @MethodSource
+  @ParameterizedTest(name = "[${index}] should check log retention duration for type {0}")
+  void shouldCheckLogRetentionAsSimpleProperty(String type) {
+    String content = readTemplateAndReplace("LogRetentionCheck/retentionDaysProperty/template.json", type);
+    int endColumnForType = 16 + type.length();
+    verifyContent(content, check,
+      issue(10, 8, 10, 26, "Make sure that defining a short log retention duration is safe here."),
+      issue(14, 14, 14, endColumnForType, "Omitting \"retentionDays\" results in a short log retention duration. Make sure it is safe here."));
   }
 }
