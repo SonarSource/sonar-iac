@@ -19,14 +19,12 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.arm.ArmTestUtils;
 
-import static org.sonar.iac.arm.checks.ArmVerifier.BASE_DIR;
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
 import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
@@ -82,20 +80,10 @@ class LogRetentionCheckTest {
   @MethodSource
   @ParameterizedTest(name = "[${index}] should check log retention duration for type {0}")
   void shouldCheckLogRetentionAsSimpleProperty(String type) {
-    String content = readTemplateAndReplace("LogRetentionCheck/retentionDaysProperty/template.json", type);
+    String content = ArmTestUtils.readTemplateAndReplace("LogRetentionCheck/retentionDaysProperty/template.json", type);
     int endColumnForType = 16 + type.length();
     verifyContent(content, check,
       issue(10, 8, 10, 26, "Make sure that defining a short log retention duration is safe here."),
       issue(14, 14, 14, endColumnForType, "Omitting \"retentionDays\" results in a short log retention duration. Make sure it is safe here."));
-  }
-
-  private static String readTemplateAndReplace(String path, String type) {
-    String content;
-    try {
-      content = Files.readString(BASE_DIR.resolve(path));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return content.replace("${type}", type);
   }
 }

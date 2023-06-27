@@ -27,9 +27,10 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 
 @Rule(key = "S6413")
 public class LogRetentionCheck extends AbstractArmResourceCheck {
@@ -83,10 +84,6 @@ public class LogRetentionCheck extends AbstractArmResourceCheck {
     resource.property(RETENTION_DAY_NAME)
       .reportIf(isRetentionDaySensitive(), SHORT_LOG_RETENTION_DEFINED_MESSAGE)
       .reportIfAbsent(String.format(PROPERTY_OR_TYPE_OMITTED_MESSAGE, RETENTION_DAY_NAME));
-  }
-
-  private static Predicate<Expression> isFalse() {
-    return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
   }
 
   private Predicate<Expression> isRetentionDaySensitive() {

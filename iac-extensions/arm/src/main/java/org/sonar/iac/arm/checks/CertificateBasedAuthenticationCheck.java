@@ -30,11 +30,11 @@ import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
-import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 
 @Rule(key = "S6382")
@@ -180,10 +180,6 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
     resource.object("tls").property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
       .reportIf(isFalse(), DISABLED_CERTIFICATE_MESSAGE)
       .reportIfAbsent(MISSING_CERTIFICATE_MESSAGE);
-  }
-
-  private static Predicate<Expression> isFalse() {
-    return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
   }
 
   private static boolean isResourceVersionEqualsOrAfter(ContextualResource resource, String version) {

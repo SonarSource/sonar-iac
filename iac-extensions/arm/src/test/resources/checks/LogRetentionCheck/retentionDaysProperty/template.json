@@ -32,6 +32,14 @@
       "properties": {
         "retentionDays": 15
       }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant",
+      "properties": {
+        "retentionDays": "not a number format"
+      }
     }
   ]
 }
