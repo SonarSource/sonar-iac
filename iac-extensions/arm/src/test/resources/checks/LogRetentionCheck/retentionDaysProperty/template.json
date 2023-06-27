@@ -1,0 +1,45 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Should raise issue on low retentionDays",
+      "properties": {
+        "retentionDays": 7
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Should raise issue on undefined retentionDays",
+      "properties": {
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant",
+      "properties": {
+        "retentionDays": 0
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant",
+      "properties": {
+        "retentionDays": 15
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant",
+      "properties": {
+        "retentionDays": "not a number format"
+      }
+    }
+  ]
+}

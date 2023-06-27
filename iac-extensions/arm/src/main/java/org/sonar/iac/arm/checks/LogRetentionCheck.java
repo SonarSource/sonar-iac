@@ -19,25 +19,54 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 
 @Rule(key = "S6413")
 public class LogRetentionCheck extends AbstractArmResourceCheck {
 
-  private static final int RETENTION_THRESHOLD = 14;
+  private static final int DEFAULT_RETENTION_THRESHOLD = 14;
+  private static final String RETENTION_DAY_NAME = "retentionDays";
   private static final String PROPERTY_OR_TYPE_OMITTED_MESSAGE = "Omitting \"%s\" results in a short log retention duration. Make sure it is safe here.";
   private static final String PROPERTY_DISABLED_MESSAGE = "Disabling \"%s\" results in a short log retention duration. Make sure it is safe here.";
   private static final String SHORT_LOG_RETENTION_DEFINED_MESSAGE = "Make sure that defining a short log retention duration is safe here.";
 
-  private static Consumer<ContextualResource> checkLogRetention(String propertyName, String enablingTypeName, String retentionDayTypeName) {
+  private static final List<String> SIMPLE_LOG_RETENTION_RESOURCES = List.of(
+    "Microsoft.Sql/servers/auditingSettings",
+    "Microsoft.Sql/servers/databases/securityAlertPolicies",
+    "Microsoft.Sql/servers/auditingPolicies",
+    "Microsoft.Synapse/workspaces/auditingSettings",
+    "Microsoft.Synapse/workspaces/sqlPools/securityAlertPolicies",
+    "Microsoft.DBforMariaDB/servers/securityAlertPolicies");
+
+  @RuleProperty(
+    key = "log_retention_duration",
+    defaultValue = "" + DEFAULT_RETENTION_THRESHOLD,
+    description = "Default minimum retention period in days.")
+  public int retentionPeriodInDays = DEFAULT_RETENTION_THRESHOLD;
+
+  @Override
+  protected void registerResourceConsumer() {
+    register("Microsoft.Network/firewallPolicies",
+      checkLogRetention("insights", "isEnabled", RETENTION_DAY_NAME));
+
+    register("Microsoft.Network/networkWatchers/flowLogs",
+      checkLogRetention("retentionPolicy", "enabled", "days"));
+
+    register(SIMPLE_LOG_RETENTION_RESOURCES, this::checkLogRetentionAsSimpleProperty);
+  }
+
+  private Consumer<ContextualResource> checkLogRetention(String propertyName, String enablingTypeName, String retentionDayTypeName) {
     return resource -> {
       ContextualObject object = resource
         .object(propertyName);
@@ -51,26 +80,19 @@ public class LogRetentionCheck extends AbstractArmResourceCheck {
     };
   }
 
-  @Override
-  protected void registerResourceConsumer() {
-    register("Microsoft.Network/firewallPolicies",
-      checkLogRetention("insights", "isEnabled", "retentionDays"));
-
-    register("Microsoft.Network/networkWatchers/flowLogs",
-      checkLogRetention("retentionPolicy", "enabled", "days"));
+  private void checkLogRetentionAsSimpleProperty(ContextualResource resource) {
+    resource.property(RETENTION_DAY_NAME)
+      .reportIf(isRetentionDaySensitive(), SHORT_LOG_RETENTION_DEFINED_MESSAGE)
+      .reportIfAbsent(String.format(PROPERTY_OR_TYPE_OMITTED_MESSAGE, RETENTION_DAY_NAME));
   }
 
-  private static Predicate<Expression> isFalse() {
-    return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
-  }
-
-  private static Predicate<Expression> isRetentionDaySensitive() {
+  private Predicate<Expression> isRetentionDaySensitive() {
     return expr -> {
       if (!expr.is(ArmTree.Kind.NUMERIC_LITERAL)) {
         return false;
       }
       float retentionDays = ((NumericLiteral) expr).value();
-      return retentionDays < RETENTION_THRESHOLD && retentionDays != 0;
+      return retentionDays < retentionPeriodInDays && retentionDays != 0;
     };
   }
 }

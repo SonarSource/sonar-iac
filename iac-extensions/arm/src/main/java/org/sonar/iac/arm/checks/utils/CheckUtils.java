@@ -26,7 +26,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Predicate;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -79,5 +81,9 @@ public class CheckUtils {
 
   public static Predicate<Expression> isValue(Predicate<String> predicate) {
     return expr -> TextUtils.matchesValue(expr, predicate).isTrue();
+  }
+
+  public static Predicate<Expression> isFalse() {
+    return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
   }
 }

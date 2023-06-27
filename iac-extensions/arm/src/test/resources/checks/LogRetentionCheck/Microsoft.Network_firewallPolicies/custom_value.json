@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise Issue as retentionDays are too low with custom value",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": true,
+          "retentionDays": 29
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": true,
+          "retentionDays": 30
+        }
+      }
+    }
+  ]
+}
