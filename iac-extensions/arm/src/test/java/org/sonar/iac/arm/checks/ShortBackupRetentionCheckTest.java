@@ -39,7 +39,7 @@ class ShortBackupRetentionCheckTest {
 
   @Test
   void testWebSitesCustomRetentionPeriod() {
-    check.retentionPeriod = 15;
+    check.retentionPeriodInDays = 15;
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.Web_sites_custom.json",
       check,
       issue(12, 10, 12, 36, "Make sure that defining a short backup retention duration is safe here."));
@@ -60,7 +60,7 @@ class ShortBackupRetentionCheckTest {
 
   @Test
   void testCosmosDbAccountsCustomRetentionPeriod() {
-    check.retentionPeriod = 15;
+    check.retentionPeriodInDays = 15;
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.DocumentDB_databaseAccounts_custom.json",
       check,
       issue(13, 12, 13, 48, "Make sure that defining a short backup retention duration is safe here."));

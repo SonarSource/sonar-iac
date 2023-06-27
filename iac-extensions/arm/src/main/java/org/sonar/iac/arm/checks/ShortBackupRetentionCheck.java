@@ -41,8 +41,8 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   @RuleProperty(
     key = "backup_retention_duration",
     defaultValue = "" + DEFAULT_RETENTION_PERIOD,
-    description = "Default minimum retention period in day.")
-  public int retentionPeriod = DEFAULT_RETENTION_PERIOD;
+    description = "Default minimum retention period in days.")
+  public int retentionPeriodInDays = DEFAULT_RETENTION_PERIOD;
 
   @Override
   protected void registerResourceConsumer() {
@@ -52,9 +52,9 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
 
   private void checkBackupRetentionWebSitesConfig(ContextualResource resource) {
     if ("backup".equals(resource.name)) {
-    resource.object("backupSchedule")
-      .property("retentionPeriodInDays")
-      .reportIf(isNumericValue(numeric -> numeric < retentionPeriod), RETENTION_PERIOD_TOO_SHORT_MESSAGE);
+      resource.object("backupSchedule")
+        .property("retentionPeriodInDays")
+        .reportIf(isNumericValue(backupRetentionIntervalInDays -> backupRetentionIntervalInDays < retentionPeriodInDays), RETENTION_PERIOD_TOO_SHORT_MESSAGE);
     }
   }
 
@@ -64,7 +64,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
       backupPolicy.object("periodicModeProperties")
         .reportIfAbsent(String.format(NO_RETENTION_PERIOD_PROPERTY_MESSAGE, "periodicModeProperties.backupRetentionIntervalInHours"))
         .property("backupRetentionIntervalInHours")
-        .reportIf(isNumericValue(numeric -> numeric / 24.0 < retentionPeriod), RETENTION_PERIOD_TOO_SHORT_MESSAGE)
+        .reportIf(isNumericValue(backupRetentionIntervalInHours -> backupRetentionIntervalInHours / 24.0 < retentionPeriodInDays), RETENTION_PERIOD_TOO_SHORT_MESSAGE)
         .reportIfAbsent(NO_RETENTION_PERIOD_PROPERTY_MESSAGE);
     }
   }

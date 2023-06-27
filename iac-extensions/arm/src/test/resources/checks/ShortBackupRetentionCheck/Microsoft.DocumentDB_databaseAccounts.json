@@ -87,7 +87,7 @@
       }
     },
     {
-      "name": "Compliant: backupRetentionIntervalInHours * 24 > 30",
+      "name": "Compliant: backupRetentionIntervalInHours / 24 > 30",
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2023-04-15",
       "properties": {

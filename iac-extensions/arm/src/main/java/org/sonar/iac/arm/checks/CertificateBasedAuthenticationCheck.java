@@ -34,7 +34,6 @@ import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 
