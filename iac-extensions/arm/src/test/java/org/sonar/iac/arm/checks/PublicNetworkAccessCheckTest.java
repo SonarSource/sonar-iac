@@ -271,4 +271,52 @@ class PublicNetworkAccessCheckTest {
       issue(105, 12, 105, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(120, 12, 120, 44, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
+
+  static Stream<String> shouldCheckRangePublicIPAddressInFirewallRules() {
+    return Stream.of(
+      "Microsoft.Blockchain/blockchainMembers",
+      "Microsoft.Blockchain/blockchainMembers/transactionNodes");
+  }
+
+  @MethodSource
+  @ParameterizedTest(name = "[${index}] should check range public IP Address in Firewall Rules for type {0}")
+  void shouldCheckRangePublicIPAddressInFirewallRules(String type) {
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress-firewallRules/template.json", type);
+    verifyContent(content, CHECK,
+      issue(12, 30, 12, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(13, 28, 13, 45, AND_HERE)),
+      issue(25, 28, 25, 37, MESSAGE_PUBLIC_IP_ACCESS),
+      issue(37, 30, 37, 41, MESSAGE_PUBLIC_IP_ACCESS),
+      issue(49, 30, 49, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(50, 28, 50, 43, AND_HERE)),
+      issue(62, 30, 62, 40, MESSAGE_PUBLIC_IP_ACCESS, secondary(63, 28, 63, 44, AND_HERE)),
+      issue(75, 30, 75, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(76, 28, 76, 45, AND_HERE)),
+      issue(88, 30, 88, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(89, 28, 89, 44, AND_HERE)),
+      issue(101, 30, 101, 42, MESSAGE_PUBLIC_IP_ACCESS, secondary(102, 28, 102, 45, AND_HERE)),
+      issue(114, 30, 114, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(115, 28, 115, 41, AND_HERE)),
+      issue(127, 30, 127, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(128, 28, 128, 45, AND_HERE)),
+      issue(140, 30, 140, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(141, 28, 141, 44, AND_HERE)),
+      issue(153, 30, 153, 42, MESSAGE_PUBLIC_IP_ACCESS, secondary(154, 28, 154, 43, AND_HERE)),
+      issue(166, 30, 166, 44, MESSAGE_PUBLIC_IP_ACCESS, secondary(167, 28, 167, 43, AND_HERE)),
+      issue(179, 30, 179, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(180, 28, 180, 45, AND_HERE)),
+      issue(192, 30, 192, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(193, 28, 193, 45, AND_HERE)),
+      issue(205, 30, 205, 47, MESSAGE_PUBLIC_IP_ACCESS),
+      issue(217, 30, 217, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(218, 28, 218, 41, AND_HERE)),
+      issue(230, 30, 230, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(231, 28, 231, 41, AND_HERE)),
+      issue(243, 30, 243, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(244, 28, 244, 39, AND_HERE)),
+      issue(256, 30, 256, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(257, 28, 257, 37, AND_HERE)));
+  }
+
+  @Test
+  void shouldCheckRangePublicIPAddressInFirewallRulesUnknownType() {
+    verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress-firewallRules/unknown-type.json", CHECK);
+  }
+
+  private static String readTemplateAndReplace(String path, String type) {
+    String content;
+    try {
+      content = Files.readString(BASE_DIR.resolve(path));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return content.replace("${type}", type);
+  }
 }

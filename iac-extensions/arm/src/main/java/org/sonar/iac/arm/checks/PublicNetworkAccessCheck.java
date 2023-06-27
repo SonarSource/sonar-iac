@@ -20,18 +20,17 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checkdsl.ContextualArray;
+import org.sonar.iac.arm.checkdsl.ContextualMap;
+import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.checks.ipaddress.IpAddressValidator;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6329")
@@ -119,6 +118,15 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     "Microsoft.Web/sites/slots/config",
     "Microsoft.Web/staticSites");
 
+  private static final List<String> PUBLIC_NETWORK_ACCESS_SIMPLIFIED_IN_SITE_CONFIG = List.of(
+    "Microsoft.Web/sites",
+    "Microsoft.Web/sites/slots");
+
+  private static final String PUBLIC_NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
+  private static final String PUBLIC_NETWORK_ACCESS_PROPERTY = "publicNetworkAccess";
+  private static final String PUBLIC_IP_ADDRESS_MESSAGE = "Make sure that allowing public IP addresses is safe here.";
+  private static final String PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION = "and here";
+
   private static final List<String> PUBLIC_IP_ADDRESS_RANGE_TYPES = List.of(
     "Microsoft.DBForPostgreSql/flexibleServers/firewallRules",
     "Microsoft.DBforMariaDB/servers/firewallRules",
@@ -133,14 +141,9 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     "Microsoft.Sql/servers/firewallRules",
     "Microsoft.Synapse/workspaces/firewallRules");
 
-  private static final List<String> PUBLIC_NETWORK_ACCESS_SIMPLIFIED_IN_SITE_CONFIG = List.of(
-    "Microsoft.Web/sites",
-    "Microsoft.Web/sites/slots");
-
-  private static final String PUBLIC_NETWORK_ACCESS_MESSAGE = "Make sure allowing public network access is safe here.";
-  private static final String PUBLIC_IP_ADDRESS_MESSAGE = "Make sure that allowing public IP addresses is safe here.";
-  private static final String PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION = "and here";
-  private static final String PUBLIC_NETWORK_ACCESS_PROPERTY = "publicNetworkAccess";
+  private static final List<String> PUBLIC_IP_ADDRESS_RANGE_IN_FIREWALL_RULES_TYPES = List.of(
+    "Microsoft.Blockchain/blockchainMembers",
+    "Microsoft.Blockchain/blockchainMembers/transactionNodes");
 
   @Override
   protected void registerResourceConsumer() {
@@ -152,7 +155,8 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     register("Microsoft.Insights/dataCollectionEndpoints", checkPublicNetworkAccessSimplifiedIn("networkAcls"));
     register(PUBLIC_NETWORK_ACCESS_SIMPLIFIED_IN_SITE_CONFIG, checkPublicNetworkAccessSimplifiedIn("siteConfig"));
 
-    register(PUBLIC_IP_ADDRESS_RANGE_TYPES, checkIpRange());
+    register(PUBLIC_IP_ADDRESS_RANGE_TYPES, PublicNetworkAccessCheck::checkIpRange);
+    register(PUBLIC_IP_ADDRESS_RANGE_IN_FIREWALL_RULES_TYPES, checkIpRangeInProperty("firewallRules"));
   }
 
   private static Consumer<ContextualResource> checkPublicNetworkAccess() {
@@ -179,12 +183,19 @@ public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
     return TextUtils.matchesValue(tree, "Enabled"::contains).isTrue();
   }
 
-  private static BiConsumer<CheckContext, ResourceDeclaration> checkIpRange() {
-    return (ctx, resource) -> {
-      Optional<Tree> startIpAddress = PropertyUtils.value(resource, "startIpAddress");
-      Optional<Tree> endIpAddress = PropertyUtils.value(resource, "endIpAddress");
-      IpAddressValidator validator = new IpAddressValidator((ArmTree) startIpAddress.orElse(null), (ArmTree) endIpAddress.orElse(null));
-      validator.reportIssueIfPublicIPAddress(ctx, PUBLIC_IP_ADDRESS_MESSAGE, PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION);
+  private static <S extends ContextualMap<S, T>, T extends HasProperties & Tree> void checkIpRange(ContextualMap<S, T> resource) {
+    ContextualProperty startIpAddress = resource.property("startIpAddress");
+    ContextualProperty endIpAddress = resource.property("endIpAddress");
+    Expression startValue = startIpAddress.valueOrNull();
+    Expression endValue = endIpAddress.valueOrNull();
+    IpAddressValidator validator = new IpAddressValidator(startValue, endValue);
+    validator.reportIssueIfPublicIPAddress(resource.ctx, PUBLIC_IP_ADDRESS_MESSAGE, PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION);
+  }
+
+  private static Consumer<ContextualResource> checkIpRangeInProperty(String propertyName) {
+    return resource -> {
+      ContextualArray list = resource.list(propertyName);
+      list.objects().forEach(PublicNetworkAccessCheck::checkIpRange);
     };
   }
 }
