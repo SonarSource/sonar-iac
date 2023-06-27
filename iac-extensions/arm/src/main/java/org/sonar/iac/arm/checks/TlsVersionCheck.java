@@ -10,21 +10,25 @@ public class TlsVersionCheck extends AbstractArmResourceCheck {
 
   private static final String TLS_VERSION_INCORRECT_MESSAGE = "Change this code to disable support of older TLS versions.";
 
+  private static final String STORAGE_ACCOUNT_TLS_PROPERTY_KEY = "minimumTlsVersion";
+
+  private static final String DATABASE_TLS_PROPERTY_KEY = "minimalTlsVersion";
+
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Storage/storageAccounts", TlsVersionCheck::checkForMinimumTlsVersion);
-    register("Microsoft.DBforMySQL/servers", TlsVersionCheck::checkForMinimalTlsVersion);
-    register("Microsoft.DBforPostgreSQL/servers", TlsVersionCheck::checkForMinimalTlsVersion);
-    register("Microsoft.DBforMariaDB/servers", TlsVersionCheck::checkForMinimalTlsVersion);
+    register("Microsoft.Storage/storageAccounts", TlsVersionCheck::checkForStorageAccountTlsVersion);
+    register("Microsoft.DBforMySQL/servers", TlsVersionCheck::checkForDatabaseTlsVersion);
+    register("Microsoft.DBforPostgreSQL/servers", TlsVersionCheck::checkForDatabaseTlsVersion);
+    register("Microsoft.DBforMariaDB/servers", TlsVersionCheck::checkForDatabaseTlsVersion);
   }
 
-  private static void checkForMinimumTlsVersion(ContextualResource resource) {
-    checkTlsVersion("minimumTlsVersion", resource);
+  private static void checkForStorageAccountTlsVersion(ContextualResource resource) {
+    checkTlsVersion(STORAGE_ACCOUNT_TLS_PROPERTY_KEY, resource);
   }
 
-  private static void checkForMinimalTlsVersion(ContextualResource resource) {
-    checkTlsVersion("minimalTlsVersion", resource);
+  private static void checkForDatabaseTlsVersion(ContextualResource resource) {
+    checkTlsVersion(DATABASE_TLS_PROPERTY_KEY, resource);
   }
 
   private static void checkTlsVersion(String propertyName, ContextualResource resource) {
