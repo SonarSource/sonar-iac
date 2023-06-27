@@ -30,6 +30,7 @@ public class ArmCheckList {
   public static List<Class<?>> checks() {
     return List.of(
       CertificateBasedAuthenticationCheck.class,
+      ClearTextProtocolsCheck.class,
       IpRestrictedAdminAccessCheck.class,
       LogRetentionCheck.class,
       ParsingErrorCheck.class,
