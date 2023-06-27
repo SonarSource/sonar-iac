@@ -49,14 +49,11 @@ class LogRetentionCheckTest {
       issue(range(77, 14, 77, 32)));
   }
 
-  static Stream<String> shouldCheckLogRetentionAsSimpleProperty() {
-    return Stream.of(
-      "Microsoft.Sql/servers/auditingSettings",
-      "Microsoft.Sql/servers/databases/securityAlertPolicies",
-      "Microsoft.Sql/servers/auditingPolicies",
-      "Microsoft.Synapse/workspaces/auditingSettings",
-      "Microsoft.Synapse/workspaces/sqlPools/securityAlertPolicies",
-      "Microsoft.DBforMariaDB/servers/securityAlertPolicies");
+  @Test
+  void testLogRetentionFireWallPoliciesWithCustomValue() {
+    check.retentionPeriodInDays = 30;
+    verify("LogRetentionCheck/Microsoft.Network_firewallPolicies/custom_value.json", check,
+      issue(range(12, 10, 12, 29), "Make sure that defining a short log retention duration is safe here."));
   }
 
   @Test
@@ -72,21 +69,14 @@ class LogRetentionCheckTest {
       issue(range(77, 14, 77, 23)));
   }
 
-  private static String readTemplateAndReplace(String path, String type) {
-    String content;
-    try {
-      content = Files.readString(BASE_DIR.resolve(path));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return content.replace("${type}", type);
-  }
-
-  @Test
-  void testLogRetentionFireWallPoliciesWithCustomValue() {
-    check.retentionPeriodInDays = 30;
-    verify("LogRetentionCheck/Microsoft.Network_firewallPolicies/custom_value.json", check,
-      issue(range(12, 10, 12, 29), "Make sure that defining a short log retention duration is safe here."));
+  static Stream<String> shouldCheckLogRetentionAsSimpleProperty() {
+    return Stream.of(
+      "Microsoft.Sql/servers/auditingSettings",
+      "Microsoft.Sql/servers/databases/securityAlertPolicies",
+      "Microsoft.Sql/servers/auditingPolicies",
+      "Microsoft.Synapse/workspaces/auditingSettings",
+      "Microsoft.Synapse/workspaces/sqlPools/securityAlertPolicies",
+      "Microsoft.DBforMariaDB/servers/securityAlertPolicies");
   }
 
   @MethodSource
@@ -97,5 +87,15 @@ class LogRetentionCheckTest {
     verifyContent(content, check,
       issue(10, 8, 10, 26, "Make sure that defining a short log retention duration is safe here."),
       issue(14, 14, 14, endColumnForType, "Omitting \"retentionDays\" results in a short log retention duration. Make sure it is safe here."));
+  }
+
+  private static String readTemplateAndReplace(String path, String type) {
+    String content;
+    try {
+      content = Files.readString(BASE_DIR.resolve(path));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return content.replace("${type}", type);
   }
 }
