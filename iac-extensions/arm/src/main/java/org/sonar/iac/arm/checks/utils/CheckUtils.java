@@ -25,9 +25,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.function.Predicate;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 
 public class CheckUtils {
 
@@ -72,5 +75,9 @@ public class CheckUtils {
       }
     }
     return tree != null ? List.of(tree) : Collections.emptyList();
+  }
+
+  public static Predicate<Expression> isValue(Predicate<String> predicate) {
+    return expr -> TextUtils.matchesValue(expr, predicate).isTrue();
   }
 }
