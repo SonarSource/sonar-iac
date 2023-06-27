@@ -31,21 +31,26 @@ class LogRetentionCheckTest {
   IacCheck check = new LogRetentionCheck();
 
   @Test
-  void testLogRetention() {
-    verify("LogRetentionCheck/test.json", check,
+  void testLogRetentionFireWallPolicies() {
+    verify("LogRetentionCheck/Microsoft.Network_firewallPolicies/test.json", check,
       issue(range(12, 10, 12, 28), "Make sure that defining a short log retention duration is safe here."),
       issue(range(21, 20, 23, 9), "Omitting \"retentionDays\" results in a short log retention duration. Make sure it is safe here."),
       issue(range(31, 20, 33, 9), "Omitting \"isEnabled\" results in a short log retention duration. Make sure it is safe here."),
       issue(range(42, 10, 42, 28), "Omitting \"isEnabled\" results in a short log retention duration. Make sure it is safe here."),
       issue(range(43, 10, 43, 28), "Make sure that defining a short log retention duration is safe here."),
       issue(range(53, 10, 53, 28), "Omitting \"isEnabled\" results in a short log retention duration. Make sure it is safe here."),
-      issue(range(60, 14, 60, 50), "Omitting \"insights\" results in a short log retention duration. Make sure it is safe here."),
-      issue(range(71, 10, 71, 19), "Make sure that defining a short log retention duration is safe here."),
-      issue(range(81, 27, 83, 9), "Omitting \"days\" results in a short log retention duration. Make sure it is safe here."),
-      issue(range(91, 27, 93, 9), "Omitting \"enabled\" results in a short log retention duration. Make sure it is safe here."),
-      issue(range(102, 10, 102, 19), "Make sure that defining a short log retention duration is safe here."),
-      issue(range(103, 10, 103, 26), "Omitting \"enabled\" results in a short log retention duration. Make sure it is safe here."),
-      issue(range(114, 10, 114, 26), "Omitting \"enabled\" results in a short log retention duration. Make sure it is safe here."),
-      issue(range(120, 14, 120, 58), "Omitting \"retentionPolicy\" results in a short log retention duration. Make sure it is safe here."));
+      issue(range(60, 14, 60, 50), "Omitting \"insights\" results in a short log retention duration. Make sure it is safe here."));
+  }
+
+  @Test
+  void testLogRetentionFlowLogs() {
+    verify("LogRetentionCheck/Microsoft.Network_networkWatchers_flowLogs/test.json", check,
+      issue(range(11, 10, 11, 19), "Make sure that defining a short log retention duration is safe here."),
+      issue(range(21, 27, 23, 9), "Omitting \"days\" results in a short log retention duration. Make sure it is safe here."),
+      issue(range(31, 27, 33, 9), "Omitting \"enabled\" results in a short log retention duration. Make sure it is safe here."),
+      issue(range(42, 10, 42, 19), "Make sure that defining a short log retention duration is safe here."),
+      issue(range(43, 10, 43, 26), "Omitting \"enabled\" results in a short log retention duration. Make sure it is safe here."),
+      issue(range(54, 10, 54, 26), "Omitting \"enabled\" results in a short log retention duration. Make sure it is safe here."),
+      issue(range(60, 14, 60, 58), "Omitting \"retentionPolicy\" results in a short log retention duration. Make sure it is safe here."));
   }
 }

@@ -63,66 +63,6 @@
       }
     },
     {
-      "name": "Raise Issue as days is too low",
-      "type": "Microsoft.Network/networkWatchers/flowLogs",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "retentionPolicy": {
-          "days": 7,
-          "enabled": true
-        }
-      }
-    },
-    {
-      "name": "Raise Issue as days is missing",
-      "type": "Microsoft.Network/networkWatchers/flowLogs",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "retentionPolicy": {
-          "enabled": true
-        }
-      }
-    },
-    {
-      "name": "Raise Issue as enabled is missing",
-      "type": "Microsoft.Network/networkWatchers/flowLogs",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "retentionPolicy": {
-          "days": 15
-        }
-      }
-    },
-    {
-      "name": "Raise Issue as enabled is false and days is too low",
-      "type": "Microsoft.Network/networkWatchers/flowLogs",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "retentionPolicy": {
-          "days": 7,
-          "enabled": false
-        }
-      }
-    },
-    {
-      "name": "Raise Issue as enabled is false",
-      "type": "Microsoft.Network/networkWatchers/flowLogs",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "retentionPolicy": {
-          "days": 15,
-          "enabled": false
-        }
-      }
-    },
-    {
-      "name": "Raise Issue as retentionPolicy is missing",
-      "type": "Microsoft.Network/networkWatchers/flowLogs",
-      "apiVersion": "2022-07-01",
-      "properties": {
-      }
-    },
-    {
       "name": "Compliant",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
@@ -141,28 +81,6 @@
         "insights": {
           "isEnabled": true,
           "retentionDays": 0
-        }
-      }
-    },
-    {
-      "name": "Compliant",
-      "type": "Microsoft.Network/networkWatchers/flowLogs",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "retentionPolicy": {
-          "days": 15,
-          "enabled": true
-        }
-      }
-    },
-    {
-      "name": "Compliant",
-      "type": "Microsoft.Network/networkWatchers/flowLogs",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "retentionPolicy": {
-          "days": 0,
-          "enabled": true
         }
       }
     }
