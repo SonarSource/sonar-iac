@@ -63,6 +63,24 @@
       }
     },
     {
+      "name": "Raise issue on inner child",
+      "type": "Microsoft.Network/networkWatchers",
+      "apiVersion": "2022-11-01",
+      "resources": [
+        {
+          "name": "inner child",
+          "type": "flowLogs",
+          "apiVersion": "2022-11-01",
+          "properties": {
+            "retentionPolicy": {
+              "enabled": true,
+              "days": 7
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Compliant",
       "type": "Microsoft.Network/networkWatchers/flowLogs",
       "apiVersion": "2022-07-01",

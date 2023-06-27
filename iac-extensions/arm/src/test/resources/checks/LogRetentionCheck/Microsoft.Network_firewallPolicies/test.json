@@ -63,6 +63,24 @@
       }
     },
     {
+      "name": "Raise issue on inner child",
+      "type": "Microsoft.Network",
+      "apiVersion": "2022-11-01",
+      "resources": [
+        {
+          "name": "inner child",
+          "type": "firewallPolicies",
+          "apiVersion": "2022-11-01",
+          "properties": {
+            "insights": {
+              "isEnabled": true,
+              "retentionDays": 7
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Compliant",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
@@ -81,6 +99,28 @@
         "insights": {
           "isEnabled": true,
           "retentionDays": 0
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": "wrong format",
+          "retentionDays": "wrong format"
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/otherType",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": true,
+          "retentionDays": 7
         }
       }
     }

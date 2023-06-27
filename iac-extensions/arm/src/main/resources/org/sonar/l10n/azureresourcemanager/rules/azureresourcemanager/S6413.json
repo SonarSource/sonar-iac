@@ -7,8 +7,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "azure",
-    "gcp"
+    "azure"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6413",

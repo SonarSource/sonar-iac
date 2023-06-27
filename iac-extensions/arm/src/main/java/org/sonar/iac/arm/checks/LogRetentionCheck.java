@@ -34,6 +34,7 @@ public class LogRetentionCheck extends AbstractArmResourceCheck {
 
   private static final int RETENTION_THRESHOLD = 14;
   private static final String PROPERTY_OR_TYPE_OMITTED_MESSAGE = "Omitting \"%s\" results in a short log retention duration. Make sure it is safe here.";
+  private static final String PROPERTY_DISABLED_MESSAGE = "Disabling \"%s\" results in a short log retention duration. Make sure it is safe here.";
   private static final String SHORT_LOG_RETENTION_DEFINED_MESSAGE = "Make sure that defining a short log retention duration is safe here.";
 
   private static Consumer<ContextualResource> checkLogRetention(String propertyName, String enablingTypeName, String retentionDayTypeName) {
@@ -42,12 +43,21 @@ public class LogRetentionCheck extends AbstractArmResourceCheck {
         .object(propertyName);
       object.reportIfAbsent(String.format(PROPERTY_OR_TYPE_OMITTED_MESSAGE, propertyName));
       object.property(enablingTypeName)
-        .reportIf(isFalse(), String.format(PROPERTY_OR_TYPE_OMITTED_MESSAGE, enablingTypeName))
+        .reportIf(isFalse(), String.format(PROPERTY_DISABLED_MESSAGE, enablingTypeName))
         .reportIfAbsent(String.format(PROPERTY_OR_TYPE_OMITTED_MESSAGE, enablingTypeName));
       object.property(retentionDayTypeName)
         .reportIf(isRetentionDaySensitive(), SHORT_LOG_RETENTION_DEFINED_MESSAGE)
         .reportIfAbsent(String.format(PROPERTY_OR_TYPE_OMITTED_MESSAGE, retentionDayTypeName));
     };
+  }
+
+  @Override
+  protected void registerResourceConsumer() {
+    register("Microsoft.Network/firewallPolicies",
+      checkLogRetention("insights", "isEnabled", "retentionDays"));
+
+    register("Microsoft.Network/networkWatchers/flowLogs",
+      checkLogRetention("retentionPolicy", "enabled", "days"));
   }
 
   private static Predicate<Expression> isFalse() {
@@ -62,14 +72,5 @@ public class LogRetentionCheck extends AbstractArmResourceCheck {
       float retentionDays = ((NumericLiteral) expr).value();
       return retentionDays < RETENTION_THRESHOLD && retentionDays != 0;
     };
-  }
-
-  @Override
-  protected void registerResourceConsumer() {
-    register("Microsoft.Network/firewallPolicies",
-      checkLogRetention("insights", "isEnabled", "retentionDays"));
-
-    register("Microsoft.Network/networkWatchers/flowLogs",
-      checkLogRetention("retentionPolicy", "enabled", "days"));
   }
 }
