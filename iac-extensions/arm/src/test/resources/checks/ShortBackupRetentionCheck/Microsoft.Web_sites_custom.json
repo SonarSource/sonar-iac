@@ -3,7 +3,8 @@
   "contentVersion": "1.0.0.0",
   "resources": [
     {
-      "name": "Sensitive: retention period is less than custom period 15",
+      "__sonar__": "Sensitive: retention period is less than custom period 15",
+      "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
       "properties": {
@@ -14,7 +15,8 @@
     },
     
     {
-      "name": "Compliant: retention period is greater than 15",
+      "__sonar__": "Compliant: retention period is greater than 15",
+      "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
       "properties": {

@@ -46,9 +46,11 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   }
 
   private void checkBackupRetentionDay(ContextualResource resource) {
-    resource.object("backupSchedule")
-      .property("retentionPeriodInDays")
-      .reportIf(isLessThan(retentionPeriod), RETENTION_PERIOD_TOO_SHORT_MESSAGE);
+    if ("backup".equals(resource.name)) {
+      resource.object("backupSchedule")
+        .property("retentionPeriodInDays")
+        .reportIf(isLessThan(retentionPeriod), RETENTION_PERIOD_TOO_SHORT_MESSAGE);
+    }
   }
 
   private static Predicate<Expression> isLessThan(int value) {

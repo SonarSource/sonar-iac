@@ -3,7 +3,8 @@
   "contentVersion": "1.0.0.0",
   "resources": [
     {
-      "name": "Sensitive: retention period is less than 30",
+      "__sonar__": "Sensitive: retention period is less than 30",
+      "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
       "properties": {
@@ -13,7 +14,8 @@
       }
     },
     {
-      "name": "Sensitive: retention period is zero",
+      "__sonar__": "Sensitive: retention period is zero",
+      "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
       "properties": {
@@ -23,7 +25,8 @@
       }
     },
     {
-      "name": "Sensitive: retention period is less negative",
+      "__sonar__": "Sensitive: retention period is less negative",
+      "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
       "properties": {
@@ -38,7 +41,8 @@
       "apiVersion": "2022-03-01",
       "resources": [
         {
-          "name": "Nested child",
+          "__sonar__": "Nested child",
+          "name": "backup",
           "type": "config",
           "apiVersion": "2022-03-01",
           "properties": {
@@ -49,9 +53,21 @@
         }
       ]
     },
-    
+
     {
-      "name": "Compliant: retention period is more than 30",
+      "__sonar__": "Compliant: name is not backup",
+      "name": "other",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 7
+        }
+      }
+    },
+    {
+      "__sonar__": "Compliant: retention period is more than 30",
+      "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
       "properties": {
@@ -61,7 +77,8 @@
       }
     },
     {
-      "name": "Compliant: retention period is 30",
+      "__sonar__": "Compliant: retention period is 30",
+      "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
       "properties": {
@@ -71,7 +88,8 @@
       }
     },
     {
-      "name": "Compliant: retention period is not an integer, no check is performed",
+      "__sonar__": "Compliant: retention period is not an integer, no check is performed",
+      "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
       "properties": {
@@ -81,7 +99,8 @@
       }
     },
     {
-      "name": "Compliant: property is not set",
+      "__sonar__": "Compliant: property is not set",
+      "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
       "properties": {
@@ -96,7 +115,8 @@
       "apiVersion": "2022-03-01",
       "resources": [
         {
-          "name": "Nested child",
+          "__sonar__": "Nested child",
+          "name": "backup",
           "type": "config",
           "apiVersion": "2022-03-01",
           "properties": {

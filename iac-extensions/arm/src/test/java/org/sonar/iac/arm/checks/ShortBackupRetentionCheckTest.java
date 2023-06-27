@@ -31,10 +31,10 @@ class ShortBackupRetentionCheckTest {
   void testWebSites() {
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.Web_sites.json",
       check,
-      issue(11, 10, 11, 36, "Make sure that defining a short backup retention duration is safe here."),
-      issue(21, 10, 21, 36),
-      issue(31, 10, 31, 37),
-      issue(46, 14, 46, 40));
+      issue(12, 10, 12, 36, "Make sure that defining a short backup retention duration is safe here."),
+      issue(23, 10, 23, 36),
+      issue(34, 10, 34, 37),
+      issue(50, 14, 50, 40));
   }
 
   @Test
@@ -42,6 +42,6 @@ class ShortBackupRetentionCheckTest {
     check.retentionPeriod = 15;
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.Web_sites_custom.json",
       check,
-      issue(11, 10, 11, 36, "Make sure that defining a short backup retention duration is safe here."));
+      issue(12, 10, 12, 36, "Make sure that defining a short backup retention duration is safe here."));
   }
 }
