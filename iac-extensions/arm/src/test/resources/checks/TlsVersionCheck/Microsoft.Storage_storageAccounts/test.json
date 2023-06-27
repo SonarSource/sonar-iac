@@ -1,0 +1,27 @@
+{
+  "$schema": "<https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#>",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('storageAccountName')]",
+      "properties": {
+        "minimumTlsVersion": "TLS1_0"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('storageAccountName')]"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('storageAccountName')]",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2"
+      }
+    }
+  ]
+}

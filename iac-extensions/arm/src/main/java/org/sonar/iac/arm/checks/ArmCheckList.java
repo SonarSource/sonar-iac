@@ -33,6 +33,7 @@ public class ArmCheckList {
       IpRestrictedAdminAccessCheck.class,
       ParsingErrorCheck.class,
       PublicNetworkAccessCheck.class,
+      TlsVersionCheck.class,
       UnencryptedCloudServicesCheck.class);
   }
 }
