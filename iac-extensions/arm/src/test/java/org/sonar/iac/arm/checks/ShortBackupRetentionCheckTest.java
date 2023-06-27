@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -64,5 +65,34 @@ class ShortBackupRetentionCheckTest {
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.DocumentDB_databaseAccounts_custom.json",
       check,
       issue(13, 12, 13, 48, "Make sure that defining a short backup retention duration is safe here."));
+  }
+
+  @Test
+  void testRecoveryServicesVaultsBackupPolicies() {
+    ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.RecoveryServices_vaults.json",
+      check,
+      issue(14, 12, 14, 22, "Make sure that defining a short backup retention duration is safe here.",
+        SecondaryLocation.secondary(15, 12, 15, 34, "Duration type")),
+      issue(29, 12, 29, 22),
+      issue(44, 12, 44, 22),
+      issue(59, 12, 59, 22),
+      issue(76, 16, 76, 26),
+      issue(95, 16, 95, 26),
+      issue(113, 14, 113, 24),
+      issue(130, 14, 130, 25),
+      issue(147, 14, 147, 24),
+      issue(171, 22, 171, 32));
+  }
+
+  @Test
+  void testRecoveryServicesVaultsBackupPoliciesCustomRetentionPeriod() {
+    check.retentionPeriodInDays = 400;
+    ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.RecoveryServices_vaults_custom_400.json",
+      check,
+      issue(15, 14, 15, 25, "Make sure that defining a short backup retention duration is safe here.",
+        SecondaryLocation.secondary(16, 14, 16, 36, "Duration type")),
+      issue(32, 14, 32, 25),
+      issue(49, 14, 49, 24),
+      issue(66, 14, 66, 24));
   }
 }

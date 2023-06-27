@@ -1,0 +1,160 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: durationType in days with less than 400 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 10,
+              "durationType": "Days"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: durationType in weeks with less than 400 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 10,
+              "durationType": "Weeks"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: durationType in months with less than 400 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 5,
+              "durationType": "Months"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: durationType in years with less than 400 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 1,
+              "durationType": "Years"
+            }
+          }
+        }
+      }
+    },
+    
+    {
+      "name": "Compliant: durationType in days with more than 400 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 500,
+              "durationType": "Days"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: durationType in days with exactly 400 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 400,
+              "durationType": "Days"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: durationType in weeks with more than 400 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 70,
+              "durationType": "Weeks"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: durationType in months with more than 400 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 24,
+              "durationType": "Months"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: durationType in years with more than 400 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 2,
+              "durationType": "Years"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
