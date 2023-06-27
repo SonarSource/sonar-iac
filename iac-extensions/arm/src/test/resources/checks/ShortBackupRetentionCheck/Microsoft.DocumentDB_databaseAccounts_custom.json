@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: properties.backupPolicy.type is Periodic and backupRetentionIntervalInHours / 24 < 15 days",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupRetentionIntervalInHours": 24
+          }
+        }
+      }
+    },
+    
+    {
+      "name": "Compliant: properties.backupPolicy.type is Periodic and backupRetentionIntervalInHours / 24 is > 15 days and < 30 days",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupRetentionIntervalInHours": 500
+          }
+        }
+      }
+    }
+  ]
+}

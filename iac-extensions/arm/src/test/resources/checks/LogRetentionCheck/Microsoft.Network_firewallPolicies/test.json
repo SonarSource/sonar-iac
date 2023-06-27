@@ -1,0 +1,128 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise Issue as retentionDays are too low",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": true,
+          "retentionDays": 7
+        }
+      }
+    },
+    {
+      "name": "Raise Issue as retentionDays are missing",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": true
+        }
+      }
+    },
+    {
+      "name": "Raise Issue as isEnabled is missing",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "retentionDays": 15
+        }
+      }
+    },
+    {
+      "name": "Raise Issue as retentionDays are too low and isEnabled is false",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": false,
+          "retentionDays": 7
+        }
+      }
+    },
+    {
+      "name": "Raise Issue as isEnabled is false",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": false,
+          "retentionDays": 15
+        }
+      }
+    },
+    {
+      "name": "Raise Issue as insights is missing",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Raise issue on inner child",
+      "type": "Microsoft.Network",
+      "apiVersion": "2022-11-01",
+      "resources": [
+        {
+          "name": "inner child",
+          "type": "firewallPolicies",
+          "apiVersion": "2022-11-01",
+          "properties": {
+            "insights": {
+              "isEnabled": true,
+              "retentionDays": 7
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": true,
+          "retentionDays": 15
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": true,
+          "retentionDays": 0
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": "wrong format",
+          "retentionDays": "wrong format"
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Network/otherType",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "insights": {
+          "isEnabled": true,
+          "retentionDays": 7
+        }
+      }
+    }
+  ]
+}
