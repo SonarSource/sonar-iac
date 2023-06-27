@@ -123,6 +123,35 @@
       ]
     },
     {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for Disabled",
+      "resources": [
+        {
+          "type": "slots",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Disabled"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for missing publicNetworkAccess",
+      "resources": [
+        {
+          "type": "slots",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+          }
+        }
+      ]
+    },
+    {
       "type": "unknown-type",
       "apiVersion": "dummy",
       "name": "Compliant: Should NOT raise issue for Enabled for unknown type and subtype",
