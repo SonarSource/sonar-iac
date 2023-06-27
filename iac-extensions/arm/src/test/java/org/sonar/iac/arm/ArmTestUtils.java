@@ -26,7 +26,11 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import static org.mockito.Mockito.mock;
+import static org.sonar.iac.arm.checks.ArmVerifier.BASE_DIR;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 public class ArmTestUtils {
@@ -71,4 +75,13 @@ public class ArmTestUtils {
     return (ObjectExpression) resourceDeclaration.properties().get(0).value();
   }
 
+  public static String readTemplateAndReplace(String path, String type) {
+    String content;
+    try {
+      content = Files.readString(BASE_DIR.resolve(path));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return content.replace("${type}", type);
+  }
 }

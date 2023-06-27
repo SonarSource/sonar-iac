@@ -20,8 +20,12 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.arm.ArmTestUtils;
 
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
+import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class TlsVersionCheckTest {
@@ -33,15 +37,18 @@ class TlsVersionCheckTest {
       issue(14, 14, 14, 49, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
   }
 
-  @Test
-  void testTlsVersionIsIncorrectOrAbsentInDatabaseResources() {
-    verify("TlsVersionCheck/Microsoft.DBfor_SQL_servers/test.json",
+  @ParameterizedTest(name = "[#{index}] should check minimal TLS version for resource type {0}")
+  @ValueSource(strings = {
+    "Microsoft.DBforMySQL/servers",
+    "Microsoft.DBforPostgreSQL/servers",
+    "Microsoft.DBforMariaDB/servers"
+  })
+  void testTlsVersionIsIncorrectOrAbsentInDatabaseResources(String resourceType) {
+    String content = ArmTestUtils.readTemplateAndReplace("TlsVersionCheck/Microsoft.DBfor_SQL_servers/test.json", resourceType);
+    int endColumn = 16 + resourceType.length();
+    verifyContent(content,
       new TlsVersionCheck(),
       issue(10, 8, 10, 37, "Change this code to disable support of older TLS versions."),
-      issue(14, 14, 14, 44, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."),
-      issue(24, 8, 24, 37, "Change this code to disable support of older TLS versions."),
-      issue(28, 14, 28, 49, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."),
-      issue(38, 8, 38, 37, "Change this code to disable support of older TLS versions."),
-      issue(42, 14, 42, 46, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
+      issue(14, 14, 14, endColumn, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
   }
 }

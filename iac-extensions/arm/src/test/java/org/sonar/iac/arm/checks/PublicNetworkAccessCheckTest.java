@@ -19,17 +19,14 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.sonar.iac.arm.checks.ArmVerifier.BASE_DIR;
-import static org.sonar.iac.arm.checks.ArmVerifier.verify;
-import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
-import static org.sonar.iac.arm.checks.ArmVerifier.verifyNoIssue;
+import java.util.stream.Stream;
+
+import static org.sonar.iac.arm.ArmTestUtils.readTemplateAndReplace;
+import static org.sonar.iac.arm.checks.ArmVerifier.*;
 import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -273,15 +270,5 @@ class PublicNetworkAccessCheckTest {
       issue(90, 12, 90, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(105, 12, 105, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(120, 12, 120, 44, MESSAGE_PUBLIC_NETWORK_ACCESS));
-  }
-
-  private static String readTemplateAndReplace(String path, String type) {
-    String content;
-    try {
-      content = Files.readString(BASE_DIR.resolve(path));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return content.replace("${type}", type);
   }
 }
