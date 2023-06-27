@@ -35,6 +35,7 @@ public class ArmCheckList {
       ParsingErrorCheck.class,
       PublicNetworkAccessCheck.class,
       ShortBackupRetentionCheck.class,
+      TlsVersionCheck.class,
       UnencryptedCloudServicesCheck.class);
   }
 }
