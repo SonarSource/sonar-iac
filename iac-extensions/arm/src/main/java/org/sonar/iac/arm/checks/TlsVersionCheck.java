@@ -39,8 +39,7 @@ public class TlsVersionCheck extends AbstractArmResourceCheck {
   private static final List<String> DATABASE_RESOURCE_TYPES = List.of(
     "Microsoft.DBforMySQL/servers",
     "Microsoft.DBforPostgreSQL/servers",
-    "Microsoft.DBforMariaDB/servers"
-  );
+    "Microsoft.DBforMariaDB/servers");
 
   @Override
   protected void registerResourceConsumer() {
