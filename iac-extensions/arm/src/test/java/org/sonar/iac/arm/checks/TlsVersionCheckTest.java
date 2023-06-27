@@ -35,7 +35,7 @@ class TlsVersionCheckTest {
 
   @Test
   void testTlsVersionIsIncorrectOrAbsentInDatabaseResources() {
-    verify("TlsVersionCheck/Microsoft.DBfor*SQL_servers/test.json",
+    verify("TlsVersionCheck/Microsoft.DBfor_SQL_servers/test.json",
       new TlsVersionCheck(),
       issue(10, 8, 10, 37, "Change this code to disable support of older TLS versions."),
       issue(14, 14, 14, 44, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."),
