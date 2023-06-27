@@ -1,0 +1,131 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "__sonar__": "Sensitive: retention period is less than 30",
+      "name": "backup",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 7
+        }
+      }
+    },
+    {
+      "__sonar__": "Sensitive: retention period is zero",
+      "name": "backup",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 0
+        }
+      }
+    },
+    {
+      "__sonar__": "Sensitive: retention period is less negative",
+      "name": "backup",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": -5
+        }
+      }
+    },
+    {
+      "name": "Sensitive: sensitive case in nested resource",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "resources": [
+        {
+          "__sonar__": "Nested child",
+          "name": "backup",
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "properties": {
+            "backupSchedule": {
+              "retentionPeriodInDays": 7
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "__sonar__": "Compliant: name is not backup",
+      "name": "other",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 7
+        }
+      }
+    },
+    {
+      "__sonar__": "Compliant: retention period is more than 30",
+      "name": "backup",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 35
+        }
+      }
+    },
+    {
+      "__sonar__": "Compliant: retention period is 30",
+      "name": "backup",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 30
+        }
+      }
+    },
+    {
+      "__sonar__": "Compliant: retention period is not an integer, no check is performed",
+      "name": "backup",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": "14"
+        }
+      }
+    },
+    {
+      "__sonar__": "Compliant: property is not set",
+      "name": "backup",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "something else": "14"
+        }
+      }
+    },
+    {
+      "name": "Compliant: compliant case in nested resource",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "resources": [
+        {
+          "__sonar__": "Nested child",
+          "name": "backup",
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "properties": {
+            "backupSchedule": {
+              "retentionPeriodInDays": 35
+            }
+          }
+        }
+      ]
+    },
+  ]
+}

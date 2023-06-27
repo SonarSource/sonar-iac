@@ -1,0 +1,170 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.EventHub/namespaces",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for Enabled",
+      "resources": [
+        {
+          "type": "networkRuleSets",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Enabled"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.HealthcareApis/workspaces",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for Enabled",
+      "resources": [
+        {
+          "type": "dicomservices",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Enabled"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.HealthcareApis/workspaces",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for Enabled",
+      "resources": [
+        {
+          "type": "fhirservices",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Enabled"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.MachineLearningServices/workspaces",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for Enabled",
+      "resources": [
+        {
+          "type": "onlineEndpoints",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Enabled"
+          }
+        }
+      ]
+    },    
+    {
+      "type": "Microsoft.Relay/namespaces",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for Enabled",
+      "resources": [
+        {
+          "type": "networkRuleSets",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Enabled"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for Enabled",
+      "resources": [
+        {
+          "type": "networkRuleSets",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Enabled"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for Enabled",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Enabled"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for Enabled",
+      "resources": [
+        {
+          "type": "slots",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Enabled"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for Disabled",
+      "resources": [
+        {
+          "type": "slots",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Disabled"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for missing publicNetworkAccess",
+      "resources": [
+        {
+          "type": "slots",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+          }
+        }
+      ]
+    },
+    {
+      "type": "unknown-type",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for Enabled for unknown type and subtype",
+      "resources": [
+        {
+          "type": "unknown-sub-type",
+          "apiVersion": "dummy",
+          "name": "name",
+          "properties": {
+            "publicNetworkAccess": "Enabled"
+          }
+        }
+      ]
+    }
+  ]
+}
