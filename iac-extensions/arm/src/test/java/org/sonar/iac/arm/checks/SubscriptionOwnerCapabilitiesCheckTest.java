@@ -19,26 +19,18 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 
-public class ArmCheckList {
+import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
+import static org.sonar.iac.common.testing.Verifier.issue;
 
-  private ArmCheckList() {
-  }
-
-  public static List<Class<?>> checks() {
-    return List.of(
-      CertificateBasedAuthenticationCheck.class,
-      ClearTextProtocolsCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      LogRetentionCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class,
-      RoleBasedAccessControlCheck.class,
-      ShortBackupRetentionCheck.class,
-      SubscriptionOwnerCapabilitiesCheck.class,
-      TlsVersionCheck.class,
-      UnencryptedCloudServicesCheck.class);
+class SubscriptionOwnerCapabilitiesCheckTest {
+  @Test
+  void check() {
+    ArmVerifier.verify("SubscriptionOwnerCapabilitiesCheck/Microsoft.Authorization_roleDefinitions/test.json",
+      new SubscriptionOwnerCapabilitiesCheck(),
+      issue(6, 14, 6, 55, "Narrow the number of actions or the assignable scope of this custom role.",
+        secondary(12, 24, 12, 27, "Allows all actions."),
+        secondary(17, 10, 17, 31, "High scope level.")));
   }
 }
