@@ -32,20 +32,20 @@ class ClearTextProtocolsCheckTest {
 
   @Test
   void testClearTextProtocolWithHttpsFlag() {
-    verify("ClearTextProtocolsCheck/Microsoft.Web_sites/test.json", check,
+    verify("ClearTextProtocolsCheck/Microsoft.Web_sites.json", check,
       issue(range(10, 8, 10, 26), "Make sure that using clear-text protocols is safe here."),
       issue(range(15, 14, 15, 35), "Omitting \"httpsOnly\" allows the use of clear-text protocols. Make sure it is safe here."));
   }
 
   @Test
   void testClearTextProtocolWithFtpsState() {
-    verify("ClearTextProtocolsCheck/Microsoft.Web_sites_config/test.json", check,
+    verify("ClearTextProtocolsCheck/Microsoft.Web_sites_config.json", check,
       issue(range(10, 8, 10, 33), "Make sure that using clear-text protocols is safe here."));
   }
 
   @Test
   void testClearTextProtocolWithHttpsTrafficOnly() {
-    verify("ClearTextProtocolsCheck/Microsoft.Storage_storageAccounts/test.json", check,
+    verify("ClearTextProtocolsCheck/Microsoft.Storage_storageAccounts.json", check,
       issue(range(10, 8, 10, 41), "Make sure that using clear-text protocols is safe here."));
   }
 }

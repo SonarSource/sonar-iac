@@ -36,7 +36,7 @@ class LogRetentionCheckTest {
 
   @Test
   void testLogRetentionFireWallPolicies() {
-    verify("LogRetentionCheck/Microsoft.Network_firewallPolicies/test.json", check,
+    verify("LogRetentionCheck/Microsoft.Network_firewallPolicies.json", check,
       issue(range(12, 10, 12, 28), "Make sure that defining a short log retention duration is safe here."),
       issue(range(21, 20, 23, 9), "Omitting \"retentionDays\" results in a short log retention duration. Make sure it is safe here."),
       issue(range(31, 20, 33, 9), "Omitting \"isEnabled\" results in a short log retention duration. Make sure it is safe here."),
@@ -50,13 +50,13 @@ class LogRetentionCheckTest {
   @Test
   void testLogRetentionFireWallPoliciesWithCustomValue() {
     check.retentionPeriodInDays = 30;
-    verify("LogRetentionCheck/Microsoft.Network_firewallPolicies/custom_value.json", check,
+    verify("LogRetentionCheck/Microsoft.Network_firewallPolicies_custom_value.json", check,
       issue(range(12, 10, 12, 29), "Make sure that defining a short log retention duration is safe here."));
   }
 
   @Test
   void testLogRetentionFlowLogs() {
-    verify("LogRetentionCheck/Microsoft.Network_networkWatchers_flowLogs/test.json", check,
+    verify("LogRetentionCheck/Microsoft.Network_networkWatchers_flowLogs.json", check,
       issue(range(11, 10, 11, 19), "Make sure that defining a short log retention duration is safe here."),
       issue(range(21, 27, 23, 9), "Omitting \"days\" results in a short log retention duration. Make sure it is safe here."),
       issue(range(31, 27, 33, 9), "Omitting \"enabled\" results in a short log retention duration. Make sure it is safe here."),
@@ -80,7 +80,7 @@ class LogRetentionCheckTest {
   @MethodSource
   @ParameterizedTest(name = "[${index}] should check log retention duration for type {0}")
   void shouldCheckLogRetentionAsSimpleProperty(String type) {
-    String content = ArmTestUtils.readTemplateAndReplace("LogRetentionCheck/retentionDaysProperty/template.json", type);
+    String content = ArmTestUtils.readTemplateAndReplace("LogRetentionCheck/simpleRetentionDaysProperty_template.json", type);
     int endColumnForType = 16 + type.length();
     verifyContent(content, check,
       issue(10, 8, 10, 26, "Make sure that defining a short log retention duration is safe here."),
