@@ -22,7 +22,7 @@ package org.sonar.iac.arm.checks;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 
-import static org.sonar.iac.arm.checks.utils.CheckUtils.isEquals;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 
 @Rule(key = "S5332")
@@ -45,6 +45,6 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
 
   private static void checkFtpsState(ContextualResource resource) {
     resource.property("ftpsState")
-      .reportIf(isEquals("AllAllowed"), GENERAL_ISSUE_MESSAGE);
+      .reportIf(isEqual("AllAllowed"), GENERAL_ISSUE_MESSAGE);
   }
 }

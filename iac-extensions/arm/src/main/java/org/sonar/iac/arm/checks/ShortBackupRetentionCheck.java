@@ -40,7 +40,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.arm.checks.utils.CheckUtils.isEquals;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 
 @Rule(key = "S6364")
@@ -82,7 +82,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
 
   private void checkBackupRetentionDatabaseAccounts(ContextualResource resource) {
     ContextualObject backupPolicy = resource.object("backupPolicy");
-    if (backupPolicy.property("type").is(isEquals("Periodic"))) {
+    if (backupPolicy.property("type").is(isEqual("Periodic"))) {
       backupPolicy.object("periodicModeProperties")
         .reportIfAbsent(String.format(NO_RETENTION_PERIOD_PROPERTY_MESSAGE, "periodicModeProperties.backupRetentionIntervalInHours"))
         .property("backupRetentionIntervalInHours")
@@ -118,9 +118,9 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   private static ContextualObject retrieveRetentionDuration(ContextualObject retentionPolicyObject) {
     ContextualProperty retentionPolicyType = retentionPolicyObject.property("retentionPolicyType");
 
-    if (retentionPolicyType.is(isEquals("SimpleRetentionPolicy"))) {
+    if (retentionPolicyType.is(isEqual("SimpleRetentionPolicy"))) {
       return retentionPolicyObject.object("retentionDuration");
-    } else if (retentionPolicyType.is(isEquals("LongTermRetentionPolicy"))) {
+    } else if (retentionPolicyType.is(isEqual("LongTermRetentionPolicy"))) {
       return retentionPolicyObject.object("dailySchedule").object("retentionDuration");
     } else {
       return ContextualObject.fromAbsent(retentionPolicyObject.ctx, null, retentionPolicyObject);
