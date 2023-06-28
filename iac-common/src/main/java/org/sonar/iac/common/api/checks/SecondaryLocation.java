@@ -43,7 +43,6 @@ public class SecondaryLocation {
     return new SecondaryLocation(tree, message);
   }
 
-  // move to tests?
   public static SecondaryLocation secondary(int startLine, int startOffset, int endLine, int endOffset, String message) {
     return new SecondaryLocation(TextRanges.range(startLine, startOffset, endLine, endOffset), message);
   }

@@ -68,8 +68,7 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractArmResourceCheck
 
   private static Stream<Expression> findArbitraryActions(ContextualObject permissionObject) {
     return permissionObject.list("actions").getItemIf(
-    action -> TextUtils.isValue(action, "*").isTrue()
-    );
+      action -> TextUtils.isValue(action, "*").isTrue());
   }
 
   private static boolean isSensitiveScope(Tree scope) {

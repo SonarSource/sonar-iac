@@ -29,8 +29,12 @@ class SubscriptionOwnerCapabilitiesCheckTest {
   void check() {
     ArmVerifier.verify("SubscriptionOwnerCapabilitiesCheck/Microsoft.Authorization_roleDefinitions/test.json",
       new SubscriptionOwnerCapabilitiesCheck(),
-      issue(6, 14, 6, 55, "Narrow the number of actions or the assignable scope of this custom role.",
-        secondary(12, 24, 12, 27, "Allows all actions."),
-        secondary(17, 10, 17, 31, "High scope level.")));
+      issue(22, 14, 22, 55, "Narrow the number of actions or the assignable scope of this custom role.",
+        secondary(28, 24, 28, 27, "Allows all actions."),
+        secondary(33, 10, 33, 31, "High scope level.")),
+      issue(38, 14, 38, 55, "Narrow the number of actions or the assignable scope of this custom role.",
+        secondary(44, 24, 44, 27, "Allows all actions."),
+        secondary(49, 10, 49, 44, "High scope level."),
+        secondary(50, 10, 50, 71, "High scope level.")));
   }
 }

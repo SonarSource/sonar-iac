@@ -5,6 +5,22 @@
     {
       "type": "Microsoft.Authorization/roleDefinitions",
       "apiVersion": "2022-04-01",
+      "name": "Compliant",
+      "properties": {
+        "permissions": [
+          {
+            "actions": ["Microsoft.Compute/*"],
+            "notActions": []
+          }
+        ],
+        "assignableScopes": [
+          "[subscription().id]"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleDefinitions",
+      "apiVersion": "2022-04-01",
       "name": "Issue: any action is allowed with sensitive assignable scope",
       "properties": {
         "permissions": [
@@ -15,6 +31,23 @@
         ],
         "assignableScopes": [
           "[subscription().id]"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleDefinitions",
+      "apiVersion": "2022-04-01",
+      "name": "Issue: any action is allowed with sensitive assignable scope",
+      "properties": {
+        "permissions": [
+          {
+            "actions": ["*"],
+            "notActions": []
+          }
+        ],
+        "assignableScopes": [
+          "/subscriptions/{subscriptionId1}",
+          "/providers/Microsoft.Management/managementGroups/{groupId1}"
         ]
       }
     }
