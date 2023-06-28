@@ -34,21 +34,21 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Web/sites", propertyIsNotSetOrFalse("httpsOnly"));
-    register("Microsoft.Web/sites/config", propertyHasValue("ftpsState", "AllAllowed"));
+    register("Microsoft.Web/sites", checkPropertyIsNotSetOrFalse("httpsOnly"));
+    register("Microsoft.Web/sites/config", checkPropertyHasValue("ftpsState", "AllAllowed"));
     register("Microsoft.Storage/storageAccounts", ClearTextProtocolsCheck::checkHttpsTraffic);
     register("Microsoft.ApiManagement/service/apis", ClearTextProtocolsCheck::checkProtocols);
-    register("Microsoft.Cdn/profiles/endpoints", propertyIsNotSetOrFalse("isHttpAllowed"));
-    register("Microsoft.Cache/redisEnterprise/databases", propertyHasValue("clientProtocol", "Plaintext"));
+    register("Microsoft.Cdn/profiles/endpoints", checkPropertyIsNotSetOrFalse("isHttpAllowed"));
+    register("Microsoft.Cache/redisEnterprise/databases", checkPropertyHasValue("clientProtocol", "Plaintext"));
   }
 
-  private static Consumer<ContextualResource> propertyIsNotSetOrFalse(String propertyName) {
+  private static Consumer<ContextualResource> checkPropertyIsNotSetOrFalse(String propertyName) {
     return resource -> resource.property(propertyName)
       .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
       .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
   }
 
-  private static Consumer<ContextualResource> propertyHasValue(String propertyName, String value) {
+  private static Consumer<ContextualResource> checkPropertyHasValue(String propertyName, String value) {
     return resource -> resource.property(propertyName)
       .reportIf(isEqual(value), GENERAL_ISSUE_MESSAGE);
   }
