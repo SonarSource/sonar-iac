@@ -40,6 +40,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isEquals;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 
 @Rule(key = "S6364")
@@ -81,7 +82,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
 
   private void checkBackupRetentionDatabaseAccounts(ContextualResource resource) {
     ContextualObject backupPolicy = resource.object("backupPolicy");
-    if (backupPolicy.property("type").is(isValue("Periodic"::equals))) {
+    if (backupPolicy.property("type").is(isEquals("Periodic"))) {
       backupPolicy.object("periodicModeProperties")
         .reportIfAbsent(String.format(NO_RETENTION_PERIOD_PROPERTY_MESSAGE, "periodicModeProperties.backupRetentionIntervalInHours"))
         .property("backupRetentionIntervalInHours")
@@ -91,8 +92,8 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   }
 
   private void checkBackupRetentionRecoveryServicesVaults(ContextualResource resource) {
-    retrieveRetentionPolicyObjects(resource).forEach(retentionPolicyObject -> {
-      ContextualObject retentionDurationObject = retrieveRetentionDurationObject(retentionPolicyObject);
+    retrieveRetentionPolicy(resource).forEach(retentionPolicyObject -> {
+      ContextualObject retentionDurationObject = retrieveRetentionDuration(retentionPolicyObject);
       Double durationInDays = computeRetentionInDays(retentionDurationObject);
       if (durationInDays != null && durationInDays < retentionPeriodInDays) {
         retentionDurationObject.property("count").report(RETENTION_PERIOD_TOO_SHORT_MESSAGE, retentionDurationObject.property("durationType").toSecondary("Duration type"));
@@ -100,7 +101,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
     });
   }
 
-  private static Stream<ContextualObject> retrieveRetentionPolicyObjects(ContextualResource resource) {
+  private static Stream<ContextualObject> retrieveRetentionPolicy(ContextualResource resource) {
     ContextualProperty backupManagementType = resource.property("backupManagementType");
 
     if (backupManagementType.is(isValue(TYPES_BASIC_RETENTION::contains))) {
@@ -114,12 +115,12 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
     }
   }
 
-  private static ContextualObject retrieveRetentionDurationObject(ContextualObject retentionPolicyObject) {
+  private static ContextualObject retrieveRetentionDuration(ContextualObject retentionPolicyObject) {
     ContextualProperty retentionPolicyType = retentionPolicyObject.property("retentionPolicyType");
 
-    if (retentionPolicyType.is(isValue("SimpleRetentionPolicy"::equals))) {
+    if (retentionPolicyType.is(isEquals("SimpleRetentionPolicy"))) {
       return retentionPolicyObject.object("retentionDuration");
-    } else if (retentionPolicyType.is(isValue("LongTermRetentionPolicy"::equals))) {
+    } else if (retentionPolicyType.is(isEquals("LongTermRetentionPolicy"))) {
       return retentionPolicyObject.object("dailySchedule").object("retentionDuration");
     } else {
       return ContextualObject.fromAbsent(retentionPolicyObject.ctx, null, retentionPolicyObject);
