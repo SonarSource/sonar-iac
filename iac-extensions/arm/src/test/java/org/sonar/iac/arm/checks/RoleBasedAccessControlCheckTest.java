@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Test;
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
-class RbacAzureResourceCheckTest {
+class RoleBasedAccessControlCheckTest {
   @Test
   void checkRbacPresentAndEnabledForManagedClusters() {
     verify("RbacAzureResourceCheck/Microsoft.ContainerService_managedClusters/test.json",
-      new RbacAzureResourceCheck(),
+      new RoleBasedAccessControlCheck(),
       issue(28, 10, 28, 34, "Make sure that disabling role-based access control is safe here."),
       issue(30, 8, 30, 27, "Make sure that disabling role-based access control is safe here."),
       issue(39, 10, 39, 34, "Make sure that disabling role-based access control is safe here."),
@@ -38,8 +38,8 @@ class RbacAzureResourceCheckTest {
   @Test
   void checkRbacPresentAndEnabledForKeyVault() {
     verify("RbacAzureResourceCheck/Microsoft.KeyVault_vaults/test.json",
-      new RbacAzureResourceCheck(),
+      new RoleBasedAccessControlCheck(),
       issue(18, 8, 18, 40, "Make sure that disabling role-based access control is safe here."),
-      issue(22, 14, 22, 41, "Omitting enableRbacAuthorization disables role-based access control for this resource. Make sure it is safe here."));
+      issue(22, 14, 22, 41, "Omitting 'enableRbacAuthorization' disables role-based access control for this resource. Make sure it is safe here."));
   }
 }

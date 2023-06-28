@@ -25,15 +25,15 @@ import org.sonar.iac.arm.checkdsl.ContextualResource;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 
 @Rule(key = "S6383")
-public class RbacAzureResourceCheck extends AbstractArmResourceCheck {
-  private static final String MESSAGE_MISSING_PARAMETER = "Omitting %s disables role-based access control for this resource. Make sure it is safe here.";
+public class RoleBasedAccessControlCheck extends AbstractArmResourceCheck {
+  private static final String MESSAGE_MISSING_PARAMETER = "Omitting '%s' disables role-based access control for this resource. Make sure it is safe here.";
 
   private static final String MESSAGE_DISABLED_PARAMETER = "Make sure that disabling role-based access control is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.ContainerService/managedClusters", RbacAzureResourceCheck::checkAzureKubernetesService);
-    register("Microsoft.KeyVault/vaults", RbacAzureResourceCheck::checkKeyVault);
+    register("Microsoft.ContainerService/managedClusters", RoleBasedAccessControlCheck::checkAzureKubernetesService);
+    register("Microsoft.KeyVault/vaults", RoleBasedAccessControlCheck::checkKeyVault);
   }
 
   private static void checkAzureKubernetesService(ContextualResource resource) {
