@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.function.Consumer;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 
@@ -33,14 +34,15 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Web/sites", ClearTextProtocolsCheck::checkHttpsFlag);
+    register("Microsoft.Web/sites", propertyIsNotSetOrFalse("httpsOnly"));
     register("Microsoft.Web/sites/config", ClearTextProtocolsCheck::checkFtpsState);
     register("Microsoft.Storage/storageAccounts", ClearTextProtocolsCheck::checkHttpsTraffic);
     register("Microsoft.ApiManagement/service/apis", ClearTextProtocolsCheck::checkProtocols);
+    register("Microsoft.Cdn/profiles/endpoints", propertyIsNotSetOrFalse("isHttpAllowed"));
   }
 
-  private static void checkHttpsFlag(ContextualResource resource) {
-    resource.property("httpsOnly")
+  private static Consumer<ContextualResource> propertyIsNotSetOrFalse(String propertyName) {
+    return resource -> resource.property(propertyName)
       .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
       .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
   }

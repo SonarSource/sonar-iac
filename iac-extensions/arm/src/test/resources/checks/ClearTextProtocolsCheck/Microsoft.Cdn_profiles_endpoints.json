@@ -3,33 +3,33 @@
   "resources": [
     {
       "name": "Raise issue as httpsOnly is set to false",
-      "type": "Microsoft.Web/sites",
+      "type": "Microsoft.Cdn/profiles/endpoints",
       "apiVersion": "2022-07-01",
       "properties": {
-        "httpsOnly": false
+        "isHttpAllowed": false
       }
     },
     {
-      "name": "Raise issue as httpsOnly is missing",
-      "type": "Microsoft.Web/sites",
+      "name": "Raise issue as isHttpAllowed is missing",
+      "type": "Microsoft.Cdn/profiles/endpoints",
       "apiVersion": "2022-07-01",
       "properties": {
-      }
-    },
-    {
-      "name": "Compliant",
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "httpsOnly": true
       }
     },
     {
       "name": "Compliant",
-      "type": "Microsoft.Web/sites",
+      "type": "Microsoft.Cdn/profiles/endpoints",
       "apiVersion": "2022-07-01",
       "properties": {
-        "httpsOnly": "wrong format"
+        "isHttpAllowed": true
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Cdn/profiles/endpoints",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "isHttpAllowed": "wrong format"
       }
     }
   ]
