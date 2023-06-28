@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/managementGroupDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: schema is managementGroup",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+        "principalId": "[parameters('principalId')]"
+      }
+    },
+    {
+      "name": "Sensitive: schema is managementGroup, raise even on empty object",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01"
+    },
+    {
+      "name": "Compliant: not a sensitive type",
+      "type": "other type",
+      "apiVersion": "2022-04-01"
+    }
+  ]
+}

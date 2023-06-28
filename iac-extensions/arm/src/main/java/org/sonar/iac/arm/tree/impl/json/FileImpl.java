@@ -31,9 +31,9 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class FileImpl extends AbstractArmTreeImpl implements File {
 
-  private final List<Statement> statements;
   @Nullable
   private final StringLiteral targetScope;
+  private final List<Statement> statements;
 
   public FileImpl(@Nullable StringLiteral targetScope, List<Statement> statements) {
     this.targetScope = targetScope;
