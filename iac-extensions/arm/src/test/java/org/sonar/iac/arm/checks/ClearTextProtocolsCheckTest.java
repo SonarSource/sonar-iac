@@ -60,4 +60,10 @@ class ClearTextProtocolsCheckTest {
       issue(range(10, 10, 10, 16), "Make sure that using clear-text protocols is safe here."),
       issue(range(21, 10, 21, 16)));
   }
+
+  @Test
+  void testClearTextProtocolWithClientProtocol() {
+    verify("ClearTextProtocolsCheck/Microsoft.Cache_redisEnterprise_databases.json", check,
+      issue(range(9, 8, 9, 37), "Make sure that using clear-text protocols is safe here."));
+  }
 }
