@@ -35,6 +35,7 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", ClearTextProtocolsCheck::checkHttpsFlag);
     register("Microsoft.Web/sites/config", ClearTextProtocolsCheck::checkFtpsState);
+    register("Microsoft.Storage/storageAccounts", ClearTextProtocolsCheck::checkHttpsTraffic);
   }
 
   private static void checkHttpsFlag(ContextualResource resource) {
@@ -46,5 +47,10 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
   private static void checkFtpsState(ContextualResource resource) {
     resource.property("ftpsState")
       .reportIf(isEqual("AllAllowed"), GENERAL_ISSUE_MESSAGE);
+  }
+
+  private static void checkHttpsTraffic(ContextualResource resource) {
+    resource.property("supportsHttpsTrafficOnly")
+      .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
   }
 }

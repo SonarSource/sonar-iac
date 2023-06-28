@@ -42,4 +42,10 @@ class ClearTextProtocolsCheckTest {
     verify("ClearTextProtocolsCheck/Microsoft.Web_sites_config/test.json", check,
       issue(range(10, 8, 10, 33), "Make sure that using clear-text protocols is safe here."));
   }
+
+  @Test
+  void testClearTextProtocolWithHttpsTrafficOnly() {
+    verify("ClearTextProtocolsCheck/Microsoft.Storage_storageAccounts/test.json", check,
+      issue(range(10, 8, 10, 41), "Make sure that using clear-text protocols is safe here."));
+  }
 }
