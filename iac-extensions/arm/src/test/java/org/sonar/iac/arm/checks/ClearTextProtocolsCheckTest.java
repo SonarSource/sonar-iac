@@ -48,4 +48,11 @@ class ClearTextProtocolsCheckTest {
     verify("ClearTextProtocolsCheck/Microsoft.Storage_storageAccounts.json", check,
       issue(range(10, 8, 10, 41), "Make sure that using clear-text protocols is safe here."));
   }
+
+  @Test
+  void testClearTextProtocolWithProtocolsContainingHttps() {
+    verify("ClearTextProtocolsCheck/Microsoft.ApiManagement_service_apis.json", check,
+      issue(range(11, 10, 11, 16), "Make sure that using clear-text protocols is safe here."),
+      issue(range(22, 10, 22, 16)));
+  }
 }
