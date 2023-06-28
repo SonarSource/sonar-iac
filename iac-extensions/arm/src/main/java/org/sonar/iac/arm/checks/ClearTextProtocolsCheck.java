@@ -21,7 +21,9 @@ package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
+
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
@@ -37,11 +39,11 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
   private static void checkHttpsFlag(ContextualResource resource) {
     resource.property("httpsOnly")
       .reportIfAbsent(ISSUE_MESSAGE)
-      .reportIf(CheckUtils.isFalse(), ISSUE_MESSAGE);
+      .reportIf(isFalse(), ISSUE_MESSAGE);
   }
 
   private static void checkFtpsState(ContextualResource resource) {
     resource.property("ftpsState")
-      .reportIf(CheckUtils.isValue("AllAllowed"), ISSUE_MESSAGE);
+      .reportIf(isValue("AllAllowed"), ISSUE_MESSAGE);
   }
 }
