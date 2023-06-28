@@ -29,7 +29,7 @@ import static org.sonar.iac.arm.ArmTestUtils.parseObject;
 class ContextualObjectTest {
 
   ContextualObject absent = ContextualObject.fromAbsent(CTX, "absentObject", null);
-  ObjectExpression objectWithProp = parseObject("{\"key1\": \"value\", \"key2\": {} , \"key3\": []}");
+  ObjectExpression objectWithProp = parseObject("{\"key1\": \"value\", \"key2\": {} , \"key3\": [{\"childObject\": {}}, {\"childObject\": {}, \"childObject\": \"string\"}]}");
   ContextualObject present = ContextualObject.fromPresent(CTX, objectWithProp, null, null);
 
   @Test
@@ -57,5 +57,11 @@ class ContextualObjectTest {
     assertThat(present.list("key3").isPresent()).isTrue();
     assertThat(present.list("unknown").isPresent()).isFalse();
     assertThat(absent.list("key3").isPresent()).isFalse();
+  }
+
+  @Test
+  void objectsByPath() {
+    assertThat(present.objectsByPath("key3/*/childObject")).hasSize(2);
+    assertThat(present.objectsByPath("key1/*/childObject")).isEmpty();
   }
 }

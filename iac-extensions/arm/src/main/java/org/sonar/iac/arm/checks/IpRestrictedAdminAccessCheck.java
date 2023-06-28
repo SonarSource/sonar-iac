@@ -29,7 +29,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -72,7 +71,7 @@ public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkResourcePath(CheckContext ctx, ResourceDeclaration resource, List<String> path) {
-    List<Tree> listProperties = CheckUtils.resolveProperties(new LinkedList<>(path), resource);
+    List<Tree> listProperties = ArmTreeUtils.resolveProperties(new LinkedList<>(path), resource);
     for (Tree properties : listProperties) {
       ResourceWithIpRestrictedAdminAccessChecker checker = new ResourceWithIpRestrictedAdminAccessChecker(resource, properties);
       if (checker.isSensitive()) {

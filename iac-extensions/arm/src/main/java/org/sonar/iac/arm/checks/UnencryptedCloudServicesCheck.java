@@ -32,13 +32,12 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Compute/virtualMachines",
-      resource -> resource.object("storageProfile").list("dataDisks").objects().forEach(
-        dataDisk -> dataDisk.object("managedDisk").object("diskEncryptionSet")
+      resource -> resource.objectsByPath("storageProfile/dataDisks/*/managedDisk").forEach(
+        managedDisk -> managedDisk.object("diskEncryptionSet")
           .reportIfAbsent(FORMAT_OMITTING)
           .property("id")
           .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
-          .reportIfAbsent(FORMAT_OMITTING)
-    ));
+          .reportIfAbsent(FORMAT_OMITTING)));
   }
 
   private static Predicate<Expression> isEmpty() {
