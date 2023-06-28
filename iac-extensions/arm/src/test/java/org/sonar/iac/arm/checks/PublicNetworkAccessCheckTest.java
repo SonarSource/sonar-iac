@@ -39,7 +39,7 @@ class PublicNetworkAccessCheckTest {
 
   @Test
   void shouldCheckPublicNetworkAccess() {
-    verify("PublicNetworkAccessCheckTest/Microsoft.Desktop_hostPools/test.json",
+    verify("PublicNetworkAccessCheckTest/Microsoft.Desktop_hostPools/hostPools.json",
       CHECK,
       issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(18, 8, 18, 59),
@@ -227,14 +227,14 @@ class PublicNetworkAccessCheckTest {
 
   @Test
   void shouldCheckDbForMySqlFlexibleServers() {
-    verify("PublicNetworkAccessCheckTest/Microsoft.DBforMySQL_flexibleServers/test.json",
+    verify("PublicNetworkAccessCheckTest/Microsoft.DBforMySQL_flexibleServers/flexibleServers.json",
       CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   @Test
   void shouldCheckInsightsDataCollectionEndpoints() {
-    verify("PublicNetworkAccessCheckTest/Microsoft.Insights_dataCollectionEndpoints/test.json",
+    verify("PublicNetworkAccessCheckTest/Microsoft.Insights_dataCollectionEndpoints/dataCollectionEndpoints.json",
       CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
@@ -260,7 +260,7 @@ class PublicNetworkAccessCheckTest {
 
   @Test
   void shouldCheckSubResourcesForPublicNetworkAccess() {
-    verify("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-subResources/test.json",
+    verify("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-subResources/subResources.json",
       CHECK,
       issue(15, 12, 15, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(30, 12, 30, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
@@ -308,5 +308,32 @@ class PublicNetworkAccessCheckTest {
   @Test
   void shouldCheckRangePublicIPAddressInFirewallRulesUnknownType() {
     verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress-firewallRules/unknown-type.json", CHECK);
+  }
+
+  @Test
+  void shouldCheckRangePublicIPAddressInBlockchainMembersInTransactionsNodes() {
+    verify(
+      "PublicNetworkAccessCheckTest/rangePublicIPAddress-blockchainMembers-transactionNodes/transactionNodes.json",
+      CHECK,
+      issue(17, 34, 17, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(18, 32, 18, 49, AND_HERE)),
+      issue(37, 32, 37, 41, MESSAGE_PUBLIC_IP_ACCESS),
+      issue(56, 34, 56, 45, MESSAGE_PUBLIC_IP_ACCESS),
+      issue(75, 34, 75, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(76, 32, 76, 47, AND_HERE)),
+      issue(95, 34, 95, 44, MESSAGE_PUBLIC_IP_ACCESS, secondary(96, 32, 96, 48, AND_HERE)),
+      issue(115, 34, 115, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(116, 32, 116, 49, AND_HERE)),
+      issue(135, 34, 135, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(136, 32, 136, 48, AND_HERE)),
+      issue(155, 34, 155, 46, MESSAGE_PUBLIC_IP_ACCESS, secondary(156, 32, 156, 49, AND_HERE)),
+      issue(175, 34, 175, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(176, 32, 176, 45, AND_HERE)),
+      issue(195, 34, 195, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(196, 32, 196, 49, AND_HERE)),
+      issue(215, 34, 215, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(216, 32, 216, 48, AND_HERE)),
+      issue(235, 34, 235, 46, MESSAGE_PUBLIC_IP_ACCESS, secondary(236, 32, 236, 47, AND_HERE)),
+      issue(255, 34, 255, 48, MESSAGE_PUBLIC_IP_ACCESS, secondary(256, 32, 256, 47, AND_HERE)),
+      issue(275, 34, 275, 47, MESSAGE_PUBLIC_IP_ACCESS, secondary(276, 32, 276, 49, AND_HERE)),
+      issue(295, 34, 295, 51, MESSAGE_PUBLIC_IP_ACCESS, secondary(296, 32, 296, 49, AND_HERE)),
+      issue(315, 34, 315, 51, MESSAGE_PUBLIC_IP_ACCESS),
+      issue(334, 34, 334, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(335, 32, 335, 45, AND_HERE)),
+      issue(354, 34, 354, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(355, 32, 355, 45, AND_HERE)),
+      issue(374, 34, 374, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(375, 32, 375, 43, AND_HERE)),
+      issue(394, 34, 394, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(395, 32, 395, 41, AND_HERE)));
   }
 }
