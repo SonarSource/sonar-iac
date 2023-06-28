@@ -57,8 +57,7 @@ class ClearTextProtocolsCheckTest {
   @Test
   void testClearTextProtocolWithProtocolsContainingHttps() {
     verify("ClearTextProtocolsCheck/Microsoft.ApiManagement_service_apis.json", check,
-      issue(
-        range(10, 10, 10, 16), "Make sure that using clear-text protocols is safe here."),
+      issue(range(10, 10, 10, 16), "Make sure that using clear-text protocols is safe here."),
       issue(range(21, 10, 21, 16)));
   }
 }
