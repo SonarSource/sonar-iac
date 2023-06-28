@@ -34,8 +34,11 @@ class ShortBackupRetentionCheckTest {
       check,
       issue(12, 10, 12, 36, "Make sure that defining a short backup retention duration is safe here."),
       issue(23, 10, 23, 36),
-      issue(34, 10, 34, 37),
-      issue(50, 14, 50, 40));
+      issue(34, 10, 34, 36),
+      issue(45, 10, 45, 36),
+      issue(56, 10, 56, 37),
+      issue(72, 14, 72, 40),
+      issue(86, 10, 86, 36));
   }
 
   @Test

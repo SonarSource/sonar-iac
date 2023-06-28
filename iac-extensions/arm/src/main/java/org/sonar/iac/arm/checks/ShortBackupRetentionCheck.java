@@ -73,11 +73,9 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   }
 
   private void checkBackupRetentionWebSitesConfig(ContextualResource resource) {
-    if ("backup".equals(resource.name)) {
-      resource.object("backupSchedule")
-        .property("retentionPeriodInDays")
-        .reportIf(isNumericValue(backupRetentionIntervalInDays -> backupRetentionIntervalInDays < retentionPeriodInDays), RETENTION_PERIOD_TOO_SHORT_MESSAGE);
-    }
+    resource.object("backupSchedule")
+      .property("retentionPeriodInDays")
+      .reportIf(isNumericValue(backupRetentionIntervalInDays -> backupRetentionIntervalInDays < retentionPeriodInDays), RETENTION_PERIOD_TOO_SHORT_MESSAGE);
   }
 
   private void checkBackupRetentionDatabaseAccounts(ContextualResource resource) {

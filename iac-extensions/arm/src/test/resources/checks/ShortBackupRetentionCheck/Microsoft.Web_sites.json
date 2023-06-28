@@ -14,6 +14,28 @@
       }
     },
     {
+      "__sonar__": "Sensitive: also detect on name != 'backup', expression could be resolved to backup",
+      "name": "[format('{0}/{1}', 'webApp', 'backup')]",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 7
+        }
+      }
+    },
+    {
+      "__sonar__": "Sensitive: name is not 'backup'",
+      "name": "other random name",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "properties": {
+        "backupSchedule": {
+          "retentionPeriodInDays": 7
+        }
+      }
+    },
+    {
       "__sonar__": "Sensitive: retention period is zero",
       "name": "backup",
       "type": "Microsoft.Web/sites/config",
