@@ -19,23 +19,44 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checkdsl.ContextualPropertyTree;
 
 public class ContextualProperty extends ContextualPropertyTree<ContextualProperty, Property, Expression> {
 
-  public ContextualProperty(CheckContext ctx, @Nullable Property tree, String name, ContextualMap parent) {
+  public <S extends ContextualMap<S, T>, T extends HasProperties & Tree> ContextualProperty(
+    CheckContext ctx,
+    @Nullable Property tree,
+    String name,
+    ContextualMap<S, T> parent) {
     super(ctx, tree, name, parent);
   }
 
-  public static ContextualProperty fromPresent(CheckContext ctx, Property tree, ContextualMap parent) {
+  public static <S extends ContextualMap<S, T>, T extends HasProperties & Tree> ContextualProperty fromPresent(
+    CheckContext ctx,
+    Property tree,
+    ContextualMap<S, T> parent) {
     return new ContextualProperty(ctx, tree, tree.key().value(), parent);
   }
 
-  public static ContextualProperty fromAbsent(CheckContext ctx, String name, ContextualMap parent) {
+  public static <S extends ContextualMap<S, T>, T extends HasProperties & Tree> ContextualProperty fromAbsent(
+    CheckContext ctx,
+    String name,
+    ContextualMap<S, T> parent) {
     return new ContextualProperty(ctx, null, name, parent);
+  }
+
+  @CheckForNull
+  public Expression valueOrNull() {
+    if (tree != null) {
+      return tree.value();
+    }
+    return null;
   }
 }
