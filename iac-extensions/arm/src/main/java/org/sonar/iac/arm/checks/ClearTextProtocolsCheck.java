@@ -21,7 +21,6 @@ package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
@@ -58,6 +57,6 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
 
   private static void checkProtocols(ContextualResource resource) {
     resource.list("protocols")
-      .reportItemIf(CheckUtils.isEqual("http"), GENERAL_ISSUE_MESSAGE);
+      .reportItemIf(isEqual("http"), GENERAL_ISSUE_MESSAGE);
   }
 }
