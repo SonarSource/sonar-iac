@@ -103,7 +103,7 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
   }
 
   /**
-   * Returns
+   * Returns {@code ContextualArray} for provided key name.
    * <p>
    * Example:
    * <pre>
@@ -121,6 +121,8 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
    * }
    * </pre>
    * For call {@code list("key")} it will return {@code ContextualArray} for {@code {"key1":...}} and {@code {"key2":...}}.
+   * <p>
+   * For call {@code property("unknown")} it will return {@code ContextualProperty} with {@code null} tree.
    */
   public ContextualArray list(String name) {
     return Optional.ofNullable(tree)
