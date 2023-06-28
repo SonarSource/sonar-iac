@@ -35,10 +35,11 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", propertyIsNotSetOrFalse("httpsOnly"));
-    register("Microsoft.Web/sites/config", ClearTextProtocolsCheck::checkFtpsState);
+    register("Microsoft.Web/sites/config", propertyHasValue("ftpsState", "AllAllowed"));
     register("Microsoft.Storage/storageAccounts", ClearTextProtocolsCheck::checkHttpsTraffic);
     register("Microsoft.ApiManagement/service/apis", ClearTextProtocolsCheck::checkProtocols);
     register("Microsoft.Cdn/profiles/endpoints", propertyIsNotSetOrFalse("isHttpAllowed"));
+    register("Microsoft.Cache/redisEnterprise/databases", propertyHasValue("clientProtocol", "Plaintext"));
   }
 
   private static Consumer<ContextualResource> propertyIsNotSetOrFalse(String propertyName) {
@@ -47,9 +48,9 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
       .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
   }
 
-  private static void checkFtpsState(ContextualResource resource) {
-    resource.property("ftpsState")
-      .reportIf(isEqual("AllAllowed"), GENERAL_ISSUE_MESSAGE);
+  private static Consumer<ContextualResource> propertyHasValue(String propertyName, String value) {
+    return resource -> resource.property(propertyName)
+      .reportIf(isEqual(value), GENERAL_ISSUE_MESSAGE);
   }
 
   private static void checkHttpsTraffic(ContextualResource resource) {

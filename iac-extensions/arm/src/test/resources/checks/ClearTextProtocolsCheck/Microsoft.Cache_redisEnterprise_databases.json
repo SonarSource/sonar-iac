@@ -1,0 +1,29 @@
+{
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise issue as clientProtocol is set to Plaintext",
+      "type": "Microsoft.Cache/redisEnterprise/databases",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "clientProtocol": "Plaintext"
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Cache/redisEnterprise/databases",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "clientProtocol": "Encrypted"
+      }
+    },
+    {
+      "name": "Compliant with wrong format",
+      "type": "Microsoft.Cache/redisEnterprise/databases",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "clientProtocol": true
+      }
+    }
+  ]
+}
