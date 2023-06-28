@@ -21,6 +21,7 @@ package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
+import org.sonar.iac.arm.checks.utils.CheckUtils;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
@@ -36,6 +37,7 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
     register("Microsoft.Web/sites", ClearTextProtocolsCheck::checkHttpsFlag);
     register("Microsoft.Web/sites/config", ClearTextProtocolsCheck::checkFtpsState);
     register("Microsoft.Storage/storageAccounts", ClearTextProtocolsCheck::checkHttpsTraffic);
+    register("Microsoft.ApiManagement/service/apis", ClearTextProtocolsCheck::checkProtocols);
   }
 
   private static void checkHttpsFlag(ContextualResource resource) {
@@ -52,5 +54,10 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
   private static void checkHttpsTraffic(ContextualResource resource) {
     resource.property("supportsHttpsTrafficOnly")
       .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
+  }
+
+  private static void checkProtocols(ContextualResource resource) {
+    resource.list("protocols")
+      .reportItemIf(CheckUtils.isEqual("http"), GENERAL_ISSUE_MESSAGE);
   }
 }

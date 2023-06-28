@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise issue because protocols contains http",
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2022-08-01",
+      "properties": {
+        "protocols": [
+          "http"
+        ]
+      }
+    },
+    {
+      "name": "Raise issue because protocols contains http",
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2022-08-01",
+      "properties": {
+        "protocols": [
+          "value",
+          "http",
+          "other value"
+        ]
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2022-08-01",
+      "properties": {
+        "protocols": [
+          "https"
+        ]
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2022-08-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2022-08-01",
+      "properties": {
+        "protocols": [
+          "value",
+          "other value"
+        ]
+      }
+    }
+  ]
+}
