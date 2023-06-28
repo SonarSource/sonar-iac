@@ -35,6 +35,7 @@ public class ArmCheckList {
       LogRetentionCheck.class,
       ParsingErrorCheck.class,
       PublicNetworkAccessCheck.class,
+      RbacAzureResourceCheck.class,
       ShortBackupRetentionCheck.class,
       TlsVersionCheck.class,
       UnencryptedCloudServicesCheck.class);
