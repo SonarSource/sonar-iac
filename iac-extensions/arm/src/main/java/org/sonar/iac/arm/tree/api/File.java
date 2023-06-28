@@ -20,7 +20,22 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 
 public interface File extends ArmTree {
+  Scope targetScope();
+
+  @CheckForNull
+  StringLiteral targetScopeLiteral();
+
   List<Statement> statements();
+
+  enum Scope {
+    RESOURCE_GROUP,
+    MANAGEMENT_GROUP,
+    SUBSCRIPTION,
+    TENANT,
+    UNKNOWN,
+    NOT_SET
+  }
 }

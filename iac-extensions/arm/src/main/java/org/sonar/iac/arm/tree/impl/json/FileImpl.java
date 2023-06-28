@@ -21,22 +21,51 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class FileImpl extends AbstractArmTreeImpl implements File {
 
   private final List<Statement> statements;
+  @Nullable
+  private final StringLiteral targetScope;
 
-  public FileImpl(List<Statement> statements) {
+  public FileImpl(@Nullable StringLiteral targetScope, List<Statement> statements) {
+    this.targetScope = targetScope;
     this.statements = statements;
   }
 
   @Override
   public List<Tree> children() {
     return new ArrayList<>(statements);
+  }
+
+  @Override
+  public Scope targetScope() {
+    if (targetScope == null) {
+      return Scope.NOT_SET;
+    } else if (targetScope.value().endsWith("/managementGroupDeploymentTemplate.json#")) {
+      return Scope.MANAGEMENT_GROUP;
+    } else if (targetScope.value().endsWith("/deploymentTemplate.json#")) {
+      return Scope.RESOURCE_GROUP;
+    } else if (targetScope.value().endsWith("/subscriptionDeploymentTemplate.json#")) {
+      return Scope.SUBSCRIPTION;
+    } else if (targetScope.value().endsWith("/tenantDeploymentTemplate.json#")) {
+      return Scope.TENANT;
+    } else {
+      return Scope.UNKNOWN;
+    }
+  }
+
+  @CheckForNull
+  @Override
+  public StringLiteral targetScopeLiteral() {
+    return targetScope;
   }
 
   @Override

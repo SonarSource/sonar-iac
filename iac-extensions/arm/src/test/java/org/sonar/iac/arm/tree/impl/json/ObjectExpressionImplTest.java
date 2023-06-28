@@ -50,6 +50,6 @@ class ObjectExpressionImplTest {
     Property objectProperty = parseProperty(parser, "\"object_prop\": {}");
     assertThat(objectProperty.value()).asObjectExpression()
       .hasSize(0)
-      .hasRange(8, 15, 8, 17);
+      .hasRange(LINE_OFFSET + 1, 15, LINE_OFFSET + 1, 17);
   }
 }
