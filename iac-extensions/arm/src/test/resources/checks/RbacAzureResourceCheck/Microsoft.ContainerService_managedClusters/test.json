@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-01",
+      "name": "Compliant",
+      "properties": {
+        "aadProfile": {
+          "enableAzureRBAC": true
+        },
+        "enableRBAC": true
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-01",
+      "name": "Compliant: if RBAC-related properties are missing they're defaulting to true",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-01",
+      "name": "2 issues: RBAC disabled in two locations",
+      "properties": {
+        "aadProfile": {
+          "enableAzureRBAC": false
+        },
+        "enableRBAC": false
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-01",
+      "name": "1 issue: RBAC is disabled for AD integration only",
+      "properties": {
+        "aadProfile": {
+          "enableAzureRBAC": false
+        },
+        "enableRBAC": true
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-01",
+      "name": "1 issue: only k8s RBAC is disabled",
+      "properties": {
+        "aadProfile": {
+          "enableAzureRBAC": true
+        },
+        "enableRBAC": false
+      }
+    }
+  ]
+}
