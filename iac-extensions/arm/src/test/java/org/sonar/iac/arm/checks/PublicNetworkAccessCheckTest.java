@@ -309,14 +309,4 @@ class PublicNetworkAccessCheckTest {
   void shouldCheckRangePublicIPAddressInFirewallRulesUnknownType() {
     verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress-firewallRules/unknown-type.json", CHECK);
   }
-
-  private static String readTemplateAndReplace(String path, String type) {
-    String content;
-    try {
-      content = Files.readString(BASE_DIR.resolve(path));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return content.replace("${type}", type);
-  }
 }
