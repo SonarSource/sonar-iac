@@ -32,9 +32,9 @@ class UnencryptedCloudServicesCheckTest {
   @Test
   void testSourceAddressPrefix() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachines.json", check,
-      issue(range(25, 16, 26, 17), "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
+      issue(range(25, 37, 26, 17), "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
       issue(range(13, 29, 14, 15), "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(18, 16, 20, 17)));
+      issue(range(19, 18, 19, 26), "Omitting \"id\" enables clear-text storage. Make sure it is safe here."));
   }
 
 }

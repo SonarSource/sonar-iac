@@ -19,13 +19,9 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
+import java.util.function.Predicate;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.PropertyTree;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6388")
@@ -35,23 +31,16 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Compute/virtualMachines", (ctx, resource) -> {
-      List<Tree> managedDisks = CheckUtils.resolveProperties("storageProfile/dataDisks/*/managedDisk", resource);
-      for (Tree managedDisk : managedDisks) {
-        PropertyUtils.get(managedDisk, "diskEncryptionSet").ifPresentOrElse(
-          diskEncryptionSet -> checkDiskEncryptionSet(ctx, diskEncryptionSet),
-          () -> ctx.reportIssue(managedDisk, String.format(FORMAT_OMITTING, "diskEncryptionSet")));
-      }
-    });
+    register("Microsoft.Compute/virtualMachines",
+      resource -> resource.objectsByPath("storageProfile/dataDisks/*/managedDisk").forEach(
+        managedDisk -> managedDisk.object("diskEncryptionSet")
+          .reportIfAbsent(FORMAT_OMITTING)
+          .property("id")
+          .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
+          .reportIfAbsent(FORMAT_OMITTING)));
   }
 
-  private static void checkDiskEncryptionSet(CheckContext ctx, PropertyTree diskEncryptionSet) {
-    boolean idIsSet = PropertyUtils.get(diskEncryptionSet.value(), "id")
-      .filter(id -> TextUtils.matchesValue(id.value(), value -> !"".equals(value)).isTrue())
-      .isPresent();
-
-    if (!idIsSet) {
-      ctx.reportIssue(diskEncryptionSet, String.format(FORMAT_OMITTING, "id"));
-    }
+  private static Predicate<Expression> isEmpty() {
+    return e -> TextUtils.matchesValue(e, ""::equals).isTrue();
   }
 }

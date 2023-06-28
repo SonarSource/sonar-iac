@@ -19,16 +19,20 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checkdsl.ContextualTree;
+import org.sonar.iac.common.checks.PropertyUtils;
 
 public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends HasProperties & Tree> extends ContextualTree<ContextualMap<S, T>, T> {
 
@@ -48,6 +52,17 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
       .flatMap(tree -> PropertyUtils.value(tree, name, ObjectExpression.class))
       .map(objectExpression -> ContextualObject.fromPresent(ctx, objectExpression, name, this))
       .orElse(ContextualObject.fromAbsent(ctx, name, this));
+  }
+
+  public List<ContextualObject> objectsByPath(String path) {
+    if (tree == null) {
+      return Collections.emptyList();
+    }
+
+    return ArmTreeUtils.resolveProperties(path, tree).stream()
+      .filter(ObjectExpression.class::isInstance)
+      .map(expression -> ContextualObject.fromPresent(ctx, (ObjectExpression) expression, name, null))
+      .collect(Collectors.toList());
   }
 
   public ContextualArray list(String name) {
