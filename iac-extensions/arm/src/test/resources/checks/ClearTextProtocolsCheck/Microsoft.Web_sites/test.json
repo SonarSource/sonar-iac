@@ -1,0 +1,37 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise issue as httpsOnly is set to false",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "httpsOnly": false
+      }
+    },
+    {
+      "name": "Raise issue as httpsOnly is missing",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-07-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "httpsOnly": true
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "httpsOnly": "wrong format"
+      }
+    }
+  ]
+}

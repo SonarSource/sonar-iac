@@ -83,6 +83,10 @@ public class CheckUtils {
     return expr -> TextUtils.matchesValue(expr, predicate).isTrue();
   }
 
+  public static Predicate<Expression> isValue(String stringToMatch) {
+    return expr -> TextUtils.isValue(expr, stringToMatch).isTrue();
+  }
+
   public static Predicate<Expression> isFalse() {
     return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
   }

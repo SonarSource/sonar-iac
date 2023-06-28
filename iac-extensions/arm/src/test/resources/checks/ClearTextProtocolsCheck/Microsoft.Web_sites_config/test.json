@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise issue as ftpsState is set to AllAllowed",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "ftpsState": "AllAllowed"
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "ftpsState": "FtpsOnly"
+      }
+    },
+    {
+      "name": "Compliant with wrong format",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "ftpsState": true
+      }
+    }
+  ]
+}
