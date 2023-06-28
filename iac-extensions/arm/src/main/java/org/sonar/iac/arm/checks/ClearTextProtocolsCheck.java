@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
 import java.util.function.Consumer;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
@@ -32,6 +33,11 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
   private static final String GENERAL_ISSUE_MESSAGE = "Make sure that using clear-text protocols is safe here.";
   private static final String ISSUE_MESSAGE_ON_MISSING_PROPERTY = "Omitting \"%s\" allows the use of clear-text protocols. Make sure it is safe here.";
 
+  private static final List<String> DATABASE_SERVER_TYPES = List.of(
+    "Microsoft.DBforMySQL/servers",
+    "Microsoft.DBforMariaDB/servers",
+    "Microsoft.DBforPostgreSQL/servers");
+
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", checkPropertyIsNotSetOrFalse("httpsOnly"));
@@ -40,6 +46,7 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
     register("Microsoft.ApiManagement/service/apis", ClearTextProtocolsCheck::checkProtocols);
     register("Microsoft.Cdn/profiles/endpoints", checkPropertyIsNotSetOrFalse("isHttpAllowed"));
     register("Microsoft.Cache/redisEnterprise/databases", checkPropertyHasValue("clientProtocol", "Plaintext"));
+    register(DATABASE_SERVER_TYPES, checkPropertyHasValue("sslEnforcement", "Disabled"));
   }
 
   private static Consumer<ContextualResource> checkPropertyIsNotSetOrFalse(String propertyName) {

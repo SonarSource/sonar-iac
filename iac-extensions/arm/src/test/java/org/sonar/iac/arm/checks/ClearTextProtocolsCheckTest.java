@@ -19,12 +19,16 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 
+import static org.sonar.iac.arm.ArmTestUtils.readTemplateAndReplace;
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
+import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -65,5 +69,20 @@ class ClearTextProtocolsCheckTest {
   void testClearTextProtocolWithClientProtocol() {
     verify("ClearTextProtocolsCheck/Microsoft.Cache_redisEnterprise_databases.json", check,
       issue(range(9, 8, 9, 37), "Make sure that using clear-text protocols is safe here."));
+  }
+
+  static Stream<String> testClearTextProtocolWithSslEnforcementInDifferentDatabases() {
+    return Stream.of(
+      "Microsoft.DBforMySQL/servers",
+      "Microsoft.DBforMariaDB/servers",
+      "Microsoft.DBforPostgreSQL/servers");
+  }
+
+  @MethodSource
+  @ParameterizedTest(name = "[${index}] property sslEnforcement should be set to Enabled for type {0}")
+  void testClearTextProtocolWithSslEnforcementInDifferentDatabases(String type) {
+    String content = readTemplateAndReplace("ClearTextProtocolsCheck/Microsoft.DBforDbname_servers_template.json", type);
+    verifyContent(content, check,
+      issue(range(9, 8, 9, 36), "Make sure that using clear-text protocols is safe here."));
   }
 }
