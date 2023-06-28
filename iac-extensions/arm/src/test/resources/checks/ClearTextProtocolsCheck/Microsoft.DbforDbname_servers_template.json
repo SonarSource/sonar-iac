@@ -1,0 +1,29 @@
+{
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise issue as sslEnforcement is set to Disabled",
+      "type": "${type}",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "sslEnforcement": "Disabled"
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "${type}",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "sslEnforcement": "Enabled"
+      }
+    },
+    {
+      "name": "Compliant with wrong format",
+      "type": "${type}",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "sslEnforcement": true
+      }
+    }
+  ]
+}
