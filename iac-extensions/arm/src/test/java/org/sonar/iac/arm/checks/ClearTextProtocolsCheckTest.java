@@ -20,6 +20,8 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
@@ -30,29 +32,32 @@ class ClearTextProtocolsCheckTest {
 
   IacCheck check = new ClearTextProtocolsCheck();
 
-  @Test
-  void testClearTextProtocolWithHttpsFlag() {
-    verify("ClearTextProtocolsCheck/Microsoft.Web_sites.json", check,
-      issue(range(10, 8, 10, 26), "Make sure that using clear-text protocols is safe here."),
-      issue(range(15, 14, 15, 35), "Omitting \"httpsOnly\" allows the use of clear-text protocols. Make sure it is safe here."));
+  @ParameterizedTest
+  @CsvSource({"Microsoft.Web_sites.json,httpsOnly", "Microsoft.Cdn_profiles_endpoints.json,isHttpAllowed"})
+  void testClearTextProtocolWithHttpsFlag(String fileName, String propertyName) {
+    int endColumnForProperty = 17 + propertyName.length();
+    int endColumnForType = 11 + fileName.length();
+    verify("ClearTextProtocolsCheck/" + fileName, check,
+      issue(range(9, 8, 9, endColumnForProperty), "Make sure that using clear-text protocols is safe here."),
+      issue(range(14, 14, 14, endColumnForType), "Omitting \"" + propertyName + "\" allows the use of clear-text protocols. Make sure it is safe here."));
   }
 
   @Test
   void testClearTextProtocolWithFtpsState() {
     verify("ClearTextProtocolsCheck/Microsoft.Web_sites_config.json", check,
-      issue(range(10, 8, 10, 33), "Make sure that using clear-text protocols is safe here."));
+      issue(range(9, 8, 9, 33), "Make sure that using clear-text protocols is safe here."));
   }
 
   @Test
   void testClearTextProtocolWithHttpsTrafficOnly() {
     verify("ClearTextProtocolsCheck/Microsoft.Storage_storageAccounts.json", check,
-      issue(range(10, 8, 10, 41), "Make sure that using clear-text protocols is safe here."));
+      issue(range(9, 8, 9, 41), "Make sure that using clear-text protocols is safe here."));
   }
 
   @Test
   void testClearTextProtocolWithProtocolsContainingHttps() {
     verify("ClearTextProtocolsCheck/Microsoft.ApiManagement_service_apis.json", check,
-      issue(range(11, 10, 11, 16), "Make sure that using clear-text protocols is safe here."),
-      issue(range(22, 10, 22, 16)));
+      issue(range(10, 10, 10, 16), "Make sure that using clear-text protocols is safe here."),
+      issue(range(21, 10, 21, 16)));
   }
 }
