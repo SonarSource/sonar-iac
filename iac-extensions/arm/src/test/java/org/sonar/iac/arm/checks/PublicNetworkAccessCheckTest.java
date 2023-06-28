@@ -39,7 +39,7 @@ class PublicNetworkAccessCheckTest {
 
   @Test
   void shouldCheckPublicNetworkAccess() {
-    verify("PublicNetworkAccessCheckTest/Microsoft.Desktop_hostPools/test.json",
+    verify("PublicNetworkAccessCheckTest/Microsoft.Desktop_hostPools/hostPools.json",
       CHECK,
       issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(18, 8, 18, 59),
@@ -227,14 +227,14 @@ class PublicNetworkAccessCheckTest {
 
   @Test
   void shouldCheckDbForMySqlFlexibleServers() {
-    verify("PublicNetworkAccessCheckTest/Microsoft.DBforMySQL_flexibleServers/test.json",
+    verify("PublicNetworkAccessCheckTest/Microsoft.DBforMySQL_flexibleServers/flexibleServers.json",
       CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   @Test
   void shouldCheckInsightsDataCollectionEndpoints() {
-    verify("PublicNetworkAccessCheckTest/Microsoft.Insights_dataCollectionEndpoints/test.json",
+    verify("PublicNetworkAccessCheckTest/Microsoft.Insights_dataCollectionEndpoints/dataCollectionEndpoints.json",
       CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
@@ -260,7 +260,7 @@ class PublicNetworkAccessCheckTest {
 
   @Test
   void shouldCheckSubResourcesForPublicNetworkAccess() {
-    verify("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-subResources/test.json",
+    verify("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-subResources/subResources.json",
       CHECK,
       issue(15, 12, 15, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(30, 12, 30, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
@@ -313,7 +313,7 @@ class PublicNetworkAccessCheckTest {
   @Test
   void shouldCheckRangePublicIPAddressInBlockchainMembersInTransactionsNodes() {
     verify(
-      "PublicNetworkAccessCheckTest/rangePublicIPAddress-blockchainMembers-transactionNodes/test.json",
+      "PublicNetworkAccessCheckTest/rangePublicIPAddress-blockchainMembers-transactionNodes/transactionNodes.json",
       CHECK,
       issue(17, 34, 17, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(18, 32, 18, 49, AND_HERE)),
       issue(37, 32, 37, 41, MESSAGE_PUBLIC_IP_ACCESS),

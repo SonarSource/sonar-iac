@@ -26,7 +26,7 @@ import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 
-class PublicNetworkAccessCheckPart extends AbstractArmResourceCheck {
+class PublicNetworkAccessKeyCheckPart extends AbstractArmResourceCheck {
 
   private static final Set<String> SENSITIVE_VALUES = Set.of("Enabled", "EnabledForSessionHostsOnly", "EnabledForClientsOnly");
   private static final List<String> PUBLIC_NETWORK_ACCESS_SIMPLIFIED_TYPES = List.of(
@@ -130,18 +130,18 @@ class PublicNetworkAccessCheckPart extends AbstractArmResourceCheck {
 
   private static Consumer<ContextualResource> checkPublicNetworkAccess() {
     return resource -> resource.property(PUBLIC_NETWORK_ACCESS_PROPERTY)
-      .reportIf(PublicNetworkAccessCheckPart::isSensitivePublicNetworkAccess, PUBLIC_NETWORK_ACCESS_MESSAGE);
+      .reportIf(PublicNetworkAccessKeyCheckPart::isSensitivePublicNetworkAccess, PUBLIC_NETWORK_ACCESS_MESSAGE);
   }
 
   private static Consumer<ContextualResource> checkPublicNetworkAccessSimplified() {
     return resource -> resource.property(PUBLIC_NETWORK_ACCESS_PROPERTY)
-      .reportIf(PublicNetworkAccessCheckPart::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
+      .reportIf(PublicNetworkAccessKeyCheckPart::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
   }
 
   private static Consumer<ContextualResource> checkPublicNetworkAccessSimplifiedIn(String objectName) {
     return resource -> resource.object(objectName)
       .property(PUBLIC_NETWORK_ACCESS_PROPERTY)
-      .reportIf(PublicNetworkAccessCheckPart::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
+      .reportIf(PublicNetworkAccessKeyCheckPart::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
   }
 
   private static boolean isSensitivePublicNetworkAccess(Tree tree) {

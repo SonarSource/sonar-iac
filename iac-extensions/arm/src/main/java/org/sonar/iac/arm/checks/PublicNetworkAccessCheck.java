@@ -20,20 +20,15 @@
 package org.sonar.iac.arm.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
 @Rule(key = "S6329")
-public class PublicNetworkAccessCheck extends AbstractArmResourceCheck {
+public class PublicNetworkAccessCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    super.initialize(init);
-    new PublicNetworkAccessCheckPart().initialize(init);
-    new PublicIpAddressRangeCheckPart().initialize(init);
-  }
-
-  @Override
-  protected void registerResourceConsumer() {
-    // expected to be empty
+    new PublicNetworkAccessKeyCheckPart().initialize(init);
+    new PublicNetworkAccessIpRangeCheckPart().initialize(init);
   }
 }

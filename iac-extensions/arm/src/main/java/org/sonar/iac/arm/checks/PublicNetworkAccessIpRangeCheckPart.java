@@ -30,7 +30,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.Tree;
 
-class PublicIpAddressRangeCheckPart extends AbstractArmResourceCheck {
+class PublicNetworkAccessIpRangeCheckPart extends AbstractArmResourceCheck {
 
   private static final String PUBLIC_IP_ADDRESS_MESSAGE = "Make sure that allowing public IP addresses is safe here.";
   private static final String PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION = "and here";
@@ -55,7 +55,7 @@ class PublicIpAddressRangeCheckPart extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register(PUBLIC_IP_ADDRESS_RANGE_TYPES, PublicIpAddressRangeCheckPart::checkIpRange);
+    register(PUBLIC_IP_ADDRESS_RANGE_TYPES, PublicNetworkAccessIpRangeCheckPart::checkIpRange);
     register(PUBLIC_IP_ADDRESS_RANGE_IN_FIREWALL_RULES_TYPES, checkIpRangeInProperty("firewallRules"));
   }
 
@@ -71,7 +71,7 @@ class PublicIpAddressRangeCheckPart extends AbstractArmResourceCheck {
   private static Consumer<ContextualResource> checkIpRangeInProperty(String propertyName) {
     return resource -> {
       ContextualArray list = resource.list(propertyName);
-      list.objects().forEach(PublicIpAddressRangeCheckPart::checkIpRange);
+      list.objects().forEach(PublicNetworkAccessIpRangeCheckPart::checkIpRange);
     };
   }
 }
