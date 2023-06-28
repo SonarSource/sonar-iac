@@ -91,7 +91,7 @@ public class LogRetentionCheck extends AbstractArmResourceCheck {
       if (!expr.is(ArmTree.Kind.NUMERIC_LITERAL)) {
         return false;
       }
-      float retentionDays = ((NumericLiteral) expr).value();
+      double retentionDays = ((NumericLiteral) expr).value();
       return retentionDays < retentionPeriodInDays && retentionDays != 0;
     };
   }

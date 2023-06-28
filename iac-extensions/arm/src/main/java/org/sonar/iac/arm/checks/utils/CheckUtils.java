@@ -83,8 +83,8 @@ public class CheckUtils {
     return expr -> TextUtils.matchesValue(expr, predicate).isTrue();
   }
 
-  public static Predicate<Expression> isValue(String stringToMatch) {
-    return expr -> TextUtils.isValue(expr, stringToMatch).isTrue();
+  public static Predicate<Expression> isEqual(String targetString) {
+    return expr -> TextUtils.matchesValue(expr, targetString::equals).isTrue();
   }
 
   public static Predicate<Expression> isFalse() {

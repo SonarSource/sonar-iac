@@ -1,0 +1,399 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: test case sensitive backupManagementType 'AzureIaasVM'",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "SimpleRetentionPolicy",
+          "retentionDuration": {
+            "count": 7,
+            "durationType": "Days"
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: test case sensitive backupManagementType 'AzureSql'",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureSql",
+        "retentionPolicy": {
+          "retentionPolicyType": "SimpleRetentionPolicy",
+          "retentionDuration": {
+            "count": 7,
+            "durationType": "Days"
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: test case sensitive backupManagementType 'AzureStorage'",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureStorage",
+        "retentionPolicy": {
+          "retentionPolicyType": "SimpleRetentionPolicy",
+          "retentionDuration": {
+            "count": 7,
+            "durationType": "Days"
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: test case sensitive backupManagementType 'MAB'",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "MAB",
+        "retentionPolicy": {
+          "retentionPolicyType": "SimpleRetentionPolicy",
+          "retentionDuration": {
+            "count": 7,
+            "durationType": "Days"
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: test case sensitive subProtectionPolicy 'GenericProtectionPolicy'",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "GenericProtectionPolicy",
+        "subProtectionPolicy": [
+          {
+            "retentionPolicy": {
+              "retentionPolicyType": "SimpleRetentionPolicy",
+              "retentionDuration": {
+                "count": 7,
+                "durationType": "Days"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Sensitive: test case sensitive subProtectionPolicy 'AzureWorkload'",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureWorkload",
+        "subProtectionPolicy": [
+          {
+            "retentionPolicy": {
+              "retentionPolicyType": "SimpleRetentionPolicy",
+              "retentionDuration": {
+                "count": 7,
+                "durationType": "Days"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Sensitive: test case with retentionPolicyType=LongTermRetentionPolicy",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 7,
+              "durationType": "Days"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: durationType in days with less than 30 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 15,
+              "durationType": "Days"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive: durationType in weeks with less than 30 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 4,
+              "durationType": "Weeks"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive inner child case",
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2023-01-01",
+      "resources": [
+        {
+          "name": "Inner child",
+          "type": "backupPolicies",
+          "apiVersion": "2023-01-01",
+          "properties": {
+            "backupManagementType": "GenericProtectionPolicy",
+            "subProtectionPolicy": [
+              {
+                "retentionPolicy": {
+                  "retentionPolicyType": "LongTermRetentionPolicy",
+                  "dailySchedule": {
+                    "retentionDuration": {
+                      "count": 1,
+                      "durationType": "Days"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    
+    {
+      "name": "Compliant: durationType in days with more than 30 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 50,
+              "durationType": "Days"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: durationType in days with exactly 30 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 30,
+              "durationType": "Days"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: durationType in weeks with more than 30 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 5,
+              "durationType": "Weeks"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: durationType in months with more than 30 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 1,
+              "durationType": "Months"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: durationType in years with more than 30 days",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 1,
+              "durationType": "Years"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: test case backupManagementType with value 'unknown'",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "unknown",
+        "retentionPolicy": {
+          "retentionPolicyType": "SimpleRetentionPolicy",
+          "retentionDuration": {
+            "count": 7,
+            "durationType": "Days"
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: test case retentionPolicyType with value 'unknown'",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "unknown",
+          "retentionDuration": {
+            "count": 7,
+            "durationType": "Days"
+          },
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 7,
+              "durationType": "Days"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: durationType is unknown",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "LongTermRetentionPolicy",
+          "dailySchedule": {
+            "retentionDuration": {
+              "count": 0,
+              "durationType": "unknown"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: test case subProtectionPolicy 'unknown'",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "unknown",
+        "subProtectionPolicy": [
+          {
+            "retentionPolicy": {
+              "retentionPolicyType": "LongTermRetentionPolicy",
+              "dailySchedule": {
+                "retentionDuration": {
+                  "count": 7,
+                  "durationType": "Days"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Compliant: durationType property is missing",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "SimpleRetentionPolicy",
+          "retentionDuration": {
+            "count": 7
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: count property is missing",
+      "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+      "apiVersion": "2023-01-01",
+      "properties": {
+        "backupManagementType": "AzureIaasVM",
+        "retentionPolicy": {
+          "retentionPolicyType": "SimpleRetentionPolicy",
+          "retentionDuration": {
+            "durationType": "Days"
+          }
+        }
+      }
+    },
+    {
+      "name": "Sensitive inner child case",
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2023-01-01",
+      "resources": [
+        {
+          "name": "Inner child",
+          "type": "backupPolicies",
+          "apiVersion": "2023-01-01",
+          "properties": {
+            "backupManagementType": "GenericProtectionPolicy",
+            "subProtectionPolicy": [
+              {
+                "retentionPolicy": {
+                  "retentionPolicyType": "LongTermRetentionPolicy",
+                  "dailySchedule": {
+                    "retentionDuration": {
+                      "count": 50,
+                      "durationType": "Days"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
