@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,6 +55,10 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
   }
 
   public List<ContextualObject> objectsByPath(String path) {
+    if (tree == null) {
+      return Collections.emptyList();
+    }
+
     return ArmTreeUtils.resolveProperties(path, tree).stream()
       .filter(ObjectExpression.class::isInstance)
       .map(expression -> ContextualObject.fromPresent(ctx, (ObjectExpression) expression, name, null))
