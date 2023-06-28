@@ -1,0 +1,37 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Raise issue as supportsHttpsTrafficOnly is set to false",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "supportsHttpsTrafficOnly": false
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "supportsHttpsTrafficOnly": "wrong format"
+      }
+    }
+  ]
+}
