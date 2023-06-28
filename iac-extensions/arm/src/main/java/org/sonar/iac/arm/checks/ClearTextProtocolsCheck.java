@@ -28,7 +28,8 @@ import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
 
-  private static final String ISSUE_MESSAGE = "Make sure that using clear-text protocols is safe here.";
+  private static final String GENERAL_ISSUE_MESSAGE = "Make sure that using clear-text protocols is safe here.";
+  private static final String ISSUE_MESSAGE_ON_MISSING_PROPERTY = "Omitting \"%s\" allows the use of clear-text protocols. Make sure it is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
@@ -38,12 +39,12 @@ public class ClearTextProtocolsCheck extends AbstractArmResourceCheck {
 
   private static void checkHttpsFlag(ContextualResource resource) {
     resource.property("httpsOnly")
-      .reportIfAbsent(ISSUE_MESSAGE)
-      .reportIf(isFalse(), ISSUE_MESSAGE);
+      .reportIfAbsent(ISSUE_MESSAGE_ON_MISSING_PROPERTY)
+      .reportIf(isFalse(), GENERAL_ISSUE_MESSAGE);
   }
 
   private static void checkFtpsState(ContextualResource resource) {
     resource.property("ftpsState")
-      .reportIf(isValue("AllAllowed"), ISSUE_MESSAGE);
+      .reportIf(isValue("AllAllowed"), GENERAL_ISSUE_MESSAGE);
   }
 }
