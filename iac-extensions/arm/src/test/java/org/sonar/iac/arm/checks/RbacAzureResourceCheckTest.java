@@ -29,8 +29,10 @@ class RbacAzureResourceCheckTest {
   void checkRbacPresentAndEnabledForManagedClusters() {
     verify("RbacAzureResourceCheck/Microsoft.ContainerService_managedClusters/test.json",
       new RbacAzureResourceCheck(),
-      issue(22, 10, 22, 34, "Make sure that disabling role-based access control is safe here."),
-      issue(24, 8, 24, 27, "Make sure that disabling role-based access control is safe here."));
+      issue(28, 10, 28, 34, "Make sure that disabling role-based access control is safe here."),
+      issue(30, 8, 30, 27, "Make sure that disabling role-based access control is safe here."),
+      issue(39, 10, 39, 34, "Make sure that disabling role-based access control is safe here."),
+      issue(52, 8, 52, 27, "Make sure that disabling role-based access control is safe here."));
   }
 
   @Test
