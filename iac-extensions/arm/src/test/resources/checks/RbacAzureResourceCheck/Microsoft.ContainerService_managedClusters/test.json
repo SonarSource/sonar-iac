@@ -16,6 +16,12 @@
     {
       "type": "Microsoft.ContainerService/managedClusters",
       "apiVersion": "2023-03-01",
+      "name": "Compliant: if RBAC-related properties are missing they're defaulting to true",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-01",
       "name": "2 issues: RBAC disabled in two locations",
       "properties": {
         "aadProfile": {
@@ -23,12 +29,6 @@
         },
         "enableRBAC": false
       }
-    },
-    {
-      "type": "Microsoft.ContainerService/managedClusters",
-      "apiVersion": "2023-03-01",
-      "name": "2 issues: two RBAC-related properties are missing",
-      "properties": {}
     }
   ]
 }
