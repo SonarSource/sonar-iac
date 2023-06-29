@@ -34,7 +34,11 @@ class UnencryptedCloudServicesCheckTest {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachines.json", check,
       issue(range(13, 29, 14, 15), "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
       issue(range(19, 18, 19, 26), "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(25, 37, 26, 17)));
+      issue(range(25, 37, 26, 17)),
+      issue(range(30, 20, 34, 11), "Omitting \"encryptionSettings\" enables clear-text storage. Make sure it is safe here."),
+      issue(range(31, 27, 33, 13), "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
+      issue(range(32, 33, 32, 35)),
+      issue(range(45, 12, 45, 39), "Make sure using unencrypted cloud storage is safe here."));
   }
 
   @Test

@@ -26,7 +26,24 @@
                 }
               }
             }
-          ]
+          ],
+          "osDisk": {
+            "managedDisk": {
+              "securityProfile": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "storageProfile": {
+          "osDisk": {
+            "encryptionSettings": false
+          }
         }
       }
     },

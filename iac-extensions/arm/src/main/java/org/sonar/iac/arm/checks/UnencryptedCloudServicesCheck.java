@@ -27,16 +27,28 @@ import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.checks.TextUtils;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
+
 @Rule(key = "S6388")
 public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
+  public static final String UNENCRYPTED_MESSAGE = "Make sure using unencrypted cloud storage is safe here.";
   public static final String FORMAT_OMITTING = "Omitting \"%s\" enables clear-text storage. Make sure it is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Compute/virtualMachines",
-      resource -> resource.objectsByPath("storageProfile/dataDisks/*/managedDisk")
+      resource -> Stream.of("storageProfile/dataDisks/*/managedDisk",
+        "storageProfile/osDisk/managedDisk",
+        "storageProfile/osDisk/managedDisk/securityProfile")
+        .map(resource::objectsByPath)
+        .flatMap(List::stream)
         .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
+
+    register("Microsoft.Compute/virtualMachines",
+      resource -> resource.object("storageProfile").object("osDisk").property("encryptionSettings")
+        .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
+        .reportIfAbsent(FORMAT_OMITTING));
 
     register("Microsoft.Compute/virtualMachineScaleSets",
       resource -> Stream.of("virtualMachineProfile/storageProfile/dataDisks/*/managedDisk",
