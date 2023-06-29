@@ -28,7 +28,7 @@ import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 public class PropertyTestUtils {
 
-  public static final int LINE_OFFSET = 7;
+  public static final int LINE_OFFSET = 8;
 
   public static Property parseProperty(ArmParser parser, String property) {
     String code = getCode(property);
@@ -38,6 +38,7 @@ public class PropertyTestUtils {
 
   private static String getCode(String property) {
     return code("{",
+      "  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",",
       "  \"resources\": [",
       "    {",
       "      \"type\": \"Microsoft.Kusto/clusters\",",
