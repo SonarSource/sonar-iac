@@ -35,7 +35,7 @@ class SubscriptionOwnerCapabilitiesCheckTest {
     "/providers/Microsoft.Management/managementGroups/b24988ac-6180-42a0-ab88-20f7382dd24c"
   })
   void shouldDetectSensitiveScopes(String assignableScope) {
-    String content = readTemplateAndReplace("SubscriptionOwnerCapabilitiesCheck/Microsoft.Authorization_roleDefinitions/test.json", assignableScope);
+    String content = readTemplateAndReplace("SubscriptionOwnerCapabilitiesCheck/Authorization_roleDefinitions.json", assignableScope);
 
     int contentLength = assignableScope.length();
     ArmVerifier.verifyContent(content,
