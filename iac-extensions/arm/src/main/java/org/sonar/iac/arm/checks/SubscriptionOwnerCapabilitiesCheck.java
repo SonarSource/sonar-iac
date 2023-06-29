@@ -41,7 +41,7 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractArmResourceCheck
   private static final String PERMISSION_MESSAGE = "Allows all actions.";
   private static final String SCOPE_MESSAGE = "High scope level.";
 
-  private static final Pattern RESOURCE_GROUP_SCOPE_PATTERN = Pattern.compile("/subscriptions/[^/]+/resourceGroups/.*");
+  private static final Pattern PLAIN_SUBSCRIPTION_SCOPE_PATTERN = Pattern.compile("^/subscriptions/[^/]+/?$");
 
   @Override
   protected void registerResourceConsumer() {
@@ -66,7 +66,7 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractArmResourceCheck
       return;
     }
 
-    List<SecondaryLocation> secondaries = sensitiveScopes.stream().map(it -> new SecondaryLocation(it, SCOPE_MESSAGE)).collect(Collectors.toList());
+    List<SecondaryLocation> secondaries = sensitiveScopes.stream().map(scopeLiteral -> new SecondaryLocation(scopeLiteral, SCOPE_MESSAGE)).collect(Collectors.toList());
     secondaries.add(0, new SecondaryLocation(arbitraryAction.get(), PERMISSION_MESSAGE));
     resource.report(MESSAGE, secondaries);
   }
@@ -79,8 +79,7 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractArmResourceCheck
   private static boolean isSensitiveScope(Tree scope) {
     boolean hasSensitiveCall = isValue(scope, "[managementGroup().id]").isTrue() ||
       isValue(scope, "[subscription().id]").isTrue();
-    boolean referencesSensitiveScope = matchesValue(scope, s -> s.startsWith("/subscriptions/")).isTrue() &&
-      matchesValue(scope, s -> RESOURCE_GROUP_SCOPE_PATTERN.matcher(s).matches()).isFalse() ||
+    boolean referencesSensitiveScope = matchesValue(scope, s -> PLAIN_SUBSCRIPTION_SCOPE_PATTERN.matcher(s).matches()).isTrue() ||
       matchesValue(scope, s -> s.startsWith("/providers/Microsoft.Management/managementGroups/")).isTrue();
     return hasSensitiveCall || referencesSensitiveScope;
   }
