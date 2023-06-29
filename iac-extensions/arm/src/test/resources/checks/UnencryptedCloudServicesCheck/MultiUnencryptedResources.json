@@ -1,0 +1,68 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.DocumentDB/cassandraClusters/dataCenters",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "backupStorageCustomerKeyUri": "uri"
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.DocumentDB/cassandraClusters/dataCenters",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "managedDiskCustomerKeyUri": "uri"
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.DocumentDB/cassandraClusters/dataCenters",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "backupStorageCustomerKeyUri": "uri",
+        "managedDiskCustomerKeyUri": "uri"
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2022-07-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "diskEncryptionSetID": "id"
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.RedHatOpenShift/openShiftClusters",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "masterProfile": {},
+        "workerProfiles": {}
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.RedHatOpenShift/openShiftClusters",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "masterProfile": {
+          "diskEncryptionSetId": "id"
+        },
+        "workerProfiles": {
+          "diskEncryptionSetId": "id"
+        }
+      }
+    }
+  ]
+}

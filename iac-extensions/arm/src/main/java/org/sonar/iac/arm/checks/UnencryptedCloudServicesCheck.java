@@ -19,8 +19,11 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.checks.TextUtils;
 
@@ -32,12 +35,38 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Compute/virtualMachines",
-      resource -> resource.objectsByPath("storageProfile/dataDisks/*/managedDisk").forEach(
-        managedDisk -> managedDisk.object("diskEncryptionSet")
-          .reportIfAbsent(FORMAT_OMITTING)
-          .property("id")
-          .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
-          .reportIfAbsent(FORMAT_OMITTING)));
+      resource -> resource.objectsByPath("storageProfile/dataDisks/*/managedDisk")
+        .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
+
+    register("Microsoft.Compute/virtualMachineScaleSets",
+      resource -> Stream.of("virtualMachineProfile/storageProfile/dataDisks/*/managedDisk",
+        "virtualMachineProfile/storageProfile/dataDisks/*/managedDisk/securityProfile",
+        "virtualMachineProfile/storageProfile/osDisk/managedDisk/",
+        "virtualMachineProfile/storageProfile/osDisk/managedDisk/securityProfile")
+        .map(resource::objectsByPath)
+        .flatMap(List::stream)
+        .forEach(UnencryptedCloudServicesCheck::checkForDiskEncryptionSet));
+
+    register("Microsoft.DocumentDB/cassandraClusters/dataCenters", resource -> {
+      resource.property("backupStorageCustomerKeyUri").reportIfAbsent(FORMAT_OMITTING);
+      resource.property("managedDiskCustomerKeyUri").reportIfAbsent(FORMAT_OMITTING);
+    });
+
+    register("Microsoft.ContainerService/managedClusters",
+      resource -> resource.property("diskEncryptionSetID").reportIfAbsent(FORMAT_OMITTING));
+
+    register("Microsoft.RedHatOpenShift/openShiftClusters", resource -> {
+      resource.object("masterProfile").property("diskEncryptionSetId").reportIfAbsent(FORMAT_OMITTING);
+      resource.object("workerProfiles").property("diskEncryptionSetId").reportIfAbsent(FORMAT_OMITTING);
+    });
+  }
+
+  private static void checkForDiskEncryptionSet(ContextualObject profile) {
+    profile.object("diskEncryptionSet")
+      .reportIfAbsent(FORMAT_OMITTING)
+      .property("id")
+      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
+      .reportIfAbsent(FORMAT_OMITTING);
   }
 
   private static Predicate<Expression> isEmpty() {
