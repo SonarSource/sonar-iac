@@ -1,0 +1,28 @@
+{
+  "title": "Azure role assignments that grant access to all resources of a subscription are security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "azure"
+  ],
+  "securityStandards": {
+    "CWE": [
+      266
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6387",
+  "sqKey": "S6387",
+  "scope": "All",
+  "quickfix": "unknown"
+}

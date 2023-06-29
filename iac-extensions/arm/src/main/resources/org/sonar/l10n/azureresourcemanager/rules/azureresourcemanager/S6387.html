@@ -1,0 +1,61 @@
+<p>Azure RBAC roles can be assigned to users, groups, or service principals. A role assignment grants permissions on a predefined set of resources
+called "scope".</p>
+<p>The widest scopes a role can be assigned to are:</p>
+<ul>
+  <li> Subscription: a role assigned with this scope grants access to all resources of this Subscription. </li>
+  <li> Management Group: a scope assigned with this scope grants access to all resources of all the Subscriptions in this Management Group. </li>
+</ul>
+<p>In case of security incidents involving a compromised identity (user, group, or service principal), limiting its role assignment to the narrowest
+scope possible helps separate duties and limits what resources are at risk.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The user, group, or service principal doesn’t use the entirety of the resources in the scope to operate on a day-to-day basis. </li>
+  <li> It is possible to follow the Separation of Duties principle and split the scope into multiple role assignments with a narrower scope. </li>
+</ul>
+<p>There is a risk if you answered yes to any of these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Limit the scope of the role assignment to a Resource or Resource Group. </li>
+  <li> Apply the least privilege principle by assigning roles granting as few permissions as possible. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(subscription().id, 'exampleRoleAssignment')]"
+    }
+  ]
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(resourceGroup().id, 'exampleRoleAssignment')]"
+    }
+  ]
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
+  <li> <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control.html">OWASP Top 10 2017 Category A5</a> - Broken Access
+  Control </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/266">MITRE, CWE-266</a> - Incorrect Privilege Assignment </li>
+  <li> <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/scope-overview">Azure Documentation</a> - Understand scope for Azure
+  RBAC </li>
+  <li> <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/best-practices">Azure Documentation</a> - Best practices for Azure
+  RBAC </li>
+</ul>
+

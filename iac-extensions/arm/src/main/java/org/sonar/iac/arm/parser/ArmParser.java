@@ -41,7 +41,9 @@ public class ArmParser implements TreeParser<Tree> {
   @Override
   public ArmTree parse(String source, @Nullable InputFileContext inputFileContext) {
     this.inputFileContext = inputFileContext;
-    return convert(parseJson(source));
+    ArmTree file = convert(parseJson(source));
+    setParents(file);
+    return file;
   }
 
   private FileTree parseJson(String source) {
@@ -62,5 +64,13 @@ public class ArmParser implements TreeParser<Tree> {
   private ArmTree convert(FileTree fileTree) {
     FileConverter fileConverter = new FileConverter(inputFileContext);
     return fileConverter.convertFile(fileTree);
+  }
+
+  private static void setParents(ArmTree tree) {
+    for (Tree children : tree.children()) {
+      ArmTree child = (ArmTree) children;
+      child.setParent(tree);
+      setParents(child);
+    }
   }
 }
