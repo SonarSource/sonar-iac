@@ -40,11 +40,7 @@ public class CheckUtils {
   }
 
   public static Predicate<Expression> contains(String targetString) {
-    return expr -> TextUtils.matchesValue(expr, containsPredicate(targetString)).isTrue();
-  }
-
-  private static Predicate<String> containsPredicate(String targetString) {
-    return predicate -> predicate.contains(targetString);
+    return expr -> TextUtils.matchesValue(expr, str -> str.contains(targetString)).isTrue();
   }
 
   public static Predicate<Expression> isFalse() {
