@@ -1,0 +1,82 @@
+{
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Sensitive: High-privilege ${role} role (Format 1)",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "description": "Assign the reader role",
+        "principalId": "string",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '${role}')]"
+      }
+    },
+    {
+      "name": "Sensitive: High-privilege ${role} role (Format 2)",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "description": "Assign the reader role",
+        "principalId": "string",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '${role}')]"
+      }
+    },
+    {
+      "name": "Sensitive: High-privilege ${role} role (Format 3)",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "description": "Assign the reader role",
+        "principalId": "string",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "'/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/${role}'"
+      }
+    },
+    {
+      "name": "Sensitive: High-privilege ${role} role (Format 4)",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "description": "Assign the reader role",
+        "principalId": "string",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "'/providers/Microsoft.Authorization/roleDefinitions/${role}'"
+      }
+    },
+    {
+      "name": "Sensitive: High-privilege ${role} role (Format 5)",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "description": "Assign the reader role",
+        "principalId": "string",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', parameters('${role}'))]"
+      }
+    },
+    {
+      "name": "Sensitive: High-privilege ${role} role (Format 6)",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "description": "Assign the reader role",
+        "principalId": "string",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "[if(equals(parameters('newOrExistingRole'), 'new'), resourceId('Microsoft.Authorization/roleDefinitions/', variables('roleDefinitionId')), resourceId('Microsoft.Authorization/roleDefinitions/', parameters('${role}')))]"
+      }
+    },
+    {
+      "name": "Compliant: roleDefinitionId is not string literal",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "description": "Assign the reader role",
+        "principalId": "string",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": {}
+      }
+    }
+  ]
+}

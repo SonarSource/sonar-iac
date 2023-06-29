@@ -1,0 +1,28 @@
+{
+  "title": "Assigning high privileges Azure Resource Manager built-in roles is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "azure"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6381",
+  "sqKey": "S6381",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      266
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  },
+  "quickfix": "unknown"
+}
