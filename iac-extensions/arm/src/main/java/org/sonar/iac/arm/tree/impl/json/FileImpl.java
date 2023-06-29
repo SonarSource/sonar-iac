@@ -49,16 +49,22 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
   public Scope targetScope() {
     if (targetScope == null) {
       return Scope.NOT_SET;
-    } else if (targetScope.value().endsWith("/managementGroupDeploymentTemplate.json#")) {
-      return Scope.MANAGEMENT_GROUP;
-    } else if (targetScope.value().endsWith("/deploymentTemplate.json#")) {
-      return Scope.RESOURCE_GROUP;
-    } else if (targetScope.value().endsWith("/subscriptionDeploymentTemplate.json#")) {
-      return Scope.SUBSCRIPTION;
-    } else if (targetScope.value().endsWith("/tenantDeploymentTemplate.json#")) {
-      return Scope.TENANT;
-    } else {
-      return Scope.UNKNOWN;
+    }
+
+    String scopeAsString = targetScope.value();
+    String scopeSuffix = scopeAsString.substring(scopeAsString.lastIndexOf('/'));
+
+    switch (scopeSuffix) {
+      case "/managementGroupDeploymentTemplate.json#":
+        return Scope.MANAGEMENT_GROUP;
+      case "/deploymentTemplate.json#":
+        return Scope.RESOURCE_GROUP;
+      case "/subscriptionDeploymentTemplate.json#":
+        return Scope.SUBSCRIPTION;
+      case "/tenantDeploymentTemplate.json#":
+        return Scope.TENANT;
+      default:
+        return Scope.UNKNOWN;
     }
   }
 
