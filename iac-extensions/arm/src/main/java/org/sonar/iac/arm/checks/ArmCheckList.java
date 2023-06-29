@@ -31,6 +31,7 @@ public class ArmCheckList {
     return List.of(
       CertificateBasedAuthenticationCheck.class,
       ClearTextProtocolsCheck.class,
+      HighPrivilegedRoleCheck.class,
       IpRestrictedAdminAccessCheck.class,
       LogRetentionCheck.class,
       ParsingErrorCheck.class,
