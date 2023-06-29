@@ -61,8 +61,8 @@ class PublicNetworkAccessIpRangeCheckPart extends AbstractArmResourceCheck {
   @Override
   protected void registerResourceConsumer() {
     register(PUBLIC_IP_ADDRESS_RANGE_TYPES, PublicNetworkAccessIpRangeCheckPart::checkIpRange);
-    register(PUBLIC_IP_ADDRESS_RANGE_IN_FIREWALL_RULES_TYPES, checkIpRangeInProperty("firewallRules"));
-    register(PUBLIC_IP_ADDRESS_RANGE_IN_PROPERTIES_FIREWALL_RULES_TYPES, checkIpRangeInXXXX());
+    register(PUBLIC_IP_ADDRESS_RANGE_IN_FIREWALL_RULES_TYPES, checkIpRangeInFirewallRules());
+    register(PUBLIC_IP_ADDRESS_RANGE_IN_PROPERTIES_FIREWALL_RULES_TYPES, checkIpRangeInFirewallRulesProperties());
   }
 
   private static <S extends ContextualMap<S, T>, T extends HasProperties & Tree> void checkIpRange(ContextualMap<S, T> resource) {
@@ -74,14 +74,14 @@ class PublicNetworkAccessIpRangeCheckPart extends AbstractArmResourceCheck {
     validator.reportIssueIfPublicIPAddress(resource.ctx, PUBLIC_IP_ADDRESS_MESSAGE, PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION);
   }
 
-  private static Consumer<ContextualResource> checkIpRangeInProperty(String propertyName) {
+  private static Consumer<ContextualResource> checkIpRangeInFirewallRules() {
     return resource -> {
-      ContextualArray list = resource.list(propertyName);
+      ContextualArray list = resource.list("firewallRules");
       list.objects().forEach(PublicNetworkAccessIpRangeCheckPart::checkIpRange);
     };
   }
 
-  private static Consumer<ContextualResource> checkIpRangeInXXXX() {
+  private static Consumer<ContextualResource> checkIpRangeInFirewallRulesProperties() {
     return resource -> {
       ContextualArray list = resource.list("firewallRules");
       list.objects().forEach(rule -> {
