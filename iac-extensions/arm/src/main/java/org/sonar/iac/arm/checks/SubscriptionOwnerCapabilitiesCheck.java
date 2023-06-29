@@ -25,18 +25,23 @@ import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.checks.TextUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.sonar.iac.common.checks.TextUtils.isValue;
+import static org.sonar.iac.common.checks.TextUtils.matchesValue;
 
 @Rule(key = "S6385")
 public class SubscriptionOwnerCapabilitiesCheck extends AbstractArmResourceCheck {
   private static final String MESSAGE = "Narrow the number of actions or the assignable scope of this custom role.";
   private static final String PERMISSION_MESSAGE = "Allows all actions.";
   private static final String SCOPE_MESSAGE = "High scope level.";
+
+  private static final Pattern RESOURCE_GROUP_SCOPE_PATTERN = Pattern.compile("/subscriptions/[^/]+/resourceGroups/.*");
 
   @Override
   protected void registerResourceConsumer() {
@@ -68,13 +73,15 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractArmResourceCheck
 
   private static Stream<Expression> findArbitraryActions(ContextualObject permissionObject) {
     return permissionObject.list("actions").getItemIf(
-      action -> TextUtils.isValue(action, "*").isTrue());
+      action -> isValue(action, "*").isTrue());
   }
 
   private static boolean isSensitiveScope(Tree scope) {
-    return TextUtils.isValue(scope, "[managementGroup().id]").isTrue() ||
-      TextUtils.isValue(scope, "[subscription().id]").isTrue() ||
-      TextUtils.matchesValue(scope, s -> s.startsWith("/subscriptions/")).isTrue() ||
-      TextUtils.matchesValue(scope, s -> s.startsWith("/providers/Microsoft.Management/managementGroups/")).isTrue();
+    boolean hasSensitiveCall = isValue(scope, "[managementGroup().id]").isTrue() ||
+      isValue(scope, "[subscription().id]").isTrue();
+    boolean referencesSensitiveScope = matchesValue(scope, s -> s.startsWith("/subscriptions/")).isTrue() &&
+      matchesValue(scope, s -> RESOURCE_GROUP_SCOPE_PATTERN.matcher(s).matches()).isFalse() ||
+      matchesValue(scope, s -> s.startsWith("/providers/Microsoft.Management/managementGroups/")).isTrue();
+    return hasSensitiveCall || referencesSensitiveScope;
   }
 }

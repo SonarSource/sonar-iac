@@ -40,8 +40,8 @@ class SubscriptionOwnerCapabilitiesCheckTest {
     int contentLength = assignableScope.length();
     ArmVerifier.verifyContent(content,
       new SubscriptionOwnerCapabilitiesCheck(),
-      issue(22, 14, 22, 55, "Narrow the number of actions or the assignable scope of this custom role.",
-        secondary(28, 24, 28, 27, "Allows all actions."),
-        secondary(33, 10, 33, 12 + contentLength, "High scope level.")));
+      issue(38, 14, 38, 55, "Narrow the number of actions or the assignable scope of this custom role.",
+        secondary(44, 24, 44, 27, "Allows all actions."),
+        secondary(49, 10, 49, 12 + contentLength, "High scope level.")));
   }
 }
