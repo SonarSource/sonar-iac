@@ -1,0 +1,28 @@
+{
+  "title": "Azure custom roles should not grant subscription Owner capabilities",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "azure"
+  ],
+  "securityStandards": {
+    "CWE": [
+      266
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6385",
+  "sqKey": "S6385",
+  "scope": "All",
+  "quickfix": "unknown"
+}

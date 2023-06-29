@@ -37,6 +37,7 @@ public class ArmCheckList {
       PublicNetworkAccessCheck.class,
       RoleBasedAccessControlCheck.class,
       ShortBackupRetentionCheck.class,
+      SubscriptionOwnerCapabilitiesCheck.class,
       TlsVersionCheck.class,
       UnencryptedCloudServicesCheck.class);
   }
