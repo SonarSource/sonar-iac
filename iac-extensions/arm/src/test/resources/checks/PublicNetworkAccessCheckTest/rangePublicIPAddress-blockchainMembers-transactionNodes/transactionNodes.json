@@ -5,7 +5,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for whole range",
+      "name": "Sensitive: Should raise issue for whole range",
       "resources": [
         {
           "type": "transactionNodes",
@@ -25,7 +25,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue missing start",
+      "name": "Sensitive: Should raise issue missing start",
       "resources": [
         {
           "type": "transactionNodes",
@@ -44,7 +44,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue missing end",
+      "name": "Sensitive: Should raise issue missing end",
       "resources": [
         {
           "type": "transactionNodes",
@@ -63,7 +63,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs < 10.0.0.0",
+      "name": "Sensitive: Should raise issue for IPs < 10.0.0.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -83,7 +83,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 10.255.255.255 and < 100.64.0.0",
+      "name": "Sensitive: Should raise issue for IPs > 10.255.255.255 and < 100.64.0.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -103,7 +103,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 100.127.255.255 and < 169.254.0.0",
+      "name": "Sensitive: Should raise issue for IPs > 100.127.255.255 and < 169.254.0.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -123,7 +123,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 169.254.255.255 and < 172.16.0.0",
+      "name": "Sensitive: Should raise issue for IPs > 169.254.255.255 and < 172.16.0.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -143,7 +143,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 172.31.255.255 and < 192.0.0.0",
+      "name": "Sensitive: Should raise issue for IPs > 172.31.255.255 and < 192.0.0.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -163,7 +163,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 192.0.0.255 and < 192.0.2.0",
+      "name": "Sensitive: Should raise issue for IPs > 192.0.0.255 and < 192.0.2.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -183,7 +183,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 192.0.2.255 and < 192.168.0.0",
+      "name": "Sensitive: Should raise issue for IPs > 192.0.2.255 and < 192.168.0.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -203,7 +203,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 192.168.255.255 and < 198.18.0.0",
+      "name": "Sensitive: Should raise issue for IPs > 192.168.255.255 and < 198.18.0.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -223,7 +223,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 198.19.255.255 and < 198.51.100.0",
+      "name": "Sensitive: Should raise issue for IPs > 198.19.255.255 and < 198.51.100.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -243,7 +243,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 198.51.100.255 and < 203.0.113.0",
+      "name": "Sensitive: Should raise issue for IPs > 198.51.100.255 and < 203.0.113.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -263,7 +263,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 203.0.113.255 and < 240.0.0.0",
+      "name": "Sensitive: Should raise issue for IPs > 203.0.113.255 and < 240.0.0.0",
       "resources": [
         {
           "type": "transactionNodes",
@@ -283,7 +283,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 240.255.255.254 and < 255.255.255.255",
+      "name": "Sensitive: Should raise issue for IPs > 240.255.255.254 and < 255.255.255.255",
       "resources": [
         {
           "type": "transactionNodes",
@@ -303,7 +303,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 240.255.255.254 no endIpAddress",
+      "name": "Sensitive: Should raise issue for IPs > 240.255.255.254 no endIpAddress",
       "resources": [
         {
           "type": "transactionNodes",
@@ -322,7 +322,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 192.0.0.0 and < 192.0.2.255 (IP ranges edges for 2 different groups, between are public addresses)",
+      "name": "Sensitive: Should raise issue for IPs > 192.0.0.0 and < 192.0.2.255 (IP ranges edges for 2 different groups, between are public addresses)",
       "resources": [
         {
           "type": "transactionNodes",
@@ -342,7 +342,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for IPs > 192.0.0.0 and < 192.0.2.255 (IP ranges edges for 2 different groups, between are public addresses)",
+      "name": "Sensitive: Should raise issue for IPs > 192.0.0.0 and < 192.0.2.255 (IP ranges edges for 2 different groups, between are public addresses)",
       "resources": [
         {
           "type": "transactionNodes",
@@ -362,7 +362,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for unknown startIpAddress",
+      "name": "Sensitive: Should raise issue for unknown startIpAddress",
       "resources": [
         {
           "type": "transactionNodes",
@@ -382,7 +382,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should raise issue for unknown endIpAddress",
+      "name": "Sensitive: Should raise issue for unknown endIpAddress",
       "resources": [
         {
           "type": "transactionNodes",
@@ -402,7 +402,103 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for wrong subtype",
+      "name": "Sensitive: Should raise issue for first rule",
+      "resources": [
+        {
+          "type": "transactionNodes",
+          "apiVersion": "dummy",
+          "name": "dummy",
+          "properties": {
+            "firewallRules": [
+              {
+                "startIpAddress": "250.0.0.0",
+                "endIpAddress": "251.0.0.0"
+              },
+              {
+                "startIpAddress": "240.0.0.0",
+                "endIpAddress": "240.255.0.0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Blockchain/blockchainMembers",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for second rule",
+      "resources": [
+        {
+          "type": "transactionNodes",
+          "apiVersion": "dummy",
+          "name": "dummy",
+          "properties": {
+            "firewallRules": [
+              {
+                "startIpAddress": "240.0.0.0",
+                "endIpAddress": "240.255.0.0"
+              },
+              {
+                "startIpAddress": "250.0.0.0",
+                "endIpAddress": "251.0.0.0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Blockchain/blockchainMembers",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for both rules",
+      "resources": [
+        {
+          "type": "transactionNodes",
+          "apiVersion": "dummy",
+          "name": "dummy",
+          "properties": {
+            "firewallRules": [
+              {
+                "startIpAddress": "11.0.0.0",
+                "endIpAddress": "11.255.0.0"
+              },
+              {
+                "startIpAddress": "250.0.0.0",
+                "endIpAddress": "251.0.0.0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Blockchain/blockchainMembers",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue, both rules are compliant",
+      "resources": [
+        {
+          "type": "transactionNodes",
+          "apiVersion": "dummy",
+          "name": "dummy",
+          "properties": {
+            "firewallRules": [
+              {
+                "startIpAddress": "100.64.0.0",
+                "endIpAddress": "100.127.0.0"
+              },
+              {
+                "startIpAddress": "192.0.0.0",
+                "endIpAddress": "192.0.0.50"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Blockchain/blockchainMembers",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for wrong subtype",
       "resources": [
         {
           "type": "wrong-subtype",
@@ -422,7 +518,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for private networks only",
+      "name": "Compliant: Should NOT raise issue for private networks only",
       "resources": [
         {
           "type": "transactionNodes",
@@ -442,7 +538,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for used within an ISP’s network for carrier-grade NAT",
+      "name": "Compliant: Should NOT raise issue for used within an ISP’s network for carrier-grade NAT",
       "resources": [
         {
           "type": "transactionNodes",
@@ -462,7 +558,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for link-local addresses for DHCP failures",
+      "name": "Compliant: Should NOT raise issue for link-local addresses for DHCP failures",
       "resources": [
         {
           "type": "transactionNodes",
@@ -482,7 +578,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for private networks only",
+      "name": "Compliant: Should NOT raise issue for private networks only",
       "resources": [
         {
           "type": "transactionNodes",
@@ -502,7 +598,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for reserved for IETF protocol assignments",
+      "name": "Compliant: Should NOT raise issue for reserved for IETF protocol assignments",
       "resources": [
         {
           "type": "transactionNodes",
@@ -522,7 +618,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for reserved for documentation use",
+      "name": "Compliant: Should NOT raise issue for reserved for documentation use",
       "resources": [
         {
           "type": "transactionNodes",
@@ -542,7 +638,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for private networks only",
+      "name": "Compliant: Should NOT raise issue for private networks only",
       "resources": [
         {
           "type": "transactionNodes",
@@ -562,7 +658,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for reserved for inter-subnet benchmarking",
+      "name": "Compliant: Should NOT raise issue for reserved for inter-subnet benchmarking",
       "resources": [
         {
           "type": "transactionNodes",
@@ -582,7 +678,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for reserved for documentation use",
+      "name": "Compliant: Should NOT raise issue for reserved for documentation use",
       "resources": [
         {
           "type": "transactionNodes",
@@ -602,7 +698,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for reserved for documentation use",
+      "name": "Compliant: Should NOT raise issue for reserved for documentation use",
       "resources": [
         {
           "type": "transactionNodes",
@@ -622,7 +718,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for reserved for future use",
+      "name": "Compliant: Should NOT raise issue for reserved for future use",
       "resources": [
         {
           "type": "transactionNodes",
@@ -642,7 +738,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for reserved for future use (part of range)",
+      "name": "Compliant: Should NOT raise issue for reserved for future use (part of range)",
       "resources": [
         {
           "type": "transactionNodes",
@@ -662,7 +758,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for unknown value",
+      "name": "Compliant: Should NOT raise issue for unknown value",
       "resources": [
         {
           "type": "transactionNodes",
@@ -682,7 +778,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for IP 6",
+      "name": "Compliant: Should NOT raise issue for IP 6",
       "resources": [
         {
           "type": "transactionNodes",
@@ -702,7 +798,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for missing startIpAddress and endIpAddress",
+      "name": "Compliant: Should NOT raise issue for missing startIpAddress and endIpAddress",
       "resources": [
         {
           "type": "transactionNodes",
@@ -720,7 +816,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for startIpAddress as not StringLiteral",
+      "name": "Compliant: Should NOT raise issue for startIpAddress as not StringLiteral",
       "resources": [
         {
           "type": "transactionNodes",
@@ -739,7 +835,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for endIpAddress as not StringLiteral",
+      "name": "Compliant: Should NOT raise issue for endIpAddress as not StringLiteral",
       "resources": [
         {
           "type": "transactionNodes",
@@ -758,7 +854,7 @@
     {
       "type": "Microsoft.Blockchain/blockchainMembers",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for startIpAddress & endIpAddress as not StringLiteral",
+      "name": "Compliant: Should NOT raise issue for startIpAddress & endIpAddress as not StringLiteral",
       "resources": [
         {
           "type": "transactionNodes",

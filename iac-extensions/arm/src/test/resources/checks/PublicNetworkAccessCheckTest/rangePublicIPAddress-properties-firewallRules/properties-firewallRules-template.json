@@ -9,8 +9,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "0.0.0.0",
-            "endIpAddress": "255.255.255.255"
+            "properties": {
+              "startIpAddress": "0.0.0.0",
+              "endIpAddress": "255.255.255.255"
+            }
           }
         ]
       }
@@ -22,7 +24,9 @@
       "properties": {
         "firewallRules": [
           {
-            "endIpAddress": "9.8.7.6"
+            "properties": {
+              "endIpAddress": "9.8.7.6"
+            }
           }
         ]
       }
@@ -34,7 +38,9 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "241.0.0.0"
+            "properties": {
+              "startIpAddress": "241.0.0.0"
+            }
           }
         ]
       }
@@ -46,8 +52,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "1.2.3.4",
-            "endIpAddress": "9.255.255.255"
+            "properties": {
+              "startIpAddress": "1.2.3.4",
+              "endIpAddress": "9.255.255.255"
+            }
           }
         ]
       }
@@ -59,8 +67,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "11.0.0.0",
-            "endIpAddress": "100.63.255.255"
+            "properties": {
+              "startIpAddress": "11.0.0.0",
+              "endIpAddress": "100.63.255.255"
+            }
           }
         ]
       }
@@ -72,8 +82,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "100.128.0.0",
-            "endIpAddress": "169.253.255.255"
+            "properties": {
+              "startIpAddress": "100.128.0.0",
+              "endIpAddress": "169.253.255.255"
+            }
           }
         ]
       }
@@ -85,8 +97,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "169.255.0.0",
-            "endIpAddress": "172.15.255.255"
+            "properties": {
+              "startIpAddress": "169.255.0.0",
+              "endIpAddress": "172.15.255.255"
+            }
           }
         ]
       }
@@ -98,8 +112,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "172.32.0.0",
-            "endIpAddress": "191.255.255.255"
+            "properties": {
+              "startIpAddress": "172.32.0.0",
+              "endIpAddress": "191.255.255.255"
+            }
           }
         ]
       }
@@ -111,8 +127,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "192.0.1.0",
-            "endIpAddress": "192.0.1.255"
+            "properties": {
+              "startIpAddress": "192.0.1.0",
+              "endIpAddress": "192.0.1.255"
+            }
           }
         ]
       }
@@ -124,8 +142,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "192.0.3.0",
-            "endIpAddress": "192.167.255.255"
+            "properties": {
+              "startIpAddress": "192.0.3.0",
+              "endIpAddress": "192.167.255.255"
+            }
           }
         ]
       }
@@ -137,8 +157,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "192.169.0.0",
-            "endIpAddress": "192.17.255.255"
+            "properties": {
+              "startIpAddress": "192.169.0.0",
+              "endIpAddress": "192.17.255.255"
+            }
           }
         ]
       }
@@ -150,8 +172,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "198.20.0.0",
-            "endIpAddress": "198.51.99.255"
+            "properties": {
+              "startIpAddress": "198.20.0.0",
+              "endIpAddress": "198.51.99.255"
+            }
           }
         ]
       }
@@ -163,8 +187,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "198.51.101.0",
-            "endIpAddress": "203.0.112.255"
+            "properties": {
+              "startIpAddress": "198.51.101.0",
+              "endIpAddress": "203.0.112.255"
+            }
           }
         ]
       }
@@ -176,8 +202,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "203.0.114.0",
-            "endIpAddress": "239.255.255.255"
+            "properties": {
+              "startIpAddress": "203.0.114.0",
+              "endIpAddress": "239.255.255.255"
+            }
           }
         ]
       }
@@ -189,8 +217,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "240.255.255.255",
-            "endIpAddress": "255.255.255.255"
+            "properties": {
+              "startIpAddress": "240.255.255.255",
+              "endIpAddress": "255.255.255.255"
+            }
           }
         ]
       }
@@ -202,7 +232,9 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "240.255.255.255"
+            "properties": {
+              "startIpAddress": "240.255.255.255"
+            }
           }
         ]
       }
@@ -214,8 +246,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "192.0.0.0",
-            "endIpAddress": "192.0.2.255"
+            "properties": {
+              "startIpAddress": "192.0.0.0",
+              "endIpAddress": "192.0.2.255"
+            }
           }
         ]
       }
@@ -227,8 +261,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "192.0.0.0",
-            "endIpAddress": "192.0.2.255"
+            "properties": {
+              "startIpAddress": "192.0.0.0",
+              "endIpAddress": "192.0.2.255"
+            }
           }
         ]
       }
@@ -240,8 +276,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "unknown",
-            "endIpAddress": "250.0.0.0"
+            "properties": {
+              "startIpAddress": "unknown",
+              "endIpAddress": "250.0.0.0"
+            }
           }
         ]
       }
@@ -253,8 +291,94 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "250.0.0.0",
-            "endIpAddress": "unknown"
+            "properties": {
+              "startIpAddress": "250.0.0.0",
+              "endIpAddress": "unknown"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for first rule",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "250.0.0.0",
+              "endIpAddress": "251.0.0.0"
+            }
+          },
+          {
+            "properties": {
+              "startIpAddress": "240.0.0.0",
+              "endIpAddress": "240.255.0.0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for second rule",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "10.0.0.0",
+              "endIpAddress": "10.255.0.0"
+            }
+          },
+          {
+            "properties": {
+              "startIpAddress": "250.0.0.0",
+              "endIpAddress": "251.0.0.0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for both rules",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "11.0.0.0",
+              "endIpAddress": "11.255.0.0"
+            }
+          },
+          {
+            "properties": {
+              "startIpAddress": "250.0.0.0",
+              "endIpAddress": "251.0.0.0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue, both rules are compliant",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "100.64.0.0",
+              "endIpAddress": "100.127.0.0"
+            }
+          },
+          {
+            "properties": {
+              "startIpAddress": "192.0.0.0",
+              "endIpAddress": "192.0.0.50"
+            }
           }
         ]
       }
@@ -266,8 +390,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "10.0.0.0",
-            "endIpAddress": "10.255.255.255"
+            "properties": {
+              "startIpAddress": "10.0.0.0",
+              "endIpAddress": "10.255.255.255"
+            }
           }
         ]
       }
@@ -279,8 +405,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "100.64.0.0",
-            "endIpAddress": "100.127.255.255"
+            "properties": {
+              "startIpAddress": "100.64.0.0",
+              "endIpAddress": "100.127.255.255"
+            }
           }
         ]
       }
@@ -292,8 +420,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "169.254.0.0",
-            "endIpAddress": "169.254.255.255"
+            "properties": {
+              "startIpAddress": "169.254.0.0",
+              "endIpAddress": "169.254.255.255"
+            }
           }
         ]
       }
@@ -305,8 +435,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "172.16.0.0",
-            "endIpAddress": "172.31.255.255"
+            "properties": {
+              "startIpAddress": "172.16.0.0",
+              "endIpAddress": "172.31.255.255"
+            }
           }
         ]
       }
@@ -318,8 +450,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "192.0.0.0",
-            "endIpAddress": "192.0.0.255"
+            "properties": {
+              "startIpAddress": "192.0.0.0",
+              "endIpAddress": "192.0.0.255"
+            }
           }
         ]
       }
@@ -331,8 +465,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "192.0.2.0",
-            "endIpAddress": "192.0.2.255"
+            "properties": {
+              "startIpAddress": "192.0.2.0",
+              "endIpAddress": "192.0.2.255"
+            }
           }
         ]
       }
@@ -344,8 +480,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "192.168.0.0",
-            "endIpAddress": "192.168.255.255"
+            "properties": {
+              "startIpAddress": "192.168.0.0",
+              "endIpAddress": "192.168.255.255"
+            }
           }
         ]
       }
@@ -357,8 +495,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "198.18.0.0",
-            "endIpAddress": "198.19.255.255"
+            "properties": {
+              "startIpAddress": "198.18.0.0",
+              "endIpAddress": "198.19.255.255"
+            }
           }
         ]
       }
@@ -370,8 +510,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "198.51.100.0",
-            "endIpAddress": "198.51.100.255"
+            "properties": {
+              "startIpAddress": "198.51.100.0",
+              "endIpAddress": "198.51.100.255"
+            }
           }
         ]
       }
@@ -383,8 +525,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "203.0.113.0",
-            "endIpAddress": "203.0.113.255"
+            "properties": {
+              "startIpAddress": "203.0.113.0",
+              "endIpAddress": "203.0.113.255"
+            }
           }
         ]
       }
@@ -396,8 +540,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "240.0.0.0",
-            "endIpAddress": "240.255.255.254"
+            "properties": {
+              "startIpAddress": "240.0.0.0",
+              "endIpAddress": "240.255.255.254"
+            }
           }
         ]
       }
@@ -409,8 +555,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "240.1.2.3",
-            "endIpAddress": "240.100.101.102"
+            "properties": {
+              "startIpAddress": "240.1.2.3",
+              "endIpAddress": "240.100.101.102"
+            }
           }
         ]
       }
@@ -422,8 +570,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "unknown",
-            "endIpAddress": "unknown"
+            "properties": {
+              "startIpAddress": "unknown",
+              "endIpAddress": "unknown"
+            }
           }
         ]
       }
@@ -435,8 +585,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": "2001:0db8:0000:0000:0000:8a2e:0370:7334",
-            "endIpAddress": "2001:db8::8a2e:370:9000"
+            "properties": {
+              "startIpAddress": "2001:0db8:0000:0000:0000:8a2e:0370:7334",
+              "endIpAddress": "2001:db8::8a2e:370:9000"
+            }
           }
         ]
       }
@@ -448,6 +600,8 @@
       "properties": {
         "firewallRules": [
           {
+            "properties": {
+            }
           }
         ]
       }
@@ -459,7 +613,9 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": []
+            "properties": {
+              "startIpAddress": []
+            }
           }
         ]
       }
@@ -471,7 +627,9 @@
       "properties": {
         "firewallRules": [
           {
-            "endIpAddress": []
+            "properties": {
+              "endIpAddress": []
+            }
           }
         ]
       }
@@ -483,8 +641,10 @@
       "properties": {
         "firewallRules": [
           {
-            "startIpAddress": {},
-            "endIpAddress": []
+            "properties": {
+              "startIpAddress": {},
+              "endIpAddress": []
+            }
           }
         ]
       }
