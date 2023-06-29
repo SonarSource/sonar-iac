@@ -19,22 +19,29 @@
  */
 package org.sonar.iac.arm.checks;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import static org.sonar.iac.arm.ArmTestUtils.readTemplateAndReplace;
 import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class SubscriptionOwnerCapabilitiesCheckTest {
-  @Test
-  void check() {
-    ArmVerifier.verify("SubscriptionOwnerCapabilitiesCheck/Microsoft.Authorization_roleDefinitions/test.json",
+  @ParameterizedTest(name = "[{index}] Should raise an issue for scope \"{0}\"")
+  @ValueSource(strings = {
+    "[subscription().id]",
+    "[managementGroup().id]",
+    "/subscriptions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+    "/providers/Microsoft.Management/managementGroups/b24988ac-6180-42a0-ab88-20f7382dd24c"
+  })
+  void shouldDetectSensitiveScopes(String assignableScope) {
+    String content = readTemplateAndReplace("SubscriptionOwnerCapabilitiesCheck/Microsoft.Authorization_roleDefinitions/test.json", assignableScope);
+
+    int contentLength = assignableScope.length();
+    ArmVerifier.verifyContent(content,
       new SubscriptionOwnerCapabilitiesCheck(),
       issue(22, 14, 22, 55, "Narrow the number of actions or the assignable scope of this custom role.",
         secondary(28, 24, 28, 27, "Allows all actions."),
-        secondary(33, 10, 33, 31, "High scope level.")),
-      issue(38, 14, 38, 55, "Narrow the number of actions or the assignable scope of this custom role.",
-        secondary(44, 24, 44, 27, "Allows all actions."),
-        secondary(49, 10, 49, 44, "High scope level."),
-        secondary(50, 10, 50, 71, "High scope level.")));
+        secondary(33, 10, 33, 12 + contentLength, "High scope level.")));
   }
 }
