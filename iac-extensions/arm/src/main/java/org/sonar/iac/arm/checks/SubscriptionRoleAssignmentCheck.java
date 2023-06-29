@@ -23,15 +23,16 @@ import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.File.Scope;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 
 @Rule(key = "S6387")
 public class SubscriptionRoleAssignmentCheck extends AbstractArmResourceCheck {
 
-  private static final String MESSAGE = "Make sure assigning this role with a %s scope is safe here.";
-  private static final Map<File.Scope, String> SENSITIVE_SCOPE_WITH_NAME = Map.of(
-    File.Scope.SUBSCRIPTION, "Subscription",
-    File.Scope.MANAGEMENT_GROUP, "Management Group");
+  private static final String MESSAGE = "Make sure assigning this role with a %s is safe here.";
+  private static final Map<Scope, String> SENSITIVE_SCOPE_WITH_NAME = Map.of(
+    Scope.SUBSCRIPTION, "Subscription scope",
+    Scope.MANAGEMENT_GROUP, "Management Group scope");
 
   @Override
   protected void registerResourceConsumer() {
@@ -43,7 +44,7 @@ public class SubscriptionRoleAssignmentCheck extends AbstractArmResourceCheck {
     if (file != null) {
       String sensitiveScope = SENSITIVE_SCOPE_WITH_NAME.get(file.targetScope());
       if (sensitiveScope != null) {
-        resource.report(String.format(MESSAGE, sensitiveScope), new SecondaryLocation(file.targetScopeLiteral(), sensitiveScope + " scope"));
+        resource.report(String.format(MESSAGE, sensitiveScope), new SecondaryLocation(file.targetScopeLiteral(), sensitiveScope));
       }
     }
   }
