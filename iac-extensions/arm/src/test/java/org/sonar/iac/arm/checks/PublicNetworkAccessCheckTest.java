@@ -39,7 +39,7 @@ class PublicNetworkAccessCheckTest {
 
   @Test
   void shouldCheckPublicNetworkAccess() {
-    verify("PublicNetworkAccessCheckTest/Microsoft.Desktop_hostPools/hostPools.json",
+    verify("PublicNetworkAccessCheckTest/publicNetworkAccess/hostPools.json",
       CHECK,
       issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(18, 8, 18, 59),
@@ -167,14 +167,14 @@ class PublicNetworkAccessCheckTest {
   @MethodSource
   @ParameterizedTest(name = "[${index}] should check Public Network Access Simplified for type {0}")
   void shouldCheckPublicNetworkAccessSimplified(String type) {
-    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified/simplified-template.json", type);
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess/simplified-template.json", type);
 
     verifyContent(content, CHECK, issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   @Test
   void shouldRaiseNoIssuesForUnknownType() {
-    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified/simplified-unknown-type.json", CHECK);
+    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess/simplified-unknown-type.json", CHECK);
   }
 
   static Stream<String> shouldCheckRangePublicIPAddress() {
@@ -227,14 +227,14 @@ class PublicNetworkAccessCheckTest {
 
   @Test
   void shouldCheckDbForMySqlFlexibleServers() {
-    verify("PublicNetworkAccessCheckTest/Microsoft.DBforMySQL_flexibleServers/flexibleServers.json",
+    verify("PublicNetworkAccessCheckTest/publicNetworkAccess/flexibleServers.json",
       CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   @Test
   void shouldCheckInsightsDataCollectionEndpoints() {
-    verify("PublicNetworkAccessCheckTest/Microsoft.Insights_dataCollectionEndpoints/dataCollectionEndpoints.json",
+    verify("PublicNetworkAccessCheckTest/publicNetworkAccess/dataCollectionEndpoints.json",
       CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
@@ -248,19 +248,19 @@ class PublicNetworkAccessCheckTest {
   @MethodSource
   @ParameterizedTest(name = "[${index}] should check range public IP Address for type {0}")
   void shouldCheckPublicNetworkAccessSimplifiedInSiteConfig(String type) {
-    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-siteConfig/siteConfig-template.json", type);
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess/siteConfig-template.json", type);
     verifyContent(content, CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   @Test
   void shouldCheckPublicNetworkAccessSimplifiedInSiteConfigUnknownType() {
-    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-siteConfig/siteConfig-unknown-type.json", CHECK);
+    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess/siteConfig-unknown-type.json", CHECK);
   }
 
   @Test
   void shouldCheckSubResourcesForPublicNetworkAccess() {
-    verify("PublicNetworkAccessCheckTest/publicNetworkAccess-Simplified-subResources/subResources.json",
+    verify("PublicNetworkAccessCheckTest/publicNetworkAccess/subResources.json",
       CHECK,
       issue(15, 12, 15, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(30, 12, 30, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
@@ -281,7 +281,7 @@ class PublicNetworkAccessCheckTest {
   @MethodSource
   @ParameterizedTest(name = "[${index}] should check range public IP Address in Firewall Rules for type {0}")
   void shouldCheckRangePublicIPAddressInFirewallRules(String type) {
-    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress-firewallRules/firewallRules-template.json", type);
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-template.json", type);
     verifyContent(content, CHECK,
       issue(12, 30, 12, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(13, 28, 13, 45, AND_HERE)),
       issue(25, 28, 25, 37, MESSAGE_PUBLIC_IP_ACCESS),
@@ -307,13 +307,13 @@ class PublicNetworkAccessCheckTest {
 
   @Test
   void shouldCheckRangePublicIPAddressInFirewallRulesUnknownType() {
-    verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress-firewallRules/firewallRules-unknown-type.json", CHECK);
+    verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-unknown-type.json", CHECK);
   }
 
   @Test
   void shouldCheckRangePublicIPAddressInBlockchainMembersInTransactionsNodes() {
     verify(
-      "PublicNetworkAccessCheckTest/rangePublicIPAddress-blockchainMembers-transactionNodes/transactionNodes.json",
+      "PublicNetworkAccessCheckTest/rangePublicIPAddress/transactionNodes.json",
       CHECK,
       issue(17, 34, 17, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(18, 32, 18, 49, AND_HERE)),
       issue(37, 32, 37, 41, MESSAGE_PUBLIC_IP_ACCESS),
@@ -361,7 +361,7 @@ class PublicNetworkAccessCheckTest {
   @MethodSource
   @ParameterizedTest(name = "[${index}] should check range public IP Address in Firewall Rules Properties for type {0}")
   void shouldCheckRangePublicIPAddressInFirewallRulesProperties(String type) {
-    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress-firewallRules-properties/firewallRules-properties-template.json", type);
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-properties-template.json", type);
     verifyContent(content, CHECK,
       issue(15, 30, 15, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(16, 28, 16, 45, AND_HERE)),
       issue(31, 28, 31, 37, MESSAGE_PUBLIC_IP_ACCESS),
@@ -394,7 +394,7 @@ class PublicNetworkAccessCheckTest {
   @MethodSource
   @ParameterizedTest(name = "[${index}] should check range public IP Address in Properties Firewall Rules for type {0}")
   void shouldCheckRangePublicIPAddressInPropertiesFirewallRules(String type) {
-    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress-properties-firewallRules/properties-firewallRules-template.json", type);
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/properties-firewallRules-template.json", type);
     verifyContent(content, CHECK,
       issue(13, 32, 13, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(14, 30, 14, 47, AND_HERE)),
       issue(28, 30, 28, 39, MESSAGE_PUBLIC_IP_ACCESS),
