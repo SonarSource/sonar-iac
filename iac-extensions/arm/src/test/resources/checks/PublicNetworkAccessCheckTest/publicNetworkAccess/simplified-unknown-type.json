@@ -5,7 +5,7 @@
     {
       "type": "unknown-type",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for Enabled, unknown type",
+      "name": "Compliant: Should NOT raise issue for Enabled, unknown type",
       "properties": {
         "publicNetworkAccess": "Enabled"
       }
@@ -13,7 +13,7 @@
     {
       "type": "unknown-type",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for Disabled",
+      "name": "Compliant: Should NOT raise issue for Disabled",
       "properties": {
         "publicNetworkAccess": "Disabled"
       }
@@ -21,7 +21,7 @@
     {
       "type": "unknown-type",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for unknown value",
+      "name": "Compliant: Should NOT raise issue for unknown value",
       "properties": {
         "publicNetworkAccess": "unknown"
       }
@@ -29,14 +29,14 @@
     {
       "type": "unknown-type",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for missing publicNetworkAccess",
+      "name": "Compliant: Should NOT raise issue for missing publicNetworkAccess",
       "properties": {
       }
     },
     {
       "type": "unknown-type",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for publicNetworkAccess as not StringLiteral",
+      "name": "Compliant: Should NOT raise issue for publicNetworkAccess as not StringLiteral",
       "properties": {
         "publicNetworkAccess": []
       }

@@ -1,0 +1,653 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for whole range",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "0.0.0.0",
+              "endIpAddress": "255.255.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue missing start",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "endIpAddress": "9.8.7.6"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue missing end",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "241.0.0.0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs < 10.0.0.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "1.2.3.4",
+              "endIpAddress": "9.255.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 10.255.255.255 and < 100.64.0.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "11.0.0.0",
+              "endIpAddress": "100.63.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 100.127.255.255 and < 169.254.0.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "100.128.0.0",
+              "endIpAddress": "169.253.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 169.254.255.255 and < 172.16.0.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "169.255.0.0",
+              "endIpAddress": "172.15.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 172.31.255.255 and < 192.0.0.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "172.32.0.0",
+              "endIpAddress": "191.255.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 192.0.0.255 and < 192.0.2.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "192.0.1.0",
+              "endIpAddress": "192.0.1.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 192.0.2.255 and < 192.168.0.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "192.0.3.0",
+              "endIpAddress": "192.167.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 192.168.255.255 and < 198.18.0.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "192.169.0.0",
+              "endIpAddress": "192.17.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 198.19.255.255 and < 198.51.100.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "198.20.0.0",
+              "endIpAddress": "198.51.99.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 198.51.100.255 and < 203.0.113.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "198.51.101.0",
+              "endIpAddress": "203.0.112.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 203.0.113.255 and < 240.0.0.0",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "203.0.114.0",
+              "endIpAddress": "239.255.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 240.255.255.254 and < 255.255.255.255",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "240.255.255.255",
+              "endIpAddress": "255.255.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 240.255.255.254 no endIpAddress",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "240.255.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 192.0.0.0 and < 192.0.2.255 (IP ranges edges for 2 different groups, between are public addresses)",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "192.0.0.0",
+              "endIpAddress": "192.0.2.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for IPs > 192.0.0.0 and < 192.0.2.255 (IP ranges edges for 2 different groups, between are public addresses)",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "192.0.0.0",
+              "endIpAddress": "192.0.2.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for unknown startIpAddress",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "unknown",
+              "endIpAddress": "250.0.0.0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for unknown endIpAddress",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "250.0.0.0",
+              "endIpAddress": "unknown"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for first rule",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "250.0.0.0",
+              "endIpAddress": "251.0.0.0"
+            }
+          },
+          {
+            "properties": {
+              "startIpAddress": "240.0.0.0",
+              "endIpAddress": "240.255.0.0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for second rule",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "10.0.0.0",
+              "endIpAddress": "10.255.0.0"
+            }
+          },
+          {
+            "properties": {
+              "startIpAddress": "250.0.0.0",
+              "endIpAddress": "251.0.0.0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: Should raise issue for both rules",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "11.0.0.0",
+              "endIpAddress": "11.255.0.0"
+            }
+          },
+          {
+            "properties": {
+              "startIpAddress": "250.0.0.0",
+              "endIpAddress": "251.0.0.0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue, both rules are compliant",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "100.64.0.0",
+              "endIpAddress": "100.127.0.0"
+            }
+          },
+          {
+            "properties": {
+              "startIpAddress": "192.0.0.0",
+              "endIpAddress": "192.0.0.50"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for private networks only",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "10.0.0.0",
+              "endIpAddress": "10.255.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for used within an ISP’s network for carrier-grade NAT",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "100.64.0.0",
+              "endIpAddress": "100.127.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for link-local addresses for DHCP failures",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "169.254.0.0",
+              "endIpAddress": "169.254.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for private networks only",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "172.16.0.0",
+              "endIpAddress": "172.31.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for reserved for IETF protocol assignments",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "192.0.0.0",
+              "endIpAddress": "192.0.0.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for reserved for documentation use",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "192.0.2.0",
+              "endIpAddress": "192.0.2.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for private networks only",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "192.168.0.0",
+              "endIpAddress": "192.168.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for reserved for inter-subnet benchmarking",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "198.18.0.0",
+              "endIpAddress": "198.19.255.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for reserved for documentation use",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "198.51.100.0",
+              "endIpAddress": "198.51.100.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for reserved for documentation use",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "203.0.113.0",
+              "endIpAddress": "203.0.113.255"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for reserved for future use",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "240.0.0.0",
+              "endIpAddress": "240.255.255.254"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for reserved for future use (part of range)",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "240.1.2.3",
+              "endIpAddress": "240.100.101.102"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for unknown value",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "unknown",
+              "endIpAddress": "unknown"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for IP 6",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": "2001:0db8:0000:0000:0000:8a2e:0370:7334",
+              "endIpAddress": "2001:db8::8a2e:370:9000"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for missing startIpAddress and endIpAddress",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for startIpAddress as not StringLiteral",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for endIpAddress as not StringLiteral",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "endIpAddress": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: Should NOT raise issue for startIpAddress & endIpAddress as not StringLiteral",
+      "properties": {
+        "firewallRules": [
+          {
+            "properties": {
+              "startIpAddress": {},
+              "endIpAddress": []
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

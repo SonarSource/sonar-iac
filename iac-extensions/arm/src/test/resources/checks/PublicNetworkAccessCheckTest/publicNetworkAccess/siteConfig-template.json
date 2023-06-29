@@ -5,7 +5,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Should raise issue for Enabled",
+      "name": "Sensitive: Should raise issue for Enabled",
       "properties": {
         "siteConfig": {
           "publicNetworkAccess": "Enabled"
@@ -15,7 +15,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for Disabled",
+      "name": "Compliant: Should NOT raise issue for Disabled",
       "properties": {
         "siteConfig": {
           "publicNetworkAccess": "Disabled"
@@ -25,7 +25,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for unknown value",
+      "name": "Compliant: Should NOT raise issue for unknown value",
       "properties": {
         "siteConfig": {
           "publicNetworkAccess": "unknown"
@@ -35,7 +35,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for missing publicNetworkAccess",
+      "name": "Compliant: Should NOT raise issue for missing publicNetworkAccess",
       "properties": {
         "siteConfig": {
         }
@@ -44,7 +44,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Should NOT raise issue for publicNetworkAccess as not StringLiteral",
+      "name": "Compliant: Should NOT raise issue for publicNetworkAccess as not StringLiteral",
       "properties": {
         "siteConfig": {
           "publicNetworkAccess": []

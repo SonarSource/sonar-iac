@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.sonar.iac.arm.checkdsl.ContextualArray;
 import org.sonar.iac.arm.checkdsl.ContextualMap;
+import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.checks.ipaddress.IpAddressValidator;
@@ -53,10 +54,15 @@ class PublicNetworkAccessIpRangeCheckPart extends AbstractArmResourceCheck {
     "Microsoft.Blockchain/blockchainMembers",
     "Microsoft.Blockchain/blockchainMembers/transactionNodes");
 
+  private static final List<String> PUBLIC_IP_ADDRESS_RANGE_IN_PROPERTIES_FIREWALL_RULES_TYPES = List.of(
+    "Microsoft.DataLakeAnalytics/accounts",
+    "Microsoft.DataLakeStore/accounts");
+
   @Override
   protected void registerResourceConsumer() {
     register(PUBLIC_IP_ADDRESS_RANGE_TYPES, PublicNetworkAccessIpRangeCheckPart::checkIpRange);
-    register(PUBLIC_IP_ADDRESS_RANGE_IN_FIREWALL_RULES_TYPES, checkIpRangeInProperty("firewallRules"));
+    register(PUBLIC_IP_ADDRESS_RANGE_IN_FIREWALL_RULES_TYPES, checkIpRangeInFirewallRules());
+    register(PUBLIC_IP_ADDRESS_RANGE_IN_PROPERTIES_FIREWALL_RULES_TYPES, checkIpRangeInFirewallRulesProperties());
   }
 
   private static <S extends ContextualMap<S, T>, T extends HasProperties & Tree> void checkIpRange(ContextualMap<S, T> resource) {
@@ -68,10 +74,20 @@ class PublicNetworkAccessIpRangeCheckPart extends AbstractArmResourceCheck {
     validator.reportIssueIfPublicIPAddress(resource.ctx, PUBLIC_IP_ADDRESS_MESSAGE, PUBLIC_IP_ADDRESS_MESSAGE_SECONDARY_LOCATION);
   }
 
-  private static Consumer<ContextualResource> checkIpRangeInProperty(String propertyName) {
+  private static Consumer<ContextualResource> checkIpRangeInFirewallRules() {
     return resource -> {
-      ContextualArray list = resource.list(propertyName);
+      ContextualArray list = resource.list("firewallRules");
       list.objects().forEach(PublicNetworkAccessIpRangeCheckPart::checkIpRange);
+    };
+  }
+
+  private static Consumer<ContextualResource> checkIpRangeInFirewallRulesProperties() {
+    return resource -> {
+      ContextualArray list = resource.list("firewallRules");
+      list.objects().forEach(rule -> {
+        ContextualObject properties = rule.object("properties");
+        checkIpRange(properties);
+      });
     };
   }
 }
