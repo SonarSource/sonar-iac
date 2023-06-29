@@ -40,6 +40,23 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
     super(ctx, tree, name, parent);
   }
 
+  /**
+   * Returns {@code ContextualProperty} for provided key name.
+   * <p>
+   * Example:
+   * <pre>
+   * {@code
+   *   {
+   *     "key1": "value1",
+   *     "key2": "value2"
+   *   }
+   * }
+   * </pre>
+   *
+   * For call {@code property("key1")} it will return {@code ContextualProperty} for {@code "value1"}.
+   * <p>
+   * For call {@code property("unknown")} it will return {@code ContextualProperty} with {@code null} tree.
+   */
   public ContextualProperty property(String name) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.get(tree, name, Property.class))
@@ -47,6 +64,26 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
       .orElse(ContextualProperty.fromAbsent(ctx, name, this));
   }
 
+  /**
+   * Returns {@code ContextualObject} for provided key name.
+   * <p>
+   * Example:
+   * <pre>
+   * {@code
+   *   {
+   *     "key1": {
+   *       "key11": {
+   *         "key111": "value111"
+   *        }
+   *      }
+   *    }
+   * }
+   * </pre>
+   *
+   * For call {@code object("key1")} it will return {@code ContextualObject} for {@code {"key11": ...}}.
+   * <p>
+   * The call can be chained: {@code object("key1").object("key11)} will return {@code {"key111": ...}}.
+   */
   public ContextualObject object(String name) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.value(tree, name, ObjectExpression.class))
@@ -65,6 +102,28 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
       .collect(Collectors.toList());
   }
 
+  /**
+   * Returns {@code ContextualArray} for provided key name.
+   * <p>
+   * Example:
+   * <pre>
+   * {@code
+   *   {
+   *     "key": [
+   *       {
+   *         "key1": "value1"
+   *       },
+   *       {
+   *         "key2": "value2"
+   *       }
+   *     ]
+   *   }
+   * }
+   * </pre>
+   * For call {@code list("key")} it will return {@code ContextualArray} for {@code {"key1":...}} and {@code {"key2":...}}.
+   * <p>
+   * For call {@code property("unknown")} it will return {@code ContextualProperty} with {@code null} tree.
+   */
   public ContextualArray list(String name) {
     return Optional.ofNullable(tree)
       .flatMap(tree -> PropertyUtils.value(tree, name, ArrayExpression.class))
