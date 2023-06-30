@@ -20,9 +20,7 @@
 package org.sonarsource.iac;
 
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
