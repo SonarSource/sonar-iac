@@ -93,6 +93,18 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
         .reportIfAbsent(FORMAT_OMITTING));
 
     register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeComponent());
+
+    register("Microsoft.Storage/storageAccounts", resource ->
+      resource.object("encryption")
+        .reportIfAbsent(FORMAT_OMITTING)
+        .property("requireInfrastructureEncryption")
+        .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
+        .reportIfAbsent(FORMAT_OMITTING));
+
+    register("Microsoft.Storage/storageAccounts/encryptionScopes", resource ->
+      resource.property("requireInfrastructureEncryption")
+        .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
+        .reportIfAbsent(FORMAT_OMITTING));
   }
 
   private static Consumer<ContextualResource> checkComputeComponent() {
