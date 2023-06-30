@@ -85,7 +85,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       ContextualProperty encryptionSettingsCollectionEnabled = resource.object("encryptionSettingsCollection").property("enabled");
       ContextualProperty secureVMDiskEncryptionSetId = resource.object("securityProfile").property("secureVMDiskEncryptionSetId");
 
-      if (isUnencryptedComputeComponent(diskEncryptionSetId, encryptionSettingsCollectionEnabled, secureVMDiskEncryptionSetId) ){
+      if (isUnencryptedComputeComponent(diskEncryptionSetId, encryptionSettingsCollectionEnabled, secureVMDiskEncryptionSetId)) {
         if (encryptionSettingsCollectionEnabled.isPresent() && encryptionSettingsCollectionEnabled.is(isFalse())) {
           encryptionSettingsCollectionEnabled.report(UNENCRYPTED_MESSAGE);
         } else {
