@@ -39,7 +39,6 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   public static final String UNENCRYPTED_MESSAGE = "Make sure that using unencrypted cloud storage is safe here.";
   public static final String FORMAT_OMITTING = "Omitting \"%s\" enables clear-text storage. Make sure it is safe here.";
-  private static final String DISK_ENCRYPTION_SET_ID = "diskEncryptionSetId";
 
   @Override
   protected void registerResourceConsumer() {
@@ -75,11 +74,11 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
     register("Microsoft.RedHatOpenShift/openShiftClusters", resource -> {
       var masterProfile = resource.object("masterProfile");
-      masterProfile.property(DISK_ENCRYPTION_SET_ID).reportIfAbsent(FORMAT_OMITTING);
+      masterProfile.property("diskEncryptionSetId").reportIfAbsent(FORMAT_OMITTING);
       checkIfIsDisabledOrAbsent(masterProfile.property("encryptionAtHost"));
 
       resource.list("workerProfiles").objects().forEach(workerProfile -> {
-        workerProfile.property(DISK_ENCRYPTION_SET_ID).reportIfAbsent(FORMAT_OMITTING);
+        workerProfile.property("diskEncryptionSetId").reportIfAbsent(FORMAT_OMITTING);
         checkIfIsDisabledOrAbsent(workerProfile.property("encryptionAtHost"));
       });
     });
@@ -121,7 +120,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   private static Consumer<ContextualResource> checkComputeComponent() {
     return resource -> {
-      ContextualProperty diskEncryptionSetId = resource.object("encryption").property(DISK_ENCRYPTION_SET_ID);
+      ContextualProperty diskEncryptionSetId = resource.object("encryption").property("diskEncryptionSetId");
       ContextualProperty encryptionSettingsCollectionEnabled = resource.object("encryptionSettingsCollection").property("enabled");
       ContextualProperty secureVMDiskEncryptionSetId = resource.object("securityProfile").property("secureVMDiskEncryptionSetId");
 
