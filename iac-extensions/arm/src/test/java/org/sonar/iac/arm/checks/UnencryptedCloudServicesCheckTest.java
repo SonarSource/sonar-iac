@@ -62,8 +62,10 @@ class UnencryptedCloudServicesCheckTest {
       issue(7, 14, 7, 66, "Omitting \"managedDiskCustomerKeyUri\" enables clear-text storage. Make sure it is safe here."),
       issue(15, 14, 15, 66, "Omitting \"backupStorageCustomerKeyUri\" enables clear-text storage. Make sure it is safe here."),
       issue(32, 14, 32, 58, "Omitting \"diskEncryptionSetID\" enables clear-text storage. Make sure it is safe here."),
-      issue(50, 25, 50, 27, "Omitting \"diskEncryptionSetId\" enables clear-text storage. Make sure it is safe here."),
-      issue(51, 26, 51, 28));
+      issue(50, 25, 52, 9, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."),
+      issue(54, 10, 56, 11, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."),
+      issue(65, 25, 67, 9, "Omitting \"diskEncryptionSetId\" enables clear-text storage. Make sure it is safe here."),
+      issue(69, 10, 71, 11, "Omitting \"diskEncryptionSetId\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test
@@ -75,6 +77,18 @@ class UnencryptedCloudServicesCheckTest {
       issue(21, 10, 21, 26, "Make sure that using unencrypted cloud storage is safe here."),
       issue(82, 14, 82, 43, omittingAll3Properties),
       issue(96, 10, 96, 26, "Make sure that using unencrypted cloud storage is safe here."));
+  }
+
+  @Test
+  void testDisabledEncryption() {
+    ArmVerifier.verify("UnencryptedCloudServicesCheck/DisabledEncryption.json", check,
+      issue(10, 8, 10, 37, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(18, 8, 18, 31),
+      issue(23, 14, 23, 48, "Omitting \"encryptionState\" enables clear-text storage. Make sure it is safe here."),
+      issue(33, 8, 33, 46, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(41, 8, 41, 46),
+      issue(50, 10, 50, 48),
+      issue(59, 8, 59, 51));
   }
 
   @ParameterizedTest

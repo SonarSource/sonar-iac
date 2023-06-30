@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualProperty;
@@ -27,11 +31,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.checks.TextUtils;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 
 @Rule(key = "S6388")
@@ -39,7 +39,6 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   public static final String UNENCRYPTED_MESSAGE = "Make sure that using unencrypted cloud storage is safe here.";
   public static final String FORMAT_OMITTING = "Omitting \"%s\" enables clear-text storage. Make sure it is safe here.";
-  private static final String DISK_ENCRYPTION_SET_ID = "diskEncryptionSetId";
 
   @Override
   protected void registerResourceConsumer() {
@@ -74,22 +73,29 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       resource -> resource.property("diskEncryptionSetID").reportIfAbsent(FORMAT_OMITTING));
 
     register("Microsoft.RedHatOpenShift/openShiftClusters", resource -> {
-      resource.object("masterProfile").property(DISK_ENCRYPTION_SET_ID).reportIfAbsent(FORMAT_OMITTING);
-      resource.object("workerProfiles").property(DISK_ENCRYPTION_SET_ID).reportIfAbsent(FORMAT_OMITTING);
+      var masterProfile = resource.object("masterProfile");
+      masterProfile.property("diskEncryptionSetId").reportIfAbsent(FORMAT_OMITTING);
+      checkIfIsDisabledOrAbsent(masterProfile.property("encryptionAtHost"));
+
+      resource.list("workerProfiles").objects().forEach(workerProfile -> {
+        workerProfile.property("diskEncryptionSetId").reportIfAbsent(FORMAT_OMITTING);
+        checkIfIsDisabledOrAbsent(workerProfile.property("encryptionAtHost"));
+      });
     });
 
-    register("Microsoft.DataLakeStore/accounts", resource -> resource.property("encryptionState")
-      .reportIf(UnencryptedCloudServicesCheck::isDisabled, UNENCRYPTED_MESSAGE)
-      .reportIf(p -> p.is(ArmTree.Kind.NULL_LITERAL), UNENCRYPTED_MESSAGE)
-      .reportIfAbsent(FORMAT_OMITTING));
-
-    register(
-      List.of("Microsoft.DBforMySQL/servers", "Microsoft.DBforPostgreSQL/servers"),
-      resource -> resource.property("infrastructureEncryption")
-        .reportIf(UnencryptedCloudServicesCheck::isDisabled, UNENCRYPTED_MESSAGE)
+    register("Microsoft.DataLakeStore/accounts",
+      resource -> resource.property("encryptionState")
+        .reportIf(isDisabled().or(isNull()), UNENCRYPTED_MESSAGE)
         .reportIfAbsent(FORMAT_OMITTING));
 
-    register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeComponent());
+    register(List.of("Microsoft.DBforMySQL/servers", "Microsoft.DBforPostgreSQL/servers"),
+      resource -> checkIfIsDisabledOrAbsent(resource.property("infrastructureEncryption")));
+
+    register("Microsoft.RecoveryServices/vaults",
+      resource -> checkIfIsDisabledOrAbsent(resource.object("encryption").property("infrastructureEncryption")));
+
+    register("Microsoft.RecoveryServices/vaults/backupEncryptionConfigs",
+      resource -> checkIfIsDisabledOrAbsent(resource.property("infrastructureEncryptionState")));
 
     register("Microsoft.Storage/storageAccounts", resource -> resource.object("encryption")
       .reportIfAbsent(FORMAT_OMITTING)
@@ -100,11 +106,21 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
     register("Microsoft.Storage/storageAccounts/encryptionScopes", resource -> resource.property("requireInfrastructureEncryption")
       .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
       .reportIfAbsent(FORMAT_OMITTING));
+
+    register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeComponent());
+  }
+
+  private static void checkForDiskEncryptionSet(ContextualObject profile) {
+    profile.object("diskEncryptionSet")
+      .reportIfAbsent(FORMAT_OMITTING)
+      .property("id")
+      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
+      .reportIfAbsent(FORMAT_OMITTING);
   }
 
   private static Consumer<ContextualResource> checkComputeComponent() {
     return resource -> {
-      ContextualProperty diskEncryptionSetId = resource.object("encryption").property(DISK_ENCRYPTION_SET_ID);
+      ContextualProperty diskEncryptionSetId = resource.object("encryption").property("diskEncryptionSetId");
       ContextualProperty encryptionSettingsCollectionEnabled = resource.object("encryptionSettingsCollection").property("enabled");
       ContextualProperty secureVMDiskEncryptionSetId = resource.object("securityProfile").property("secureVMDiskEncryptionSetId");
 
@@ -125,19 +141,19 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       && secureVMDiskEncryptionSetId.isAbsent();
   }
 
-  private static void checkForDiskEncryptionSet(ContextualObject profile) {
-    profile.object("diskEncryptionSet")
-      .reportIfAbsent(FORMAT_OMITTING)
-      .property("id")
-      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
-      .reportIfAbsent(FORMAT_OMITTING);
+  private static void checkIfIsDisabledOrAbsent(ContextualProperty property) {
+    property.reportIf(isDisabled(), UNENCRYPTED_MESSAGE).reportIfAbsent(FORMAT_OMITTING);
+  }
+
+  private static Predicate<Expression> isNull() {
+    return e -> e.is(ArmTree.Kind.NULL_LITERAL);
+  }
+
+  private static Predicate<Expression> isDisabled() {
+    return isEqual("Disabled");
   }
 
   private static Predicate<Expression> isEmpty() {
     return e -> TextUtils.matchesValue(e, ""::equals).isTrue();
-  }
-
-  private static boolean isDisabled(Expression property) {
-    return TextUtils.isValue(property, "Disabled").isTrue();
   }
 }
