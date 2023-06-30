@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "encryption": {
+          "requireInfrastructureEncryption": true
+        }
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.Storage/storageAccounts/encryptionScopes",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "requireInfrastructureEncryption": true
+      }
+    },
+    {
+      "name": "Non-compliant: encryption is disabled",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "encryption": {
+          "requireInfrastructureEncryption": false
+        }
+      }
+    },
+    {
+      "name": "Non-compliant: encryption is disabled",
+      "type": "Microsoft.Storage/storageAccounts/encryptionScopes",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "requireInfrastructureEncryption": false
+      }
+    },
+    {
+      "name": "Non-compliant: encryption-related property is omitted",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {}
+    },
+    {
+      "name": "Non-compliant: encryption object is present, requireInfrastructureEncryption is omitted",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "encryption": {}
+      }
+    },
+    {
+      "name": "Non-compliant: encryption-related property is omitted",
+      "type": "Microsoft.Storage/storageAccounts/encryptionScopes",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {}
+    }
+  ]
+}
