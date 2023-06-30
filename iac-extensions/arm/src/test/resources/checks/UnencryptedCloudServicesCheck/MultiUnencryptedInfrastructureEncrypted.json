@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Compliant",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "encryptionState": "Enabled"
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "${type}",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "infrastructureEncryption": "Enabled"
+      }
+    },
+    {
+      "name": "Non-compliant: encryption is explicitly disabled",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "encryptionState": "Disabled"
+      }
+    },
+    {
+      "name": "Non-compliant: encryption is explicitly disabled",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "encryptionState": null
+      }
+    },
+    {
+      "name": "Non-compliant: encryption property is not set",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01"
+    },
+    {
+      "name": "Non-compliant: encryption is explicitly disabled",
+      "type": "${type}",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "infrastructureEncryption": "Disabled"
+      }
+    },
+    {
+      "name": "Non-compliant: encryption property is not set",
+      "type": "${type}",
+      "apiVersion": "2022-07-01"
+    }
+  ]
+}

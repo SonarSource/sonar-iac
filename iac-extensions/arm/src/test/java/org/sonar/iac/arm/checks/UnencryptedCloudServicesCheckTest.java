@@ -20,6 +20,9 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
@@ -38,7 +41,7 @@ class UnencryptedCloudServicesCheckTest {
       issue(range(30, 20, 34, 11), "Omitting \"encryptionSettings\" enables clear-text storage. Make sure it is safe here."),
       issue(range(31, 27, 33, 13), "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
       issue(range(32, 33, 32, 35)),
-      issue(range(45, 12, 45, 39), "Make sure using unencrypted cloud storage is safe here."));
+      issue(range(45, 12, 45, 39), "Make sure that using unencrypted cloud storage is safe here."));
   }
 
   @Test
@@ -63,4 +66,20 @@ class UnencryptedCloudServicesCheckTest {
       issue(range(51, 26, 51, 28)));
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "Microsoft.DBforMySQL/servers",
+    "Microsoft.DBforPostgreSQL/servers"
+  })
+  void testResourcesWithInfrastructureEncryption(String resourceType) {
+    String content = ArmTestUtils.readTemplateAndReplace("UnencryptedCloudServicesCheck/MultiUnencryptedInfrastructureEncrypted.json", resourceType);
+
+    int resourceTypeLength = resourceType.length();
+    ArmVerifier.verifyContent(content, check,
+      issue(26, 8, 26, 37, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(34, 8, 34, 31, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(39, 14, 39, 48, "Omitting \"encryptionState\" enables clear-text storage. Make sure it is safe here."),
+      issue(47, 8, 47, 46, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(52, 14, 52, 16 + resourceTypeLength, "Omitting \"infrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
+  }
 }
