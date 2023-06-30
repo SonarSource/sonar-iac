@@ -19,10 +19,6 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualProperty;
@@ -32,6 +28,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.checks.TextUtils;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -94,17 +91,15 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
     register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeComponent());
 
-    register("Microsoft.Storage/storageAccounts", resource ->
-      resource.object("encryption")
-        .reportIfAbsent(FORMAT_OMITTING)
-        .property("requireInfrastructureEncryption")
-        .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
-        .reportIfAbsent(FORMAT_OMITTING));
+    register("Microsoft.Storage/storageAccounts", resource -> resource.object("encryption")
+      .reportIfAbsent(FORMAT_OMITTING)
+      .property("requireInfrastructureEncryption")
+      .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
+      .reportIfAbsent(FORMAT_OMITTING));
 
-    register("Microsoft.Storage/storageAccounts/encryptionScopes", resource ->
-      resource.property("requireInfrastructureEncryption")
-        .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
-        .reportIfAbsent(FORMAT_OMITTING));
+    register("Microsoft.Storage/storageAccounts/encryptionScopes", resource -> resource.property("requireInfrastructureEncryption")
+      .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
+      .reportIfAbsent(FORMAT_OMITTING));
   }
 
   private static Consumer<ContextualResource> checkComputeComponent() {

@@ -26,7 +26,6 @@ import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class UnencryptedCloudServicesCheckTest {
@@ -98,8 +97,8 @@ class UnencryptedCloudServicesCheckTest {
   @Test
   void testStorageAccountResources() {
     verify("UnencryptedCloudServicesCheck/Storage_storageAccounts.json", check,
-      issue(29, 10, 29, 50, "Make sure using unencrypted cloud storage is safe here."),
-      issue(38, 8, 38, 48, "Make sure using unencrypted cloud storage is safe here."),
+      issue(29, 10, 29, 50, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(38, 8, 38, 48, "Make sure that using unencrypted cloud storage is safe here."),
       issue(43, 14, 43, 49, "Omitting \"encryption\" enables clear-text storage. Make sure it is safe here."),
       issue(49, 14, 49, 66, "Omitting \"requireInfrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
   }
