@@ -100,6 +100,7 @@ class UnencryptedCloudServicesCheckTest {
       issue(29, 10, 29, 50, "Make sure that using unencrypted cloud storage is safe here."),
       issue(38, 8, 38, 48, "Make sure that using unencrypted cloud storage is safe here."),
       issue(43, 14, 43, 49, "Omitting \"encryption\" enables clear-text storage. Make sure it is safe here."),
-      issue(49, 14, 49, 66, "Omitting \"requireInfrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
+      issue(52, 22, 52, 24, "Omitting \"requireInfrastructureEncryption\" enables clear-text storage. Make sure it is safe here."),
+      issue(57, 14, 57, 66, "Omitting \"requireInfrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
   }
 }
