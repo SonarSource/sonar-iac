@@ -136,7 +136,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
   }
 
   private static boolean isUnencryptedComputeComponent(ContextualProperty diskEncryptionSetId, ContextualProperty encryptionSettingsCollectionEnabled,
-                                                       ContextualProperty secureVMDiskEncryptionSetId) {
+    ContextualProperty secureVMDiskEncryptionSetId) {
     return diskEncryptionSetId.isAbsent()
       && (encryptionSettingsCollectionEnabled.isAbsent() || encryptionSettingsCollectionEnabled.is(isFalse()))
       && secureVMDiskEncryptionSetId.isAbsent();
