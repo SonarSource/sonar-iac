@@ -19,21 +19,16 @@
  */
 package org.sonarsource.iac;
 
-import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.util.List;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TFLintReportTest extends TestBase {
-
-  @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Tests.ORCHESTRATOR;
-
   private static final String PROJECT = "tflint";
   private static final String BASE_DIRECTORY = "projects/" + PROJECT + "/";
 

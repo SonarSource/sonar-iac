@@ -19,18 +19,9 @@
  */
 package org.sonarsource.iac;
 
-import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarqube.ws.Hotspots;
@@ -43,13 +34,22 @@ import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TestBase {
-
   @RegisterExtension
-  public static final Orchestrator ORCHESTRATOR = Tests.ORCHESTRATOR;
+  public static final OrchestratorExtension ORCHESTRATOR = Tests.ORCHESTRATOR;
 
   protected SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey) {
     return getSonarScanner(projectKey, directoryToScan, languageKey, null);
@@ -124,7 +124,7 @@ public abstract class TestBase {
       .build());
   }
 
-  public static void executeBuildWithExpectedWarnings(Orchestrator orchestrator, SonarScanner build) {
+  public static void executeBuildWithExpectedWarnings(OrchestratorExtension orchestrator, SonarScanner build) {
     BuildResult result = orchestrator.executeBuild(build);
     assertAnalyzerLogs(result.getLogs());
   }
