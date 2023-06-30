@@ -68,6 +68,35 @@
           ]
         }
       }
+    },
+    {
+      "name": "Noncompliant: encryptionAtHost is set to false",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "securityProfile": {
+          "encryptionAtHost": false
+        }
+      }
+    },
+    {
+      "name": "Noncompliant: encryptionAtHost is missing",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "securityProfile": {
+        }
+      }
+    },
+    {
+      "name": "Compliant: encryptionAtHost is set to true",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-11-01",
+      "properties": {
+        "securityProfile": {
+          "encryptionAtHost": true
+        }
+      }
     }
   ]
 }

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant: enableEncryptionAtHost is set to false",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "agentPoolProfiles": [
+          {
+            "enableEncryptionAtHost": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Noncompliant: enableEncryptionAtHost is missing",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "agentPoolProfiles": [
+          {
+          }
+        ]
+      }
+    },
+    {
+      "name": "Compliant: enableEncryptionAtHost is set to true",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2023-03-02-preview",
+      "properties": {
+        "agentPoolProfiles": [
+          {
+            "enableEncryptionAtHost": true
+          }
+        ]
+      }
+    }
+  ]
+}

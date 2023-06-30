@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checkdsl.ContextualMap;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
@@ -108,14 +109,16 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       .reportIfAbsent(FORMAT_OMITTING));
 
     register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeComponent());
-  }
 
-  private static void checkForDiskEncryptionSet(ContextualObject profile) {
-    profile.object("diskEncryptionSet")
-      .reportIfAbsent(FORMAT_OMITTING)
-      .property("id")
-      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
-      .reportIfAbsent(FORMAT_OMITTING);
+    register("Microsoft.Compute/virtualMachineScaleSets", checkEncryptionFromPath("virtualMachineProfile/securityProfile", "encryptionAtHost"));
+    register("Microsoft.Compute/virtualMachines", checkEncryptionFromPath("securityProfile", "encryptionAtHost"));
+    register("Microsoft.SqlVirtualMachine/sqlVirtualMachines", checkEncryptionFromPath("autoBackupSettings", "enableEncryption"));
+    register("Microsoft.ContainerService/managedClusters", checkEncryptionFromPath("agentPoolProfiles/*", "enableEncryptionAtHost"));
+    register("Microsoft.AzureArcData/sqlServerInstances/databases", checkEncryptionFromPath("databaseOptions", "isEncrypted"));
+    register("Microsoft.HDInsight/clusters", checkEncryptionFromPath("computeProfile/roles/*", "encryptDataDisks"));
+    register("Microsoft.HDInsight/clusters", checkEncryptionFromPath("diskEncryptionProperties", "encryptionAtHost"));
+    register("Microsoft.HDInsight/clusters/applications", checkEncryptionFromPath("computeProfile/roles/*", "encryptDataDisks"));
+    register("Microsoft.Kusto/clusters", resource -> checkEncryptionObject(resource, "enableDiskEncryption"));
   }
 
   private static Consumer<ContextualResource> checkComputeComponent() {
@@ -151,6 +154,25 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   private static Predicate<Expression> isDisabled() {
     return isEqual("Disabled");
+  }
+
+  private static Consumer<ContextualResource> checkEncryptionFromPath(String objectsPath, String encryptionProperty) {
+    return resource -> resource.objectsByPath(objectsPath)
+      .forEach(obj -> checkEncryptionObject(obj, encryptionProperty));
+  }
+
+  private static void checkEncryptionObject(ContextualMap<?, ?> obj, String encryptionProperty) {
+    obj.property(encryptionProperty)
+      .reportIf(isFalse(), UNENCRYPTED_MESSAGE)
+      .reportIfAbsent(FORMAT_OMITTING);
+  }
+
+  private static void checkForDiskEncryptionSet(ContextualObject profile) {
+    profile.object("diskEncryptionSet")
+      .reportIfAbsent(FORMAT_OMITTING)
+      .property("id")
+      .reportIf(isEmpty(), String.format(FORMAT_OMITTING, "id"))
+      .reportIfAbsent(FORMAT_OMITTING);
   }
 
   private static Predicate<Expression> isEmpty() {

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant: enableEncryption is set to false",
+      "type": "Microsoft.SqlVirtualMachine/sqlVirtualMachines",
+      "apiVersion": "2022-08-01-preview",
+      "properties": {
+        "autoBackupSettings": {
+          "enableEncryption": false
+        }
+      }
+    },
+    {
+      "name": "Noncompliant: enableEncryption is missing",
+      "type": "Microsoft.SqlVirtualMachine/sqlVirtualMachines",
+      "apiVersion": "2022-08-01-preview",
+      "properties": {
+        "autoBackupSettings": {
+        }
+      }
+    },
+    {
+      "name": "Noncompliant: enableEncryption is not set",
+      "type": "Microsoft.SqlVirtualMachine/sqlVirtualMachines",
+      "apiVersion": "2022-08-01-preview",
+      "properties": {
+        "autoBackupSettings": {
+          "enableEncryption": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant: encryptDataDisks is set to false",
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "computeProfile": {
+          "roles": [
+            {
+              "encryptDataDisks": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Noncompliant: encryptDataDisks is missing",
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "computeProfile": {
+          "roles": [
+            {
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Compliant: encryptDataDisks is set to true",
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "computeProfile": {
+          "roles": [
+            {
+              "encryptDataDisks": true
+            }
+          ]
+        }
+      }
+    },
+    
+    {
+      "name": "Noncompliant: encryptionAtHost is set to false",
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "diskEncryptionProperties": {
+          "encryptionAtHost": false
+        }
+      }
+    },
+    {
+      "name": "Noncompliant: encryptionAtHost is missing",
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "diskEncryptionProperties": {
+        }
+      }
+    },
+    {
+      "name": "Compliant: encryptionAtHost is set to true",
+      "type": "Microsoft.HDInsight/clusters",
+      "apiVersion": "2021-06-01",
+      "properties": {
+        "diskEncryptionProperties": {
+          "encryptionAtHost": true
+        }
+      }
+    }
+  ]
+}
