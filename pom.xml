@@ -65,7 +65,7 @@
     <version.sonar.api>9.13.0.360</version.sonar.api>
     <version.sonar.lint>8.16.0.67686</version.sonar.lint>
     <version.analyzer.commons>2.5.0.1358</version.analyzer.commons>
-    <version.orchestrator>3.40.0.183</version.orchestrator>
+    <version.orchestrator>4.0.0.404</version.orchestrator>
     <version.sslr>1.24.0.633</version.sslr>
     <version.junit>5.8.1</version.junit>
     <version.assertj>3.23.1</version.assertj>
@@ -148,6 +148,12 @@
       <dependency>
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator</artifactId>
+        <version>${version.orchestrator}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.orchestrator</groupId>
+        <artifactId>sonar-orchestrator-junit5</artifactId>
         <version>${version.orchestrator}</version>
         <scope>test</scope>
       </dependency>
