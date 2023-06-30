@@ -22,7 +22,6 @@ package org.sonar.iac.arm.checks;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
 
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class UnencryptedCloudServicesCheckTest {
@@ -32,35 +31,45 @@ class UnencryptedCloudServicesCheckTest {
   @Test
   void testVirtualMachines() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachines.json", check,
-      issue(range(13, 29, 14, 15), "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(19, 18, 19, 26), "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(25, 37, 26, 17)),
-      issue(range(30, 20, 34, 11), "Omitting \"encryptionSettings\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(31, 27, 33, 13), "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(32, 33, 32, 35)),
-      issue(range(45, 12, 45, 39), "Make sure using unencrypted cloud storage is safe here."));
+      issue(13, 29, 14, 15, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
+      issue(19, 18, 19, 26, "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
+      issue(25, 37, 26, 17),
+      issue(30, 20, 34, 11, "Omitting \"encryptionSettings\" enables clear-text storage. Make sure it is safe here."),
+      issue(31, 27, 33, 13, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
+      issue(32, 33, 32, 35),
+      issue(45, 12, 45, 39, "Make sure using unencrypted cloud storage is safe here."));
   }
 
   @Test
   void testVirtualMachineScaleSets() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachineScaleSets.json", check,
-      issue(range(14, 31, 14, 33), "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(19, 20, 19, 28), "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(25, 39, 26, 19)),
-      issue(range(30, 31, 36, 17)),
-      issue(range(33, 22, 33, 30)),
-      issue(range(40, 29, 43, 15)),
-      issue(range(41, 35, 42, 17)));
+      issue(14, 31, 14, 33, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
+      issue(19, 20, 19, 28, "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
+      issue(25, 39, 26, 19),
+      issue(30, 31, 36, 17),
+      issue(33, 22, 33, 30),
+      issue(40, 29, 43, 15),
+      issue(41, 35, 42, 17));
   }
 
   @Test
   void testMultiUnencryptedResources() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/MultiUnencryptedResources.json", check,
-      issue(range(7, 14, 7, 66), "Omitting \"managedDiskCustomerKeyUri\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(15, 14, 15, 66), "Omitting \"backupStorageCustomerKeyUri\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(32, 14, 32, 58), "Omitting \"diskEncryptionSetID\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(50, 25, 50, 27), "Omitting \"diskEncryptionSetId\" enables clear-text storage. Make sure it is safe here."),
-      issue(range(51, 26, 51, 28)));
+      issue(7, 14, 7, 66, "Omitting \"managedDiskCustomerKeyUri\" enables clear-text storage. Make sure it is safe here."),
+      issue(15, 14, 15, 66, "Omitting \"backupStorageCustomerKeyUri\" enables clear-text storage. Make sure it is safe here."),
+      issue(32, 14, 32, 58, "Omitting \"diskEncryptionSetID\" enables clear-text storage. Make sure it is safe here."),
+      issue(50, 25, 50, 27, "Omitting \"diskEncryptionSetId\" enables clear-text storage. Make sure it is safe here."),
+      issue(51, 26, 51, 28));
   }
 
+  @Test
+  void testComputeDistAndSnapshots() {
+    String omittingAll3Properties = "Omitting \"encryption.diskEncryptionSetId\", \"encryptionSettingsCollection\" or \"securityProfile.secureVMDiskEncryptionSetId\" " +
+      "enables clear-text storage. Make sure it is safe here.";
+    ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_disk_and_snapshots.json", check,
+      issue(6, 14, 6, 39, omittingAll3Properties),
+      issue(21, 10, 21, 26, "Make sure using unencrypted cloud storage is safe here."),
+      issue(82, 14, 82, 43, omittingAll3Properties),
+      issue(96, 10, 96, 26, "Make sure using unencrypted cloud storage is safe here."));
+  }
 }
