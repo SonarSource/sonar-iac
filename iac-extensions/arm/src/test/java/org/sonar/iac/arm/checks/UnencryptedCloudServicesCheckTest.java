@@ -22,7 +22,6 @@ package org.sonar.iac.arm.checks;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.IacCheck;
 
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class UnencryptedCloudServicesCheckTest {
@@ -65,7 +64,7 @@ class UnencryptedCloudServicesCheckTest {
 
   @Test
   void testComputeDistAndSnapshots() {
-    String omittingAll3Properties = "Omitting \"diskEncryptionSetId or encryptionSettingsCollection or secureVMDiskEncryptionSetId\" " +
+    String omittingAll3Properties = "Omitting \"encryption.diskEncryptionSetId\", \"encryptionSettingsCollection\" or \"securityProfile.secureVMDiskEncryptionSetId\" " +
       "enables clear-text storage. Make sure it is safe here.";
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_disk_and_snapshots.json", check,
       issue(6, 14, 6, 39, omittingAll3Properties),

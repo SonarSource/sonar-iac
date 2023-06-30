@@ -76,27 +76,30 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       resource.object("workerProfiles").property(DISK_ENCRYPTION_SET_ID).reportIfAbsent(FORMAT_OMITTING);
     });
 
-    register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeDisksAndSnapshots());
+    register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeComponent());
   }
 
-  private static Consumer<ContextualResource> checkComputeDisksAndSnapshots() {
+  private static Consumer<ContextualResource> checkComputeComponent() {
     return resource -> {
       ContextualProperty diskEncryptionSetId = resource.object("encryption").property(DISK_ENCRYPTION_SET_ID);
       ContextualProperty encryptionSettingsCollectionEnabled = resource.object("encryptionSettingsCollection").property("enabled");
       ContextualProperty secureVMDiskEncryptionSetId = resource.object("securityProfile").property("secureVMDiskEncryptionSetId");
 
-      if (diskEncryptionSetId.isAbsent()
-        && (encryptionSettingsCollectionEnabled.isAbsent() || encryptionSettingsCollectionEnabled.is(isFalse()))
-        && secureVMDiskEncryptionSetId.isAbsent()) {
-
+      if (isUnencryptedComputeComponent(diskEncryptionSetId, encryptionSettingsCollectionEnabled, secureVMDiskEncryptionSetId) ){
         if (encryptionSettingsCollectionEnabled.isPresent() && encryptionSettingsCollectionEnabled.is(isFalse())) {
           encryptionSettingsCollectionEnabled.report(UNENCRYPTED_MESSAGE);
         } else {
-          resource.report(
-            String.format(FORMAT_OMITTING, "diskEncryptionSetId or encryptionSettingsCollection or secureVMDiskEncryptionSetId"));
+          resource.report(String.format(FORMAT_OMITTING, "encryption.diskEncryptionSetId\", \"encryptionSettingsCollection\" or \"securityProfile.secureVMDiskEncryptionSetId"));
         }
       }
     };
+  }
+
+  private static boolean isUnencryptedComputeComponent(ContextualProperty diskEncryptionSetId, ContextualProperty encryptionSettingsCollectionEnabled,
+    ContextualProperty secureVMDiskEncryptionSetId) {
+    return diskEncryptionSetId.isAbsent()
+      && (encryptionSettingsCollectionEnabled.isAbsent() || encryptionSettingsCollectionEnabled.is(isFalse()))
+      && secureVMDiskEncryptionSetId.isAbsent();
   }
 
   private static void checkForDiskEncryptionSet(ContextualObject profile) {
