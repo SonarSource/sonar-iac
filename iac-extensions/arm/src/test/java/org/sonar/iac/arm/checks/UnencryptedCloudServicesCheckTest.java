@@ -41,7 +41,9 @@ class UnencryptedCloudServicesCheckTest {
       issue(30, 20, 34, 11, "Omitting \"encryptionSettings\" enables clear-text storage. Make sure it is safe here."),
       issue(31, 27, 33, 13, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
       issue(32, 33, 32, 35),
-      issue(45, 12, 45, 39, "Make sure that using unencrypted cloud storage is safe here."));
+      issue(45, 12, 45, 39, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(78, 10, 78, 35, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(87, 27, 88, 9, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test
@@ -53,7 +55,9 @@ class UnencryptedCloudServicesCheckTest {
       issue(30, 31, 36, 17),
       issue(33, 22, 33, 30),
       issue(40, 29, 43, 15),
-      issue(41, 35, 42, 17));
+      issue(41, 35, 42, 17),
+      issue(82, 12, 82, 37, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(93, 29, 94, 11, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test
@@ -66,6 +70,53 @@ class UnencryptedCloudServicesCheckTest {
       issue(54, 10, 56, 11, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."),
       issue(65, 25, 67, 9, "Omitting \"diskEncryptionSetId\" enables clear-text storage. Make sure it is safe here."),
       issue(69, 10, 71, 11, "Omitting \"diskEncryptionSetId\" enables clear-text storage. Make sure it is safe here."));
+  }
+
+  @Test
+  void testSqlVirtualMachine() {
+    ArmVerifier.verify("UnencryptedCloudServicesCheck/SqlVirtualMachine_sqlVirtualMachines.json", check,
+      issue(11, 10, 11, 35, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(20, 30, 21, 9, "Omitting \"enableEncryption\" enables clear-text storage. Make sure it is safe here."));
+  }
+
+  @Test
+  void testContainerServiceManagedClusters() {
+    ArmVerifier.verify("UnencryptedCloudServicesCheck/ContainerService_managedClusters.json", check,
+      issue(7, 14, 7, 58, "Omitting \"diskEncryptionSetID\" enables clear-text storage. Make sure it is safe here."),
+      issue(12, 12, 12, 43, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(19, 14, 19, 58, "Omitting \"diskEncryptionSetID\" enables clear-text storage. Make sure it is safe here."),
+      issue(23, 10, 24, 11, "Omitting \"enableEncryptionAtHost\" enables clear-text storage. Make sure it is safe here."),
+      issue(30, 14, 30, 58, "Omitting \"diskEncryptionSetID\" enables clear-text storage. Make sure it is safe here."));
+  }
+
+  @Test
+  void testAzureArcDataSqlServerInstancesDatabases() {
+    ArmVerifier.verify("UnencryptedCloudServicesCheck/AzureArcData_sqlServerInstances_databases.json", check,
+      issue(11, 10, 11, 30, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(20, 27, 21, 9, "Omitting \"isEncrypted\" enables clear-text storage. Make sure it is safe here."));
+  }
+
+  @Test
+  void testHDInsightClusters() {
+    ArmVerifier.verify("UnencryptedCloudServicesCheck/HDInsight_clusters.json", check,
+      issue(13, 14, 13, 39, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(26, 12, 27, 13, "Omitting \"encryptDataDisks\" enables clear-text storage. Make sure it is safe here."),
+      issue(53, 10, 53, 35, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(62, 36, 63, 9, "Omitting \"encryptionAtHost\" enables clear-text storage. Make sure it is safe here."));
+  }
+
+  @Test
+  void testHDInsightClustersApplications() {
+    ArmVerifier.verify("UnencryptedCloudServicesCheck/HDInsight_clusters_applications.json", check,
+      issue(13, 14, 13, 39, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(26, 12, 27, 13, "Omitting \"encryptDataDisks\" enables clear-text storage. Make sure it is safe here."));
+  }
+
+  @Test
+  void testKustoClusters() {
+    ArmVerifier.verify("UnencryptedCloudServicesCheck/Kusto_clusters.json", check,
+      issue(10, 8, 10, 37, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(15, 14, 15, 40, "Omitting \"enableDiskEncryption\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test

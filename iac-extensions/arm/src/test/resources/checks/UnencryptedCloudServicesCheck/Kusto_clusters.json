@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant: enableDiskEncryption is set to false",
+      "type": "Microsoft.Kusto/clusters",
+      "apiVersion": "2022-12-29",
+      "properties": {
+        "enableDiskEncryption": false
+      }
+    },
+    {
+      "name": "Noncompliant: enableDiskEncryption is missing",
+      "type": "Microsoft.Kusto/clusters",
+      "apiVersion": "2022-12-29",
+      "properties": {
+      }
+    },
+    {
+      "name": "Compliant: enableDiskEncryption is set to true",
+      "type": "Microsoft.Kusto/clusters",
+      "apiVersion": "2022-12-29",
+      "properties": {
+        "enableDiskEncryption": true
+      }
+    }
+  ]
+}

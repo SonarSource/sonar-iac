@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant: isEncrypted is set to false",
+      "type": "Microsoft.AzureArcData/sqlServerInstances/databases",
+      "apiVersion": "2023-03-15-preview",
+      "properties": {
+        "databaseOptions": {
+          "isEncrypted": false
+        }
+      }
+    },
+    {
+      "name": "Noncompliant: isEncrypted is not set",
+      "type": "Microsoft.AzureArcData/sqlServerInstances/databases",
+      "apiVersion": "2023-03-15-preview",
+      "properties": {
+        "databaseOptions": {
+        }
+      }
+    },
+    {
+      "name": "Compliant: isEncrypted is set to true",
+      "type": "Microsoft.AzureArcData/sqlServerInstances/databases",
+      "apiVersion": "2023-03-15-preview",
+      "properties": {
+        "databaseOptions": {
+          "isEncrypted": true
+        }
+      }
+    }
+  ]
+}
