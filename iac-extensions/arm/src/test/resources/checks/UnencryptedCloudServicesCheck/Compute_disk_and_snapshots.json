@@ -1,0 +1,166 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "name": "Sensitive: diskEncryptionSetId, encryptionSettingsCollection and secureVMDiskEncryptionSetId are not set",
+      "properties": {
+        "encryption": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "name": "Sensitive: diskEncryptionSetId, and secureVMDiskEncryptionSetId are not set, encryptionSettingsCollection is false",
+      "properties": {
+        "encryptionSettingsCollection": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: diskEncryptionSetId is set",
+      "properties": {
+        "encryption": {
+          "diskEncryptionSetId": "123abc"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: encryptionSettingsCollection/enabled is true",
+      "properties": {
+        "encryptionSettingsCollection": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: secureVMDiskEncryptionSetId is set",
+      "properties": {
+        "securityProfile": {
+          "secureVMDiskEncryptionSetId": "abc123"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: encryptionSettingsCollection/enabled is not boolean literal",
+      "properties": {
+        "encryptionSettingsCollection": {
+          "enabled": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: diskEncryptionSetId, encryptionSettingsCollection/enabled and secureVMDiskEncryptionSetId is set",
+      "properties": {
+        "encryption": {
+          "diskEncryptionSetId": "123abc"
+        },
+        "encryptionSettingsCollection": {
+          "enabled": true
+        },
+        "securityProfile": {
+          "secureVMDiskEncryptionSetId": "abc123"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "name": "Sensitive: diskEncryptionSetId, encryptionSettingsCollection and secureVMDiskEncryptionSetId are not set",
+      "properties": {
+        "encryption": {
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "name": "Sensitive: diskEncryptionSetId, and secureVMDiskEncryptionSetId are not set, encryptionSettingsCollection is false",
+      "properties": {
+        "encryptionSettingsCollection": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: diskEncryptionSetId is set",
+      "properties": {
+        "encryption": {
+          "diskEncryptionSetId": "abc123"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: encryptionSettingsCollection is set",
+      "properties": {
+        "encryptionSettingsCollection": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: encryptionSettingsCollection is not boolean literal",
+      "properties": {
+        "encryptionSettingsCollection": {
+          "enabled": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: secureVMDiskEncryptionSetId is set",
+      "properties": {
+        "securityProfile": {
+          "secureVMDiskEncryptionSetId": "abc123"
+        }
+      }
+    },
+    {
+      "type": "unknown-type",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: unknown type",
+      "properties": {
+        "securityProfile": {
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/snapshots",
+      "apiVersion": "2022-07-02",
+      "name": "Compliant: diskEncryptionSetId, encryptionSettingsCollection/enabled and secureVMDiskEncryptionSetId is set",
+      "properties": {
+        "encryption": {
+          "diskEncryptionSetId": "123abc"
+        },
+        "encryptionSettingsCollection": {
+          "enabled": true
+        },
+        "securityProfile": {
+          "secureVMDiskEncryptionSetId": "abc123"
+        }
+      }
+    }
+  ]
+}

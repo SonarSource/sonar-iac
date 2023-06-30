@@ -19,8 +19,14 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
+import org.sonar.iac.arm.checkdsl.ContextualProperty;
+import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.checks.TextUtils;
@@ -36,6 +42,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
 
   public static final String UNENCRYPTED_MESSAGE = "Make sure that using unencrypted cloud storage is safe here.";
   public static final String FORMAT_OMITTING = "Omitting \"%s\" enables clear-text storage. Make sure it is safe here.";
+  private static final String DISK_ENCRYPTION_SET_ID = "diskEncryptionSetId";
 
   @Override
   protected void registerResourceConsumer() {
@@ -70,8 +77,8 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       resource -> resource.property("diskEncryptionSetID").reportIfAbsent(FORMAT_OMITTING));
 
     register("Microsoft.RedHatOpenShift/openShiftClusters", resource -> {
-      resource.object("masterProfile").property("diskEncryptionSetId").reportIfAbsent(FORMAT_OMITTING);
-      resource.object("workerProfiles").property("diskEncryptionSetId").reportIfAbsent(FORMAT_OMITTING);
+      resource.object("masterProfile").property(DISK_ENCRYPTION_SET_ID).reportIfAbsent(FORMAT_OMITTING);
+      resource.object("workerProfiles").property(DISK_ENCRYPTION_SET_ID).reportIfAbsent(FORMAT_OMITTING);
     });
 
     register("Microsoft.DataLakeStore/accounts", resource -> resource.property("encryptionState")
@@ -84,6 +91,31 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       resource -> resource.property("infrastructureEncryption")
         .reportIf(UnencryptedCloudServicesCheck::isDisabled, UNENCRYPTED_MESSAGE)
         .reportIfAbsent(FORMAT_OMITTING));
+    
+    register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeComponent());
+  }
+
+  private static Consumer<ContextualResource> checkComputeComponent() {
+    return resource -> {
+      ContextualProperty diskEncryptionSetId = resource.object("encryption").property(DISK_ENCRYPTION_SET_ID);
+      ContextualProperty encryptionSettingsCollectionEnabled = resource.object("encryptionSettingsCollection").property("enabled");
+      ContextualProperty secureVMDiskEncryptionSetId = resource.object("securityProfile").property("secureVMDiskEncryptionSetId");
+
+      if (isUnencryptedComputeComponent(diskEncryptionSetId, encryptionSettingsCollectionEnabled, secureVMDiskEncryptionSetId)) {
+        if (encryptionSettingsCollectionEnabled.isPresent() && encryptionSettingsCollectionEnabled.is(isFalse())) {
+          encryptionSettingsCollectionEnabled.report(UNENCRYPTED_MESSAGE);
+        } else {
+          resource.report(String.format(FORMAT_OMITTING, "encryption.diskEncryptionSetId\", \"encryptionSettingsCollection\" or \"securityProfile.secureVMDiskEncryptionSetId"));
+        }
+      }
+    };
+  }
+
+  private static boolean isUnencryptedComputeComponent(ContextualProperty diskEncryptionSetId, ContextualProperty encryptionSettingsCollectionEnabled,
+    ContextualProperty secureVMDiskEncryptionSetId) {
+    return diskEncryptionSetId.isAbsent()
+      && (encryptionSettingsCollectionEnabled.isAbsent() || encryptionSettingsCollectionEnabled.is(isFalse()))
+      && secureVMDiskEncryptionSetId.isAbsent();
   }
 
   private static void checkForDiskEncryptionSet(ContextualObject profile) {
