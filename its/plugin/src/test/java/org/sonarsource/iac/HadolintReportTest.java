@@ -32,8 +32,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HadolintReportTest extends TestBase {
-  @RegisterExtension
-  public static final OrchestratorExtension ORCHESTRATOR = Tests.ORCHESTRATOR;
   private static final String PROJECT = "hadolint_project";
   private static final String BASE_DIRECTORY = "projects/" + PROJECT + "/";
 

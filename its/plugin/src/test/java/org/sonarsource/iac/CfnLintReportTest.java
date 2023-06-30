@@ -31,8 +31,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CfnLintReportTest extends TestBase {
-  @RegisterExtension
-  public static final OrchestratorExtension ORCHESTRATOR = Tests.ORCHESTRATOR;
   private static final String PROJECT = "cfn-lint_project";
   private static final String BASE_DIRECTORY = "projects/" + PROJECT + "/";
 
