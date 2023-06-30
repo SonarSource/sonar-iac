@@ -75,7 +75,7 @@ class UnencryptedCloudServicesCheckTest {
       issue(82, 14, 82, 43, omittingAll3Properties),
       issue(96, 10, 96, 26, "Make sure that using unencrypted cloud storage is safe here."));
   }
-  
+
   @ParameterizedTest
   @ValueSource(strings = {
     "Microsoft.DBforMySQL/servers",
