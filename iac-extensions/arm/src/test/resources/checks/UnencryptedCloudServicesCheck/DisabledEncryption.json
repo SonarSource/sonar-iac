@@ -1,0 +1,95 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "encryptionState": "Disabled"
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "encryptionState": null
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.DBforMySQL/servers",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "infrastructureEncryption": "Disabled"
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.DBforPostgreSQL/servers",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "infrastructureEncryption": "Disabled"
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "encryption": {
+          "infrastructureEncryption": "Disabled"
+        }
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.RecoveryServices/vaults/backupEncryptionConfigs",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "infrastructureEncryptionState": "Disabled"
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.RecoveryServices/vaults/backupEncryptionConfigs",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "infrastructureEncryptionState": "Invalid"
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "encryptionState": "Enabled"
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "encryptionState": "Unknown"
+      }
+    },
+    {
+      "name": "Compliant",
+      "type": "Microsoft.DataLakeStore/accounts",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "encryptionState": false
+      }
+    }
+  ]
+}

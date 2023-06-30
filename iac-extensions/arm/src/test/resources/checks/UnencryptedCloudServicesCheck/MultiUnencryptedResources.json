@@ -47,8 +47,29 @@
       "type": "Microsoft.RedHatOpenShift/openShiftClusters",
       "apiVersion": "2022-07-01",
       "properties": {
-        "masterProfile": {},
-        "workerProfiles": {}
+        "masterProfile": {
+          "diskEncryptionSetId": "id"
+        },
+        "workerProfiles": [
+          {
+            "diskEncryptionSetId": "id"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Noncompliant",
+      "type": "Microsoft.RedHatOpenShift/openShiftClusters",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "masterProfile": {
+          "encryptionAtHost": "Enabled"
+        },
+        "workerProfiles": [
+          {
+            "encryptionAtHost": "Enabled"
+          }
+        ]
       }
     },
     {
@@ -57,11 +78,15 @@
       "apiVersion": "2022-07-01",
       "properties": {
         "masterProfile": {
-          "diskEncryptionSetId": "id"
+          "diskEncryptionSetId": "id",
+          "encryptionAtHost": "Enabled"
         },
-        "workerProfiles": {
-          "diskEncryptionSetId": "id"
-        }
+        "workerProfiles": [
+          {
+            "diskEncryptionSetId": "id",
+            "encryptionAtHost": "Enabled"
+          }
+        ]
       }
     }
   ]
