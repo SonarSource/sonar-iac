@@ -20,6 +20,9 @@
 package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.common.testing.Verifier.issue;
@@ -37,7 +40,7 @@ class UnencryptedCloudServicesCheckTest {
       issue(30, 20, 34, 11, "Omitting \"encryptionSettings\" enables clear-text storage. Make sure it is safe here."),
       issue(31, 27, 33, 13, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
       issue(32, 33, 32, 35),
-      issue(45, 12, 45, 39, "Make sure using unencrypted cloud storage is safe here."));
+      issue(45, 12, 45, 39, "Make sure that using unencrypted cloud storage is safe here."));
   }
 
   @Test
@@ -68,8 +71,25 @@ class UnencryptedCloudServicesCheckTest {
       "enables clear-text storage. Make sure it is safe here.";
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_disk_and_snapshots.json", check,
       issue(6, 14, 6, 39, omittingAll3Properties),
-      issue(21, 10, 21, 26, "Make sure using unencrypted cloud storage is safe here."),
+      issue(21, 10, 21, 26, "Make sure that using unencrypted cloud storage is safe here."),
       issue(82, 14, 82, 43, omittingAll3Properties),
-      issue(96, 10, 96, 26, "Make sure using unencrypted cloud storage is safe here."));
+      issue(96, 10, 96, 26, "Make sure that using unencrypted cloud storage is safe here."));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "Microsoft.DBforMySQL/servers",
+    "Microsoft.DBforPostgreSQL/servers"
+  })
+  void testResourcesWithInfrastructureEncryption(String resourceType) {
+    String content = ArmTestUtils.readTemplateAndReplace("UnencryptedCloudServicesCheck/MultiUnencryptedInfrastructureEncrypted.json", resourceType);
+
+    int resourceTypeLength = resourceType.length();
+    ArmVerifier.verifyContent(content, check,
+      issue(26, 8, 26, 37, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(34, 8, 34, 31, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(39, 14, 39, 48, "Omitting \"encryptionState\" enables clear-text storage. Make sure it is safe here."),
+      issue(47, 8, 47, 46, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(52, 14, 52, 16 + resourceTypeLength, "Omitting \"infrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
   }
 }
