@@ -91,7 +91,7 @@ public class UnencryptedCloudServicesCheck extends AbstractArmResourceCheck {
       resource -> resource.property("infrastructureEncryption")
         .reportIf(UnencryptedCloudServicesCheck::isDisabled, UNENCRYPTED_MESSAGE)
         .reportIfAbsent(FORMAT_OMITTING));
-    
+
     register(List.of("Microsoft.Compute/disks", "Microsoft.Compute/snapshots"), checkComputeComponent());
   }
 
