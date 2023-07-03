@@ -186,13 +186,6 @@
         <artifactId>junit-platform-suite-engine</artifactId>
         <version>${version.junit.test-suite-engine}</version>
       </dependency>
-      <!-- Integration tests uses JUnit 4 -->
-      <dependency>
-        <groupId>org.junit.vintage</groupId>
-        <artifactId>junit-vintage-engine</artifactId>
-        <version>${version.junit}</version>
-        <scope>test</scope>
-      </dependency>
       <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
