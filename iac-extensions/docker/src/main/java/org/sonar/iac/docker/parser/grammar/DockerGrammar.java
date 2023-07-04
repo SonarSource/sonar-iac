@@ -58,6 +58,7 @@ import org.sonar.iac.docker.tree.api.UserInstruction;
 import org.sonar.iac.docker.tree.api.VolumeInstruction;
 import org.sonar.iac.docker.tree.api.WorkdirInstruction;
 
+// Ignore uppercase method names warning
 @SuppressWarnings("java:S100")
 public class DockerGrammar {
 

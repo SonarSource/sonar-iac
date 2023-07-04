@@ -17,27 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser;
+package org.sonar.iac.arm.parser.bicep;
 
-import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.TreeParser;
-import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public class ArmParser implements TreeParser<Tree> {
+public enum BicepKeyword implements GrammarRuleKey {
 
-  @Nullable
-  private InputFileContext inputFileContext;
+  TARGET_SCOPE("targetScope")
+  ;
 
-  @Override
-  public ArmTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    this.inputFileContext = inputFileContext;
-    if (inputFileContext != null && inputFileContext.inputFile.filename().endsWith(".bicep")) {
-      BicepParser bicepParser = BicepParser.create();
-      return bicepParser.parse(source, inputFileContext);
-    }
-    ArmJsonParser armJsonParser = new ArmJsonParser();
-    return armJsonParser.parse(source, inputFileContext);
+  private final String value;
+
+  BicepKeyword(String value) {
+    this.value = value;
+  }
+
+  public String getValue() {
+    return value;
   }
 }

@@ -36,9 +36,11 @@ class ArmParserTest {
 
   private final ArmParser parser = new ArmParser();
 
+  private final InputFileContext inputFileJsonContext = createInputFileJsonContext();
+
   @Test
   void shouldParseEmptyJson() {
-    File tree = (File) parser.parse("{}", null);
+    File tree = (File) parser.parse("{}", inputFileJsonContext);
     assertThat(tree.is(ArmTree.Kind.FILE)).isTrue();
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.children()).isEmpty();
@@ -49,19 +51,43 @@ class ArmParserTest {
 
   @Test
   void shouldThrowExceptionWhenParseError() {
-    assertThatThrownBy(() -> parser.parse("{", null))
+    assertThatThrownBy(() -> parser.parse("{", inputFileJsonContext))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse 'null'");
+      .hasMessage("Cannot parse 'dir1/dir2/foo.json'");
   }
 
   @Test
   void shouldThrowExceptionWithFileNameWhenParseError() {
+    assertThatThrownBy(() -> parser.parse("{", inputFileJsonContext))
+      .isInstanceOf(ParseException.class)
+      .hasMessage("Cannot parse 'dir1/dir2/foo.json'");
+  }
+
+  @Test
+  void shouldParseEmptyBicep() {
+    File tree = (File) parser.parse("", createInputFileBicepContext());
+    assertThat(tree.is(ArmTree.Kind.FILE)).isTrue();
+    assertThat(tree.statements()).isEmpty();
+    assertThat(tree.children()).isEmpty();
+    assertThat(tree.parent()).isNull();
+    assertThatThrownBy(tree::textRange)
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+
+  private InputFileContext createInputFileJsonContext() {
     InputFile inputFile = mock(InputFile.class);
     InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
-    when(inputFile.toString()).thenReturn("foo.json");
+    when(inputFile.toString()).thenReturn("dir1/dir2/foo.json");
+    when(inputFile.filename()).thenReturn("foo.json");
+    return inputFileContext;
+  }
 
-    assertThatThrownBy(() -> parser.parse("{", inputFileContext))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse 'foo.json'");
+  private InputFileContext createInputFileBicepContext() {
+    InputFile inputFile = mock(InputFile.class);
+    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    when(inputFile.toString()).thenReturn("dir1/dir2/foo.bicep");
+    when(inputFile.filename()).thenReturn("foo.bicep");
+    return inputFileContext;
   }
 }
