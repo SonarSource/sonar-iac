@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class TestBase {
   @RegisterExtension
-  public static final OrchestratorExtension ORCHESTRATOR = Tests.ORCHESTRATOR;
+  public static final OrchestratorExtension ORCHESTRATOR = TestsSetup.ORCHESTRATOR;
 
   protected SonarScanner getSonarScanner(String projectKey, String directoryToScan, String languageKey) {
     return getSonarScanner(projectKey, directoryToScan, languageKey, null);
@@ -108,9 +108,9 @@ public abstract class TestBase {
       .getIssuesList();
   }
 
-  protected List<Hotspots.SearchWsResponse.Hotspot> getHotspotsForProject(String projectkey) {
+  protected List<Hotspots.SearchWsResponse.Hotspot> getHotspotsForProject(String projectKey) {
     return newWsClient().hotspots().search(new org.sonarqube.ws.client.hotspots.SearchRequest()
-      .setProjectKey(projectkey)).getHotspotsList();
+      .setProjectKey(projectKey)).getHotspotsList();
   }
 
   protected Integer getMeasureAsInt(String componentKey, String metricKey) {

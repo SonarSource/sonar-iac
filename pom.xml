@@ -68,7 +68,6 @@
     <version.orchestrator>4.0.0.404</version.orchestrator>
     <version.sslr>1.24.0.633</version.sslr>
     <version.junit>5.9.3</version.junit>
-    <version.junit.test-suite-engine>1.8.1</version.junit.test-suite-engine>
     <version.assertj>3.23.1</version.assertj>
     <version.mockito>4.6.1</version.mockito>
     <version.archunit>1.0.1</version.archunit>
@@ -180,11 +179,6 @@
         <artifactId>junit-jupiter-api</artifactId>
         <version>${version.junit}</version>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.platform</groupId>
-        <artifactId>junit-platform-suite-engine</artifactId>
-        <version>${version.junit.test-suite-engine}</version>
       </dependency>
       <dependency>
         <groupId>org.assertj</groupId>

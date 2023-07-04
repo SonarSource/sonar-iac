@@ -22,21 +22,10 @@ package org.sonarsource.iac;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
-import org.junit.platform.suite.api.SelectClasses;
-import org.junit.platform.suite.api.Suite;
 
 import java.io.File;
 
-@Suite
-@SelectClasses({
-  CfnLintReportTest.class,
-  HadolintReportTest.class,
-  MeasuresTest.class,
-  NoSonarTest.class,
-  PropertiesTest.class,
-  TFLintReportTest.class
-})
-public class Tests {
+public class TestsSetup {
 
   static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
