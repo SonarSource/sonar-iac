@@ -19,16 +19,18 @@
  */
 package org.sonar.iac.common.checks;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonValue;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.api.tree.Tree;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class ResourceAccessPolicyVector {
 
@@ -42,9 +44,8 @@ public final class ResourceAccessPolicyVector {
 
   private static List<String> loadResourceAccessPolicies() {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.readValue(loadJsonFileAsResource(VECTOR_FILE), new TypeReference<>() {
-      });
+      JsonValue value = Json.parse(new InputStreamReader(loadJsonFileAsResource(VECTOR_FILE).openStream()));
+      return value.asArray().values().stream().map(JsonValue::asString).collect(Collectors.toList());
     } catch (IOException e) {
       LOG.error(e.getMessage());
     }
