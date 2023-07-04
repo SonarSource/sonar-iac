@@ -28,6 +28,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public final class ResourceAccessPolicyVector {
 
   private static List<String> loadResourceAccessPolicies() {
     try {
-      JsonValue value = Json.parse(new InputStreamReader(loadJsonFileAsResource(VECTOR_FILE).openStream()));
+      JsonValue value = Json.parse(new InputStreamReader(loadJsonFileAsResource(VECTOR_FILE).openStream(), StandardCharsets.UTF_8));
       return value.asArray().values().stream().map(JsonValue::asString).collect(Collectors.toList());
     } catch (IOException e) {
       LOG.error(e.getMessage());
