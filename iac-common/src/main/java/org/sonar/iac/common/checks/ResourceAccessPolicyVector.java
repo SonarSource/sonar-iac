@@ -26,6 +26,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.api.tree.Tree;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,10 +43,12 @@ public final class ResourceAccessPolicyVector {
   static List<String> loadResourceAccessPolicies(String filePath) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.readValue(
-        ResourceAccessPolicyVector.class.getClassLoader().getResourceAsStream(filePath),
-        new TypeReference<>() {
-        });
+      URL resource = ResourceAccessPolicyVector.class.getClassLoader().getResource(filePath);
+      if (resource == null) {
+        throw new IOException("No able to load " + filePath);
+      }
+      return objectMapper.readValue(resource, new TypeReference<>() {
+      });
     } catch (IOException e) {
       LOG.error(e.getMessage());
     }
