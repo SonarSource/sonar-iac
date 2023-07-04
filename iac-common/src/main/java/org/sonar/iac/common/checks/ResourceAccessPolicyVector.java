@@ -25,9 +25,9 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.api.tree.Tree;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +45,7 @@ public final class ResourceAccessPolicyVector {
 
   static List<String> loadResourceAccessPolicies(String filePath) {
     try {
-      JsonValue value = Json.parse(new InputStreamReader(loadJsonFileAsResource(filePath).openStream(), StandardCharsets.UTF_8));
+      JsonValue value = Json.parse(loadJsonFile(filePath));
       return value.asArray().values().stream().map(JsonValue::asString).collect(Collectors.toList());
     } catch (IOException e) {
       LOG.error(e.getMessage());
@@ -53,12 +53,18 @@ public final class ResourceAccessPolicyVector {
     return Collections.emptyList();
   }
 
-  static URL loadJsonFileAsResource(String filePath) throws IOException {
-    URL resource = ResourceAccessPolicyVector.class.getClassLoader().getResource(filePath);
-    if (resource == null) {
-      throw new IOException("No able to load " + filePath);
+  static String loadJsonFile(String filePath) throws IOException {
+    try (InputStream input = ResourceAccessPolicyVector.class.getClassLoader().getResourceAsStream(filePath)) {
+      if (input == null) {
+        throw new IOException("No able to load " + filePath);
+      }
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      byte[] buffer = new byte[4_096];
+      for (int read = input.read(buffer); read != -1; read = input.read(buffer)) {
+        out.write(buffer, 0, read);
+      }
+      return out.toString(StandardCharsets.UTF_8);
     }
-    return resource;
   }
 
   public static boolean isResourceAccessPolicy(Tree action) {
