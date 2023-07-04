@@ -21,13 +21,13 @@ package org.sonar.iac.docker.tree;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TreeUtilsTest {
+class TreeUtilsTest {
 
   private final Tree subtree1 = new TestTree("subtree1");
   private final Tree subtree2 = new TestTree("subtree2");
@@ -36,7 +36,7 @@ public class TreeUtilsTest {
   private final Tree nochild = new TestTree("nochild");
 
   @Test
-  public void test_firstDescendant() {
+  void test_firstDescendant() {
     Tree result = TreeUtils.firstDescendant(root, t -> ((TestTree) t).name().contains("subtree")).get();
     assertThat(result).isEqualTo(subtree1);
     result = TreeUtils.firstDescendant(root, t -> ((TestTree) t).name().contains("2")).get();
@@ -50,7 +50,7 @@ public class TreeUtilsTest {
   }
 
   @Test
-  public void test_lastDescendant() {
+  void test_lastDescendant() {
     Tree result = TreeUtils.lastDescendant(root, t -> ((TestTree) t).name().contains("subtree")).get();
     assertThat(result).isEqualTo(subtree3);
     result = TreeUtils.lastDescendant(root, t -> ((TestTree) t).name().contains("2")).get();
