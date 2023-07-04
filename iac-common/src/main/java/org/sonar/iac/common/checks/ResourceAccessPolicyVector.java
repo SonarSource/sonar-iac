@@ -41,11 +41,11 @@ public final class ResourceAccessPolicyVector {
   private ResourceAccessPolicyVector() {
   }
 
-  private static final List<String> RESOURCE_ACCESS_POLICIES = loadResourceAccessPolicies();
+  private static final List<String> RESOURCE_ACCESS_POLICIES = loadResourceAccessPolicies(VECTOR_FILE);
 
-  private static List<String> loadResourceAccessPolicies() {
+  static List<String> loadResourceAccessPolicies(String filePath) {
     try {
-      JsonValue value = Json.parse(new InputStreamReader(loadJsonFileAsResource(VECTOR_FILE).openStream(), StandardCharsets.UTF_8));
+      JsonValue value = Json.parse(new InputStreamReader(loadJsonFileAsResource(filePath).openStream(), StandardCharsets.UTF_8));
       return value.asArray().values().stream().map(JsonValue::asString).collect(Collectors.toList());
     } catch (IOException e) {
       LOG.error(e.getMessage());
