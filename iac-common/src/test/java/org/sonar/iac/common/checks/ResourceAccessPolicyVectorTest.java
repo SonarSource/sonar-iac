@@ -33,6 +33,8 @@ class ResourceAccessPolicyVectorTest {
   void loadJsonFile() {
     assertThrows(IOException.class, () -> ResourceAccessPolicyVector.loadJsonFile("unknown.json"),
       "No able to load unknown.json");
+
+    assertThat(ResourceAccessPolicyVector.loadResourceAccessPolicies("unknown.json")).isEmpty();
   }
 
   @Test
