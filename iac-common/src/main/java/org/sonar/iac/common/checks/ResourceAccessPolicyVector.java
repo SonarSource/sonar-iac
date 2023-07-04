@@ -38,21 +38,25 @@ public final class ResourceAccessPolicyVector {
   private ResourceAccessPolicyVector() {
   }
 
-  private static final List<String> RESOURCE_ACCESS_POLICIES = loadResourceAccessPolicies(VECTOR_FILE);
+  private static final List<String> RESOURCE_ACCESS_POLICIES = loadResourceAccessPolicies();
 
-  static List<String> loadResourceAccessPolicies(String filePath) {
+  private static List<String> loadResourceAccessPolicies() {
     try {
       ObjectMapper objectMapper = new ObjectMapper();
-      URL resource = ResourceAccessPolicyVector.class.getClassLoader().getResource(filePath);
-      if (resource == null) {
-        throw new IOException("No able to load " + filePath);
-      }
-      return objectMapper.readValue(resource, new TypeReference<>() {
+      return objectMapper.readValue(loadJsonFileAsResource(VECTOR_FILE), new TypeReference<>() {
       });
     } catch (IOException e) {
       LOG.error(e.getMessage());
     }
     return Collections.emptyList();
+  }
+
+  static URL loadJsonFileAsResource(String filePath) throws IOException {
+    URL resource = ResourceAccessPolicyVector.class.getClassLoader().getResource(filePath);
+    if (resource == null) {
+      throw new IOException("No able to load " + filePath);
+    }
+    return resource;
   }
 
   public static boolean isResourceAccessPolicy(Tree action) {
