@@ -68,12 +68,9 @@ class ArmParserTest {
     File tree = (File) parser.parse("", createInputFileBicepContext());
     assertThat(tree.is(ArmTree.Kind.FILE)).isTrue();
     assertThat(tree.statements()).isEmpty();
-    assertThat(tree.children()).isEmpty();
+    assertThat(tree.children()).hasSize(1).extracting("value").containsExactly("");
     assertThat(tree.parent()).isNull();
-    assertThatThrownBy(tree::textRange)
-      .isInstanceOf(IllegalArgumentException.class);
   }
-
 
   private InputFileContext createInputFileJsonContext() {
     InputFile inputFile = mock(InputFile.class);

@@ -23,8 +23,7 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public enum BicepKeyword implements GrammarRuleKey {
 
-  TARGET_SCOPE("targetScope")
-  ;
+  TARGET_SCOPE("targetScope");
 
   private final String value;
 
