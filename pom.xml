@@ -73,6 +73,7 @@
     <version.archunit>1.0.1</version.archunit>
     <version.snakeyaml>2.6</version.snakeyaml>
     <version.spotless>2.34.0</version.spotless>
+    <version.jackson>2.15.2</version.jackson>
     <gitRepositoryName>sonar-iac</gitRepositoryName>
     <!-- Release: enable publication to Bintray -->
     <artifactsToPublish>${project.groupId}:sonar-iac-plugin:jar</artifactsToPublish>

@@ -30,17 +30,16 @@
       <artifactId>sslr-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-      </exclusions>
-      <version>1.1.1</version>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${version.jackson}</version>
     </dependency>
-        <dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${version.jackson}</version>
+    </dependency>
+    <dependency>
       <groupId>org.snakeyaml</groupId>
       <artifactId>snakeyaml-engine</artifactId>
       <version>${version.snakeyaml}</version>
