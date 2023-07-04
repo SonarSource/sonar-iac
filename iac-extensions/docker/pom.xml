@@ -36,12 +36,6 @@
       <artifactId>sonar-iac-common</artifactId>
       <classifier>tests</classifier>
       <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-      </exclusions>
       <scope>test</scope>
     </dependency>
     <dependency>

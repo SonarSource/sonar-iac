@@ -50,7 +50,7 @@ class TreeUtilsTest {
   }
 
   @Test
-  public void test_lastDescendant() {
+  void test_lastDescendant() {
     Tree result = TreeUtils.lastDescendant(root, t -> ((TestTree) t).name().contains("subtree")).get();
     assertThat(result).isEqualTo(subtree3);
     result = TreeUtils.lastDescendant(root, t -> ((TestTree) t).name().contains("2")).get();
