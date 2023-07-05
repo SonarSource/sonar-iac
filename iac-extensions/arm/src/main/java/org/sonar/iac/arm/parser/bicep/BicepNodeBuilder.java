@@ -55,7 +55,7 @@ public class BicepNodeBuilder implements NodeBuilder {
 
       @Override
       public ArmTree.Kind getKind() {
-        return ArmTree.Kind.TOKEN;
+        throw new UnsupportedOperationException("No kind for AbstractArmTreeImpl");
       }
     };
   }

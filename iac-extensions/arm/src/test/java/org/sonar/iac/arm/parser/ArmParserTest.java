@@ -31,12 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ArmParserTest {
 
   private final ArmParser parser = new ArmParser();
 
-  private final InputFileContext inputFileJsonContext = createInputFileJsonContext();
+  private final InputFileContext inputFileJsonContext = createInputFileContextMock("foo.json");
 
   @Test
   void shouldParseEmptyJson() {
@@ -65,26 +66,10 @@ class ArmParserTest {
 
   @Test
   void shouldParseEmptyBicep() {
-    File tree = (File) parser.parse("", createInputFileBicepContext());
+    File tree = (File) parser.parse("", createInputFileContextMock("foo.bicep"));
     assertThat(tree.is(ArmTree.Kind.FILE)).isTrue();
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.children()).hasSize(1).extracting("value").containsExactly("");
     assertThat(tree.parent()).isNull();
-  }
-
-  private InputFileContext createInputFileJsonContext() {
-    InputFile inputFile = mock(InputFile.class);
-    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
-    when(inputFile.toString()).thenReturn("dir1/dir2/foo.json");
-    when(inputFile.filename()).thenReturn("foo.json");
-    return inputFileContext;
-  }
-
-  private InputFileContext createInputFileBicepContext() {
-    InputFile inputFile = mock(InputFile.class);
-    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
-    when(inputFile.toString()).thenReturn("dir1/dir2/foo.bicep");
-    when(inputFile.filename()).thenReturn("foo.bicep");
-    return inputFileContext;
   }
 }

@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class FileImplTest {
 
@@ -62,18 +63,10 @@ class FileImplTest {
   @Test
   void shouldFailOnInvalidExpressionValue() {
     String code = code("invalid code -");
-    InputFileContext inputFile = createInputFileBicepContext();
+    InputFileContext inputFile = createInputFileContextMock("foo.bicep");
 
     assertThatThrownBy(() -> parser.parse(code, inputFile))
       .isInstanceOf(ParseException.class)
       .hasMessage("Cannot parse 'dir1/dir2/foo.bicep:1:1'");
-  }
-
-  private InputFileContext createInputFileBicepContext() {
-    InputFile inputFile = mock(InputFile.class);
-    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
-    when(inputFile.toString()).thenReturn("dir1/dir2/foo.bicep");
-    when(inputFile.filename()).thenReturn("foo.bicep");
-    return inputFileContext;
   }
 }

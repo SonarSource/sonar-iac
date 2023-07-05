@@ -20,10 +20,8 @@
 package org.sonar.iac.arm.parser;
 
 import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.ParseException;
@@ -36,11 +34,8 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ArmBaseConverterTest {
 
@@ -49,9 +44,7 @@ class ArmBaseConverterTest {
 
   @BeforeEach
   void init() {
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.toString()).thenReturn("dir1/dir2/foo.json");
-    inputFileContext = new InputFileContext(null, inputFile);
+    inputFileContext = createInputFileContextMock("foo.json");
 
     yamlTreeMetadata = new YamlTreeMetadata(
       "tag",

@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -38,14 +36,13 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.STRING_LITERAL;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class OutputDeclarationImplTest {
 
@@ -255,7 +252,7 @@ class OutputDeclarationImplTest {
       "    ]",
       "  }",
       "}");
-    InputFileContext inputFileContext = mockInputFileContext("foo.json");
+    InputFileContext inputFileContext = createInputFileContextMock("foo.json");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, inputFileContext), ParseException.class);
     assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at dir1/dir2/foo.json:3:4");
     assertThat(parseException.getDetails()).isNull();
@@ -280,13 +277,5 @@ class OutputDeclarationImplTest {
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(6);
     assertThat(parseException.getPosition().lineOffset()).isEqualTo(16);
-  }
-
-  InputFileContext mockInputFileContext(String filename) {
-    SensorContext sensorContext = mock(SensorContext.class);
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.filename()).thenReturn(filename);
-    when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
-    return new InputFileContext(sensorContext, inputFile);
   }
 }

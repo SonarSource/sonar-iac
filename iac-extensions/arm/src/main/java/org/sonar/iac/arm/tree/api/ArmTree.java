@@ -55,9 +55,7 @@ public interface ArmTree extends Tree {
     OBJECT_EXPRESSION(ObjectExpression.class),
 
     // Bicep specific,
-    TARGET_SCOPE_DECLARATION(TargetScopeDeclaration.class),
-    // TODO is it needed?
-    TOKEN(SyntaxToken.class);
+    TARGET_SCOPE_DECLARATION(TargetScopeDeclaration.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 

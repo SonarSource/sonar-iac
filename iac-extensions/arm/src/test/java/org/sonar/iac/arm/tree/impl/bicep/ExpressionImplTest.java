@@ -47,7 +47,6 @@ class ExpressionImplTest {
 
     assertThat(tree.children()).hasSize(1);
     SyntaxToken token = (SyntaxToken) tree.children().get(0);
-    assertThat(token.is(ArmTree.Kind.TOKEN)).isTrue();
     assertThat(token.children()).isEmpty();
     assertThat(token.comments()).isEmpty();
   }
