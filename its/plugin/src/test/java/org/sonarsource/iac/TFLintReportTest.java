@@ -20,6 +20,7 @@
 package org.sonarsource.iac;
 
 import com.sonar.orchestrator.build.SonarScanner;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
@@ -28,12 +29,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TFLintReportTest extends TestBase {
+class TFLintReportTest extends TestBase {
   private static final String PROJECT = "tflint";
   private static final String BASE_DIRECTORY = "projects/" + PROJECT + "/";
 
   @Test
-  public void import_report() {
+  void import_report() {
     SonarScanner sonarScanner = getSonarScanner(PROJECT, BASE_DIRECTORY, "terraform", "aws-provider");
     // start analysis of the project
     executeBuildWithExpectedWarnings(ORCHESTRATOR, sonarScanner);
@@ -43,16 +44,18 @@ public class TFLintReportTest extends TestBase {
 
     // testing only the first one as sanity check
     Issues.Issue first = issues.get(0);
-    assertThat(first.getComponent()).isEqualTo(PROJECT + ":src/examples.tf");
-    assertThat(first.getRule()).isEqualTo("external_tflint:terraform_comment_syntax");
-    assertThat(first.getMessage()).isEqualTo("Single line comments should begin with #");
-    assertThat(first.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
-    assertThat(first.getSeverity()).isEqualTo(Common.Severity.MINOR);
-    assertThat(first.getEffort()).isEqualTo("5min");
-    assertThat(first.getLine()).isEqualTo(2);
-    assertThat(first.getTextRange().getStartLine()).isEqualTo(2);
-    assertThat(first.getTextRange().getStartOffset()).isZero();
-    assertThat(first.getTextRange().getEndLine()).isEqualTo(3);
-    assertThat(first.getTextRange().getEndOffset()).isZero();
+    SoftAssertions softly = new SoftAssertions();
+    softly.assertThat(first.getComponent()).isEqualTo(PROJECT + ":src/examples.tf");
+    softly.assertThat(first.getRule()).isEqualTo("external_tflint:terraform_comment_syntax");
+    softly.assertThat(first.getMessage()).isEqualTo("Single line comments should begin with #");
+    softly.assertThat(first.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    softly.assertThat(first.getSeverity()).isEqualTo(Common.Severity.MINOR);
+    softly.assertThat(first.getEffort()).isEqualTo("5min");
+    softly.assertThat(first.getLine()).isEqualTo(2);
+    softly.assertThat(first.getTextRange().getStartLine()).isEqualTo(2);
+    softly.assertThat(first.getTextRange().getStartOffset()).isZero();
+    softly.assertThat(first.getTextRange().getEndLine()).isEqualTo(3);
+    softly.assertThat(first.getTextRange().getEndOffset()).isZero();
+    softly.assertAll();
   }
 }
