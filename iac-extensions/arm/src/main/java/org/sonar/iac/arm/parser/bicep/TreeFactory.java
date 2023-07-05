@@ -24,16 +24,20 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
+import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 
 public class TreeFactory {
 
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
   public File file(Optional<List<Statement>> statements, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileImpl(statements.or(Collections.emptyList()), eof);
   }
@@ -44,5 +48,9 @@ public class TreeFactory {
 
   public StringLiteral stringLiteral(SyntaxToken token) {
     return new StringLiteralImpl(token);
+  }
+
+  public Identifier identifier(SyntaxToken token) {
+    return new IdentifierImpl(token);
   }
 }
