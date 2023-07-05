@@ -32,11 +32,6 @@ public class BooleanLiteralImpl extends ExpressionImpl implements BooleanLiteral
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.BOOLEAN_LITERAL;
-  }
-
-  @Override
   public boolean value() {
     return value;
   }

@@ -17,14 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.json;
+package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.sonar.iac.arm.tree.api.NullLiteral;
-import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
+import java.util.List;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.Tree;
 
-public class NullLiteralImpl extends ExpressionImpl implements NullLiteral {
+public class NumericLiteralImpl extends AbstractArmTreeImpl implements NumericLiteral {
 
-  public NullLiteralImpl(YamlTreeMetadata metadata) {
-    super(metadata);
+  private final SyntaxToken token;
+
+  public NumericLiteralImpl(SyntaxToken token) {
+    this.token = token;
+  }
+
+  @Override
+  public double value() {
+    return Double.parseDouble(token.value());
+  }
+
+  @Override
+  public List<Tree> children() {
+    return List.of(token);
   }
 }
