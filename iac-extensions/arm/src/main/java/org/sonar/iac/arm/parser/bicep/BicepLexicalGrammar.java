@@ -46,13 +46,13 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
    * Statements
    */
   STATEMENT,
-  IDENTIFIER,
   TARGET_SCOPE_DECLARATION,
 
   /**
    * Expressions
    */
   EXPRESSION,
+  IDENTIFIER,
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
   STRING_LITERAL,
