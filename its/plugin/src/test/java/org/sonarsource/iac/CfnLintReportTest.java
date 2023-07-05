@@ -20,6 +20,7 @@
 package org.sonarsource.iac;
 
 import com.sonar.orchestrator.build.SonarScanner;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
@@ -28,12 +29,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CfnLintReportTest extends TestBase {
+class CfnLintReportTest extends TestBase {
   private static final String PROJECT = "cfn-lint_project";
   private static final String BASE_DIRECTORY = "projects/" + PROJECT + "/";
 
   @Test
-  public void import_report() {
+  void import_report() {
     SonarScanner sonarScanner = getSonarScanner(PROJECT, BASE_DIRECTORY, "cloudformation", "no_rules");
     // start analysis of the project
     executeBuildWithExpectedWarnings(ORCHESTRATOR, sonarScanner);
@@ -41,13 +42,15 @@ public class CfnLintReportTest extends TestBase {
     List<Issues.Issue> issues = issuesForComponent(PROJECT);
     assertThat(issues).hasSize(1);
     Issues.Issue first = issues.get(0);
-    assertThat(first.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
-    assertThat(first.getRule()).isEqualTo("external_cfn-lint:E0000");
-    assertThat(first.getMessage()).isEqualTo("Null value at line 8 column 20");
-    assertThat(first.getType()).isEqualTo(Common.RuleType.BUG);
-    assertThat(first.getSeverity()).isEqualTo(Common.Severity.MAJOR);
-    assertThat(first.getEffort()).isEqualTo("0min");
-    assertThat(first.getLine()).isEqualTo(8);
+    SoftAssertions softly = new SoftAssertions();
+    softly.assertThat(first.getComponent()).isEqualTo(PROJECT + ":src/template.yaml");
+    softly.assertThat(first.getRule()).isEqualTo("external_cfn-lint:E0000");
+    softly.assertThat(first.getMessage()).isEqualTo("Null value at line 8 column 20");
+    softly.assertThat(first.getType()).isEqualTo(Common.RuleType.BUG);
+    softly.assertThat(first.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(first.getEffort()).isEqualTo("0min");
+    softly.assertThat(first.getLine()).isEqualTo(8);
+    softly.assertAll();
   }
 
 }

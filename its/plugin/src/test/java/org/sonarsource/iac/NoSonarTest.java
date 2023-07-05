@@ -23,14 +23,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NoSonarTest extends TestBase {
+class NoSonarTest extends TestBase {
 
   private static final String BASE_DIRECTORY = "projects/nosonar/";
   private static final String NO_SONAR_PROFILE_NAME = "nosonar-profile";
   private static final String RULE_KEY = "S6273";
 
   @Test
-  public void test_terraform_nosonar() {
+  void test_terraform_nosonar() {
     checkForLanguage("terraformNoSonar", "terraform");
   }
 

@@ -24,12 +24,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MeasuresTest extends TestBase {
+class MeasuresTest extends TestBase {
 
   private static final String BASE_DIRECTORY = "projects/measures/";
 
   @Test
-  public void terraform_measures() {
+  void terraform_measures() {
     final String projectKey = "terraformMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "terraform"));
 
@@ -49,7 +49,7 @@ public class MeasuresTest extends TestBase {
   }
 
   @Test
-  public void cloudformation_yaml_measures() {
+  void cloudformation_yaml_measures() {
     final String projectKey = "cloudformationYamlMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "cloudformation"));
 
@@ -63,7 +63,7 @@ public class MeasuresTest extends TestBase {
   }
 
   @Test
-  public void cloudformation_json_measures() {
+  void cloudformation_json_measures() {
     final String projectKey = "cloudformationJsonMeasures";
     ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, "cloudformation"));
 
@@ -77,7 +77,7 @@ public class MeasuresTest extends TestBase {
   }
 
   @Test
-  public void kubernetes_yaml_measures() {
+  void kubernetes_yaml_measures() {
     final String projectKey = "kubernetesYamlMeasures";
     SonarScanner scanner = getSonarScanner(projectKey, BASE_DIRECTORY, "kubernetes");
 
@@ -93,7 +93,7 @@ public class MeasuresTest extends TestBase {
   }
 
   @Test
-  public void docker_measures() {
+  void docker_measures() {
     final String projectKey = "dockerMeasures";
     SonarScanner scanner = getSonarScanner(projectKey, BASE_DIRECTORY, "docker");
 

@@ -20,30 +20,38 @@
 package org.sonarsource.iac;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PropertiesTest extends TestBase {
+class PropertiesTest extends TestBase {
 
   private static final String BASE_DIRECTORY = "projects/properties/";
 
   @Test
-  public void test_terraform_custom_file_suffixes() {
+  void test_terraform_custom_file_suffixes() {
     checkCustomFileSuffixesForLanguage("terraformCustomFileSuffixes", "terraform", ".terra", 1);
   }
 
-  @Test
-  public void test_terraform_aws_provider_version() {
-    checkTerraformAwsProviderVersion("terraformAwsProviderVersion3", "3", 1);
-    checkTerraformAwsProviderVersion("terraformAwsProviderVersion4", "4", 0);
-    checkTerraformAwsProviderVersion("terraformAwsProviderVersionNotProvided", "", 0);
+  @ParameterizedTest
+  @CsvSource({
+    "terraformAwsProviderVersion3, 3, 1",
+    "terraformAwsProviderVersion4, 4, 0",
+    "terraformAwsProviderVersionNotProvided, '', 0"
+  })
+  void test_terraform_aws_provider_version(String projectKey, String version, int expectedHotspots) {
+    checkTerraformAwsProviderVersion(projectKey, version, expectedHotspots);
   }
 
-  @Test
-  public void test_cloudformation_identifier() {
-    checkCustomFileIdentifierForLanguage("cloudformationDefaultIdentifier", "cloudformation", "AWSTemplateFormatVersion", 5);
-    checkCustomFileIdentifierForLanguage("cloudformationCustomIdentifier", "cloudformation", "CustomIdentifier", 3);
-    checkCustomFileIdentifierForLanguage("cloudformationEmptyIdentifier", "cloudformation", "", 8);
+  @ParameterizedTest
+  @CsvSource({
+    "cloudformationDefaultIdentifier, cloudformation, AWSTemplateFormatVersion, 5",
+    "cloudformationCustomIdentifier, cloudformation, CustomIdentifier, 3",
+    "cloudformationEmptyIdentifier, cloudformation, '', 8"
+  })
+  void test_cloudformation_identifier(String projectKey, String language, String identifier, int expectedNcloc) {
+    checkCustomFileIdentifierForLanguage(projectKey, language, identifier, expectedNcloc);
   }
 
   private void checkCustomFileSuffixesForLanguage(String projectKey, String language, String suffixes, int expectedFiles) {

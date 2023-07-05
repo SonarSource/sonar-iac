@@ -20,6 +20,7 @@
 package org.sonarsource.iac;
 
 import com.sonar.orchestrator.build.SonarScanner;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
@@ -29,12 +30,12 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HadolintReportTest extends TestBase {
+class HadolintReportTest extends TestBase {
   private static final String PROJECT = "hadolint_project";
   private static final String BASE_DIRECTORY = "projects/" + PROJECT + "/";
 
   @Test
-  public void import_report() {
+  void import_report() {
     SonarScanner sonarScanner = getSonarScanner(PROJECT, BASE_DIRECTORY, "docker", "no_rules");
     // start analysis of the project
     executeBuildWithExpectedWarnings(ORCHESTRATOR, sonarScanner);
@@ -45,13 +46,15 @@ public class HadolintReportTest extends TestBase {
     Optional<Issues.Issue> optionalIssue = issues.stream().filter(issue -> issue.getRule().equals("external_hadolint:DL3007")).findFirst();
     assertThat(optionalIssue).isNotEmpty();
     Issues.Issue issue = optionalIssue.get();
-    assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/test.docker");
-    assertThat(issue.getRule()).isEqualTo("external_hadolint:DL3007");
-    assertThat(issue.getMessage()).isEqualTo("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag");
-    assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
-    assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
-    assertThat(issue.getEffort()).isEqualTo("5min");
-    assertThat(issue.getLine()).isEqualTo(10);
+    SoftAssertions softly = new SoftAssertions();
+    softly.assertThat(issue.getComponent()).isEqualTo(PROJECT + ":src/test.docker");
+    softly.assertThat(issue.getRule()).isEqualTo("external_hadolint:DL3007");
+    softly.assertThat(issue.getMessage()).isEqualTo("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag");
+    softly.assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+    softly.assertThat(issue.getSeverity()).isEqualTo(Common.Severity.MAJOR);
+    softly.assertThat(issue.getEffort()).isEqualTo("5min");
+    softly.assertThat(issue.getLine()).isEqualTo(10);
+    softly.assertAll();
   }
 
 }
