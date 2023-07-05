@@ -24,13 +24,16 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 
 public class TreeFactory {
 
@@ -40,6 +43,10 @@ public class TreeFactory {
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken targetScope, SyntaxToken equals, Expression expression) {
     return new TargetScopeDeclarationImpl(targetScope, equals, expression);
+  }
+
+  public VariableDeclaration variableDeclaration(SyntaxToken variableKeyword, Identifier identifier, SyntaxToken equals, Expression expression) {
+    return new VariableDeclarationImpl(variableKeyword, identifier, equals, expression);
   }
 
   public StringLiteral stringLiteral(SyntaxToken token) {

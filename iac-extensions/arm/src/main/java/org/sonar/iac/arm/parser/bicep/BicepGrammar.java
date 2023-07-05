@@ -26,6 +26,7 @@ import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.VariableDeclaration;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
 // Ignore uppercase method names warning
@@ -51,7 +52,8 @@ public class BicepGrammar {
   public Statement STATEMENT() {
     return b.<Statement>nonterminal(BicepLexicalGrammar.STATEMENT).is(
       b.firstOf(
-        TARGET_SCOPE_DECLARATION()));
+        TARGET_SCOPE_DECLARATION(),
+        VARIABLE_DECLARATION()));
   }
 
   public TargetScopeDeclaration TARGET_SCOPE_DECLARATION() {
@@ -60,6 +62,17 @@ public class BicepGrammar {
         b.token(BicepKeyword.TARGET_SCOPE),
         b.token(Punctuator.EQU),
         EXPRESSION()));
+  }
+
+  public VariableDeclaration VARIABLE_DECLARATION() {
+    return b.nonterminal(BicepLexicalGrammar.VARIABLE_DECLARATION).is(
+      f.variableDeclaration(
+        b.token(BicepKeyword.VARIABLE),
+        b.token(BicepLexicalGrammar.IDENTIFIER),
+        b.token(Punctuator.EQU),
+        EXPRESSION()
+      )
+    );
   }
 
   public Expression EXPRESSION() {
