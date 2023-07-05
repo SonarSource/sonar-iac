@@ -60,6 +60,7 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
   @CheckForNull
   @Override
   public StringLiteral targetScopeLiteral() {
+    // TODO fix it in SONARIAC-932
     return null;
   }
 

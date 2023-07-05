@@ -70,6 +70,7 @@ public class BicepGrammar {
           STRING_LITERAL_VALUE())));
   }
 
+  // TODO Should return the proper Expression implementation: NumericLiteral, BooleanLiteral or NullLiteral
   public StringLiteral LITERAL_VALUE() {
     return b.<StringLiteral>nonterminal(BicepLexicalGrammar.LITERAL_VALUE).is(
       f.stringLiteral(
