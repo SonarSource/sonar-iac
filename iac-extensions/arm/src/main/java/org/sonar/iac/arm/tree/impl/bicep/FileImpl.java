@@ -54,14 +54,14 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
 
   @Override
   public Scope targetScope() {
-    // TODO fix it in SONARIAC-932
+    // TODO fix it in SONARIAC-932 Adapt targetScope Bicep implementation in Bicep FileImpl
     return Scope.RESOURCE_GROUP;
   }
 
   @CheckForNull
   @Override
   public Expression targetScopeLiteral() {
-    // TODO fix it in SONARIAC-932
+    // TODO fix it in SONARIAC-932 Adapt targetScope Bicep implementation in Bicep FileImpl
     return null;
   }
 
