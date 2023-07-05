@@ -64,13 +64,12 @@ public class BicepGrammar {
 
   public Expression EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
-      f.expression(
-        b.firstOf(
-          LITERAL_VALUE(),
-          STRING_LITERAL_VALUE())));
+      b.firstOf(
+        LITERAL_VALUE(),
+        STRING_LITERAL_VALUE()));
   }
 
-  // TODO SONARIAC-934
+  // TODO SONARIAC-934 Extending of LiteralValue in grammar should return the proper Expression implementation
   public StringLiteral LITERAL_VALUE() {
     return b.<StringLiteral>nonterminal(BicepLexicalGrammar.LITERAL_VALUE).is(
       f.stringLiteral(

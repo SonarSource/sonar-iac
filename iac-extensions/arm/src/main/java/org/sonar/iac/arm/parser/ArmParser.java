@@ -27,17 +27,14 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public class ArmParser implements TreeParser<Tree> {
 
-  @Nullable
-  private InputFileContext inputFileContext;
+  private static final BicepParser bicepParser = BicepParser.create();
+  private static final ArmJsonParser jsonParser = new ArmJsonParser();
 
   @Override
   public ArmTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    this.inputFileContext = inputFileContext;
     if (inputFileContext != null && inputFileContext.inputFile.filename().endsWith(".bicep")) {
-      BicepParser bicepParser = BicepParser.create();
       return bicepParser.parse(source, inputFileContext);
     }
-    ArmJsonParser armJsonParser = new ArmJsonParser();
-    return armJsonParser.parse(source, inputFileContext);
+    return jsonParser.parse(source, inputFileContext);
   }
 }

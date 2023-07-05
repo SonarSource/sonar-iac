@@ -26,7 +26,7 @@ public interface File extends ArmTree {
   Scope targetScope();
 
   @CheckForNull
-  StringLiteral targetScopeLiteral();
+  Expression targetScopeLiteral();
 
   List<Statement> statements();
 

@@ -42,10 +42,6 @@ public class TreeFactory {
     return new TargetScopeDeclarationImpl(targetScope, equals, expression);
   }
 
-  public Expression expression(StringLiteral stringLiteral) {
-    return stringLiteral;
-  }
-
   public StringLiteral stringLiteral(SyntaxToken token) {
     return new StringLiteralImpl(token);
   }

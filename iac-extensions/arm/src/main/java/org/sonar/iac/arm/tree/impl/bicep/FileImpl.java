@@ -22,6 +22,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -59,7 +60,7 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
 
   @CheckForNull
   @Override
-  public StringLiteral targetScopeLiteral() {
+  public Expression targetScopeLiteral() {
     // TODO fix it in SONARIAC-932
     return null;
   }

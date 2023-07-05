@@ -40,8 +40,16 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   EOL,
 
   FILE,
+
+  /**
+   * Statements
+   */
   STATEMENT,
   TARGET_SCOPE_DECLARATION,
+
+  /**
+   * Expressions
+   */
   EXPRESSION,
   LITERAL_VALUE,
   STRING_LITERAL,
