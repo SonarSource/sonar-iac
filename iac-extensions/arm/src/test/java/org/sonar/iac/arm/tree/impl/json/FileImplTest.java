@@ -53,6 +53,7 @@ class FileImplTest {
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.targetScope()).isEqualTo(File.Scope.TENANT);
     assertThat(tree.targetScopeLiteral())
+      .asStringLiteral()
       .hasValue("https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#")
       .hasRange(2, 13, 2, 100);
   }
@@ -73,6 +74,6 @@ class FileImplTest {
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.targetScope().name()).isEqualTo(scope);
-    assertThat(tree.targetScopeLiteral()).hasValue(schema);
+    assertThat(tree.targetScopeLiteral()).asStringLiteral().hasValue(schema);
   }
 }

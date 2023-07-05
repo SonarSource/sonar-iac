@@ -26,10 +26,9 @@ import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.extension.ParseException.createGeneralParseException;
 import static org.sonar.iac.common.extension.ParseException.createParseException;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ParseExceptionTest {
 
@@ -40,9 +39,8 @@ class ParseExceptionTest {
 
   @BeforeEach
   public void init() {
-    inputFile = mock(InputFile.class);
-    when(inputFile.toString()).thenReturn("dir1/dir2/TestFile.abc");
-    inputFileContext = new InputFileContext(null, inputFile);
+    inputFileContext = createInputFileContextMock("TestFile.abc");
+    inputFile = inputFileContext.inputFile;
   }
 
   @Test

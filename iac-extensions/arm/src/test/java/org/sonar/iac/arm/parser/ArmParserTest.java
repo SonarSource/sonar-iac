@@ -20,8 +20,6 @@
 package org.sonar.iac.arm.parser;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.common.extension.ParseException;
@@ -29,16 +27,17 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ArmParserTest {
 
   private final ArmParser parser = new ArmParser();
 
+  private final InputFileContext inputFileJsonContext = createInputFileContextMock("foo.json");
+
   @Test
   void shouldParseEmptyJson() {
-    File tree = (File) parser.parse("{}", null);
+    File tree = (File) parser.parse("{}", inputFileJsonContext);
     assertThat(tree.is(ArmTree.Kind.FILE)).isTrue();
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.children()).isEmpty();
@@ -49,19 +48,24 @@ class ArmParserTest {
 
   @Test
   void shouldThrowExceptionWhenParseError() {
-    assertThatThrownBy(() -> parser.parse("{", null))
+    assertThatThrownBy(() -> parser.parse("{", inputFileJsonContext))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse 'null'");
+      .hasMessage("Cannot parse 'dir1/dir2/foo.json'");
   }
 
   @Test
   void shouldThrowExceptionWithFileNameWhenParseError() {
-    InputFile inputFile = mock(InputFile.class);
-    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
-    when(inputFile.toString()).thenReturn("foo.json");
-
-    assertThatThrownBy(() -> parser.parse("{", inputFileContext))
+    assertThatThrownBy(() -> parser.parse("{", inputFileJsonContext))
       .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse 'foo.json'");
+      .hasMessage("Cannot parse 'dir1/dir2/foo.json'");
+  }
+
+  @Test
+  void shouldParseEmptyBicep() {
+    File tree = (File) parser.parse("", createInputFileContextMock("foo.bicep"));
+    assertThat(tree.is(ArmTree.Kind.FILE)).isTrue();
+    assertThat(tree.statements()).isEmpty();
+    assertThat(tree.children()).hasSize(1).extracting("value").containsExactly("");
+    assertThat(tree.parent()).isNull();
   }
 }

@@ -23,10 +23,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IacTestUtils {
 
@@ -53,5 +59,13 @@ public class IacTestUtils {
   public static void addFileToContext(SensorContextTester context, File baseDir, String path) throws IOException {
     File someFile = new File(path);
     context.fileSystem().add(new TestInputFileBuilder("project", baseDir, someFile).setContents(new String(Files.readAllBytes(someFile.toPath()))).build());
+  }
+
+  public static InputFileContext createInputFileContextMock(String filename) {
+    InputFile inputFile = mock(InputFile.class);
+    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
+    when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
+    when(inputFile.filename()).thenReturn(filename);
+    return inputFileContext;
   }
 }
