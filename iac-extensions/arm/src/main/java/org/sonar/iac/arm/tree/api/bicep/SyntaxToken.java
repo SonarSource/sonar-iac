@@ -17,25 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.common.api.tree.IacToken;
 
-public interface File extends ArmTree {
-  Scope targetScope();
+public interface SyntaxToken extends ArmTree, IacToken {
 
-  @CheckForNull
-  Expression targetScopeLiteral();
-
-  List<Statement> statements();
-
-  enum Scope {
-    RESOURCE_GROUP,
-    MANAGEMENT_GROUP,
-    SUBSCRIPTION,
-    TENANT,
-    UNKNOWN,
-    NOT_SET
-  }
 }

@@ -20,8 +20,9 @@
 package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
-import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
+import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
+import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -50,7 +51,10 @@ public interface ArmTree extends Tree {
     NULL_LITERAL(NullLiteral.class),
     STRING_LITERAL(StringLiteral.class),
     ARRAY_EXPRESSION(ArrayExpression.class),
-    OBJECT_EXPRESSION(ObjectExpression.class);
+    OBJECT_EXPRESSION(ObjectExpression.class),
+
+    // Bicep specific,
+    TARGET_SCOPE_DECLARATION(TargetScopeDeclaration.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 

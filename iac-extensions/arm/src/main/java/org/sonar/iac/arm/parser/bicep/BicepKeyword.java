@@ -17,25 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.parser.bicep;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public interface File extends ArmTree {
-  Scope targetScope();
+public enum BicepKeyword implements GrammarRuleKey {
 
-  @CheckForNull
-  Expression targetScopeLiteral();
+  TARGET_SCOPE("targetScope");
 
-  List<Statement> statements();
+  private final String value;
 
-  enum Scope {
-    RESOURCE_GROUP,
-    MANAGEMENT_GROUP,
-    SUBSCRIPTION,
-    TENANT,
-    UNKNOWN,
-    NOT_SET
+  BicepKeyword(String value) {
+    this.value = value;
+  }
+
+  public String getValue() {
+    return value;
   }
 }

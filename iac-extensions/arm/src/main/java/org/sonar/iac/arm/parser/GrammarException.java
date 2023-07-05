@@ -17,25 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.parser;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-
-public interface File extends ArmTree {
-  Scope targetScope();
-
-  @CheckForNull
-  Expression targetScopeLiteral();
-
-  List<Statement> statements();
-
-  enum Scope {
-    RESOURCE_GROUP,
-    MANAGEMENT_GROUP,
-    SUBSCRIPTION,
-    TENANT,
-    UNKNOWN,
-    NOT_SET
+public class GrammarException extends RuntimeException {
+  public GrammarException(String s, RuntimeException exception) {
+    super(s, exception);
   }
 }

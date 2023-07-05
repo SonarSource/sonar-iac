@@ -48,11 +48,12 @@ import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PARAMETER_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
+import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
 class ParameterDeclarationImplTest {
 
   private final ArmParser parser = new ArmParser();
-  private final InputFileContext mockFile = mockFile();
+  private final InputFileContext mockFile = createInputFileContextMock("foo.json");
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -271,13 +272,5 @@ class ParameterDeclarationImplTest {
     assertThat(parameter.maxLength()).isNull();
 
     assertThat(tree.statements()).hasSize(2);
-  }
-
-  private static InputFileContext mockFile() {
-    InputFile inputFile = mock(InputFile.class);
-    InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
-    when(inputFile.filename()).thenReturn("foo.json");
-    when(inputFile.toString()).thenReturn("dir1/dir2/foo.json");
-    return inputFileContext;
   }
 }
