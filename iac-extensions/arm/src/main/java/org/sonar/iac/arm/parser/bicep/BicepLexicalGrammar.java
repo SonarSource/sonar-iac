@@ -49,14 +49,22 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   TARGET_SCOPE_DECLARATION,
   METADATA_DECLARATION,
   VARIABLE_DECLARATION,
+  RESOURCE_DECLARATION,
+
 
   /**
    * Expressions
    */
   EXPRESSION,
   IDENTIFIER,
+  PROPERTY,
+
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
+  INTERPOLATED_STRING,
+
+  STRING_LITERAL,
+  NUMBER_LITERAL,
   NUMERIC_LITERAL,
   BOOLEAN_LITERAL,
   TRUE_LITERAL,
@@ -84,7 +92,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void punctuators(LexerlessGrammarBuilder b) {
-    Stream.of(Punctuator.EQU).forEach(
+    Stream.of(Punctuator.EQU, Punctuator.COLON).forEach(
       p -> b.rule(p).is(SPACING, p.getValue()).skip());
   }
 
@@ -99,11 +107,11 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
       .skip();
 
     b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
-    b.rule(STRING_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.STRING));
-    b.rule(NUMERIC_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.NUMBER));
-    b.rule(TRUE_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.TRUE));
-    b.rule(FALSE_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.FALSE));
-    b.rule(NULL_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.NULL));
+    b.rule(STRING_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.STRING));
+    b.rule(NUMERIC_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NUMBER));
+    b.rule(TRUE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.TRUE));
+    b.rule(FALSE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.FALSE));
+    b.rule(NULL_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NULL));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

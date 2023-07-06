@@ -28,8 +28,10 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -37,6 +39,8 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
+import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
@@ -71,6 +75,14 @@ public class TreeFactory {
 
   public Identifier identifier(SyntaxToken token) {
     return new IdentifierImpl(token);
+  }
+
+  public InterpolatedString interpolatedString(SyntaxToken openApostrophe, SyntaxToken value, SyntaxToken closeApostrophe) {
+    return new InterpolatedStringImpl(openApostrophe, value, closeApostrophe);
+  }
+
+  public Property objectProperty(Identifier key, SyntaxToken colon, Expression value) {
+    return new PropertyImpl(key, colon, value);
   }
 
   // Ignore unused method parameters

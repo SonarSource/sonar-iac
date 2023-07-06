@@ -26,8 +26,10 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -92,11 +94,51 @@ public class BicepGrammar {
         b.token(EOL)));
   }
 
+  //  public ResourceDeclaration RESOURCE_DECLARATION() {
+//    return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
+//      f.resourceDeclaration(
+//        b.token(BicepKeyword.RESOURCE),
+//        IDENTIFIER(),
+//        INTERP_STRING_TYPE(),
+//        b.optional(b.token(BicepKeyword.EXISTING)),
+//        b.token(Punctuator.EQU),
+//        OBJECT_DECLARATION(),
+//        b.token(BicepLexicalGrammar.EOF)
+//        )
+//    );
+//  }
+
+  public InterpolatedString INTERPOLATED_STRING_TYPE() {
+    return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
+      f.interpolatedString(
+        b.token(BicepLexicalGrammar.APOSTROPHE),
+        b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING),
+        b.token(BicepLexicalGrammar.APOSTROPHE)
+      )
+    );
+  }
+
+//  public void OBJECT_DECLARATION() {
+//
+//  }
+
+
+  public Property PROPERTY() {
+    return b.<Property>nonterminal(BicepLexicalGrammar.PROPERTY).is(
+      f.objectProperty(
+        IDENTIFIER(),
+        b.token(Punctuator.COLON),
+        EXPRESSION()
+      )
+    );
+  }
+
   public Expression EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
       f.ignoreFirst(
         b.token(BicepLexicalGrammar.SPACING),
         b.firstOf(
+          ALPHA_NUMERAL_STRING(),
           LITERAL_VALUE(),
           STRING_LITERAL())));
   }
@@ -138,5 +180,10 @@ public class BicepGrammar {
     return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER).is(
       f.identifier(
         b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
+  }
+
+  public StringLiteral ALPHA_NUMERAL_STRING() {
+    return b.<StringLiteral>nonterminal().is(
+      f.stringLiteral(b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
   }
 }
