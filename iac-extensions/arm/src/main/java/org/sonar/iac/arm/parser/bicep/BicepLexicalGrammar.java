@@ -51,7 +51,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   VARIABLE_DECLARATION,
   RESOURCE_DECLARATION,
 
-
   /**
    * Expressions
    */

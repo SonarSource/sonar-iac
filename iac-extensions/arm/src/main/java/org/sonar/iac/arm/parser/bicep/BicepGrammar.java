@@ -107,30 +107,38 @@ public class BicepGrammar {
 //        )
 //    );
 //  }
+  // public ResourceDeclaration RESOURCE_DECLARATION() {
+  // return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
+  // f.resourceDeclaration(
+  // b.token(BicepKeyword.RESOURCE),
+  // IDENTIFIER(),
+  // INTERP_STRING_TYPE(),
+  // b.optional(b.token(BicepKeyword.EXISTING)),
+  // b.token(Punctuator.EQU),
+  // OBJECT_DECLARATION(),
+  // b.token(BicepLexicalGrammar.EOF)
+  // )
+  // );
+  // }
 
   public InterpolatedString INTERPOLATED_STRING_TYPE() {
     return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
       f.interpolatedString(
         b.token(BicepLexicalGrammar.APOSTROPHE),
         b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING),
-        b.token(BicepLexicalGrammar.APOSTROPHE)
-      )
-    );
+        b.token(BicepLexicalGrammar.APOSTROPHE)));
   }
 
-//  public void OBJECT_DECLARATION() {
-//
-//  }
-
+  // public void OBJECT_DECLARATION() {
+  //
+  // }
 
   public Property PROPERTY() {
     return b.<Property>nonterminal(BicepLexicalGrammar.PROPERTY).is(
       f.objectProperty(
         IDENTIFIER(),
         b.token(Punctuator.COLON),
-        EXPRESSION()
-      )
-    );
+        EXPRESSION()));
   }
 
   public Expression EXPRESSION() {
