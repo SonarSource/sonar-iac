@@ -35,7 +35,7 @@ public class BicepLexicalConstant {
     + "|" + MULTI_LINE_COMMENT + ")";
 
   public static final String ALPHA_NUMERAL_STRING = "[a-zA-Z0-9]++";
-  public static final String STRING = "[a-zA-Z]++";
+  public static final String STRING = "'[a-zA-Z]++'";
   public static final String NUMBER = "[0-9]++";
   public static final String TRUE = "true";
   public static final String FALSE = "false";

@@ -25,10 +25,12 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.VariableDeclaration;
 import org.sonar.iac.common.parser.grammar.Punctuator;
+
+import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
 
 // Ignore uppercase method names warning
 @SuppressWarnings("java:S100")
@@ -66,21 +68,24 @@ public class BicepGrammar {
   }
 
   public VariableDeclaration VARIABLE_DECLARATION() {
-    return b.nonterminal(BicepLexicalGrammar.VARIABLE_DECLARATION).is(
+    return b.<VariableDeclaration>nonterminal(BicepLexicalGrammar.VARIABLE_DECLARATION).is(
       f.variableDeclaration(
         b.token(BicepKeyword.VARIABLE),
-        b.token(BicepLexicalGrammar.IDENTIFIER),
+        /* SPACING is required here? */
+        IDENTIFIER(),
         b.token(Punctuator.EQU),
-        EXPRESSION()
-      )
-    );
+        f.ignoreLast(
+          EXPRESSION(),
+          b.token(EOL))));
   }
 
   public Expression EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
-      b.firstOf(
-        LITERAL_VALUE(),
-        STRING_LITERAL_VALUE()));
+      f.ignoreFirst(
+        b.token(BicepLexicalGrammar.SPACING),
+        b.firstOf(
+          LITERAL_VALUE(),
+          STRING_LITERAL_VALUE())));
   }
 
   // TODO SONARIAC-934 Extending of LiteralValue in grammar should return the proper Expression implementation

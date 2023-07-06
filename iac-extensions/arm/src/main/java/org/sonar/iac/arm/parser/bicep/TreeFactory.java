@@ -29,7 +29,7 @@ import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
@@ -58,5 +58,17 @@ public class TreeFactory {
 
   public Identifier identifier(SyntaxToken token) {
     return new IdentifierImpl(token);
+  }
+
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
+  public <T, U> U ignoreFirst(T first, U second) {
+    return second;
+  }
+
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
+  public <T, U> T ignoreLast(T first, U second) {
+    return first;
   }
 }
