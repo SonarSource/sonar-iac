@@ -31,12 +31,15 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
+import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 
 public class TreeFactory {
 
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
   public File file(Optional<List<Statement>> statements, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileImpl(statements.or(Collections.emptyList()), eof);
   }
@@ -51,5 +54,9 @@ public class TreeFactory {
 
   public StringLiteral stringLiteral(SyntaxToken token) {
     return new StringLiteralImpl(token);
+  }
+
+  public Identifier identifier(SyntaxToken token) {
+    return new IdentifierImpl(token);
   }
 }

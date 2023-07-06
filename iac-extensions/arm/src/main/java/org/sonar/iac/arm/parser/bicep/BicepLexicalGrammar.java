@@ -21,6 +21,7 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.GenericTokenType;
 import java.util.Arrays;
+import java.util.stream.Stream;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -52,7 +53,9 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
    * Expressions
    */
   EXPRESSION,
+  IDENTIFIER,
   LITERAL_VALUE,
+  ALPHA_NUMERAL_STRING,
   STRING_LITERAL,
   NUMBER_LITERAL,
   TRUE_LITERAL,
@@ -70,7 +73,8 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void punctuators(LexerlessGrammarBuilder b) {
-    b.rule(Punctuator.EQU).is(Punctuator.EQU.getValue());
+    Stream.of(Punctuator.EQU).forEach(
+      p -> b.rule(p).is(SPACING, p.getValue()).skip());
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
@@ -83,6 +87,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
         b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))))
       .skip();
 
+    b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
     b.rule(STRING_LITERAL).is(b.regexp(BicepLexicalConstant.STRING));
     b.rule(NUMBER_LITERAL).is(b.regexp(BicepLexicalConstant.NUMBER));
     b.rule(TRUE_LITERAL).is(b.regexp(BicepLexicalConstant.TRUE));

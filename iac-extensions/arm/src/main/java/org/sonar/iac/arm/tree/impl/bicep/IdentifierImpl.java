@@ -17,27 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarsource.iac;
+package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.junit.jupiter.api.Test;
+import java.util.List;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.Tree;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
+  private final SyntaxToken token;
 
-class NoSonarTest extends TestBase {
-
-  private static final String BASE_DIRECTORY = "projects/nosonar/";
-  private static final String NO_SONAR_PROFILE_NAME = "nosonar-profile";
-  private static final String RULE_KEY = "S6273";
-
-  @Test
-  void test_terraform_nosonar() {
-    checkForLanguage("terraformNoSonar", "terraform");
+  public IdentifierImpl(SyntaxToken token) {
+    this.token = token;
   }
 
-  private void checkForLanguage(String projectKey, String language) {
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY, language, NO_SONAR_PROFILE_NAME));
+  @Override
+  public String value() {
+    return token.value();
+  }
 
-    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(1);
-    assertThat(getIssuesForRule(projectKey, language + ":" + RULE_KEY)).hasSize(1);
+  @Override
+  public List<Tree> children() {
+    return List.of(token);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.IDENTIFIER;
   }
 }

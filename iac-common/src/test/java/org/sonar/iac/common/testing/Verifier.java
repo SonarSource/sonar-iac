@@ -35,6 +35,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+
+import org.assertj.core.api.SoftAssertions;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -275,40 +277,25 @@ public final class Verifier {
 
     for (Issue issue : actualIssues) {
       TextRange range = issue.textRange;
-      if (map.get(range) == null) {
-        Tuple tuple = new Tuple();
-        tuple.addActual(issue);
-        map.put(range, tuple);
-      } else {
-        map.get(range).addActual(issue);
-      }
+      map.computeIfAbsent(range, (r) -> new Tuple()).addActual(issue);
     }
 
     for (Issue issue : expectedIssues) {
       TextRange range = issue.textRange;
-      if (map.get(range) == null) {
-        Tuple tuple = new Tuple();
-        tuple.addExpected(issue);
-        map.put(range, tuple);
-      } else {
-        map.get(range).addExpected(issue);
-      }
+      map.computeIfAbsent(range, r -> new Tuple()).addExpected(issue);
     }
 
-    StringBuilder errorBuilder = new StringBuilder();
-    for (Tuple tuple : map.values()) {
-      errorBuilder.append(tuple.check());
-    }
-
-    String errorMessage = errorBuilder.toString();
-    if (!errorMessage.isEmpty()) {
-      throw new AssertionError("\n\n" + errorMessage);
-    }
+    SoftAssertions softly = new SoftAssertions();
+    map.values().stream()
+      .map(Tuple::check)
+      .filter(it -> !it.isBlank())
+      .forEach(softly::fail);
+    softly.assertAll();
   }
 
   private static class Tuple {
     private static final String NO_ISSUE = "* [NO_ISSUE] Expected but no issue on range %s.\n\n";
-    private static final String WRONG_MESSAGE = "* [WRONG_MESSAGE] Issue at %s : \nExpected message : %s\nActual message : %s\n\n";
+    private static final String WRONG_MESSAGE = "* [WRONG_MESSAGE] Issue at %s : \nexpected: %s\nbut was: %s";
     private static final String UNEXPECTED_ISSUE = "* [UNEXPECTED_ISSUE] at %s with a message: \"%s\"\n\n";
     private static final String WRONG_NUMBER = "* [WRONG_NUMBER] Range %s: Expecting %s issue, but actual issues number is %s\n\n";
     private static final String NO_SECONDARY = "* [NO_SECONDARY] Expected but no secondary location for issue at line %d on range %s.\n\n";

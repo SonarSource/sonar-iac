@@ -22,6 +22,7 @@ package org.sonar.iac.arm.parser.bicep;
 import com.sonar.sslr.api.typed.GrammarBuilder;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -96,6 +97,12 @@ public class BicepGrammar {
   public StringLiteral STRING_LITERAL_VALUE() {
     return b.<StringLiteral>nonterminal().is(
       f.stringLiteral(b.token(BicepLexicalGrammar.STRING_LITERAL)));
+  }
+
+  public Identifier IDENTIFIER() {
+    return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER).is(
+      f.identifier(
+        b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
   }
 
 }
