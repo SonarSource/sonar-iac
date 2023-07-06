@@ -17,22 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.bicep;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Statement;
 
-public enum BicepKeyword implements GrammarRuleKey {
+public interface MetadataDeclaration extends Statement {
+  Identifier name();
 
-  TARGET_SCOPE("targetScope"),
-  METADATA("metadata");
-
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
+  Expression value();
 }

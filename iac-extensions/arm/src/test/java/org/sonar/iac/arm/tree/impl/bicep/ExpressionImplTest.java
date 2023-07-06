@@ -34,6 +34,7 @@ class ExpressionImplTest extends BicepTreeModelTest {
   void shouldParseExpression() {
     Assertions.assertThat(BicepLexicalGrammar.EXPRESSION)
       .matches("123")
+      .matches(" 123")
       .matches("true")
       .matches("false")
       .matches("null")
@@ -41,6 +42,7 @@ class ExpressionImplTest extends BicepTreeModelTest {
 
       .notMatches(".123456")
       .notMatches("-")
+      .notMatches("_A1")
       .notMatches("_abc");
   }
 
