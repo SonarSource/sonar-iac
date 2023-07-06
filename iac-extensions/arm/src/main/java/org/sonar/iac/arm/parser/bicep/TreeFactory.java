@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
-import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -28,6 +27,7 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -40,6 +40,7 @@ import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
@@ -48,12 +49,14 @@ import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 
+import static java.util.Collections.emptyList;
+
 public class TreeFactory {
 
   // Ignore unused method parameters
   @SuppressWarnings("java:S1172")
   public File file(Optional<List<Statement>> statements, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileImpl(statements.or(Collections.emptyList()), eof);
+    return new FileImpl(statements.or(emptyList()), eof);
   }
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
@@ -85,10 +88,12 @@ public class TreeFactory {
     return new PropertyImpl(key, colon, value);
   }
 
-  // Ignore unused method parameters
-  @SuppressWarnings("java:S1172")
-  public <T, U> U ignoreFirst(T first, U second) {
-    return second;
+  public List<Property> propertyList(Optional<List<Property>> list) {
+    return list.or(emptyList());
+  }
+
+  public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Property>> properties, SyntaxToken rightCurlyBrace) {
+    return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
   }
 
   public NumericLiteral numericLiteral(SyntaxToken token) {
@@ -102,4 +107,17 @@ public class TreeFactory {
   public NullLiteral nullLiteral(SyntaxToken token) {
     return new NullLiteralImpl(token);
   }
+
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
+  public <T, U> U ignoreFirst(T first, U second) {
+    return second;
+  }
+
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
+  public <T, U> T ignoreSecond(T first, U second) {
+    return first;
+  }
+
 }

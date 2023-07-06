@@ -20,12 +20,14 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import java.util.List;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -129,9 +131,26 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.APOSTROPHE)));
   }
 
-  // public void OBJECT_DECLARATION() {
-  //
-  // }
+  // object -> "{" ( NL+ ( property NL+ )* )? "}"
+  public ObjectExpression OBJECT_EXPRESSION() {
+    return b.<ObjectExpression>nonterminal(BicepLexicalGrammar.OBJECT_EXPRESSION).is(
+      f.objectExpression(
+        b.token(Punctuator.LCURLYBRACE),
+        b.optional(PROPERTY_LIST()),
+        b.token(Punctuator.RCURLYBRACE)));
+  }
+
+  public List<Property> PROPERTY_LIST() {
+    return b.<List<Property>>nonterminal().is(
+      f.propertyList(
+        f.ignoreFirst(
+          b.oneOrMore(
+            b.token(BicepLexicalGrammar.EOL)),
+          b.zeroOrMore(
+            f.ignoreSecond(
+              PROPERTY(),
+              b.token(BicepLexicalGrammar.EOL))))));
+  }
 
   public Property PROPERTY() {
     return b.<Property>nonterminal(BicepLexicalGrammar.PROPERTY).is(
