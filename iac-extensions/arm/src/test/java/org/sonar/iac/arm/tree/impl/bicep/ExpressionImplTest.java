@@ -57,7 +57,7 @@ class ExpressionImplTest {
     "true",
     "false",
     "null",
-    "abcdef"
+    "'abcdef'"
   })
   void shouldParseValidExpressionValue(String value) {
     String code = code(value);
