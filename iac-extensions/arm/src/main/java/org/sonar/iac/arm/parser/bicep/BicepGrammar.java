@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
@@ -122,12 +123,27 @@ public class BicepGrammar {
   // )
   // );
   // }
+  public ResourceDeclaration RESOURCE_DECLARATION() {
+    return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
+      f.resourceDeclaration(
+        b.token(BicepKeyword.RESOURCE),
+        IDENTIFIER(),
+        INTERPOLATED_STRING_TYPE(),
+        b.optional(
+          f.ignoreFirst(
+            b.token(BicepLexicalGrammar.SPACING),
+            b.token(BicepKeyword.EXISTING))),
+        b.token(Punctuator.EQU),
+        OBJECT_EXPRESSION(),
+        b.token(BicepLexicalGrammar.EOL)));
+  }
 
   public InterpolatedString INTERPOLATED_STRING_TYPE() {
     return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
       f.interpolatedString(
+        b.optional(b.token(BicepLexicalGrammar.SPACING)),
         b.token(BicepLexicalGrammar.APOSTROPHE),
-        b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING),
+        b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
         b.token(BicepLexicalGrammar.APOSTROPHE)));
   }
 
@@ -206,7 +222,7 @@ public class BicepGrammar {
   public Identifier IDENTIFIER() {
     return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER).is(
       f.identifier(
-        b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
+        b.token(BicepLexicalGrammar.IDENTIFIER_LITERAL)));
   }
 
   public StringLiteral ALPHA_NUMERAL_STRING() {

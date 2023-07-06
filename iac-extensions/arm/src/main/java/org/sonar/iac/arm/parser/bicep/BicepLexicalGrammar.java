@@ -62,6 +62,8 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
   INTERPOLATED_STRING,
+  QUOTED_STRING_LITERAL,
+  IDENTIFIER_LITERAL,
 
   STRING_LITERAL,
   NUMBER_LITERAL,
@@ -106,6 +108,8 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
         b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))))
       .skip();
 
+    b.rule(IDENTIFIER_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.IDENTIFIER_LITERAL));
+    b.rule(QUOTED_STRING_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.QUOTED_STRING_LITERAL_NO_QUOTES));
     b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
     b.rule(STRING_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.STRING));
     b.rule(NUMERIC_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NUMBER));

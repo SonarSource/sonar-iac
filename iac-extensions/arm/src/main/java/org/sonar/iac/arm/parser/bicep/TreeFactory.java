@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
@@ -45,6 +46,7 @@ import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
@@ -76,11 +78,30 @@ public class TreeFactory {
     return new StringLiteralImpl(token);
   }
 
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
+  public ResourceDeclaration resourceDeclaration(
+    SyntaxToken keyword,
+    Identifier identifier,
+    InterpolatedString type,
+    Optional<SyntaxToken> existing,
+    SyntaxToken equalsSign,
+    ObjectExpression objectExpression,
+    SyntaxToken endOfLine) {
+    return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, objectExpression);
+  }
+
   public Identifier identifier(SyntaxToken token) {
     return new IdentifierImpl(token);
   }
 
-  public InterpolatedString interpolatedString(SyntaxToken openApostrophe, SyntaxToken value, SyntaxToken closeApostrophe) {
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
+  public InterpolatedString interpolatedString(
+    Optional<SyntaxToken> spacing,
+    SyntaxToken openApostrophe,
+    SyntaxToken value,
+    SyntaxToken closeApostrophe) {
     return new InterpolatedStringImpl(openApostrophe, value, closeApostrophe);
   }
 
@@ -119,5 +140,4 @@ public class TreeFactory {
   public <T, U> T ignoreSecond(T first, U second) {
     return first;
   }
-
 }

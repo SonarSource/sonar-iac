@@ -62,6 +62,7 @@ class InterpolatedStringImplTest {
   @ValueSource(strings = {
     "'123'",
     "'abc'",
+    "  'abc'",
     "'A'",
     "'Z'",
     "'a'",
@@ -75,7 +76,7 @@ class InterpolatedStringImplTest {
     String code = code(value);
 
     InterpolatedString tree = (InterpolatedString) parser.parse(code, null);
-    assertThat(tree.value()).isEqualTo(value.replace("'", ""));
+    assertThat(tree.value()).isEqualTo(value.replace("'", "").trim());
   }
 
   @ParameterizedTest
