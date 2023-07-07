@@ -83,7 +83,6 @@ public class BicepGrammar {
     return b.<VariableDeclaration>nonterminal(BicepLexicalGrammar.VARIABLE_DECLARATION).is(
       f.variableDeclaration(
         b.token(BicepKeyword.VARIABLE),
-        /* SPACING is required here? */
         IDENTIFIER(),
         b.token(Punctuator.EQU),
         f.ignoreLast(

@@ -54,7 +54,6 @@ class VariableDeclarationImplTest {
 
   @ParameterizedTest
   @CsvSource({
-    /* "variablefoo = 42", */ // TODO: Need to think of a way to enforce space between keyword and identifier
     "var foo = 42",
   })
   void shouldFailOnInvalidVariableDeclaration(String code) {

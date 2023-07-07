@@ -29,13 +29,13 @@ import org.sonar.iac.common.api.tree.Tree;
 import java.util.List;
 
 public class VariableDeclarationImpl extends AbstractArmTreeImpl implements VariableDeclaration {
-  private final SyntaxToken variableKeyword;
+  private final SyntaxToken keyword;
   private final Identifier identifier;
   private final SyntaxToken equals;
   private final Expression expression;
 
-  public VariableDeclarationImpl(SyntaxToken variableKeyword, Identifier identifier, SyntaxToken equals, Expression expression) {
-    this.variableKeyword = variableKeyword;
+  public VariableDeclarationImpl(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression) {
+    this.keyword = keyword;
     this.identifier = identifier;
     this.equals = equals;
     this.expression = expression;
@@ -43,7 +43,7 @@ public class VariableDeclarationImpl extends AbstractArmTreeImpl implements Vari
 
   @Override
   public List<Tree> children() {
-    return List.of(variableKeyword, identifier, equals, expression);
+    return List.of(keyword, identifier, equals, expression);
   }
 
   @Override
