@@ -25,6 +25,7 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -95,7 +96,30 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.SPACING),
         b.firstOf(
           LITERAL_VALUE(),
-          STRING_LITERAL_VALUE())));
+          STRING_LITERAL_VALUE(),
+          INTERPOLATED_STRING())));
+  }
+
+  public InterpolatedString INTERPOLATED_STRING() {
+    return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
+      f.interpolatedString(
+        b.token(Punctuator.APOSTROPHE),
+        b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),
+        b.token(Punctuator.DOLLAR_LCURLY),
+        b.zeroOrMore(
+            f.interpolatedStringMiddlePiece(
+              EXPRESSION(),
+              b.token(Punctuator.RCURLYBRACE),
+              b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),
+              b.token(Punctuator.DOLLAR_LCURLY)
+          )
+        ),
+        EXPRESSION(),
+        b.token(Punctuator.RCURLYBRACE),
+        b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),
+        b.token(Punctuator.APOSTROPHE)
+      )
+    );
   }
 
   // TODO SONARIAC-934 Extending of LiteralValue in grammar should return the proper Expression implementation

@@ -20,8 +20,10 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.GenericTokenType;
+
 import java.util.Arrays;
 import java.util.stream.Stream;
+
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -55,9 +57,11 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
    */
   EXPRESSION,
   IDENTIFIER,
+  INTERPOLATED_STRING,
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
   STRING_LITERAL,
+  STRING_LITERAL_UNQUOTED,
   NUMBER_LITERAL,
   TRUE_LITERAL,
   FALSE_LITERAL,
@@ -76,20 +80,23 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   private static void punctuators(LexerlessGrammarBuilder b) {
     Stream.of(Punctuator.EQU).forEach(
       p -> b.rule(p).is(SPACING, p.getValue()).skip());
+    Stream.of(Punctuator.APOSTROPHE, Punctuator.DOLLAR_LCURLY, Punctuator.RCURLYBRACE).forEach(
+      p -> b.rule(p).is(p.getValue()));
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
     b.rule(EOL).is(b.regexp("(?:" + BicepLexicalConstant.EOL + "|$)"));
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(SPACING).is(
-      b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
-      b.zeroOrMore(
-        b.commentTrivia(b.regexp(BicepLexicalConstant.COMMENT)),
-        b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))))
+        b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
+        b.zeroOrMore(
+          b.commentTrivia(b.regexp(BicepLexicalConstant.COMMENT)),
+          b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))))
       .skip();
 
     b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
     b.rule(STRING_LITERAL).is(b.regexp(BicepLexicalConstant.STRING));
+    b.rule(STRING_LITERAL_UNQUOTED).is(b.regexp(BicepLexicalConstant.STRING_UNQUOTED));
     b.rule(NUMBER_LITERAL).is(b.regexp(BicepLexicalConstant.NUMBER));
     b.rule(TRUE_LITERAL).is(b.regexp(BicepLexicalConstant.TRUE));
     b.rule(FALSE_LITERAL).is(b.regexp(BicepLexicalConstant.FALSE));

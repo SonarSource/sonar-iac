@@ -28,13 +28,16 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
+import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 
@@ -57,6 +60,21 @@ public class TreeFactory {
 
   public VariableDeclaration variableDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
     return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
+  }
+
+  public InterpolatedString interpolatedString(SyntaxToken leftQuote,
+                                               Optional<SyntaxToken> stringLeftPiece,
+                                               SyntaxToken leftDollarLcurly,
+                                               Optional<List<InterpolatedStringMiddlePiece>> stringMiddlePiece,
+                                               Expression expression,
+                                               SyntaxToken rightRcurly,
+                                               Optional<SyntaxToken> stringRightPiece,
+                                               SyntaxToken rightQuote) {
+    return new InterpolatedStringImpl(leftQuote, stringLeftPiece, leftDollarLcurly, stringMiddlePiece, expression, rightRcurly, stringRightPiece, rightQuote);
+  }
+
+  public InterpolatedStringMiddlePiece interpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+    return new InterpolatedStringMiddlePiece(expression, rCurly, stringChars, dollarLcurly);
   }
 
   public StringLiteral stringLiteral(SyntaxToken token) {
