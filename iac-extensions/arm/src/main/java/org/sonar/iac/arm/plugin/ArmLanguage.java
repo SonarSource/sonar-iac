@@ -32,6 +32,6 @@ public class ArmLanguage extends AbstractLanguage {
 
   @Override
   public String[] getFileSuffixes() {
-    return new String[0];
+    return new String[] {".bicep"};
   }
 }

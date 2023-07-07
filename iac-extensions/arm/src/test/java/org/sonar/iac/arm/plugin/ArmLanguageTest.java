@@ -28,6 +28,6 @@ class ArmLanguageTest {
   @Test
   void should_return_arm_file_suffixes() {
     ArmLanguage language = new ArmLanguage();
-    assertThat(language.getFileSuffixes()).isEmpty();
+    assertThat(language.getFileSuffixes()).containsExactly(".bicep");
   }
 }
