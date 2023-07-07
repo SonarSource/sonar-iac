@@ -24,6 +24,7 @@ import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -58,7 +59,8 @@ public interface ArmTree extends Tree {
     ARRAY_EXPRESSION(ArrayExpression.class),
     OBJECT_EXPRESSION(ObjectExpression.class),
 
-    // Bicep specific,
+    // Bicep specific
+    TYPE_DECLARATION(TypeDeclaration.class),
     TARGET_SCOPE_DECLARATION(TargetScopeDeclaration.class),
     FUNCTION_DECLARATION(FunctionDeclaration.class),
     METADATA_DECLARATION(MetadataDeclaration.class);

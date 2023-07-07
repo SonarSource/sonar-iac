@@ -37,6 +37,7 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
 import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
@@ -68,6 +69,15 @@ public class BicepGrammar {
         FUNCTION_DECLARATION(),
         METADATA_DECLARATION(),
         VARIABLE_DECLARATION()));
+  }
+
+  public TypeDeclaration TYPE_DECLARATION() {
+    return b.<TypeDeclaration>nonterminal(BicepLexicalGrammar.TYPE_DECLARATION).is(
+      f.typeDeclaration(
+        b.token(BicepKeyword.TYPE),
+        IDENTIFIER(),
+        b.token(Punctuator.EQU),
+        STRING_LITERAL()));
   }
 
   public TargetScopeDeclaration TARGET_SCOPE_DECLARATION() {
