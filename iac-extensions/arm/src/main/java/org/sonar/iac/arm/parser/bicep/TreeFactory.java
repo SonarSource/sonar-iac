@@ -46,8 +46,8 @@ public class TreeFactory {
     return new FileImpl(statements.or(Collections.emptyList()), eof);
   }
 
-  public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken targetScope, SyntaxToken equals, Expression expression) {
-    return new TargetScopeDeclarationImpl(targetScope, equals, expression);
+  public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
+    return new TargetScopeDeclarationImpl(keyword, equals, expression);
   }
 
   public MetadataDeclaration metadataDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals,
