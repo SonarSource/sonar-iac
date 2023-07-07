@@ -71,8 +71,8 @@ public class TreeFactory {
   }
 
   public InterpolatedString interpolatedString(InterpolatedStringLeftPiece stringLeftPiece,
-                                               Optional<List<InterpolatedStringMiddlePiece>> stringMiddlePieces,
-                                               InterpolatedStringRightPiece stringRightPiece) {
+    Optional<List<InterpolatedStringMiddlePiece>> stringMiddlePieces,
+    InterpolatedStringRightPiece stringRightPiece) {
     return new InterpolatedStringImpl(stringLeftPiece, stringMiddlePieces.or(List.of()), stringRightPiece);
   }
 

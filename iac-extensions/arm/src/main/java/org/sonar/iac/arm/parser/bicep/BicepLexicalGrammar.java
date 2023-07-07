@@ -97,10 +97,10 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(EOL).is(b.regexp("(?:" + BicepLexicalConstant.EOL + "|$)"));
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(SPACING).is(
-        b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
-        b.zeroOrMore(
-          b.commentTrivia(b.regexp(BicepLexicalConstant.COMMENT)),
-          b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))))
+      b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),
+      b.zeroOrMore(
+        b.commentTrivia(b.regexp(BicepLexicalConstant.COMMENT)),
+        b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))))
       .skip();
 
     b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));

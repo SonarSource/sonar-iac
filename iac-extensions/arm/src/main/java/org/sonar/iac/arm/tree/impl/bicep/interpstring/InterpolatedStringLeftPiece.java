@@ -31,7 +31,8 @@ import java.util.stream.Stream;
 
 public class InterpolatedStringLeftPiece {
   private final SyntaxToken leftQuote;
-  @Nullable private final SyntaxToken stringChars;
+  @Nullable
+  private final SyntaxToken stringChars;
   private final SyntaxToken dollarLcurly;
 
   public InterpolatedStringLeftPiece(SyntaxToken leftQuote, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {

@@ -31,7 +31,8 @@ import java.util.List;
 public class InterpolatedStringMiddlePiece {
   private final Expression expression;
   private final SyntaxToken rCurly;
-  @Nullable private final SyntaxToken stringChars;
+  @Nullable
+  private final SyntaxToken stringChars;
   private final SyntaxToken dollarLcurly;
 
   public InterpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {

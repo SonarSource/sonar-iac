@@ -111,9 +111,7 @@ public class BicepGrammar {
       f.interpolatedString(
         INTERPOLATED_STRING_LEFT_PIECE(),
         b.zeroOrMore(INTERPOLATED_STRING_MIDDLE_PIECE()),
-        INTERPOLATED_STRING_RIGHT_PIECE()
-      )
-    );
+        INTERPOLATED_STRING_RIGHT_PIECE()));
   }
 
   public InterpolatedStringLeftPiece INTERPOLATED_STRING_LEFT_PIECE() {
@@ -130,9 +128,7 @@ public class BicepGrammar {
         EXPRESSION(),
         b.token(Punctuator.RCURLYBRACE),
         b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)),
-        b.token(Punctuator.DOLLAR_LCURLY)
-      )
-    );
+        b.token(Punctuator.DOLLAR_LCURLY)));
   }
 
   public InterpolatedStringRightPiece INTERPOLATED_STRING_RIGHT_PIECE() {
@@ -141,9 +137,7 @@ public class BicepGrammar {
         EXPRESSION(),
         b.token(Punctuator.RCURLYBRACE),
         b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)),
-        b.token(Punctuator.APOSTROPHE)
-      )
-    );
+        b.token(Punctuator.APOSTROPHE)));
   }
 
   public Expression LITERAL_VALUE() {

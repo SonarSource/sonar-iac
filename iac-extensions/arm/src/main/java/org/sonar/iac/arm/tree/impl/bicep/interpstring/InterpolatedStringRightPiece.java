@@ -33,7 +33,8 @@ import java.util.stream.Stream;
 public class InterpolatedStringRightPiece {
   private final Expression expression;
   private final SyntaxToken rCurly;
-  @Nullable private final SyntaxToken stringChars;
+  @Nullable
+  private final SyntaxToken stringChars;
   private final SyntaxToken rightQuote;
 
   public InterpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken rightQuote) {
