@@ -31,9 +31,10 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
-import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.common.parser.grammar.Punctuator;
@@ -64,6 +65,7 @@ public class BicepGrammar {
     return b.<Statement>nonterminal(BicepLexicalGrammar.STATEMENT).is(
       b.firstOf(
         TARGET_SCOPE_DECLARATION(),
+        FUNCTION_DECLARATION(),
         METADATA_DECLARATION(),
         VARIABLE_DECLARATION()));
   }
@@ -74,6 +76,14 @@ public class BicepGrammar {
         b.token(BicepKeyword.TARGET_SCOPE),
         b.token(Punctuator.EQU),
         EXPRESSION()));
+  }
+
+  public FunctionDeclaration FUNCTION_DECLARATION() {
+    return b.<FunctionDeclaration>nonterminal(BicepLexicalGrammar.FUNCTION_DECLARATION).is(
+      f.functionDeclaration(
+        b.token(BicepKeyword.FUNC),
+        IDENTIFIER(),
+        STRING_LITERAL()));
   }
 
   public MetadataDeclaration METADATA_DECLARATION() {
