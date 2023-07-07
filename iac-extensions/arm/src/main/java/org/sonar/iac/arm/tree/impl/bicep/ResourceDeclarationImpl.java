@@ -88,38 +88,42 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   public StringLiteral version() {
     String text = TextUtils.getValue(typeAndVersion).orElse("");
-    String[] split = text.split("@");
-    if (split.length == 2) {
-      int indexOfAt = text.indexOf("@");
-      String version = split[1];
-      TextRange typeAndVersionRange = typeAndVersion.textRange();
-      TextRange tokenRange = TextRanges.range(
-        typeAndVersionRange.start().line(),
-        typeAndVersionRange.start().lineOffset() + indexOfAt + 1,
-        typeAndVersionRange.end().line(),
-        typeAndVersionRange.start().lineOffset() + indexOfAt + 1 + version.length());
-      SyntaxToken token = new SyntaxTokenImpl(version, tokenRange, List.of());
-      return new StringLiteralImpl(token);
+    if (text.contains("@")) {
+      String[] split = text.split("@");
+      if (split.length == 2) {
+        int indexOfAt = text.indexOf("@");
+        String version = split[1];
+        TextRange typeAndVersionRange = typeAndVersion.textRange();
+        TextRange tokenRange = TextRanges.range(
+          typeAndVersionRange.start().line(),
+          typeAndVersionRange.start().lineOffset() + indexOfAt + 1,
+          typeAndVersionRange.end().line(),
+          typeAndVersionRange.start().lineOffset() + indexOfAt + 1 + version.length());
+        SyntaxToken token = new SyntaxTokenImpl(version, tokenRange, List.of());
+        return new StringLiteralImpl(token);
+      }
     }
-    return null;
+    throw new UnsupportedOperationException("The typeAndVersion field should contains `type@version` value, but it's " + text);
   }
 
   @Override
   public StringLiteral type() {
     String text = TextUtils.getValue(typeAndVersion).orElse("");
-    String[] split = text.split("@");
-    if (split.length == 2) {
-      String type = split[0];
-      TextRange typeAndVersionRange = typeAndVersion.textRange();
-      TextRange tokenRange = TextRanges.range(
-        typeAndVersionRange.start().line(),
-        typeAndVersionRange.start().lineOffset(),
-        typeAndVersionRange.end().line(),
-        typeAndVersionRange.start().lineOffset() + type.length());
-      SyntaxToken token = new SyntaxTokenImpl(type, tokenRange, List.of());
-      return new StringLiteralImpl(token);
+    if (text.contains("@")) {
+      String[] split = text.split("@");
+      if (split.length == 2) {
+        String type = split[0];
+        TextRange typeAndVersionRange = typeAndVersion.textRange();
+        TextRange tokenRange = TextRanges.range(
+          typeAndVersionRange.start().line(),
+          typeAndVersionRange.start().lineOffset(),
+          typeAndVersionRange.end().line(),
+          typeAndVersionRange.start().lineOffset() + type.length());
+        SyntaxToken token = new SyntaxTokenImpl(type, tokenRange, List.of());
+        return new StringLiteralImpl(token);
+      }
     }
-    return null;
+    throw new UnsupportedOperationException("The typeAndVersion field should contains `type@version` value, but it's " + text);
   }
 
   @Override

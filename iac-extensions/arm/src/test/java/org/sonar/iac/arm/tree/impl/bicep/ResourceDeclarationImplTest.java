@@ -37,6 +37,7 @@ import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ResourceDeclarationImplTest {
@@ -117,5 +118,17 @@ class ResourceDeclarationImplTest {
       assertThat(property.key().value()).isEqualTo(keyValuePairs.get(i));
       assertThat(((StringLiteral) property.value()).value()).isEqualTo(keyValuePairs.get(i + 1));
     }
+  }
+
+  @Test
+  void shouldThrowExceptionForInvalidTypeAndVersion() {
+    String code = code("resource myName 'type_version' = {",
+      "}\n");
+
+    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
+    assertThatThrownBy(() -> tree.type())
+      .isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(() -> tree.version())
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 }
