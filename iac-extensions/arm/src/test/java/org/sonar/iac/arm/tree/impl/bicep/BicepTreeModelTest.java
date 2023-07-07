@@ -17,23 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.terraform.tree.impl;
+package org.sonar.iac.arm.tree.impl.bicep;
 
 import com.sonar.sslr.api.typed.ActionParser;
+import org.sonar.iac.arm.parser.BicepParser;
+import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.testing.TreeModelTest;
-import org.sonar.iac.terraform.api.tree.SyntaxToken;
-import org.sonar.iac.terraform.api.tree.TerraformTree;
-import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public abstract class TerraformTreeModelTest extends TreeModelTest<TerraformTree> {
+public abstract class BicepTreeModelTest extends TreeModelTest<ArmTree> {
   @Override
-  protected ActionParser<TerraformTree> createParser(GrammarRuleKey rootRule) {
-    return new HclParser(rootRule);
+  protected ActionParser<ArmTree> createParser(GrammarRuleKey rootRule) {
+    return BicepParser.create(rootRule);
   }
 
   @Override
-  protected Class<? extends TerraformTree> leafClass() {
+  protected Class<? extends ArmTree> leafClass() {
     return SyntaxToken.class;
   }
 }
