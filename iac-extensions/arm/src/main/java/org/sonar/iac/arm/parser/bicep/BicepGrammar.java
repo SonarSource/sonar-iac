@@ -26,9 +26,12 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.common.parser.grammar.Punctuator;
+
+import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
 
 // Ignore uppercase method names warning
 @SuppressWarnings("java:S100")
@@ -54,7 +57,8 @@ public class BicepGrammar {
     return b.<Statement>nonterminal(BicepLexicalGrammar.STATEMENT).is(
       b.firstOf(
         TARGET_SCOPE_DECLARATION(),
-        METADATA_DECLARATION()));
+        METADATA_DECLARATION(),
+        VARIABLE_DECLARATION()));
   }
 
   public TargetScopeDeclaration TARGET_SCOPE_DECLARATION() {
@@ -73,6 +77,16 @@ public class BicepGrammar {
         b.token(Punctuator.EQU),
         EXPRESSION(),
         b.token(BicepLexicalGrammar.EOL)));
+  }
+
+  public VariableDeclaration VARIABLE_DECLARATION() {
+    return b.<VariableDeclaration>nonterminal(BicepLexicalGrammar.VARIABLE_DECLARATION).is(
+      f.variableDeclaration(
+        b.token(BicepKeyword.VARIABLE),
+        IDENTIFIER(),
+        b.token(Punctuator.EQU),
+        EXPRESSION(),
+        b.token(EOL)));
   }
 
   public Expression EXPRESSION() {

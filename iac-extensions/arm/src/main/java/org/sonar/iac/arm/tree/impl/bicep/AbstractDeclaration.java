@@ -21,26 +21,29 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.Tree;
 
-public class MetadataDeclarationImpl extends AbstractDeclaration implements MetadataDeclaration {
-  public MetadataDeclarationImpl(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
-    super(keyword, identifier, equals, expression, newLine);
+import java.util.List;
+
+public abstract class AbstractDeclaration extends AbstractArmTreeImpl {
+  protected final SyntaxToken keyword;
+  protected final Identifier identifier;
+  protected final SyntaxToken equals;
+  protected final Expression expression;
+  protected final SyntaxToken newLine;
+
+  protected AbstractDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
+    this.keyword = keyword;
+    this.identifier = identifier;
+    this.equals = equals;
+    this.expression = expression;
+    this.newLine = newLine;
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.METADATA_DECLARATION;
-  }
-
-  @Override
-  public Identifier name() {
-    return identifier;
-  }
-
-  @Override
-  public Expression value() {
-    return expression;
+  public List<Tree> children() {
+    return List.of(keyword, identifier, equals, expression, newLine);
   }
 }

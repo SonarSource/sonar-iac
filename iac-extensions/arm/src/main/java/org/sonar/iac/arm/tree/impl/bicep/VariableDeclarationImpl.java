@@ -17,23 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.bicep;
+package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
-public enum BicepKeyword implements GrammarRuleKey {
-
-  TARGET_SCOPE("targetScope"),
-  METADATA("metadata"),
-  VARIABLE("variable");
-
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
+public class VariableDeclarationImpl extends AbstractDeclaration implements VariableDeclaration {
+  public VariableDeclarationImpl(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
+    super(keyword, identifier, equals, expression, newLine);
   }
 
-  public String getValue() {
-    return value;
+  @Override
+  public Kind getKind() {
+    return Kind.VARIABLE_DECLARATION;
+  }
+
+  @Override
+  public Identifier name() {
+    return this.identifier;
+  }
+
+  @Override
+  public Expression value() {
+    return this.expression;
   }
 }
