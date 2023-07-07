@@ -32,11 +32,6 @@ public class NumericLiteralImpl extends ExpressionImpl implements NumericLiteral
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.NUMERIC_LITERAL;
-  }
-
-  @Override
   public double value() {
     return value;
   }

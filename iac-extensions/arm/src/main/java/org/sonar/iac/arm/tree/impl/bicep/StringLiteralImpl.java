@@ -42,9 +42,4 @@ public class StringLiteralImpl extends AbstractArmTreeImpl implements StringLite
   public List<Tree> children() {
     return List.of(token);
   }
-
-  @Override
-  public Kind getKind() {
-    return Kind.STRING_LITERAL;
-  }
 }

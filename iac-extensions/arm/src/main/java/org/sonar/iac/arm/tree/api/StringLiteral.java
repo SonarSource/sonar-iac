@@ -22,4 +22,7 @@ package org.sonar.iac.arm.tree.api;
 import org.sonar.iac.common.api.tree.TextTree;
 
 public interface StringLiteral extends Expression, TextTree {
+  default Kind getKind() {
+    return Kind.STRING_LITERAL;
+  }
 }

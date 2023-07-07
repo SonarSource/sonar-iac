@@ -23,27 +23,37 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.BooleanLiteral;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
-class ExpressionImplTest extends BicepTreeModelTest {
+class NumericLiteralImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseExpression() {
-    Assertions.assertThat(BicepLexicalGrammar.EXPRESSION)
-      .matches("123")
-      .matches(" 123")
-      .matches("true")
-      .matches("false")
-      .matches("null")
-      .matches("abdcef")
+  void shouldParseNumericLiteral() {
+    Assertions.assertThat(BicepLexicalGrammar.NUMERIC_LITERAL)
+      .matches("5")
+      .matches("-5")
+      .matches("0")
+      .matches("-0")
+      .matches("123456")
 
-      .notMatches(".123456")
-      .notMatches("-")
-      .notMatches("_A1")
-      .notMatches("_abc");
+      .notMatches("+5")
+      .notMatches("+0")
+      .notMatches("3.15")
+      .notMatches(".15")
+      .notMatches("1'000")
+      .notMatches("1.0E+2")
+      .notMatches("string")
+      .notMatches("5 3")
+      .notMatches("");
+  }
+
+  @Test
+  void shouldParseNumericValue() {
+    NumericLiteral tree = parse("123", BicepLexicalGrammar.NUMERIC_LITERAL);
+    assertThat(tree).hasValue(123);
+    org.assertj.core.api.Assertions.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.NUMERIC_LITERAL);
   }
 }

@@ -23,27 +23,41 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.BooleanLiteral;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
-class ExpressionImplTest extends BicepTreeModelTest {
+class BooleanLiteralImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseExpression() {
-    Assertions.assertThat(BicepLexicalGrammar.EXPRESSION)
-      .matches("123")
-      .matches(" 123")
+  void shouldParseBooleanLiteral() {
+    Assertions.assertThat(BicepLexicalGrammar.BOOLEAN_LITERAL)
       .matches("true")
       .matches("false")
-      .matches("null")
-      .matches("abdcef")
 
-      .notMatches(".123456")
-      .notMatches("-")
-      .notMatches("_A1")
-      .notMatches("_abc");
+      .notMatches("TRUE")
+      .notMatches("truer")
+      .notMatches("FALSE")
+      .notMatches("falser")
+      .notMatches("True")
+      .notMatches("False")
+      .notMatches("1")
+      .notMatches("0")
+      .notMatches("");
+  }
+
+  @Test
+  void shouldParseTrueValue() {
+    BooleanLiteral tree = parse("true", BicepLexicalGrammar.BOOLEAN_LITERAL);
+    assertThat(tree).isTrue();
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.BOOLEAN_LITERAL);
+  }
+
+  @Test
+  void shouldParseFalseValue() {
+    BooleanLiteral tree = parse("false", BicepLexicalGrammar.BOOLEAN_LITERAL);
+    assertThat(tree).isFalse();
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.BOOLEAN_LITERAL);
   }
 }

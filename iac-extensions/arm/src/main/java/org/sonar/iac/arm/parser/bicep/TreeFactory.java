@@ -22,9 +22,12 @@ package org.sonar.iac.arm.parser.bicep;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.NullLiteral;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
@@ -32,10 +35,13 @@ import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
+import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
+import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePiece;
@@ -94,5 +100,17 @@ public class TreeFactory {
   @SuppressWarnings("java:S1172")
   public <T, U> U ignoreFirst(T first, U second) {
     return second;
+  }
+
+  public NumericLiteral numericLiteral(SyntaxToken token) {
+    return new NumericLiteralImpl(token);
+  }
+
+  public BooleanLiteral booleanLiteral(SyntaxToken token) {
+    return new BooleanLiteralImpl(token);
+  }
+
+  public NullLiteral nullLiteral(SyntaxToken token) {
+    return new NullLiteralImpl(token);
   }
 }
