@@ -26,10 +26,14 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.common.parser.grammar.Punctuator;
@@ -92,13 +96,49 @@ public class BicepGrammar {
         b.token(EOL)));
   }
 
+  public ResourceDeclaration RESOURCE_DECLARATION() {
+    return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
+      f.resourceDeclaration(
+        b.token(BicepKeyword.RESOURCE),
+        IDENTIFIER(),
+        INTERPOLATED_STRING_TYPE(),
+        b.optional(b.token(BicepKeyword.EXISTING)),
+        b.token(Punctuator.EQU),
+        OBJECT_EXPRESSION(),
+        b.token(BicepLexicalGrammar.EOL)));
+  }
+
+  public InterpolatedString INTERPOLATED_STRING_TYPE() {
+    return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
+      f.interpolatedString(
+        b.token(Punctuator.APOSTROPHE),
+        b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
+        b.token(Punctuator.APOSTROPHE)));
+  }
+
+  // object -> "{" ( NL+ ( property NL+ )* )? "}"
+  public ObjectExpression OBJECT_EXPRESSION() {
+    return b.<ObjectExpression>nonterminal(BicepLexicalGrammar.OBJECT_EXPRESSION).is(
+      f.objectExpression(
+        b.token(Punctuator.LCURLYBRACE),
+        b.zeroOrMore(PROPERTY()),
+        b.token(Punctuator.RCURLYBRACE)));
+  }
+
+  public Property PROPERTY() {
+    return b.<Property>nonterminal(BicepLexicalGrammar.PROPERTY).is(
+      f.objectProperty(
+        IDENTIFIER(),
+        b.token(Punctuator.COLON),
+        EXPRESSION()));
+  }
+
   public Expression EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
-      f.ignoreFirst(
-        b.token(BicepLexicalGrammar.SPACING),
-        b.firstOf(
-          LITERAL_VALUE(),
-          STRING_LITERAL())));
+      b.firstOf(
+        ALPHA_NUMERAL_STRING(),
+        LITERAL_VALUE(),
+        STRING_LITERAL()));
   }
 
   public Expression LITERAL_VALUE() {
@@ -137,6 +177,11 @@ public class BicepGrammar {
   public Identifier IDENTIFIER() {
     return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER).is(
       f.identifier(
-        b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
+        b.token(BicepLexicalGrammar.IDENTIFIER_LITERAL)));
+  }
+
+  public StringLiteral ALPHA_NUMERAL_STRING() {
+    return b.<StringLiteral>nonterminal().is(
+      f.stringLiteral(b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
   }
 }

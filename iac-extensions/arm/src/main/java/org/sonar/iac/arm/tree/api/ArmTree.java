@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
@@ -50,6 +51,8 @@ public interface ArmTree extends Tree {
     BOOLEAN_LITERAL(BooleanLiteral.class),
     NUMERIC_LITERAL(NumericLiteral.class),
     NULL_LITERAL(NullLiteral.class),
+    INTERPOLATED_STRING(InterpolatedString.class),
+
     STRING_LITERAL(StringLiteral.class),
     ARRAY_EXPRESSION(ArrayExpression.class),
     OBJECT_EXPRESSION(ObjectExpression.class),

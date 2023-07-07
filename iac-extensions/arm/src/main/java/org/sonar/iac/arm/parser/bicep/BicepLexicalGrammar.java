@@ -49,14 +49,24 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   TARGET_SCOPE_DECLARATION,
   METADATA_DECLARATION,
   VARIABLE_DECLARATION,
+  RESOURCE_DECLARATION,
 
   /**
    * Expressions
    */
   EXPRESSION,
   IDENTIFIER,
+  PROPERTY,
+  OBJECT_EXPRESSION,
+
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
+  INTERPOLATED_STRING,
+  QUOTED_STRING_LITERAL,
+  IDENTIFIER_LITERAL,
+
+  STRING_LITERAL,
+  NUMBER_LITERAL,
   NUMERIC_LITERAL,
   BOOLEAN_LITERAL,
   TRUE_LITERAL,
@@ -84,7 +94,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void punctuators(LexerlessGrammarBuilder b) {
-    Stream.of(Punctuator.EQU).forEach(
+    Stream.of(Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE).forEach(
       p -> b.rule(p).is(SPACING, p.getValue()).skip());
   }
 
@@ -98,15 +108,17 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
         b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))))
       .skip();
 
+    b.rule(IDENTIFIER_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.IDENTIFIER_LITERAL));
+    b.rule(QUOTED_STRING_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.QUOTED_STRING_LITERAL_NO_QUOTES));
     b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
-    b.rule(STRING_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.STRING));
-    b.rule(NUMERIC_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.NUMBER));
-    b.rule(TRUE_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.TRUE));
-    b.rule(FALSE_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.FALSE));
-    b.rule(NULL_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.NULL));
+    b.rule(STRING_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.STRING));
+    b.rule(NUMERIC_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NUMBER));
+    b.rule(TRUE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.TRUE));
+    b.rule(FALSE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.FALSE));
+    b.rule(NULL_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NULL));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
-    Arrays.stream(BicepKeyword.values()).forEach(tokenType -> b.rule(tokenType).is(tokenType.getValue()).skip());
+    Arrays.stream(BicepKeyword.values()).forEach(tokenType -> b.rule(tokenType).is(SPACING, tokenType.getValue()).skip());
   }
 }
