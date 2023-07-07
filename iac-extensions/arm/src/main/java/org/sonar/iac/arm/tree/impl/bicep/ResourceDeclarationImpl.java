@@ -46,6 +46,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private final SyntaxToken existing;
   private final SyntaxToken equalsSign;
   private final ObjectExpression objectExpression;
+  private final SyntaxToken endOfLine;
 
   public ResourceDeclarationImpl(
     SyntaxToken keyword,
@@ -53,7 +54,8 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     InterpolatedString typeAndVersion,
     @Nullable SyntaxToken existing,
     SyntaxToken equalsSign,
-    ObjectExpression objectExpression) {
+    ObjectExpression objectExpression,
+    SyntaxToken endOfLine) {
 
     this.keyword = keyword;
     this.name = name;
@@ -61,6 +63,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     this.existing = existing;
     this.equalsSign = equalsSign;
     this.objectExpression = objectExpression;
+    this.endOfLine = endOfLine;
   }
 
   @Override
@@ -72,6 +75,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     addChildrenIfPresent(children, existing);
     children.add(equalsSign);
     children.add(objectExpression);
+    children.add(endOfLine);
     return children;
   }
 

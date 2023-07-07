@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
-import java.util.List;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
@@ -32,9 +31,9 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
-import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.common.parser.grammar.Punctuator;
@@ -112,7 +111,7 @@ public class BicepGrammar {
   public InterpolatedString INTERPOLATED_STRING_TYPE() {
     return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
       f.interpolatedString(
-        b.token(BicepLexicalGrammar.OPENING_APOSTROPHE),
+        b.token(Punctuator.APOSTROPHE),
         b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
         b.token(Punctuator.APOSTROPHE)));
   }
@@ -122,15 +121,8 @@ public class BicepGrammar {
     return b.<ObjectExpression>nonterminal(BicepLexicalGrammar.OBJECT_EXPRESSION).is(
       f.objectExpression(
         b.token(Punctuator.LCURLYBRACE),
-        b.optional(PROPERTY_LIST()),
+        b.zeroOrMore(PROPERTY()),
         b.token(Punctuator.RCURLYBRACE)));
-  }
-
-  public List<Property> PROPERTY_LIST() {
-    return b.<List<Property>>nonterminal().is(
-      f.propertyList(
-        b.zeroOrMore(
-          PROPERTY())));
   }
 
   public Property PROPERTY() {

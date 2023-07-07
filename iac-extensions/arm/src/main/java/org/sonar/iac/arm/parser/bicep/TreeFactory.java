@@ -88,7 +88,7 @@ public class TreeFactory {
     SyntaxToken equalsSign,
     ObjectExpression objectExpression,
     SyntaxToken endOfLine) {
-    return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, objectExpression);
+    return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, objectExpression, endOfLine);
   }
 
   public Identifier identifier(SyntaxToken token) {
@@ -101,10 +101,6 @@ public class TreeFactory {
 
   public Property objectProperty(Identifier key, SyntaxToken colon, Expression value) {
     return new PropertyImpl(key, colon, value);
-  }
-
-  public List<Property> propertyList(Optional<List<Property>> list) {
-    return list.or(emptyList());
   }
 
   public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Property>> properties, SyntaxToken rightCurlyBrace) {
@@ -121,17 +117,5 @@ public class TreeFactory {
 
   public NullLiteral nullLiteral(SyntaxToken token) {
     return new NullLiteralImpl(token);
-  }
-
-  // Ignore unused method parameters
-  @SuppressWarnings("java:S1172")
-  public <T, U> U ignoreFirst(T first, U second) {
-    return second;
-  }
-
-  // Ignore unused method parameters
-  @SuppressWarnings("java:S1172")
-  public <T, U> T ignoreSecond(T first, U second) {
-    return first;
   }
 }
