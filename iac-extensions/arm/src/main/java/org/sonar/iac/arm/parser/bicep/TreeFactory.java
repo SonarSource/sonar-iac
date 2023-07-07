@@ -72,10 +72,4 @@ public class TreeFactory {
   public <T, U> U ignoreFirst(T first, U second) {
     return second;
   }
-
-  // Ignore unused method parameters
-  @SuppressWarnings("java:S1172")
-  public <T, U> T ignoreLast(T first, U second) {
-    return first;
-  }
 }

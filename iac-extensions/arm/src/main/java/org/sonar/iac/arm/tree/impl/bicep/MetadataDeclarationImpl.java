@@ -19,33 +19,14 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
 
-public class MetadataDeclarationImpl extends AbstractArmTreeImpl implements MetadataDeclaration {
-
-  private final SyntaxToken keyword;
-  private final Identifier identifier;
-  private final SyntaxToken equals;
-  private final Expression expression;
-  private final SyntaxToken newLine;
-
+public class MetadataDeclarationImpl extends AbstractDeclaration implements MetadataDeclaration {
   public MetadataDeclarationImpl(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
-    this.keyword = keyword;
-    this.identifier = identifier;
-    this.equals = equals;
-    this.expression = expression;
-    this.newLine = newLine;
-  }
-
-  @Override
-  public List<Tree> children() {
-    return List.of(keyword, identifier, equals, expression, newLine);
+    super(keyword, identifier, equals, expression, newLine);
   }
 
   @Override
