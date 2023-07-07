@@ -57,7 +57,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   IDENTIFIER,
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
-  STRING_LITERAL,
   NUMERIC_LITERAL,
   BOOLEAN_LITERAL,
   TRUE_LITERAL,

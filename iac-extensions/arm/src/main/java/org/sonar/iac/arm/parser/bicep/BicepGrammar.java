@@ -98,7 +98,7 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.SPACING),
         b.firstOf(
           LITERAL_VALUE(),
-          STRING_LITERAL_VALUE())));
+          STRING_LITERAL())));
   }
 
   public Expression LITERAL_VALUE() {
@@ -128,7 +128,8 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.NULL_LITERAL_VALUE)));
   }
 
-  public StringLiteral STRING_LITERAL_VALUE() {
+  // Temporary implementation of StringLiteral, will be removed by further implementation of Expression
+  public StringLiteral STRING_LITERAL() {
     return b.<StringLiteral>nonterminal().is(
       f.stringLiteral(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)));
   }
