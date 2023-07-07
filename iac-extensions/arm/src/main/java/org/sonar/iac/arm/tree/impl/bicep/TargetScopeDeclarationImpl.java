@@ -34,8 +34,8 @@ public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements T
   private final SyntaxToken equals;
   private final Expression expression;
 
-  public TargetScopeDeclarationImpl(SyntaxToken targetScope, SyntaxToken equals, Expression expression) {
-    this.targetScope = targetScope;
+  public TargetScopeDeclarationImpl(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
+    this.targetScope = keyword;
     this.equals = equals;
     this.expression = expression;
   }
@@ -43,6 +43,11 @@ public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements T
   @Override
   public List<Tree> children() {
     return List.of(targetScope, equals, expression);
+  }
+
+  @Override
+  public Expression value() {
+    return expression;
   }
 
   @Override

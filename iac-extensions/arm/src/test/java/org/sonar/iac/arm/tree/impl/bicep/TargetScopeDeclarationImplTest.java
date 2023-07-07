@@ -26,6 +26,7 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.common.api.tree.TextTree;
 
@@ -53,6 +54,7 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
     TargetScopeDeclaration tree = parse(code, BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.TARGET_SCOPE_DECLARATION)).isTrue();
     assertThat(tree.scope()).isEqualTo(File.Scope.UNKNOWN);
+    assertThat(((StringLiteral) tree.value()).value()).isEqualTo("123");
     assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("targetScope", "=", "123");
   }
 
