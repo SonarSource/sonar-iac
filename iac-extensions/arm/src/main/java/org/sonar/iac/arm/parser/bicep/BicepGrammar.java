@@ -120,7 +120,7 @@ public class BicepGrammar {
     return b.<InterpolatedStringLeftPiece>nonterminal().is(
       f.interpolatedStringLeftPiece(
         b.token(Punctuator.APOSTROPHE),
-        b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),
+        b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)),
         b.token(Punctuator.DOLLAR_LCURLY)));
   }
 
@@ -129,7 +129,7 @@ public class BicepGrammar {
       f.interpolatedStringMiddlePiece(
         EXPRESSION(),
         b.token(Punctuator.RCURLYBRACE),
-        b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),
+        b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)),
         b.token(Punctuator.DOLLAR_LCURLY)
       )
     );
@@ -140,7 +140,7 @@ public class BicepGrammar {
       f.interpolatedStringRightPiece(
         EXPRESSION(),
         b.token(Punctuator.RCURLYBRACE),
-        b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),
+        b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)),
         b.token(Punctuator.APOSTROPHE)
       )
     );
