@@ -25,6 +25,7 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.common.parser.grammar.Punctuator;
@@ -52,7 +53,8 @@ public class BicepGrammar {
   public Statement STATEMENT() {
     return b.<Statement>nonterminal(BicepLexicalGrammar.STATEMENT).is(
       b.firstOf(
-        TARGET_SCOPE_DECLARATION()));
+        TARGET_SCOPE_DECLARATION(),
+        METADATA_DECLARATION()));
   }
 
   public TargetScopeDeclaration TARGET_SCOPE_DECLARATION() {
@@ -63,11 +65,23 @@ public class BicepGrammar {
         EXPRESSION()));
   }
 
+  public MetadataDeclaration METADATA_DECLARATION() {
+    return b.<MetadataDeclaration>nonterminal(BicepLexicalGrammar.METADATA_DECLARATION).is(
+      f.metadataDeclaration(
+        b.token(BicepKeyword.METADATA),
+        IDENTIFIER(),
+        b.token(Punctuator.EQU),
+        EXPRESSION(),
+        b.token(BicepLexicalGrammar.EOL)));
+  }
+
   public Expression EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
-      b.firstOf(
-        LITERAL_VALUE(),
-        STRING_LITERAL_VALUE()));
+      f.ignoreFirst(
+        b.token(BicepLexicalGrammar.SPACING),
+        b.firstOf(
+          LITERAL_VALUE(),
+          STRING_LITERAL_VALUE())));
   }
 
   // TODO SONARIAC-934 Extending of LiteralValue in grammar should return the proper Expression implementation
@@ -91,5 +105,4 @@ public class BicepGrammar {
       f.identifier(
         b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
   }
-
 }
