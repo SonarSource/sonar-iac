@@ -50,12 +50,12 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleTargetScopeDeclaration() {
-    String code = code("targetScope=123");
+    String code = code("targetScope=str");
     TargetScopeDeclaration tree = parse(code, BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.TARGET_SCOPE_DECLARATION)).isTrue();
     assertThat(tree.scope()).isEqualTo(File.Scope.UNKNOWN);
-    assertThat(((StringLiteral) tree.value()).value()).isEqualTo("123");
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("targetScope", "=", "123");
+    assertThat(((StringLiteral) tree.value()).value()).isEqualTo("str");
+    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("targetScope", "=", "str");
   }
 
   @ParameterizedTest

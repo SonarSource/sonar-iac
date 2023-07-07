@@ -20,9 +20,12 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.NullLiteral;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
@@ -95,23 +98,40 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.SPACING),
         b.firstOf(
           LITERAL_VALUE(),
-          STRING_LITERAL_VALUE())));
+          STRING_LITERAL())));
   }
 
-  // TODO SONARIAC-934 Extending of LiteralValue in grammar should return the proper Expression implementation
-  public StringLiteral LITERAL_VALUE() {
-    return b.<StringLiteral>nonterminal(BicepLexicalGrammar.LITERAL_VALUE).is(
-      f.stringLiteral(
+  public Expression LITERAL_VALUE() {
+    return b.<Expression>nonterminal(BicepLexicalGrammar.LITERAL_VALUE).is(
+      b.firstOf(
+        NUMERIC_LITERAL(),
+        BOOLEAN_LITERAL(),
+        NULL_LITERAL()));
+  }
+
+  public NumericLiteral NUMERIC_LITERAL() {
+    return b.<NumericLiteral>nonterminal(BicepLexicalGrammar.NUMERIC_LITERAL).is(
+      f.numericLiteral(b.token(BicepLexicalGrammar.NUMERIC_LITERAL_VALUE)));
+  }
+
+  public BooleanLiteral BOOLEAN_LITERAL() {
+    return b.<BooleanLiteral>nonterminal(BicepLexicalGrammar.BOOLEAN_LITERAL).is(
+      f.booleanLiteral(
         b.firstOf(
-          b.token(BicepLexicalGrammar.NUMBER_LITERAL),
-          b.token(BicepLexicalGrammar.TRUE_LITERAL),
-          b.token(BicepLexicalGrammar.FALSE_LITERAL),
-          b.token(BicepLexicalGrammar.NULL_LITERAL))));
+          b.token(BicepLexicalGrammar.TRUE_LITERAL_VALUE),
+          b.token(BicepLexicalGrammar.FALSE_LITERAL_VALUE))));
   }
 
-  public StringLiteral STRING_LITERAL_VALUE() {
+  public NullLiteral NULL_LITERAL() {
+    return b.<NullLiteral>nonterminal(BicepLexicalGrammar.NULL_LITERAL).is(
+      f.nullLiteral(
+        b.token(BicepLexicalGrammar.NULL_LITERAL_VALUE)));
+  }
+
+  // Temporary implementation of StringLiteral, will be removed by further implementation of Expression
+  public StringLiteral STRING_LITERAL() {
     return b.<StringLiteral>nonterminal().is(
-      f.stringLiteral(b.token(BicepLexicalGrammar.STRING_LITERAL)));
+      f.stringLiteral(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)));
   }
 
   public Identifier IDENTIFIER() {

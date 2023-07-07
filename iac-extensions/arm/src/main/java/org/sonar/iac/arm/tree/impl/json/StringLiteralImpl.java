@@ -32,11 +32,6 @@ public class StringLiteralImpl extends ExpressionImpl implements StringLiteral {
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.STRING_LITERAL;
-  }
-
-  @Override
   public String value() {
     return value;
   }

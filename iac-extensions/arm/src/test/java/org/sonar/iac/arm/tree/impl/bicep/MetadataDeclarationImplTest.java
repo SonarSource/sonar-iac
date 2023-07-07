@@ -50,7 +50,7 @@ class MetadataDeclarationImplTest {
 
   @Test
   void shouldParseSimpleMetadataDeclaration() {
-    String code = code("metadata identifier123=123");
+    String code = code("metadata identifier123=abc");
 
     MetadataDeclaration tree = (MetadataDeclaration) parser.parse(code, null);
     SoftAssertions softly = new SoftAssertions();
@@ -58,8 +58,8 @@ class MetadataDeclarationImplTest {
     softly.assertThat(tree.name().is(ArmTree.Kind.IDENTIFIER)).isTrue();
     softly.assertThat(tree.name().value()).isEqualTo("identifier123");
     softly.assertThat(tree.value().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    softly.assertThat(((StringLiteral) tree.value()).value()).isEqualTo("123");
-    softly.assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("metadata", "identifier123", "=", "123", "");
+    softly.assertThat(((StringLiteral) tree.value()).value()).isEqualTo("abc");
+    softly.assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("metadata", "identifier123", "=", "abc", "");
     softly.assertAll();
   }
 }

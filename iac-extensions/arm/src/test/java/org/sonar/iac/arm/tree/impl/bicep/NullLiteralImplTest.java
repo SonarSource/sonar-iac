@@ -17,14 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.json;
+package org.sonar.iac.arm.tree.impl.bicep;
 
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.parser.utils.Assertions;
+import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.NullLiteral;
-import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-public class NullLiteralImpl extends ExpressionImpl implements NullLiteral {
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
-  public NullLiteralImpl(YamlTreeMetadata metadata) {
-    super(metadata);
+class NullLiteralImplTest extends BicepTreeModelTest {
+
+  @Test
+  void shouldParseBooleanLiteral() {
+    Assertions.assertThat(BicepLexicalGrammar.NULL_LITERAL)
+      .matches("null")
+
+      .notMatches("nulle")
+      .notMatches("NULL")
+      .notMatches("Null")
+      .notMatches("0")
+      .notMatches("undefined")
+      .notMatches("");
+  }
+
+  @Test
+  void shouldParseNullValue() {
+    NullLiteral tree = parse("null", BicepLexicalGrammar.NULL_LITERAL);
+    org.assertj.core.api.Assertions.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.NULL_LITERAL);
   }
 }

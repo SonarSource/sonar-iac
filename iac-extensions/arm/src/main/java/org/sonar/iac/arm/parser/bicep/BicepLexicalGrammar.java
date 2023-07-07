@@ -57,11 +57,21 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   IDENTIFIER,
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
-  STRING_LITERAL,
-  NUMBER_LITERAL,
+  NUMERIC_LITERAL,
+  BOOLEAN_LITERAL,
   TRUE_LITERAL,
   FALSE_LITERAL,
-  NULL_LITERAL;
+  NULL_LITERAL,
+  LITERAL_VALUE_REGEX,
+
+  /**
+   * Values
+   */
+  STRING_LITERAL_VALUE,
+  NUMERIC_LITERAL_VALUE,
+  TRUE_LITERAL_VALUE,
+  FALSE_LITERAL_VALUE,
+  NULL_LITERAL_VALUE;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -89,11 +99,11 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
       .skip();
 
     b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
-    b.rule(STRING_LITERAL).is(b.regexp(BicepLexicalConstant.STRING));
-    b.rule(NUMBER_LITERAL).is(b.regexp(BicepLexicalConstant.NUMBER));
-    b.rule(TRUE_LITERAL).is(b.regexp(BicepLexicalConstant.TRUE));
-    b.rule(FALSE_LITERAL).is(b.regexp(BicepLexicalConstant.FALSE));
-    b.rule(NULL_LITERAL).is(b.regexp(BicepLexicalConstant.NULL));
+    b.rule(STRING_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.STRING));
+    b.rule(NUMERIC_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.NUMBER));
+    b.rule(TRUE_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.TRUE));
+    b.rule(FALSE_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.FALSE));
+    b.rule(NULL_LITERAL_VALUE).is(b.regexp(BicepLexicalConstant.NULL));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
