@@ -146,7 +146,7 @@ public class BicepGrammar {
       b.firstOf(
         ALPHA_NUMERAL_STRING(),
         LITERAL_VALUE(),
-        STRING_LITERAL_VALUE()));
+        STRING_LITERAL()));
   }
 
   public Expression LITERAL_VALUE() {
