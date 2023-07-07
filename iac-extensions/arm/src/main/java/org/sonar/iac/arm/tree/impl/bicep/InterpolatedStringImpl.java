@@ -19,61 +19,36 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import com.sonar.sslr.api.typed.Optional;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePiece;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.common.api.tree.Tree;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class InterpolatedStringImpl extends AbstractArmTreeImpl implements InterpolatedString {
-  private final SyntaxToken leftQuote;
-  @Nullable private final SyntaxToken stringLeftPiece;
-  private final SyntaxToken leftDollarLcurly;
-  private final List<InterpolatedStringMiddlePiece> stringMiddlePiece;
-  private final Expression expression;
-  private final SyntaxToken rightRcurly;
-  @Nullable private final SyntaxToken stringRightPiece;
-  private final SyntaxToken rightQuote;
+  private final InterpolatedStringLeftPiece stringLeftPiece;
+  private final List<InterpolatedStringMiddlePiece> stringMiddlePieces;
+  private final InterpolatedStringRightPiece stringRightPiece;
 
-  public InterpolatedStringImpl(SyntaxToken leftQuote,
-                                Optional<SyntaxToken> stringLeftPiece,
-                                SyntaxToken leftDollarLcurly,
-                                Optional<List<InterpolatedStringMiddlePiece>> stringMiddlePiece,
-                                Expression expression,
-                                SyntaxToken rightRcurly,
-                                Optional<SyntaxToken> stringRightPiece,
-                                SyntaxToken rightQuote) {
-    this.leftQuote = leftQuote;
-    this.stringLeftPiece = stringLeftPiece.orNull();
-    this.leftDollarLcurly = leftDollarLcurly;
-    this.stringMiddlePiece = stringMiddlePiece.or(List.of());
-    this.expression = expression;
-    this.rightRcurly = rightRcurly;
-    this.stringRightPiece = stringRightPiece.orNull();
-    this.rightQuote = rightQuote;
+  public InterpolatedStringImpl(InterpolatedStringLeftPiece stringLeftPiece,
+                                List<InterpolatedStringMiddlePiece> stringMiddlePieces,
+                                InterpolatedStringRightPiece stringRightPiece) {
+    this.stringLeftPiece = stringLeftPiece;
+    this.stringMiddlePieces = stringMiddlePieces;
+    this.stringRightPiece = stringRightPiece;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
-    result.add(leftQuote);
-    if (stringLeftPiece != null) {
-      result.add(stringLeftPiece);
-    }
-    result.add(leftDollarLcurly);
-    result.addAll(stringMiddlePiece.stream().flatMap(it -> it.children().stream()).collect(Collectors.toList()));
-    result.add(expression);
-    result.add(rightRcurly);
-    if (stringRightPiece != null) {
-      result.add(stringRightPiece);
-    }
-    result.add(rightQuote);
+    result.addAll(stringLeftPiece.children());
+    result.addAll(stringMiddlePieces.stream().flatMap(it -> it.children().stream()).collect(Collectors.toList()));
+    result.addAll(stringRightPiece.children());
     return result;
   }
 

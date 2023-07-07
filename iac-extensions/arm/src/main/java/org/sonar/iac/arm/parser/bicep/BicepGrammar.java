@@ -30,6 +30,9 @@ import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePiece;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
 import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
@@ -103,17 +106,35 @@ public class BicepGrammar {
   public InterpolatedString INTERPOLATED_STRING() {
     return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
       f.interpolatedString(
+        INTERPOLATED_STRING_LEFT_PIECE(),
+        b.zeroOrMore(INTERPOLATED_STRING_MIDDLE_PIECE()),
+        INTERPOLATED_STRING_RIGHT_PIECE()
+      )
+    );
+  }
+
+  public InterpolatedStringLeftPiece INTERPOLATED_STRING_LEFT_PIECE() {
+    return b.<InterpolatedStringLeftPiece>nonterminal().is(
+      f.interpolatedStringLeftPiece(
         b.token(Punctuator.APOSTROPHE),
         b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),
-        b.token(Punctuator.DOLLAR_LCURLY),
-        b.zeroOrMore(
-            f.interpolatedStringMiddlePiece(
-              EXPRESSION(),
-              b.token(Punctuator.RCURLYBRACE),
-              b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),
-              b.token(Punctuator.DOLLAR_LCURLY)
-          )
-        ),
+        b.token(Punctuator.DOLLAR_LCURLY)));
+  }
+
+  public InterpolatedStringMiddlePiece INTERPOLATED_STRING_MIDDLE_PIECE() {
+    return b.<InterpolatedStringMiddlePiece>nonterminal().is(
+      f.interpolatedStringMiddlePiece(
+        EXPRESSION(),
+        b.token(Punctuator.RCURLYBRACE),
+        b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),
+        b.token(Punctuator.DOLLAR_LCURLY)
+      )
+    );
+  }
+
+  public InterpolatedStringRightPiece INTERPOLATED_STRING_RIGHT_PIECE() {
+    return b.<InterpolatedStringRightPiece>nonterminal().is(
+      f.interpolatedStringRightPiece(
         EXPRESSION(),
         b.token(Punctuator.RCURLYBRACE),
         b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL)),

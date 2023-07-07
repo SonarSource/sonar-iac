@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep;
+package org.sonar.iac.arm.tree.impl.bicep.interpstring;
 
 import com.sonar.sslr.api.typed.Optional;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -25,30 +25,27 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.Tree;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class InterpolatedStringMiddlePiece {
+public class InterpolatedStringRightPiece {
   private final Expression expression;
   private final SyntaxToken rCurly;
   @Nullable private final SyntaxToken stringChars;
-  private final SyntaxToken dollarLcurly;
+  private final SyntaxToken rightQuote;
 
-  public InterpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+  public InterpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken rightQuote) {
     this.expression = expression;
     this.rCurly = rCurly;
     this.stringChars = stringChars.orNull();
-    this.dollarLcurly = dollarLcurly;
+    this.rightQuote = rightQuote;
   }
 
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    children.add(expression);
-    children.add(rCurly);
-    if (stringChars != null) {
-      children.add(stringChars);
-    }
-    children.add(dollarLcurly);
-    return children;
+    return Stream.of(expression, rCurly, stringChars, rightQuote)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 }

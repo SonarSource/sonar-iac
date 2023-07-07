@@ -37,9 +37,11 @@ import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
-import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringMiddlePiece;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPiece;
 
 public class TreeFactory {
 
@@ -62,19 +64,22 @@ public class TreeFactory {
     return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
-  public InterpolatedString interpolatedString(SyntaxToken leftQuote,
-                                               Optional<SyntaxToken> stringLeftPiece,
-                                               SyntaxToken leftDollarLcurly,
-                                               Optional<List<InterpolatedStringMiddlePiece>> stringMiddlePiece,
-                                               Expression expression,
-                                               SyntaxToken rightRcurly,
-                                               Optional<SyntaxToken> stringRightPiece,
-                                               SyntaxToken rightQuote) {
-    return new InterpolatedStringImpl(leftQuote, stringLeftPiece, leftDollarLcurly, stringMiddlePiece, expression, rightRcurly, stringRightPiece, rightQuote);
+  public InterpolatedString interpolatedString(InterpolatedStringLeftPiece stringLeftPiece,
+                                               Optional<List<InterpolatedStringMiddlePiece>> stringMiddlePieces,
+                                               InterpolatedStringRightPiece stringRightPiece) {
+    return new InterpolatedStringImpl(stringLeftPiece, stringMiddlePieces.or(List.of()), stringRightPiece);
+  }
+
+  public InterpolatedStringLeftPiece interpolatedStringLeftPiece(SyntaxToken leftQuote, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+    return new InterpolatedStringLeftPiece(leftQuote, stringChars, dollarLcurly);
   }
 
   public InterpolatedStringMiddlePiece interpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
     return new InterpolatedStringMiddlePiece(expression, rCurly, stringChars, dollarLcurly);
+  }
+
+  public InterpolatedStringRightPiece interpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken rightQuote) {
+    return new InterpolatedStringRightPiece(expression, rCurly, stringChars, rightQuote);
   }
 
   public StringLiteral stringLiteral(SyntaxToken token) {
