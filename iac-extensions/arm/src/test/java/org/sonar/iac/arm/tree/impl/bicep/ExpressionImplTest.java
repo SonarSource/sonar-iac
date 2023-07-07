@@ -20,28 +20,33 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class ExpressionImplTest {
+class ExpressionImplTest extends BicepTreeModelTest {
 
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.EXPRESSION);
+  @Test
+  void shouldParseExpression() {
+    Assertions.assertThat(BicepLexicalGrammar.EXPRESSION)
+      .matches("123")
+      .matches("true")
+      .matches("false")
+      .matches("null")
+      .matches("'abdcef'")
+
+      .notMatches(".123456")
+      .notMatches("-")
+      .notMatches("_abc");
+  }
 
   @Test
   void shouldParseSimpleExpression() {
-    String code = code("123");
-
-    StringLiteral tree = (StringLiteral) parser.parse(code, null);
+    StringLiteral tree = parse("123", BicepLexicalGrammar.EXPRESSION);
     assertThat(tree.value()).isEqualTo("123");
     assertThat(tree.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
 
@@ -49,34 +54,5 @@ class ExpressionImplTest {
     SyntaxToken token = (SyntaxToken) tree.children().get(0);
     assertThat(token.children()).isEmpty();
     assertThat(token.comments()).isEmpty();
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "123",
-    "true",
-    "false",
-    "null",
-    "'abcdef'"
-  })
-  void shouldParseValidExpressionValue(String value) {
-    String code = code(value);
-
-    StringLiteral tree = (StringLiteral) parser.parse(code, null);
-    assertThat(tree.value()).isEqualTo(value);
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-    ".123456",
-    "-",
-    "_A1"
-  })
-  void shouldFailOnInvalidExpressionValue(String value) {
-    String code = code(value);
-
-    assertThatThrownBy(() -> parser.parse(code, null))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse 'null:1:1'");
   }
 }

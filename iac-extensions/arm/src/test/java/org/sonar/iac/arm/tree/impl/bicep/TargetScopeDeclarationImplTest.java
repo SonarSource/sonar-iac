@@ -24,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -32,14 +33,26 @@ import org.sonar.iac.common.api.tree.TextTree;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class TargetScopeDeclarationImplTest {
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);
+class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
+
+  @Test
+  void shouldParseTargetScopeDeclaration() {
+    Assertions.assertThat(BicepLexicalGrammar.TARGET_SCOPE_DECLARATION)
+      .matches("targetScope=123")
+      .matches("targetScope =123")
+      // TODO SONARIAC-948 TargetScopeDeclaration should allow SPACING after the equals
+      .notMatches("targetScope = 123")
+
+      .notMatches("targetScope")
+      .notMatches("targetScope=")
+      .notMatches("TARGETscope=123")
+      .notMatches("targetScope = ");
+  }
 
   @Test
   void shouldParseSimpleTargetScopeDeclaration() {
     String code = code("targetScope=123");
-
-    TargetScopeDeclaration tree = (TargetScopeDeclaration) parser.parse(code, null);
+    TargetScopeDeclaration tree = parse(code, BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.TARGET_SCOPE_DECLARATION)).isTrue();
     assertThat(tree.scope()).isEqualTo(File.Scope.UNKNOWN);
     assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("targetScope", "=", "123");
@@ -55,7 +68,7 @@ class TargetScopeDeclarationImplTest {
   }, quoteCharacter = '\"')
   void shouldParseProperTarget(String targetScopeCode, String targetScopeEnum) {
     String code = code("targetScope=" + targetScopeCode);
-    TargetScopeDeclaration tree = (TargetScopeDeclaration) parser.parse(code, null);
+    TargetScopeDeclaration tree = parse(code, BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);
     assertThat(tree.scope()).isEqualTo(File.Scope.valueOf(targetScopeEnum));
   }
 }

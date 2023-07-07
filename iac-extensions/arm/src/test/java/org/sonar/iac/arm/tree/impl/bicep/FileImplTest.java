@@ -22,6 +22,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
+import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -31,15 +32,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
-class FileImplTest {
-
-  BicepParser parser = BicepParser.create();
+class FileImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMinimalParameter() {
-    String code = code("");
-
-    File tree = (File) parser.parse(code, null);
+    File tree = parse("", BicepLexicalGrammar.FILE);
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.targetScope()).isEqualTo(File.Scope.RESOURCE_GROUP);
     ArmAssertions.assertThat(tree.targetScopeLiteral()).isNull();
@@ -47,9 +44,7 @@ class FileImplTest {
 
   @Test
   void shouldParseEmptyFileWithBOM() {
-    String code = code("\uFEFF");
-
-    File tree = (File) parser.parse(code, null);
+    File tree = parseBasic("\uFEFF", BicepLexicalGrammar.FILE);
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.targetScope()).isEqualTo(File.Scope.RESOURCE_GROUP);
     ArmAssertions.assertThat(tree.targetScopeLiteral()).isNull();
@@ -60,6 +55,7 @@ class FileImplTest {
     String code = code("invalid code -");
     InputFileContext inputFile = createInputFileContextMock("foo.bicep");
 
+    BicepParser parser = BicepParser.create(BicepLexicalGrammar.FILE);
     assertThatThrownBy(() -> parser.parse(code, inputFile))
       .isInstanceOf(ParseException.class)
       .hasMessage("Cannot parse 'dir1/dir2/foo.bicep:1:1'");

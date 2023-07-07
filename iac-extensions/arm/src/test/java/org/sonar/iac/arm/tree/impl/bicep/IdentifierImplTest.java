@@ -20,28 +20,44 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.common.extension.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class IdentifierImplTest {
+class IdentifierImplTest extends BicepTreeModelTest {
 
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.IDENTIFIER);
+  @Test
+  void shouldParseIdentifier() {
+    Assertions.assertThat(BicepLexicalGrammar.IDENTIFIER)
+      .matches("123")
+      .matches("abc")
+      .matches("A")
+      .matches("Z")
+      .matches("a")
+      .matches("z")
+      .matches("AAAAA123")
+      .matches("123zz")
+      .matches("123aa789")
+      .matches("123BB789")
+
+      .notMatches(".123456")
+      .notMatches("-")
+      .notMatches("_A1")
+      .notMatches("$123")
+      .notMatches("{123}")
+      .notMatches("(abc");
+  }
 
   @Test
   void shouldParseSimpleIdentifier() {
     String code = code("abc123DEF");
 
-    Identifier tree = (Identifier) parser.parse(code, null);
+    Identifier tree = parse(code, BicepLexicalGrammar.IDENTIFIER);
     assertThat(tree.value()).isEqualTo("abc123DEF");
     assertThat(tree.is(ArmTree.Kind.IDENTIFIER)).isTrue();
 
@@ -49,42 +65,5 @@ class IdentifierImplTest {
     SyntaxToken token = (SyntaxToken) tree.children().get(0);
     assertThat(token.children()).isEmpty();
     assertThat(token.comments()).isEmpty();
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "123",
-    "abc",
-    "A",
-    "Z",
-    "a",
-    "z",
-    "AAAAA123",
-    "123zz",
-    "123aa789",
-    "123BB789",
-  })
-  void shouldParseValidIdentifierValue(String value) {
-    String code = code(value);
-
-    Identifier tree = (Identifier) parser.parse(code, null);
-    assertThat(tree.value()).isEqualTo(value);
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-    ".123456",
-    "-",
-    "_A1",
-    "$123",
-    "{123}",
-    "(abc",
-  })
-  void shouldFailOnInvalidIdentifierValue(String value) {
-    String code = code(value);
-
-    assertThatThrownBy(() -> parser.parse(code, null))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse 'null:1:1'");
   }
 }
