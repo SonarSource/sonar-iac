@@ -25,6 +25,7 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -56,6 +57,7 @@ public class BicepGrammar {
     return b.<Statement>nonterminal(BicepLexicalGrammar.STATEMENT).is(
       b.firstOf(
         TARGET_SCOPE_DECLARATION(),
+        METADATA_DECLARATION(),
         VARIABLE_DECLARATION()));
   }
 
@@ -65,6 +67,16 @@ public class BicepGrammar {
         b.token(BicepKeyword.TARGET_SCOPE),
         b.token(Punctuator.EQU),
         EXPRESSION()));
+  }
+
+  public MetadataDeclaration METADATA_DECLARATION() {
+    return b.<MetadataDeclaration>nonterminal(BicepLexicalGrammar.METADATA_DECLARATION).is(
+      f.metadataDeclaration(
+        b.token(BicepKeyword.METADATA),
+        IDENTIFIER(),
+        b.token(Punctuator.EQU),
+        EXPRESSION(),
+        b.token(BicepLexicalGrammar.EOL)));
   }
 
   public VariableDeclaration VARIABLE_DECLARATION() {
@@ -109,5 +121,4 @@ public class BicepGrammar {
       f.identifier(
         b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
   }
-
 }

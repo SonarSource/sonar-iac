@@ -27,11 +27,13 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
@@ -46,6 +48,11 @@ public class TreeFactory {
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken targetScope, SyntaxToken equals, Expression expression) {
     return new TargetScopeDeclarationImpl(targetScope, equals, expression);
+  }
+
+  public MetadataDeclaration metadataDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals,
+    Expression expression, SyntaxToken newLine) {
+    return new MetadataDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
   public VariableDeclaration variableDeclaration(SyntaxToken variableKeyword, Identifier identifier, SyntaxToken equals, Expression expression) {

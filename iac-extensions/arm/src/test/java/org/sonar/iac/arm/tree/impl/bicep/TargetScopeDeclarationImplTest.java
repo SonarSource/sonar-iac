@@ -22,7 +22,6 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -40,8 +39,7 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
     Assertions.assertThat(BicepLexicalGrammar.TARGET_SCOPE_DECLARATION)
       .matches("targetScope=123")
       .matches("targetScope =123")
-      // TODO SONARIAC-948 TargetScopeDeclaration should allow SPACING after the equals
-      .notMatches("targetScope = 123")
+      .matches("targetScope = 123")
 
       .notMatches("targetScope")
       .notMatches("targetScope=")
