@@ -60,12 +60,12 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
 
   @ParameterizedTest
   @CsvSource(value = {
-    "'managementGroup', MANAGEMENT_GROUP",
-    "'resourceGroup',   RESOURCE_GROUP",
-    "'subscription',    SUBSCRIPTION",
-    "'tenant',          TENANT",
-    "'other',           UNKNOWN"
-  }, quoteCharacter = '\"')
+    "managementGroup, MANAGEMENT_GROUP",
+    "resourceGroup,   RESOURCE_GROUP",
+    "subscription,    SUBSCRIPTION",
+    "tenant,          TENANT",
+    "other,           UNKNOWN"
+  })
   void shouldParseProperTarget(String targetScopeCode, String targetScopeEnum) {
     String code = code("targetScope=" + targetScopeCode);
     TargetScopeDeclaration tree = parse(code, BicepLexicalGrammar.TARGET_SCOPE_DECLARATION);

@@ -37,7 +37,7 @@ class ExpressionImplTest extends BicepTreeModelTest {
       .matches("true")
       .matches("false")
       .matches("null")
-      .matches("'abdcef'")
+      .matches("abdcef")
 
       .notMatches(".123456")
       .notMatches("-")

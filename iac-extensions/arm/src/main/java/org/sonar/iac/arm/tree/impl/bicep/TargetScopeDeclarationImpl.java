@@ -54,8 +54,7 @@ public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements T
   public File.Scope scope() {
     if (expression.is(Kind.STRING_LITERAL)) {
       StringLiteral stringLiteral = (StringLiteral) expression;
-      String stringLiteralValueUnquoted = stringLiteral.value().substring(1, stringLiteral.value().length() - 1);
-      switch (stringLiteralValueUnquoted) {
+      switch (stringLiteral.value()) {
         case "managementGroup":
           return File.Scope.MANAGEMENT_GROUP;
         case "resourceGroup":

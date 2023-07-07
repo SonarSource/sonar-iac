@@ -40,7 +40,7 @@ class VariableDeclarationImplTest {
     "variable foo =42",
     "variable foo=42",
     "variable foo= 42",
-    "variable foo = 'abc'",
+    "variable foo = abc",
     "variable foo = true",
   })
   void shouldParseSimpleVariableDeclaration(String code) {
