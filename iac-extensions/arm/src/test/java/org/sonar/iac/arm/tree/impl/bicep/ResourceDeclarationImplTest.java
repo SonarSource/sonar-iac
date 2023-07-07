@@ -92,4 +92,28 @@ class ResourceDeclarationImplTest {
         "abc",
         "}"));
   }
+
+  @Test
+  void shouldThrowExceptionForInvalidTypeAndVersion() {
+    String code = code("resource myName 'type_version' = {",
+      "}\n");
+
+    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
+    assertThatThrownBy(() -> tree.type())
+      .isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(() -> tree.version())
+      .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void shouldThrowExceptionForInvalidTypeAndVersion2() {
+    String code = code("resource myName 'foo@bar@baz' = {",
+      "}\n");
+
+    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
+    assertThatThrownBy(() -> tree.type())
+      .isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(() -> tree.version())
+      .isInstanceOf(UnsupportedOperationException.class);
+  }
 }
