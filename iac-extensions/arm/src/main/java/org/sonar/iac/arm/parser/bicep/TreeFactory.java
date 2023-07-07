@@ -48,9 +48,9 @@ public class TreeFactory {
     return new TargetScopeDeclarationImpl(targetScope, equals, expression);
   }
 
-  public MetadataDeclaration metadataDeclaration(SyntaxToken metadata, Identifier identifier, SyntaxToken equals,
+  public MetadataDeclaration metadataDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals,
     Expression expression, SyntaxToken newLine) {
-    return new MetadataDeclarationImpl(metadata, identifier, equals, expression, newLine);
+    return new MetadataDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
   public StringLiteral stringLiteral(SyntaxToken token) {

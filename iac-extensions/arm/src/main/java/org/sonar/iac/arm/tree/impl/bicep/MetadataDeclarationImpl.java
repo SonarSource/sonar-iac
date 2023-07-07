@@ -29,14 +29,14 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class MetadataDeclarationImpl extends AbstractArmTreeImpl implements MetadataDeclaration {
 
-  private final SyntaxToken metadata;
+  private final SyntaxToken keyword;
   private final Identifier identifier;
   private final SyntaxToken equals;
   private final Expression expression;
   private final SyntaxToken newLine;
 
-  public MetadataDeclarationImpl(SyntaxToken metadata, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
-    this.metadata = metadata;
+  public MetadataDeclarationImpl(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
+    this.keyword = keyword;
     this.identifier = identifier;
     this.equals = equals;
     this.expression = expression;
@@ -45,7 +45,7 @@ public class MetadataDeclarationImpl extends AbstractArmTreeImpl implements Meta
 
   @Override
   public List<Tree> children() {
-    return List.of(metadata, identifier, equals, expression, newLine);
+    return List.of(keyword, identifier, equals, expression, newLine);
   }
 
   @Override
