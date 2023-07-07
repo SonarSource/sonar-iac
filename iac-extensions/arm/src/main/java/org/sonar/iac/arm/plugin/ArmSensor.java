@@ -21,6 +21,9 @@ package org.sonar.iac.arm.plugin;
 
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -43,7 +46,7 @@ public class ArmSensor extends YamlSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguages(JSON_LANGUAGE_KEY)
+      .onlyOnLanguages(JSON_LANGUAGE_KEY, language.getKey())
       .name("IaC " + language.getName() + " Sensor");
   }
 
@@ -55,6 +58,18 @@ public class ArmSensor extends YamlSensor {
   @Override
   protected String getActivationSettingKey() {
     return ArmSettings.ACTIVATION_KEY;
+  }
+
+  @Override
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+    FileSystem fileSystem = sensorContext.fileSystem();
+    FilePredicates predicates = fileSystem.predicates();
+
+    // Allow files which are main bicep file, or a main json file which contains the expected file identifier
+    return predicates.and(predicates.hasType(InputFile.Type.MAIN),
+      predicates.or(predicates.hasLanguage(ArmLanguage.KEY),
+        predicates.and(predicates.hasLanguage(JSON_LANGUAGE_KEY),
+          customFilePredicate(sensorContext))));
   }
 
   @Override
