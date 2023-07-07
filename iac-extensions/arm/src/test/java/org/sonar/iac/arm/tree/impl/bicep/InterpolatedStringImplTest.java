@@ -26,7 +26,7 @@ import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 
-public class InterpolatedStringImplTest extends BicepTreeModelTest {
+class InterpolatedStringImplTest extends BicepTreeModelTest {
   @Test
   void shouldMatchValidStrings() {
     Assertions.assertThat(BicepLexicalGrammar.INTERPOLATED_STRING)

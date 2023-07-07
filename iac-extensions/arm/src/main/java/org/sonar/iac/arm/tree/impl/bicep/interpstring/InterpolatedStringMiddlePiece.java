@@ -25,8 +25,10 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.Tree;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InterpolatedStringMiddlePiece {
   private final Expression expression;
@@ -43,13 +45,8 @@ public class InterpolatedStringMiddlePiece {
   }
 
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    children.add(expression);
-    children.add(rCurly);
-    if (stringChars != null) {
-      children.add(stringChars);
-    }
-    children.add(dollarLcurly);
-    return children;
+    return Stream.of(expression, rCurly, stringChars, dollarLcurly)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 }
