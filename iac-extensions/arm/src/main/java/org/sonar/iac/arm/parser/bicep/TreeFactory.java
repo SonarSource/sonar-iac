@@ -55,8 +55,8 @@ public class TreeFactory {
     return new MetadataDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
-  public VariableDeclaration variableDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression) {
-    return new VariableDeclarationImpl(keyword, identifier, equals, expression);
+  public VariableDeclaration variableDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
+    return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
   public StringLiteral stringLiteral(SyntaxToken token) {

@@ -85,9 +85,8 @@ public class BicepGrammar {
         b.token(BicepKeyword.VARIABLE),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
-        f.ignoreLast(
-          EXPRESSION(),
-          b.token(EOL))));
+        EXPRESSION(),
+        b.token(EOL)));
   }
 
   public Expression EXPRESSION() {

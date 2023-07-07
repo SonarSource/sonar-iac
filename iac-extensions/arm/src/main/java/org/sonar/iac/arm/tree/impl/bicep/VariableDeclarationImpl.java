@@ -33,17 +33,19 @@ public class VariableDeclarationImpl extends AbstractArmTreeImpl implements Vari
   private final Identifier identifier;
   private final SyntaxToken equals;
   private final Expression expression;
+  private final SyntaxToken newLine;
 
-  public VariableDeclarationImpl(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression) {
+  public VariableDeclarationImpl(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
     this.keyword = keyword;
     this.identifier = identifier;
     this.equals = equals;
     this.expression = expression;
+    this.newLine = newLine;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(keyword, identifier, equals, expression);
+    return List.of(keyword, identifier, equals, expression, newLine);
   }
 
   @Override
