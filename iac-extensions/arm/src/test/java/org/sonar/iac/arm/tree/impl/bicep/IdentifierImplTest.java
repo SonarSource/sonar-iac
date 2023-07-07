@@ -34,20 +34,21 @@ class IdentifierImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseIdentifier() {
     Assertions.assertThat(BicepLexicalGrammar.IDENTIFIER)
-      .matches("123")
       .matches("abc")
       .matches("A")
       .matches("Z")
       .matches("a")
       .matches("z")
       .matches("AAAAA123")
-      .matches("123zz")
-      .matches("123aa789")
-      .matches("123BB789")
+      .matches("aa222bbb")
+      .matches("_A1")
 
+      .notMatches("123zz")
+      .notMatches("123aa789")
+      .notMatches("123BB789")
+      .notMatches("123")
       .notMatches(".123456")
       .notMatches("-")
-      .notMatches("_A1")
       .notMatches("$123")
       .notMatches("{123}")
       .notMatches("(abc");

@@ -97,32 +97,6 @@ public class BicepGrammar {
         b.token(EOL)));
   }
 
-  //  public ResourceDeclaration RESOURCE_DECLARATION() {
-//    return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
-//      f.resourceDeclaration(
-//        b.token(BicepKeyword.RESOURCE),
-//        IDENTIFIER(),
-//        INTERP_STRING_TYPE(),
-//        b.optional(b.token(BicepKeyword.EXISTING)),
-//        b.token(Punctuator.EQU),
-//        OBJECT_DECLARATION(),
-//        b.token(BicepLexicalGrammar.EOF)
-//        )
-//    );
-//  }
-  // public ResourceDeclaration RESOURCE_DECLARATION() {
-  // return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
-  // f.resourceDeclaration(
-  // b.token(BicepKeyword.RESOURCE),
-  // IDENTIFIER(),
-  // INTERP_STRING_TYPE(),
-  // b.optional(b.token(BicepKeyword.EXISTING)),
-  // b.token(Punctuator.EQU),
-  // OBJECT_DECLARATION(),
-  // b.token(BicepLexicalGrammar.EOF)
-  // )
-  // );
-  // }
   public ResourceDeclaration RESOURCE_DECLARATION() {
     return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
       f.resourceDeclaration(
