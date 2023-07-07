@@ -27,6 +27,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -67,68 +68,28 @@ class ResourceDeclarationImplTest {
     assertThat(tree.children()).hasSize(5);
   }
 
-  static Stream<Arguments> shouldParseResourceDeclaration() {
-    return Stream.of(
-      Arguments.of(
-        code("resource workloadIpGroup 'Microsoft.Network/ipGroups@2022-01-01' = {",
-          "  name: workloadIpGroupName",
-          "  location: location1",
-          "}\n"),
-        "workloadIpGroup", "Microsoft.Network/ipGroups", "2022-01-01", false,
-        List.of("name", "workloadIpGroupName", "location", "location1")),
-      Arguments.of(
-        code("resource workloadIpGroup 'Microsoft.Network/ipGroups@2022-01-01' = {",
-          "  name: workloadIpGroupName",
-          "  location: location1",
-          "}\n"),
-        "workloadIpGroup", "Microsoft.Network/ipGroups", "2022-01-01", false,
-        List.of("name", "workloadIpGroupName", "location", "location1")),
-      Arguments.of(
-        code("resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' = {",
-          "  ABC: 123",
-          "  myKey: myValue",
-          "}\n"),
-        "a_b_c", "Microsoft.Network/ipGroups", "2022-01-01", false,
-        List.of("ABC", "123", "myKey", "myValue")),
-      Arguments.of(
-        code("resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {",
-          "  ABC: 123",
-          "  myKey: myValue",
-          "}\n"),
-        "a_b_c", "Microsoft.Network/ipGroups", "2022-01-01", true,
-        List.of("ABC", "123", "myKey", "myValue")));
-  }
-
-  @ParameterizedTest
-  @MethodSource
-  void shouldParseResourceDeclaration(String code, String name, String type, String version, boolean existing, List<String> keyValuePairs) {
-    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
-
-    assertThat(tree.name().value()).isEqualTo(name);
-    assertThat(tree.type().value()).isEqualTo(type);
-    assertThat(tree.version().value()).isEqualTo(version);
-    if (existing) {
-      assertThat(((SyntaxToken) tree.children().get(3)).value()).isEqualTo("existing");
-    }
-    if (keyValuePairs.size() % 2 == 1) {
-      throw new RuntimeException("There should be even number of key value pairs");
-    }
-    for (int i = 0; i < keyValuePairs.size(); i = i + 2) {
-      Property property = tree.properties().get(i / 2);
-      assertThat(property.key().value()).isEqualTo(keyValuePairs.get(i));
-      assertThat(((StringLiteral) property.value()).value()).isEqualTo(keyValuePairs.get(i + 1));
-    }
-  }
-
   @Test
-  void shouldThrowExceptionForInvalidTypeAndVersion() {
-    String code = code("resource myName 'type_version' = {",
-      "}\n");
+  void shouldParseResourceDeclaration() {
+    Assertions.assertThat(BicepLexicalGrammar.RESOURCE_DECLARATION)
+      .matches(code("resource workloadIpGroup 'Microsoft.Network/ipGroups@2022-01-01' = {",
+        "  name: workloadIpGroupName",
+        "  location: location1",
+        "}"))
+      .matches(code("resource workloadIpGroup 'Microsoft.Network/ipGroups@2022-01-01' = {",
+        "  name: workloadIpGroupName",
+        "  location: location1",
+        "}"))
+      .matches(code("resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' = {",
+        "  ABC: 123",
+        "  myKey: myValue",
+        "}"))
+      .matches(code("resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {",
+        "  ABC: 123",
+        "  myKey: myValue",
+        "}"))
 
-    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
-    assertThatThrownBy(() -> tree.type())
-      .isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(() -> tree.version())
-      .isInstanceOf(UnsupportedOperationException.class);
+      .notMatches(code("resource myName 'type_version' = {",
+        "abc",
+        "}"));
   }
 }

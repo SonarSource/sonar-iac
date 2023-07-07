@@ -74,6 +74,8 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   NULL_LITERAL,
   LITERAL_VALUE_REGEX,
 
+  OPENING_APOSTROPHE,
+
   /**
    * Values
    */
@@ -94,7 +96,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void punctuators(LexerlessGrammarBuilder b) {
-    Stream.of(Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE).forEach(
+    Stream.of(Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE).forEach(
       p -> b.rule(p).is(SPACING, p.getValue()).skip());
   }
 
@@ -116,9 +118,11 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(TRUE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.TRUE));
     b.rule(FALSE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.FALSE));
     b.rule(NULL_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NULL));
+
+    b.rule(OPENING_APOSTROPHE).is(SPACING, Punctuator.APOSTROPHE);
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
-    Arrays.stream(BicepKeyword.values()).forEach(tokenType -> b.rule(tokenType).is(tokenType.getValue()).skip());
+    Arrays.stream(BicepKeyword.values()).forEach(tokenType -> b.rule(tokenType).is(SPACING, tokenType.getValue()).skip());
   }
 }

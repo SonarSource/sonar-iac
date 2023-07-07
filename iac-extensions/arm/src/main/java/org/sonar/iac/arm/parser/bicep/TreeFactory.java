@@ -95,14 +95,8 @@ public class TreeFactory {
     return new IdentifierImpl(token);
   }
 
-  // Ignore unused method parameters
-  @SuppressWarnings("java:S1172")
-  public InterpolatedString interpolatedString(
-    Optional<SyntaxToken> spacing,
-    SyntaxToken openApostrophe,
-    SyntaxToken value,
-    SyntaxToken closeApostrophe) {
-    return new InterpolatedStringImpl(openApostrophe, value, closeApostrophe);
+  public InterpolatedString interpolatedString(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
+    return new InterpolatedStringImpl(openingApostrophe, value, closingApostrophe);
   }
 
   public Property objectProperty(Identifier key, SyntaxToken colon, Expression value) {

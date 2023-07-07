@@ -103,10 +103,7 @@ public class BicepGrammar {
         b.token(BicepKeyword.RESOURCE),
         IDENTIFIER(),
         INTERPOLATED_STRING_TYPE(),
-        b.optional(
-          f.ignoreFirst(
-            b.token(BicepLexicalGrammar.SPACING),
-            b.token(BicepKeyword.EXISTING))),
+        b.optional(b.token(BicepKeyword.EXISTING)),
         b.token(Punctuator.EQU),
         OBJECT_EXPRESSION(),
         b.token(BicepLexicalGrammar.EOL)));
@@ -115,10 +112,9 @@ public class BicepGrammar {
   public InterpolatedString INTERPOLATED_STRING_TYPE() {
     return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
       f.interpolatedString(
-        b.optional(b.token(BicepLexicalGrammar.SPACING)),
-        b.token(BicepLexicalGrammar.APOSTROPHE),
+        b.token(BicepLexicalGrammar.OPENING_APOSTROPHE),
         b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
-        b.token(BicepLexicalGrammar.APOSTROPHE)));
+        b.token(Punctuator.APOSTROPHE)));
   }
 
   // object -> "{" ( NL+ ( property NL+ )* )? "}"
@@ -133,13 +129,8 @@ public class BicepGrammar {
   public List<Property> PROPERTY_LIST() {
     return b.<List<Property>>nonterminal().is(
       f.propertyList(
-        f.ignoreFirst(
-          b.oneOrMore(
-            b.token(BicepLexicalGrammar.EOL)),
-          b.zeroOrMore(
-            f.ignoreSecond(
-              PROPERTY(),
-              b.token(BicepLexicalGrammar.EOL))))));
+        b.zeroOrMore(
+          PROPERTY())));
   }
 
   public Property PROPERTY() {
@@ -152,12 +143,10 @@ public class BicepGrammar {
 
   public Expression EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
-      f.ignoreFirst(
-        b.token(BicepLexicalGrammar.SPACING),
-        b.firstOf(
-          ALPHA_NUMERAL_STRING(),
-          LITERAL_VALUE(),
-          STRING_LITERAL())));
+      b.firstOf(
+        ALPHA_NUMERAL_STRING(),
+        LITERAL_VALUE(),
+        STRING_LITERAL_VALUE()));
   }
 
   public Expression LITERAL_VALUE() {

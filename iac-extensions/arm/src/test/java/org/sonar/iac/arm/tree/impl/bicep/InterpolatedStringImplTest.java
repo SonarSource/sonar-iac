@@ -24,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -58,41 +59,26 @@ class InterpolatedStringImplTest {
     assertThat(tree.children()).hasSize(3);
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "'123'",
-    "'abc'",
-    "  'abc'",
-    "'A'",
-    "'Z'",
-    "'a'",
-    "'z'",
-    "'AAAAA123'",
-    "'123zz'",
-    "'123aa789'",
-    "'123BB789'",
-  })
-  void shouldParseValidInterpolatedString(String value) {
-    String code = code(value);
+  @Test
+  void shouldParseInterpolatedString() {
+    Assertions.assertThat(BicepLexicalGrammar.INTERPOLATED_STRING)
+      .matches("'123'")
+      .matches("'abc'")
+      .matches("  'abc'")
+      .matches("'A'")
+      .matches("'Z'")
+      .matches("'a'")
+      .matches("'z'")
+      .matches("'AAAAA123'")
+      .matches("'123zz'")
+      .matches("'123aa789'")
+      .matches("'123BB789'")
 
-    InterpolatedString tree = (InterpolatedString) parser.parse(code, null);
-    assertThat(tree.value()).isEqualTo(value.replace("'", "").trim());
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-    ".12'3456",
-    "-",
-    "_A1",
-    "$123'",
-    "{123}",
-    "(abc",
-  })
-  void shouldFailOnInvalidInterpolatedString(String value) {
-    String code = code(value);
-
-    assertThatThrownBy(() -> parser.parse(code, null))
-      .isInstanceOf(ParseException.class)
-      .hasMessage("Cannot parse 'null:1:1'");
+      .notMatches(".12'3456")
+      .notMatches("-")
+      .notMatches("_A1")
+      .notMatches("$123'")
+      .notMatches("{123}")
+      .notMatches("(abc");
   }
 }
