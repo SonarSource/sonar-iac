@@ -20,10 +20,10 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiece;
-import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePiece;
-import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.common.api.tree.Tree;
 
 import java.util.ArrayList;
@@ -36,8 +36,8 @@ public class InterpolatedStringImpl extends AbstractArmTreeImpl implements Inter
   private final InterpolatedStringRightPiece stringRightPiece;
 
   public InterpolatedStringImpl(InterpolatedStringLeftPiece stringLeftPiece,
-    List<InterpolatedStringMiddlePiece> stringMiddlePieces,
-    InterpolatedStringRightPiece stringRightPiece) {
+                                List<InterpolatedStringMiddlePiece> stringMiddlePieces,
+                                InterpolatedStringRightPiece stringRightPiece) {
     this.stringLeftPiece = stringLeftPiece;
     this.stringMiddlePieces = stringMiddlePieces;
     this.stringRightPiece = stringRightPiece;

@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
-import java.util.List;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
@@ -32,32 +31,37 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
-import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FunctionDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
-import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
-import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
-import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
-import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiece;
-import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPiece;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPieceImpl;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePieceImpl;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPieceImpl;
+
+import java.util.List;
 
 import static java.util.Collections.emptyList;
 
@@ -96,21 +100,21 @@ public class TreeFactory {
   }
 
   public InterpolatedString interpolatedString(InterpolatedStringLeftPiece stringLeftPiece,
-    Optional<List<InterpolatedStringMiddlePiece>> stringMiddlePieces,
-    InterpolatedStringRightPiece stringRightPiece) {
+                                               Optional<List<InterpolatedStringMiddlePiece>> stringMiddlePieces,
+                                               InterpolatedStringRightPiece stringRightPiece) {
     return new InterpolatedStringImpl(stringLeftPiece, stringMiddlePieces.or(List.of()), stringRightPiece);
   }
 
   public InterpolatedStringLeftPiece interpolatedStringLeftPiece(SyntaxToken leftQuote, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
-    return new InterpolatedStringLeftPiece(leftQuote, stringChars, dollarLcurly);
+    return new InterpolatedStringLeftPieceImpl(leftQuote, stringChars, dollarLcurly);
   }
 
   public InterpolatedStringMiddlePiece interpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
-    return new InterpolatedStringMiddlePiece(expression, rCurly, stringChars, dollarLcurly);
+    return new InterpolatedStringMiddlePieceImpl(expression, rCurly, stringChars, dollarLcurly);
   }
 
   public InterpolatedStringRightPiece interpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken rightQuote) {
-    return new InterpolatedStringRightPiece(expression, rCurly, stringChars, rightQuote);
+    return new InterpolatedStringRightPieceImpl(expression, rCurly, stringChars, rightQuote);
   }
 
   public StringLiteral stringLiteral(SyntaxToken token) {

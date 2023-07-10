@@ -38,9 +38,9 @@ import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
-import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiece;
-import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePiece;
-import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
 import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
