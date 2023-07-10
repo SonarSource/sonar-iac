@@ -61,10 +61,10 @@ import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
-
-import java.util.List;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.impl.Tuple;
+
+import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.emptySeparatedList;

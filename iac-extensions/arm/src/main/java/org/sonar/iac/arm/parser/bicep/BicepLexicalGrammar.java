@@ -20,12 +20,13 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.GenericTokenType;
-import java.util.Arrays;
-import java.util.stream.Stream;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
+
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 public enum BicepLexicalGrammar implements GrammarRuleKey {
 
