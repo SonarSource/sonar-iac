@@ -36,8 +36,8 @@ public class InterpolatedStringImpl extends AbstractArmTreeImpl implements Inter
   private final InterpolatedStringRightPiece stringRightPiece;
 
   public InterpolatedStringImpl(InterpolatedStringLeftPiece stringLeftPiece,
-                                List<InterpolatedStringMiddlePiece> stringMiddlePieces,
-                                InterpolatedStringRightPiece stringRightPiece) {
+    List<InterpolatedStringMiddlePiece> stringMiddlePieces,
+    InterpolatedStringRightPiece stringRightPiece) {
     this.stringLeftPiece = stringLeftPiece;
     this.stringMiddlePieces = stringMiddlePieces;
     this.stringRightPiece = stringRightPiece;

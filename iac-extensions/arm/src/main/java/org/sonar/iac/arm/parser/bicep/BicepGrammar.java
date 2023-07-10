@@ -154,16 +154,17 @@ public class BicepGrammar {
       b.firstOf(
         ALPHA_NUMERAL_STRING(),
         LITERAL_VALUE(),
-        STRING_COMPLETE(),
         INTERPOLATED_STRING()));
   }
 
   public InterpolatedString INTERPOLATED_STRING() {
     return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
+      b.firstOf(
         f.interpolatedString(
           INTERPOLATED_STRING_LEFT_PIECE(),
           b.zeroOrMore(INTERPOLATED_STRING_MIDDLE_PIECE()),
-          INTERPOLATED_STRING_RIGHT_PIECE()));
+          INTERPOLATED_STRING_RIGHT_PIECE()),
+        STRING_COMPLETE()));
   }
 
   public StringComplete STRING_COMPLETE() {
@@ -171,8 +172,7 @@ public class BicepGrammar {
       f.stringComplete(
         b.token(Punctuator.APOSTROPHE),
         b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
-        b.token(Punctuator.APOSTROPHE))
-    );
+        b.token(Punctuator.APOSTROPHE)));
   }
 
   public InterpolatedStringLeftPiece INTERPOLATED_STRING_LEFT_PIECE() {
