@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.internal.MapSettings;
@@ -39,7 +40,7 @@ class ArmSensorTest extends ExtensionSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC AzureResourceManager Sensor");
-    assertThat(descriptor.languages()).containsExactly("json");
+    assertThat(descriptor.languages()).containsExactly("json", "azureresourcemanager");
   }
 
   /**
@@ -59,6 +60,23 @@ class ArmSensorTest extends ExtensionSensorTest {
     FilePredicate filePredicate = sensor().customFilePredicate(context);
     assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
+  }
+
+  @Test
+  void shouldAllowBicepFiles() {
+    InputFile mainBicepInputFile = TestInputFileBuilder.create("moduleKey", "main")
+      .setLanguage("azureresourcemanager")
+      .setType(InputFile.Type.MAIN)
+      .build();
+
+    InputFile testBicepInputFile = TestInputFileBuilder.create("moduleKey", "test")
+      .setLanguage("azureresourcemanager")
+      .setType(InputFile.Type.TEST)
+      .build();
+
+    FilePredicate filePredicate = sensor().mainFilePredicate(context);
+    assertThat(filePredicate.apply(mainBicepInputFile)).isTrue();
+    assertThat(filePredicate.apply(testBicepInputFile)).isFalse();
   }
 
   @Override

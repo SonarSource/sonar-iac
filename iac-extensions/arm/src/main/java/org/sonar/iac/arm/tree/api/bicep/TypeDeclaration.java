@@ -17,21 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.plugin;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 
-public class ArmLanguage extends AbstractLanguage {
+public interface TypeDeclaration extends Statement {
+  Identifier name();
 
-  public static final String KEY = "azureresourcemanager";
-  public static final String NAME = "AzureResourceManager";
-
-  public ArmLanguage() {
-    super(KEY, NAME);
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    return new String[] {".bicep"};
-  }
+  // TODO SONARIAC-949 Put in place typeExpression instead of StringLiteral
+  StringLiteral type();
 }

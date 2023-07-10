@@ -45,7 +45,7 @@ public class ArmSettings {
         .index(1)
         .defaultValue(ACTIVATION_DEFAULT_VALUE)
         .name("Activate AzureResourceManager analysis")
-        .description("Activate analysis of JSON files recognized as ARM files.")
+        .description("Activate analysis of JSON and Bicep files recognized as ARM files.")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
         .category(ARM_CATEGORY)
