@@ -17,31 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.bicep;
-
-import org.sonar.sslr.grammar.GrammarRuleKey;
-
-public enum BicepKeyword implements GrammarRuleKey {
-
-  EXISTING("existing"),
-  RESOURCE("resource"),
-  TYPE("type"),
-  OUTPUT("output"),
-  TARGET_SCOPE("targetScope"),
-  FUNC("func"),
-  METADATA("metadata"),
-  VARIABLE("variable"),
-  IMPORT("import"),
-  WITH("with"),
-  AS("as");
-
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.arm.tree.impl.bicep.importdecl;

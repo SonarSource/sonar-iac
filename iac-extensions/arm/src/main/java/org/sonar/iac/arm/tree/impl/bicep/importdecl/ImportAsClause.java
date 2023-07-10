@@ -17,31 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.bicep;
+package org.sonar.iac.arm.tree.impl.bicep.importdecl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.common.api.tree.Tree;
 
-public enum BicepKeyword implements GrammarRuleKey {
+import java.util.List;
 
-  EXISTING("existing"),
-  RESOURCE("resource"),
-  TYPE("type"),
-  OUTPUT("output"),
-  TARGET_SCOPE("targetScope"),
-  FUNC("func"),
-  METADATA("metadata"),
-  VARIABLE("variable"),
-  IMPORT("import"),
-  WITH("with"),
-  AS("as");
+public class ImportAsClause {
+  private final SyntaxToken keyword;
+  private final Identifier alias;
 
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
+  public ImportAsClause(SyntaxToken keyword, Identifier alias) {
+    this.keyword = keyword;
+    this.alias = alias;
   }
 
-  public String getValue() {
-    return value;
+  public List<Tree> children() {
+    return List.of(keyword, alias);
   }
 }

@@ -35,11 +35,14 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
@@ -72,7 +75,8 @@ public class BicepGrammar {
         TARGET_SCOPE_DECLARATION(),
         FUNCTION_DECLARATION(),
         METADATA_DECLARATION(),
-        VARIABLE_DECLARATION()));
+        VARIABLE_DECLARATION(),
+        IMPORT_DECLARATION()));
   }
 
   public TypeDeclaration TYPE_DECLARATION() {
@@ -149,6 +153,27 @@ public class BicepGrammar {
         b.token(Punctuator.EQU),
         OBJECT_EXPRESSION(),
         b.token(BicepLexicalGrammar.EOL)));
+  }
+
+  public ImportDeclaration IMPORT_DECLARATION() {
+    return b.<ImportDeclaration>nonterminal(BicepLexicalGrammar.IMPORT_DECLARATION).is(
+      f.importDeclaration(
+        b.token(BicepKeyword.IMPORT),
+        INTERPOLATED_STRING_TYPE(),
+        b.optional(IMPORT_WITH_CLAUSE()),
+        b.optional(IMPORT_AS_CLAUSE())));
+  }
+
+  public ImportWithClause IMPORT_WITH_CLAUSE() {
+    return b.<ImportWithClause>nonterminal(BicepLexicalGrammar.IMPORT_WITH_CLAUSE).is(f.importWithClause(
+      b.token(BicepKeyword.WITH),
+      OBJECT_EXPRESSION()));
+  }
+
+  public ImportAsClause IMPORT_AS_CLAUSE() {
+    return b.<ImportAsClause>nonterminal(BicepLexicalGrammar.IMPORT_AS_CLAUSE).is(f.importAsClause(
+      b.token(BicepKeyword.AS),
+      IDENTIFIER()));
   }
 
   public InterpolatedString INTERPOLATED_STRING_TYPE() {
