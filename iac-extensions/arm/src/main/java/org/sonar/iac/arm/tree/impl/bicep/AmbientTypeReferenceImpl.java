@@ -19,31 +19,31 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.NullLiteral;
+import java.util.List;
+import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.arm.ArmAssertions.assertThat;
+public class AmbientTypeReferenceImpl extends AbstractArmTreeImpl implements AmbientTypeReference {
+  private final SyntaxToken token;
 
-class NullLiteralImplTest extends BicepTreeModelTest {
-
-  @Test
-  void shouldParseBooleanLiteral() {
-    assertThat(BicepLexicalGrammar.NULL_LITERAL)
-      .matches("null")
-
-      .notMatches("nulle")
-      .notMatches("NULL")
-      .notMatches("Null")
-      .notMatches("0")
-      .notMatches("undefined")
-      .notMatches("");
+  public AmbientTypeReferenceImpl(SyntaxToken token) {
+    this.token = token;
   }
 
-  @Test
-  void shouldParseNullValue() {
-    NullLiteral tree = parse("null", BicepLexicalGrammar.NULL_LITERAL);
-    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.NULL_LITERAL);
+  @Override
+  public String value() {
+    return token.value();
+  }
+
+  @Override
+  public List<Tree> children() {
+    return List.of(token);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.AMBIENT_TYPE_REFERENCE;
   }
 }

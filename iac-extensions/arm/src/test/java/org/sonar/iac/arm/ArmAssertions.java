@@ -19,7 +19,11 @@
  */
 package org.sonar.iac.arm;
 
+import com.sonar.sslr.api.Rule;
 import javax.annotation.Nullable;
+import org.assertj.core.api.Assertions;
+import org.sonar.iac.arm.parser.BicepParser;
+import org.sonar.iac.arm.parser.utils.ParserAssert;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.ArrayExpressionAssert;
@@ -35,6 +39,8 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.StringLiteralAssert;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.TextRangeAssert;
+import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.sslr.tests.RuleAssert;
 
 public class ArmAssertions {
   public static TextRangeAssert assertThat(@Nullable TextRange actual) {
@@ -67,5 +73,17 @@ public class ArmAssertions {
 
   public static ArrayExpressionAssert assertThat(ArrayExpression actual) {
     return ArrayExpressionAssert.assertThat(actual);
+  }
+
+  public static RuleAssert assertThat(Rule actual) {
+    return new RuleAssert(actual);
+  }
+
+  public static ParserAssert assertThat(GrammarRuleKey rule) {
+    return new ParserAssert(BicepParser.create(rule));
+  }
+
+  public static org.assertj.core.api.AbstractComparableAssert<?, ArmTree.Kind> assertThat(ArmTree.Kind kind) {
+    return Assertions.assertThat(kind);
   }
 }

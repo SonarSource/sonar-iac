@@ -21,18 +21,16 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
 class BooleanLiteralImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseBooleanLiteral() {
-    Assertions.assertThat(BicepLexicalGrammar.BOOLEAN_LITERAL)
+    assertThat(BicepLexicalGrammar.BOOLEAN_LITERAL)
       .matches("true")
       .matches("false")
 

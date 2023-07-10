@@ -20,8 +20,8 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 
@@ -31,7 +31,7 @@ class NumericLiteralImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseNumericLiteral() {
-    Assertions.assertThat(BicepLexicalGrammar.NUMERIC_LITERAL)
+    ArmAssertions.assertThat(BicepLexicalGrammar.NUMERIC_LITERAL)
       .matches("5")
       .matches("-5")
       .matches("0")
@@ -53,6 +53,6 @@ class NumericLiteralImplTest extends BicepTreeModelTest {
   void shouldParseNumericValue() {
     NumericLiteral tree = parse("123", BicepLexicalGrammar.NUMERIC_LITERAL);
     assertThat(tree).hasValue(123);
-    org.assertj.core.api.Assertions.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.NUMERIC_LITERAL);
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.NUMERIC_LITERAL);
   }
 }

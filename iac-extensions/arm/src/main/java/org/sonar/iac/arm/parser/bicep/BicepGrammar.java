@@ -41,6 +41,11 @@ import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
+import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
@@ -251,6 +256,11 @@ public class BicepGrammar {
         b.token(Punctuator.RCURLYBRACE),
         b.optional(b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL)),
         b.token(Punctuator.APOSTROPHE)));
+  }
+
+  public AmbientTypeReference AMBIENT_TYPE_REFERENCE() {
+    return b.<AmbientTypeReference>nonterminal(BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE).is(
+      f.ambientTypeReference(b.token(BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE_VALUE)));
   }
 
   public Expression LITERAL_VALUE() {

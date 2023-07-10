@@ -21,13 +21,14 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
+
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
 class ExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseExpression() {
-    Assertions.assertThat(BicepLexicalGrammar.EXPRESSION)
+    assertThat(BicepLexicalGrammar.EXPRESSION)
       .matches("123")
       .matches(" 123")
       .matches("true")

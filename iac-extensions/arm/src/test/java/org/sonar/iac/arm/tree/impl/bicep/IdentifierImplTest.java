@@ -20,8 +20,8 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -33,7 +33,7 @@ class IdentifierImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseIdentifier() {
-    Assertions.assertThat(BicepLexicalGrammar.IDENTIFIER)
+    ArmAssertions.assertThat(BicepLexicalGrammar.IDENTIFIER)
       .matches("abc")
       .matches("A")
       .matches("Z")

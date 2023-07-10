@@ -66,6 +66,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   OBJECT_EXPRESSION,
   FOR_EXPRESSION,
   FOR_VARIABLE_BLOCK,
+  AMBIENT_TYPE_REFERENCE,
 
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
@@ -93,7 +94,8 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   NULL_LITERAL_VALUE,
 
   IMPORT_AS_CLAUSE,
-  IMPORT_WITH_CLAUSE,;
+  IMPORT_WITH_CLAUSE,
+  AMBIENT_TYPE_REFERENCE_VALUE;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -130,6 +132,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(TRUE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.TRUE));
     b.rule(FALSE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.FALSE));
     b.rule(NULL_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NULL));
+    b.rule(AMBIENT_TYPE_REFERENCE_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.AMBIENT_TYPE));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

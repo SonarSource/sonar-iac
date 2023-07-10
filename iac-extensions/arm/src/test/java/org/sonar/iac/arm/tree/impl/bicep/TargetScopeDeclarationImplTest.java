@@ -22,8 +22,8 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.StringLiteral;
@@ -37,7 +37,7 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseTargetScopeDeclaration() {
-    Assertions.assertThat(BicepLexicalGrammar.TARGET_SCOPE_DECLARATION)
+    ArmAssertions.assertThat(BicepLexicalGrammar.TARGET_SCOPE_DECLARATION)
       .matches("targetScope=123")
       .matches("targetScope =123")
       .matches("targetScope = 123")

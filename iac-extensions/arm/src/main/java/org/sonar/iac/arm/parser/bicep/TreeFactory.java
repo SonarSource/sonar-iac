@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.List;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
@@ -33,6 +34,7 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
@@ -44,6 +46,7 @@ import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
@@ -75,8 +78,6 @@ import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePi
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPieceImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.impl.Tuple;
-
-import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.emptySeparatedList;
@@ -148,8 +149,6 @@ public class TreeFactory {
     return new StringLiteralImpl(token);
   }
 
-  // Ignore unused method parameters
-  @SuppressWarnings("java:S1172")
   public ResourceDeclaration resourceDeclaration(
     SyntaxToken keyword,
     Identifier identifier,
@@ -226,5 +225,9 @@ public class TreeFactory {
 
   public <T, U> Tuple<T, U> newTuple(T first, U second) {
     return new Tuple<>(first, second);
+  }
+
+  public AmbientTypeReference ambientTypeReference(SyntaxToken token) {
+    return new AmbientTypeReferenceImpl(token);
   }
 }

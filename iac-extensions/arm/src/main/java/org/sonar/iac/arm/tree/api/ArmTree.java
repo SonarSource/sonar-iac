@@ -21,6 +21,8 @@ package org.sonar.iac.arm.tree.api;
 
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
@@ -33,8 +35,6 @@ import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
-
-import javax.annotation.CheckForNull;
 
 public interface ArmTree extends Tree {
 
@@ -74,7 +74,8 @@ public interface ArmTree extends Tree {
     IMPORT_DECLARATION(ImportDeclaration.class),
     FUNCTION_CALL(FunctionCall.class),
     FOR_EXPRESSION(ForExpression.class),
-    FOR_VARIABLE_BLOCK(ForVariableBlock.class);
+    FOR_VARIABLE_BLOCK(ForVariableBlock.class),
+    AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 

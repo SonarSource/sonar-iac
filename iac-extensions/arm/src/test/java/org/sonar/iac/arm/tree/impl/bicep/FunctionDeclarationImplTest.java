@@ -20,13 +20,10 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +33,7 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseFunctionDelaration() {
-    Assertions.assertThat(BicepLexicalGrammar.FUNCTION_DECLARATION)
+    ArmAssertions.assertThat(BicepLexicalGrammar.FUNCTION_DECLARATION)
       .matches("func myFunction lambdaExpression")
       .matches("func myFunction   lambdaExpression")
 

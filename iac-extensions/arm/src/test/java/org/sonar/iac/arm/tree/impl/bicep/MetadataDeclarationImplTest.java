@@ -23,12 +23,12 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.common.api.tree.TextTree;
 
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class MetadataDeclarationImplTest {
@@ -37,7 +37,7 @@ class MetadataDeclarationImplTest {
   @Test
   void shouldParseExpression() {
     String simpleMetaDataDeclaration = "metadata identifier123=123";
-    Assertions.assertThat(BicepLexicalGrammar.METADATA_DECLARATION)
+    assertThat(BicepLexicalGrammar.METADATA_DECLARATION)
       .matches(simpleMetaDataDeclaration)
       .matches("metadata identifier123 =123")
       .matches("metadata identifier123= 123")
