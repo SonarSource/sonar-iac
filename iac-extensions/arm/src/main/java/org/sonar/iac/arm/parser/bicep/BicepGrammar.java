@@ -43,11 +43,13 @@ import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
@@ -276,6 +278,11 @@ public class BicepGrammar {
       f.ambientTypeReference(b.token(BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE_VALUE)));
   }
 
+  public UnaryOperator UNARY_OPERATOR() {
+    return b.<UnaryOperator>nonterminal(BicepLexicalGrammar.UNARY_OPERATOR).is(
+      f.unaryOperator(b.token(BicepLexicalGrammar.UNARY_OPERATOR_VALUE)));
+  }
+
   public Expression LITERAL_VALUE() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.LITERAL_VALUE).is(
       b.firstOf(
@@ -307,6 +314,14 @@ public class BicepGrammar {
   public StringLiteral STRING_LITERAL() {
     return b.<StringLiteral>nonterminal().is(
       f.stringLiteral(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)));
+  }
+
+  public MultilineString MULTILINE_STRING() {
+    return b.<MultilineString>nonterminal(BicepLexicalGrammar.MULTILINE_STRING).is(
+      f.multilineString(
+        b.token(Punctuator.TRIPLE_APOSTROPHE),
+        b.token(BicepLexicalGrammar.MULTILINE_STRING_REGEX),
+        b.token(Punctuator.TRIPLE_APOSTROPHE)));
   }
 
   public FunctionCall FUNCTION_CALL() {
