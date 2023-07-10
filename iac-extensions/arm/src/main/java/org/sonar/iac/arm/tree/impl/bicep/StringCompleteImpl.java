@@ -19,14 +19,14 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.List;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class StringCompleteImpl extends AbstractArmTreeImpl implements InterpolatedString, TextTree {
+import java.util.List;
+
+public class StringCompleteImpl extends AbstractArmTreeImpl implements StringComplete {
   private final SyntaxToken openApostrophe;
   private final SyntaxToken value;
   private final SyntaxToken closeApostrophe;
@@ -44,7 +44,7 @@ public class StringCompleteImpl extends AbstractArmTreeImpl implements Interpola
 
   @Override
   public Kind getKind() {
-    return Kind.INTERPOLATED_STRING;
+    return Kind.STRING_COMPLETE;
   }
 
   @Override

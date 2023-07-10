@@ -24,24 +24,23 @@ import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class StringCompleteImplTest {
 
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.INTERPOLATED_STRING);
+  BicepParser parser = BicepParser.create(BicepLexicalGrammar.STRING_COMPLETE);
 
   @Test
   void shouldParseSimpleStringComplete() {
     String code = code("'abc123DEF'");
 
-    StringCompleteImpl tree = (StringCompleteImpl) parser.parse(code, null);
+    StringComplete tree = (StringComplete) parser.parse(code, null);
     assertThat(tree.value()).isEqualTo("abc123DEF");
-    assertThat(tree.is(ArmTree.Kind.INTERPOLATED_STRING)).isTrue();
+    assertThat(tree.is(ArmTree.Kind.STRING_COMPLETE)).isTrue();
 
     SyntaxToken token1 = (SyntaxToken) tree.children().get(0);
     assertThat(token1.value()).isEqualTo("'");
@@ -58,7 +57,7 @@ class StringCompleteImplTest {
 
   @Test
   void shouldParseStringComplete() {
-    Assertions.assertThat(BicepLexicalGrammar.INTERPOLATED_STRING)
+    Assertions.assertThat(BicepLexicalGrammar.STRING_COMPLETE)
       .matches("'123'")
       .matches("'abc'")
       .matches("  'abc'")

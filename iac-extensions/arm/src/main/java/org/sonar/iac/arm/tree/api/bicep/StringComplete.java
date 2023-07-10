@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api.bicep.interpstring;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.common.api.tree.TextTree;
 
-import java.util.List;
-
-public interface InterpolatedStringMiddlePiece {
-  List<Tree> children();
+public interface StringComplete extends Expression, TextTree {
+  @Override
+  default Kind getKind() {
+    return Kind.STRING_COMPLETE;
+  }
 }
