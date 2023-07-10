@@ -35,7 +35,8 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
   void shouldParseTypeDeclaration() {
     Assertions.assertThat(BicepLexicalGrammar.TYPE_DECLARATION)
       .matches("type myType=abc")
-      .matches("type myType = abc")
+      .matches("type myType= abc")
+      .matches("type myType =abc")
       .matches("type myType = abc")
 
       .notMatches("type myType")

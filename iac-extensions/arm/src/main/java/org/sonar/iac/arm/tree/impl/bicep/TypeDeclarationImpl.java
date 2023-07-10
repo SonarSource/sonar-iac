@@ -29,13 +29,13 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDeclaration {
 
-  private final SyntaxToken type;
+  private final SyntaxToken keyword;
   private final Identifier name;
   private final SyntaxToken equ;
   private final StringLiteral typeExpression;
 
-  public TypeDeclarationImpl(SyntaxToken type, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
-    this.type = type;
+  public TypeDeclarationImpl(SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
+    this.keyword = keyword;
     this.name = name;
     this.equ = equ;
     this.typeExpression = typeExpression;
@@ -43,7 +43,7 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
 
   @Override
   public List<Tree> children() {
-    return List.of(type, name, equ, typeExpression);
+    return List.of(keyword, name, equ, typeExpression);
   }
 
   @Override
