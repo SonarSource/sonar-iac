@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
@@ -74,7 +76,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   }
 
   @Override
-  public TextTree type() {
+  public ArmTree type() {
     if (identifierType != null) {
       return identifierType;
     } else {

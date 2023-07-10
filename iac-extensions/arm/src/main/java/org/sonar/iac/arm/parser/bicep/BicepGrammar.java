@@ -102,7 +102,7 @@ public class BicepGrammar {
           b.token(BicepKeyword.OUTPUT),
           IDENTIFIER(),
           b.token(BicepKeyword.RESOURCE),
-          INTERPOLATED_STRING_TYPE(),
+          INTERPOLATED_STRING(),
           b.token(Punctuator.EQU),
           EXPRESSION())));
   }
