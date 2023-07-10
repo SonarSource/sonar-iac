@@ -158,7 +158,7 @@ public class BicepGrammar {
   public InterpolatedStringLeftPiece INTERPOLATED_STRING_LEFT_PIECE() {
     return b.<InterpolatedStringLeftPiece>nonterminal().is(
       f.interpolatedStringLeftPiece(
-        b.token(BicepLexicalGrammar.OPENING_APOSTROPHE),
+        b.token(Punctuator.APOSTROPHE),
         b.optional(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)),
         b.token(Punctuator.DOLLAR_LCURLY)));
   }

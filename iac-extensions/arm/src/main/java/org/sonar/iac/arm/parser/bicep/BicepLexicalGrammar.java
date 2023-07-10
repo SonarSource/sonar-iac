@@ -76,8 +76,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   NULL_LITERAL,
   LITERAL_VALUE_REGEX,
 
-  OPENING_APOSTROPHE,
-
   /**
    * Values
    */
@@ -122,8 +120,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(TRUE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.TRUE));
     b.rule(FALSE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.FALSE));
     b.rule(NULL_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NULL));
-
-    b.rule(OPENING_APOSTROPHE).is(SPACING, Punctuator.APOSTROPHE);
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
