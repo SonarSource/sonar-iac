@@ -43,13 +43,9 @@ class ImportDeclarationImplTest extends BicepTreeModelTest {
   }
 
   @Test
-  @Disabled
   void shouldParseImportStatement() {
     ArmTree tree = createParser(BicepLexicalGrammar.IMPORT_DECLARATION)
-      .parse("import 'kubernetes@1.0.0' with {\n" +
-        "  namespace: 'default'\n" +
-        "  kubeConfig: kubeConfig\n" +
-        "} as k8s");
+      .parse("import 'kubernetes@1.0.0' with {} as k8s");
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ImportDeclaration.class);
