@@ -20,6 +20,8 @@
 package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
+
+import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
@@ -63,7 +65,8 @@ public interface ArmTree extends Tree {
     TYPE_DECLARATION(TypeDeclaration.class),
     TARGET_SCOPE_DECLARATION(TargetScopeDeclaration.class),
     FUNCTION_DECLARATION(FunctionDeclaration.class),
-    METADATA_DECLARATION(MetadataDeclaration.class);
+    METADATA_DECLARATION(MetadataDeclaration.class),
+    IMPORT_DECLARATION(ImportDeclaration.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 

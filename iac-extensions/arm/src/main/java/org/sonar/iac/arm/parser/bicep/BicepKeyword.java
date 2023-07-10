@@ -29,7 +29,10 @@ public enum BicepKeyword implements GrammarRuleKey {
   TARGET_SCOPE("targetScope"),
   FUNC("func"),
   METADATA("metadata"),
-  VARIABLE("variable");
+  VARIABLE("variable"),
+  IMPORT("import"),
+  WITH("with"),
+  AS("as");
 
   private final String value;
 

@@ -52,6 +52,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   METADATA_DECLARATION,
   VARIABLE_DECLARATION,
   RESOURCE_DECLARATION,
+  IMPORT_DECLARATION,
 
   /**
    * Expressions

@@ -32,6 +32,7 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
@@ -68,7 +69,8 @@ public class BicepGrammar {
         TARGET_SCOPE_DECLARATION(),
         FUNCTION_DECLARATION(),
         METADATA_DECLARATION(),
-        VARIABLE_DECLARATION()));
+        VARIABLE_DECLARATION(),
+        IMPORT_DECLARATION()));
   }
 
   public TypeDeclaration TYPE_DECLARATION() {
@@ -125,6 +127,20 @@ public class BicepGrammar {
         b.optional(b.token(BicepKeyword.EXISTING)),
         b.token(Punctuator.EQU),
         OBJECT_EXPRESSION(),
+        b.token(BicepLexicalGrammar.EOL)));
+  }
+
+  public ImportDeclaration IMPORT_DECLARATION() {
+    return b.<ImportDeclaration>nonterminal(BicepLexicalGrammar.IMPORT_DECLARATION).is(
+      f.importDeclaration(
+        b.token(BicepKeyword.IMPORT),
+        INTERPOLATED_STRING_TYPE(),
+        b.optional(f.importWithClause(
+          b.token(BicepKeyword.WITH),
+          OBJECT_EXPRESSION())),
+        b.optional(f.importAsClause(
+          b.token(BicepKeyword.AS),
+          IDENTIFIER())),
         b.token(BicepLexicalGrammar.EOL)));
   }
 

@@ -32,6 +32,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
@@ -39,21 +40,9 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
-import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
-import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
-import org.sonar.iac.arm.tree.impl.bicep.FunctionDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
-import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
-import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
-import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
-import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
-import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
-import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
-import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.*;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 
 import static java.util.Collections.emptyList;
 
@@ -130,5 +119,19 @@ public class TreeFactory {
 
   public NullLiteral nullLiteral(SyntaxToken token) {
     return new NullLiteralImpl(token);
+  }
+
+  // TODO SONARIAC-970 Put in place decorator
+  public ImportDeclaration importDeclaration(SyntaxToken keyword, InterpolatedString specification, Optional<ImportWithClause> withClause, Optional<ImportAsClause> asClause,
+    SyntaxToken newLine) {
+    return new ImportDeclarationImpl(keyword, specification, withClause, asClause, newLine);
+  }
+
+  public ImportWithClause importWithClause(SyntaxToken keyword, ObjectExpression object) {
+    return new ImportWithClause(keyword, object);
+  }
+
+  public ImportAsClause importAsClause(SyntaxToken keyword, Identifier alias) {
+    return new ImportAsClause(keyword, alias);
   }
 }
