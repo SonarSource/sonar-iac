@@ -17,29 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep;
+package org.sonar.iac.common.api.tree.impl;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
+public class Tuple<T, U> {
+  private final T first;
+  private final U second;
 
-class ExpressionImplTest extends BicepTreeModelTest {
+  public Tuple(T first, U second) {
+    super();
 
-  @Test
-  void shouldParseExpression() {
-    Assertions.assertThat(BicepLexicalGrammar.EXPRESSION)
-      .matches("123")
-      .matches(" 123")
-      .matches("true")
-      .matches("false")
-      .matches("null")
-      .matches("abdcef")
-      .matches("functionName123()")
-      .matches("functionName123(123, 456, 135)")
+    this.first = first;
+    this.second = second;
+  }
 
-      .notMatches(".123456")
-      .notMatches("-")
-      .notMatches("_A1")
-      .notMatches("_abc");
+  public T first() {
+    return first;
+  }
+
+  public U second() {
+    return second;
   }
 }
