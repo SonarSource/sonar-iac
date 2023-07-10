@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.parser.utils.Assertions;
@@ -49,7 +48,7 @@ class ImportDeclarationImplTest extends BicepTreeModelTest {
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ImportDeclaration.class);
-    softly.assertThat(tree.children()).hasSize(6);
+    softly.assertThat(tree.children()).hasSize(7);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.IMPORT_DECLARATION);
     softly.assertAll();
   }
