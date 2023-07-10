@@ -24,7 +24,9 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 class InterpolatedStringImplTest extends BicepTreeModelTest {
   @Test
@@ -47,8 +49,18 @@ class InterpolatedStringImplTest extends BicepTreeModelTest {
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(InterpolatedString.class);
-    softly.assertThat(tree).isExactlyInstanceOf(InterpolatedStringImpl.class);
     softly.assertThat(tree.children()).hasSize(11);
+    softly.assertThat(tree.children().get(0)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(2)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(3)).isInstanceOf(Expression.class);
+    softly.assertThat(tree.children().get(4)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(5)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(6)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(7)).isInstanceOf(Expression.class);
+    softly.assertThat(tree.children().get(8)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(9)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(10)).isInstanceOf(SyntaxToken.class);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
     softly.assertAll();
   }
