@@ -19,27 +19,38 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.iac.arm.tree.api.bicep.SeparatedList;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.common.api.tree.Tree;
 
-class ExpressionImplTest extends BicepTreeModelTest {
+public class SeparatedListImpl<T extends Tree> implements SeparatedList<T> {
 
-  @Test
-  void shouldParseExpression() {
-    Assertions.assertThat(BicepLexicalGrammar.EXPRESSION)
-      .matches("123")
-      .matches(" 123")
-      .matches("true")
-      .matches("false")
-      .matches("null")
-      .matches("abdcef")
-      .matches("functionName123()")
-      .matches("functionName123(123, 456, 135)")
+  private final List<T> elements;
+  private final List<SyntaxToken> separators;
 
-      .notMatches(".123456")
-      .notMatches("-")
-      .notMatches("_A1")
-      .notMatches("_abc");
+  public SeparatedListImpl(List<T> elements, List<SyntaxToken> separators) {
+    this.elements = elements;
+    this.separators = separators;
   }
+
+  @Override
+  public List<T> elements() {
+    return elements;
+  }
+
+  @Override
+  public List<SyntaxToken> separators() {
+    return separators;
+  }
+
+  @Override
+  public List<Tree> elementsAndSeparators() {
+    List<Tree> result = new ArrayList<>();
+    result.addAll(elements);
+    result.addAll(separators);
+    return result;
+  }
+
 }

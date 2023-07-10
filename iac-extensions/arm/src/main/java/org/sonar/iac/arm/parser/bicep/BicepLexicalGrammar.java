@@ -57,6 +57,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
    * Expressions
    */
   EXPRESSION,
+  FUNCTION_CALL,
   IDENTIFIER,
   PROPERTY,
   OBJECT_EXPRESSION,
@@ -96,8 +97,10 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void punctuators(LexerlessGrammarBuilder b) {
-    Stream.of(Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE).forEach(
-      p -> b.rule(p).is(SPACING, p.getValue()).skip());
+    Stream.of(
+      Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE, Punctuator.COMMA,
+      Punctuator.RPARENTHESIS, Punctuator.LPARENTHESIS)
+      .forEach(p -> b.rule(p).is(SPACING, p.getValue()).skip());
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {

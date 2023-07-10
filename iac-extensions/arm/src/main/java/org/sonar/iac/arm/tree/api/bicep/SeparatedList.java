@@ -17,29 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
+import java.util.List;
+import org.sonar.iac.common.api.tree.Tree;
 
-class ExpressionImplTest extends BicepTreeModelTest {
+public interface SeparatedList<T extends Tree> {
 
-  @Test
-  void shouldParseExpression() {
-    Assertions.assertThat(BicepLexicalGrammar.EXPRESSION)
-      .matches("123")
-      .matches(" 123")
-      .matches("true")
-      .matches("false")
-      .matches("null")
-      .matches("abdcef")
-      .matches("functionName123()")
-      .matches("functionName123(123, 456, 135)")
+  List<T> elements();
 
-      .notMatches(".123456")
-      .notMatches("-")
-      .notMatches("_A1")
-      .notMatches("_abc");
-  }
+  List<SyntaxToken> separators();
+
+  List<Tree> elementsAndSeparators();
+
 }

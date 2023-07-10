@@ -31,10 +31,12 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
+import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.SeparatedList;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
@@ -156,6 +158,7 @@ public class BicepGrammar {
   public Expression EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
       b.firstOf(
+        FUNCTION_CALL(),
         ALPHA_NUMERAL_STRING(),
         LITERAL_VALUE(),
         STRING_LITERAL()));
@@ -192,6 +195,23 @@ public class BicepGrammar {
   public StringLiteral STRING_LITERAL() {
     return b.<StringLiteral>nonterminal().is(
       f.stringLiteral(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)));
+  }
+
+  public FunctionCall FUNCTION_CALL() {
+    return b.<FunctionCall>nonterminal(BicepLexicalGrammar.FUNCTION_CALL).is(
+      f.functionCall(
+        IDENTIFIER(),
+        b.token(Punctuator.LPARENTHESIS),
+        b.optional(FUNCTION_CALL_ARGUMENTS()),
+        b.token(Punctuator.RPARENTHESIS)));
+  }
+
+  public SeparatedList<Expression> FUNCTION_CALL_ARGUMENTS() {
+    return b.<SeparatedList<Expression>>nonterminal().is(
+      f.functionCallArguments(
+        EXPRESSION(),
+        b.zeroOrMore(
+          f.newTuple(b.token(Punctuator.COMMA), EXPRESSION()))));
   }
 
   public Identifier IDENTIFIER() {
