@@ -109,7 +109,8 @@ class IacRulingTest {
   @Test
   void test_arm() throws IOException {
     Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.inclusions", "sources/azureresourcemanager/**/*.json, ruling/src/test/resources/sources/azureresourcemanager/**/*.json");
+    properties.put("sonar.inclusions", "sources/azureresourcemanager/**/*.json, ruling/src/test/resources/sources/azureresourcemanager/**/*.json," +
+      "sources/azureresourcemanager/**/*.bicep, ruling/src/test/resources/sources/azureresourcemanager/**/*.bicep");
     run_ruling_test("azureresourcemanager", properties);
   }
 
