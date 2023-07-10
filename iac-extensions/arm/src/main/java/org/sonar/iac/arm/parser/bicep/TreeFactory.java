@@ -134,10 +134,6 @@ public class TreeFactory {
     return new IdentifierImpl(token);
   }
 
-  public InterpolatedString interpolatedString(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
-    return new StringCompleteImpl(openingApostrophe, value, closingApostrophe);
-  }
-
   public Property objectProperty(Identifier key, SyntaxToken colon, Expression value) {
     return new PropertyImpl(key, colon, value);
   }
