@@ -22,31 +22,33 @@ package org.sonar.iac.arm.tree.impl.bicep.interpstring;
 import com.sonar.sslr.api.typed.Optional;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.impl.json.ArmHelper;
 import org.sonar.iac.common.api.tree.Tree;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class InterpolatedStringMiddlePiece {
   private final Expression expression;
   private final SyntaxToken rCurly;
   @Nullable
-  private final SyntaxToken stringChars;
+  private final SyntaxToken text;
   private final SyntaxToken dollarLcurly;
 
-  public InterpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+  public InterpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> text, SyntaxToken dollarLcurly) {
     this.expression = expression;
     this.rCurly = rCurly;
-    this.stringChars = stringChars.orNull();
+    this.text = text.orNull();
     this.dollarLcurly = dollarLcurly;
   }
 
   public List<Tree> children() {
-    return Stream.of(expression, rCurly, stringChars, dollarLcurly)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+    List<Tree> children = new ArrayList<>();
+    children.add(expression);
+    children.add(rCurly);
+    ArmHelper.addChildrenIfPresent(children, text);
+    children.add(dollarLcurly);
+    return children;
   }
 }

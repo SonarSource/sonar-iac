@@ -21,13 +21,12 @@ package org.sonar.iac.arm.tree.impl.bicep.interpstring;
 
 import com.sonar.sslr.api.typed.Optional;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.impl.json.ArmHelper;
 import org.sonar.iac.common.api.tree.Tree;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class InterpolatedStringLeftPiece {
   private final SyntaxToken leftQuote;
@@ -42,8 +41,10 @@ public class InterpolatedStringLeftPiece {
   }
 
   public List<Tree> children() {
-    return Stream.of(leftQuote, text, dollarLcurly)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+    List<Tree> children = new ArrayList<>();
+    children.add(leftQuote);
+    ArmHelper.addChildrenIfPresent(children, text);
+    children.add(dollarLcurly);
+    return children;
   }
 }

@@ -36,7 +36,7 @@ class StringCompleteImplTest {
   BicepParser parser = BicepParser.create(BicepLexicalGrammar.INTERPOLATED_STRING);
 
   @Test
-  void shouldParseSimpleInterpolatedString() {
+  void shouldParseSimpleStringComplete() {
     String code = code("'abc123DEF'");
 
     StringCompleteImpl tree = (StringCompleteImpl) parser.parse(code, null);
@@ -57,7 +57,7 @@ class StringCompleteImplTest {
   }
 
   @Test
-  void shouldParseInterpolatedString() {
+  void shouldParseStringComplete() {
     Assertions.assertThat(BicepLexicalGrammar.INTERPOLATED_STRING)
       .matches("'123'")
       .matches("'abc'")
@@ -70,6 +70,8 @@ class StringCompleteImplTest {
       .matches("'123zz'")
       .matches("'123aa789'")
       .matches("'123BB789'")
+      .matches("'a$b'")
+      .matches("'a{}b'")
 
       .notMatches(".12'3456")
       .notMatches("-")

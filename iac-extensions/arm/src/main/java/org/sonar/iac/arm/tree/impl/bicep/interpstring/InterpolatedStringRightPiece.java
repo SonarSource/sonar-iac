@@ -22,13 +22,12 @@ package org.sonar.iac.arm.tree.impl.bicep.interpstring;
 import com.sonar.sslr.api.typed.Optional;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.impl.json.ArmHelper;
 import org.sonar.iac.common.api.tree.Tree;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class InterpolatedStringRightPiece {
   private final Expression expression;
@@ -45,8 +44,11 @@ public class InterpolatedStringRightPiece {
   }
 
   public List<Tree> children() {
-    return Stream.of(expression, rCurly, text, rightQuote)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+    List<Tree> children = new ArrayList<>();
+    children.add(expression);
+    children.add(rCurly);
+    ArmHelper.addChildrenIfPresent(children, text);
+    children.add(rightQuote);
+    return children;
   }
 }
