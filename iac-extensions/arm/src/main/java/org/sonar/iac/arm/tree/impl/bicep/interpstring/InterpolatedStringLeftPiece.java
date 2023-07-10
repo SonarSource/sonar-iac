@@ -32,17 +32,17 @@ import java.util.stream.Stream;
 public class InterpolatedStringLeftPiece {
   private final SyntaxToken leftQuote;
   @Nullable
-  private final SyntaxToken stringChars;
+  private final SyntaxToken text;
   private final SyntaxToken dollarLcurly;
 
-  public InterpolatedStringLeftPiece(SyntaxToken leftQuote, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+  public InterpolatedStringLeftPiece(SyntaxToken leftQuote, Optional<SyntaxToken> text, SyntaxToken dollarLcurly) {
     this.leftQuote = leftQuote;
-    this.stringChars = stringChars.orNull();
+    this.text = text.orNull();
     this.dollarLcurly = dollarLcurly;
   }
 
   public List<Tree> children() {
-    return Stream.of(leftQuote, stringChars, dollarLcurly)
+    return Stream.of(leftQuote, text, dollarLcurly)
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
   }

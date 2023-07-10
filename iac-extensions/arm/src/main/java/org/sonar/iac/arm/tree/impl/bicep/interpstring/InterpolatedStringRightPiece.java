@@ -34,18 +34,18 @@ public class InterpolatedStringRightPiece {
   private final Expression expression;
   private final SyntaxToken rCurly;
   @Nullable
-  private final SyntaxToken stringChars;
+  private final SyntaxToken text;
   private final SyntaxToken rightQuote;
 
-  public InterpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken rightQuote) {
+  public InterpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> text, SyntaxToken rightQuote) {
     this.expression = expression;
     this.rCurly = rCurly;
-    this.stringChars = stringChars.orNull();
+    this.text = text.orNull();
     this.rightQuote = rightQuote;
   }
 
   public List<Tree> children() {
-    return Stream.of(expression, rCurly, stringChars, rightQuote)
+    return Stream.of(expression, rCurly, text, rightQuote)
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
   }
