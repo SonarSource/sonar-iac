@@ -24,14 +24,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.sonar.iac.common.api.tree.impl.TextRange;
+import org.sonar.iac.common.AbstractTestCommonSyntaxToken;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.CommonSyntaxToken;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
@@ -40,6 +42,12 @@ public class CommonTestUtils {
 
   private CommonTestUtils() {
 
+  }
+
+  public static class TestCommonSyntaxToken extends AbstractTestCommonSyntaxToken {
+    public static CommonSyntaxToken token() {
+      return new TestCommonSyntaxToken();
+    }
   }
 
   public static class TestTree extends AbstractTestTree {

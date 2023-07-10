@@ -54,6 +54,14 @@ public class SeparatedListImpl<T extends Tree, U extends CommonSyntaxToken> impl
     return result;
   }
 
+  public static <R extends Tree, S extends CommonSyntaxToken> SeparatedList<R, S> optionalSeparatedList(Optional<SeparatedList<R, S>> list) {
+    if (list.isPresent()) {
+      return list.get();
+    } else {
+      return new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>());
+    }
+  }
+
   public static <R extends Tree, S extends CommonSyntaxToken> SeparatedListImpl<R, S> separatedList(R firstElement, Optional<List<Tuple<S, R>>> additionalElements) {
     List<R> elements = new ArrayList<>();
     List<S> separators = new ArrayList<>();

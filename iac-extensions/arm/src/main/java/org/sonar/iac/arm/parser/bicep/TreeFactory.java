@@ -60,7 +60,7 @@ import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 
 import static java.util.Collections.emptyList;
-import static org.sonar.iac.common.api.tree.SeparatedList.optionalSeparatedList;
+import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.optionalSeparatedList;
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList;
 
 public class TreeFactory {

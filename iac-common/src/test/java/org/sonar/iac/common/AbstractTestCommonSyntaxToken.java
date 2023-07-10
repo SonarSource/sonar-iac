@@ -17,15 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.api.tree;
+package org.sonar.iac.common;
 
+import java.util.Collections;
 import java.util.List;
+import org.sonar.iac.common.api.tree.Comment;
+import org.sonar.iac.common.api.tree.CommonSyntaxToken;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
-public interface SeparatedList<T extends Tree, U extends CommonSyntaxToken> {
+public abstract class AbstractTestCommonSyntaxToken implements CommonSyntaxToken {
+  @Override
+  public List<Comment> comments() {
+    return Collections.emptyList();
+  }
 
-  List<T> elements();
+  @Override
+  public TextRange textRange() {
+    return null;
+  }
 
-  List<U> separators();
+  @Override
+  public String value() {
+    return "";
+  }
 
-  List<Tree> elementsAndSeparators();
+  @Override
+  public List<Tree> children() {
+    return Collections.emptyList();
+  }
 }
