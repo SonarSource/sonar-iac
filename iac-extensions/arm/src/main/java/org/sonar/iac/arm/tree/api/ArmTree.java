@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree.api;
 
+import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
@@ -66,7 +67,8 @@ public interface ArmTree extends Tree {
     TYPE_DECLARATION(TypeDeclaration.class),
     TARGET_SCOPE_DECLARATION(TargetScopeDeclaration.class),
     FUNCTION_DECLARATION(FunctionDeclaration.class),
-    METADATA_DECLARATION(MetadataDeclaration.class);
+    METADATA_DECLARATION(MetadataDeclaration.class),
+    FUNCTION_CALL(FunctionCall.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 

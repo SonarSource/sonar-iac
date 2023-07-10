@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import java.util.List;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.common.api.tree.SeparatedList;
 
-public interface SeparatedList<T extends Tree> {
-  List<T> elements();
+public interface FunctionCall extends Expression {
+  Identifier name();
 
-  List<SyntaxToken> separators();
-
-  List<Tree> elementsAndSeparators();
+  SeparatedList<Expression, SyntaxToken> argumentList();
 }

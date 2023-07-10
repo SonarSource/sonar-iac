@@ -71,7 +71,7 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(0).getKind()).isEqualTo(OUTPUT_DECLARATION);
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type()).hasValue("my type");
+    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition()).hasValue("my condition");
     assertThat(outputDeclaration.copyCount()).hasValue("countValue");
     assertThat(outputDeclaration.copyInput()).isNull();
@@ -163,7 +163,7 @@ class OutputDeclarationImplTest {
 
     OutputDeclaration outputDeclaration1 = (OutputDeclaration) tree.statements().get(0);
     assertThat(outputDeclaration1.name().value()).isEqualTo("myOutputValue1");
-    assertThat(outputDeclaration1.type()).hasValue("my type 1");
+    assertThat(outputDeclaration1.type().value()).isEqualTo("my type 1");
     assertThat(outputDeclaration1.condition()).hasValue("my condition 1");
     assertThat(outputDeclaration1.copyCount()).hasValue("countValue 1");
     assertThat(outputDeclaration1.copyInput()).hasValue("inputValue 1");
@@ -171,7 +171,7 @@ class OutputDeclarationImplTest {
 
     OutputDeclaration outputDeclaration2 = (OutputDeclaration) tree.statements().get(1);
     assertThat(outputDeclaration2.name().value()).isEqualTo("myOutputValue2");
-    assertThat(outputDeclaration2.type()).hasValue("my type 2");
+    assertThat(outputDeclaration2.type().value()).isEqualTo("my type 2");
     assertThat(outputDeclaration2.condition()).hasValue("my condition 2");
     assertThat(outputDeclaration2.copyCount()).hasValue("countValue 2");
     assertThat(outputDeclaration2.copyInput()).hasValue("inputValue 2");

@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import org.sonar.iac.common.api.tree.SeparatedList;
+
 /**
  * Interface to define the contract of ExecForm.
  * It is a way to structure and provide {@link Argument} to compatible instruction.
@@ -31,7 +33,7 @@ package org.sonar.iac.docker.tree.api;
 public interface ExecForm extends ArgumentList {
   SyntaxToken leftBracket();
 
-  SeparatedList<Argument> argumentsWithSeparators();
+  SeparatedList<Argument, SyntaxToken> argumentsWithSeparators();
 
   SyntaxToken rightBracket();
 }
