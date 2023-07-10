@@ -26,6 +26,7 @@ public enum BicepKeyword implements GrammarRuleKey {
   EXISTING("existing"),
   RESOURCE("resource"),
   TYPE("type"),
+  OUTPUT("output"),
   TARGET_SCOPE("targetScope"),
   FUNC("func"),
   METADATA("metadata"),

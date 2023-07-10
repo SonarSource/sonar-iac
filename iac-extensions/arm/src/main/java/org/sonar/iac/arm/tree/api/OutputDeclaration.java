@@ -20,11 +20,12 @@
 package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
+import org.sonar.iac.common.api.tree.TextTree;
 
 public interface OutputDeclaration extends Statement {
   Identifier name();
 
-  StringLiteral type();
+  TextTree type();
 
   @CheckForNull
   StringLiteral condition();
@@ -37,4 +38,8 @@ public interface OutputDeclaration extends Statement {
 
   @CheckForNull
   Expression value();
+
+  default Kind getKind() {
+    return Kind.OUTPUT_DECLARATION;
+  }
 }
