@@ -138,9 +138,8 @@ public class TreeFactory {
   }
 
   // TODO SONARIAC-970 Put in place decorator
-  public ImportDeclaration importDeclaration(SyntaxToken keyword, InterpolatedString specification, Optional<ImportWithClause> withClause, Optional<ImportAsClause> asClause,
-    SyntaxToken newLine) {
-    return new ImportDeclarationImpl(keyword, specification, withClause, asClause, newLine);
+  public ImportDeclaration importDeclaration(SyntaxToken keyword, InterpolatedString specification, Optional<ImportWithClause> withClause, Optional<ImportAsClause> asClause) {
+    return new ImportDeclarationImpl(keyword, specification, withClause.orNull(), asClause.orNull());
   }
 
   public ImportWithClause importWithClause(SyntaxToken keyword, ObjectExpression object) {

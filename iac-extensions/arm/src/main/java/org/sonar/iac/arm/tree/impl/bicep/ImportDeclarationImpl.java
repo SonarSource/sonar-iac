@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import com.sonar.sslr.api.typed.Optional;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -39,15 +38,12 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
   private final ImportWithClause withClause;
   @Nullable
   private final ImportAsClause asClause;
-  private final SyntaxToken newLine;
 
-  public ImportDeclarationImpl(SyntaxToken keyword, InterpolatedString specification, Optional<ImportWithClause> withClause, Optional<ImportAsClause> asClause,
-    SyntaxToken newLine) {
+  public ImportDeclarationImpl(SyntaxToken keyword, InterpolatedString specification, @Nullable ImportWithClause withClause, @Nullable ImportAsClause asClause) {
     this.keyword = keyword;
     this.specification = specification;
-    this.withClause = withClause.orNull();
-    this.asClause = asClause.orNull();
-    this.newLine = newLine;
+    this.withClause = withClause;
+    this.asClause = asClause;
   }
 
   @Override
@@ -61,7 +57,6 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
     if (asClause != null) {
       result.addAll(asClause.children());
     }
-    result.add(newLine);
     return result;
   }
 }

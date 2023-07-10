@@ -84,7 +84,10 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   NUMERIC_LITERAL_VALUE,
   TRUE_LITERAL_VALUE,
   FALSE_LITERAL_VALUE,
-  NULL_LITERAL_VALUE;
+  NULL_LITERAL_VALUE,
+
+  IMPORT_AS_CLAUSE,
+  IMPORT_WITH_CLAUSE,;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();

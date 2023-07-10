@@ -39,6 +39,8 @@ import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
 import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
@@ -135,13 +137,20 @@ public class BicepGrammar {
       f.importDeclaration(
         b.token(BicepKeyword.IMPORT),
         INTERPOLATED_STRING_TYPE(),
-        b.optional(f.importWithClause(
-          b.token(BicepKeyword.WITH),
-          OBJECT_EXPRESSION())),
-        b.optional(f.importAsClause(
-          b.token(BicepKeyword.AS),
-          IDENTIFIER())),
-        b.token(BicepLexicalGrammar.EOL)));
+        b.optional(IMPORT_WITH_CLAUSE()),
+        b.optional(IMPORT_AS_CLAUSE())));
+  }
+
+  public ImportWithClause IMPORT_WITH_CLAUSE() {
+    return b.<ImportWithClause>nonterminal(BicepLexicalGrammar.IMPORT_WITH_CLAUSE).is(f.importWithClause(
+      b.token(BicepKeyword.WITH),
+      OBJECT_EXPRESSION()));
+  }
+
+  public ImportAsClause IMPORT_AS_CLAUSE() {
+    return b.<ImportAsClause>nonterminal(BicepLexicalGrammar.IMPORT_AS_CLAUSE).is(f.importAsClause(
+      b.token(BicepKeyword.AS),
+      IDENTIFIER()));
   }
 
   public InterpolatedString INTERPOLATED_STRING_TYPE() {
