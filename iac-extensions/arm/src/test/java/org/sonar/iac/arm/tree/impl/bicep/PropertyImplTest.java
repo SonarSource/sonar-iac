@@ -20,12 +20,12 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +34,22 @@ import static org.sonar.iac.common.testing.IacTestUtils.code;
 class PropertyImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseSimpleProperty() {
+  void shouldParseProperty() {
+    Assertions.assertThat(BicepLexicalGrammar.PROPERTY)
+      .matches("key:value")
+      .matches("'key':value")
+      .matches("key: value")
+      .matches("key :value")
+      .matches("key : value")
+      .matches("key1: value1")
+      .matches("Ke1: VALu3")
+
+      .notMatches("1key: 1value")
+      .notMatches("@abc x value");
+  }
+
+  @Test
+  void shouldParsePropertyIdentifier() {
     String code = code("key:value");
 
     Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
@@ -54,17 +69,23 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(tree.children()).hasSize(3);
   }
 
-  @Test
-  void shouldParseProperty() {
-    ArmAssertions.assertThat(BicepLexicalGrammar.PROPERTY)
-      .matches("key:value")
-      .matches("key: value")
-      .matches("key :value")
-      .matches("key : value")
-      .matches("key1: value1")
-      .matches("Ke1: VALu3")
+  void shouldParsePropertyInterpString() {
+    String code = code("'key':value");
 
-      .notMatches("1key: 1value")
-      .notMatches("@abc x value");
+    Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
+    assertThat(((StringLiteral) tree.value()).value()).isEqualTo("value");
+    assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
+
+    InterpolatedString key = (InterpolatedString) tree.children().get(0);
+    assertThat(key.value()).isEqualTo("key");
+
+    SyntaxToken colon = (SyntaxToken) tree.children().get(1);
+    assertThat(colon.children()).isEmpty();
+    assertThat(colon.comments()).isEmpty();
+
+    StringLiteral value = (StringLiteral) tree.children().get(2);
+    assertThat(value.value()).isEqualTo("value");
+
+    assertThat(tree.children()).hasSize(3);
   }
 }

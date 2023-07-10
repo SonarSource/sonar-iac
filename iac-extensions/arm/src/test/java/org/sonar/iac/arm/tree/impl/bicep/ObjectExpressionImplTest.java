@@ -32,15 +32,13 @@ import org.sonar.iac.common.api.tree.TextTree;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class ObjectExpressionImplTest {
-
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.OBJECT_EXPRESSION);
+class ObjectExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMinimumObjectExpression() {
     String code = code("{}\n");
 
-    ObjectExpression tree = (ObjectExpression) parser.parse(code, null);
+    ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
     assertThat(tree.properties()).isEmpty();
     assertThat(tree.is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
 
@@ -53,23 +51,28 @@ class ObjectExpressionImplTest {
 
   @Test
   void shouldParseObjectExpressionWithOneProperty() {
-    String code = code("{\n key: value\n}\n");
+    String code = code("{\n key1: value1\n 'key2': value2\n}\n");
 
-    ObjectExpression tree = (ObjectExpression) parser.parse(code, null);
+    ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
     ArmAssertions.assertThat(tree)
-      .containsKeyValue("key", "value")
-      .hasSize(1)
-      .hasRange(1, 0, 3, 1);
+      .containsKeyValue("key1", "value1")
+      .containsKeyValue("key2", "value2")
+      .hasSize(2)
+      .hasRange(1, 0, 4, 1);
     assertThat(tree.is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
 
     SyntaxToken leftCurlyBrace = (SyntaxToken) tree.children().get(0);
     assertThat(leftCurlyBrace.value()).isEqualTo("{");
 
-    Property proerty = (Property) tree.children().get(1);
-    assertThat(proerty.key().value()).isEqualTo("key");
-    assertThat(((TextTree) proerty.value()).value()).isEqualTo("value");
+    Property property1 = (Property) tree.children().get(1);
+    assertThat(property1.key().value()).isEqualTo("key1");
+    assertThat(((TextTree) property1.value()).value()).isEqualTo("value1");
 
-    SyntaxToken rightCurlyBrace = (SyntaxToken) tree.children().get(2);
+    Property property2 = (Property) tree.children().get(2);
+    assertThat(property2.key().value()).isEqualTo("key2");
+    assertThat(((TextTree) property2.value()).value()).isEqualTo("value2");
+
+    SyntaxToken rightCurlyBrace = (SyntaxToken) tree.children().get(3);
     assertThat(rightCurlyBrace.value()).isEqualTo("}");
   }
 }

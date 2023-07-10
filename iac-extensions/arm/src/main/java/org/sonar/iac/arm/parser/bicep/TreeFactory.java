@@ -212,6 +212,10 @@ public class TreeFactory {
     return new PropertyImpl(key, colon, value);
   }
 
+  public Property objectProperty(InterpolatedString key, SyntaxToken colon, Expression value) {
+    return new PropertyImpl(key, colon, value);
+  }
+
   public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Property>> properties, SyntaxToken rightCurlyBrace) {
     return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
   }

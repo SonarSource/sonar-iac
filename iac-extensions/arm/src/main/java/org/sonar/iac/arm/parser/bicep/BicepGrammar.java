@@ -211,10 +211,15 @@ public class BicepGrammar {
 
   public Property PROPERTY() {
     return b.<Property>nonterminal(BicepLexicalGrammar.PROPERTY).is(
-      f.objectProperty(
-        IDENTIFIER(),
-        b.token(Punctuator.COLON),
-        EXPRESSION()));
+      b.firstOf(
+        f.objectProperty(
+          IDENTIFIER(),
+          b.token(Punctuator.COLON),
+          EXPRESSION()),
+        f.objectProperty(
+          INTERPOLATED_STRING_TYPE(),
+          b.token(Punctuator.COLON),
+          EXPRESSION())));
   }
 
   public Expression EXPRESSION() {
