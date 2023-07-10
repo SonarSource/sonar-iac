@@ -29,6 +29,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
@@ -39,7 +40,7 @@ class FileImplTest extends BicepTreeModelTest {
     File tree = parse("", BicepLexicalGrammar.FILE);
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.targetScope()).isEqualTo(File.Scope.RESOURCE_GROUP);
-    ArmAssertions.assertThat(tree.targetScopeLiteral()).isNull();
+    assertThat(tree.targetScopeLiteral()).isNull();
   }
 
   @Test
@@ -47,7 +48,7 @@ class FileImplTest extends BicepTreeModelTest {
     File tree = parseBasic("\uFEFF", BicepLexicalGrammar.FILE);
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.targetScope()).isEqualTo(File.Scope.RESOURCE_GROUP);
-    ArmAssertions.assertThat(tree.targetScopeLiteral()).isNull();
+    assertThat(tree.targetScopeLiteral()).isNull();
   }
 
   @Test

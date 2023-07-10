@@ -52,6 +52,8 @@ public interface ArmTree extends Tree {
     BOOLEAN_LITERAL(BooleanLiteral.class),
     NUMERIC_LITERAL(NumericLiteral.class),
     NULL_LITERAL(NullLiteral.class),
+    INTERPOLATED_STRING(InterpolatedString.class),
+
     STRING_LITERAL(StringLiteral.class),
     ARRAY_EXPRESSION(ArrayExpression.class),
     OBJECT_EXPRESSION(ObjectExpression.class),

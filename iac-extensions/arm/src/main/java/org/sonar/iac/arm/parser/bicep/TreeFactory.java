@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
-import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -28,8 +27,12 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -38,10 +41,14 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
+import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePiece;
@@ -49,12 +56,14 @@ import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPiece;
 
+import static java.util.Collections.emptyList;
+
 public class TreeFactory {
 
   // Ignore unused method parameters
   @SuppressWarnings("java:S1172")
   public File file(Optional<List<Statement>> statements, Optional<SyntaxToken> spacing, SyntaxToken eof) {
-    return new FileImpl(statements.or(Collections.emptyList()), eof);
+    return new FileImpl(statements.or(emptyList()), eof);
   }
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
@@ -92,14 +101,33 @@ public class TreeFactory {
     return new StringLiteralImpl(token);
   }
 
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
+  public ResourceDeclaration resourceDeclaration(
+    SyntaxToken keyword,
+    Identifier identifier,
+    InterpolatedString type,
+    Optional<SyntaxToken> existing,
+    SyntaxToken equalsSign,
+    ObjectExpression objectExpression,
+    SyntaxToken endOfLine) {
+    return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, objectExpression, endOfLine);
+  }
+
   public Identifier identifier(SyntaxToken token) {
     return new IdentifierImpl(token);
   }
 
-  // Ignore unused method parameters
-  @SuppressWarnings("java:S1172")
-  public <T, U> U ignoreFirst(T first, U second) {
-    return second;
+  public InterpolatedString interpolatedString(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
+    return new InterpolatedStringImpl(openingApostrophe, value, closingApostrophe);
+  }
+
+  public Property objectProperty(Identifier key, SyntaxToken colon, Expression value) {
+    return new PropertyImpl(key, colon, value);
+  }
+
+  public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Property>> properties, SyntaxToken rightCurlyBrace) {
+    return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
   }
 
   public NumericLiteral numericLiteral(SyntaxToken token) {
