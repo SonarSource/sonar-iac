@@ -47,6 +47,7 @@ class InterpolatedStringImplTest extends BicepTreeModelTest {
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(InterpolatedString.class);
+    softly.assertThat(tree).isExactlyInstanceOf(InterpolatedStringImpl.class);
     softly.assertThat(tree.children()).hasSize(11);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
     softly.assertAll();
