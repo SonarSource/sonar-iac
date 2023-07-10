@@ -83,8 +83,8 @@ public class TreeFactory {
     return new OutputDeclarationImpl(keyword, name, type, equ, expression);
   }
 
-  // TODO SONARIAC-957 Put in place decorator + SONARIAC-958 Put in place interpString
-  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken resource, StringLiteral type, SyntaxToken equ, Expression expression) {
+  // TODO SONARIAC-957 Put in place decorator
+  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString type, SyntaxToken equ, Expression expression) {
     return new OutputDeclarationImpl(keyword, name, resource, type, equ, expression);
   }
 

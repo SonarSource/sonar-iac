@@ -27,6 +27,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.TextTree;
@@ -43,7 +44,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   @Nullable
   private final SyntaxToken resource;
   @Nullable
-  private final StringLiteral interpType;
+  private final InterpolatedString interpType;
   private final SyntaxToken equ;
   private final Expression expression;
 
@@ -57,7 +58,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
     this.interpType = null;
   }
 
-  public OutputDeclarationImpl(SyntaxToken keyword, Identifier name, SyntaxToken resource, StringLiteral interpType, SyntaxToken equ, Expression expression) {
+  public OutputDeclarationImpl(SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString interpType, SyntaxToken equ, Expression expression) {
     this.keyword = keyword;
     this.name = name;
     this.resource = resource;

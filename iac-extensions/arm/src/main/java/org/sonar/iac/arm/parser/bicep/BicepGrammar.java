@@ -98,8 +98,7 @@ public class BicepGrammar {
           b.token(BicepKeyword.OUTPUT),
           IDENTIFIER(),
           b.token(BicepKeyword.RESOURCE),
-          // TODO SONARIAC-958 Put in place interpString
-          STRING_LITERAL(),
+          INTERPOLATED_STRING_TYPE(),
           b.token(Punctuator.EQU),
           EXPRESSION())));
   }

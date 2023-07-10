@@ -37,15 +37,15 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
     Assertions.assertThat(BicepLexicalGrammar.OUTPUT_DECLARATION)
       .matches("output myOutput String=myValue")
       .matches("output myOutput String = myValue")
-      .matches("output myOutput resource String=myValue")
-      .matches("output myOutput resource String = myValue")
+      .matches("output myOutput resource 'myResource'=myValue")
+      .matches("output myOutput resource 'myResource' = myValue")
 
       .notMatches("output")
       .notMatches("output myOutput")
       .notMatches("output myOutput String")
       .notMatches("output myOutput String =")
-      .notMatches("output myOutput resource String")
-      .notMatches("output myOutput resource String =")
+      .notMatches("output myOutput resource 'myResource'")
+      .notMatches("output myOutput resource 'myResource' =")
       .notMatches("OUTPUT myOutput String = myValue")
       .notMatches("outpute myOutput String = myValue")
       .notMatches("myOutput String = myValue");
@@ -68,16 +68,16 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleOutputDeclarationWithResource() {
-    String code = code("output myOutput resource String = myValue");
+    String code = code("output myOutput resource 'myResource' = myValue");
     OutputDeclaration tree = parse(code, BicepLexicalGrammar.OUTPUT_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.OUTPUT_DECLARATION)).isTrue();
     assertThat(tree.name()).has("value", "myOutput").hasRange(1, 7, 1, 15);
-    assertThat(tree.type().value()).isEqualTo("String");
-    assertThat(tree.type().textRange()).hasRange(1, 25, 1, 31);
-    assertThat(tree.value()).asStringLiteral().hasValue("myValue").hasRange(1, 34, 1, 41);
+    assertThat(tree.type().value()).isEqualTo("myResource");
+    assertThat(tree.type().textRange()).hasRange(1, 25, 1, 37);
+    assertThat(tree.value()).asStringLiteral().hasValue("myValue").hasRange(1, 40, 1, 47);
     assertThat(tree.condition()).isNull();
     assertThat(tree.copyCount()).isNull();
     assertThat(tree.copyInput()).isNull();
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("output", "myOutput", "resource", "String", "=", "myValue");
+    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("output", "myOutput", "resource", "myResource", "=", "myValue");
   }
 }
