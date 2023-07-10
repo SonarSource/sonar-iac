@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
@@ -70,6 +71,7 @@ import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ParameterDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
@@ -115,6 +117,16 @@ public class TreeFactory {
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
     return new TargetScopeDeclarationImpl(keyword, equals, expression);
+  }
+
+  public ParameterDeclaration parameterDeclaration(SyntaxToken keyword, Identifier name, StringLiteral typeExpression, Optional<SyntaxToken> equ,
+    Optional<Expression> defaultValue) {
+    return new ParameterDeclarationImpl(keyword, name, typeExpression, equ.orNull(), defaultValue.orNull());
+  }
+
+  public ParameterDeclaration parameterDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString typeInterp, Optional<SyntaxToken> equ,
+    Optional<Expression> defaultValue) {
+    return new ParameterDeclarationImpl(keyword, name, resource, typeInterp, equ.orNull(), defaultValue.orNull());
   }
 
   public FunctionDeclaration functionDeclaration(SyntaxToken func, Identifier name, StringLiteral lambdaExpression) {
