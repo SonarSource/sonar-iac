@@ -17,26 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.bicep;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 
-public enum BicepKeyword implements GrammarRuleKey {
+public interface FunctionDeclaration extends Statement {
+  Identifier name();
 
-  EXISTING("existing"),
-  RESOURCE("resource"),
-  TARGET_SCOPE("targetScope"),
-  FUNC("func"),
-  METADATA("metadata"),
-  VARIABLE("variable");
-
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
+  // TODO SONARIAC-954 Put in place typedLambdaExpression instead of StringLiteral
+  StringLiteral lambdaExpression();
 }
