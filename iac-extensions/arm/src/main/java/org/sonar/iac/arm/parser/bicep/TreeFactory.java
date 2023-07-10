@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
-import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -38,7 +37,6 @@ import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.SeparatedList;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
@@ -54,14 +52,16 @@ import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.SeparatedListImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.impl.Tuple;
 
 import static java.util.Collections.emptyList;
+import static org.sonar.iac.common.api.tree.SeparatedList.optionalSeparatedList;
+import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList;
 
 public class TreeFactory {
 
@@ -110,11 +110,13 @@ public class TreeFactory {
     return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, objectExpression, endOfLine);
   }
 
-  public FunctionCall functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression>> argumentList, SyntaxToken rightParenthesis) {
+  public FunctionCall functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
+    SyntaxToken rightParenthesis) {
     return new FunctionCallImpl(identifier, leftParenthesis, optionalSeparatedList(argumentList), rightParenthesis);
   }
 
-  public SeparatedList<Expression> functionCallArguments(Expression firstArgument, Optional<List<Tuple<SyntaxToken, Expression>>> additionalArguments) {
+  public SeparatedList<Expression, SyntaxToken> functionCallArguments(Expression firstArgument,
+    Optional<List<Tuple<SyntaxToken, Expression>>> additionalArguments) {
     return separatedList(firstArgument, additionalArguments);
   }
 
@@ -144,50 +146,6 @@ public class TreeFactory {
 
   public NullLiteral nullLiteral(SyntaxToken token) {
     return new NullLiteralImpl(token);
-  }
-
-  private static <T extends Tree> SeparatedList<T> optionalSeparatedList(Optional<SeparatedList<T>> list) {
-    if (list.isPresent()) {
-      return list.get();
-    } else {
-      return new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>());
-    }
-  }
-
-  private static <T extends Tree> SeparatedListImpl<T> separatedList(T firstElement, Optional<List<Tuple<SyntaxToken, T>>> additionalElements) {
-    List<T> elements = new ArrayList<>();
-    List<SyntaxToken> separators = new ArrayList<>();
-    elements.add(firstElement);
-
-    if (additionalElements.isPresent()) {
-      for (Tuple<SyntaxToken, T> elementsWithSeparators : additionalElements.get()) {
-        separators.add(elementsWithSeparators.first());
-        elements.add(elementsWithSeparators.second());
-      }
-    }
-
-    return new SeparatedListImpl<>(elements, separators);
-  }
-
-  public static class Tuple<T, U> {
-
-    private final T first;
-    private final U second;
-
-    public Tuple(T first, U second) {
-      super();
-
-      this.first = first;
-      this.second = second;
-    }
-
-    public T first() {
-      return first;
-    }
-
-    public U second() {
-      return second;
-    }
   }
 
   public <T, U> Tuple<T, U> newTuple(T first, U second) {

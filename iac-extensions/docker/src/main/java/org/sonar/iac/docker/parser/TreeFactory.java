@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.impl.SeparatedListImpl;
+import org.sonar.iac.common.api.tree.impl.Tuple;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
@@ -55,7 +58,6 @@ import org.sonar.iac.docker.tree.api.MaintainerInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.RegularVariable;
 import org.sonar.iac.docker.tree.api.RunInstruction;
-import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.ShellForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
 import org.sonar.iac.docker.tree.api.StopSignalInstruction;
@@ -90,13 +92,14 @@ import org.sonar.iac.docker.tree.impl.MaintainerInstructionImpl;
 import org.sonar.iac.docker.tree.impl.OnBuildInstructionImpl;
 import org.sonar.iac.docker.tree.impl.RegularVariableImpl;
 import org.sonar.iac.docker.tree.impl.RunInstructionImpl;
-import org.sonar.iac.docker.tree.impl.SeparatedListImpl;
 import org.sonar.iac.docker.tree.impl.ShellFormImpl;
 import org.sonar.iac.docker.tree.impl.ShellInstructionImpl;
 import org.sonar.iac.docker.tree.impl.StopSignalInstructionImpl;
 import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
 import org.sonar.iac.docker.tree.impl.VolumeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
+
+import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList;
 
 // S1172 - Unused function parameters should be removed - the spacing argument is ignored, but it's needed from grammar perspective
 @SuppressWarnings("java:S1172")
@@ -231,17 +234,11 @@ public class TreeFactory {
     Optional<List<Tuple<SyntaxToken, Argument>>> otherArguments,
     SyntaxToken rightBracket) {
 
-    List<Argument> elements = new ArrayList<>();
-    List<SyntaxToken> separators = new ArrayList<>();
-    SeparatedList<Argument> separatedList = new SeparatedListImpl<>(elements, separators);
+    SeparatedList<Argument, SyntaxToken> separatedList;
     if (firstArgument.isPresent()) {
-      elements.add(firstArgument.get());
-      if (otherArguments.isPresent()) {
-        for (Tuple<SyntaxToken, Argument> expressionWithComma : otherArguments.get()) {
-          separators.add(expressionWithComma.first());
-          elements.add(expressionWithComma.second());
-        }
-      }
+      separatedList = separatedList(firstArgument.get(), otherArguments);
+    } else {
+      separatedList = new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>());
     }
 
     return new ExecFormImpl(leftBracket, separatedList, rightBracket);
@@ -321,26 +318,5 @@ public class TreeFactory {
 
   public KeyValuePair keyValuePair(Argument key, Optional<SyntaxToken> equalSign) {
     return new KeyValuePairImpl(key, equalSign.orNull(), null);
-  }
-
-  public static class Tuple<T, U> {
-
-    private final T first;
-    private final U second;
-
-    public Tuple(T first, U second) {
-      super();
-
-      this.first = first;
-      this.second = second;
-    }
-
-    public T first() {
-      return first;
-    }
-
-    public U second() {
-      return second;
-    }
   }
 }

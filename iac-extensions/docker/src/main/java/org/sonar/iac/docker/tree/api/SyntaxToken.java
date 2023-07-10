@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import org.sonar.iac.common.api.tree.IacToken;
+import org.sonar.iac.common.api.tree.CommonSyntaxToken;
 
-public interface SyntaxToken extends DockerTree, IacToken {
+public interface SyntaxToken extends DockerTree, CommonSyntaxToken {
 }

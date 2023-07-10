@@ -21,19 +21,19 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ExecForm;
-import org.sonar.iac.docker.tree.api.SeparatedList;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
 
   private final SyntaxToken leftBracket;
-  private final SeparatedList<Argument> argumentsWithSeparators;
+  private final SeparatedList<Argument, SyntaxToken> argumentsWithSeparators;
   private final SyntaxToken rightBracket;
 
-  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<Argument> argumentsWithSeparators, SyntaxToken rightBracket) {
+  public ExecFormImpl(SyntaxToken leftBracket, SeparatedList<Argument, SyntaxToken> argumentsWithSeparators, SyntaxToken rightBracket) {
     this.leftBracket = leftBracket;
     this.argumentsWithSeparators = argumentsWithSeparators;
     this.rightBracket = rightBracket;
@@ -64,7 +64,7 @@ public class ExecFormImpl extends AbstractDockerTreeImpl implements ExecForm {
   }
 
   @Override
-  public SeparatedList<Argument> argumentsWithSeparators() {
+  public SeparatedList<Argument, SyntaxToken> argumentsWithSeparators() {
     return argumentsWithSeparators;
   }
 

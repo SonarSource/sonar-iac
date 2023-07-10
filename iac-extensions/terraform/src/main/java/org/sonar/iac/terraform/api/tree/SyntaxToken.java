@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-import org.sonar.iac.common.api.tree.IacToken;
+import org.sonar.iac.common.api.tree.CommonSyntaxToken;
 
-public interface SyntaxToken extends TerraformTree, IacToken {
+public interface SyntaxToken extends TerraformTree, CommonSyntaxToken {
 }

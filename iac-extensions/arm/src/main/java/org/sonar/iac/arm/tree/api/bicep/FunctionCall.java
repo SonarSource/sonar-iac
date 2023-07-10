@@ -21,9 +21,10 @@ package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.common.api.tree.SeparatedList;
 
 public interface FunctionCall extends Expression {
   Identifier name();
 
-  SeparatedList<Expression> argumentList();
+  SeparatedList<Expression, SyntaxToken> argumentList();
 }

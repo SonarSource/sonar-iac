@@ -24,19 +24,19 @@ import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
-import org.sonar.iac.arm.tree.api.bicep.SeparatedList;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class FunctionCallImpl extends AbstractArmTreeImpl implements FunctionCall {
 
   private final Identifier identifier;
   private final SyntaxToken leftParenthesis;
-  private final SeparatedList<Expression> argumentList;
+  private final SeparatedList<Expression, SyntaxToken> argumentList;
   private final SyntaxToken rightParenthesis;
 
-  public FunctionCallImpl(Identifier identifier, SyntaxToken leftParenthesis, SeparatedList<Expression> argumentList, SyntaxToken rightParenthesis) {
+  public FunctionCallImpl(Identifier identifier, SyntaxToken leftParenthesis, SeparatedList<Expression, SyntaxToken> argumentList, SyntaxToken rightParenthesis) {
     this.identifier = identifier;
     this.leftParenthesis = leftParenthesis;
     this.argumentList = argumentList;
@@ -64,7 +64,7 @@ public class FunctionCallImpl extends AbstractArmTreeImpl implements FunctionCal
   }
 
   @Override
-  public SeparatedList<Expression> argumentList() {
+  public SeparatedList<Expression, SyntaxToken> argumentList() {
     return argumentList;
   }
 }

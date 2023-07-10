@@ -17,39 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.impl;
+package org.sonar.iac.common.api.tree;
 
+import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.docker.tree.api.SeparatedList;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.common.api.tree.impl.SeparatedListImpl;
 
-public class SeparatedListImpl<T extends Tree> implements SeparatedList<T> {
+public interface SeparatedList<T extends Tree, U extends CommonSyntaxToken> {
 
-  private final List<T> elements;
-  private final List<SyntaxToken> separators;
+  List<T> elements();
 
-  public SeparatedListImpl(List<T> elements, List<SyntaxToken> separators) {
-    this.elements = elements;
-    this.separators = separators;
-  }
+  List<U> separators();
 
-  @Override
-  public List<T> elements() {
-    return elements;
-  }
+  List<Tree> elementsAndSeparators();
 
-  @Override
-  public List<SyntaxToken> separators() {
-    return separators;
-  }
-
-  @Override
-  public List<Tree> elementsAndSeparators() {
-    List<Tree> result = new ArrayList<>();
-    result.addAll(elements);
-    result.addAll(separators);
-    return result;
+  static <R extends Tree, S extends CommonSyntaxToken> SeparatedList<R, S> optionalSeparatedList(Optional<SeparatedList<R, S>> list) {
+    if (list.isPresent()) {
+      return list.get();
+    } else {
+      return new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>());
+    }
   }
 }

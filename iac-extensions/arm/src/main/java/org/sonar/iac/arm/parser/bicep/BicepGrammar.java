@@ -36,10 +36,10 @@ import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.SeparatedList;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
 import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
@@ -206,8 +206,8 @@ public class BicepGrammar {
         b.token(Punctuator.RPARENTHESIS)));
   }
 
-  public SeparatedList<Expression> FUNCTION_CALL_ARGUMENTS() {
-    return b.<SeparatedList<Expression>>nonterminal().is(
+  public SeparatedList<Expression, SyntaxToken> FUNCTION_CALL_ARGUMENTS() {
+    return b.<SeparatedList<Expression, SyntaxToken>>nonterminal().is(
       f.functionCallArguments(
         EXPRESSION(),
         b.zeroOrMore(

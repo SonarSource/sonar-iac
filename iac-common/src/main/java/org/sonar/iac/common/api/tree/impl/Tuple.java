@@ -17,15 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.common.api.tree.impl;
 
-import java.util.List;
-import org.sonar.iac.common.api.tree.Tree;
+public class Tuple<T, U> {
+  private final T first;
+  private final U second;
 
-public interface SeparatedList<T extends Tree> {
-  List<T> elements();
+  public Tuple(T first, U second) {
+    super();
 
-  List<SyntaxToken> separators();
+    this.first = first;
+    this.second = second;
+  }
 
-  List<Tree> elementsAndSeparators();
+  public T first() {
+    return first;
+  }
+
+  public U second() {
+    return second;
+  }
 }

@@ -22,6 +22,7 @@ package org.sonar.iac.docker.tree.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.api.tree.CommonSyntaxToken;
 import org.sonar.iac.docker.parser.grammar.DockerLexicalGrammar;
 import org.sonar.iac.docker.parser.utils.Assertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
@@ -88,7 +89,7 @@ class ExecFormImplTest {
     assertThat(elements.get(0).getKind()).isEqualTo(DockerTree.Kind.ARGUMENT);
     assertThat(execForm.arguments().stream().map(arg -> ArgumentResolution.of(arg).value())).containsExactly("executable", "param1", "param2");
 
-    assertThat(execForm.argumentsWithSeparators().separators().stream().map(SyntaxToken::value)).containsExactly(",", ",");
+    assertThat(execForm.argumentsWithSeparators().separators().stream().map(CommonSyntaxToken::value)).containsExactly(",", ",");
 
     assertArgumentsValue(execForm.arguments(), "executable", "param1", "param2");
   }

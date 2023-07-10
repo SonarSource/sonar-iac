@@ -17,20 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep;
+package org.sonar.iac.common.api.tree.impl;
 
+import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.bicep.SeparatedList;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.common.api.tree.CommonSyntaxToken;
+import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class SeparatedListImpl<T extends Tree> implements SeparatedList<T> {
+public class SeparatedListImpl<T extends Tree, U extends CommonSyntaxToken> implements SeparatedList<T, U> {
 
   private final List<T> elements;
-  private final List<SyntaxToken> separators;
+  private final List<U> separators;
 
-  public SeparatedListImpl(List<T> elements, List<SyntaxToken> separators) {
+  public SeparatedListImpl(List<T> elements, List<U> separators) {
     this.elements = elements;
     this.separators = separators;
   }
@@ -41,7 +42,7 @@ public class SeparatedListImpl<T extends Tree> implements SeparatedList<T> {
   }
 
   @Override
-  public List<SyntaxToken> separators() {
+  public List<U> separators() {
     return separators;
   }
 
@@ -51,6 +52,21 @@ public class SeparatedListImpl<T extends Tree> implements SeparatedList<T> {
     result.addAll(elements);
     result.addAll(separators);
     return result;
+  }
+
+  public static <R extends Tree, S extends CommonSyntaxToken> SeparatedListImpl<R, S> separatedList(R firstElement, Optional<List<Tuple<S, R>>> additionalElements) {
+    List<R> elements = new ArrayList<>();
+    List<S> separators = new ArrayList<>();
+    elements.add(firstElement);
+
+    if (additionalElements.isPresent()) {
+      for (Tuple<S, R> elementsWithSeparators : additionalElements.get()) {
+        separators.add(elementsWithSeparators.first());
+        elements.add(elementsWithSeparators.second());
+      }
+    }
+
+    return new SeparatedListImpl<>(elements, separators);
   }
 
 }
