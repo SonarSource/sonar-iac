@@ -28,6 +28,7 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
@@ -50,6 +51,7 @@ import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
@@ -74,6 +76,16 @@ public class TreeFactory {
   // TODO SONARIAC-951 Put in place decorator
   public TypeDeclaration typeDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
     return new TypeDeclarationImpl(keyword, name, equ, typeExpression);
+  }
+
+  // TODO SONARIAC-957 Put in place decorator
+  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, Identifier type, SyntaxToken equ, Expression expression) {
+    return new OutputDeclarationImpl(keyword, name, type, equ, expression);
+  }
+
+  // TODO SONARIAC-957 Put in place decorator
+  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString type, SyntaxToken equ, Expression expression) {
+    return new OutputDeclarationImpl(keyword, name, resource, type, equ, expression);
   }
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
