@@ -56,8 +56,7 @@ public enum Punctuator implements GrammarRuleKey {
   PERCENT_LCURLY("%{"),
   PERCENT_LCURLY_TILDE("%{~"),
   TILDE_RCURLY("~}"),
-  DOLLAR("$"),
-  APOSTROPHE("'");
+  DOLLAR("$");
 
   private final String value;
 

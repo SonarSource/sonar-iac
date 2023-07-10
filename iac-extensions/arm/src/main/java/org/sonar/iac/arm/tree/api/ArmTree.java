@@ -60,8 +60,7 @@ public interface ArmTree extends Tree {
 
     // Bicep specific,
     TARGET_SCOPE_DECLARATION(TargetScopeDeclaration.class),
-    METADATA_DECLARATION(MetadataDeclaration.class),
-    INTERPOLATED_STRING(InterpolatedString.class);
+    METADATA_DECLARATION(MetadataDeclaration.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 
