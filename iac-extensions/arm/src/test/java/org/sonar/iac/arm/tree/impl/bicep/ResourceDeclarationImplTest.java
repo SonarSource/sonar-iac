@@ -62,7 +62,7 @@ class ResourceDeclarationImplTest {
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("resource");
     assertThat(((Identifier) tree.children().get(1)).value()).isEqualTo("myName");
-    assertThat(((InterpolatedString) tree.children().get(2)).value()).isEqualTo("type@version");
+    assertThat(((StringCompleteImpl) tree.children().get(2)).value()).isEqualTo("type@version");
     assertThat(((SyntaxToken) tree.children().get(3)).value()).isEqualTo("=");
     assertThat(((ObjectExpression) tree.children().get(4)).properties()).hasSize(1);
     assertThat(((SyntaxToken) tree.children().get(5)).value()).isBlank();

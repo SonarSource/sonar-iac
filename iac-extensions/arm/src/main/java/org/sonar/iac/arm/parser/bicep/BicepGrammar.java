@@ -106,19 +106,11 @@ public class BicepGrammar {
       f.resourceDeclaration(
         b.token(BicepKeyword.RESOURCE),
         IDENTIFIER(),
-        INTERPOLATED_STRING_TYPE(),
+        INTERPOLATED_STRING(),
         b.optional(b.token(BicepKeyword.EXISTING)),
         b.token(Punctuator.EQU),
         OBJECT_EXPRESSION(),
         b.token(BicepLexicalGrammar.EOL)));
-  }
-
-  public InterpolatedString INTERPOLATED_STRING_TYPE() {
-    return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
-      f.interpolatedString(
-        b.token(Punctuator.APOSTROPHE),
-        b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
-        b.token(Punctuator.APOSTROPHE)));
   }
 
   // object -> "{" ( NL+ ( property NL+ )* )? "}"
@@ -143,16 +135,20 @@ public class BicepGrammar {
       b.firstOf(
         ALPHA_NUMERAL_STRING(),
         LITERAL_VALUE(),
-        STRING_LITERAL(),
         INTERPOLATED_STRING()));
   }
 
   public InterpolatedString INTERPOLATED_STRING() {
     return b.<InterpolatedString>nonterminal(BicepLexicalGrammar.INTERPOLATED_STRING).is(
-      f.interpolatedString(
-        INTERPOLATED_STRING_LEFT_PIECE(),
-        b.zeroOrMore(INTERPOLATED_STRING_MIDDLE_PIECE()),
-        INTERPOLATED_STRING_RIGHT_PIECE()));
+      b.firstOf(
+        f.interpolatedString(
+          INTERPOLATED_STRING_LEFT_PIECE(),
+          b.zeroOrMore(INTERPOLATED_STRING_MIDDLE_PIECE()),
+          INTERPOLATED_STRING_RIGHT_PIECE()),
+        f.stringComplete(
+          b.token(Punctuator.APOSTROPHE),
+          b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
+          b.token(Punctuator.APOSTROPHE))));
   }
 
   public InterpolatedStringLeftPiece INTERPOLATED_STRING_LEFT_PIECE() {
@@ -206,12 +202,6 @@ public class BicepGrammar {
     return b.<NullLiteral>nonterminal(BicepLexicalGrammar.NULL_LITERAL).is(
       f.nullLiteral(
         b.token(BicepLexicalGrammar.NULL_LITERAL_VALUE)));
-  }
-
-  // Temporary implementation of StringLiteral, will be removed by further implementation of Expression
-  public StringLiteral STRING_LITERAL() {
-    return b.<StringLiteral>nonterminal().is(
-      f.stringLiteral(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)));
   }
 
   public Identifier IDENTIFIER() {

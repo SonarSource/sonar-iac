@@ -34,7 +34,6 @@ import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
@@ -42,10 +41,10 @@ import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
+import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
@@ -77,6 +76,10 @@ public class TreeFactory {
 
   public VariableDeclaration variableDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
     return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
+  }
+
+  public InterpolatedString stringComplete(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
+    return new StringCompleteImpl(openingApostrophe, value, closingApostrophe);
   }
 
   public InterpolatedString interpolatedString(InterpolatedStringLeftPiece stringLeftPiece,
@@ -119,7 +122,7 @@ public class TreeFactory {
   }
 
   public InterpolatedString interpolatedString(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
-    return new InterpolatedStringImpl(openingApostrophe, value, closingApostrophe);
+    return new StringCompleteImpl(openingApostrophe, value, closingApostrophe);
   }
 
   public Property objectProperty(Identifier key, SyntaxToken colon, Expression value) {

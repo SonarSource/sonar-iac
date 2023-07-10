@@ -36,7 +36,7 @@ class InterpolatedStringImplTest extends BicepTreeModelTest {
       .matches("'a${123}b'")
       .matches("'a${123}b${456}c'")
       .matches("'a${123}${456}c'")
-      .notMatches("'abc'")
+      .matches("'abc'")
       .notMatches("123");
   }
 
