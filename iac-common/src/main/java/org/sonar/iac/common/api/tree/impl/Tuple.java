@@ -17,31 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.bicep;
+package org.sonar.iac.common.api.tree.impl;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+public class Tuple<T, U> {
+  private final T first;
+  private final U second;
 
-public enum BicepKeyword implements GrammarRuleKey {
+  public Tuple(T first, U second) {
+    super();
 
-  EXISTING("existing"),
-  RESOURCE("resource"),
-  TYPE("type"),
-  OUTPUT("output"),
-  TARGET_SCOPE("targetScope"),
-  FUNC("func"),
-  METADATA("metadata"),
-  VARIABLE("variable"),
-  IMPORT("import"),
-  WITH("with"),
-  AS("as");
-
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
+    this.first = first;
+    this.second = second;
   }
 
-  public String getValue() {
-    return value;
+  public T first() {
+    return first;
+  }
+
+  public U second() {
+    return second;
   }
 }

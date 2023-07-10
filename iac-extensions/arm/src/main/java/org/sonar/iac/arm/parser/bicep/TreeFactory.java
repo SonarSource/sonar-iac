@@ -27,11 +27,13 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
@@ -41,6 +43,7 @@ import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
+import org.sonar.iac.arm.tree.impl.bicep.FunctionCallImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FunctionDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ImportDeclarationImpl;
@@ -49,6 +52,7 @@ import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
@@ -59,8 +63,12 @@ import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 
 import java.util.List;
+import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.impl.Tuple;
 
 import static java.util.Collections.emptyList;
+import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.emptySeparatedList;
+import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList;
 
 public class TreeFactory {
 
@@ -73,6 +81,16 @@ public class TreeFactory {
   // TODO SONARIAC-951 Put in place decorator
   public TypeDeclaration typeDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
     return new TypeDeclarationImpl(keyword, name, equ, typeExpression);
+  }
+
+  // TODO SONARIAC-957 Put in place decorator
+  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, Identifier type, SyntaxToken equ, Expression expression) {
+    return new OutputDeclarationImpl(keyword, name, type, equ, expression);
+  }
+
+  // TODO SONARIAC-957 Put in place decorator
+  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString type, SyntaxToken equ, Expression expression) {
+    return new OutputDeclarationImpl(keyword, name, resource, type, equ, expression);
   }
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
@@ -107,6 +125,16 @@ public class TreeFactory {
     ObjectExpression objectExpression,
     SyntaxToken endOfLine) {
     return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, objectExpression, endOfLine);
+  }
+
+  public FunctionCall functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
+    SyntaxToken rightParenthesis) {
+    return new FunctionCallImpl(identifier, leftParenthesis, argumentList.or(emptySeparatedList()), rightParenthesis);
+  }
+
+  public SeparatedList<Expression, SyntaxToken> functionCallArguments(Expression firstArgument,
+    Optional<List<Tuple<SyntaxToken, Expression>>> additionalArguments) {
+    return separatedList(firstArgument, additionalArguments);
   }
 
   public Identifier identifier(SyntaxToken token) {
@@ -148,5 +176,9 @@ public class TreeFactory {
 
   public ImportAsClause importAsClause(SyntaxToken keyword, Identifier alias) {
     return new ImportAsClause(keyword, alias);
+  }
+
+  public <T, U> Tuple<T, U> newTuple(T first, U second) {
+    return new Tuple<>(first, second);
   }
 }

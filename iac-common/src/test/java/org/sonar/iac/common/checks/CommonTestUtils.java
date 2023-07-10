@@ -24,14 +24,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 
 import static org.sonar.iac.common.checks.CommonTestUtils.TestTextTree.text;
@@ -162,6 +163,32 @@ public class CommonTestUtils {
     @Override
     public Iterator<Tree> iterator() {
       return elements.iterator();
+    }
+  }
+
+  public static class TestIacToken implements IacToken {
+    public static IacToken token() {
+      return new TestIacToken();
+    }
+
+    @Override
+    public List<Comment> comments() {
+      return Collections.emptyList();
+    }
+
+    @Override
+    public TextRange textRange() {
+      return null;
+    }
+
+    @Override
+    public String value() {
+      return "";
+    }
+
+    @Override
+    public List<Tree> children() {
+      return Collections.emptyList();
     }
   }
 }
