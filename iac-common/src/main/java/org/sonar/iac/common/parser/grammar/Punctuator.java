@@ -49,14 +49,14 @@ public enum Punctuator implements GrammarRuleKey {
   STAR("*"),
   QUERY("?"),
   EXCLAMATION("!"),
-  APOSTROPHE("'"),
   DOUBLE_QUOTE("\""),
   DOLLAR_LCURLY("${"),
   DOLLAR_LCURLY_TILDE("${~"),
   PERCENT_LCURLY("%{"),
   PERCENT_LCURLY_TILDE("%{~"),
   TILDE_RCURLY("~}"),
-  DOLLAR("$");
+  DOLLAR("$"),
+  APOSTROPHE("'");
 
   private final String value;
 

@@ -223,6 +223,12 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.NULL_LITERAL_VALUE)));
   }
 
+  // Temporary implementation of StringLiteral, will be removed by further implementation of Expression
+  public StringLiteral STRING_LITERAL() {
+    return b.<StringLiteral>nonterminal().is(
+      f.stringLiteral(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)));
+  }
+
   public Identifier IDENTIFIER() {
     return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER).is(
       f.identifier(
