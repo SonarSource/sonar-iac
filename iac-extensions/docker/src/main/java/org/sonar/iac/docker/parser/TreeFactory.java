@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.sonar.iac.common.api.tree.SeparatedList;
-import org.sonar.iac.common.api.tree.impl.SeparatedListImpl;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 import org.sonar.iac.docker.tree.api.AddInstruction;
 import org.sonar.iac.docker.tree.api.Alias;
@@ -99,6 +98,7 @@ import org.sonar.iac.docker.tree.impl.UserInstructionImpl;
 import org.sonar.iac.docker.tree.impl.VolumeInstructionImpl;
 import org.sonar.iac.docker.tree.impl.WorkdirInstructionImpl;
 
+import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.emptySeparatedList;
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList;
 
 // S1172 - Unused function parameters should be removed - the spacing argument is ignored, but it's needed from grammar perspective
@@ -238,7 +238,7 @@ public class TreeFactory {
     if (firstArgument.isPresent()) {
       separatedList = separatedList(firstArgument.get(), otherArguments);
     } else {
-      separatedList = new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>());
+      separatedList = emptySeparatedList();
     }
 
     return new ExecFormImpl(leftBracket, separatedList, rightBracket);

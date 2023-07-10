@@ -46,7 +46,11 @@ class FunctionCallImplTest {
       .matches("functionName123(123, 456)")
       .matches("functionName123(123, 456, 135)")
 
+      .notMatches("functionName123")
+      .notMatches("functionName123(")
+      .notMatches("functionName123)")
       .notMatches("functionName123(,)")
+      .notMatches("functionName123(,123")
       .notMatches("functionName123(123,)");
   }
 

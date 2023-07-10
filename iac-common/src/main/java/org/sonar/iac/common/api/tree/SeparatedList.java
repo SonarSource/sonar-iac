@@ -21,7 +21,7 @@ package org.sonar.iac.common.api.tree;
 
 import java.util.List;
 
-public interface SeparatedList<T extends Tree, U extends CommonSyntaxToken> {
+public interface SeparatedList<T extends Tree, U extends IacToken> {
 
   List<T> elements();
 

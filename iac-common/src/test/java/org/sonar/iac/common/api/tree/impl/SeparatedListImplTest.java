@@ -22,7 +22,7 @@ package org.sonar.iac.common.api.tree.impl;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.CommonSyntaxToken;
+import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.CommonTestUtils;
@@ -32,31 +32,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SeparatedListImplTest {
 
   @Test
-  void optionalSeparatedListShouldBeRetrieved() {
-    Tree tree = CommonTestUtils.TestTree.tree();
-    CommonSyntaxToken token = CommonTestUtils.TestCommonSyntaxToken.token();
-    SeparatedListImpl<Tree, CommonSyntaxToken> separatedList = new SeparatedListImpl<>(List.of(tree), List.of(token));
-
-    SeparatedList<Tree, CommonSyntaxToken> resultingSeparatedList = SeparatedListImpl.optionalSeparatedList(Optional.of(separatedList));
-
-    assertThat(resultingSeparatedList).isEqualTo(separatedList);
-  }
-
-  @Test
-  void absentOptionalShouldRetrieveEmptySeparatedList() {
-    SeparatedList<Tree, CommonSyntaxToken> separatedList = SeparatedListImpl.optionalSeparatedList(Optional.absent());
+  void emptySeparatedListProducesEmptyLists() {
+    SeparatedList<Tree, IacToken> separatedList = SeparatedListImpl.emptySeparatedList();
 
     assertThat(separatedList.separators()).isEmpty();
     assertThat(separatedList.elements()).isEmpty();
+    assertThat(separatedList.elementsAndSeparators()).isEmpty();
   }
 
   @Test
   void separatedListShouldBeCorrectlyConstructed() {
     Tree firstElement = CommonTestUtils.TestTree.tree();
     Tree tupleElement = CommonTestUtils.TestTree.tree();
-    CommonSyntaxToken tupleToken = CommonTestUtils.TestCommonSyntaxToken.token();
+    IacToken tupleToken = CommonTestUtils.TestIacToken.token();
 
-    SeparatedList<Tree, CommonSyntaxToken> resultingSeparatedList = SeparatedListImpl.separatedList(firstElement, Optional.of(List.of(new Tuple<>(tupleToken, tupleElement))));
+    SeparatedList<Tree, IacToken> resultingSeparatedList = SeparatedListImpl.separatedList(firstElement, Optional.of(List.of(new Tuple<>(tupleToken, tupleElement))));
 
     assertThat(resultingSeparatedList.elements()).containsExactly(firstElement, tupleElement);
     assertThat(resultingSeparatedList.separators()).containsExactly(tupleToken);
@@ -67,7 +57,7 @@ class SeparatedListImplTest {
   void absentOptionalShouldRetrieveSeparatedListWithOnlyOneElement() {
     Tree firstElement = CommonTestUtils.TestTree.tree();
 
-    SeparatedList<Tree, CommonSyntaxToken> resultingSeparatedList = SeparatedListImpl.separatedList(firstElement, Optional.absent());
+    SeparatedList<Tree, IacToken> resultingSeparatedList = SeparatedListImpl.separatedList(firstElement, Optional.absent());
 
     assertThat(resultingSeparatedList.elements()).containsExactly(firstElement);
     assertThat(resultingSeparatedList.separators()).isEmpty();

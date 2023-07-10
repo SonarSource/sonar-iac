@@ -60,7 +60,7 @@ import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 
 import static java.util.Collections.emptyList;
-import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.optionalSeparatedList;
+import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.emptySeparatedList;
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList;
 
 public class TreeFactory {
@@ -112,7 +112,7 @@ public class TreeFactory {
 
   public FunctionCall functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
     SyntaxToken rightParenthesis) {
-    return new FunctionCallImpl(identifier, leftParenthesis, optionalSeparatedList(argumentList), rightParenthesis);
+    return new FunctionCallImpl(identifier, leftParenthesis, argumentList.or(emptySeparatedList()), rightParenthesis);
   }
 
   public SeparatedList<Expression, SyntaxToken> functionCallArguments(Expression firstArgument,

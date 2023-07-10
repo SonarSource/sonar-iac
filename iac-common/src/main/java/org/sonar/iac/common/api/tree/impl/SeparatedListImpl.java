@@ -22,11 +22,11 @@ package org.sonar.iac.common.api.tree.impl;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.common.api.tree.CommonSyntaxToken;
+import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class SeparatedListImpl<T extends Tree, U extends CommonSyntaxToken> implements SeparatedList<T, U> {
+public class SeparatedListImpl<T extends Tree, U extends IacToken> implements SeparatedList<T, U> {
 
   private final List<T> elements;
   private final List<U> separators;
@@ -54,15 +54,7 @@ public class SeparatedListImpl<T extends Tree, U extends CommonSyntaxToken> impl
     return result;
   }
 
-  public static <R extends Tree, S extends CommonSyntaxToken> SeparatedList<R, S> optionalSeparatedList(Optional<SeparatedList<R, S>> list) {
-    if (list.isPresent()) {
-      return list.get();
-    } else {
-      return new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>());
-    }
-  }
-
-  public static <R extends Tree, S extends CommonSyntaxToken> SeparatedListImpl<R, S> separatedList(R firstElement, Optional<List<Tuple<S, R>>> additionalElements) {
+  public static <R extends Tree, S extends IacToken> SeparatedListImpl<R, S> separatedList(R firstElement, Optional<List<Tuple<S, R>>> additionalElements) {
     List<R> elements = new ArrayList<>();
     List<S> separators = new ArrayList<>();
     elements.add(firstElement);
@@ -75,6 +67,10 @@ public class SeparatedListImpl<T extends Tree, U extends CommonSyntaxToken> impl
     }
 
     return new SeparatedListImpl<>(elements, separators);
+  }
+
+  public static <R extends Tree, S extends IacToken> SeparatedListImpl<R, S> emptySeparatedList() {
+    return new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>());
   }
 
 }
