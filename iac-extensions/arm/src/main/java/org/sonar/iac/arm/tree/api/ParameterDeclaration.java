@@ -20,24 +20,40 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.common.api.tree.TextTree;
 
 public interface ParameterDeclaration extends Statement {
 
   Identifier identifier();
 
+  @CheckForNull
   ParameterType type();
 
+  @CheckForNull
+  TextTree resourceType();
+
+  @CheckForNull
   Expression defaultValue();
 
   List<Expression> allowedValues();
 
+  @CheckForNull
   StringLiteral description();
 
+  @CheckForNull
   NumericLiteral minValue();
 
+  @CheckForNull
   NumericLiteral maxValue();
 
+  @CheckForNull
   NumericLiteral minLength();
 
+  @CheckForNull
   NumericLiteral maxLength();
+
+  default Kind getKind() {
+    return Kind.PARAMETER_DECLARATION;
+  }
 }

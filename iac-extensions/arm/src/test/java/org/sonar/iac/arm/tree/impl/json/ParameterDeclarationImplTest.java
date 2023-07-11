@@ -78,6 +78,7 @@ class ParameterDeclarationImplTest {
     assertThat(parameter.is(RESOURCE_DECLARATION)).isFalse();
     assertThat(parameter.textRange()).hasRange(3, 4, 4, 20);
 
+    assertThat(parameter.resourceType()).isNull();
     assertThat(parameter.defaultValue()).isNull();
     assertThat(parameter.allowedValues()).isEmpty();
     assertThat(parameter.description()).isNull();
