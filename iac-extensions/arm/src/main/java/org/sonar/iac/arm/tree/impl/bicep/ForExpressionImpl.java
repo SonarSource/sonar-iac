@@ -38,6 +38,8 @@ public class ForExpressionImpl extends AbstractArmTreeImpl implements ForExpress
   private final Expression bodyExpression;
   private final SyntaxToken rightBracket;
 
+  // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
+  @SuppressWarnings("java:S107")
   public ForExpressionImpl(SyntaxToken leftBracket, SyntaxToken forKeyword, ForVariableBlock forVariableBlock, SyntaxToken inKeyword,
     Expression headerExpression, SyntaxToken colon, Expression bodyExpression, SyntaxToken rightBracket) {
     this.leftBracket = leftBracket;

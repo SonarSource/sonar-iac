@@ -35,7 +35,7 @@ class ForVariableBlockImplTest {
   BicepParser parser = BicepParser.create(BicepLexicalGrammar.FOR_VARIABLE_BLOCK);
 
   @Test
-  void shouldParseFunctionCall() {
+  void shouldParseForVariableBlock() {
     Assertions.assertThat(BicepLexicalGrammar.FOR_VARIABLE_BLOCK)
       .matches("identifier123")
       .matches("(itemIdentifier123,indexIdentifier123)")
@@ -51,7 +51,7 @@ class ForVariableBlockImplTest {
   }
 
   @Test
-  void shouldParseForExpressionWithDetailedAssertions() {
+  void shouldParseForVariableBlockWithDetailedAssertions() {
     String code = code("(itemIdentifier123,indexIdentifier123)");
 
     ForVariableBlock tree = (ForVariableBlock) parser.parse(code, null);

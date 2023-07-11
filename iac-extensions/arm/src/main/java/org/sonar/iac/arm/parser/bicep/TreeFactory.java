@@ -141,9 +141,11 @@ public class TreeFactory {
     return separatedList(firstArgument, additionalArguments);
   }
 
-  public ForExpression forExpression(SyntaxToken rightBracket, SyntaxToken forKeyword, ForVariableBlock forVariableBlock,
-    SyntaxToken inKeyword, Expression expression, SyntaxToken colon, Expression forBody, SyntaxToken leftBracket) {
-    return new ForExpressionImpl(rightBracket, forKeyword, forVariableBlock, inKeyword, expression, colon, forBody, leftBracket);
+  // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
+  @SuppressWarnings("java:S107")
+  public ForExpression forExpression(SyntaxToken leftBracket, SyntaxToken forKeyword, ForVariableBlock forVariableBlock,
+    SyntaxToken inKeyword, Expression expression, SyntaxToken colon, Expression forBody, SyntaxToken rightBracket) {
+    return new ForExpressionImpl(leftBracket, forKeyword, forVariableBlock, inKeyword, expression, colon, forBody, rightBracket);
   }
 
   public ForVariableBlock forVariableBlock(Identifier itemIdentifier) {

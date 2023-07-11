@@ -40,11 +40,12 @@ class ForExpressionImplTest {
 
   // TODO: SONARIAC-941 Add support for ifCondition
   @Test
-  void shouldParseFunctionCall() {
+  void shouldParseForExpression() {
     Assertions.assertThat(BicepLexicalGrammar.FOR_EXPRESSION)
       .matches("[for identifier123 in headerExpression:bodyExpression]")
       .matches("[ for identifier123 in headerExpression : bodyExpression ]")
-      .matches("[for (itemIdentifier123,indexIdentifier123) in headerExpression:bodyExpression]")
+      .matches("[for (itemIdentifier123 , indexIdentifier123) in headerExpression : bodyExpression]")
+      .matches("[for(itemIdentifier123,indexIdentifier123) in headerExpression:bodyExpression]")
 
       .notMatches("[for (itemIdentifier123) in headerExpression:bodyExpression]")
       .notMatches("[for (itemIdentifier123,) in headerExpression:bodyExpression]")
