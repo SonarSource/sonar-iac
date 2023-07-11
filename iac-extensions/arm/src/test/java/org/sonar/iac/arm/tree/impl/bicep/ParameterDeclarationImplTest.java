@@ -20,8 +20,8 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
@@ -36,7 +36,7 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseParameterDeclaration() {
-    Assertions.assertThat(BicepLexicalGrammar.PARAMETER_DECLARATION)
+    ArmAssertions.assertThat(BicepLexicalGrammar.PARAMETER_DECLARATION)
       .matches("parameter myParam int")
       .matches("parameter myParam int = 123")
       .matches("parameter myParam int=123")

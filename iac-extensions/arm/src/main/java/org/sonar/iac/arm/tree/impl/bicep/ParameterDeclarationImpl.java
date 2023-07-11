@@ -35,7 +35,7 @@ import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
 
@@ -52,7 +52,10 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @Nullable
   private final Expression defaultValue;
 
-  public ParameterDeclarationImpl(SyntaxToken keyword, Identifier name, @Nullable StringLiteral typeExpression, @Nullable SyntaxToken equ, @Nullable Expression defaultValue) {
+  public ParameterDeclarationImpl(SyntaxToken keyword, Identifier name,
+    @Nullable StringLiteral typeExpression,
+    @Nullable SyntaxToken equ,
+    @Nullable Expression defaultValue) {
     this.keyword = keyword;
     this.name = name;
     this.typeExpression = typeExpression;
@@ -62,7 +65,11 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     this.typeInterp = null;
   }
 
-  public ParameterDeclarationImpl(SyntaxToken keyword, Identifier name, @Nullable SyntaxToken resource, @Nullable InterpolatedString typeInterp, @Nullable SyntaxToken equ,
+  public ParameterDeclarationImpl(SyntaxToken keyword,
+    Identifier name,
+    @Nullable SyntaxToken resource,
+    @Nullable InterpolatedString typeInterp,
+    @Nullable SyntaxToken equ,
     @Nullable Expression defaultValue) {
     this.keyword = keyword;
     this.name = name;
