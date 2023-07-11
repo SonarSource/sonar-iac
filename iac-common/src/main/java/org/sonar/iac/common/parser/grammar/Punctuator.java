@@ -57,7 +57,8 @@ public enum Punctuator implements GrammarRuleKey {
   TILDE_RCURLY("~}"),
   DOLLAR("$"),
   APOSTROPHE("'"),
-  TRIPLE_APOSTROPHE("'''");
+  TRIPLE_APOSTROPHE("'''"),
+  AT("@");
 
   private final String value;
 
