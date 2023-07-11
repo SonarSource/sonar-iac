@@ -42,7 +42,7 @@ public class BicepLexicalConstant {
   public static final String NULL = "null";
   public static final String QUOTED_STRING_LITERAL_NO_QUOTES = "(?:(?!'|\\$\\{)[\\s\\S])*+";
   public static final String IDENTIFIER_LITERAL = "[a-zA-Z_][a-zA-Z_0-9]*+";
-  public static final String AMBIENT_TYPE = "(?:array|bool|int|object|string)(?=[\\s\\),])";
+  public static final String AMBIENT_TYPE = "(?:array|bool|int|object|string)(?=\\s|\\)|,|\\z)";
 
   private BicepLexicalConstant() {
   }
