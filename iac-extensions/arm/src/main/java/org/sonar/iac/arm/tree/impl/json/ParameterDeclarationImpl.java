@@ -33,6 +33,7 @@ import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
@@ -102,6 +103,13 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     return null;
   }
 
+  @CheckForNull
+  @Override
+  public TextTree resourceType() {
+    // In JSON ARM, this value cannot be set
+    return null;
+  }
+
   @Override
   @CheckForNull
   public Expression defaultValue() {
@@ -141,10 +149,5 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @CheckForNull
   public NumericLiteral maxLength() {
     return maxLength;
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.PARAMETER_DECLARATION;
   }
 }

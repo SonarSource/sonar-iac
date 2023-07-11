@@ -28,6 +28,7 @@ import org.sonar.iac.arm.tree.api.NullLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
@@ -84,8 +85,10 @@ public class BicepGrammar {
   public Statement STATEMENT() {
     return b.<Statement>nonterminal(BicepLexicalGrammar.STATEMENT).is(
       b.firstOf(
+        RESOURCE_DECLARATION(),
         TYPE_DECLARATION(),
         TARGET_SCOPE_DECLARATION(),
+        PARAMETER_DECLARATION(),
         FUNCTION_DECLARATION(),
         METADATA_DECLARATION(),
         VARIABLE_DECLARATION(),
@@ -127,6 +130,26 @@ public class BicepGrammar {
         b.token(BicepKeyword.TARGET_SCOPE),
         b.token(Punctuator.EQU),
         EXPRESSION()));
+  }
+
+  // TODO SONARIAC-962 Put in place decorator
+  public ParameterDeclaration PARAMETER_DECLARATION() {
+    return b.<ParameterDeclaration>nonterminal(BicepLexicalGrammar.PARAMETER_DECLARATION).is(
+      b.firstOf(
+        f.parameterDeclaration(
+          b.token(BicepKeyword.PARAMETER),
+          IDENTIFIER(),
+          b.token(BicepKeyword.RESOURCE),
+          INTERPOLATED_STRING(),
+          b.optional(b.token(Punctuator.EQU)),
+          b.optional(EXPRESSION())),
+        f.parameterDeclaration(
+          b.token(BicepKeyword.PARAMETER),
+          IDENTIFIER(),
+          // TODO SONARIAC-963 Put in place typeExpresion
+          STRING_LITERAL(),
+          b.optional(b.token(Punctuator.EQU)),
+          b.optional(EXPRESSION()))));
   }
 
   public FunctionDeclaration FUNCTION_DECLARATION() {
