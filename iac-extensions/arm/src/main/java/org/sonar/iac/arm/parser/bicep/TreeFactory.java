@@ -42,6 +42,7 @@ import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -60,6 +61,7 @@ import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ModuleDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
@@ -221,6 +223,10 @@ public class TreeFactory {
 
   public ImportAsClause importAsClause(SyntaxToken keyword, Identifier alias) {
     return new ImportAsClause(keyword, alias);
+  }
+
+  public ModuleDeclaration moduleDeclaration(SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equals, Expression value) {
+    return new ModuleDeclarationImpl(keyword, name, type, equals, value);
   }
 
   public <T, U> Tuple<T, U> newTuple(T first, U second) {
