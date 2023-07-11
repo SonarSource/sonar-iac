@@ -35,6 +35,7 @@ import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
@@ -416,5 +417,12 @@ public class BicepGrammar {
   public StringLiteral ALPHA_NUMERAL_STRING() {
     return b.<StringLiteral>nonterminal().is(
       f.stringLiteral(b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
+  }
+
+  public Decorator DECORATOR() {
+    return b.<Decorator>nonterminal(BicepLexicalGrammar.DECORATOR).is(
+      f.decorator(
+        b.token(Punctuator.AT),
+        FUNCTION_CALL()));
   }
 }

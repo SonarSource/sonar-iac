@@ -21,6 +21,7 @@ package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
@@ -85,7 +86,8 @@ public interface ArmTree extends Tree {
     PARENTHESIZED_EXPRESSION(ParenthesizedExpression.class),
     AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class),
     UNARY_OPERATOR(UnaryOperator.class),
-    MULTILINE_STRING(MultilineString.class);
+    MULTILINE_STRING(MultilineString.class),
+    DECORATOR(Decorator.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 
