@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -35,7 +36,7 @@ class PropertyImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseProperty() {
-    Assertions.assertThat(BicepLexicalGrammar.PROPERTY)
+    ArmAssertions.assertThat(BicepLexicalGrammar.PROPERTY)
       .matches("key:value")
       .matches("'key':value")
       .matches("'a${123}b${456}c':value")
@@ -73,6 +74,7 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(tree.children()).hasSize(3);
   }
 
+  @Test
   void shouldParsePropertyInterpString() {
     String code = code("'key':value");
 
@@ -80,9 +82,8 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(((StringLiteral) tree.value()).value()).isEqualTo("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
-    assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
+    assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.STRING_COMPLETE);
     InterpolatedString key = (InterpolatedString) tree.children().get(0);
-    assertThat(key.value()).isEqualTo("key");
 
     SyntaxToken colon = (SyntaxToken) tree.children().get(1);
     assertThat(colon.children()).isEmpty();

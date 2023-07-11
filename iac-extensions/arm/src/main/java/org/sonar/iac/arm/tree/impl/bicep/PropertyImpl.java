@@ -21,9 +21,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.TextTree;

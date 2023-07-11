@@ -144,15 +144,15 @@ public class TreeFactory {
     return new InterpolatedStringImpl(stringLeftPiece, stringMiddlePieces.or(List.of()), stringRightPiece);
   }
 
-  public InterpolatedStringLeftPiece interpolatedStringLeftPiece(SyntaxToken leftQuote, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+  public InterpolatedStringLeftPiece interpolatedStringLeftPiece(SyntaxToken leftQuote, SyntaxToken stringChars, SyntaxToken dollarLcurly) {
     return new InterpolatedStringLeftPieceImpl(leftQuote, stringChars, dollarLcurly);
   }
 
-  public InterpolatedStringMiddlePiece interpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+  public InterpolatedStringMiddlePiece interpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, SyntaxToken stringChars, SyntaxToken dollarLcurly) {
     return new InterpolatedStringMiddlePieceImpl(expression, rCurly, stringChars, dollarLcurly);
   }
 
-  public InterpolatedStringRightPiece interpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken rightQuote) {
+  public InterpolatedStringRightPiece interpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, SyntaxToken stringChars, SyntaxToken rightQuote) {
     return new InterpolatedStringRightPieceImpl(expression, rCurly, stringChars, rightQuote);
   }
 

@@ -22,12 +22,12 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 
 class InterpolatedStringImplTest extends BicepTreeModelTest {
   @Test
@@ -40,28 +40,27 @@ class InterpolatedStringImplTest extends BicepTreeModelTest {
       .matches("'a${123}b${456}c'")
       .matches("'a${123}${456}c'")
 
-      .notMatches("123");
+      .notMatches("123")
+      .notMatches("${123}");
   }
 
   @Test
   void shouldBuildTreeCorrectly() {
-    ArmTree tree = createParser(BicepLexicalGrammar.INTERPOLATED_STRING)
-      .parse("'a${123}b${456}c'");
+    InterpolatedString tree = parse("'a${123}${456}c'", BicepLexicalGrammar.INTERPOLATED_STRING);
 
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(tree).isInstanceOf(InterpolatedString.class);
-    softly.assertThat(tree.children()).hasSize(11);
-    softly.assertThat(tree.children().get(0)).isInstanceOf(SyntaxToken.class);
-    softly.assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
-    softly.assertThat(tree.children().get(2)).isInstanceOf(SyntaxToken.class);
-    softly.assertThat(tree.children().get(3)).isInstanceOf(Expression.class);
-    softly.assertThat(tree.children().get(4)).isInstanceOf(SyntaxToken.class);
-    softly.assertThat(tree.children().get(5)).isInstanceOf(SyntaxToken.class);
-    softly.assertThat(tree.children().get(6)).isInstanceOf(SyntaxToken.class);
-    softly.assertThat(tree.children().get(7)).isInstanceOf(Expression.class);
-    softly.assertThat(tree.children().get(8)).isInstanceOf(SyntaxToken.class);
-    softly.assertThat(tree.children().get(9)).isInstanceOf(SyntaxToken.class);
-    softly.assertThat(tree.children().get(10)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.value()).isEqualTo("ac");
+    ArmAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 16);
+    softly.assertThat(tree.children()).hasSize(3);
+    softly.assertThat(tree.children().get(0)).isInstanceOf(InterpolatedStringLeftPiece.class);
+    softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(0)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("No kind for InterpolatedStringLeftPieceImpl");
+    softly.assertThat(tree.children().get(1)).isInstanceOf(InterpolatedStringMiddlePiece.class);
+    softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(1)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("No kind for InterpolatedStringMiddlePieceImpl");
+    softly.assertThat(tree.children().get(2)).isInstanceOf(InterpolatedStringRightPiece.class);
+    softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(2)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("No kind for InterpolatedStringRightPieceImpl");
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
     softly.assertAll();
   }
