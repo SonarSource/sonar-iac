@@ -19,10 +19,11 @@
  */
 package org.sonar.iac.arm.tree.api.bicep.interpstring;
 
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import java.util.List;
 
-public interface InterpolatedStringLeftPiece {
+public interface InterpolatedStringLeftPiece extends TextTree {
   List<Tree> children();
 }

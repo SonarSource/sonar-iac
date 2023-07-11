@@ -19,33 +19,32 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep.interpstring;
 
-import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
-
-public class InterpolatedStringLeftPieceImpl implements InterpolatedStringLeftPiece {
+public class InterpolatedStringLeftPieceImpl extends AbstractInterpolatedString implements InterpolatedStringLeftPiece {
   private final SyntaxToken leftQuote;
-  @Nullable
-  private final SyntaxToken text;
   private final SyntaxToken dollarLcurly;
 
-  public InterpolatedStringLeftPieceImpl(SyntaxToken leftQuote, Optional<SyntaxToken> text, SyntaxToken dollarLcurly) {
+  public InterpolatedStringLeftPieceImpl(SyntaxToken leftQuote, SyntaxToken text, SyntaxToken dollarLcurly) {
+    super(text);
     this.leftQuote = leftQuote;
-    this.text = text.orNull();
     this.dollarLcurly = dollarLcurly;
   }
 
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(leftQuote);
-    addChildrenIfPresent(children, text);
+    children.add(text);
     children.add(dollarLcurly);
     return children;
+  }
+
+  @Override
+  public Kind getKind() {
+    throw new UnsupportedOperationException("No kind for InterpolatedStringLeftPieceImpl");
   }
 }

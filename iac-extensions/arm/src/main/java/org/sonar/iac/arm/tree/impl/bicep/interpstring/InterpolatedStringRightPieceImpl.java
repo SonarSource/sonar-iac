@@ -19,28 +19,22 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep.interpstring;
 
-import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
-
-public class InterpolatedStringRightPieceImpl implements InterpolatedStringRightPiece {
+public class InterpolatedStringRightPieceImpl extends AbstractInterpolatedString implements InterpolatedStringRightPiece {
   private final Expression expression;
   private final SyntaxToken rCurly;
-  @Nullable
-  private final SyntaxToken text;
   private final SyntaxToken rightQuote;
 
-  public InterpolatedStringRightPieceImpl(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> text, SyntaxToken rightQuote) {
+  public InterpolatedStringRightPieceImpl(Expression expression, SyntaxToken rCurly, SyntaxToken text, SyntaxToken rightQuote) {
+    super(text);
     this.expression = expression;
     this.rCurly = rCurly;
-    this.text = text.orNull();
     this.rightQuote = rightQuote;
   }
 
@@ -49,8 +43,13 @@ public class InterpolatedStringRightPieceImpl implements InterpolatedStringRight
     List<Tree> children = new ArrayList<>();
     children.add(expression);
     children.add(rCurly);
-    addChildrenIfPresent(children, text);
+    children.add(text);
     children.add(rightQuote);
     return children;
+  }
+
+  @Override
+  public Kind getKind() {
+    throw new UnsupportedOperationException("No kind for InterpolatedStringRightPieceImpl");
   }
 }

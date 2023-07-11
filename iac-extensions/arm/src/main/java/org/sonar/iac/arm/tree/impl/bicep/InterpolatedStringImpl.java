@@ -24,6 +24,7 @@ import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import java.util.ArrayList;
@@ -46,14 +47,23 @@ public class InterpolatedStringImpl extends AbstractArmTreeImpl implements Inter
   @Override
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
-    result.addAll(stringLeftPiece.children());
-    result.addAll(stringMiddlePieces.stream().flatMap(it -> it.children().stream()).collect(Collectors.toList()));
-    result.addAll(stringRightPiece.children());
+    result.add(stringLeftPiece);
+    result.addAll(stringMiddlePieces);
+    result.add(stringRightPiece);
     return result;
   }
 
   @Override
   public Kind getKind() {
     return Kind.INTERPOLATED_STRING;
+  }
+
+  @Override
+  public String value() {
+    return stringLeftPiece.value() +
+      stringMiddlePieces.stream()
+        .map(TextTree::value)
+        .collect(Collectors.joining())
+      + stringRightPiece.value();
   }
 }

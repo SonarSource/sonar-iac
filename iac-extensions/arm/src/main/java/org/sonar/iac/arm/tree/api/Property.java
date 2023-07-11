@@ -20,9 +20,14 @@
 package org.sonar.iac.arm.tree.api;
 
 import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.TextTree;
 
 public interface Property extends PropertyTree, ArmTree {
-  Identifier key();
+  TextTree key();
 
   Expression value();
+
+  default Kind getKind() {
+    return Kind.PROPERTY;
+  }
 }

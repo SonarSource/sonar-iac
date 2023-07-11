@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.impl.bicep.interpstring;
 
-import java.util.List;
-import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.TextTree;
 
-public interface ResourceDeclaration extends Statement, HasProperties {
+public abstract class AbstractInterpolatedString extends AbstractArmTreeImpl implements TextTree {
+  protected final SyntaxToken text;
 
-  Identifier name();
+  protected AbstractInterpolatedString(SyntaxToken text) {
+    this.text = text;
+  }
 
-  StringLiteral version();
-
-  StringLiteral type();
-
-  List<Property> properties();
-
-  default boolean existing() {
-    return false;
+  @Override
+  public String value() {
+    return text.value();
   }
 }

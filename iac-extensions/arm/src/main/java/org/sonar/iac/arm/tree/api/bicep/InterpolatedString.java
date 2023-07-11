@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.common.api.tree.TextTree;
 
-public interface InterpolatedString extends Expression {
+public interface InterpolatedString extends Expression, TextTree {
 }

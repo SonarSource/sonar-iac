@@ -21,19 +21,19 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class PropertyImpl extends AbstractArmTreeImpl implements Property {
 
-  private final Identifier key;
+  private final TextTree key;
   private final SyntaxToken colon;
   private final Expression value;
 
-  public PropertyImpl(Identifier key, SyntaxToken colon, Expression value) {
+  public PropertyImpl(TextTree key, SyntaxToken colon, Expression value) {
     this.key = key;
     this.colon = colon;
     this.value = value;
@@ -45,12 +45,7 @@ public class PropertyImpl extends AbstractArmTreeImpl implements Property {
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.PROPERTY;
-  }
-
-  @Override
-  public Identifier key() {
+  public TextTree key() {
     return key;
   }
 

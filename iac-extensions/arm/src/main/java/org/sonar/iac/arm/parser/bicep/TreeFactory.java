@@ -90,6 +90,7 @@ import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiec
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePieceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPieceImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 
 import static java.util.Collections.emptyList;
@@ -150,15 +151,15 @@ public class TreeFactory {
     return new InterpolatedStringImpl(stringLeftPiece, stringMiddlePieces.or(List.of()), stringRightPiece);
   }
 
-  public InterpolatedStringLeftPiece interpolatedStringLeftPiece(SyntaxToken leftQuote, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+  public InterpolatedStringLeftPiece interpolatedStringLeftPiece(SyntaxToken leftQuote, SyntaxToken stringChars, SyntaxToken dollarLcurly) {
     return new InterpolatedStringLeftPieceImpl(leftQuote, stringChars, dollarLcurly);
   }
 
-  public InterpolatedStringMiddlePiece interpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+  public InterpolatedStringMiddlePiece interpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, SyntaxToken stringChars, SyntaxToken dollarLcurly) {
     return new InterpolatedStringMiddlePieceImpl(expression, rCurly, stringChars, dollarLcurly);
   }
 
-  public InterpolatedStringRightPiece interpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken rightQuote) {
+  public InterpolatedStringRightPiece interpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, SyntaxToken stringChars, SyntaxToken rightQuote) {
     return new InterpolatedStringRightPieceImpl(expression, rCurly, stringChars, rightQuote);
   }
 
@@ -215,7 +216,7 @@ public class TreeFactory {
     return new IdentifierImpl(token);
   }
 
-  public Property objectProperty(Identifier key, SyntaxToken colon, Expression value) {
+  public Property objectProperty(TextTree key, SyntaxToken colon, Expression value) {
     return new PropertyImpl(key, colon, value);
   }
 
