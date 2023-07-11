@@ -44,6 +44,7 @@ class IfExpressionImplTest extends BicepTreeModelTest {
       .matches("if ( expression ) { key : value }")
 
       .notMatches("if{}")
+      .notMatches("if(expression)")
       .notMatches("if{key:value}");
   }
 
@@ -55,9 +56,9 @@ class IfExpressionImplTest extends BicepTreeModelTest {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.IF_EXPRESSION)).isTrue();
 
-    softly.assertThat(tree.condition().is(ArmTree.Kind.PARENTHESIZED_EXPRESSION)).isTrue();
-    softly.assertThat(tree.condition().expression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    softly.assertThat(((StringLiteral) tree.condition().expression()).value()).isEqualTo("expression");
+    softly.assertThat(((ArmTree) tree.children().get(1)).is(ArmTree.Kind.PARENTHESIZED_EXPRESSION)).isTrue();
+    softly.assertThat(tree.conditionValue().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    softly.assertThat(((StringLiteral) tree.conditionValue()).value()).isEqualTo("expression");
 
     softly.assertThat(tree.object().is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
 

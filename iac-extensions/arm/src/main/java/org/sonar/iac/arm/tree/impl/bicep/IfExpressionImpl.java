@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
@@ -50,8 +51,8 @@ public class IfExpressionImpl extends AbstractArmTreeImpl implements IfExpressio
   }
 
   @Override
-  public ParenthesizedExpression condition() {
-    return condition;
+  public Expression conditionValue() {
+    return condition.expression();
   }
 
   @Override

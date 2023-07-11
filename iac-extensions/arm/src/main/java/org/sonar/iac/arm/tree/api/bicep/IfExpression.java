@@ -24,7 +24,7 @@ import org.sonar.iac.arm.tree.api.ObjectExpression;
 
 public interface IfExpression extends Expression {
 
-  ParenthesizedExpression condition();
+  Expression conditionValue();
 
   ObjectExpression object();
 }
