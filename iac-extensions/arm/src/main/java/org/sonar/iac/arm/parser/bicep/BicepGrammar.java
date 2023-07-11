@@ -46,6 +46,9 @@ import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
+import org.sonar.iac.arm.tree.api.bicep.ObjectType;
+import org.sonar.iac.arm.tree.api.bicep.ObjectTypeAdditionalPropertiesMatcher;
+import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -96,7 +99,8 @@ public class BicepGrammar {
         METADATA_DECLARATION(),
         VARIABLE_DECLARATION(),
         IMPORT_DECLARATION(),
-        MODULE_DECLARATION()));
+        MODULE_DECLARATION(),
+        RESOURCE_DECLARATION()));
   }
 
   public TypeDeclaration TYPE_DECLARATION() {
@@ -186,12 +190,14 @@ public class BicepGrammar {
   public ResourceDeclaration RESOURCE_DECLARATION() {
     return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
       f.resourceDeclaration(
+        // TODO SONARIAC-972 ARM Bicep: add decorator to resourceDecl
         b.token(BicepKeyword.RESOURCE),
         IDENTIFIER(),
         INTERPOLATED_STRING(),
         b.optional(b.token(BicepKeyword.EXISTING)),
         b.token(Punctuator.EQU),
         b.firstOf(
+          // TODO SONARIAC-974 ARM Bicep add forExpression to resourceDecl
           OBJECT_EXPRESSION(),
           IF_EXPRESSION()),
         b.token(BicepLexicalGrammar.EOL)));
@@ -332,6 +338,40 @@ public class BicepGrammar {
         IDENTIFIER(),
         // TODO: replace with PRIMARY_TYPE_EXPRESSION (after SONARIAC-871)
         AMBIENT_TYPE_REFERENCE()));
+  }
+
+  // objectType -> "{" (NL+ ((objectTypeProperty | objectTypeAdditionalPropertiesMatcher) NL+ )* )? "}"
+  public ObjectType OBJECT_TYPE() {
+    return b.<ObjectType>nonterminal(BicepLexicalGrammar.OBJECT_TYPE).is(
+      f.objectType(
+        b.token(Punctuator.LCURLYBRACE),
+        b.zeroOrMore(
+          b.firstOf(
+            OBJECT_TYPE_ADDITIONAL_PROPERTIES_MATCHER(),
+            OBJECT_TYPE_PROPERTY())),
+        b.token(Punctuator.RCURLYBRACE)));
+  }
+
+  public ObjectTypeProperty OBJECT_TYPE_PROPERTY() {
+    return b.<ObjectTypeProperty>nonterminal(BicepLexicalGrammar.OBJECT_TYPE_PROPERTY).is(
+      // TODO SONARIAC-971 Add decorator to objectTypeProperty to objectTypeAdditionalPropertiesMatcher
+      f.objectTypeProperty(
+        b.firstOf(
+          MULTILINE_STRING(),
+          IDENTIFIER(),
+          STRING_COMPLETE()),
+        b.token(Punctuator.COLON),
+        // TODO Replace by typeExpression in SONARIAC-969 ARM Bicep support: create typeExpression
+        STRING_LITERAL()));
+  }
+
+  public ObjectTypeAdditionalPropertiesMatcher OBJECT_TYPE_ADDITIONAL_PROPERTIES_MATCHER() {
+    return b.<ObjectTypeAdditionalPropertiesMatcher>nonterminal(BicepLexicalGrammar.OBJECT_TYPE_ADDITIONAL_PROPERTIES_MATCHER).is(
+      // TODO SONARIAC-971 Add decorator to objectTypeProperty to objectTypeAdditionalPropertiesMatcher
+      f.objectTypeAdditionalPropertiesMatcher(
+        b.token(Punctuator.STAR_COLON),
+        // TODO Replace by typeExpression in SONARIAC-969 ARM Bicep support: create typeExpression
+        STRING_LITERAL()));
   }
 
   public AmbientTypeReference AMBIENT_TYPE_REFERENCE() {

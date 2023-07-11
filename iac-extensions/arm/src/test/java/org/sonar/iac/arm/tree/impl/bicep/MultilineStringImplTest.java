@@ -36,7 +36,7 @@ class MultilineStringImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseMultilineString() {
     assertThat(BicepLexicalGrammar.MULTILINE_STRING)
-      // .matches("''''''")
+      .matches("''''''")
       .matches("'''python main.py'''")
       .matches("'''python main.py --abc ${{input.abc}} --def ${xyz}'''")
       .matches(code("'''",
