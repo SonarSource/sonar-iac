@@ -165,7 +165,7 @@ public class BicepGrammar {
     return b.<ImportDeclaration>nonterminal(BicepLexicalGrammar.IMPORT_DECLARATION).is(
       f.importDeclaration(
         b.token(BicepKeyword.IMPORT),
-        INTERPOLATED_STRING_TYPE(),
+        INTERPOLATED_STRING(),
         b.optional(IMPORT_WITH_CLAUSE()),
         b.optional(IMPORT_AS_CLAUSE())));
   }
