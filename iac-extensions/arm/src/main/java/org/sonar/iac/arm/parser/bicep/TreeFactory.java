@@ -55,7 +55,6 @@ import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
-import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForExpressionImpl;
