@@ -28,9 +28,9 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
-import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
@@ -55,7 +55,7 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.is(ArmTree.Kind.TARGET_SCOPE_DECLARATION)).isTrue();
     assertThat(tree.scope()).isEqualTo(File.Scope.UNKNOWN);
     assertThat(((StringLiteral) tree.value()).value()).isEqualTo("str");
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("targetScope", "=", "str");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("targetScope", "=", "str");
   }
 
   @ParameterizedTest

@@ -17,40 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep.interpstring;
+package org.sonar.iac.arm.tree.impl.bicep;
 
-import com.sonar.sslr.api.typed.Optional;
-import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.bicep.IfExpression;
+import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
+public class IfExpressionImpl extends AbstractArmTreeImpl implements IfExpression {
 
-public class InterpolatedStringRightPieceImpl implements InterpolatedStringRightPiece {
-  private final Expression expression;
-  private final SyntaxToken rCurly;
-  @Nullable
-  private final SyntaxToken text;
-  private final SyntaxToken rightQuote;
+  private final SyntaxToken keyword;
+  private final ParenthesizedExpression condition;
+  private final ObjectExpression object;
 
-  public InterpolatedStringRightPieceImpl(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> text, SyntaxToken rightQuote) {
-    this.expression = expression;
-    this.rCurly = rCurly;
-    this.text = text.orNull();
-    this.rightQuote = rightQuote;
+  public IfExpressionImpl(SyntaxToken keyword, ParenthesizedExpression condition, ObjectExpression object) {
+    this.keyword = keyword;
+    this.condition = condition;
+    this.object = object;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    children.add(expression);
-    children.add(rCurly);
-    addChildrenIfPresent(children, text);
-    children.add(rightQuote);
-    return children;
+    return List.of(keyword, condition, object);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.IF_EXPRESSION;
+  }
+
+  @Override
+  public Expression conditionValue() {
+    return condition.expression();
+  }
+
+  @Override
+  public ObjectExpression object() {
+    return object;
   }
 }
