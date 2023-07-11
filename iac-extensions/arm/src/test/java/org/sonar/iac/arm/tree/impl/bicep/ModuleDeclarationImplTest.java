@@ -21,8 +21,8 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
@@ -32,7 +32,7 @@ import org.sonar.iac.common.testing.IacTestUtils;
 class ModuleDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseValidDeclarations() {
-    Assertions.assertThat(BicepLexicalGrammar.MODULE_DECLARATION)
+    ArmAssertions.assertThat(BicepLexicalGrammar.MODULE_DECLARATION)
       .matches("module foo 'path-to-file' = {}")
       .matches("module foo 'path-to-file' = [for d in deployments: expression]")
       .matches("module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
