@@ -30,7 +30,6 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
