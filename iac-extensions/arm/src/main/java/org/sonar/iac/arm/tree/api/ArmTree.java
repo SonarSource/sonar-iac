@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -56,6 +57,7 @@ public interface ArmTree extends Tree {
     RESOURCE_GROUP_DECLARATION(ResourceGroupDeclarationImpl.class),
     RESOURCE_DECLARATION(ResourceDeclaration.class),
     VARIABLE_DECLARATION(VariableDeclaration.class),
+    MODULE_DECLARATION(ModuleDeclaration.class),
     IDENTIFIER(Identifier.class),
     PROPERTY(PropertyImpl.class),
     BOOLEAN_LITERAL(BooleanLiteral.class),

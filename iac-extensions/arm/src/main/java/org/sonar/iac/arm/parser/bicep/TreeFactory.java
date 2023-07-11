@@ -43,6 +43,7 @@ import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -63,6 +64,7 @@ import org.sonar.iac.arm.tree.impl.bicep.IfExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ModuleDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
@@ -125,6 +127,10 @@ public class TreeFactory {
 
   public VariableDeclaration variableDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
     return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
+  }
+
+  public ModuleDeclaration moduleDeclaration(SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equals, Expression value) {
+    return new ModuleDeclarationImpl(keyword, name, type, equals, value);
   }
 
   public StringComplete stringComplete(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {

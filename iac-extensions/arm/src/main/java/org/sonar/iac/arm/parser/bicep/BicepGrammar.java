@@ -42,6 +42,7 @@ import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -85,7 +86,8 @@ public class BicepGrammar {
         FUNCTION_DECLARATION(),
         METADATA_DECLARATION(),
         VARIABLE_DECLARATION(),
-        IMPORT_DECLARATION()));
+        IMPORT_DECLARATION(),
+        MODULE_DECLARATION()));
   }
 
   public TypeDeclaration TYPE_DECLARATION() {
@@ -183,6 +185,19 @@ public class BicepGrammar {
     return b.<ImportAsClause>nonterminal(BicepLexicalGrammar.IMPORT_AS_CLAUSE).is(f.importAsClause(
       b.token(BicepKeyword.AS),
       IDENTIFIER()));
+  }
+
+  public ModuleDeclaration MODULE_DECLARATION() {
+    return b.<ModuleDeclaration>nonterminal(BicepLexicalGrammar.MODULE_DECLARATION).is(
+      f.moduleDeclaration(
+        b.token(BicepKeyword.MODULE),
+        IDENTIFIER(),
+        INTERPOLATED_STRING(),
+        b.token(Punctuator.EQU),
+        b.firstOf(
+          IF_EXPRESSION(),
+          OBJECT_EXPRESSION(),
+          FOR_EXPRESSION())));
   }
 
   // object -> "{" ( NL+ ( property NL+ )* )? "}"
