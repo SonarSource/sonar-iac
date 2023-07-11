@@ -70,6 +70,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
   INTERPOLATED_STRING,
+  STRING_COMPLETE,
   QUOTED_STRING_LITERAL,
   IDENTIFIER_LITERAL,
 
@@ -107,7 +108,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   private static void punctuators(LexerlessGrammarBuilder b) {
     Stream.of(
       Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE, Punctuator.COMMA,
-      Punctuator.LPARENTHESIS, Punctuator.RPARENTHESIS, Punctuator.LBRACKET, Punctuator.RBRACKET)
+      Punctuator.LPARENTHESIS, Punctuator.RPARENTHESIS, Punctuator.LBRACKET, Punctuator.RBRACKET, Punctuator.DOLLAR_LCURLY)
       .forEach(p -> b.rule(p).is(SPACING, p.getValue()).skip());
   }
 

@@ -19,7 +19,11 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.common.api.tree.TextTree;
 
-public interface InterpolatedString extends Expression {
+public interface StringComplete extends InterpolatedString, TextTree {
+  @Override
+  default Kind getKind() {
+    return Kind.STRING_COMPLETE;
+  }
 }

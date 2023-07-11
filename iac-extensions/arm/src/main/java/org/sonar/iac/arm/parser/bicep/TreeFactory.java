@@ -40,9 +40,13 @@ import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForExpressionImpl;
@@ -59,12 +63,16 @@ import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPieceImpl;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePieceImpl;
+import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPieceImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 
@@ -114,6 +122,28 @@ public class TreeFactory {
     return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
+  public StringComplete stringComplete(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
+    return new StringCompleteImpl(openingApostrophe, value, closingApostrophe);
+  }
+
+  public InterpolatedString interpolatedString(InterpolatedStringLeftPiece stringLeftPiece,
+    Optional<List<InterpolatedStringMiddlePiece>> stringMiddlePieces,
+    InterpolatedStringRightPiece stringRightPiece) {
+    return new InterpolatedStringImpl(stringLeftPiece, stringMiddlePieces.or(List.of()), stringRightPiece);
+  }
+
+  public InterpolatedStringLeftPiece interpolatedStringLeftPiece(SyntaxToken leftQuote, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+    return new InterpolatedStringLeftPieceImpl(leftQuote, stringChars, dollarLcurly);
+  }
+
+  public InterpolatedStringMiddlePiece interpolatedStringMiddlePiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken dollarLcurly) {
+    return new InterpolatedStringMiddlePieceImpl(expression, rCurly, stringChars, dollarLcurly);
+  }
+
+  public InterpolatedStringRightPiece interpolatedStringRightPiece(Expression expression, SyntaxToken rCurly, Optional<SyntaxToken> stringChars, SyntaxToken rightQuote) {
+    return new InterpolatedStringRightPieceImpl(expression, rCurly, stringChars, rightQuote);
+  }
+
   public StringLiteral stringLiteral(SyntaxToken token) {
     return new StringLiteralImpl(token);
   }
@@ -159,10 +189,6 @@ public class TreeFactory {
 
   public Identifier identifier(SyntaxToken token) {
     return new IdentifierImpl(token);
-  }
-
-  public InterpolatedString interpolatedString(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
-    return new InterpolatedStringImpl(openingApostrophe, value, closingApostrophe);
   }
 
   public Property objectProperty(Identifier key, SyntaxToken colon, Expression value) {

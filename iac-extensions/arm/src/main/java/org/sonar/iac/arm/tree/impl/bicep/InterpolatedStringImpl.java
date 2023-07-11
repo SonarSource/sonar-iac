@@ -19,35 +19,41 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.List;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class InterpolatedStringImpl extends AbstractArmTreeImpl implements InterpolatedString {
-  private final SyntaxToken openApostrophe;
-  private final SyntaxToken value;
-  private final SyntaxToken closeApostrophe;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-  public InterpolatedStringImpl(SyntaxToken openApostrophe, SyntaxToken value, SyntaxToken closeApostrophe) {
-    this.openApostrophe = openApostrophe;
-    this.value = value;
-    this.closeApostrophe = closeApostrophe;
+public class InterpolatedStringImpl extends AbstractArmTreeImpl implements InterpolatedString {
+  private final InterpolatedStringLeftPiece stringLeftPiece;
+  private final List<InterpolatedStringMiddlePiece> stringMiddlePieces;
+  private final InterpolatedStringRightPiece stringRightPiece;
+
+  public InterpolatedStringImpl(InterpolatedStringLeftPiece stringLeftPiece,
+    List<InterpolatedStringMiddlePiece> stringMiddlePieces,
+    InterpolatedStringRightPiece stringRightPiece) {
+    this.stringLeftPiece = stringLeftPiece;
+    this.stringMiddlePieces = stringMiddlePieces;
+    this.stringRightPiece = stringRightPiece;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(openApostrophe, value, closeApostrophe);
+    List<Tree> result = new ArrayList<>();
+    result.addAll(stringLeftPiece.children());
+    result.addAll(stringMiddlePieces.stream().flatMap(it -> it.children().stream()).collect(Collectors.toList()));
+    result.addAll(stringRightPiece.children());
+    return result;
   }
 
   @Override
   public Kind getKind() {
     return Kind.INTERPOLATED_STRING;
-  }
-
-  @Override
-  public String value() {
-    return value.value();
   }
 }

@@ -34,7 +34,7 @@ import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +62,7 @@ class ResourceDeclarationImplTest {
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("resource");
     assertThat(((Identifier) tree.children().get(1)).value()).isEqualTo("myName");
-    assertThat(((InterpolatedString) tree.children().get(2)).value()).isEqualTo("type@version");
+    assertThat(((StringComplete) tree.children().get(2)).value()).isEqualTo("type@version");
     assertThat(((SyntaxToken) tree.children().get(3)).value()).isEqualTo("=");
     assertThat(((ObjectExpression) tree.children().get(4)).properties()).hasSize(1);
     assertThat(((SyntaxToken) tree.children().get(5)).value()).isBlank();

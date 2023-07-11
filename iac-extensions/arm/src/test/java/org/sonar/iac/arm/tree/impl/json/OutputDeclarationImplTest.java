@@ -29,6 +29,7 @@ import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -71,7 +72,7 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(0).getKind()).isEqualTo(OUTPUT_DECLARATION);
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
+    assertThat(((TextTree) outputDeclaration.type()).value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition()).hasValue("my condition");
     assertThat(outputDeclaration.copyCount()).hasValue("countValue");
     assertThat(outputDeclaration.copyInput()).isNull();
@@ -163,7 +164,7 @@ class OutputDeclarationImplTest {
 
     OutputDeclaration outputDeclaration1 = (OutputDeclaration) tree.statements().get(0);
     assertThat(outputDeclaration1.name().value()).isEqualTo("myOutputValue1");
-    assertThat(outputDeclaration1.type().value()).isEqualTo("my type 1");
+    assertThat(((TextTree) outputDeclaration1.type()).value()).isEqualTo("my type 1");
     assertThat(outputDeclaration1.condition()).hasValue("my condition 1");
     assertThat(outputDeclaration1.copyCount()).hasValue("countValue 1");
     assertThat(outputDeclaration1.copyInput()).hasValue("inputValue 1");
@@ -171,7 +172,7 @@ class OutputDeclarationImplTest {
 
     OutputDeclaration outputDeclaration2 = (OutputDeclaration) tree.statements().get(1);
     assertThat(outputDeclaration2.name().value()).isEqualTo("myOutputValue2");
-    assertThat(outputDeclaration2.type().value()).isEqualTo("my type 2");
+    assertThat(((TextTree) outputDeclaration2.type()).value()).isEqualTo("my type 2");
     assertThat(outputDeclaration2.condition()).hasValue("my condition 2");
     assertThat(outputDeclaration2.copyCount()).hasValue("countValue 2");
     assertThat(outputDeclaration2.copyInput()).hasValue("inputValue 2");
@@ -210,7 +211,7 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(0).is(STRING_LITERAL)).isFalse();
 
     OutputDeclaration outputDeclaration = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration.type().value()).isEqualTo("my type");
+    assertThat(((TextTree) outputDeclaration.type()).value()).isEqualTo("my type");
     assertThat(outputDeclaration.condition()).isNull();
     assertThat(outputDeclaration.copyCount()).isNull();
     assertThat(outputDeclaration.copyInput()).isNull();

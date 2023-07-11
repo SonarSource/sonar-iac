@@ -19,66 +19,49 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.common.extension.ParseException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
-
-class InterpolatedStringImplTest {
-
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.INTERPOLATED_STRING);
-
+class InterpolatedStringImplTest extends BicepTreeModelTest {
   @Test
-  void shouldParseSimpleInterpolatedString() {
-    String code = code("'abc123DEF'");
-
-    InterpolatedString tree = (InterpolatedString) parser.parse(code, null);
-    assertThat(tree.value()).isEqualTo("abc123DEF");
-    assertThat(tree.is(ArmTree.Kind.INTERPOLATED_STRING)).isTrue();
-
-    SyntaxToken token1 = (SyntaxToken) tree.children().get(0);
-    assertThat(token1.value()).isEqualTo("'");
-
-    SyntaxToken token2 = (SyntaxToken) tree.children().get(1);
-    assertThat(token2.children()).isEmpty();
-    assertThat(token2.comments()).isEmpty();
-
-    SyntaxToken token3 = (SyntaxToken) tree.children().get(2);
-    assertThat(token3.value()).isEqualTo("'");
-
-    assertThat(tree.children()).hasSize(3);
+  void shouldMatchValidStrings() {
+    Assertions.assertThat(BicepLexicalGrammar.INTERPOLATED_STRING)
+      .matches("'${123}'")
+      .matches("'a${123}'")
+      .matches("'${123}b'")
+      .matches("'a${123}b'")
+      .matches("'a${123}b${456}c'")
+      .matches("'a${123}${456}c'")
+      .matches("'abc'")
+      .notMatches("123");
   }
 
   @Test
-  void shouldParseInterpolatedString() {
-    Assertions.assertThat(BicepLexicalGrammar.INTERPOLATED_STRING)
-      .matches("'123'")
-      .matches("'abc'")
-      .matches("  'abc'")
-      .matches("'A'")
-      .matches("'Z'")
-      .matches("'a'")
-      .matches("'z'")
-      .matches("'AAAAA123'")
-      .matches("'123zz'")
-      .matches("'123aa789'")
-      .matches("'123BB789'")
+  void shouldBuildTreeCorrectly() {
+    ArmTree tree = createParser(BicepLexicalGrammar.INTERPOLATED_STRING)
+      .parse("'a${123}b${456}c'");
 
-      .notMatches(".12'3456")
-      .notMatches("-")
-      .notMatches("_A1")
-      .notMatches("$123'")
-      .notMatches("{123}")
-      .notMatches("(abc");
+    SoftAssertions softly = new SoftAssertions();
+    softly.assertThat(tree).isInstanceOf(InterpolatedString.class);
+    softly.assertThat(tree.children()).hasSize(11);
+    softly.assertThat(tree.children().get(0)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(2)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(3)).isInstanceOf(Expression.class);
+    softly.assertThat(tree.children().get(4)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(5)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(6)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(7)).isInstanceOf(Expression.class);
+    softly.assertThat(tree.children().get(8)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(9)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.children().get(10)).isInstanceOf(SyntaxToken.class);
+    softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
+    softly.assertAll();
   }
 }

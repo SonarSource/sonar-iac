@@ -23,12 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
@@ -58,7 +59,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   }
 
   @Override
-  public TextTree type() {
+  public ArmTree type() {
     return type;
   }
 
