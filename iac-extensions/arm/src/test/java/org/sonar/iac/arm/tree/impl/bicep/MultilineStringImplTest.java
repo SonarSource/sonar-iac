@@ -28,6 +28,7 @@ import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class MultilineStringImplTest extends BicepTreeModelTest {
@@ -94,11 +95,12 @@ class MultilineStringImplTest extends BicepTreeModelTest {
       "123",
       "BBB",
       "'''");
+
     MultilineString tree = parse(code, BicepLexicalGrammar.MULTILINE_STRING);
+
     Assertions.assertThat(tree.value()).isEqualTo("a\n123\nBBB\n");
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.MULTILINE_STRING);
-    Assertions.assertThat(tree.children())
-      .map(c -> ((SyntaxToken) c).value())
+    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("'''", "a\n123\nBBB\n", "'''");
     assertThat(tree.textRange()).hasRange(1, 0, 5, 3);
   }
