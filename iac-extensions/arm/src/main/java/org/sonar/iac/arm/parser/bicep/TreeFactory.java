@@ -129,6 +129,10 @@ public class TreeFactory {
     return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
+  public ModuleDeclaration moduleDeclaration(SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equals, Expression value) {
+    return new ModuleDeclarationImpl(keyword, name, type, equals, value);
+  }
+
   public StringComplete stringComplete(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
     return new StringCompleteImpl(openingApostrophe, value, closingApostrophe);
   }
@@ -235,10 +239,6 @@ public class TreeFactory {
 
   public ImportAsClause importAsClause(SyntaxToken keyword, Identifier alias) {
     return new ImportAsClause(keyword, alias);
-  }
-
-  public ModuleDeclaration moduleDeclaration(SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equals, Expression value) {
-    return new ModuleDeclarationImpl(keyword, name, type, equals, value);
   }
 
   public <T, U> Tuple<T, U> newTuple(T first, U second) {

@@ -195,7 +195,7 @@ public class BicepGrammar {
         INTERPOLATED_STRING(),
         b.token(Punctuator.EQU),
         b.firstOf(
-          // TODO: IF_CONDITION (after SONARIAC-941)
+          IF_EXPRESSION(),
           OBJECT_EXPRESSION(),
           FOR_EXPRESSION())));
   }

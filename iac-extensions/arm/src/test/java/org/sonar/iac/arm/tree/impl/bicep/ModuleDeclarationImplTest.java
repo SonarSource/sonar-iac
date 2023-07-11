@@ -22,6 +22,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -34,6 +35,7 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
   void shouldParseValidDeclarations() {
     ArmAssertions.assertThat(BicepLexicalGrammar.MODULE_DECLARATION)
       .matches("module foo 'path-to-file' = {}")
+      .matches("module foo 'path-to-file' = if (bar) {}")
       .matches("module foo 'path-to-file' = [for d in deployments: expression]")
       .matches("module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
 
@@ -58,6 +60,8 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
     softly.assertThat(tree.name().value()).isEqualTo("stgModule");
     IacCommonAssertions.assertThat(tree.type().textRange()).hasRange(1, 17, 1, 42);
     IacCommonAssertions.assertThat(tree.value().textRange()).hasRange(1, 45, 3, 1);
+    softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("module", "stgModule", "../storageAccount.bicep", "=", "{", "name", ":", "storageDeploy", "}");
     softly.assertAll();
   }
 }
