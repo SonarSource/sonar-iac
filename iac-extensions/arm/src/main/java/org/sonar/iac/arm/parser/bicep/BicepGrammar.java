@@ -33,6 +33,8 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ForExpression;
+import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
@@ -205,6 +207,7 @@ public class BicepGrammar {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
       b.firstOf(
         FUNCTION_CALL(),
+        FOR_EXPRESSION(),
         ALPHA_NUMERAL_STRING(),
         LITERAL_VALUE(),
         STRING_LITERAL()));
@@ -258,6 +261,34 @@ public class BicepGrammar {
         EXPRESSION(),
         b.zeroOrMore(
           f.newTuple(b.token(Punctuator.COMMA), EXPRESSION()))));
+  }
+
+  public ForExpression FOR_EXPRESSION() {
+    return b.<ForExpression>nonterminal(BicepLexicalGrammar.FOR_EXPRESSION).is(
+      f.forExpression(
+        b.token(Punctuator.LBRACKET),
+        b.token(BicepKeyword.FOR),
+        FOR_VARIABLE_BLOCK(),
+        b.token(BicepKeyword.IN),
+        EXPRESSION(),
+        b.token(Punctuator.COLON),
+        b.firstOf(
+          EXPRESSION()
+        // TODO: SONARIAC-941 add support for ifCondition
+        ),
+        b.token(Punctuator.RBRACKET)));
+  }
+
+  public ForVariableBlock FOR_VARIABLE_BLOCK() {
+    return b.<ForVariableBlock>nonterminal(BicepLexicalGrammar.FOR_VARIABLE_BLOCK).is(
+      b.firstOf(
+        f.forVariableBlock(IDENTIFIER()),
+        f.forVariableBlock(
+          b.token(Punctuator.LPARENTHESIS),
+          IDENTIFIER(),
+          b.token(Punctuator.COMMA),
+          IDENTIFIER(),
+          b.token(Punctuator.RPARENTHESIS))));
   }
 
   public Identifier IDENTIFIER() {

@@ -33,6 +33,8 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ForExpression;
+import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
@@ -43,6 +45,8 @@ import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ForExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ForVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FunctionCallImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FunctionDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
@@ -135,6 +139,22 @@ public class TreeFactory {
   public SeparatedList<Expression, SyntaxToken> functionCallArguments(Expression firstArgument,
     Optional<List<Tuple<SyntaxToken, Expression>>> additionalArguments) {
     return separatedList(firstArgument, additionalArguments);
+  }
+
+  // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
+  @SuppressWarnings("java:S107")
+  public ForExpression forExpression(SyntaxToken leftBracket, SyntaxToken forKeyword, ForVariableBlock forVariableBlock,
+    SyntaxToken inKeyword, Expression expression, SyntaxToken colon, Expression forBody, SyntaxToken rightBracket) {
+    return new ForExpressionImpl(leftBracket, forKeyword, forVariableBlock, inKeyword, expression, colon, forBody, rightBracket);
+  }
+
+  public ForVariableBlock forVariableBlock(Identifier itemIdentifier) {
+    return new ForVariableBlockImpl(itemIdentifier);
+  }
+
+  public ForVariableBlock forVariableBlock(SyntaxToken leftParenthesis, Identifier itemIdentifier, SyntaxToken comma,
+    Identifier indexIdentifier, SyntaxToken rightParenthesis) {
+    return new ForVariableBlockImpl(leftParenthesis, itemIdentifier, comma, indexIdentifier, rightParenthesis);
   }
 
   public Identifier identifier(SyntaxToken token) {
