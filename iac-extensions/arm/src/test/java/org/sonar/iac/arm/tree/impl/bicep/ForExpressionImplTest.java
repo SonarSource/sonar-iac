@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
@@ -29,16 +27,14 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
-import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
-import org.sonar.iac.common.api.tree.TextTree;
 
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ForExpressionImplTest {
 
   BicepParser parser = BicepParser.create(BicepLexicalGrammar.FOR_EXPRESSION);
 
-  // TODO: SONARIAC-941 Add support for ifCondition
   @Test
   void shouldParseForExpression() {
     ArmAssertions.assertThat(BicepLexicalGrammar.FOR_EXPRESSION)
@@ -46,6 +42,7 @@ class ForExpressionImplTest {
       .matches("[ for identifier123 in headerExpression : bodyExpression ]")
       .matches("[for (itemIdentifier123 , indexIdentifier123) in headerExpression : bodyExpression]")
       .matches("[for(itemIdentifier123,indexIdentifier123) in headerExpression:bodyExpression]")
+      .matches("[for(itemIdentifier123,indexIdentifier123) in headerExpression: if(condition){key:value}]")
 
       .notMatches("[for (itemIdentifier123) in headerExpression:bodyExpression]")
       .notMatches("[for (itemIdentifier123,) in headerExpression:bodyExpression]")
@@ -79,16 +76,7 @@ class ForExpressionImplTest {
     softly.assertThat(tree.bodyExpression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
     softly.assertThat(((StringLiteral) tree.bodyExpression()).value()).isEqualTo("bodyExpression");
 
-    softly.assertThat(tree.children())
-      .flatMap(t -> {
-        if (t instanceof TextTree) {
-          return List.of(((TextTree) t).value());
-        } else if (t instanceof ForVariableBlock) {
-          return t.children().stream().map(u -> ((TextTree) u).value()).collect(Collectors.toList());
-        } else {
-          throw new RuntimeException("Invalid cast from " + t.getClass());
-        }
-      })
+    softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("[", "for", "(", "itemIdentifier123", ",", "indexIdentifier123", ")",
         "in", "headerExpression", ":", "bodyExpression", "]");
 

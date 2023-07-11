@@ -35,7 +35,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
 

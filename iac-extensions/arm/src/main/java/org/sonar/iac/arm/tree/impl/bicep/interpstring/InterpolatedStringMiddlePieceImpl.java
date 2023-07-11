@@ -20,15 +20,15 @@
 package org.sonar.iac.arm.tree.impl.bicep.interpstring;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
-import org.sonar.iac.arm.tree.impl.json.ArmHelper;
 import org.sonar.iac.common.api.tree.Tree;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class InterpolatedStringMiddlePieceImpl implements InterpolatedStringMiddlePiece {
   private final Expression expression;
@@ -49,7 +49,7 @@ public class InterpolatedStringMiddlePieceImpl implements InterpolatedStringMidd
     List<Tree> children = new ArrayList<>();
     children.add(expression);
     children.add(rCurly);
-    ArmHelper.addChildrenIfPresent(children, text);
+    addChildrenIfPresent(children, text);
     children.add(dollarLcurly);
     return children;
   }

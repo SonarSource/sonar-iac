@@ -30,8 +30,8 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.common.api.tree.TextTree;
 
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class FunctionCallImplTest {
@@ -80,7 +80,7 @@ class FunctionCallImplTest {
       .collect(Collectors.toList());
     softly.assertThat(elementsAndSeparatorsAsText).containsExactly("123", "456", ",");
 
-    softly.assertThat(tree.children()).map(token -> ((TextTree) token).value())
+    softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("functionName123", "(", "123", "456", ",", ")");
     softly.assertAll();
   }

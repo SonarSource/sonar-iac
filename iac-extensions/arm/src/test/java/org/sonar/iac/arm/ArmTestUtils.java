@@ -19,15 +19,19 @@
  */
 package org.sonar.iac.arm;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
-
-import java.io.IOException;
-import java.nio.file.Files;
+import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.api.tree.Tree;
 
 import static org.mockito.Mockito.mock;
 import static org.sonar.iac.arm.checks.ArmVerifier.BASE_DIR;
@@ -99,5 +103,22 @@ public class ArmTestUtils {
       content = content.replace(types[i], types[i + 1]);
     }
     return content;
+  }
+
+  public static List<String> recursiveTransformationOfTreeChildrenToStrings(Tree tree) {
+    return recursiveTransformationOfTreeChildrenToStrings(tree, 10).collect(Collectors.toList());
+  }
+
+  public static Stream<String> recursiveTransformationOfTreeChildrenToStrings(Tree tree, int maxDepth) {
+    if (maxDepth == 0) {
+      return Stream.empty();
+    }
+    return tree.children().stream().flatMap(t -> {
+      if (t instanceof TextTree) {
+        return Stream.of(((TextTree) t).value());
+      } else {
+        return recursiveTransformationOfTreeChildrenToStrings(t, maxDepth - 1);
+      }
+    });
   }
 }

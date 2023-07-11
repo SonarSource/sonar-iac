@@ -38,10 +38,12 @@ import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -334,9 +336,8 @@ public class BicepGrammar {
         EXPRESSION(),
         b.token(Punctuator.COLON),
         b.firstOf(
-          EXPRESSION()
-        // TODO: SONARIAC-941 add support for ifCondition
-        ),
+          IF_EXPRESSION(),
+          EXPRESSION()),
         b.token(Punctuator.RBRACKET)));
   }
 
@@ -350,6 +351,22 @@ public class BicepGrammar {
           b.token(Punctuator.COMMA),
           IDENTIFIER(),
           b.token(Punctuator.RPARENTHESIS))));
+  }
+
+  public IfExpression IF_EXPRESSION() {
+    return b.<IfExpression>nonterminal(BicepLexicalGrammar.IF_EXPRESSION).is(
+      f.ifExpression(
+        b.token(BicepKeyword.IF),
+        PARENTHESIZED_EXPRESSION(),
+        OBJECT_EXPRESSION()));
+  }
+
+  public ParenthesizedExpression PARENTHESIZED_EXPRESSION() {
+    return b.<ParenthesizedExpression>nonterminal(BicepLexicalGrammar.PARENTHESIZED_EXPRESSION).is(
+      f.parenthesizedExpression(
+        b.token(Punctuator.LPARENTHESIS),
+        EXPRESSION(),
+        b.token(Punctuator.RPARENTHESIS)));
   }
 
   public Identifier IDENTIFIER() {
