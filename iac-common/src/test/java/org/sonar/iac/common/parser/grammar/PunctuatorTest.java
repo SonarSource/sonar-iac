@@ -27,6 +27,6 @@ class PunctuatorTest {
 
   @Test
   void testMinimumNumberOfElements() {
-    assertThat(Punctuator.values()).hasSizeGreaterThanOrEqualTo(36);
+    assertThat(Punctuator.values()).hasSizeGreaterThanOrEqualTo(37);
   }
 }
