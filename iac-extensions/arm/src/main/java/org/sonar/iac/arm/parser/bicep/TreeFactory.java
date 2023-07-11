@@ -46,10 +46,13 @@ import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
-import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
+import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
+import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
+import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
+import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForExpressionImpl;
@@ -70,6 +73,9 @@ import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.TypedLambdaExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.TypedLocalVariableImpl;
+import org.sonar.iac.arm.tree.impl.bicep.TypedVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
@@ -229,5 +235,23 @@ public class TreeFactory {
 
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {
     return new AmbientTypeReferenceImpl(token);
+  }
+
+  public TypedLocalVariable typedLocalVariable(Identifier identifier, AmbientTypeReference primaryTypeExpression) {
+    return new TypedLocalVariableImpl(identifier, primaryTypeExpression);
+  }
+
+  public TypedVariableBlock typedVariableBlock(SyntaxToken lParen, Optional<SeparatedList<TypedLocalVariable, SyntaxToken>> variableList, SyntaxToken rParen) {
+    return new TypedVariableBlockImpl(lParen, variableList.or(emptySeparatedList()), rParen);
+  }
+
+  public TypedLambdaExpression typedLambdaExpression(TypedVariableBlock typedVariableBlock, AmbientTypeReference primaryTypeExpression, SyntaxToken doubleArrow,
+    Expression expression) {
+    return new TypedLambdaExpressionImpl(typedVariableBlock, primaryTypeExpression, doubleArrow, expression);
+  }
+
+  public SeparatedList<TypedLocalVariable, SyntaxToken> typedArgumentList(TypedLocalVariable firstArgument,
+    Optional<List<Tuple<SyntaxToken, TypedLocalVariable>>> additionalArguments) {
+    return separatedList(firstArgument, additionalArguments);
   }
 }

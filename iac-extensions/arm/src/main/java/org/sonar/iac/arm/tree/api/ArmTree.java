@@ -31,6 +31,9 @@ import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
+import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
+import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -75,7 +78,10 @@ public interface ArmTree extends Tree {
     FUNCTION_CALL(FunctionCall.class),
     FOR_EXPRESSION(ForExpression.class),
     FOR_VARIABLE_BLOCK(ForVariableBlock.class),
-    AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class);
+    AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class),
+    TYPED_LOCAL_VARIABLE(TypedLocalVariable.class),
+    TYPED_VARIABLE_BLOCK(TypedVariableBlock.class),
+    TYPED_LAMBDA_EXPRESSION(TypedLambdaExpression.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 

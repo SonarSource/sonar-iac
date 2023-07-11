@@ -95,7 +95,10 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
 
   IMPORT_AS_CLAUSE,
   IMPORT_WITH_CLAUSE,
-  AMBIENT_TYPE_REFERENCE_VALUE;
+  AMBIENT_TYPE_REFERENCE_VALUE,
+  TYPED_LOCAL_VARIABLE,
+  TYPED_VARIABLE_BLOCK,
+  TYPED_LAMBDA_EXPRESSION;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -110,7 +113,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   private static void punctuators(LexerlessGrammarBuilder b) {
     Stream.of(
       Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE, Punctuator.COMMA,
-      Punctuator.LPARENTHESIS, Punctuator.RPARENTHESIS, Punctuator.LBRACKET, Punctuator.RBRACKET, Punctuator.DOLLAR_LCURLY)
+      Punctuator.LPARENTHESIS, Punctuator.RPARENTHESIS, Punctuator.LBRACKET, Punctuator.RBRACKET, Punctuator.DOLLAR_LCURLY, Punctuator.DOUBLEARROW)
       .forEach(p -> b.rule(p).is(SPACING, p.getValue()).skip());
   }
 
