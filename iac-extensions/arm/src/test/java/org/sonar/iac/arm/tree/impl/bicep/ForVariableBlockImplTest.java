@@ -21,9 +21,9 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.common.api.tree.TextTree;
@@ -36,7 +36,7 @@ class ForVariableBlockImplTest {
 
   @Test
   void shouldParseForVariableBlock() {
-    Assertions.assertThat(BicepLexicalGrammar.FOR_VARIABLE_BLOCK)
+    ArmAssertions.assertThat(BicepLexicalGrammar.FOR_VARIABLE_BLOCK)
       .matches("identifier123")
       .matches("(itemIdentifier123,indexIdentifier123)")
       .matches("(itemIdentifier123 , indexIdentifier123)")

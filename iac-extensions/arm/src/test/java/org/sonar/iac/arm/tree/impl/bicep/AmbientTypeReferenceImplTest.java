@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import com.sonar.sslr.api.RecognitionException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
@@ -27,6 +28,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
 class AmbientTypeReferenceImplTest extends BicepTreeModelTest {
@@ -50,7 +52,13 @@ class AmbientTypeReferenceImplTest extends BicepTreeModelTest {
       .notMatches("arrayy")
       .notMatches("STRING")
       .notMatches("int1")
-      .notMatches("obj")
+      .notMatches("intelligent")
+      .notMatches("int_eger")
+      .notMatches("int$")
+      .notMatches("int_")
+      .notMatches("int1")
+      .notMatches("intEGER")
+      .notMatches("objective")
       .notMatches("1string")
       .notMatches("barray")
       .notMatches("foo")
@@ -113,5 +121,12 @@ class AmbientTypeReferenceImplTest extends BicepTreeModelTest {
       .map(c -> ((SyntaxToken) c).value())
       .containsExactly("string");
     ArmAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 6);
+  }
+
+  @Test
+  void shouldNotParseBiggerWord() {
+    assertThatThrownBy(() -> parse("intelligent", BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE))
+      .isInstanceOf(RecognitionException.class)
+      .hasMessageStartingWith("Parse error at line 1 column 1");
   }
 }

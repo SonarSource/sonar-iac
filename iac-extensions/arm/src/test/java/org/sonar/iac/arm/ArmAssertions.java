@@ -21,6 +21,7 @@ package org.sonar.iac.arm;
 
 import com.sonar.sslr.api.Rule;
 import javax.annotation.Nullable;
+import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.utils.ParserAssert;
@@ -83,7 +84,7 @@ public class ArmAssertions {
     return new ParserAssert(BicepParser.create(rule));
   }
 
-  public static org.assertj.core.api.AbstractComparableAssert<?, ArmTree.Kind> assertThat(ArmTree.Kind kind) {
+  public static AbstractComparableAssert<?, ArmTree.Kind> assertThat(ArmTree.Kind kind) {
     return Assertions.assertThat(kind);
   }
 }
