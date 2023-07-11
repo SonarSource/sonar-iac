@@ -21,45 +21,43 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 
-import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class MetadataDeclarationImplTest {
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.METADATA_DECLARATION);
+class ParenthesizedExpressionImplTest extends BicepTreeModelTest {
+
+  BicepParser parser = BicepParser.create(BicepLexicalGrammar.PARENTHESIZED_EXPRESSION);
 
   @Test
-  void shouldParseExpression() {
-    String simpleMetaDataDeclaration = "metadata identifier123=123";
-    assertThat(BicepLexicalGrammar.METADATA_DECLARATION)
-      .matches(simpleMetaDataDeclaration)
-      .matches("metadata identifier123 =123")
-      .matches("metadata identifier123= 123")
-      .matches("metadata identifier123 = 123")
+  void shouldParseParenthesizedExpression() {
+    ArmAssertions.assertThat(BicepLexicalGrammar.PARENTHESIZED_EXPRESSION)
+      .matches("(expression)")
+      .matches("( expression )")
 
-      .notMatches("metadata identifier123")
-      .notMatches("identifier123=123")
-      .notMatches("metadata identifier123=.123");
+      .notMatches("expression")
+      .notMatches("()");
   }
 
   @Test
-  void shouldParseSimpleMetadataDeclaration() {
-    String code = code("metadata identifier123=abc");
+  void shouldParseParenthesizedExpressionWithDetailedAssertions() {
+    String code = code("(expression)");
 
-    MetadataDeclaration tree = (MetadataDeclaration) parser.parse(code, null);
+    ParenthesizedExpression tree = (ParenthesizedExpression) parser.parse(code, null);
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(tree.is(ArmTree.Kind.METADATA_DECLARATION)).isTrue();
-    softly.assertThat(tree.name().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    softly.assertThat(tree.name().value()).isEqualTo("identifier123");
-    softly.assertThat(tree.value().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    softly.assertThat(((StringLiteral) tree.value()).value()).isEqualTo("abc");
-    softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("metadata", "identifier123", "=", "abc", "");
+    softly.assertThat(tree.is(ArmTree.Kind.PARENTHESIZED_EXPRESSION)).isTrue();
+
+    softly.assertThat(tree.expression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    softly.assertThat(((StringLiteral) tree.expression()).value()).isEqualTo("expression");
+
+    softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("(", "expression", ")");
+
     softly.assertAll();
   }
 }

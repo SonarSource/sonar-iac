@@ -20,14 +20,14 @@
 package org.sonar.iac.arm.tree.impl.bicep.interpstring;
 
 import com.sonar.sslr.api.typed.Optional;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
-import org.sonar.iac.arm.tree.impl.json.ArmHelper;
-import org.sonar.iac.common.api.tree.Tree;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.common.api.tree.Tree;
+
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class InterpolatedStringLeftPieceImpl implements InterpolatedStringLeftPiece {
   private final SyntaxToken leftQuote;
@@ -44,7 +44,7 @@ public class InterpolatedStringLeftPieceImpl implements InterpolatedStringLeftPi
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(leftQuote);
-    ArmHelper.addChildrenIfPresent(children, text);
+    addChildrenIfPresent(children, text);
     children.add(dollarLcurly);
     return children;
   }

@@ -19,15 +19,18 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-import org.sonar.iac.arm.tree.api.bicep.ForExpression;
-import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.ForExpression;
+import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
@@ -57,6 +60,7 @@ public interface ArmTree extends Tree {
     RESOURCE_GROUP_DECLARATION(ResourceGroupDeclarationImpl.class),
     RESOURCE_DECLARATION(ResourceDeclaration.class),
     VARIABLE_DECLARATION(VariableDeclaration.class),
+    MODULE_DECLARATION(ModuleDeclaration.class),
     IDENTIFIER(Identifier.class),
     PROPERTY(PropertyImpl.class),
     BOOLEAN_LITERAL(BooleanLiteral.class),
@@ -78,6 +82,8 @@ public interface ArmTree extends Tree {
     FUNCTION_CALL(FunctionCall.class),
     FOR_EXPRESSION(ForExpression.class),
     FOR_VARIABLE_BLOCK(ForVariableBlock.class),
+    IF_EXPRESSION(IfExpression.class),
+    PARENTHESIZED_EXPRESSION(ParenthesizedExpression.class),
     AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class),
     TYPED_LOCAL_VARIABLE(TypedLocalVariable.class),
     TYPED_VARIABLE_BLOCK(TypedVariableBlock.class),
