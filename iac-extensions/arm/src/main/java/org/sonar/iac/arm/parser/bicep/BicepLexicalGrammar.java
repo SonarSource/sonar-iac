@@ -21,7 +21,7 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.GenericTokenType;
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.List;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -70,6 +70,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   AMBIENT_TYPE_REFERENCE,
   IF_EXPRESSION,
   PARENTHESIZED_EXPRESSION,
+  UNARY_OPERATOR,
 
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
@@ -79,6 +80,8 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   IDENTIFIER_LITERAL,
 
   STRING_LITERAL,
+  MULTILINE_STRING,
+  MULTILINE_STRING_REGEX,
   NUMBER_LITERAL,
   NUMERIC_LITERAL,
   BOOLEAN_LITERAL,
@@ -98,7 +101,13 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
 
   IMPORT_AS_CLAUSE,
   IMPORT_WITH_CLAUSE,
-  AMBIENT_TYPE_REFERENCE_VALUE;
+  AMBIENT_TYPE_REFERENCE_VALUE,
+  UNARY_OPERATOR_VALUE;
+
+  private static final List<Punctuator> LIST_OF_PUNCTUATORS = List.of(
+    Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE, Punctuator.COMMA,
+    Punctuator.RPARENTHESIS, Punctuator.LPARENTHESIS, Punctuator.LBRACKET, Punctuator.RBRACKET,
+    Punctuator.DOLLAR_LCURLY, Punctuator.TRIPLE_APOSTROPHE);
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -111,10 +120,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   }
 
   private static void punctuators(LexerlessGrammarBuilder b) {
-    Stream.of(
-      Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE, Punctuator.COMMA,
-      Punctuator.LPARENTHESIS, Punctuator.RPARENTHESIS, Punctuator.LBRACKET, Punctuator.RBRACKET, Punctuator.DOLLAR_LCURLY)
-      .forEach(p -> b.rule(p).is(SPACING, p.getValue()).skip());
+    LIST_OF_PUNCTUATORS.forEach(p -> b.rule(p).is(SPACING, p.getValue()).skip());
   }
 
   private static void lexical(LexerlessGrammarBuilder b) {
@@ -131,11 +137,13 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(QUOTED_STRING_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.QUOTED_STRING_LITERAL_NO_QUOTES));
     b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
     b.rule(STRING_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.STRING));
+    b.rule(MULTILINE_STRING_REGEX).is(SPACING, b.regexp(BicepLexicalConstant.MULTILINE_STRING));
     b.rule(NUMERIC_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NUMBER));
     b.rule(TRUE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.TRUE));
     b.rule(FALSE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.FALSE));
     b.rule(NULL_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NULL));
     b.rule(AMBIENT_TYPE_REFERENCE_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.AMBIENT_TYPE));
+    b.rule(UNARY_OPERATOR_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.UNARY_OPERATOR));
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

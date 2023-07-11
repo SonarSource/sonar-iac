@@ -30,10 +30,12 @@ import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -81,7 +83,9 @@ public interface ArmTree extends Tree {
     FOR_VARIABLE_BLOCK(ForVariableBlock.class),
     IF_EXPRESSION(IfExpression.class),
     PARENTHESIZED_EXPRESSION(ParenthesizedExpression.class),
-    AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class);
+    AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class),
+    UNARY_OPERATOR(UnaryOperator.class),
+    MULTILINE_STRING(MultilineString.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 
