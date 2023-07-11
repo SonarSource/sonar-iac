@@ -22,6 +22,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
@@ -42,7 +43,8 @@ class TypedLambdaExpressionImplTest extends BicepTreeModelTest {
     softly.assertThat(typedVariableBlock).isInstanceOf(TypedVariableBlock.class);
     softly.assertThat(typedVariableBlock.getKind()).isEqualTo(ArmTree.Kind.TYPED_VARIABLE_BLOCK);
     softly.assertThat(typedVariableBlock.children()).hasSize(7);
-//    softly.assertThat(ArmTestUtils)
+    softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(typedVariableBlock))
+      .containsExactly("(", "https", "bool", "hostname", "string", "path", "string", ",", ",", ")");
     ArmTree typedLocalVariable = (ArmTree) typedVariableBlock.children().get(1);
     softly.assertThat(typedLocalVariable).isInstanceOf(TypedLocalVariable.class);
     softly.assertThat(typedLocalVariable.getKind()).isEqualTo(ArmTree.Kind.TYPED_LOCAL_VARIABLE);
