@@ -17,33 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.NullLiteral;
+import org.sonar.iac.common.api.tree.TextTree;
 
-import static org.sonar.iac.arm.ArmAssertions.assertThat;
-
-class NullLiteralImplTest extends BicepTreeModelTest {
-
-  @Test
-  void shouldParseBooleanLiteral() {
-    assertThat(BicepLexicalGrammar.NULL_LITERAL)
-      .matches("null")
-
-      .notMatches("nulle")
-      .notMatches("NULL")
-      .notMatches("Null")
-      .notMatches("0")
-      .notMatches("undefined")
-      .notMatches("");
-  }
-
-  @Test
-  void shouldParseNullValue() {
-    NullLiteral tree = parse("null", BicepLexicalGrammar.NULL_LITERAL);
-    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.NULL_LITERAL);
-  }
+/**
+ * Marker interface for following grammar:
+ * {@code ambientTypeReference -> "string" | "int" | "bool" | "array" | "object"}
+ */
+public interface AmbientTypeReference extends ArmTree, TextTree {
 }

@@ -19,15 +19,10 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.List;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -41,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class ResourceDeclarationImplTest {
+class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   BicepParser parser = BicepParser.create(BicepLexicalGrammar.RESOURCE_DECLARATION);
 
@@ -49,7 +44,7 @@ class ResourceDeclarationImplTest {
   void shouldParseMinimalResourceDeclaration() {
     String code = code("resource myName 'type@version' = {",
       "key: value",
-      "}\n");
+      "}");
 
     ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
@@ -71,7 +66,7 @@ class ResourceDeclarationImplTest {
 
   @Test
   void shouldParseResourceDeclaration() {
-    Assertions.assertThat(BicepLexicalGrammar.RESOURCE_DECLARATION)
+    ArmAssertions.assertThat(BicepLexicalGrammar.RESOURCE_DECLARATION)
       .matches(code("resource workloadIpGroup 'Microsoft.Network/ipGroups@2022-01-01' = {",
         "  name: workloadIpGroupName",
         "  location: location1",
@@ -97,7 +92,7 @@ class ResourceDeclarationImplTest {
   @Test
   void shouldThrowExceptionForInvalidTypeAndVersion() {
     String code = code("resource myName 'type_version' = {",
-      "}\n");
+      "}");
 
     ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
     assertThatThrownBy(() -> tree.type())
@@ -109,7 +104,7 @@ class ResourceDeclarationImplTest {
   @Test
   void shouldThrowExceptionForInvalidTypeAndVersion2() {
     String code = code("resource myName 'foo@bar@baz' = {",
-      "}\n");
+      "}");
 
     ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
     assertThatThrownBy(() -> tree.type())

@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
@@ -40,7 +40,7 @@ class FunctionCallImplTest {
 
   @Test
   void shouldParseFunctionCall() {
-    Assertions.assertThat(BicepLexicalGrammar.FUNCTION_CALL)
+    ArmAssertions.assertThat(BicepLexicalGrammar.FUNCTION_CALL)
       .matches("functionName123()")
       .matches("functionName123(123)")
       .matches("functionName123(123, 456)")

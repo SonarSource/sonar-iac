@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
-import org.sonar.iac.arm.parser.utils.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
@@ -41,7 +41,7 @@ class ForExpressionImplTest {
   // TODO: SONARIAC-941 Add support for ifCondition
   @Test
   void shouldParseForExpression() {
-    Assertions.assertThat(BicepLexicalGrammar.FOR_EXPRESSION)
+    ArmAssertions.assertThat(BicepLexicalGrammar.FOR_EXPRESSION)
       .matches("[for identifier123 in headerExpression:bodyExpression]")
       .matches("[ for identifier123 in headerExpression : bodyExpression ]")
       .matches("[for (itemIdentifier123 , indexIdentifier123) in headerExpression : bodyExpression]")
