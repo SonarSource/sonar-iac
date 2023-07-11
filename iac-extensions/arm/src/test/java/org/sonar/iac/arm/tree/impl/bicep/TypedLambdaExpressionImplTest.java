@@ -61,6 +61,7 @@ class TypedLambdaExpressionImplTest extends BicepTreeModelTest {
       .matches("(foo int) array => 0")
 
       .notMatches("foo int => 0")
+      .notMatches("(foo integer) int => 0")
       .notMatches("(foo int) => 0");
   }
 }
