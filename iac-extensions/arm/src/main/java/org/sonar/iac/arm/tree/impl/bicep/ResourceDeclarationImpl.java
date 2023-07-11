@@ -22,6 +22,8 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+
+import org.sonar.iac.arm.parser.bicep.BicepKeyword;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
@@ -133,5 +135,14 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   public List<Property> properties() {
     return objectExpression.properties();
+  }
+
+  @Override
+  public boolean existing() {
+    if (existing != null) {
+      return BicepKeyword.EXISTING.getValue().equals(existing.value());
+    } else {
+      return false;
+    }
   }
 }

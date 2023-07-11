@@ -73,6 +73,7 @@ class ResourceDeclarationImplTest {
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
     assertThat(resourceDeclaration.type()).hasValue("Microsoft.Kusto/clusters");
     assertThat(resourceDeclaration.version()).hasValue("2022-12-29");
+    assertThat(resourceDeclaration.existing()).isFalse();
 
     assertThat(resourceDeclaration.name().value()).isEqualTo("myResource");
     assertThat(resourceDeclaration.name().textRange()).hasRange(6, 14, 6, 26);
