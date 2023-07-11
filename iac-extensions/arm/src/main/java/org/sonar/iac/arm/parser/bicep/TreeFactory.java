@@ -36,6 +36,7 @@ import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
@@ -56,10 +57,12 @@ import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
+import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
+import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForVariableBlockImpl;
@@ -264,10 +267,6 @@ public class TreeFactory {
     return new ImportAsClause(keyword, alias);
   }
 
-  public <T, U> Tuple<T, U> newTuple(T first, U second) {
-    return new Tuple<>(first, second);
-  }
-
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {
     return new AmbientTypeReferenceImpl(token);
   }
@@ -296,5 +295,13 @@ public class TreeFactory {
   public SeparatedList<TypedLocalVariable, SyntaxToken> typedArgumentList(TypedLocalVariable firstArgument,
     Optional<List<Tuple<SyntaxToken, TypedLocalVariable>>> additionalArguments) {
     return separatedList(firstArgument, additionalArguments);
+  }
+
+  public Decorator decorator(SyntaxToken keyword, FunctionCall decoratorExpression) {
+    return new DecoratorImpl(keyword, decoratorExpression);
+  }
+
+  public <T, U> Tuple<T, U> newTuple(T first, U second) {
+    return new Tuple<>(first, second);
   }
 }

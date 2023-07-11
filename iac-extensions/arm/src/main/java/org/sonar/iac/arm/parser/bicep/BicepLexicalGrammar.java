@@ -103,6 +103,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   IMPORT_WITH_CLAUSE,
   AMBIENT_TYPE_REFERENCE_VALUE,
   UNARY_OPERATOR_VALUE,
+  DECORATOR,
   TYPED_LOCAL_VARIABLE,
   TYPED_VARIABLE_BLOCK,
   TYPED_LAMBDA_EXPRESSION;
@@ -110,7 +111,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   private static final List<Punctuator> LIST_OF_PUNCTUATORS = List.of(
     Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE, Punctuator.COMMA,
     Punctuator.RPARENTHESIS, Punctuator.LPARENTHESIS, Punctuator.LBRACKET, Punctuator.RBRACKET,
-    Punctuator.DOLLAR_LCURLY, Punctuator.TRIPLE_APOSTROPHE, Punctuator.DOUBLEARROW);
+    Punctuator.DOLLAR_LCURLY, Punctuator.TRIPLE_APOSTROPHE, Punctuator.AT, Punctuator.DOUBLEARROW);
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();

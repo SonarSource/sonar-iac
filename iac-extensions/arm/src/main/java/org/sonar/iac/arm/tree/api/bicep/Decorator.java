@@ -17,16 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.common.parser.grammar;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface Decorator extends ArmTree {
 
-class PunctuatorTest {
-
-  @Test
-  void testMinimumNumberOfElements() {
-    assertThat(Punctuator.values()).hasSizeGreaterThanOrEqualTo(37);
-  }
+  FunctionCall functionCall();
 }
