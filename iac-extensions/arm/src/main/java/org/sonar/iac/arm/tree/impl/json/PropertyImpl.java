@@ -57,9 +57,4 @@ public class PropertyImpl extends AbstractArmTreeImpl implements Property {
   public List<Tree> children() {
     return List.of(key, value);
   }
-
-  @Override
-  public Kind getKind() {
-    return Kind.PROPERTY;
-  }
 }
