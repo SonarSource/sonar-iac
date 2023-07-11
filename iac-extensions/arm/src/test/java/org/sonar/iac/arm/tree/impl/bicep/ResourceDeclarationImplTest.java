@@ -54,6 +54,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     Property property = tree.properties().get(0);
     assertThat(property.key().value()).isEqualTo("key");
     assertThat(((StringLiteral) property.value()).value()).isEqualTo("value");
+    assertThat(tree.existing()).isFalse();
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("resource");
     assertThat(((Identifier) tree.children().get(1)).value()).isEqualTo("myName");
@@ -62,6 +63,17 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(((ObjectExpression) tree.children().get(4)).properties()).hasSize(1);
     assertThat(((SyntaxToken) tree.children().get(5)).value()).isBlank();
     assertThat(tree.children()).hasSize(6);
+  }
+
+  @Test
+  void shouldParseResourceDeclarationWithExistingFlag() {
+    String code = code("resource myName 'type@version' existing = {",
+      "key: value",
+      "}");
+
+    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
+
+    assertThat(tree.existing()).isTrue();
   }
 
   @Test

@@ -31,4 +31,8 @@ public interface ResourceDeclaration extends Statement, HasProperties {
   StringLiteral type();
 
   List<Property> properties();
+
+  default boolean existing() {
+    return false;
+  }
 }
