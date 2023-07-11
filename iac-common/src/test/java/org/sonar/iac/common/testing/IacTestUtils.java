@@ -41,7 +41,7 @@ public class IacTestUtils {
   }
 
   public static String code(String... lines) {
-    return StringUtils.join(lines, System.getProperty("line.separator"));
+    return StringUtils.join(lines, "\n");
   }
 
   public static DefaultInputFile inputFile(String fileName, String language) {

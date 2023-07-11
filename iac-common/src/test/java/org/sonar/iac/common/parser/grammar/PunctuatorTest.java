@@ -19,53 +19,14 @@
  */
 package org.sonar.iac.common.parser.grammar;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.junit.jupiter.api.Test;
 
-public enum Punctuator implements GrammarRuleKey {
-  COLON(":"),
-  COMMA(","),
-  DOUBLEARROW("=>"),
-  DOT("."),
-  EQU("="),
-  ELLIPSIS("..."),
-  LBRACKET("["),
-  RBRACKET("]"),
-  LCURLYBRACE("{"),
-  RCURLYBRACE("}"),
-  LPARENTHESIS("("),
-  RPARENTHESIS(")"),
-  OR("||"),
-  AND("&&"),
-  EQUAL("=="),
-  NOT_EQUAL("!="),
-  GREATER_THAN(">"),
-  GREATER_OR_EQUAL(">="),
-  LESS_THAN("<"),
-  LESS_OR_EQUAL("<="),
-  PLUS("+"),
-  MINUS("-"),
-  DIV("/"),
-  PERCENT("%"),
-  STAR("*"),
-  QUERY("?"),
-  EXCLAMATION("!"),
-  DOUBLE_QUOTE("\""),
-  DOLLAR_LCURLY("${"),
-  DOLLAR_LCURLY_TILDE("${~"),
-  PERCENT_LCURLY("%{"),
-  PERCENT_LCURLY_TILDE("%{~"),
-  TILDE_RCURLY("~}"),
-  DOLLAR("$"),
-  APOSTROPHE("'"),
-  TRIPLE_APOSTROPHE("'''");
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final String value;
+class PunctuatorTest {
 
-  Punctuator(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
+  @Test
+  void testMinimumNumberOfElements() {
+    assertThat(Punctuator.values()).hasSizeGreaterThanOrEqualTo(36);
   }
 }
