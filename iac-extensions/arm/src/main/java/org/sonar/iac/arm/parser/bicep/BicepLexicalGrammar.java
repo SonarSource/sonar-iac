@@ -29,6 +29,9 @@ import org.sonar.iac.common.parser.grammar.Punctuator;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 public enum BicepLexicalGrammar implements GrammarRuleKey {
 
   /**
@@ -55,6 +58,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   METADATA_DECLARATION,
   VARIABLE_DECLARATION,
   RESOURCE_DECLARATION,
+  IMPORT_DECLARATION,
 
   /**
    * Expressions
@@ -64,6 +68,8 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   IDENTIFIER,
   PROPERTY,
   OBJECT_EXPRESSION,
+  FOR_EXPRESSION,
+  FOR_VARIABLE_BLOCK,
 
   LITERAL_VALUE,
   ALPHA_NUMERAL_STRING,
@@ -88,7 +94,10 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   NUMERIC_LITERAL_VALUE,
   TRUE_LITERAL_VALUE,
   FALSE_LITERAL_VALUE,
-  NULL_LITERAL_VALUE;
+  NULL_LITERAL_VALUE,
+
+  IMPORT_AS_CLAUSE,
+  IMPORT_WITH_CLAUSE,;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -103,7 +112,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   private static void punctuators(LexerlessGrammarBuilder b) {
     Stream.of(
       Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE, Punctuator.COMMA,
-      Punctuator.RPARENTHESIS, Punctuator.LPARENTHESIS, Punctuator.DOLLAR_LCURLY)
+      Punctuator.LPARENTHESIS, Punctuator.RPARENTHESIS, Punctuator.LBRACKET, Punctuator.RBRACKET, Punctuator.DOLLAR_LCURLY)
       .forEach(p -> b.rule(p).is(SPACING, p.getValue()).skip());
   }
 

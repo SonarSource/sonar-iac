@@ -33,8 +33,11 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ForExpression;
+import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
@@ -44,6 +47,8 @@ import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
@@ -76,7 +81,8 @@ public class BicepGrammar {
         TARGET_SCOPE_DECLARATION(),
         FUNCTION_DECLARATION(),
         METADATA_DECLARATION(),
-        VARIABLE_DECLARATION()));
+        VARIABLE_DECLARATION(),
+        IMPORT_DECLARATION()));
   }
 
   public TypeDeclaration TYPE_DECLARATION() {
@@ -155,6 +161,27 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.EOL)));
   }
 
+  public ImportDeclaration IMPORT_DECLARATION() {
+    return b.<ImportDeclaration>nonterminal(BicepLexicalGrammar.IMPORT_DECLARATION).is(
+      f.importDeclaration(
+        b.token(BicepKeyword.IMPORT),
+        INTERPOLATED_STRING_TYPE(),
+        b.optional(IMPORT_WITH_CLAUSE()),
+        b.optional(IMPORT_AS_CLAUSE())));
+  }
+
+  public ImportWithClause IMPORT_WITH_CLAUSE() {
+    return b.<ImportWithClause>nonterminal(BicepLexicalGrammar.IMPORT_WITH_CLAUSE).is(f.importWithClause(
+      b.token(BicepKeyword.WITH),
+      OBJECT_EXPRESSION()));
+  }
+
+  public ImportAsClause IMPORT_AS_CLAUSE() {
+    return b.<ImportAsClause>nonterminal(BicepLexicalGrammar.IMPORT_AS_CLAUSE).is(f.importAsClause(
+      b.token(BicepKeyword.AS),
+      IDENTIFIER()));
+  }
+
   // object -> "{" ( NL+ ( property NL+ )* )? "}"
   public ObjectExpression OBJECT_EXPRESSION() {
     return b.<ObjectExpression>nonterminal(BicepLexicalGrammar.OBJECT_EXPRESSION).is(
@@ -176,6 +203,7 @@ public class BicepGrammar {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
       b.firstOf(
         FUNCTION_CALL(),
+        FOR_EXPRESSION(),
         ALPHA_NUMERAL_STRING(),
         LITERAL_VALUE(),
         INTERPOLATED_STRING()));
@@ -273,6 +301,34 @@ public class BicepGrammar {
         EXPRESSION(),
         b.zeroOrMore(
           f.newTuple(b.token(Punctuator.COMMA), EXPRESSION()))));
+  }
+
+  public ForExpression FOR_EXPRESSION() {
+    return b.<ForExpression>nonterminal(BicepLexicalGrammar.FOR_EXPRESSION).is(
+      f.forExpression(
+        b.token(Punctuator.LBRACKET),
+        b.token(BicepKeyword.FOR),
+        FOR_VARIABLE_BLOCK(),
+        b.token(BicepKeyword.IN),
+        EXPRESSION(),
+        b.token(Punctuator.COLON),
+        b.firstOf(
+          EXPRESSION()
+        // TODO: SONARIAC-941 add support for ifCondition
+        ),
+        b.token(Punctuator.RBRACKET)));
+  }
+
+  public ForVariableBlock FOR_VARIABLE_BLOCK() {
+    return b.<ForVariableBlock>nonterminal(BicepLexicalGrammar.FOR_VARIABLE_BLOCK).is(
+      b.firstOf(
+        f.forVariableBlock(IDENTIFIER()),
+        f.forVariableBlock(
+          b.token(Punctuator.LPARENTHESIS),
+          IDENTIFIER(),
+          b.token(Punctuator.COMMA),
+          IDENTIFIER(),
+          b.token(Punctuator.RPARENTHESIS))));
   }
 
   public Identifier IDENTIFIER() {
