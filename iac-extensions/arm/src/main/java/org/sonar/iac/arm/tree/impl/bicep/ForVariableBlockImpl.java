@@ -22,11 +22,11 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.ArmHelper;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.arm.tree.impl.json.ArmHelper;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ForVariableBlockImpl extends AbstractArmTreeImpl implements ForVariableBlock {

@@ -17,34 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser.bicep;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.sslr.grammar.GrammarRuleKey;
+import org.sonar.iac.arm.tree.api.Expression;
 
-public enum BicepKeyword implements GrammarRuleKey {
-
-  EXISTING("existing"),
-  RESOURCE("resource"),
-  TYPE("type"),
-  OUTPUT("output"),
-  TARGET_SCOPE("targetScope"),
-  FOR("for"),
-  IN("in"),
-  IF("if"),
-  FUNC("func"),
-  METADATA("metadata"),
-  VARIABLE("variable"),
-  IMPORT("import"),
-  WITH("with"),
-  AS("as");
-
-  private final String value;
-
-  BicepKeyword(String value) {
-    this.value = value;
-  }
-
-  public String getValue() {
-    return value;
-  }
+public interface ParenthesizedExpression extends Expression {
+  Expression expression();
 }

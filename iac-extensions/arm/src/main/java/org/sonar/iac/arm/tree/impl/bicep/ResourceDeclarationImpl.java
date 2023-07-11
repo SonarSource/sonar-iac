@@ -35,7 +35,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.checks.TextUtils;
 
-import static org.sonar.iac.arm.tree.impl.json.ArmHelper.addChildrenIfPresent;
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 

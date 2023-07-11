@@ -17,35 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep.interpstring;
+package org.sonar.iac.arm.tree.impl.bicep;
 
-import com.sonar.sslr.api.typed.Optional;
-import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.bicep.IfExpression;
+import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
+public class IfExpressionImpl extends AbstractArmTreeImpl implements IfExpression {
 
-public class InterpolatedStringLeftPieceImpl implements InterpolatedStringLeftPiece {
-  private final SyntaxToken leftQuote;
-  @Nullable
-  private final SyntaxToken text;
-  private final SyntaxToken dollarLcurly;
+  private final SyntaxToken keyword;
+  private final ParenthesizedExpression condition;
+  private final ObjectExpression object;
 
-  public InterpolatedStringLeftPieceImpl(SyntaxToken leftQuote, Optional<SyntaxToken> text, SyntaxToken dollarLcurly) {
-    this.leftQuote = leftQuote;
-    this.text = text.orNull();
-    this.dollarLcurly = dollarLcurly;
+  public IfExpressionImpl(SyntaxToken keyword, ParenthesizedExpression condition, ObjectExpression object) {
+    this.keyword = keyword;
+    this.condition = condition;
+    this.object = object;
   }
 
+  @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    children.add(leftQuote);
-    addChildrenIfPresent(children, text);
-    children.add(dollarLcurly);
-    return children;
+    return List.of(keyword, condition, object);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.IF_EXPRESSION;
+  }
+
+  @Override
+  public ParenthesizedExpression condition() {
+    return condition;
+  }
+
+  @Override
+  public ObjectExpression object() {
+    return object;
   }
 }

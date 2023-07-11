@@ -26,8 +26,8 @@ import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
-import org.sonar.iac.common.api.tree.TextTree;
 
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ForVariableBlockImplTest {
@@ -64,8 +64,7 @@ class ForVariableBlockImplTest {
     softly.assertThat(tree.indexIdentifier().is(ArmTree.Kind.IDENTIFIER)).isTrue();
     softly.assertThat(tree.indexIdentifier().value()).isEqualTo("indexIdentifier123");
 
-    softly.assertThat(tree.children())
-      .map(u -> ((TextTree) u).value()).containsExactly("(", "itemIdentifier123", ",", "indexIdentifier123", ")");
+    softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("(", "itemIdentifier123", ",", "indexIdentifier123", ")");
 
     softly.assertAll();
   }
