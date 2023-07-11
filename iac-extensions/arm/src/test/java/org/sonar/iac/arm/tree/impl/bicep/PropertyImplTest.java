@@ -38,6 +38,8 @@ class PropertyImplTest extends BicepTreeModelTest {
     Assertions.assertThat(BicepLexicalGrammar.PROPERTY)
       .matches("key:value")
       .matches("'key':value")
+      .matches("'a${123}b${456}c':value")
+      .matches("'a${123}${456}c':value")
       .matches("key: value")
       .matches("key :value")
       .matches("key : value")
@@ -56,6 +58,7 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(((StringLiteral) tree.value()).value()).isEqualTo("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
+    assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
     Identifier key = (Identifier) tree.children().get(0);
     assertThat(key.value()).isEqualTo("key");
 
@@ -63,6 +66,7 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(colon.children()).isEmpty();
     assertThat(colon.comments()).isEmpty();
 
+    assertThat(((ArmTree) tree.children().get(2)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
     StringLiteral value = (StringLiteral) tree.children().get(2);
     assertThat(value.value()).isEqualTo("value");
 
@@ -76,6 +80,7 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(((StringLiteral) tree.value()).value()).isEqualTo("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
+    assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
     InterpolatedString key = (InterpolatedString) tree.children().get(0);
     assertThat(key.value()).isEqualTo("key");
 
@@ -83,6 +88,7 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(colon.children()).isEmpty();
     assertThat(colon.comments()).isEmpty();
 
+    assertThat(((ArmTree) tree.children().get(2)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
     StringLiteral value = (StringLiteral) tree.children().get(2);
     assertThat(value.value()).isEqualTo("value");
 

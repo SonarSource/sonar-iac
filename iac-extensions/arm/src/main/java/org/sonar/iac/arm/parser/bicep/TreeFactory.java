@@ -83,6 +83,7 @@ import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPiec
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePieceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPieceImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 
 import static java.util.Collections.emptyList;
@@ -208,11 +209,7 @@ public class TreeFactory {
     return new IdentifierImpl(token);
   }
 
-  public Property objectProperty(Identifier key, SyntaxToken colon, Expression value) {
-    return new PropertyImpl(key, colon, value);
-  }
-
-  public Property objectProperty(InterpolatedString key, SyntaxToken colon, Expression value) {
+  public Property objectProperty(TextTree key, SyntaxToken colon, Expression value) {
     return new PropertyImpl(key, colon, value);
   }
 

@@ -35,13 +35,7 @@ public class PropertyImpl extends AbstractArmTreeImpl implements Property {
   private final SyntaxToken colon;
   private final Expression value;
 
-  public PropertyImpl(Identifier key, SyntaxToken colon, Expression value) {
-    this.key = key;
-    this.colon = colon;
-    this.value = value;
-  }
-
-  public PropertyImpl(InterpolatedString key, SyntaxToken colon, Expression value) {
+  public PropertyImpl(TextTree key, SyntaxToken colon, Expression value) {
     this.key = key;
     this.colon = colon;
     this.value = value;

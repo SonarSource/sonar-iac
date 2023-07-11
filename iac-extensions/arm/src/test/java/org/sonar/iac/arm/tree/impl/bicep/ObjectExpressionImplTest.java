@@ -65,10 +65,12 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
     assertThat(leftCurlyBrace.value()).isEqualTo("{");
 
     Property property1 = (Property) tree.children().get(1);
+    assertThat(((ArmTree) property1.key()).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
     assertThat(property1.key().value()).isEqualTo("key1");
     assertThat(((TextTree) property1.value()).value()).isEqualTo("value1");
 
     Property property2 = (Property) tree.children().get(2);
+    assertThat(((ArmTree) property2.key()).getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
     assertThat(property2.key().value()).isEqualTo("key2");
     assertThat(((TextTree) property2.value()).value()).isEqualTo("value2");
 
