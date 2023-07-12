@@ -21,7 +21,6 @@ package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 
 public interface FunctionDeclaration extends Statement {
   Identifier name();
