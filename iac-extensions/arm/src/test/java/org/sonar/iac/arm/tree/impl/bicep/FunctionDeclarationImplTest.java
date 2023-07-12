@@ -51,6 +51,7 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
     String code = code("func myFunction() string => 'result'");
     FunctionDeclaration tree = parse(code, BicepLexicalGrammar.FUNCTION_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.FUNCTION_DECLARATION)).isTrue();
+    assertThat(tree.lambdaExpression().is(ArmTree.Kind.TYPED_LAMBA_EXPRESSION)).isTrue();
     assertThat(tree.name().value()).isEqualTo("myFunction");
     assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("func", "myFunction", "(", ")", "string", "=>", "result");
