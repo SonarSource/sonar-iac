@@ -51,10 +51,13 @@ import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
+import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
+import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.SeparatedList;
@@ -297,6 +300,38 @@ public class BicepGrammar {
         b.token(Punctuator.RCURLYBRACE),
         b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
         b.token(Punctuator.APOSTROPHE)));
+  }
+
+  public TypedLambdaExpression TYPED_LAMBDA_EXPRESSION() {
+    return b.<TypedLambdaExpression>nonterminal(BicepLexicalGrammar.TYPED_LAMBDA_EXPRESSION).is(
+      f.typedLambdaExpression(
+        TYPED_VARIABLE_BLOCK(),
+        // TODO: replace with PRIMARY_TYPE_EXPRESSION (after SONARIAC-871)
+        AMBIENT_TYPE_REFERENCE(),
+        b.token(Punctuator.DOUBLEARROW),
+        EXPRESSION()));
+  }
+
+  public TypedVariableBlock TYPED_VARIABLE_BLOCK() {
+    return b.<TypedVariableBlock>nonterminal(BicepLexicalGrammar.TYPED_VARIABLE_BLOCK).is(
+      f.typedVariableBlock(
+        b.token(Punctuator.LPARENTHESIS),
+        b.optional(
+          f.typedArgumentList(
+            TYPED_LOCAL_VARIABLE(),
+            b.zeroOrMore(
+              f.newTuple(
+                b.token(Punctuator.COMMA),
+                TYPED_LOCAL_VARIABLE())))),
+        b.token(Punctuator.RPARENTHESIS)));
+  }
+
+  public TypedLocalVariable TYPED_LOCAL_VARIABLE() {
+    return b.<TypedLocalVariable>nonterminal(BicepLexicalGrammar.TYPED_LOCAL_VARIABLE).is(
+      f.typedLocalVariable(
+        IDENTIFIER(),
+        // TODO: replace with PRIMARY_TYPE_EXPRESSION (after SONARIAC-871)
+        AMBIENT_TYPE_REFERENCE()));
   }
 
   public AmbientTypeReference AMBIENT_TYPE_REFERENCE() {
