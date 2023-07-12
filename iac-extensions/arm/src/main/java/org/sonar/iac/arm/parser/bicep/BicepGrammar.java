@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
@@ -66,6 +67,7 @@ import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
 import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
+import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.NEW_LINE;
 
 // Ignore uppercase method names warning
 @SuppressWarnings("java:S100")
@@ -359,6 +361,22 @@ public class BicepGrammar {
         b.token(Punctuator.COLON),
         // TODO Replace by typeExpression in SONARIAC-969 ARM Bicep support: create typeExpression
         STRING_LITERAL()));
+  }
+
+  public ArrayExpression ARRAY_EXPRESSION() {
+    return b.<ArrayExpression>nonterminal(BicepLexicalGrammar.ARRAY_EXPRESSION).is(
+      f.arrayExpression(
+        b.token(Punctuator.LBRACKET),
+        b.optional(b.token(NEW_LINE)),
+        b.zeroOrMore(
+          f.tuple(
+            EXPRESSION(),
+            b.token(NEW_LINE)
+          )
+        ),
+        b.token(Punctuator.RBRACKET)
+      )
+    );
   }
 
   public AmbientTypeReference AMBIENT_TYPE_REFERENCE() {

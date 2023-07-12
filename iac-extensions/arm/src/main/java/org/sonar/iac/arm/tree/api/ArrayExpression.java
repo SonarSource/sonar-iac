@@ -22,5 +22,10 @@ package org.sonar.iac.arm.tree.api;
 import java.util.List;
 
 public interface ArrayExpression extends Expression {
+  @Override
+  default Kind getKind() {
+    return Kind.ARRAY_EXPRESSION;
+  }
+
   List<Expression> elements();
 }

@@ -22,6 +22,7 @@ package org.sonar.iac.arm.parser.bicep;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
@@ -63,6 +64,7 @@ import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiec
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
@@ -244,6 +246,10 @@ public class TreeFactory {
 
   public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Property>> properties, SyntaxToken rightCurlyBrace) {
     return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
+  }
+
+  public ArrayExpression arrayExpression(SyntaxToken lBracket, Optional<SyntaxToken> firstNewLine, Optional<List<Tuple<Expression, SyntaxToken>>> elements, SyntaxToken rBracket) {
+    return new ArrayExpressionImpl(lBracket, firstNewLine.orNull(), elements.or(emptyList()), rBracket);
   }
 
   public NumericLiteral numericLiteral(SyntaxToken token) {
