@@ -46,6 +46,8 @@ import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
+import org.sonar.iac.arm.tree.api.bicep.ObjectType;
+import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -96,7 +98,8 @@ public class BicepGrammar {
         METADATA_DECLARATION(),
         VARIABLE_DECLARATION(),
         IMPORT_DECLARATION(),
-        MODULE_DECLARATION()));
+        MODULE_DECLARATION(),
+        RESOURCE_DECLARATION()));
   }
 
   public TypeDeclaration TYPE_DECLARATION() {
@@ -186,12 +189,14 @@ public class BicepGrammar {
   public ResourceDeclaration RESOURCE_DECLARATION() {
     return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
       f.resourceDeclaration(
+        // TODO SONARIAC-972 ARM Bicep: add decorator to resourceDecl
         b.token(BicepKeyword.RESOURCE),
         IDENTIFIER(),
         INTERPOLATED_STRING(),
         b.optional(b.token(BicepKeyword.EXISTING)),
         b.token(Punctuator.EQU),
         b.firstOf(
+          // TODO SONARIAC-974 ARM Bicep add forExpression to resourceDecl
           OBJECT_EXPRESSION(),
           IF_EXPRESSION()),
         b.token(BicepLexicalGrammar.EOL)));
@@ -231,7 +236,6 @@ public class BicepGrammar {
           FOR_EXPRESSION())));
   }
 
-  // object -> "{" ( NL+ ( property NL+ )* )? "}"
   public ObjectExpression OBJECT_EXPRESSION() {
     return b.<ObjectExpression>nonterminal(BicepLexicalGrammar.OBJECT_EXPRESSION).is(
       f.objectExpression(
@@ -320,7 +324,7 @@ public class BicepGrammar {
           f.typedArgumentList(
             TYPED_LOCAL_VARIABLE(),
             b.zeroOrMore(
-              f.newTuple(
+              f.tuple(
                 b.token(Punctuator.COMMA),
                 TYPED_LOCAL_VARIABLE())))),
         b.token(Punctuator.RPARENTHESIS)));
@@ -332,6 +336,29 @@ public class BicepGrammar {
         IDENTIFIER(),
         // TODO: replace with PRIMARY_TYPE_EXPRESSION (after SONARIAC-871)
         AMBIENT_TYPE_REFERENCE()));
+  }
+
+  public ObjectType OBJECT_TYPE() {
+    return b.<ObjectType>nonterminal(BicepLexicalGrammar.OBJECT_TYPE).is(
+      f.objectType(
+        b.token(Punctuator.LCURLYBRACE),
+        b.zeroOrMore(
+          OBJECT_TYPE_PROPERTY()),
+        b.token(Punctuator.RCURLYBRACE)));
+  }
+
+  public ObjectTypeProperty OBJECT_TYPE_PROPERTY() {
+    return b.<ObjectTypeProperty>nonterminal(BicepLexicalGrammar.OBJECT_TYPE_PROPERTY).is(
+      // TODO SONARIAC-971 Add decorator to objectTypeProperty to objectTypeAdditionalPropertiesMatcher
+      f.objectTypeProperty(
+        b.firstOf(
+          MULTILINE_STRING(),
+          IDENTIFIER(),
+          STRING_COMPLETE(),
+          b.token(Punctuator.STAR)),
+        b.token(Punctuator.COLON),
+        // TODO Replace by typeExpression in SONARIAC-969 ARM Bicep support: create typeExpression
+        STRING_LITERAL()));
   }
 
   public AmbientTypeReference AMBIENT_TYPE_REFERENCE() {
@@ -381,7 +408,7 @@ public class BicepGrammar {
     return b.<MultilineString>nonterminal(BicepLexicalGrammar.MULTILINE_STRING).is(
       f.multilineString(
         b.token(Punctuator.TRIPLE_APOSTROPHE),
-        b.token(BicepLexicalGrammar.MULTILINE_STRING_REGEX),
+        b.token(BicepLexicalGrammar.MULTILINE_STRING_VALUE),
         b.token(Punctuator.TRIPLE_APOSTROPHE)));
   }
 
@@ -399,7 +426,7 @@ public class BicepGrammar {
       f.functionCallArguments(
         EXPRESSION(),
         b.zeroOrMore(
-          f.newTuple(b.token(Punctuator.COMMA), EXPRESSION()))));
+          f.tuple(b.token(Punctuator.COMMA), EXPRESSION()))));
   }
 
   public ForExpression FOR_EXPRESSION() {

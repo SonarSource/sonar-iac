@@ -21,6 +21,7 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
@@ -47,6 +48,8 @@ import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
+import org.sonar.iac.arm.tree.api.bicep.ObjectType;
+import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -77,6 +80,8 @@ import org.sonar.iac.arm.tree.impl.bicep.MultilineStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ObjectTypeImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ObjectTypePropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParameterDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedExpressionImpl;
@@ -266,6 +271,18 @@ public class TreeFactory {
     return new ImportAsClause(keyword, alias);
   }
 
+  public <T, U> Tuple<T, U> tuple(T first, U second) {
+    return new Tuple<>(first, second);
+  }
+
+  public ObjectType objectType(SyntaxToken openingCurlyBracket, Optional<List<ArmTree>> properties, SyntaxToken closingCurlyBracket) {
+    return new ObjectTypeImpl(openingCurlyBracket, properties.or(List.of()), closingCurlyBracket);
+  }
+
+  public ObjectTypeProperty objectTypeProperty(TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
+    return new ObjectTypePropertyImpl(name, colon, typeExpression);
+  }
+
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {
     return new AmbientTypeReferenceImpl(token);
   }
@@ -305,9 +322,5 @@ public class TreeFactory {
 
   public Decorator decorator(SyntaxToken keyword, FunctionCall decoratorExpression) {
     return new DecoratorImpl(keyword, decoratorExpression);
-  }
-
-  public <T, U> Tuple<T, U> newTuple(T first, U second) {
-    return new Tuple<>(first, second);
   }
 }

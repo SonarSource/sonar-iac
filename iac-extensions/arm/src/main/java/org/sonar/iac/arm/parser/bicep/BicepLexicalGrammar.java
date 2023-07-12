@@ -67,6 +67,8 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   OBJECT_EXPRESSION,
   FOR_EXPRESSION,
   FOR_VARIABLE_BLOCK,
+  OBJECT_TYPE,
+  OBJECT_TYPE_PROPERTY,
   AMBIENT_TYPE_REFERENCE,
   IF_EXPRESSION,
   PARENTHESIZED_EXPRESSION,
@@ -81,7 +83,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
 
   STRING_LITERAL,
   MULTILINE_STRING,
-  MULTILINE_STRING_REGEX,
+  MULTILINE_STRING_VALUE,
   NUMBER_LITERAL,
   NUMERIC_LITERAL,
   BOOLEAN_LITERAL,
@@ -111,7 +113,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   private static final List<Punctuator> LIST_OF_PUNCTUATORS = List.of(
     Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE, Punctuator.COMMA,
     Punctuator.RPARENTHESIS, Punctuator.LPARENTHESIS, Punctuator.LBRACKET, Punctuator.RBRACKET,
-    Punctuator.DOLLAR_LCURLY, Punctuator.TRIPLE_APOSTROPHE, Punctuator.AT, Punctuator.DOUBLEARROW);
+    Punctuator.DOLLAR_LCURLY, Punctuator.TRIPLE_APOSTROPHE, Punctuator.AT, Punctuator.DOUBLEARROW, Punctuator.STAR);
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
@@ -141,7 +143,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(QUOTED_STRING_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.QUOTED_STRING_LITERAL_NO_QUOTES));
     b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
     b.rule(STRING_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.STRING));
-    b.rule(MULTILINE_STRING_REGEX).is(SPACING, b.regexp(BicepLexicalConstant.MULTILINE_STRING));
+    b.rule(MULTILINE_STRING_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.MULTILINE_STRING));
     b.rule(NUMERIC_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NUMBER));
     b.rule(TRUE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.TRUE));
     b.rule(FALSE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.FALSE));
