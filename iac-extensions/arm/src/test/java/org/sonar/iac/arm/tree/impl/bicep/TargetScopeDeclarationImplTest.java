@@ -64,7 +64,8 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
     "resourceGroup,   RESOURCE_GROUP",
     "subscription,    SUBSCRIPTION",
     "tenant,          TENANT",
-    "other,           UNKNOWN"
+    "other,           UNKNOWN",
+    "${foo},          UNKNOWN"
   })
   void shouldParseProperTarget(String targetScopeCode, String targetScopeEnum) {
     String code = code("targetScope='" + targetScopeCode + "'");
