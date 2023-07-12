@@ -21,11 +21,9 @@ package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 
 public interface FunctionDeclaration extends Statement {
   Identifier name();
 
-  // TODO SONARIAC-954 Put in place typedLambdaExpression instead of StringLiteral
-  StringLiteral lambdaExpression();
+  TypedLambdaExpression lambdaExpression();
 }

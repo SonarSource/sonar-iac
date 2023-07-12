@@ -163,7 +163,7 @@ public class BicepGrammar {
       f.functionDeclaration(
         b.token(BicepKeyword.FUNC),
         IDENTIFIER(),
-        STRING_LITERAL()));
+        TYPED_LAMBDA_EXPRESSION()));
   }
 
   public MetadataDeclaration METADATA_DECLARATION() {

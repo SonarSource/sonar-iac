@@ -21,9 +21,9 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -31,9 +31,9 @@ public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements Func
 
   private final SyntaxToken func;
   private final Identifier name;
-  private final StringLiteral lambdaExpression;
+  private final TypedLambdaExpression lambdaExpression;
 
-  public FunctionDeclarationImpl(SyntaxToken func, Identifier name, StringLiteral lambdaExpression) {
+  public FunctionDeclarationImpl(SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
     this.func = func;
     this.name = name;
     this.lambdaExpression = lambdaExpression;
@@ -45,7 +45,7 @@ public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements Func
   }
 
   @Override
-  public StringLiteral lambdaExpression() {
+  public TypedLambdaExpression lambdaExpression() {
     return lambdaExpression;
   }
 
