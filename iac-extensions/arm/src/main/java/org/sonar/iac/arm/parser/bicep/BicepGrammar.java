@@ -606,7 +606,7 @@ public class BicepGrammar {
     return b.<MemberExpression>nonterminal(BicepLexicalGrammar.MEMBER_EXPRESSION).is(
       f.memberExpression(
         EXPRESSION(),
-        b.optional(RECURSIVE_MEMBER_EXPRESSION())));
+        RECURSIVE_MEMBER_EXPRESSION()));
   }
 
   public RecursiveMemberExpression RECURSIVE_MEMBER_EXPRESSION() {
@@ -614,22 +614,23 @@ public class BicepGrammar {
       b.firstOf(
         f.recursiveMemberExpression(
           b.token(Punctuator.EXCLAMATION),
-          b.optional(RECURSIVE_MEMBER_EXPRESSION())),
+          RECURSIVE_MEMBER_EXPRESSION()),
         f.recursiveMemberExpression(
           b.token(Punctuator.DOT),
           FUNCTION_CALL(),
-          b.optional(RECURSIVE_MEMBER_EXPRESSION())),
+          RECURSIVE_MEMBER_EXPRESSION()),
         f.recursiveMemberExpression(
           b.firstOf(
             b.token(Punctuator.DOT),
             b.token(Punctuator.COLON)),
           IDENTIFIER(),
-          b.optional(RECURSIVE_MEMBER_EXPRESSION())),
+          RECURSIVE_MEMBER_EXPRESSION()),
         f.recursiveMemberExpression(
           b.token(Punctuator.LBRACKET),
           EXPRESSION(),
           b.token(Punctuator.RBRACKET),
-          b.optional(RECURSIVE_MEMBER_EXPRESSION()))));
+          RECURSIVE_MEMBER_EXPRESSION()),
+        f.recursiveMemberExpression()));
   }
 
   public ParenthesizedExpression PARENTHESIZED_EXPRESSION() {
