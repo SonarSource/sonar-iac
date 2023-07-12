@@ -324,7 +324,7 @@ public class BicepGrammar {
           f.typedArgumentList(
             TYPED_LOCAL_VARIABLE(),
             b.zeroOrMore(
-              f.newTuple(
+              f.tuple(
                 b.token(Punctuator.COMMA),
                 TYPED_LOCAL_VARIABLE())))),
         b.token(Punctuator.RPARENTHESIS)));
