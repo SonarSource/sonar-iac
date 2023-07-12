@@ -188,7 +188,9 @@ public class BicepGrammar {
         INTERPOLATED_STRING(),
         b.optional(b.token(BicepKeyword.EXISTING)),
         b.token(Punctuator.EQU),
-        OBJECT_EXPRESSION(),
+        b.firstOf(
+          OBJECT_EXPRESSION(),
+          IF_EXPRESSION()),
         b.token(BicepLexicalGrammar.EOL)));
   }
 
