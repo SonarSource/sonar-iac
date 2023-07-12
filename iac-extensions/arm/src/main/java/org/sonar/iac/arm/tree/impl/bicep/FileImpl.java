@@ -21,12 +21,13 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -54,19 +55,21 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
 
   @Override
   public Scope targetScope() {
-    // TODO fix it in SONARIAC-932 Adapt targetScope Bicep implementation in Bicep FileImpl
-    return Scope.RESOURCE_GROUP;
+    return findDeclarationStatement().map(TargetScopeDeclaration::scope).orElse(Scope.RESOURCE_GROUP);
   }
 
   @CheckForNull
   @Override
   public Expression targetScopeLiteral() {
-    // TODO fix it in SONARIAC-932 Adapt targetScope Bicep implementation in Bicep FileImpl
-    return null;
+    return findDeclarationStatement().map(TargetScopeDeclaration::value).orElse(null);
   }
 
   @Override
   public List<Statement> statements() {
     return statements;
+  }
+
+  private Optional<TargetScopeDeclaration> findDeclarationStatement() {
+    return statements.stream().filter(s -> s.is(Kind.TARGET_SCOPE_DECLARATION)).findFirst().map(d -> ((TargetScopeDeclaration) d));
   }
 }
