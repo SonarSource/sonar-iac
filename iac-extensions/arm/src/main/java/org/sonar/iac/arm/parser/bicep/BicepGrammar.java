@@ -606,31 +606,32 @@ public class BicepGrammar {
     return b.<MemberExpression>nonterminal(BicepLexicalGrammar.MEMBER_EXPRESSION).is(
       f.memberExpression(
         EXPRESSION(),
-        RECURSIVE_MEMBER_EXPRESSION()));
+        b.optional(RECURSIVE_MEMBER_EXPRESSION())));
   }
 
+  // SSLR prevents infinite recursion from happening
+  @SuppressWarnings("javabugs:S2190")
   public RecursiveMemberExpression RECURSIVE_MEMBER_EXPRESSION() {
     return b.<RecursiveMemberExpression>nonterminal(BicepLexicalGrammar.RECURSIVE_MEMBER_EXPRESSION).is(
       b.firstOf(
         f.recursiveMemberExpression(
           b.token(Punctuator.EXCLAMATION),
-          RECURSIVE_MEMBER_EXPRESSION()),
+          b.optional(RECURSIVE_MEMBER_EXPRESSION())),
         f.recursiveMemberExpression(
           b.token(Punctuator.DOT),
           FUNCTION_CALL(),
-          RECURSIVE_MEMBER_EXPRESSION()),
+          b.optional(RECURSIVE_MEMBER_EXPRESSION())),
         f.recursiveMemberExpression(
           b.firstOf(
             b.token(Punctuator.DOT),
             b.token(Punctuator.COLON)),
           IDENTIFIER(),
-          RECURSIVE_MEMBER_EXPRESSION()),
+          b.optional(RECURSIVE_MEMBER_EXPRESSION())),
         f.recursiveMemberExpression(
           b.token(Punctuator.LBRACKET),
           EXPRESSION(),
           b.token(Punctuator.RBRACKET),
-          RECURSIVE_MEMBER_EXPRESSION()),
-        f.recursiveMemberExpression()));
+          b.optional(RECURSIVE_MEMBER_EXPRESSION()))));
   }
 
   public ParenthesizedExpression PARENTHESIZED_EXPRESSION() {

@@ -252,30 +252,26 @@ public class TreeFactory {
     return new IfExpressionImpl(keyword, condition, object);
   }
 
-  public MemberExpression memberExpression(Expression value, RecursiveMemberExpression recursiveMemberExpression) {
-    return new MemberExpressionImpl(value, recursiveMemberExpression);
+  public MemberExpression memberExpression(Expression value, Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new MemberExpressionImpl(value, recursiveMemberExpression.orNull());
   }
 
-  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Identifier identifier, RecursiveMemberExpression recursiveMemberExpression) {
-    return new RecursiveMemberExpressionImpl(firstToken, identifier, recursiveMemberExpression);
+  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Identifier identifier, Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new RecursiveMemberExpressionImpl(firstToken, identifier, recursiveMemberExpression.orNull());
   }
 
   public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Expression expression, SyntaxToken secondToken,
-    RecursiveMemberExpression recursiveMemberExpression) {
-    return new RecursiveMemberExpressionImpl(firstToken, expression, secondToken, recursiveMemberExpression);
+    Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new RecursiveMemberExpressionImpl(firstToken, expression, secondToken, recursiveMemberExpression.orNull());
   }
 
   public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, FunctionCall functionCall,
-    RecursiveMemberExpression recursiveMemberExpression) {
-    return new RecursiveMemberExpressionImpl(firstToken, functionCall, recursiveMemberExpression);
+    Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new RecursiveMemberExpressionImpl(firstToken, functionCall, recursiveMemberExpression.orNull());
   }
 
-  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, RecursiveMemberExpression recursiveMemberExpression) {
-    return new RecursiveMemberExpressionImpl(firstToken, recursiveMemberExpression);
-  }
-
-  public RecursiveMemberExpression recursiveMemberExpression() {
-    return null;
+  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new RecursiveMemberExpressionImpl(firstToken, recursiveMemberExpression.orNull());
   }
 
   public ParenthesizedExpression parenthesizedExpression(SyntaxToken leftParenthesis, Expression expression, SyntaxToken rightParenthesis) {
