@@ -24,11 +24,8 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.common.checks.TextUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -46,6 +43,10 @@ class ObjectTypeImplTest extends BicepTreeModelTest {
       .matches("{\n'string complete' : abc\n}")
       .matches("{\n'''single multiline''' : abc\n}")
       .matches("{\n'''\nsingle\nmultiline\n''' : abc\n}")
+      .matches("{*: abc}")
+      .matches("{\n*: abc\n}")
+      // it is invalid bicep syntax but accepted by this parser
+      .matches("{* : abc\n}")
 
       .notMatches("identifier :")
       .notMatches("output myOutput : abc")

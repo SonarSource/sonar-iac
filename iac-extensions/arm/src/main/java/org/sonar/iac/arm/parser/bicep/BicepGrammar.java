@@ -47,7 +47,6 @@ import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
-import org.sonar.iac.arm.tree.api.bicep.ObjectTypeAdditionalPropertiesMatcher;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
@@ -237,7 +236,6 @@ public class BicepGrammar {
           FOR_EXPRESSION())));
   }
 
-  // object -> "{" ( NL+ ( property NL+ )* )? "}"
   public ObjectExpression OBJECT_EXPRESSION() {
     return b.<ObjectExpression>nonterminal(BicepLexicalGrammar.OBJECT_EXPRESSION).is(
       f.objectExpression(
@@ -340,15 +338,12 @@ public class BicepGrammar {
         AMBIENT_TYPE_REFERENCE()));
   }
 
-  // objectType -> "{" (NL+ ((objectTypeProperty | objectTypeAdditionalPropertiesMatcher) NL+ )* )? "}"
   public ObjectType OBJECT_TYPE() {
     return b.<ObjectType>nonterminal(BicepLexicalGrammar.OBJECT_TYPE).is(
       f.objectType(
         b.token(Punctuator.LCURLYBRACE),
         b.zeroOrMore(
-          b.firstOf(
-            OBJECT_TYPE_ADDITIONAL_PROPERTIES_MATCHER(),
-            OBJECT_TYPE_PROPERTY())),
+          OBJECT_TYPE_PROPERTY()),
         b.token(Punctuator.RCURLYBRACE)));
   }
 
@@ -359,17 +354,9 @@ public class BicepGrammar {
         b.firstOf(
           MULTILINE_STRING(),
           IDENTIFIER(),
-          STRING_COMPLETE()),
+          STRING_COMPLETE(),
+          b.token(Punctuator.STAR)),
         b.token(Punctuator.COLON),
-        // TODO Replace by typeExpression in SONARIAC-969 ARM Bicep support: create typeExpression
-        STRING_LITERAL()));
-  }
-
-  public ObjectTypeAdditionalPropertiesMatcher OBJECT_TYPE_ADDITIONAL_PROPERTIES_MATCHER() {
-    return b.<ObjectTypeAdditionalPropertiesMatcher>nonterminal(BicepLexicalGrammar.OBJECT_TYPE_ADDITIONAL_PROPERTIES_MATCHER).is(
-      // TODO SONARIAC-971 Add decorator to objectTypeProperty to objectTypeAdditionalPropertiesMatcher
-      f.objectTypeAdditionalPropertiesMatcher(
-        b.token(Punctuator.STAR_COLON),
         // TODO Replace by typeExpression in SONARIAC-969 ARM Bicep support: create typeExpression
         STRING_LITERAL()));
   }
@@ -421,7 +408,7 @@ public class BicepGrammar {
     return b.<MultilineString>nonterminal(BicepLexicalGrammar.MULTILINE_STRING).is(
       f.multilineString(
         b.token(Punctuator.TRIPLE_APOSTROPHE),
-        b.token(BicepLexicalGrammar.MULTILINE_STRING_REGEX),
+        b.token(BicepLexicalGrammar.MULTILINE_STRING_VALUE),
         b.token(Punctuator.TRIPLE_APOSTROPHE)));
   }
 
@@ -439,7 +426,7 @@ public class BicepGrammar {
       f.functionCallArguments(
         EXPRESSION(),
         b.zeroOrMore(
-          f.newTuple(b.token(Punctuator.COMMA), EXPRESSION()))));
+          f.tuple(b.token(Punctuator.COMMA), EXPRESSION()))));
   }
 
   public ForExpression FOR_EXPRESSION() {

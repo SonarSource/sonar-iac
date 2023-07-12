@@ -49,7 +49,6 @@ import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
-import org.sonar.iac.arm.tree.api.bicep.ObjectTypeAdditionalPropertiesMatcher;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
@@ -81,7 +80,6 @@ import org.sonar.iac.arm.tree.impl.bicep.MultilineStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NullLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.NumericLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectExpressionImpl;
-import org.sonar.iac.arm.tree.impl.bicep.ObjectTypeAdditionalPropertiesMatcherImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectTypeImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ObjectTypePropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.OutputDeclarationImpl;
@@ -273,7 +271,7 @@ public class TreeFactory {
     return new ImportAsClause(keyword, alias);
   }
 
-  public <T, U> Tuple<T, U> newTuple(T first, U second) {
+  public <T, U> Tuple<T, U> tuple(T first, U second) {
     return new Tuple<>(first, second);
   }
 
@@ -283,10 +281,6 @@ public class TreeFactory {
 
   public ObjectTypeProperty objectTypeProperty(TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
     return new ObjectTypePropertyImpl(name, colon, typeExpression);
-  }
-
-  public ObjectTypeAdditionalPropertiesMatcher objectTypeAdditionalPropertiesMatcher(SyntaxToken starColon, StringLiteral typeExpression) {
-    return new ObjectTypeAdditionalPropertiesMatcherImpl(starColon, typeExpression);
   }
 
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {

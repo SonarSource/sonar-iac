@@ -33,7 +33,6 @@ import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
-import org.sonar.iac.arm.tree.api.bicep.ObjectTypeAdditionalPropertiesMatcher;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
@@ -90,7 +89,6 @@ public interface ArmTree extends Tree {
     FOR_VARIABLE_BLOCK(ForVariableBlock.class),
     OBJECT_TYPE(ObjectType.class),
     OBJECT_TYPE_PROPERTY(ObjectTypeProperty.class),
-    OBJECT_TYPE_ADDITIONAL_PROPERTIES_MATCHER(ObjectTypeAdditionalPropertiesMatcher.class),
     IF_EXPRESSION(IfExpression.class),
     PARENTHESIZED_EXPRESSION(ParenthesizedExpression.class),
     AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class),
