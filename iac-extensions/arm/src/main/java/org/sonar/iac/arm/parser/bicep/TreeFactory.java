@@ -282,16 +282,23 @@ public class TreeFactory {
     return new TypedLocalVariableImpl(identifier, primaryTypeExpression);
   }
 
-  public TypedVariableBlock typedVariableBlock(SyntaxToken lParen, Optional<SeparatedList<TypedLocalVariable, SyntaxToken>> variableList, SyntaxToken rParen) {
+  public TypedVariableBlock typedVariableBlock(
+    SyntaxToken lParen,
+    Optional<SeparatedList<TypedLocalVariable, SyntaxToken>> variableList,
+    SyntaxToken rParen) {
     return new TypedVariableBlockImpl(lParen, variableList.or(emptySeparatedList()), rParen);
   }
 
-  public TypedLambdaExpression typedLambdaExpression(TypedVariableBlock typedVariableBlock, AmbientTypeReference primaryTypeExpression, SyntaxToken doubleArrow,
+  public TypedLambdaExpression typedLambdaExpression(
+    TypedVariableBlock typedVariableBlock,
+    AmbientTypeReference primaryTypeExpression,
+    SyntaxToken doubleArrow,
     Expression expression) {
     return new TypedLambdaExpressionImpl(typedVariableBlock, primaryTypeExpression, doubleArrow, expression);
   }
 
-  public SeparatedList<TypedLocalVariable, SyntaxToken> typedArgumentList(TypedLocalVariable firstArgument,
+  public SeparatedList<TypedLocalVariable, SyntaxToken> typedArgumentList(
+    TypedLocalVariable firstArgument,
     Optional<List<Tuple<SyntaxToken, TypedLocalVariable>>> additionalArguments) {
     return separatedList(firstArgument, additionalArguments);
   }
