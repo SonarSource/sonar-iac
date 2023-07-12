@@ -21,7 +21,6 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
@@ -47,12 +46,14 @@ import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
+import org.sonar.iac.arm.tree.api.bicep.RecursiveMemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -62,14 +63,14 @@ import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
-import org.sonar.iac.arm.tree.api.bicep.variable.LambdaVariable;
-import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
+import org.sonar.iac.arm.tree.api.bicep.variable.LambdaVariable;
 import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
+import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
@@ -84,6 +85,7 @@ import org.sonar.iac.arm.tree.impl.bicep.IfExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.LambdaExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.MemberExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ModuleDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MultilineStringImpl;
@@ -96,6 +98,7 @@ import org.sonar.iac.arm.tree.impl.bicep.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParameterDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
+import org.sonar.iac.arm.tree.impl.bicep.RecursiveMemberExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
@@ -247,6 +250,28 @@ public class TreeFactory {
 
   public IfExpression ifExpression(SyntaxToken keyword, ParenthesizedExpression condition, ObjectExpression object) {
     return new IfExpressionImpl(keyword, condition, object);
+  }
+
+  public MemberExpression memberExpression(Expression value, Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new MemberExpressionImpl(value, recursiveMemberExpression.orNull());
+  }
+
+  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Identifier identifier, Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new RecursiveMemberExpressionImpl(firstToken, identifier, recursiveMemberExpression.orNull());
+  }
+
+  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Expression expression, SyntaxToken secondToken,
+    Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new RecursiveMemberExpressionImpl(firstToken, expression, secondToken, recursiveMemberExpression.orNull());
+  }
+
+  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, FunctionCall functionCall,
+    Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new RecursiveMemberExpressionImpl(firstToken, functionCall, recursiveMemberExpression.orNull());
+  }
+
+  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Optional<RecursiveMemberExpression> recursiveMemberExpression) {
+    return new RecursiveMemberExpressionImpl(firstToken, recursiveMemberExpression.orNull());
   }
 
   public ParenthesizedExpression parenthesizedExpression(SyntaxToken leftParenthesis, Expression expression, SyntaxToken rightParenthesis) {
