@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
@@ -80,6 +81,8 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
+    softly.assertThat(tree.value().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    softly.assertThat(((StringLiteral) tree.value()).value()).isEqualTo("memberExpression");
     softly.assertThat(tree.recursiveMemberExpression().is(ArmTree.Kind.RECURSIVE_MEMBER_EXPRESSION)).isTrue();
     softly.assertThat(tree.recursiveMemberExpression().rightSideIdentifier().value()).isEqualTo("identifier123");
     softly.assertThat(tree.recursiveMemberExpression().children()).hasSize(2);
@@ -94,6 +97,8 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
+    softly.assertThat(tree.value().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    softly.assertThat(((StringLiteral) tree.value()).value()).isEqualTo("memberExpression");
     softly.assertThat(tree.recursiveMemberExpression().is(ArmTree.Kind.RECURSIVE_MEMBER_EXPRESSION)).isTrue();
     softly.assertThat(tree.recursiveMemberExpression().rightSideExpression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
     softly.assertThat(tree.recursiveMemberExpression().children()).hasSize(2);
@@ -108,6 +113,8 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
+    softly.assertThat(tree.value().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    softly.assertThat(((StringLiteral) tree.value()).value()).isEqualTo("memberExpression");
     softly.assertThat(tree.recursiveMemberExpression().is(ArmTree.Kind.RECURSIVE_MEMBER_EXPRESSION)).isTrue();
     softly.assertThat(tree.recursiveMemberExpression().rightSideExpression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
     softly.assertThat(tree.recursiveMemberExpression().children()).hasSize(3);
@@ -122,6 +129,8 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
+    softly.assertThat(tree.value().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    softly.assertThat(((StringLiteral) tree.value()).value()).isEqualTo("memberExpression");
     softly.assertThat(tree.recursiveMemberExpression().is(ArmTree.Kind.RECURSIVE_MEMBER_EXPRESSION)).isTrue();
     softly.assertThat(tree.recursiveMemberExpression().rightSideIdentifier().value()).isEqualTo("identifier123");
     softly.assertThat(tree.recursiveMemberExpression().recursiveMemberExpression().is(ArmTree.Kind.RECURSIVE_MEMBER_EXPRESSION)).isTrue();
