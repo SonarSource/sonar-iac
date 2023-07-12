@@ -141,7 +141,7 @@ public class TreeFactory {
     return new ParameterDeclarationImpl(keyword, name, resource, typeInterp, equ.orNull(), defaultValue.orNull());
   }
 
-  public FunctionDeclaration functionDeclaration(SyntaxToken func, Identifier name, StringLiteral lambdaExpression) {
+  public FunctionDeclaration functionDeclaration(SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
     return new FunctionDeclarationImpl(func, name, lambdaExpression);
   }
 
