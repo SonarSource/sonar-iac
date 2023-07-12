@@ -20,8 +20,9 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.ArmAssertions;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -29,6 +30,7 @@ import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
@@ -38,15 +40,15 @@ import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.RESOURCE_DECLARATION);
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "{ key: value }",
+    "if (condition) { key: value }"
+  })
+  void shouldParseMinimalResourceDeclarationObject(String body) {
+    String code = code("resource myName 'type@version' = " + body);
 
-  @Test
-  void shouldParseMinimalResourceDeclaration() {
-    String code = code("resource myName 'type@version' = {",
-      "key: value",
-      "}");
-
-    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
     assertThat(tree.name().value()).isEqualTo("myName");
     assertThat(tree.type().value()).isEqualTo("type");
@@ -60,9 +62,11 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(((Identifier) tree.children().get(1)).value()).isEqualTo("myName");
     assertThat(((StringComplete) tree.children().get(2)).value()).isEqualTo("type@version");
     assertThat(((SyntaxToken) tree.children().get(3)).value()).isEqualTo("=");
-    assertThat(((ObjectExpression) tree.children().get(4)).properties()).hasSize(1);
+    assertThat(tree.children().get(4)).isInstanceOfAny(ObjectExpression.class, IfExpression.class);
     assertThat(((SyntaxToken) tree.children().get(5)).value()).isBlank();
     assertThat(tree.children()).hasSize(6);
+
+    assertThat(tree.properties()).hasSize(1);
   }
 
   @Test
@@ -71,7 +75,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
       "key: value",
       "}");
 
-    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
 
     assertThat(tree.existing()).isTrue();
   }
@@ -106,10 +110,10 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     String code = code("resource myName 'type_version' = {",
       "}");
 
-    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
-    assertThatThrownBy(() -> tree.type())
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThatThrownBy(tree::type)
       .isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(() -> tree.version())
+    assertThatThrownBy(tree::version)
       .isInstanceOf(UnsupportedOperationException.class);
   }
 
@@ -118,10 +122,10 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     String code = code("resource myName 'foo@bar@baz' = {",
       "}");
 
-    ResourceDeclaration tree = (ResourceDeclaration) parser.parse(code, null);
-    assertThatThrownBy(() -> tree.type())
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThatThrownBy(tree::type)
       .isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(() -> tree.version())
+    assertThatThrownBy(tree::version)
       .isInstanceOf(UnsupportedOperationException.class);
   }
 }

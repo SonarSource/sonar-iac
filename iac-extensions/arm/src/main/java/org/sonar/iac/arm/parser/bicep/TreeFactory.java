@@ -190,9 +190,9 @@ public class TreeFactory {
     InterpolatedString type,
     Optional<SyntaxToken> existing,
     SyntaxToken equalsSign,
-    ObjectExpression objectExpression,
+    Expression expression,
     SyntaxToken endOfLine) {
-    return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, objectExpression, endOfLine);
+    return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, expression, endOfLine);
   }
 
   public FunctionCall functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
