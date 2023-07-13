@@ -48,7 +48,7 @@ class LambdaExpressionImplTest extends BicepTreeModelTest {
     SoftAssertions.assertSoftly(softly -> {
       softly.assertThat(tree).isInstanceOf(LambdaExpression.class);
       softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
-        .containsExactly("(", "foo", "bar", ",", ")", "=>", "0");
+        .containsExactly("(", "foo", ",", "bar", ")", "=>", "0");
       softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.LAMBDA_EXPRESSION);
     });
 
