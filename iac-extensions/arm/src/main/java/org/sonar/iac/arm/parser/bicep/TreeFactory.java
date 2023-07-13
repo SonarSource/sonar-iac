@@ -144,7 +144,14 @@ public class TreeFactory {
     return new OutputDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equ, expression);
   }
 
-  public OutputDeclaration outputDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString type, SyntaxToken equ, Expression expression) {
+  public OutputDeclaration outputDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Identifier name,
+    SyntaxToken resource,
+    InterpolatedString type,
+    SyntaxToken equ,
+    Expression expression) {
     return new OutputDeclarationImpl(decorators.or(emptyList()), keyword, name, resource, type, equ, expression);
   }
 
@@ -171,11 +178,23 @@ public class TreeFactory {
     return new MetadataDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
-  public VariableDeclaration variableDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
+  public VariableDeclaration variableDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Identifier identifier,
+    SyntaxToken equals,
+    Expression expression,
+    SyntaxToken newLine) {
     return new VariableDeclarationImpl(decorators.or(emptyList()), keyword, identifier, equals, expression, newLine);
   }
 
-  public ModuleDeclaration moduleDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equals, Expression value) {
+  public ModuleDeclaration moduleDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Identifier name,
+    InterpolatedString type,
+    SyntaxToken equals,
+    Expression value) {
     return new ModuleDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equals, value);
   }
 

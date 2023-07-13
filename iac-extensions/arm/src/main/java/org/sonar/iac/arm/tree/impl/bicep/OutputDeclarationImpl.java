@@ -61,7 +61,14 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
     this.interpType = null;
   }
 
-  public OutputDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString interpType, SyntaxToken equ, Expression expression) {
+  public OutputDeclarationImpl(
+    List<Decorator> decorators,
+    SyntaxToken keyword,
+    Identifier name,
+    SyntaxToken resource,
+    InterpolatedString interpType,
+    SyntaxToken equ,
+    Expression expression) {
     this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;
