@@ -110,6 +110,7 @@ import org.sonar.iac.arm.tree.impl.bicep.UnaryOperatorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.AdditiveExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.MultiplicativeExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.expression.RelationalExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.UnaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
@@ -385,5 +386,9 @@ public class TreeFactory {
 
   public Expression additiveExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
     return new AdditiveExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+  }
+
+  public Expression relationalExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+    return new RelationalExpressionImpl(SeparatedListImpl.separatedList(expression, list));
   }
 }
