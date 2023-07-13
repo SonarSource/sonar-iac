@@ -101,7 +101,8 @@ public class BicepGrammar {
         VARIABLE_DECLARATION(),
         IMPORT_DECLARATION(),
         MODULE_DECLARATION(),
-        RESOURCE_DECLARATION()));
+        RESOURCE_DECLARATION(),
+        OUTPUT_DECLARATION()));
   }
 
   public TypeDeclaration TYPE_DECLARATION() {
@@ -114,17 +115,18 @@ public class BicepGrammar {
         STRING_LITERAL()));
   }
 
-  // TODO SONARIAC-967 Put in place decorator
   public OutputDeclaration OUTPUT_DECLARATION() {
     return b.<OutputDeclaration>nonterminal(BicepLexicalGrammar.OUTPUT_DECLARATION).is(
       b.firstOf(
         f.outputDeclaration(
+          b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.OUTPUT),
           IDENTIFIER(),
           IDENTIFIER(),
           b.token(Punctuator.EQU),
           PRIMARY_EXPRESSION()),
         f.outputDeclaration(
+          b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.OUTPUT),
           IDENTIFIER(),
           b.token(BicepKeyword.RESOURCE),

@@ -28,6 +28,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -37,6 +38,7 @@ import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class OutputDeclarationImpl extends AbstractArmTreeImpl implements OutputDeclaration {
 
+  private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final Identifier name;
   @Nullable
@@ -48,7 +50,8 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   private final SyntaxToken equ;
   private final Expression expression;
 
-  public OutputDeclarationImpl(SyntaxToken keyword, Identifier name, Identifier identifierType, SyntaxToken equ, Expression expression) {
+  public OutputDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, Identifier identifierType, SyntaxToken equ, Expression expression) {
+    this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;
     this.identifierType = identifierType;
@@ -58,7 +61,8 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
     this.interpType = null;
   }
 
-  public OutputDeclarationImpl(SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString interpType, SyntaxToken equ, Expression expression) {
+  public OutputDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString interpType, SyntaxToken equ, Expression expression) {
+    this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;
     this.resource = resource;
@@ -112,7 +116,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(keyword);
     children.add(name);
     addChildrenIfPresent(children, identifierType);

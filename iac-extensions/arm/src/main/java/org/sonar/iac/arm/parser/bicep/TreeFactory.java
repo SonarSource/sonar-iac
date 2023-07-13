@@ -129,14 +129,12 @@ public class TreeFactory {
     return new TypeDeclarationImpl(decorators.or(emptyList()), keyword, name, equ, typeExpression);
   }
 
-  // TODO SONARIAC-957 Put in place decorator
-  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, Identifier type, SyntaxToken equ, Expression expression) {
-    return new OutputDeclarationImpl(keyword, name, type, equ, expression);
+  public OutputDeclaration outputDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, Identifier type, SyntaxToken equ, Expression expression) {
+    return new OutputDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equ, expression);
   }
 
-  // TODO SONARIAC-957 Put in place decorator
-  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString type, SyntaxToken equ, Expression expression) {
-    return new OutputDeclarationImpl(keyword, name, resource, type, equ, expression);
+  public OutputDeclaration outputDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString type, SyntaxToken equ, Expression expression) {
+    return new OutputDeclarationImpl(decorators.or(emptyList()), keyword, name, resource, type, equ, expression);
   }
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
