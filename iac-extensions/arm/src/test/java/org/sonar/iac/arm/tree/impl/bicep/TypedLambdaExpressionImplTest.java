@@ -44,7 +44,7 @@ class TypedLambdaExpressionImplTest extends BicepTreeModelTest {
     softly.assertThat(typedVariableBlock.getKind()).isEqualTo(ArmTree.Kind.TYPED_VARIABLE_BLOCK);
     softly.assertThat(typedVariableBlock.children()).hasSize(7);
     softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(typedVariableBlock))
-      .containsExactly("(", "https", "bool", "hostname", "string", "path", "string", ",", ",", ")");
+      .containsExactly("(", "https", "bool", ",", "hostname", "string", ",", "path", "string", ")");
     ArmTree typedLocalVariable = (ArmTree) typedVariableBlock.children().get(1);
     softly.assertThat(typedLocalVariable).isInstanceOf(TypedLocalVariable.class);
     softly.assertThat(typedLocalVariable.getKind()).isEqualTo(ArmTree.Kind.TYPED_LOCAL_VARIABLE);

@@ -33,11 +33,11 @@ class NumericLiteralImplTest extends BicepTreeModelTest {
   void shouldParseNumericLiteral() {
     ArmAssertions.assertThat(BicepLexicalGrammar.NUMERIC_LITERAL)
       .matches("5")
-      .matches("-5")
       .matches("0")
-      .matches("-0")
       .matches("123456")
 
+      .notMatches("-5")
+      .notMatches("-0")
       .notMatches("+5")
       .notMatches("+0")
       .notMatches("3.15")

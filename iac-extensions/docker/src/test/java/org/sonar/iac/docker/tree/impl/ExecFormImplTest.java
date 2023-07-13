@@ -73,7 +73,7 @@ class ExecFormImplTest {
         }
       })
       .collect(Collectors.toList());
-    assertThat(elementsAndSeparatorsAsText).containsExactly("executable", "param1", "param2", ",", ",");
+    assertThat(elementsAndSeparatorsAsText).containsExactly("executable", ",", "param1", ",", "param2");
 
     for (Argument argument : execForm.argumentsWithSeparators().elements()) {
       assertThat(argument.expressions()).hasSize(1);
