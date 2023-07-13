@@ -50,17 +50,18 @@ public class SeparatedListImpl<T extends Tree, U extends IacToken> implements Se
   @Override
   public List<Tree> elementsAndSeparators() {
     List<Tree> result = new ArrayList<>();
+
     Iterator<T> elementsIterator = elements.iterator();
     Iterator<U> separatorIterator = separators.iterator();
 
-    while (elementsIterator.hasNext() || separatorIterator.hasNext()) {
-      if (elementsIterator.hasNext()) {
-        result.add(elementsIterator.next());
-      }
-      if (separatorIterator.hasNext()) {
-        result.add(separatorIterator.next());
-      }
+    while (elementsIterator.hasNext() && separatorIterator.hasNext()) {
+      result.add(elementsIterator.next());
+      result.add(separatorIterator.next());
     }
+    if (elementsIterator.hasNext()) {
+      result.add(elementsIterator.next());
+    }
+
     return result;
   }
 

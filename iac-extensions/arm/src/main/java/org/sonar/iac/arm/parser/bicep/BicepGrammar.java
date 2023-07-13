@@ -404,8 +404,8 @@ public class BicepGrammar {
             UNARY_EXPRESSION()))));
   }
 
-  // Not an infinite recursion
-  @SuppressWarnings("java:S2190")
+  // Not an infinite recursion, SSLR can handle it
+  @SuppressWarnings("javabugs:S2190")
   public Expression UNARY_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.UNARY_EXPRESSION).is(
       b.firstOf(
