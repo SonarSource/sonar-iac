@@ -125,9 +125,8 @@ public class TreeFactory {
     return new FileImpl(statements.or(emptyList()), eof);
   }
 
-  // TODO SONARIAC-951 Put in place decorator
-  public TypeDeclaration typeDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
-    return new TypeDeclarationImpl(keyword, name, equ, typeExpression);
+  public TypeDeclaration typeDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
+    return new TypeDeclarationImpl(decorators.or(emptyList()), keyword, name, equ, typeExpression);
   }
 
   // TODO SONARIAC-957 Put in place decorator

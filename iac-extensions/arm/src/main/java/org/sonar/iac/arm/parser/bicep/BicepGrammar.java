@@ -107,6 +107,7 @@ public class BicepGrammar {
   public TypeDeclaration TYPE_DECLARATION() {
     return b.<TypeDeclaration>nonterminal(BicepLexicalGrammar.TYPE_DECLARATION).is(
       f.typeDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.TYPE),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
