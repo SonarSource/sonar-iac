@@ -60,7 +60,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   /**
    * Expressions
    */
-  EXPRESSION,
+  PRIMARY_EXPRESSION,
   FUNCTION_CALL,
   IDENTIFIER,
   PROPERTY,
@@ -117,6 +117,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   LOCAL_VARIABLE,
   VARIABLE_BLOCK,
   LAMBDA_EXPRESSION;
+  ADDITIVE_EXPRESSION, RELATIONAL_EXPRESSION, EQUALITY_EXPRESSION, BINARY_EXPRESSION, EXPRESSION, MEMBER_EXPRESSION;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();

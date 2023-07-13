@@ -27,9 +27,8 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -69,10 +68,8 @@ class FunctionCallImplTest {
 
     List<String> elementsAndSeparatorsAsText = tree.argumentList().elementsAndSeparators().stream()
       .map(t -> {
-        if (t instanceof SyntaxToken) {
-          return ((SyntaxToken) t).value();
-        } else if (t instanceof StringLiteral) {
-          return ((StringLiteral) t).value();
+        if (t instanceof TextTree) {
+          return ((TextTree) t).value();
         } else {
           throw new RuntimeException("Invalid cast from " + t.getClass());
         }

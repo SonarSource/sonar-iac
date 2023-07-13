@@ -19,8 +19,10 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-public interface NumericLiteral extends Expression {
-  double value();
+import org.sonar.iac.common.api.tree.TextTree;
+
+public interface NumericLiteral extends Expression, TextTree {
+  double asDouble();
 
   default Kind getKind() {
     return Kind.NUMERIC_LITERAL;
