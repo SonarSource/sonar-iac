@@ -24,15 +24,20 @@ import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 public class NumericLiteralImpl extends ExpressionImpl implements NumericLiteral {
 
-  private final double value;
+  private final String value;
 
-  public NumericLiteralImpl(float value, YamlTreeMetadata metadata) {
+  public NumericLiteralImpl(String value, YamlTreeMetadata metadata) {
     super(metadata);
     this.value = value;
   }
 
   @Override
-  public double value() {
+  public double asDouble() {
+    return Double.parseDouble(value);
+  }
+
+  @Override
+  public String value() {
     return value;
   }
 }
