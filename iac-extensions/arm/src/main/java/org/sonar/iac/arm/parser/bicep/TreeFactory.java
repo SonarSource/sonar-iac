@@ -60,6 +60,7 @@ import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
+import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
@@ -105,6 +106,8 @@ import org.sonar.iac.arm.tree.impl.bicep.TypedLocalVariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypedVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.UnaryOperatorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.expression.MultiplicativeExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.expression.UnaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPieceImpl;
@@ -114,6 +117,7 @@ import org.sonar.iac.arm.tree.impl.bicep.variable.LocalVariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.variable.VariableBlockImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.api.tree.impl.SeparatedListImpl;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 
 import static java.util.Collections.emptyList;
@@ -363,5 +367,17 @@ public class TreeFactory {
 
   public Decorator decorator(SyntaxToken keyword, FunctionCall decoratorExpression) {
     return new DecoratorImpl(keyword, decoratorExpression);
+  }
+
+  public UnaryExpression unaryExpression(UnaryOperator unaryOperator, Expression expression) {
+    return new UnaryExpressionImpl(unaryOperator, expression);
+  }
+
+  public Expression multiplicativeExpression(Expression expression, Optional<List<Tuple<SyntaxToken, Expression>>> listOptional) {
+    if (listOptional.isPresent()) {
+      return new MultiplicativeExpressionImpl(SeparatedListImpl.separatedList(expression, listOptional));
+    } else {
+      return expression;
+    }
   }
 }

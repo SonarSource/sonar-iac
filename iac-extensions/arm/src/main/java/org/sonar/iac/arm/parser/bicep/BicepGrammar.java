@@ -437,6 +437,30 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.EOL)));
   }
 
+  public Expression MULTIPLICATIVE_EXPRESSION() {
+    return b.<Expression>nonterminal(BicepLexicalGrammar.MULTIPLICATIVE_EXPRESSION).is(
+      f.multiplicativeExpression(
+        UNARY_EXPRESSION(),
+        b.zeroOrMore(
+          f.tuple(
+            b.firstOf(
+              b.token(Punctuator.STAR),
+              b.token(Punctuator.DIV),
+              b.token(Punctuator.PERCENT)),
+            UNARY_EXPRESSION()))));
+  }
+
+  // Not an infinite recursion, SSLR can handle it
+  @SuppressWarnings("javabugs:S2190")
+  public Expression UNARY_EXPRESSION() {
+    return b.<Expression>nonterminal(BicepLexicalGrammar.UNARY_EXPRESSION).is(
+      b.firstOf(
+        LITERAL_VALUE(),
+        f.unaryExpression(
+          UNARY_OPERATOR(),
+          UNARY_EXPRESSION())));
+  }
+
   public Expression LITERAL_VALUE() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.LITERAL_VALUE).is(
       b.firstOf(

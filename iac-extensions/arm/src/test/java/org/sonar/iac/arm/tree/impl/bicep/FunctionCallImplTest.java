@@ -78,10 +78,10 @@ class FunctionCallImplTest {
         }
       })
       .collect(Collectors.toList());
-    softly.assertThat(elementsAndSeparatorsAsText).containsExactly("123", "456", ",");
+    softly.assertThat(elementsAndSeparatorsAsText).containsExactly("123", ",", "456");
 
     softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("functionName123", "(", "123", "456", ",", ")");
+      .containsExactly("functionName123", "(", "123", ",", "456", ")");
     softly.assertAll();
   }
 }

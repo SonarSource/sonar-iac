@@ -50,7 +50,7 @@ class SeparatedListImplTest {
 
     assertThat(resultingSeparatedList.elements()).containsExactly(firstElement, tupleElement);
     assertThat(resultingSeparatedList.separators()).containsExactly(tupleToken);
-    assertThat(resultingSeparatedList.elementsAndSeparators()).containsExactly(firstElement, tupleElement, tupleToken);
+    assertThat(resultingSeparatedList.elementsAndSeparators()).containsExactly(firstElement, tupleToken, tupleElement);
   }
 
   @Test
