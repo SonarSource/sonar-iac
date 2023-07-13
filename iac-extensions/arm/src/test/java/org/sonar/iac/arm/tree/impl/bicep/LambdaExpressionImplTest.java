@@ -72,6 +72,7 @@ class LambdaExpressionImplTest extends BicepTreeModelTest {
     LocalVariable variable = variableBlock.variables().get(0);
     SoftAssertions.assertSoftly(softly -> {
       softly.assertThat(variable.getKind()).isEqualTo(ArmTree.Kind.LOCAL_VARIABLE);
+      softly.assertThat(variable.identifier().value()).isEqualTo("foo");
     });
   }
 }
