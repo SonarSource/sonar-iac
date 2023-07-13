@@ -19,11 +19,14 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.Statement;
+import java.util.List;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-public interface FunctionDeclaration extends Statement {
-  Identifier name();
+public interface TupleType extends ArmTree {
+  List<TupleItem> items();
 
-  TypedLambdaExpression lambdaExpression();
+  @Override
+  default Kind getKind() {
+    return Kind.TUPLE_TYPE;
+  }
 }

@@ -21,6 +21,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
@@ -32,11 +33,14 @@ import static org.sonar.iac.common.testing.IacTestUtils.code;
 class FunctionDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseFunctionDelaration() {
+  void shouldParseFunctionDeclaration() {
     ArmAssertions.assertThat(BicepLexicalGrammar.FUNCTION_DECLARATION)
-      .matches("func myFunction lambdaExpression")
-      .matches("func myFunction   lambdaExpression")
+      .matches("func myFunction() string => 'result'")
+      .matches("func myFunction () string =>   'result'")
+      .matches("func myFunction(foo int) string => '${foo}'")
+      .matches("func myFunction(foo int, bar object) int => 0")
 
+      .notMatches("func myFunction() => 'result'")
       .notMatches("func myFunction")
       .notMatches("func myFunction = lambdaExpression")
       .notMatches("func");
@@ -44,11 +48,12 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleFunctionDeclaration() {
-    String code = code("func myFunction lambdaExpression");
+    String code = code("func myFunction() string => 'result'");
     FunctionDeclaration tree = parse(code, BicepLexicalGrammar.FUNCTION_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.FUNCTION_DECLARATION)).isTrue();
+    assertThat(tree.lambdaExpression().is(ArmTree.Kind.TYPED_LAMBDA_EXPRESSION)).isTrue();
     assertThat(tree.name().value()).isEqualTo("myFunction");
-    assertThat(tree.lambdaExpression().value()).isEqualTo("lambdaExpression");
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("func", "myFunction", "lambdaExpression");
+    assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("func", "myFunction", "(", ")", "string", "=>", "result");
   }
 }

@@ -19,43 +19,42 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
+import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements FunctionDeclaration {
+public class TupleItemImpl extends AbstractArmTreeImpl implements TupleItem {
 
-  private final SyntaxToken func;
-  private final Identifier name;
-  private final TypedLambdaExpression lambdaExpression;
+  private final List<Decorator> decorators;
+  private final StringLiteral typeExpression;
+  private final SyntaxToken endOfLine;
 
-  public FunctionDeclarationImpl(SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
-    this.func = func;
-    this.name = name;
-    this.lambdaExpression = lambdaExpression;
+  public TupleItemImpl(List<Decorator> decorators, StringLiteral typeExpression, SyntaxToken endOfLine) {
+    this.decorators = decorators;
+    this.typeExpression = typeExpression;
+    this.endOfLine = endOfLine;
   }
 
   @Override
-  public Identifier name() {
-    return name;
+  public List<Decorator> decorators() {
+    return decorators;
   }
 
   @Override
-  public TypedLambdaExpression lambdaExpression() {
-    return lambdaExpression;
+  public StringLiteral typeExpression() {
+    return typeExpression;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(func, name, lambdaExpression);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.FUNCTION_DECLARATION;
+    List<Tree> children = new ArrayList<>(decorators);
+    children.add(typeExpression);
+    children.add(endOfLine);
+    return children;
   }
 }

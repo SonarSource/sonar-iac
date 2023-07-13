@@ -53,6 +53,8 @@ import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TupleItem;
+import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
@@ -167,7 +169,7 @@ public class BicepGrammar {
       f.functionDeclaration(
         b.token(BicepKeyword.FUNC),
         IDENTIFIER(),
-        STRING_LITERAL()));
+        TYPED_LAMBDA_EXPRESSION()));
   }
 
   public MetadataDeclaration METADATA_DECLARATION() {
@@ -415,6 +417,24 @@ public class BicepGrammar {
   public UnaryOperator UNARY_OPERATOR() {
     return b.<UnaryOperator>nonterminal(BicepLexicalGrammar.UNARY_OPERATOR).is(
       f.unaryOperator(b.token(BicepLexicalGrammar.UNARY_OPERATOR_VALUE)));
+  }
+
+  public TupleType TUPLE_TYPE() {
+    return b.<TupleType>nonterminal(BicepLexicalGrammar.TUPLE_TYPE).is(
+      f.tupleType(
+        b.token(Punctuator.LBRACKET),
+        b.zeroOrMore(
+          TUPLE_ITEM()),
+        b.token(Punctuator.RBRACKET)));
+  }
+
+  public TupleItem TUPLE_ITEM() {
+    return b.<TupleItem>nonterminal(BicepLexicalGrammar.TUPLE_ITEM).is(
+      f.tupleItem(
+        b.zeroOrMore(DECORATOR()),
+        // TODO replace by typeExpression in SONARIAC-969 ARM Bicep support: create typeExpression
+        STRING_LITERAL(),
+        b.token(BicepLexicalGrammar.EOL)));
   }
 
   public Expression LITERAL_VALUE() {

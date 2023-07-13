@@ -55,6 +55,8 @@ import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TupleItem;
+import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
@@ -95,6 +97,8 @@ import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.TupleItemImpl;
+import org.sonar.iac.arm.tree.impl.bicep.TupleTypeImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypedLambdaExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypedLocalVariableImpl;
@@ -153,7 +157,7 @@ public class TreeFactory {
     return new ParameterDeclarationImpl(keyword, name, resource, typeInterp, equ.orNull(), defaultValue.orNull());
   }
 
-  public FunctionDeclaration functionDeclaration(SyntaxToken func, Identifier name, StringLiteral lambdaExpression) {
+  public FunctionDeclaration functionDeclaration(SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
     return new FunctionDeclarationImpl(func, name, lambdaExpression);
   }
 
@@ -300,6 +304,14 @@ public class TreeFactory {
 
   public UnaryOperator unaryOperator(SyntaxToken token) {
     return new UnaryOperatorImpl(token);
+  }
+
+  public TupleItem tupleItem(Optional<List<Decorator>> decorators, StringLiteral typeExpression, SyntaxToken endOfLine) {
+    return new TupleItemImpl(decorators.or(List.of()), typeExpression, endOfLine);
+  }
+
+  public TupleType tupleType(SyntaxToken openingBracket, Optional<List<TupleItem>> tupleItems, SyntaxToken closingBracket) {
+    return new TupleTypeImpl(openingBracket, tupleItems.or(List.of()), closingBracket);
   }
 
   public MultilineString multilineString(SyntaxToken openingTripleApostrophe, SyntaxToken text, SyntaxToken closingTripleApostrophe) {

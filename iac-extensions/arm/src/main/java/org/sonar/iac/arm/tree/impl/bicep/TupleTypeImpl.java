@@ -19,43 +19,36 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
+import org.sonar.iac.arm.tree.api.bicep.TupleItem;
+import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements FunctionDeclaration {
+public class TupleTypeImpl extends AbstractArmTreeImpl implements TupleType {
+  private final SyntaxToken openingBracket;
+  private final List<TupleItem> tupleItems;
+  private final SyntaxToken closingBracket;
 
-  private final SyntaxToken func;
-  private final Identifier name;
-  private final TypedLambdaExpression lambdaExpression;
-
-  public FunctionDeclarationImpl(SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
-    this.func = func;
-    this.name = name;
-    this.lambdaExpression = lambdaExpression;
+  public TupleTypeImpl(SyntaxToken openingBracket, List<TupleItem> tupleItems, SyntaxToken closingBracket) {
+    this.openingBracket = openingBracket;
+    this.tupleItems = tupleItems;
+    this.closingBracket = closingBracket;
   }
 
   @Override
-  public Identifier name() {
-    return name;
-  }
-
-  @Override
-  public TypedLambdaExpression lambdaExpression() {
-    return lambdaExpression;
+  public List<TupleItem> items() {
+    return tupleItems;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(func, name, lambdaExpression);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.FUNCTION_DECLARATION;
+    List<Tree> children = new ArrayList<>();
+    children.add(openingBracket);
+    children.addAll(tupleItems);
+    children.add(closingBracket);
+    return children;
   }
 }
