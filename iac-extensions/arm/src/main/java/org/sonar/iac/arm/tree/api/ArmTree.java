@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.LambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
@@ -41,11 +42,15 @@ import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
+import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
+import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
-import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
+import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
+import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -97,6 +102,8 @@ public interface ArmTree extends Tree {
     IF_EXPRESSION(IfExpression.class),
     UNARY_EXPRESSION(UnaryExpression.class),
     MULTIPLICATIVE_EXPRESSION(MultiplicativeExpression.class),
+    ADDITIVE_EXPRESSION(AdditiveExpression.class),
+    RELATIONAL_EXPRESSION(RelationalExpression.class),
     PARENTHESIZED_EXPRESSION(ParenthesizedExpression.class),
     AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class),
     UNARY_OPERATOR(UnaryOperator.class),
@@ -106,7 +113,10 @@ public interface ArmTree extends Tree {
     DECORATOR(Decorator.class),
     TYPED_LOCAL_VARIABLE(TypedLocalVariable.class),
     TYPED_VARIABLE_BLOCK(TypedVariableBlock.class),
-    TYPED_LAMBDA_EXPRESSION(TypedLambdaExpression.class);
+    TYPED_LAMBDA_EXPRESSION(TypedLambdaExpression.class),
+    VARIABLE_BLOCK(VariableBlock.class),
+    LOCAL_VARIABLE(LocalVariable.class),
+    LAMBDA_EXPRESSION(LambdaExpression.class);
 
     private final Class<? extends ArmTree> associatedInterface;
 

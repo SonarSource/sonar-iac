@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api.bicep.expression;
+package org.sonar.iac.arm.tree.impl.bicep.expression;
 
-public interface MultiplicativeExpression extends BinaryOperationExpression {
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
+import org.sonar.iac.common.api.tree.SeparatedList;
 
-  default Kind getKind() {
-    return Kind.MULTIPLICATIVE_EXPRESSION;
+public class AdditiveExpressionImpl extends BinaryOperationExpressionImpl implements AdditiveExpression {
+
+  public AdditiveExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
+    super(separatedList);
   }
 }

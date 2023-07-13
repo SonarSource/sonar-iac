@@ -17,11 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api.bicep.expression;
+package org.sonar.iac.arm.tree.api.bicep;
 
-public interface MultiplicativeExpression extends BinaryOperationExpression {
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.bicep.variable.LambdaVariable;
 
+public interface LambdaExpression extends Expression {
+  @Override
   default Kind getKind() {
-    return Kind.MULTIPLICATIVE_EXPRESSION;
+    return Kind.LAMBDA_EXPRESSION;
   }
+
+  LambdaVariable variableList();
+
+  Expression body();
 }
