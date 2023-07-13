@@ -123,7 +123,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   TYPED_LAMBDA_EXPRESSION,
   LOCAL_VARIABLE,
   VARIABLE_BLOCK,
-  LAMBDA_EXPRESSION, RECURSIVE_MEMBER_EXPRESSION;
+  LAMBDA_EXPRESSION;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();

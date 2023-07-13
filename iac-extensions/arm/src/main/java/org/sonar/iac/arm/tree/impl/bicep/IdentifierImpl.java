@@ -46,4 +46,8 @@ public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
   public Kind getKind() {
     return Kind.IDENTIFIER;
   }
+
+  public SyntaxToken getToken() {
+    return token;
+  }
 }

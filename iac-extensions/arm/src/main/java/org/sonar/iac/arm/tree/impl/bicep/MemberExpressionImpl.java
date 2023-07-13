@@ -22,10 +22,9 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
-import org.sonar.iac.arm.tree.api.bicep.RecursiveMemberExpression;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -33,20 +32,44 @@ import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberExpression {
 
-  private final Expression value;
+  private final SyntaxToken firstToken;
   @CheckForNull
-  private final RecursiveMemberExpression recursiveMemberExpression;
+  private final Expression expression;
+  @CheckForNull
+  private final SyntaxToken secondToken;
 
-  public MemberExpressionImpl(Expression value, @Nullable RecursiveMemberExpression recursiveMemberExpression) {
-    this.value = value;
-    this.recursiveMemberExpression = recursiveMemberExpression;
+  private Expression referencingObject;
+
+  public MemberExpressionImpl(SyntaxToken firstToken) {
+    this.firstToken = firstToken;
+    this.expression = null;
+    this.secondToken = null;
+  }
+
+  public MemberExpressionImpl(SyntaxToken firstToken, Expression expression) {
+    this.firstToken = firstToken;
+    this.expression = expression;
+    this.secondToken = null;
+  }
+
+  public MemberExpressionImpl(SyntaxToken firstToken, Expression expression, SyntaxToken secondToken) {
+    this.firstToken = firstToken;
+    this.expression = expression;
+    this.secondToken = secondToken;
+  }
+
+  public MemberExpression complete(Expression object) {
+    this.referencingObject = object;
+    return this;
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
-    result.add(value);
-    addChildrenIfPresent(result, recursiveMemberExpression);
+    result.add(referencingObject);
+    result.add(firstToken);
+    addChildrenIfPresent(result, expression);
+    addChildrenIfPresent(result, secondToken);
     return result;
   }
 
@@ -55,14 +78,15 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
     return Kind.MEMBER_EXPRESSION;
   }
 
-  @Override
-  public Expression value() {
-    return value;
-  }
-
   @CheckForNull
   @Override
-  public RecursiveMemberExpression recursiveMemberExpression() {
-    return recursiveMemberExpression;
+  public Expression expression() {
+    return expression;
   }
+
+  @Override
+  public Expression referencingObject() {
+    return referencingObject;
+  }
+
 }

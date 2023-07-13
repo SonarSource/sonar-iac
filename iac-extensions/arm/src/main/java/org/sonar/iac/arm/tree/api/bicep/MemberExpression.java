@@ -23,8 +23,8 @@ import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.Expression;
 
 public interface MemberExpression extends Expression {
-  Expression value();
-
   @CheckForNull
-  RecursiveMemberExpression recursiveMemberExpression();
+  Expression expression();
+
+  Expression referencingObject();
 }

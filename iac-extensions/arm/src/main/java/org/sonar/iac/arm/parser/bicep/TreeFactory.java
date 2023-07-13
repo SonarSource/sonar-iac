@@ -53,7 +53,6 @@ import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
-import org.sonar.iac.arm.tree.api.bicep.RecursiveMemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -98,7 +97,6 @@ import org.sonar.iac.arm.tree.impl.bicep.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParameterDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
-import org.sonar.iac.arm.tree.impl.bicep.RecursiveMemberExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
@@ -252,26 +250,29 @@ public class TreeFactory {
     return new IfExpressionImpl(keyword, condition, object);
   }
 
-  public MemberExpression memberExpression(Expression value, Optional<RecursiveMemberExpression> recursiveMemberExpression) {
-    return new MemberExpressionImpl(value, recursiveMemberExpression.orNull());
+  public Expression memberExpression(Expression value, List<MemberExpression> memberExpressionComponent) {
+    Expression result = value;
+    for (MemberExpression memberExpression : memberExpressionComponent) {
+      result = ((MemberExpressionImpl) memberExpression).complete(result);
+    }
+    return result;
   }
 
-  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Identifier identifier, Optional<RecursiveMemberExpression> recursiveMemberExpression) {
-    return new RecursiveMemberExpressionImpl(firstToken, identifier, recursiveMemberExpression.orNull());
+  public MemberExpression memberExpressionComponent(SyntaxToken firstToken, Identifier identifier) {
+    StringLiteralImpl identifierAsStringLiteral = new StringLiteralImpl(((IdentifierImpl) identifier).getToken());
+    return new MemberExpressionImpl(firstToken, identifierAsStringLiteral);
   }
 
-  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Expression expression, SyntaxToken secondToken,
-    Optional<RecursiveMemberExpression> recursiveMemberExpression) {
-    return new RecursiveMemberExpressionImpl(firstToken, expression, secondToken, recursiveMemberExpression.orNull());
+  public MemberExpression memberExpressionComponent(SyntaxToken firstToken, Expression expression, SyntaxToken secondToken) {
+    return new MemberExpressionImpl(firstToken, expression, secondToken);
   }
 
-  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, FunctionCall functionCall,
-    Optional<RecursiveMemberExpression> recursiveMemberExpression) {
-    return new RecursiveMemberExpressionImpl(firstToken, functionCall, recursiveMemberExpression.orNull());
+  public MemberExpression memberExpressionComponent(SyntaxToken firstToken, FunctionCall functionCall) {
+    return new MemberExpressionImpl(firstToken, functionCall);
   }
 
-  public RecursiveMemberExpression recursiveMemberExpression(SyntaxToken firstToken, Optional<RecursiveMemberExpression> recursiveMemberExpression) {
-    return new RecursiveMemberExpressionImpl(firstToken, recursiveMemberExpression.orNull());
+  public MemberExpression memberExpressionComponent(SyntaxToken firstToken) {
+    return new MemberExpressionImpl(firstToken);
   }
 
   public ParenthesizedExpression parenthesizedExpression(SyntaxToken leftParenthesis, Expression expression, SyntaxToken rightParenthesis) {

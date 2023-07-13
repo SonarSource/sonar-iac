@@ -51,7 +51,6 @@ import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
-import org.sonar.iac.arm.tree.api.bicep.RecursiveMemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
@@ -508,6 +507,34 @@ public class BicepGrammar {
           UNARY_EXPRESSION())));
   }
 
+  public Expression MEMBER_EXPRESSION() {
+    return b.<Expression>nonterminal(BicepLexicalGrammar.MEMBER_EXPRESSION).is(
+      b.firstOf(
+        f.memberExpression(
+          PRIMARY_EXPRESSION(),
+          b.oneOrMore(MEMBER_EXPRESSION_COMPONENT())),
+        PRIMARY_EXPRESSION()));
+  }
+
+  public MemberExpression MEMBER_EXPRESSION_COMPONENT() {
+    return b.<MemberExpression>nonterminal().is(
+      b.firstOf(
+        f.memberExpressionComponent(
+          b.token(Punctuator.EXCLAMATION)),
+        f.memberExpressionComponent(
+          b.token(Punctuator.DOT),
+          FUNCTION_CALL()),
+        f.memberExpressionComponent(
+          b.firstOf(
+            b.token(Punctuator.DOT),
+            b.token(Punctuator.COLON)),
+          IDENTIFIER()),
+        f.memberExpressionComponent(
+          b.token(Punctuator.LBRACKET),
+          EXPRESSION(),
+          b.token(Punctuator.RBRACKET))));
+  }
+
   public Expression LITERAL_VALUE() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.LITERAL_VALUE).is(
       b.firstOf(
@@ -599,39 +626,6 @@ public class BicepGrammar {
         b.token(BicepKeyword.IF),
         PARENTHESIZED_EXPRESSION(),
         OBJECT_EXPRESSION()));
-  }
-
-  // Transformed original grammar with left recursion elimination, see SONARIAC-980
-  public MemberExpression MEMBER_EXPRESSION() {
-    return b.<MemberExpression>nonterminal(BicepLexicalGrammar.MEMBER_EXPRESSION).is(
-      f.memberExpression(
-        EXPRESSION(),
-        b.optional(RECURSIVE_MEMBER_EXPRESSION())));
-  }
-
-  // SSLR prevents infinite recursion from happening
-  @SuppressWarnings("javabugs:S2190")
-  public RecursiveMemberExpression RECURSIVE_MEMBER_EXPRESSION() {
-    return b.<RecursiveMemberExpression>nonterminal(BicepLexicalGrammar.RECURSIVE_MEMBER_EXPRESSION).is(
-      b.firstOf(
-        f.recursiveMemberExpression(
-          b.token(Punctuator.EXCLAMATION),
-          b.optional(RECURSIVE_MEMBER_EXPRESSION())),
-        f.recursiveMemberExpression(
-          b.token(Punctuator.DOT),
-          FUNCTION_CALL(),
-          b.optional(RECURSIVE_MEMBER_EXPRESSION())),
-        f.recursiveMemberExpression(
-          b.firstOf(
-            b.token(Punctuator.DOT),
-            b.token(Punctuator.COLON)),
-          IDENTIFIER(),
-          b.optional(RECURSIVE_MEMBER_EXPRESSION())),
-        f.recursiveMemberExpression(
-          b.token(Punctuator.LBRACKET),
-          EXPRESSION(),
-          b.token(Punctuator.RBRACKET),
-          b.optional(RECURSIVE_MEMBER_EXPRESSION()))));
   }
 
   public ParenthesizedExpression PARENTHESIZED_EXPRESSION() {
