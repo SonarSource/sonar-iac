@@ -265,7 +265,11 @@ public class TreeFactory {
 
   // Ignore unused method parameters
   @SuppressWarnings("java:S1172")
-  public ArrayExpression arrayExpression(SyntaxToken lBracket, Optional<SyntaxToken> firstNewLine, Optional<List<Tuple<Expression, SyntaxToken>>> elementsWithDelimiters, SyntaxToken rBracket) {
+  public ArrayExpression arrayExpression(
+    SyntaxToken lBracket,
+    Optional<SyntaxToken> firstNewLine,
+    Optional<List<Tuple<Expression, SyntaxToken>>> elementsWithDelimiters,
+    SyntaxToken rBracket) {
     List<Expression> elements = elementsWithDelimiters.or(emptyList()).stream().map(Tuple::first).collect(Collectors.toList());
     return new ArrayExpressionImpl(lBracket, elements, rBracket);
   }
