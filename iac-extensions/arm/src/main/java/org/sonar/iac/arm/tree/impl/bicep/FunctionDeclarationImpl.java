@@ -66,4 +66,9 @@ public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements Func
   public Kind getKind() {
     return Kind.FUNCTION_DECLARATION;
   }
+
+  @Override
+  public List<Decorator> decorators() {
+    return decorators;
+  }
 }

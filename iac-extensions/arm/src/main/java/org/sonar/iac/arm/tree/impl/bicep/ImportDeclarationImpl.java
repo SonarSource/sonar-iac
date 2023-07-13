@@ -66,4 +66,9 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
     }
     return result;
   }
+
+  @Override
+  public List<Decorator> decorators() {
+    return decorators;
+  }
 }

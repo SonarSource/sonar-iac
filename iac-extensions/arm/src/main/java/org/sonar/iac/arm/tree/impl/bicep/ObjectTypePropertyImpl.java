@@ -66,4 +66,9 @@ public class ObjectTypePropertyImpl extends AbstractArmTreeImpl implements Objec
   public Kind getKind() {
     return Kind.OBJECT_TYPE_PROPERTY;
   }
+
+  @Override
+  public List<Decorator> decorators() {
+    return decorators;
+  }
 }

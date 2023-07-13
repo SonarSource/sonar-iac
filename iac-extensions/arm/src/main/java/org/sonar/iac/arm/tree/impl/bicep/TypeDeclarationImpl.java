@@ -69,4 +69,9 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
   public StringLiteral type() {
     return typeExpression;
   }
+
+  @Override
+  public List<Decorator> decorators() {
+    return decorators;
+  }
 }

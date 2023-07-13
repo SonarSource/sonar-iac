@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api.bicep;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 
-public interface FunctionDeclaration extends Statement {
+public interface FunctionDeclaration extends Statement, HasDecorators {
   Identifier name();
 
   TypedLambdaExpression lambdaExpression();

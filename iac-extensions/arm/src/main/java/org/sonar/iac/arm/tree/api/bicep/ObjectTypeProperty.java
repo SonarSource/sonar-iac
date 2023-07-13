@@ -23,7 +23,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.TextTree;
 
-public interface ObjectTypeProperty extends ArmTree {
+public interface ObjectTypeProperty extends ArmTree, HasDecorators {
   TextTree name();
 
   StringLiteral typeExpression();

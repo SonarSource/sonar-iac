@@ -73,4 +73,9 @@ public class ModuleDeclarationImpl extends AbstractArmTreeImpl implements Module
   public Expression value() {
     return value;
   }
+
+  @Override
+  public List<Decorator> decorators() {
+    return decorators;
+  }
 }
