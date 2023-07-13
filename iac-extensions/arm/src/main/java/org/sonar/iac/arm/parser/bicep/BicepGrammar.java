@@ -191,7 +191,7 @@ public class BicepGrammar {
   public ResourceDeclaration RESOURCE_DECLARATION() {
     return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
       f.resourceDeclaration(
-        // TODO SONARIAC-972 ARM Bicep: add decorator to resourceDecl
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.RESOURCE),
         IDENTIFIER(),
         INTERPOLATED_STRING(),

@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -42,6 +43,7 @@ import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
+  private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final Identifier name;
   private final InterpolatedString typeAndVersion;
@@ -52,6 +54,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private final SyntaxToken endOfLine;
 
   public ResourceDeclarationImpl(
+    List<Decorator> decorators,
     SyntaxToken keyword,
     Identifier name,
     InterpolatedString typeAndVersion,
@@ -60,6 +63,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     Expression expression,
     SyntaxToken endOfLine) {
 
+    this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;
     this.typeAndVersion = typeAndVersion;
@@ -71,7 +75,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(keyword);
     children.add(name);
     children.add(typeAndVersion);

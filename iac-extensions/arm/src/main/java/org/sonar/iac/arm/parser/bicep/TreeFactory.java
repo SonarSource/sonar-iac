@@ -198,6 +198,7 @@ public class TreeFactory {
   }
 
   public ResourceDeclaration resourceDeclaration(
+    Optional<List<Decorator>> decorators,
     SyntaxToken keyword,
     Identifier identifier,
     InterpolatedString type,
@@ -205,7 +206,7 @@ public class TreeFactory {
     SyntaxToken equalsSign,
     Expression expression,
     SyntaxToken endOfLine) {
-    return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, expression, endOfLine);
+    return new ResourceDeclarationImpl(decorators.or(emptyList()), keyword, identifier, type, existing.orNull(), equalsSign, expression, endOfLine);
   }
 
   public FunctionCall functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
