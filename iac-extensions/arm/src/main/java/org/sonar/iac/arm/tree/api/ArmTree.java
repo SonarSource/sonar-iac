@@ -41,6 +41,7 @@ import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
@@ -97,6 +98,7 @@ public interface ArmTree extends Tree {
     IF_EXPRESSION(IfExpression.class),
     UNARY_EXPRESSION(UnaryExpression.class),
     MULTIPLICATIVE_EXPRESSION(MultiplicativeExpression.class),
+    ADDITIVE_EXPRESSION(AdditiveExpression.class),
     PARENTHESIZED_EXPRESSION(ParenthesizedExpression.class),
     AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class),
     UNARY_OPERATOR(UnaryOperator.class),
