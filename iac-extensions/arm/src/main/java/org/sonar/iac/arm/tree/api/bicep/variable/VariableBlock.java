@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.api.bicep.variable;
 
 import java.util.List;
 
-public interface ArrayExpression extends Expression {
+public interface VariableBlock extends LambdaVariable {
   @Override
   default Kind getKind() {
-    return Kind.ARRAY_EXPRESSION;
+    return Kind.VARIABLE_BLOCK;
   }
 
-  List<Expression> elements();
+  List<LocalVariable> variables();
 }

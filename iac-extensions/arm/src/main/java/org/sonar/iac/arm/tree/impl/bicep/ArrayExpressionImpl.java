@@ -17,34 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.json;
+package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExpression {
+  private final SyntaxToken lBracket;
   private final List<Expression> elements;
-  private final YamlTreeMetadata metadata;
+  private final SyntaxToken rBracket;
 
-  public ArrayExpressionImpl(YamlTreeMetadata metadata, List<Expression> elements) {
-    this.metadata = metadata;
+  public ArrayExpressionImpl(SyntaxToken lBracket, List<Expression> elements, SyntaxToken rBracket) {
+    this.lBracket = lBracket;
     this.elements = elements;
-  }
-
-  @Override
-  public TextRange textRange() {
-    return metadata.textRange();
+    this.rBracket = rBracket;
   }
 
   @Override
   public List<Tree> children() {
-    return Collections.unmodifiableList(elements);
+    List<Tree> children = new ArrayList<>();
+    children.add(lBracket);
+    children.addAll(elements);
+    children.add(rBracket);
+    return children;
   }
 
   @Override

@@ -17,15 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.impl.bicep.variable;
 
 import java.util.List;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.Tree;
 
-public interface ArrayExpression extends Expression {
-  @Override
-  default Kind getKind() {
-    return Kind.ARRAY_EXPRESSION;
+public class LocalVariableImpl extends AbstractArmTreeImpl implements LocalVariable {
+  private final Identifier identifier;
+
+  public LocalVariableImpl(Identifier identifier) {
+    this.identifier = identifier;
   }
 
-  List<Expression> elements();
+  @Override
+  public Identifier identifier() {
+    return identifier;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return List.of(identifier);
+  }
 }

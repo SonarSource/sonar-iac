@@ -73,6 +73,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   IF_EXPRESSION,
   PARENTHESIZED_EXPRESSION,
   UNARY_OPERATOR,
+  ARRAY_EXPRESSION,
 
   UNARY_EXPRESSION,
   MULTIPLICATIVE_EXPRESSION,
@@ -118,7 +119,10 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   DECORATOR,
   TYPED_LOCAL_VARIABLE,
   TYPED_VARIABLE_BLOCK,
-  TYPED_LAMBDA_EXPRESSION;
+  TYPED_LAMBDA_EXPRESSION,
+  LOCAL_VARIABLE,
+  VARIABLE_BLOCK,
+  LAMBDA_EXPRESSION;
 
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();

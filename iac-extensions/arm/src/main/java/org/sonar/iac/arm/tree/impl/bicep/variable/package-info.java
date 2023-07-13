@@ -17,15 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
-
-import java.util.List;
-
-public interface ArrayExpression extends Expression {
-  @Override
-  default Kind getKind() {
-    return Kind.ARRAY_EXPRESSION;
-  }
-
-  List<Expression> elements();
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.arm.tree.impl.bicep.variable;

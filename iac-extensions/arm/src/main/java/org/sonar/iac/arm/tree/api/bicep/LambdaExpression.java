@@ -17,15 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import java.util.List;
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.bicep.variable.LambdaVariable;
 
-public interface ArrayExpression extends Expression {
+public interface LambdaExpression extends Expression {
   @Override
   default Kind getKind() {
-    return Kind.ARRAY_EXPRESSION;
+    return Kind.LAMBDA_EXPRESSION;
   }
 
-  List<Expression> elements();
+  LambdaVariable variableList();
+
+  Expression body();
 }

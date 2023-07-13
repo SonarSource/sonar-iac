@@ -17,38 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.json;
+package org.sonar.iac.arm.tree.impl.bicep;
 
-import java.util.Collections;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.bicep.LambdaExpression;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.variable.LambdaVariable;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
-public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExpression {
-  private final List<Expression> elements;
-  private final YamlTreeMetadata metadata;
+public class LambdaExpressionImpl extends AbstractArmTreeImpl implements LambdaExpression {
+  private final LambdaVariable arguments;
+  private final SyntaxToken doubleArrow;
+  private final Expression body;
 
-  public ArrayExpressionImpl(YamlTreeMetadata metadata, List<Expression> elements) {
-    this.metadata = metadata;
-    this.elements = elements;
+  public LambdaExpressionImpl(LambdaVariable arguments, SyntaxToken doubleArrow, Expression body) {
+    this.arguments = arguments;
+    this.doubleArrow = doubleArrow;
+    this.body = body;
   }
 
   @Override
-  public TextRange textRange() {
-    return metadata.textRange();
+  public LambdaVariable variableList() {
+    return arguments;
+  }
+
+  @Override
+  public Expression body() {
+    return body;
   }
 
   @Override
   public List<Tree> children() {
-    return Collections.unmodifiableList(elements);
-  }
-
-  @Override
-  public List<Expression> elements() {
-    return elements;
+    return List.of(arguments, doubleArrow, body);
   }
 }

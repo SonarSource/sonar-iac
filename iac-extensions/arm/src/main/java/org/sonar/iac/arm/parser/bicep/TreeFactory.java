@@ -21,7 +21,9 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
@@ -60,12 +62,16 @@ import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
+import org.sonar.iac.arm.tree.api.bicep.variable.LambdaVariable;
+import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
+import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
 import org.sonar.iac.arm.tree.impl.bicep.AmbientTypeReferenceImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ArrayExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FileImpl;
@@ -77,6 +83,7 @@ import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IfExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
+import org.sonar.iac.arm.tree.impl.bicep.LambdaExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MetadataDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ModuleDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MultilineStringImpl;
@@ -109,6 +116,8 @@ import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPieceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePieceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPieceImpl;
+import org.sonar.iac.arm.tree.impl.bicep.variable.LocalVariableImpl;
+import org.sonar.iac.arm.tree.impl.bicep.variable.VariableBlockImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.impl.SeparatedListImpl;
@@ -255,6 +264,13 @@ public class TreeFactory {
     return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
   }
 
+  public ArrayExpression arrayExpression(
+    SyntaxToken lBracket,
+    Optional<List<Expression>> elements,
+    SyntaxToken rBracket) {
+    return new ArrayExpressionImpl(lBracket, elements.or(emptyList()), rBracket);
+  }
+
   public NumericLiteral numericLiteral(SyntaxToken token) {
     return new NumericLiteralImpl(token);
   }
@@ -335,6 +351,24 @@ public class TreeFactory {
     TypedLocalVariable firstArgument,
     Optional<List<Tuple<SyntaxToken, TypedLocalVariable>>> additionalArguments) {
     return separatedList(firstArgument, additionalArguments);
+  }
+
+  public Expression lambdaExpression(LambdaVariable arguments, SyntaxToken doubleArrow, Expression body) {
+    return new LambdaExpressionImpl(arguments, doubleArrow, body);
+  }
+
+  public VariableBlock variableBlock(SyntaxToken lPar, Optional<SeparatedList<LocalVariable, SyntaxToken>> variableList, SyntaxToken rPar) {
+    return new VariableBlockImpl(lPar, variableList.or(emptySeparatedList()), rPar);
+  }
+
+  public SeparatedList<LocalVariable, SyntaxToken> localVariableList(
+    LocalVariable firstVariable,
+    Optional<List<Tuple<SyntaxToken, LocalVariable>>> additionalVariables) {
+    return separatedList(firstVariable, additionalVariables);
+  }
+
+  public LocalVariable localVariable(Identifier identifier) {
+    return new LocalVariableImpl(identifier);
   }
 
   public Decorator decorator(SyntaxToken keyword, FunctionCall decoratorExpression) {
