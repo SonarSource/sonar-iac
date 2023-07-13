@@ -413,27 +413,31 @@ public class BicepGrammar {
 
   public Expression ADDITIVE_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.ADDITIVE_EXPRESSION).is(
-      f.additiveExpression(
-        MULTIPLICATIVE_EXPRESSION(),
-        b.zeroOrMore(
-          f.tuple(
-            b.firstOf(
-              b.token(Punctuator.PLUS),
-              b.token(Punctuator.MINUS)),
-            MULTIPLICATIVE_EXPRESSION()))));
+      b.firstOf(
+        f.additiveExpression(
+          MULTIPLICATIVE_EXPRESSION(),
+          b.oneOrMore(
+            f.tuple(
+              b.firstOf(
+                b.token(Punctuator.PLUS),
+                b.token(Punctuator.MINUS)),
+              MULTIPLICATIVE_EXPRESSION()))),
+        MULTIPLICATIVE_EXPRESSION()));
   }
 
   public Expression MULTIPLICATIVE_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.MULTIPLICATIVE_EXPRESSION).is(
-      f.multiplicativeExpression(
-        UNARY_EXPRESSION(),
-        b.zeroOrMore(
-          f.tuple(
-            b.firstOf(
-              b.token(Punctuator.STAR),
-              b.token(Punctuator.DIV),
-              b.token(Punctuator.PERCENT)),
-            UNARY_EXPRESSION()))));
+      b.firstOf(
+        f.multiplicativeExpression(
+          UNARY_EXPRESSION(),
+          b.oneOrMore(
+            f.tuple(
+              b.firstOf(
+                b.token(Punctuator.STAR),
+                b.token(Punctuator.DIV),
+                b.token(Punctuator.PERCENT)),
+              UNARY_EXPRESSION()))),
+        UNARY_EXPRESSION()));
   }
 
   // Not an infinite recursion, SSLR can handle it

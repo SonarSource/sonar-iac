@@ -345,19 +345,11 @@ public class TreeFactory {
     return new UnaryExpressionImpl(unaryOperator, expression);
   }
 
-  public Expression multiplicativeExpression(Expression expression, Optional<List<Tuple<SyntaxToken, Expression>>> listOptional) {
-    if (listOptional.isPresent()) {
-      return new MultiplicativeExpressionImpl(SeparatedListImpl.separatedList(expression, listOptional));
-    } else {
-      return expression;
-    }
+  public Expression multiplicativeExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+    return new MultiplicativeExpressionImpl(SeparatedListImpl.separatedList(expression, list));
   }
 
-  public Expression additiveExpression(Expression expression, Optional<List<Tuple<SyntaxToken, Expression>>> listOptional) {
-    if (listOptional.isPresent()) {
-      return new AdditiveExpressionImpl(SeparatedListImpl.separatedList(expression, listOptional));
-    } else {
-      return expression;
-    }
+  public Expression additiveExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+    return new AdditiveExpressionImpl(SeparatedListImpl.separatedList(expression, list));
   }
 }
