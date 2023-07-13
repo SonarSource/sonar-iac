@@ -109,7 +109,10 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   DECORATOR,
   TYPED_LOCAL_VARIABLE,
   TYPED_VARIABLE_BLOCK,
-  TYPED_LAMBDA_EXPRESSION;
+  TYPED_LAMBDA_EXPRESSION,
+  LOCAL_VARIABLE,
+  VARIABLE_BLOCK,
+  LAMBDA_EXPRESSION;
 
   private static final List<Punctuator> LIST_OF_PUNCTUATORS = List.of(
     Punctuator.EQU, Punctuator.COLON, Punctuator.LCURLYBRACE, Punctuator.RCURLYBRACE, Punctuator.APOSTROPHE, Punctuator.COMMA,

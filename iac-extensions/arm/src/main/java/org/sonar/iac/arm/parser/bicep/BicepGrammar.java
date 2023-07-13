@@ -56,17 +56,20 @@ import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
+import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
+import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
 import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
+import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.VARIABLE_BLOCK;
 
 // Ignore uppercase method names warning
 @SuppressWarnings("java:S100")
@@ -362,7 +365,7 @@ public class BicepGrammar {
         STRING_LITERAL()));
   }
 
-  public ArrayExpression ARRAY_EXPRESSION() {
+  public Expression ARRAY_EXPRESSION() {
     return b.<ArrayExpression>nonterminal(BicepLexicalGrammar.ARRAY_EXPRESSION).is(
       f.arrayExpression(
         b.token(Punctuator.LBRACKET),
@@ -370,12 +373,38 @@ public class BicepGrammar {
         b.zeroOrMore(
           f.tuple(
             EXPRESSION(),
-            b.token(EOL)
-          )
-        ),
-        b.token(Punctuator.RBRACKET)
-      )
-    );
+            b.token(EOL))),
+        b.token(Punctuator.RBRACKET)));
+  }
+
+  public Expression LAMBDA_EXPRESSION() {
+    return b.<Expression>nonterminal(BicepLexicalGrammar.LAMBDA_EXPRESSION).is(
+      f.lambdaExpression(
+        b.firstOf(
+          VARIABLE_BLOCK(),
+          LOCAL_VARIABLE()),
+        b.token(Punctuator.DOUBLEARROW),
+        EXPRESSION()));
+  }
+
+  public VariableBlock VARIABLE_BLOCK() {
+    return b.<VariableBlock>nonterminal(VARIABLE_BLOCK).is(
+      f.variableBlock(
+        b.token(Punctuator.LPARENTHESIS),
+        b.optional(
+          f.localVariableList(
+            LOCAL_VARIABLE(),
+            b.zeroOrMore(
+              f.tuple(
+                b.token(Punctuator.COMMA),
+                LOCAL_VARIABLE())))),
+        b.token(Punctuator.RPARENTHESIS)));
+  }
+
+  public LocalVariable LOCAL_VARIABLE() {
+    return b.<LocalVariable>nonterminal(BicepLexicalGrammar.LOCAL_VARIABLE).is(
+      f.localVariable(
+        IDENTIFIER()));
   }
 
   public AmbientTypeReference AMBIENT_TYPE_REFERENCE() {

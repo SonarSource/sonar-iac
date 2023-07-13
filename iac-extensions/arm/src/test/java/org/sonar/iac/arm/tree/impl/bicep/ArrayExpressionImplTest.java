@@ -48,8 +48,7 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseValidExpression() {
     ArrayExpression tree = (ArrayExpression) createParser(BicepLexicalGrammar.ARRAY_EXPRESSION).parse(
-      code("[", "'a'", "'b'", "]")
-    );
+      code("[", "'a'", "'b'", "]"));
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ArrayExpression.class);
