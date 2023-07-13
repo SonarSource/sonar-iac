@@ -21,25 +21,19 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.Tuple;
 
 public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExpression {
   private final SyntaxToken lBracket;
-  @Nullable
-  private final SyntaxToken firstNewLine;
-  private final List<Tuple<Expression, SyntaxToken>> elements;
+  private final List<Expression> elements;
   private final SyntaxToken rBracket;
 
-  public ArrayExpressionImpl(SyntaxToken lBracket, @Nullable SyntaxToken firstNewLine, List<Tuple<Expression, SyntaxToken>> elements, SyntaxToken rBracket) {
+  public ArrayExpressionImpl(SyntaxToken lBracket, List<Expression> elements, SyntaxToken rBracket) {
     this.lBracket = lBracket;
-    this.firstNewLine = firstNewLine;
     this.elements = elements;
     this.rBracket = rBracket;
   }
@@ -48,19 +42,13 @@ public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExp
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(lBracket);
-    if (firstNewLine != null) {
-      children.add(firstNewLine);
-    }
-    for (Tuple<Expression, SyntaxToken> t : elements) {
-      children.add(t.first());
-      children.add(t.second());
-    }
+    children.addAll(elements);
     children.add(rBracket);
     return children;
   }
 
   @Override
   public List<Expression> elements() {
-    return elements.stream().map(Tuple::first).collect(Collectors.toList());
+    return elements;
   }
 }

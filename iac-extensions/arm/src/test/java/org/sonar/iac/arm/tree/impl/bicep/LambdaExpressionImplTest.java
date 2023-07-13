@@ -37,7 +37,13 @@ class LambdaExpressionImplTest extends BicepTreeModelTest {
       .matches("foo => 'a'")
       .matches("(foo) => 'a'")
       .matches("() => 'a'")
-      .matches("(foo, bar) => 'a'");
+      .matches("(foo, bar) => 'a'")
+
+      .notMatches("foo, bar => 0")
+      .notMatches("foo =>")
+      .notMatches("=> 0")
+      .notMatches("(foo int) => 0")
+      .notMatches("'foo' => 0");
   }
 
   @Test

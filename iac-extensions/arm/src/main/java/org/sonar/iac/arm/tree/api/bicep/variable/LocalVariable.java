@@ -19,11 +19,13 @@
  */
 package org.sonar.iac.arm.tree.api.bicep.variable;
 
-import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.Identifier;
 
-public interface LocalVariable extends ArmTree {
+public interface LocalVariable extends LambdaVariable {
   @Override
   default Kind getKind() {
     return Kind.LOCAL_VARIABLE;
   }
+
+  Identifier identifier();
 }

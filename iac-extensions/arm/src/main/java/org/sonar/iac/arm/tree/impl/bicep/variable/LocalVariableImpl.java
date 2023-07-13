@@ -33,6 +33,11 @@ public class LocalVariableImpl extends AbstractArmTreeImpl implements LocalVaria
   }
 
   @Override
+  public Identifier identifier() {
+    return identifier;
+  }
+
+  @Override
   public List<Tree> children() {
     return List.of(identifier);
   }

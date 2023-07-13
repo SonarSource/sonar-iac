@@ -21,6 +21,7 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
@@ -61,6 +62,7 @@ import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
+import org.sonar.iac.arm.tree.api.bicep.variable.LambdaVariable;
 import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
@@ -261,8 +263,11 @@ public class TreeFactory {
     return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
   }
 
-  public ArrayExpression arrayExpression(SyntaxToken lBracket, Optional<SyntaxToken> firstNewLine, Optional<List<Tuple<Expression, SyntaxToken>>> elements, SyntaxToken rBracket) {
-    return new ArrayExpressionImpl(lBracket, firstNewLine.orNull(), elements.or(emptyList()), rBracket);
+  // Ignore unused method parameters
+  @SuppressWarnings("java:S1172")
+  public ArrayExpression arrayExpression(SyntaxToken lBracket, Optional<SyntaxToken> firstNewLine, Optional<List<Tuple<Expression, SyntaxToken>>> elementsWithDelimiters, SyntaxToken rBracket) {
+    List<Expression> elements = elementsWithDelimiters.or(emptyList()).stream().map(Tuple::first).collect(Collectors.toList());
+    return new ArrayExpressionImpl(lBracket, elements, rBracket);
   }
 
   public NumericLiteral numericLiteral(SyntaxToken token) {
@@ -347,7 +352,7 @@ public class TreeFactory {
     return separatedList(firstArgument, additionalArguments);
   }
 
-  public Expression lambdaExpression(ArmTree arguments, SyntaxToken doubleArrow, Expression body) {
+  public Expression lambdaExpression(LambdaVariable arguments, SyntaxToken doubleArrow, Expression body) {
     return new LambdaExpressionImpl(arguments, doubleArrow, body);
   }
 

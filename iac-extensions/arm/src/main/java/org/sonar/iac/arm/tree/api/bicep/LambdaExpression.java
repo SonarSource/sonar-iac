@@ -19,8 +19,8 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.bicep.variable.LambdaVariable;
 
 public interface LambdaExpression extends Expression {
   @Override
@@ -28,5 +28,7 @@ public interface LambdaExpression extends Expression {
     return Kind.LAMBDA_EXPRESSION;
   }
 
-  ArmTree variableList();
+  LambdaVariable variableList();
+
+  Expression body();
 }
