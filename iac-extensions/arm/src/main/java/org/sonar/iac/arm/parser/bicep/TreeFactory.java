@@ -160,8 +160,8 @@ public class TreeFactory {
     return new MetadataDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
-  public VariableDeclaration variableDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
-    return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
+  public VariableDeclaration variableDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
+    return new VariableDeclarationImpl(decorators.or(emptyList()), keyword, identifier, equals, expression, newLine);
   }
 
   public ModuleDeclaration moduleDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equals, Expression value) {

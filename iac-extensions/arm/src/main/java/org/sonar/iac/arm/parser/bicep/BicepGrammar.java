@@ -185,6 +185,7 @@ public class BicepGrammar {
   public VariableDeclaration VARIABLE_DECLARATION() {
     return b.<VariableDeclaration>nonterminal(BicepLexicalGrammar.VARIABLE_DECLARATION).is(
       f.variableDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.VARIABLE),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
