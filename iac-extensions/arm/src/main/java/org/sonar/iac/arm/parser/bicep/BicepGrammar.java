@@ -408,7 +408,18 @@ public class BicepGrammar {
 
   public Expression RELATIONAL_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.RELATIONAL_EXPRESSION).is(
-      b.firstOf(ADDITIVE_EXPRESSION()));
+      b.firstOf(
+        f.relationalExpression(
+          ADDITIVE_EXPRESSION(),
+          b.oneOrMore(
+            f.tuple(
+              b.firstOf(
+                b.token(Punctuator.GREATER_OR_EQUAL),
+                b.token(Punctuator.GREATER_THAN),
+                b.token(Punctuator.LESS_OR_EQUAL),
+                b.token(Punctuator.LESS_THAN)),
+              ADDITIVE_EXPRESSION()))),
+        ADDITIVE_EXPRESSION()));
   }
 
   public Expression ADDITIVE_EXPRESSION() {
