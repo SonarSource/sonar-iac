@@ -357,8 +357,8 @@ public class BicepGrammar {
 
   public ObjectTypeProperty OBJECT_TYPE_PROPERTY() {
     return b.<ObjectTypeProperty>nonterminal(BicepLexicalGrammar.OBJECT_TYPE_PROPERTY).is(
-      // TODO SONARIAC-971 Add decorator to objectTypeProperty to objectTypeAdditionalPropertiesMatcher
       f.objectTypeProperty(
+        b.zeroOrMore(DECORATOR()),
         b.firstOf(
           MULTILINE_STRING(),
           IDENTIFIER(),

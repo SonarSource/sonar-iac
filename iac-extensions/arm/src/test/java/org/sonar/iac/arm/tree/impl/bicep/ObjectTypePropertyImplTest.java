@@ -43,6 +43,7 @@ class ObjectTypePropertyImplTest extends BicepTreeModelTest {
       .matches("'string complete' : abc")
       .matches("'''single multiline''' : abc")
       .matches("'''\nsingle\nmultiline\n''' : abc")
+      .matches("@minLength(10) identifier:abc")
 
       .notMatches("identifier :")
       .notMatches("output myOutput : abc")

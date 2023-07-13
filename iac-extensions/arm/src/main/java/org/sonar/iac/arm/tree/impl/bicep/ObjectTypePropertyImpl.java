@@ -19,8 +19,10 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -29,11 +31,13 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class ObjectTypePropertyImpl extends AbstractArmTreeImpl implements ObjectTypeProperty {
 
+  private final List<Decorator> decorators;
   private final TextTree name;
   private final SyntaxToken colon;
   private final StringLiteral typeExpression;
 
-  public ObjectTypePropertyImpl(TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
+  public ObjectTypePropertyImpl(List<Decorator> decorators, TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
+    this.decorators = decorators;
     this.name = name;
     this.colon = colon;
     this.typeExpression = typeExpression;
@@ -51,7 +55,11 @@ public class ObjectTypePropertyImpl extends AbstractArmTreeImpl implements Objec
 
   @Override
   public List<Tree> children() {
-    return List.of(name, colon, typeExpression);
+    List<Tree> children = new ArrayList<>(decorators);
+    children.add(name);
+    children.add(colon);
+    children.add(typeExpression);
+    return children;
   }
 
   @Override

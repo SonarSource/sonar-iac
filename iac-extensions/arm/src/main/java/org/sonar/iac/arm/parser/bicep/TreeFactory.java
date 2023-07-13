@@ -289,8 +289,8 @@ public class TreeFactory {
     return new ObjectTypeImpl(openingCurlyBracket, properties.or(List.of()), closingCurlyBracket);
   }
 
-  public ObjectTypeProperty objectTypeProperty(TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
-    return new ObjectTypePropertyImpl(name, colon, typeExpression);
+  public ObjectTypeProperty objectTypeProperty(Optional<List<Decorator>> decorators, TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
+    return new ObjectTypePropertyImpl(decorators.or(emptyList()), name, colon, typeExpression);
   }
 
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {
