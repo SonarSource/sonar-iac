@@ -56,12 +56,17 @@ class LambdaExpressionImplTest extends BicepTreeModelTest {
       softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
         .containsExactly("(", "foo", ",", "bar", ")", "=>", "0");
       softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.LAMBDA_EXPRESSION);
+      softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree.body()))
+        .containsExactly("0");
     });
 
     VariableBlock variableBlock = (VariableBlock) tree.variableList();
     SoftAssertions.assertSoftly(softly -> {
       softly.assertThat(variableBlock).isInstanceOf(VariableBlock.class);
       softly.assertThat(variableBlock.getKind()).isEqualTo(ArmTree.Kind.VARIABLE_BLOCK);
+      softly.assertThat(variableBlock.variables()).hasSize(2);
+      softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(variableBlock))
+        .containsExactly("(", "foo", ",", "bar", ")");
     });
 
     LocalVariable variable = variableBlock.variables().get(0);

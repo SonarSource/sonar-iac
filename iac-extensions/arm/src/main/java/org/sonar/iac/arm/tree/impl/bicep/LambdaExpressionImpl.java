@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.LambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
