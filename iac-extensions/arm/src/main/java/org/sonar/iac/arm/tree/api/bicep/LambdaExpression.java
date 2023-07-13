@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 
 public interface LambdaExpression extends Expression {
@@ -26,4 +27,6 @@ public interface LambdaExpression extends Expression {
   default Kind getKind() {
     return Kind.LAMBDA_EXPRESSION;
   }
+
+  ArmTree variableList();
 }

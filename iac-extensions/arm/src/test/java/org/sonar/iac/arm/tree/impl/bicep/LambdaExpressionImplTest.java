@@ -19,12 +19,15 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.LambdaExpression;
+import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
+import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 
 class LambdaExpressionImplTest extends BicepTreeModelTest {
   @Test
@@ -42,9 +45,22 @@ class LambdaExpressionImplTest extends BicepTreeModelTest {
     LambdaExpression tree = (LambdaExpression) createParser(BicepLexicalGrammar.LAMBDA_EXPRESSION).parse(
       "(foo, bar) => 0");
 
-    tree.getKind();
-    Assertions.assertThat(tree).isInstanceOf(LambdaExpression.class);
-    Assertions.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("(", "foo", "bar", ",", ")", "=>", "0");
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(tree).isInstanceOf(LambdaExpression.class);
+      softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
+        .containsExactly("(", "foo", "bar", ",", ")", "=>", "0");
+      softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.LAMBDA_EXPRESSION);
+    });
+
+    VariableBlock variableBlock = (VariableBlock) tree.variableList();
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(variableBlock).isInstanceOf(VariableBlock.class);
+      softly.assertThat(variableBlock.getKind()).isEqualTo(ArmTree.Kind.VARIABLE_BLOCK);
+    });
+
+    LocalVariable variable = variableBlock.variables().get(0);
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(variable.getKind()).isEqualTo(ArmTree.Kind.LOCAL_VARIABLE);
+    });
   }
 }

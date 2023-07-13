@@ -42,4 +42,9 @@ public class LambdaExpressionImpl extends AbstractArmTreeImpl implements LambdaE
   public List<Tree> children() {
     return List.of(arguments, doubleArrow, body);
   }
+
+  @Override
+  public ArmTree variableList() {
+    return arguments;
+  }
 }
