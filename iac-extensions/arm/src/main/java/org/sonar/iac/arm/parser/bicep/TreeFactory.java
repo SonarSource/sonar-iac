@@ -264,15 +264,11 @@ public class TreeFactory {
     return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
   }
 
-  // Ignore unused method parameters
-  @SuppressWarnings("java:S1172")
   public ArrayExpression arrayExpression(
     SyntaxToken lBracket,
-    Optional<SyntaxToken> firstNewLine,
-    Optional<List<Tuple<Expression, SyntaxToken>>> elementsWithDelimiters,
+    Optional<List<Expression>> elements,
     SyntaxToken rBracket) {
-    List<Expression> elements = elementsWithDelimiters.or(emptyList()).stream().map(Tuple::first).collect(Collectors.toList());
-    return new ArrayExpressionImpl(lBracket, elements, rBracket);
+    return new ArrayExpressionImpl(lBracket, elements.or(emptyList()), rBracket);
   }
 
   public NumericLiteral numericLiteral(SyntaxToken token) {

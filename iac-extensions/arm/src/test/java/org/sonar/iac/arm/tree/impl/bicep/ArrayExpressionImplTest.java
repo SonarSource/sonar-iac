@@ -39,9 +39,9 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
       .matches(code("[", "", "", "   'a'", "", "    'b'", "]"))
       .matches(code("[]"))
       .matches(code("['a'", "]"))
+      .matches(code("['a']"))
+      .matches(code("[", "'a']"))
 
-      .notMatches(code("['a']"))
-      .notMatches(code("[", "'a']"))
       .notMatches(code("[", "}"));
   }
 
