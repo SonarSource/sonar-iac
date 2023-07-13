@@ -262,7 +262,9 @@ public class BicepGrammar {
     return b.<Expression>nonterminal(BicepLexicalGrammar.PRIMARY_EXPRESSION).is(
       b.firstOf(
         FUNCTION_CALL(),
+        ARRAY_EXPRESSION(),
         FOR_EXPRESSION(),
+        LAMBDA_EXPRESSION(),
         LITERAL_VALUE(),
         ALPHA_NUMERAL_STRING(),
         INTERPOLATED_STRING()));
