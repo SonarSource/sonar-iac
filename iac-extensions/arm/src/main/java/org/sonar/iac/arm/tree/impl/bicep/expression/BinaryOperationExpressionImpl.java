@@ -19,14 +19,29 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep.expression;
 
+import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.BinaryOperationExpression;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.Tree;
 
-public class MultiplicativeExpressionImpl extends BinaryOperationExpressionImpl implements MultiplicativeExpression {
+public abstract class BinaryOperationExpressionImpl extends AbstractArmTreeImpl implements BinaryOperationExpression {
 
-  public MultiplicativeExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
-    super(separatedList);
+  private final SeparatedList<Expression, SyntaxToken> separatedList;
+
+  protected BinaryOperationExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
+    this.separatedList = separatedList;
+  }
+
+  @Override
+  public SeparatedList<Expression, SyntaxToken> separatedList() {
+    return separatedList;
+  }
+
+  @Override
+  public List<Tree> children() {
+    return separatedList.elementsAndSeparators();
   }
 }

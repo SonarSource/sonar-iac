@@ -21,6 +21,7 @@ package org.sonar.iac.common.api.tree.impl;
 
 import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.iac.common.api.tree.IacToken;
@@ -66,15 +67,17 @@ public class SeparatedListImpl<T extends Tree, U extends IacToken> implements Se
   }
 
   public static <R extends Tree, S extends IacToken> SeparatedListImpl<R, S> separatedList(R firstElement, Optional<List<Tuple<S, R>>> additionalElements) {
+    return separatedList(firstElement, additionalElements.or(Collections.emptyList()));
+  }
+
+  public static <R extends Tree, S extends IacToken> SeparatedListImpl<R, S> separatedList(R firstElement, List<Tuple<S, R>> additionalElements) {
     List<R> elements = new ArrayList<>();
     List<S> separators = new ArrayList<>();
     elements.add(firstElement);
 
-    if (additionalElements.isPresent()) {
-      for (Tuple<S, R> elementsWithSeparators : additionalElements.get()) {
-        separators.add(elementsWithSeparators.first());
-        elements.add(elementsWithSeparators.second());
-      }
+    for (Tuple<S, R> elementsWithSeparators : additionalElements) {
+      separators.add(elementsWithSeparators.first());
+      elements.add(elementsWithSeparators.second());
     }
 
     return new SeparatedListImpl<>(elements, separators);
