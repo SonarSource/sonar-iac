@@ -461,7 +461,16 @@ public class BicepGrammar {
 
   public Expression ADDITIVE_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.ADDITIVE_EXPRESSION).is(
-      b.firstOf(MULTIPLICATIVE_EXPRESSION()));
+      b.firstOf(
+        f.additiveExpression(
+          MULTIPLICATIVE_EXPRESSION(),
+          b.oneOrMore(
+            f.tuple(
+              b.firstOf(
+                b.token(Punctuator.PLUS),
+                b.token(Punctuator.MINUS)),
+              MULTIPLICATIVE_EXPRESSION()))),
+        MULTIPLICATIVE_EXPRESSION()));
   }
 
   public Expression MULTIPLICATIVE_EXPRESSION() {
@@ -469,7 +478,7 @@ public class BicepGrammar {
       b.firstOf(
         f.multiplicativeExpression(
           UNARY_EXPRESSION(),
-          b.zeroOrMore(
+          b.oneOrMore(
             f.tuple(
               b.firstOf(
                 b.token(Punctuator.STAR),

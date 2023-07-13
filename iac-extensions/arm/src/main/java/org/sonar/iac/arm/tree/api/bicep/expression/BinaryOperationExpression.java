@@ -19,9 +19,10 @@
  */
 package org.sonar.iac.arm.tree.api.bicep.expression;
 
-public interface MultiplicativeExpression extends BinaryOperationExpression {
+import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.common.api.tree.SeparatedList;
 
-  default Kind getKind() {
-    return Kind.MULTIPLICATIVE_EXPRESSION;
-  }
+public interface BinaryOperationExpression extends Expression {
+  SeparatedList<Expression, SyntaxToken> separatedList();
 }

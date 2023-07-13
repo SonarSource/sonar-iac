@@ -108,6 +108,7 @@ import org.sonar.iac.arm.tree.impl.bicep.TypedLocalVariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypedVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.UnaryOperatorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.expression.AdditiveExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.MultiplicativeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.UnaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
@@ -382,11 +383,11 @@ public class TreeFactory {
     return new UnaryExpressionImpl(unaryOperator, expression);
   }
 
-  public Expression multiplicativeExpression(Expression expression, Optional<List<Tuple<SyntaxToken, Expression>>> listOptional) {
-    if (listOptional.isPresent()) {
-      return new MultiplicativeExpressionImpl(SeparatedListImpl.separatedList(expression, listOptional));
-    } else {
-      return expression;
-    }
+  public Expression multiplicativeExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+    return new MultiplicativeExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+  }
+
+  public Expression additiveExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+    return new AdditiveExpressionImpl(SeparatedListImpl.separatedList(expression, list));
   }
 }
