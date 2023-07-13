@@ -445,7 +445,16 @@ public class BicepGrammar {
 
   public Expression EQUALITY_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EQUALITY_EXPRESSION).is(
-      b.firstOf(RELATIONAL_EXPRESSION()));
+      b.firstOf(
+        f.equalityExpression(
+          RELATIONAL_EXPRESSION(),
+          b.oneOrMore(
+            f.tuple(
+              b.firstOf(
+                b.token(Punctuator.EQUAL),
+                b.token(Punctuator.NOT_EQUAL)),
+              RELATIONAL_EXPRESSION()))),
+        RELATIONAL_EXPRESSION()));
   }
 
   public Expression RELATIONAL_EXPRESSION() {
