@@ -164,8 +164,8 @@ public class TreeFactory {
     return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
-  public ModuleDeclaration moduleDeclaration(SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equals, Expression value) {
-    return new ModuleDeclarationImpl(keyword, name, type, equals, value);
+  public ModuleDeclaration moduleDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equals, Expression value) {
+    return new ModuleDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equals, value);
   }
 
   public StringComplete stringComplete(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {

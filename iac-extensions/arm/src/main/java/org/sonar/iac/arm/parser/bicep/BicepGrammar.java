@@ -232,6 +232,7 @@ public class BicepGrammar {
   public ModuleDeclaration MODULE_DECLARATION() {
     return b.<ModuleDeclaration>nonterminal(BicepLexicalGrammar.MODULE_DECLARATION).is(
       f.moduleDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.MODULE),
         IDENTIFIER(),
         INTERPOLATED_STRING(),

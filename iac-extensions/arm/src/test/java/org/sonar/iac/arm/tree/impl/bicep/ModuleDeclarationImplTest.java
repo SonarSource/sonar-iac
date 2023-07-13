@@ -38,6 +38,7 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
       .matches("module foo 'path-to-file' = if (bar) {}")
       .matches("module foo 'path-to-file' = [for d in deployments: expression]")
       .matches("module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
+      .matches("@batchSize(4) module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
 
       .notMatches("module foo = {}")
       .notMatches("module 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
