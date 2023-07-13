@@ -393,45 +393,42 @@ public class BicepGrammar {
 
   public Expression EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
-      f.expression(
-        BINARY_EXPRESSION()));
+      b.firstOf(BINARY_EXPRESSION()));
   }
 
   public Expression BINARY_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.BINARY_EXPRESSION).is(
-      f.binaryExpression(
-        EQUALITY_EXPRESSION()));
+      b.firstOf(EQUALITY_EXPRESSION()));
   }
 
   public Expression EQUALITY_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EQUALITY_EXPRESSION).is(
-      f.equalityExpression(
-        RELATIONAL_EXPRESSION()));
+      b.firstOf(RELATIONAL_EXPRESSION()));
   }
 
   public Expression RELATIONAL_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.RELATIONAL_EXPRESSION).is(
-      f.relationalExpression(
-        ADDITIVE_EXPRESSION()));
+      b.firstOf(ADDITIVE_EXPRESSION()));
   }
 
   public Expression ADDITIVE_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.ADDITIVE_EXPRESSION).is(
-      f.additiveExpression(
-        MULTIPLICATIVE_EXPRESSION()));
+      b.firstOf(MULTIPLICATIVE_EXPRESSION()));
   }
 
   public Expression MULTIPLICATIVE_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.MULTIPLICATIVE_EXPRESSION).is(
-      f.multiplicativeExpression(
-        UNARY_EXPRESSION(),
-        b.zeroOrMore(
-          f.tuple(
-            b.firstOf(
-              b.token(Punctuator.STAR),
-              b.token(Punctuator.DIV),
-              b.token(Punctuator.PERCENT)),
-            UNARY_EXPRESSION()))));
+      b.firstOf(
+        f.multiplicativeExpression(
+          UNARY_EXPRESSION(),
+          b.zeroOrMore(
+            f.tuple(
+              b.firstOf(
+                b.token(Punctuator.STAR),
+                b.token(Punctuator.DIV),
+                b.token(Punctuator.PERCENT)),
+              UNARY_EXPRESSION()))),
+        UNARY_EXPRESSION()));
   }
 
   // Not an infinite recursion, SSLR can handle it
@@ -447,8 +444,7 @@ public class BicepGrammar {
 
   public Expression MEMBER_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.MEMBER_EXPRESSION).is(
-      f.memberExpression(
-        PRIMARY_EXPRESSION()));
+      b.firstOf(PRIMARY_EXPRESSION()));
   }
 
   public Expression LITERAL_VALUE() {

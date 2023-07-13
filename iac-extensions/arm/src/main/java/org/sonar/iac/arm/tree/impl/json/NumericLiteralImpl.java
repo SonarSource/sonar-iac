@@ -32,7 +32,7 @@ public class NumericLiteralImpl extends ExpressionImpl implements NumericLiteral
   }
 
   @Override
-  public double doubleValue() {
+  public double asDouble() {
     return Double.parseDouble(value);
   }
 

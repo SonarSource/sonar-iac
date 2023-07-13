@@ -34,7 +34,7 @@ public class NumericLiteralImpl extends AbstractArmTreeImpl implements NumericLi
   }
 
   @Override
-  public double doubleValue() {
+  public double asDouble() {
     return Double.parseDouble(token.value());
   }
 

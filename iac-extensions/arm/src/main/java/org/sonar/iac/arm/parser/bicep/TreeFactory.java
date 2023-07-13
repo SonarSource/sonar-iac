@@ -351,28 +351,4 @@ public class TreeFactory {
       return expression;
     }
   }
-
-  public Expression additiveExpression(Expression expression) {
-    return expression;
-  }
-
-  public Expression relationalExpression(Expression expression) {
-    return expression;
-  }
-
-  public Expression equalityExpression(Expression expression) {
-    return expression;
-  }
-
-  public Expression binaryExpression(Expression expression) {
-    return expression;
-  }
-
-  public Expression expression(Expression expression) {
-    return expression;
-  }
-
-  public Expression memberExpression(Expression expression) {
-    return expression;
-  }
 }

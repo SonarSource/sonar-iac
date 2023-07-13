@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api;
 import org.sonar.iac.common.api.tree.TextTree;
 
 public interface NumericLiteral extends Expression, TextTree {
-  double doubleValue();
+  double asDouble();
 
   default Kind getKind() {
     return Kind.NUMERIC_LITERAL;
