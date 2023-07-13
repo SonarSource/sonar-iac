@@ -34,10 +34,12 @@ class ImportDeclarationImplTest extends BicepTreeModelTest {
       .matches("import 'foo' as bar")
       .matches("import 'foo' with {}")
       .matches("import 'foo' with {} as bar")
+      .matches("@decorator('parameter') import 'foo' with {} as bar")
 
       .notMatches("import")
       .notMatches("import with {}")
       .notMatches("import as bar")
+      .notMatches("@decorator('parameter') import")
       .notMatches("import 'foo' as bar with")
       .notMatches("import 'foo' with as bar")
       .notMatches("import 'foo' as");
@@ -46,11 +48,11 @@ class ImportDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseImportStatement() {
     ArmTree tree = createParser(BicepLexicalGrammar.IMPORT_DECLARATION)
-      .parse("import 'kubernetes@1.0.0' with {} as k8s");
+      .parse("@decorator('parameter') import 'kubernetes@1.0.0' with {} as k8s");
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ImportDeclaration.class);
-    softly.assertThat(tree.children()).hasSize(6);
+    softly.assertThat(tree.children()).hasSize(7);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.IMPORT_DECLARATION);
     softly.assertAll();
   }

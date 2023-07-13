@@ -19,6 +19,10 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -27,11 +31,8 @@ import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.Tree;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-
 public class ImportDeclarationImpl extends AbstractArmTreeImpl implements ImportDeclaration {
+  private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final InterpolatedString specification;
   @Nullable
@@ -39,7 +40,13 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
   @Nullable
   private final ImportAsClause asClause;
 
-  public ImportDeclarationImpl(SyntaxToken keyword, InterpolatedString specification, @Nullable ImportWithClause withClause, @Nullable ImportAsClause asClause) {
+  public ImportDeclarationImpl(
+    List<Decorator> decorators,
+    SyntaxToken keyword,
+    InterpolatedString specification,
+    @Nullable ImportWithClause withClause,
+    @Nullable ImportAsClause asClause) {
+    this.decorators = decorators;
     this.keyword = keyword;
     this.specification = specification;
     this.withClause = withClause;
@@ -48,7 +55,7 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
 
   @Override
   public List<Tree> children() {
-    List<Tree> result = new ArrayList<>();
+    List<Tree> result = new ArrayList<>(decorators);
     result.add(keyword);
     result.add(specification);
     if (withClause != null) {
