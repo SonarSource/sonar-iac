@@ -166,6 +166,7 @@ public class BicepGrammar {
   public FunctionDeclaration FUNCTION_DECLARATION() {
     return b.<FunctionDeclaration>nonterminal(BicepLexicalGrammar.FUNCTION_DECLARATION).is(
       f.functionDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.FUNC),
         IDENTIFIER(),
         TYPED_LAMBDA_EXPRESSION()));
