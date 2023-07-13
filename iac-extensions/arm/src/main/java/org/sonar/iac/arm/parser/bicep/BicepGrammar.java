@@ -174,7 +174,7 @@ public class BicepGrammar {
         b.token(BicepKeyword.METADATA),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
-        PRIMARY_EXPRESSION(),
+        EXPRESSION(),
         b.token(BicepLexicalGrammar.EOL)));
   }
 
