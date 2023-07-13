@@ -39,7 +39,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
    */
   SPACING,
   EOL,
-  NEW_LINE,
 
   FILE,
 
@@ -133,7 +132,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
 
   private static void lexical(LexerlessGrammarBuilder b) {
     b.rule(EOL).is(b.regexp("(?:" + BicepLexicalConstant.EOL + "|$)"));
-    b.rule(NEW_LINE).is(b.regexp("[" + BicepLexicalConstant.EOL + LexicalConstant.WHITESPACE + "]++"));
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(SPACING).is(
       b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+")),

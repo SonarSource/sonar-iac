@@ -67,7 +67,6 @@ import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 
 import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
-import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.NEW_LINE;
 
 // Ignore uppercase method names warning
 @SuppressWarnings("java:S100")
@@ -367,11 +366,11 @@ public class BicepGrammar {
     return b.<ArrayExpression>nonterminal(BicepLexicalGrammar.ARRAY_EXPRESSION).is(
       f.arrayExpression(
         b.token(Punctuator.LBRACKET),
-        b.optional(b.token(NEW_LINE)),
+        b.optional(b.token(EOL)),
         b.zeroOrMore(
           f.tuple(
             EXPRESSION(),
-            b.token(NEW_LINE)
+            b.token(EOL)
           )
         ),
         b.token(Punctuator.RBRACKET)
