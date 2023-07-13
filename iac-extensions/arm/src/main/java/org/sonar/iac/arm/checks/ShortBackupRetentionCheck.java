@@ -138,7 +138,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   }
 
   private static Predicate<Expression> isNumericValue(DoublePredicate predicate) {
-    return expr -> expr.is(ArmTree.Kind.NUMERIC_LITERAL) && predicate.test(((NumericLiteral) expr).value());
+    return expr -> expr.is(ArmTree.Kind.NUMERIC_LITERAL) && predicate.test(((NumericLiteral) expr).doubleValue());
   }
 
   @CheckForNull
@@ -147,7 +147,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
       .map(Property.class::cast)
       .map(Property::value)
       .filter(expr -> expr.is(ArmTree.Kind.NUMERIC_LITERAL))
-      .map(expr -> ((NumericLiteral) expr).value())
+      .map(expr -> ((NumericLiteral) expr).doubleValue())
       .orElse(null);
   }
 

@@ -34,12 +34,17 @@ public class NumericLiteralImpl extends AbstractArmTreeImpl implements NumericLi
   }
 
   @Override
-  public double value() {
+  public double doubleValue() {
     return Double.parseDouble(token.value());
   }
 
   @Override
   public List<Tree> children() {
     return List.of(token);
+  }
+
+  @Override
+  public String value() {
+    return token.value();
   }
 }

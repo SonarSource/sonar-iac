@@ -28,7 +28,7 @@ class ExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseExpression() {
-    assertThat(BicepLexicalGrammar.EXPRESSION)
+    assertThat(BicepLexicalGrammar.PRIMARY_EXPRESSION)
       .matches("123")
       .matches(" 123")
       .matches("true")

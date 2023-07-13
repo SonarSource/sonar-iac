@@ -31,7 +31,7 @@ public class NumericLiteralAssert extends HasTextRangeAssert<NumericLiteralAsser
   }
 
   public NumericLiteralAssert hasValue(float value) {
-    Assertions.assertThat(actual.value()).isEqualTo(value);
+    Assertions.assertThat(actual.doubleValue()).isEqualTo(value);
     return this;
   }
 }

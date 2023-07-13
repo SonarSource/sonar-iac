@@ -138,7 +138,10 @@ public class ArmBaseConverter {
       throw convertError(property, value, NumericLiteral.class.getSimpleName(), "ScalarTree.Style.PLAIN");
     }
     try {
-      return new NumericLiteralImpl(Float.parseFloat(value.value()), value.metadata());
+      // for validation
+      Double.parseDouble(value.value());
+
+      return new NumericLiteralImpl(value.value(), value.metadata());
     } catch (NumberFormatException e) {
       throw createParseException(
         "Failed to parse float value '" + value.value(),
@@ -207,7 +210,10 @@ public class ArmBaseConverter {
         return new BooleanLiteralImpl("true".equals(tree.value()), tree.metadata());
       } else {
         try {
-          return new NumericLiteralImpl(Float.parseFloat(tree.value()), tree.metadata());
+          // for validation
+          Double.parseDouble(tree.value());
+
+          return new NumericLiteralImpl(tree.value(), tree.metadata());
         } catch (NumberFormatException e) {
           throw createParseException(
             "Failed to parse plain value '" + tree.value() + "'",

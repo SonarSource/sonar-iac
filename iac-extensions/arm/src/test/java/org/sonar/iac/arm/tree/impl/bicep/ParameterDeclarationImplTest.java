@@ -27,9 +27,9 @@ import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.common.api.tree.TextTree;
 
-import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 public class ParameterDeclarationImplTest extends BicepTreeModelTest {
@@ -76,8 +76,9 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
     assertThat(tree.identifier().value()).isEqualTo("myParam");
     assertThat(tree.type()).isEqualTo(ParameterType.INT);
-    assertThat(tree.defaultValue()).asStringLiteral().hasValue("5");
+    assertThat(tree.defaultValue()).asNumericLiteral().hasValue(5);
     assertThat(tree.resourceType()).isNull();
+    assertThat(tree.children()).hasSize(5);
     assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("parameter", "myParam", "int", "=", "5");
   }
 
