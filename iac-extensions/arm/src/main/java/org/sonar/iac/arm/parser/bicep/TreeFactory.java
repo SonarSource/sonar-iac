@@ -260,7 +260,7 @@ public class TreeFactory {
 
   public MemberExpression memberExpressionComponent(SyntaxToken firstToken, Identifier identifier) {
     StringLiteralImpl identifierAsStringLiteral = new StringLiteralImpl(((IdentifierImpl) identifier).getToken());
-    return new MemberExpressionImpl(firstToken, identifierAsStringLiteral);
+    return new MemberExpressionImpl(firstToken, identifierAsStringLiteral, null);
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken firstToken, Expression expression, SyntaxToken secondToken) {
@@ -268,11 +268,11 @@ public class TreeFactory {
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken firstToken, FunctionCall functionCall) {
-    return new MemberExpressionImpl(firstToken, functionCall);
+    return new MemberExpressionImpl(firstToken, functionCall, null);
   }
 
   public MemberExpression memberExpressionComponent(SyntaxToken firstToken) {
-    return new MemberExpressionImpl(firstToken);
+    return new MemberExpressionImpl(firstToken, null, null);
   }
 
   public ParenthesizedExpression parenthesizedExpression(SyntaxToken leftParenthesis, Expression expression, SyntaxToken rightParenthesis) {

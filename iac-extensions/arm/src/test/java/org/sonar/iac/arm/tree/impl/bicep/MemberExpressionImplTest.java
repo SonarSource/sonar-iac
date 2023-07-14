@@ -83,16 +83,16 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
-    assertThat(tree.referencingObject().is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
+    assertThat(tree.memberAccess().is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
     assertThat(tree.expression()).isNull();
     assertThat(tree.children()).hasSize(2);
 
     assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
     assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo("!");
 
-    MemberExpression outerMemberExpression = (MemberExpression) tree.referencingObject();
-    assertThat(outerMemberExpression.referencingObject().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    assertThat((((StringLiteral) outerMemberExpression.referencingObject()).value())).isEqualTo("memberExpression");
+    MemberExpression outerMemberExpression = (MemberExpression) tree.memberAccess();
+    assertThat(outerMemberExpression.memberAccess().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    assertThat((((StringLiteral) outerMemberExpression.memberAccess()).value())).isEqualTo("memberExpression");
     assertThat(outerMemberExpression.expression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
     assertThat(outerMemberExpression.children()).hasSize(3);
     assertThat(outerMemberExpression.children().get(1)).isInstanceOf(SyntaxToken.class);
@@ -114,7 +114,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
-    assertThat(tree.referencingObject().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    assertThat(tree.memberAccess().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
     assertThat(tree.expression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
 
     assertThat(tree.children()).hasSize(3);
@@ -129,7 +129,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
-    assertThat(tree.referencingObject().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    assertThat(tree.memberAccess().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
     assertThat(tree.expression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
 
     assertThat(tree.children()).hasSize(3);
@@ -144,7 +144,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
     assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
-    assertThat(tree.referencingObject().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    assertThat(tree.memberAccess().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
     assertThat(tree.expression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
 
     assertThat(tree.children()).hasSize(4);

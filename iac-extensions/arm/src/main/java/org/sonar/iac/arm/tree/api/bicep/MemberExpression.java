@@ -26,5 +26,5 @@ public interface MemberExpression extends Expression {
   @CheckForNull
   Expression expression();
 
-  Expression referencingObject();
+  Expression memberAccess();
 }
