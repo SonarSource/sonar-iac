@@ -255,9 +255,9 @@ public class TreeFactory {
     return new IfExpressionImpl(keyword, condition, object);
   }
 
-  public MemberExpression memberExpression(Expression value, List<MemberExpression> memberExpressionComponent) {
+  public MemberExpression memberExpression(Expression value, List<MemberExpression> memberExpressionComponents) {
     Expression result = value;
-    for (MemberExpression memberExpression : memberExpressionComponent) {
+    for (MemberExpression memberExpression : memberExpressionComponents) {
       result = ((MemberExpressionImpl) memberExpression).complete(result);
     }
     return (MemberExpression) result;
