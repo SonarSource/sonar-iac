@@ -44,6 +44,7 @@ import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
@@ -58,20 +59,17 @@ import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
-import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
+import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.parser.grammar.Punctuator;
-
-import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.EOL;
-import static org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar.VARIABLE_BLOCK;
 
 // Ignore uppercase method names warning
 @SuppressWarnings("java:S100")
@@ -194,7 +192,7 @@ public class BicepGrammar {
         IDENTIFIER(),
         b.token(Punctuator.EQU),
         PRIMARY_EXPRESSION(),
-        b.token(EOL)));
+        b.token(BicepLexicalGrammar.EOL)));
   }
 
   public ResourceDeclaration RESOURCE_DECLARATION() {
@@ -395,7 +393,7 @@ public class BicepGrammar {
   }
 
   public VariableBlock VARIABLE_BLOCK() {
-    return b.<VariableBlock>nonterminal(VARIABLE_BLOCK).is(
+    return b.<VariableBlock>nonterminal(BicepLexicalGrammar.VARIABLE_BLOCK).is(
       f.variableBlock(
         b.token(Punctuator.LPARENTHESIS),
         b.optional(
@@ -515,7 +513,46 @@ public class BicepGrammar {
 
   public Expression MEMBER_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.MEMBER_EXPRESSION).is(
-      b.firstOf(PRIMARY_EXPRESSION()));
+      b.firstOf(
+        f.memberExpression(
+          PRIMARY_EXPRESSION(),
+          b.oneOrMore(
+            b.firstOf(
+              MEMBER_EXPRESSION_EXCLAMATION_COMPONENT(),
+              MEMBER_EXPRESSION_FUNCTION_CALL_COMPONENT(),
+              MEMBER_EXPRESSION_IDENTIFIER_COMPONENT(),
+              MEMBER_EXPRESSION_ENCLOSED_EXPRESSION_COMPONENT()))),
+        PRIMARY_EXPRESSION()));
+  }
+
+  public MemberExpression MEMBER_EXPRESSION_EXCLAMATION_COMPONENT() {
+    return b.<MemberExpression>nonterminal().is(
+      f.memberExpressionComponent(
+        b.token(Punctuator.EXCLAMATION)));
+  }
+
+  public MemberExpression MEMBER_EXPRESSION_FUNCTION_CALL_COMPONENT() {
+    return b.<MemberExpression>nonterminal().is(
+      f.memberExpressionComponent(
+        b.token(Punctuator.DOT),
+        FUNCTION_CALL()));
+  }
+
+  public MemberExpression MEMBER_EXPRESSION_IDENTIFIER_COMPONENT() {
+    return b.<MemberExpression>nonterminal().is(
+      f.memberExpressionComponent(
+        b.firstOf(
+          b.token(Punctuator.DOT),
+          b.token(Punctuator.COLON)),
+        IDENTIFIER()));
+  }
+
+  public MemberExpression MEMBER_EXPRESSION_ENCLOSED_EXPRESSION_COMPONENT() {
+    return b.<MemberExpression>nonterminal().is(
+      f.memberExpressionComponent(
+        b.token(Punctuator.LBRACKET),
+        EXPRESSION(),
+        b.token(Punctuator.RBRACKET)));
   }
 
   public Expression LITERAL_VALUE() {
