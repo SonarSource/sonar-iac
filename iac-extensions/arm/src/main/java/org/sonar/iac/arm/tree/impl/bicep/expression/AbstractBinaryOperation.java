@@ -22,16 +22,16 @@ package org.sonar.iac.arm.tree.impl.bicep.expression;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.expression.BinaryOperationExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.BinaryOperation;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
-public abstract class BinaryOperationExpressionImpl extends AbstractArmTreeImpl implements BinaryOperationExpression {
+public abstract class AbstractBinaryOperation extends AbstractArmTreeImpl implements BinaryOperation {
 
   private final SeparatedList<Expression, SyntaxToken> separatedList;
 
-  protected BinaryOperationExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
+  protected AbstractBinaryOperation(SeparatedList<Expression, SyntaxToken> separatedList) {
     this.separatedList = separatedList;
   }
 

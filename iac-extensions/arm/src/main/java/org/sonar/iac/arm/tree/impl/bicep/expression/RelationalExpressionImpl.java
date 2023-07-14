@@ -24,7 +24,7 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
 import org.sonar.iac.common.api.tree.SeparatedList;
 
-public class RelationalExpressionImpl extends BinaryOperationExpressionImpl implements RelationalExpression {
+public class RelationalExpressionImpl extends AbstractBinaryOperation implements RelationalExpression {
 
   public RelationalExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
     super(separatedList);

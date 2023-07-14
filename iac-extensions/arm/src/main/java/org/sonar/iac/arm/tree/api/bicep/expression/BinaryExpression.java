@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.arm.tree.api.bicep.expression;
 
-public interface BinaryExpression extends BinaryOperationExpression {
+public interface BinaryExpression extends BinaryOperation {
 
   default Kind getKind() {
     return Kind.BINARY_EXPRESSION;

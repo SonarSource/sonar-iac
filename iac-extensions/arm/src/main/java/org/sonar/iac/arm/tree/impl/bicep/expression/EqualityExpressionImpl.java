@@ -24,7 +24,7 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
 import org.sonar.iac.common.api.tree.SeparatedList;
 
-public class EqualityExpressionImpl extends BinaryOperationExpressionImpl implements EqualityExpression {
+public class EqualityExpressionImpl extends AbstractBinaryOperation implements EqualityExpression {
 
   public EqualityExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
     super(separatedList);

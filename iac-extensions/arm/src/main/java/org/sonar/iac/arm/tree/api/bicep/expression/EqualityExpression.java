@@ -19,7 +19,7 @@
  */
 package org.sonar.iac.arm.tree.api.bicep.expression;
 
-public interface EqualityExpression extends BinaryOperationExpression {
+public interface EqualityExpression extends BinaryOperation {
 
   default Kind getKind() {
     return Kind.EQUALITY_EXPRESSION;

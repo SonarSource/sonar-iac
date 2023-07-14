@@ -23,6 +23,6 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.SeparatedList;
 
-public interface BinaryOperationExpression extends Expression {
+public interface BinaryOperation extends Expression {
   SeparatedList<Expression, SyntaxToken> separatedList();
 }
