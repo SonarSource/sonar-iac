@@ -43,6 +43,8 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
       .matches("output myOutput resource 'myResource' = myValue")
       .matches("@description('comment') output myOutput String = myValue")
       .matches("@description('comment') output myOutput resource 'myResource' = myValue")
+      .matches("@sys.description('comment') output myOutput resource 'myResource' = myValue")
+      .matches(code("@description('comment')", "@decorator()", "output myOutput resource 'myResource' = myValue"))
 
       .notMatches("output")
       .notMatches("output myOutput")

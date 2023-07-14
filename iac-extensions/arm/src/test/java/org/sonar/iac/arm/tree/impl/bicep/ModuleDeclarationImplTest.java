@@ -30,6 +30,8 @@ import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.common.testing.IacTestUtils;
 
+import static org.sonar.iac.common.testing.IacTestUtils.code;
+
 class ModuleDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseValidDeclarations() {
@@ -39,6 +41,8 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
       .matches("module foo 'path-to-file' = [for d in deployments: expression]")
       .matches("module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
       .matches("@batchSize(4) module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
+      .matches("@sys.batchSize(4) module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
+      .matches(code("@sys.batchSize(4)", "@decorator()", "module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}"))
 
       .notMatches("module foo = {}")
       .notMatches("module 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
@@ -49,7 +53,7 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseDeclarationCorrectly() {
     ModuleDeclaration tree = (ModuleDeclaration) createParser(BicepLexicalGrammar.MODULE_DECLARATION).parse(
-      IacTestUtils.code("@batchSize(4) ",
+      code("@batchSize(4) ",
         "module stgModule '../storageAccount.bicep' = {",
         "  name: 'storageDeploy'",
         "}"));

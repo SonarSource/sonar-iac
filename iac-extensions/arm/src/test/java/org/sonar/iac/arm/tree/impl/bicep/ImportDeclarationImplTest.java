@@ -26,6 +26,8 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 
+import static org.sonar.iac.common.testing.IacTestUtils.code;
+
 class ImportDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseValidStatement() {
@@ -35,6 +37,8 @@ class ImportDeclarationImplTest extends BicepTreeModelTest {
       .matches("import 'foo' with {}")
       .matches("import 'foo' with {} as bar")
       .matches("@decorator('parameter') import 'foo' with {} as bar")
+      .matches("@sys.decorator('parameter') import 'foo' with {} as bar")
+      .matches(code("@sys.decorator('parameter')", "@decorator()", "import 'foo' with {} as bar"))
 
       .notMatches("import")
       .notMatches("import with {}")

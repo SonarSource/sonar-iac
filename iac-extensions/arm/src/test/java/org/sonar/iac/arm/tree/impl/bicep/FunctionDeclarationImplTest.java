@@ -40,6 +40,11 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
       .matches("func myFunction(foo int) string => '${foo}'")
       .matches("func myFunction(foo int, bar object) int => 0")
       .matches("@description('comment') func myFunction(foo int, bar object) int => 0")
+      .matches("@sys.description('comment') func myFunction(foo int, bar object) int => 0")
+      .matches(code(
+        "@description('comment')",
+        "@allowed([42])",
+        "func myFunction(foo int, bar object) int => 0"))
 
       .notMatches("func myFunction() => 'result'")
       .notMatches("func myFunction")

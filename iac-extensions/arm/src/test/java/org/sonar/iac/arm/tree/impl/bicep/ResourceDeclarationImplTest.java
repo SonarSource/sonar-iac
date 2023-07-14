@@ -106,6 +106,12 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
         "  ABC: 123",
         "  myKey: myValue",
         "}"))
+      .matches(code("@sys.batchSize(10)",
+      "@secure()",
+        "resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {",
+        "  ABC: 123",
+        "  myKey: myValue",
+        "}"))
 
       .notMatches(code("resource myName 'type_version' = {",
         "abc",

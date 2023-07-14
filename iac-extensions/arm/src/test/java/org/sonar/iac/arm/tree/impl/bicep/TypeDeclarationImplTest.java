@@ -40,6 +40,8 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
       .matches("type myType =abc")
       .matches("type myType = abc")
       .matches("@description('my type') type myType = abc")
+      .matches("@sys.description('my type') type myType = abc")
+      .matches(code("@description('my type')", "@decorator()", "type myType = abc"))
 
       .notMatches("type myType")
       .notMatches("type myType=")

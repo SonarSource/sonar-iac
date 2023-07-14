@@ -45,6 +45,7 @@ class VariableDeclarationImplTest extends BicepTreeModelTest {
     "var foo = abc",
     "var foo = true",
     "@description('comment') var foo = true",
+    "@sys.description('comment') var foo = true",
   })
   void shouldParseSimpleVariableDeclaration(String code) {
     VariableDeclaration tree = (VariableDeclaration) parser.parse(code);
