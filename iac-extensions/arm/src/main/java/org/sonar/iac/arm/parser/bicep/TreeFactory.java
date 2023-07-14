@@ -255,29 +255,29 @@ public class TreeFactory {
     return new IfExpressionImpl(keyword, condition, object);
   }
 
-  public Expression memberExpression(Expression value, List<MemberExpression> memberExpressionComponent) {
+  public MemberExpression memberExpression(Expression value, List<MemberExpression> memberExpressionComponents) {
     Expression result = value;
-    for (MemberExpression memberExpression : memberExpressionComponent) {
+    for (MemberExpression memberExpression : memberExpressionComponents) {
       result = ((MemberExpressionImpl) memberExpression).complete(result);
     }
-    return result;
+    return (MemberExpression) result;
   }
 
-  public MemberExpression memberExpressionComponent(SyntaxToken firstToken, Identifier identifier) {
+  public MemberExpression memberExpressionComponent(SyntaxToken separatingToken, Identifier identifier) {
     StringLiteralImpl identifierAsStringLiteral = new StringLiteralImpl(((IdentifierImpl) identifier).getToken());
-    return new MemberExpressionImpl(firstToken, identifierAsStringLiteral, null);
+    return new MemberExpressionImpl(separatingToken, identifierAsStringLiteral, null);
   }
 
-  public MemberExpression memberExpressionComponent(SyntaxToken firstToken, Expression expression, SyntaxToken secondToken) {
-    return new MemberExpressionImpl(firstToken, expression, secondToken);
+  public MemberExpression memberExpressionComponent(SyntaxToken openingBracket, Expression expression, SyntaxToken closingBracket) {
+    return new MemberExpressionImpl(openingBracket, expression, closingBracket);
   }
 
-  public MemberExpression memberExpressionComponent(SyntaxToken firstToken, FunctionCall functionCall) {
-    return new MemberExpressionImpl(firstToken, functionCall, null);
+  public MemberExpression memberExpressionComponent(SyntaxToken dotKeyword, FunctionCall functionCall) {
+    return new MemberExpressionImpl(dotKeyword, functionCall, null);
   }
 
-  public MemberExpression memberExpressionComponent(SyntaxToken firstToken) {
-    return new MemberExpressionImpl(firstToken, null, null);
+  public MemberExpression memberExpressionComponent(SyntaxToken exclamationKeyword) {
+    return new MemberExpressionImpl(exclamationKeyword, null, null);
   }
 
   public ParenthesizedExpression parenthesizedExpression(SyntaxToken leftParenthesis, Expression expression, SyntaxToken rightParenthesis) {
@@ -403,7 +403,7 @@ public class TreeFactory {
     return new LocalVariableImpl(identifier);
   }
 
-  public Decorator decorator(SyntaxToken keyword, FunctionCall decoratorExpression) {
+  public Decorator decorator(SyntaxToken keyword, Expression decoratorExpression) {
     return new DecoratorImpl(keyword, decoratorExpression);
   }
 

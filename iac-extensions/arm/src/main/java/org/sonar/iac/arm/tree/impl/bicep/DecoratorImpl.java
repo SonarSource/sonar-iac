@@ -20,8 +20,8 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
-import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -29,16 +29,16 @@ import org.sonar.iac.common.api.tree.Tree;
 public class DecoratorImpl extends AbstractArmTreeImpl implements Decorator {
 
   private final SyntaxToken keyword;
-  private final FunctionCall functionCall;
+  private final Expression expression;
 
-  public DecoratorImpl(SyntaxToken keyword, FunctionCall functionCall) {
+  public DecoratorImpl(SyntaxToken keyword, Expression expression) {
     this.keyword = keyword;
-    this.functionCall = functionCall;
+    this.expression = expression;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(keyword, functionCall);
+    return List.of(keyword, expression);
   }
 
   @Override
@@ -47,7 +47,7 @@ public class DecoratorImpl extends AbstractArmTreeImpl implements Decorator {
   }
 
   @Override
-  public FunctionCall functionCall() {
-    return functionCall;
+  public Expression expression() {
+    return expression;
   }
 }
