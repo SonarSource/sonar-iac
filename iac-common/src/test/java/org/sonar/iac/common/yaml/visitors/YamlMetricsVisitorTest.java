@@ -71,7 +71,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
       "key: |\n" +
       "  value1\n" +
       "  value2\n    ");
-    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4);
+    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
   }
 
   @Test
@@ -131,6 +131,12 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
       "  bar # comment");
     assertThat(visitor.linesOfCode()).containsExactly(1, 4);
     assertThat(visitor.commentLines()).containsExactly(2, 4);
+  }
+
+  @Test
+  void whitespaceLineShouldNotCountAsCode() {
+    scan("project: foo",
+      " ", " ", " ");    assertThat(visitor.linesOfCode()).containsExactly(1);
   }
 
   @Test
