@@ -21,6 +21,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.parser.bicep.BicepKeyword;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -44,6 +45,7 @@ import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration, HasDecorators {
 
+  @CheckForNull
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final Identifier name;
@@ -57,7 +59,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
   @SuppressWarnings("java:S107")
   public ResourceDeclarationImpl(
-    List<Decorator> decorators,
+    @Nullable List<Decorator> decorators,
     SyntaxToken keyword,
     Identifier name,
     InterpolatedString typeAndVersion,
@@ -78,7 +80,10 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(decorators);
+    List<Tree> children = new ArrayList<>();
+    if (decorators != null) {
+      children.addAll(decorators);
+    }
     children.add(keyword);
     children.add(name);
     children.add(typeAndVersion);

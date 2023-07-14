@@ -21,6 +21,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
@@ -32,6 +33,7 @@ import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ImportDeclarationImpl extends AbstractArmTreeImpl implements ImportDeclaration {
+  @CheckForNull
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final InterpolatedString specification;
@@ -41,7 +43,7 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
   private final ImportAsClause asClause;
 
   public ImportDeclarationImpl(
-    List<Decorator> decorators,
+    @Nullable List<Decorator> decorators,
     SyntaxToken keyword,
     InterpolatedString specification,
     @Nullable ImportWithClause withClause,
@@ -55,16 +57,19 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
 
   @Override
   public List<Tree> children() {
-    List<Tree> result = new ArrayList<>(decorators);
-    result.add(keyword);
-    result.add(specification);
+    List<Tree> children = new ArrayList<>();
+    if (decorators != null) {
+      children.addAll(decorators);
+    }
+    children.add(keyword);
+    children.add(specification);
     if (withClause != null) {
-      result.addAll(withClause.children());
+      children.addAll(withClause.children());
     }
     if (asClause != null) {
-      result.addAll(asClause.children());
+      children.addAll(asClause.children());
     }
-    return result;
+    return children;
   }
 
   @Override

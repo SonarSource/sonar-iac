@@ -39,6 +39,7 @@ import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class OutputDeclarationImpl extends AbstractArmTreeImpl implements OutputDeclaration, HasDecorators {
 
+  @CheckForNull
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final Identifier name;
@@ -51,7 +52,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   private final SyntaxToken equ;
   private final Expression expression;
 
-  public OutputDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, Identifier identifierType, SyntaxToken equ, Expression expression) {
+  public OutputDeclarationImpl(@Nullable List<Decorator> decorators, SyntaxToken keyword, Identifier name, Identifier identifierType, SyntaxToken equ, Expression expression) {
     this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;
@@ -63,7 +64,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   }
 
   public OutputDeclarationImpl(
-    List<Decorator> decorators,
+    @Nullable List<Decorator> decorators,
     SyntaxToken keyword,
     Identifier name,
     SyntaxToken resource,
@@ -124,7 +125,10 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(decorators);
+    List<Tree> children = new ArrayList<>();
+    if (decorators != null) {
+      children.addAll(decorators);
+    }
     children.add(keyword);
     children.add(name);
     addChildrenIfPresent(children, identifierType);

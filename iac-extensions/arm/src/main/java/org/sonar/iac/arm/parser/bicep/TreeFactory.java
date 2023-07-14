@@ -143,11 +143,11 @@ public class TreeFactory {
   }
 
   public TypeDeclaration typeDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
-    return new TypeDeclarationImpl(decorators.or(emptyList()), keyword, name, equ, typeExpression);
+    return new TypeDeclarationImpl(decorators.orNull(), keyword, name, equ, typeExpression);
   }
 
   public OutputDeclaration outputDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, Identifier type, SyntaxToken equ, Expression expression) {
-    return new OutputDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equ, expression);
+    return new OutputDeclarationImpl(decorators.orNull(), keyword, name, type, equ, expression);
   }
 
   public OutputDeclaration outputDeclaration(
@@ -158,7 +158,7 @@ public class TreeFactory {
     InterpolatedString type,
     SyntaxToken equ,
     Expression expression) {
-    return new OutputDeclarationImpl(decorators.or(emptyList()), keyword, name, resource, type, equ, expression);
+    return new OutputDeclarationImpl(decorators.orNull(), keyword, name, resource, type, equ, expression);
   }
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
@@ -176,7 +176,7 @@ public class TreeFactory {
   }
 
   public FunctionDeclaration functionDeclaration(Optional<List<Decorator>> decorators, SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
-    return new FunctionDeclarationImpl(decorators.or(emptyList()), func, name, lambdaExpression);
+    return new FunctionDeclarationImpl(decorators.orNull(), func, name, lambdaExpression);
   }
 
   public MetadataDeclaration metadataDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals,
@@ -191,7 +191,7 @@ public class TreeFactory {
     SyntaxToken equals,
     Expression expression,
     SyntaxToken newLine) {
-    return new VariableDeclarationImpl(decorators.or(emptyList()), keyword, identifier, equals, expression, newLine);
+    return new VariableDeclarationImpl(decorators.orNull(), keyword, identifier, equals, expression, newLine);
   }
 
   public ModuleDeclaration moduleDeclaration(
@@ -201,7 +201,7 @@ public class TreeFactory {
     InterpolatedString type,
     SyntaxToken equals,
     Expression value) {
-    return new ModuleDeclarationImpl(decorators.or(emptyList()), keyword, name, type, equals, value);
+    return new ModuleDeclarationImpl(decorators.orNull(), keyword, name, type, equals, value);
   }
 
   public StringComplete stringComplete(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
@@ -241,7 +241,7 @@ public class TreeFactory {
     SyntaxToken equalsSign,
     Expression expression,
     SyntaxToken endOfLine) {
-    return new ResourceDeclarationImpl(decorators.or(emptyList()), keyword, identifier, type, existing.orNull(), equalsSign, expression, endOfLine);
+    return new ResourceDeclarationImpl(decorators.orNull(), keyword, identifier, type, existing.orNull(), equalsSign, expression, endOfLine);
   }
 
   public FunctionCall functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
@@ -340,7 +340,7 @@ public class TreeFactory {
     InterpolatedString specification,
     Optional<ImportWithClause> withClause,
     Optional<ImportAsClause> asClause) {
-    return new ImportDeclarationImpl(decorators.or(emptyList()), keyword, specification, withClause.orNull(), asClause.orNull());
+    return new ImportDeclarationImpl(decorators.orNull(), keyword, specification, withClause.orNull(), asClause.orNull());
   }
 
   public ImportWithClause importWithClause(SyntaxToken keyword, ObjectExpression object) {
@@ -360,7 +360,7 @@ public class TreeFactory {
   }
 
   public ObjectTypeProperty objectTypeProperty(Optional<List<Decorator>> decorators, TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
-    return new ObjectTypePropertyImpl(decorators.or(emptyList()), name, colon, typeExpression);
+    return new ObjectTypePropertyImpl(decorators.orNull(), name, colon, typeExpression);
   }
 
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {

@@ -20,7 +20,9 @@
 package org.sonar.iac.arm.tree.api.bicep;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 
 public interface HasDecorators {
+  @CheckForNull
   List<Decorator> decorators();
 }

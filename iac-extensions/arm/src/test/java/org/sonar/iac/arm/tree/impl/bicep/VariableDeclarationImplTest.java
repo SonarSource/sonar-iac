@@ -51,7 +51,7 @@ class VariableDeclarationImplTest extends BicepTreeModelTest {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.name().value()).isEqualTo("foo");
     softly.assertThat(tree.value()).isInstanceOfAny(NumericLiteral.class, StringLiteral.class, BooleanLiteral.class);
-    if (((HasDecorators) tree).decorators().isEmpty()) {
+    if (((HasDecorators) tree).decorators() == null) {
       softly.assertThat(tree.children()).hasSize(5);
     } else {
       softly.assertThat(tree.children()).hasSize(6);
