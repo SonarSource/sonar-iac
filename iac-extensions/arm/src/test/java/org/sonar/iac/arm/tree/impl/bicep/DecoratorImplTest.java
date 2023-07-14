@@ -20,12 +20,15 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -72,4 +75,21 @@ class DecoratorImplTest extends BicepTreeModelTest {
     assertThat(((StringLiteral) ((MemberExpression) tree.expression()).memberAccess()).value()).isEqualTo("member");
   }
 
+  @ParameterizedTest
+  @CsvSource({
+    "@foo(), true",
+    "@namespace.foo(), true",
+    "@decorator:foo.bar(), true",
+    "@decorator!, false",
+  })
+  void shouldProvideAccessToDecoratorExpression(String code, boolean shouldPass) {
+    Decorator tree = (Decorator) parser.parse(code, null);
+
+    FunctionCall functionCall = tree.functionCallOrMemberFunctionCall();
+    if (shouldPass) {
+      assertThat(functionCall).isNotNull().isInstanceOf(FunctionCall.class);
+    } else {
+      assertThat(functionCall).isNull();
+    }
+  }
 }
