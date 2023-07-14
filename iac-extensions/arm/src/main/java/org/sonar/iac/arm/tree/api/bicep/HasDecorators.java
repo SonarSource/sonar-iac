@@ -30,13 +30,9 @@ public interface HasDecorators {
   default Optional<Decorator> findDecoratorByName(String decoratorName) {
     return Optional.ofNullable(decorators())
       .flatMap(decorators -> decorators.stream()
-        .filter(it -> {
-          FunctionCall functionCall = it.functionCallOrMemberFunctionCall();
-          if (functionCall == null) {
-            return false;
-          } else {
-            return decoratorName.equals(functionCall.name().value());
-          }
-        }).findFirst());
+        .filter(it -> Optional.ofNullable(it.functionCallOrMemberFunctionCall())
+          .map(functionCall -> decoratorName.equals(functionCall.name().value()))
+          .orElse(false))
+        .findFirst());
   }
 }
