@@ -167,14 +167,25 @@ public class TreeFactory {
     return new TargetScopeDeclarationImpl(keyword, equals, expression);
   }
 
-  public ParameterDeclaration parameterDeclaration(SyntaxToken keyword, Identifier name, StringLiteral typeExpression, Optional<SyntaxToken> equ,
+  public ParameterDeclaration parameterDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Identifier name,
+    StringLiteral typeExpression,
+    Optional<SyntaxToken> equ,
     Optional<Expression> defaultValue) {
-    return new ParameterDeclarationImpl(keyword, name, typeExpression, equ.orNull(), defaultValue.orNull());
+    return new ParameterDeclarationImpl(decorators.or(emptyList()), keyword, name, typeExpression, equ.orNull(), defaultValue.orNull());
   }
 
-  public ParameterDeclaration parameterDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString typeInterp, Optional<SyntaxToken> equ,
+  public ParameterDeclaration parameterDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Identifier name,
+    SyntaxToken resource,
+    InterpolatedString typeInterp,
+    Optional<SyntaxToken> equ,
     Optional<Expression> defaultValue) {
-    return new ParameterDeclarationImpl(keyword, name, resource, typeInterp, equ.orNull(), defaultValue.orNull());
+    return new ParameterDeclarationImpl(decorators.or(emptyList()), keyword, name, resource, typeInterp, equ.orNull(), defaultValue.orNull());
   }
 
   public FunctionDeclaration functionDeclaration(Optional<List<Decorator>> decorators, SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {

@@ -150,6 +150,7 @@ public class BicepGrammar {
     return b.<ParameterDeclaration>nonterminal(BicepLexicalGrammar.PARAMETER_DECLARATION).is(
       b.firstOf(
         f.parameterDeclaration(
+          b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.PARAMETER),
           IDENTIFIER(),
           b.token(BicepKeyword.RESOURCE),
@@ -157,6 +158,7 @@ public class BicepGrammar {
           b.optional(b.token(Punctuator.EQU)),
           b.optional(PRIMARY_EXPRESSION())),
         f.parameterDeclaration(
+          b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.PARAMETER),
           IDENTIFIER(),
           // TODO SONARIAC-963 Put in place typeExpresion

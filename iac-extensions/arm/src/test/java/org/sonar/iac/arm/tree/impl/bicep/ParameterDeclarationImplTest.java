@@ -21,6 +21,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
@@ -28,7 +29,6 @@ import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -60,13 +60,14 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.type()).isEqualTo(ParameterType.INT);
     assertThat(tree.defaultValue()).isNull();
     assertThat(tree.resourceType()).isNull();
-    assertThatThrownBy(tree::allowedValues).isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(tree::description).isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(tree::maxLength).isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(tree::minLength).isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(tree::maxValue).isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(tree::minValue).isInstanceOf(UnsupportedOperationException.class);
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("param", "myParam", "int");
+    assertThat(tree.allowedValues()).isEmpty();
+    assertThat(tree.description()).isNull();
+    assertThat(tree.maxLength()).isNull();
+    assertThat(tree.minLength()).isNull();
+    assertThat(tree.maxValue()).isNull();
+    assertThat(tree.minValue()).isNull();
+    assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("param", "myParam", "int");
   }
 
   @Test
@@ -92,5 +93,58 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.defaultValue()).isNull();
     assertThat(tree.resourceType().value()).isEqualTo("myResource");
     assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("param", "myParam", "resource", "myResource");
+  }
+
+  @Test
+  void shouldParseIntParameterDeclarationWithDecorator() {
+    String code = code(
+      "@description('parameter description')",
+      "@minValue(0)",
+      "@maxValue(10)",
+      "param myParam int");
+    ParameterDeclaration tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
+    assertThat(tree.identifier().value()).isEqualTo("myParam");
+    assertThat(tree.type()).isEqualTo(ParameterType.INT);
+    assertThat(tree.defaultValue()).isNull();
+    assertThat(tree.resourceType()).isNull();
+    assertThat(tree.allowedValues()).isEmpty();
+    assertThat(tree.description()).isNotNull().matches(s -> "parameter description".equals(s.value()));
+    assertThat(tree.maxLength()).isNull();
+    assertThat(tree.minLength()).isNull();
+    assertThat(tree.maxValue()).isNotNull().matches(n -> "10".equals(n.value()));
+    assertThat(tree.minValue()).isNotNull().matches(n -> "0".equals(n.value()));
+    assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("@", "description", "(", "parameter description", ")", "@", "minValue", "(", "0", ")",
+        "@", "maxValue", "(", "10", ")", "param", "myParam", "int");
+  }
+
+  @Test
+  void shouldParseStringParameterDeclarationWithDecorator() {
+    String code = code(
+      "@description('another parameter description')",
+      "@minLength(3)",
+      "@maxLength(6)",
+      "@allowed([",
+      "  'foo'",
+      "  'bar'",
+      "  'foobar'",
+      "])",
+      "param myParam int");
+    ParameterDeclaration tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
+    assertThat(tree.identifier().value()).isEqualTo("myParam");
+    assertThat(tree.type()).isEqualTo(ParameterType.INT);
+    assertThat(tree.defaultValue()).isNull();
+    assertThat(tree.resourceType()).isNull();
+    assertThat(tree.allowedValues()).hasSize(3);
+    assertThat(tree.description()).isNotNull().matches(s -> "another parameter description".equals(s.value()));
+    assertThat(tree.maxLength()).isNotNull().matches(n -> "6".equals(n.value()));
+    assertThat(tree.minLength()).isNotNull().matches(n -> "3".equals(n.value()));
+    assertThat(tree.maxValue()).isNull();
+    assertThat(tree.minValue()).isNull();
+    assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("@", "description", "(", "another parameter description", ")", "@", "minLength", "(", "3", ")",
+        "@", "maxLength", "(", "6", ")", "@", "allowed", "(", "[", "foo", "bar", "foobar", "]", ")", "param", "myParam", "int");
   }
 }

@@ -19,10 +19,23 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
+import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 
 public interface Decorator extends ArmTree {
 
   Expression expression();
+
+  @CheckForNull
+  default FunctionCall functionCallOrMemberFunctionCall() {
+    Expression decoratorExpression = expression();
+    if (decoratorExpression instanceof FunctionCall) {
+      return (FunctionCall) decoratorExpression;
+    } else if (decoratorExpression instanceof MemberExpression && ((MemberExpression) decoratorExpression).expression() instanceof FunctionCall) {
+      return (FunctionCall) ((MemberExpression) decoratorExpression).expression();
+    } else {
+      return null;
+    }
+  }
 }
