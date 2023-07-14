@@ -48,7 +48,8 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
       .notMatches("param")
       .notMatches("param myParam")
-      .notMatches("param myParam = 123");
+      .notMatches("param myParam = 123")
+      .notMatches("@decorator[] param myParam = 123");
   }
 
   @Test
@@ -123,8 +124,8 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
   void shouldParseStringParameterDeclarationWithDecorator() {
     String code = code(
       "@description('another parameter description')",
-      "@minLength(3)",
-      "@maxLength(6)",
+      "@sys.minLength(3)",
+      "@sys.maxLength(6)",
       "@allowed([",
       "  'foo'",
       "  'bar'",

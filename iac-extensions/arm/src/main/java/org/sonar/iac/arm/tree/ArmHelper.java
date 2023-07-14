@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -32,6 +33,12 @@ public class ArmHelper {
   public static void addChildrenIfPresent(List<Tree> children, @Nullable ArmTree tree) {
     if (tree != null) {
       children.add(tree);
+    }
+  }
+
+  public static void addChildrenIfPresent(List<Tree> children, @Nullable Collection<? extends ArmTree> trees) {
+    if (trees != null) {
+      children.addAll(trees);
     }
   }
 }

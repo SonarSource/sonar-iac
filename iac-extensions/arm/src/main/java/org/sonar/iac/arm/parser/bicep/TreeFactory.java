@@ -174,7 +174,7 @@ public class TreeFactory {
     StringLiteral typeExpression,
     Optional<SyntaxToken> equ,
     Optional<Expression> defaultValue) {
-    return new ParameterDeclarationImpl(decorators.or(emptyList()), keyword, name, typeExpression, equ.orNull(), defaultValue.orNull());
+    return new ParameterDeclarationImpl(decorators.orNull(), keyword, name, typeExpression, equ.orNull(), defaultValue.orNull());
   }
 
   public ParameterDeclaration parameterDeclaration(
@@ -185,7 +185,7 @@ public class TreeFactory {
     InterpolatedString typeInterp,
     Optional<SyntaxToken> equ,
     Optional<Expression> defaultValue) {
-    return new ParameterDeclarationImpl(decorators.or(emptyList()), keyword, name, resource, typeInterp, equ.orNull(), defaultValue.orNull());
+    return new ParameterDeclarationImpl(decorators.orNull(), keyword, name, resource, typeInterp, equ.orNull(), defaultValue.orNull());
   }
 
   public FunctionDeclaration functionDeclaration(Optional<List<Decorator>> decorators, SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
