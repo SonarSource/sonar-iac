@@ -37,12 +37,12 @@ class VariableDeclarationImplTest extends BicepTreeModelTest {
 
   @ParameterizedTest
   @CsvSource({
-    "variable foo = 42",
-    "variable foo =42",
-    "variable foo=42",
-    "variable foo= 42",
-    "variable foo = abc",
-    "variable foo = true",
+    "var foo = 42",
+    "var foo =42",
+    "var foo=42",
+    "var foo= 42",
+    "var foo = abc",
+    "var foo = true",
   })
   void shouldParseSimpleVariableDeclaration(String code) {
     VariableDeclaration tree = (VariableDeclaration) parser.parse(code);
@@ -56,7 +56,7 @@ class VariableDeclarationImplTest extends BicepTreeModelTest {
 
   @ParameterizedTest
   @CsvSource({
-    "var foo = 42",
+    "variable foo = 42",
   })
   void shouldFailOnInvalidVariableDeclaration(String code) {
     Assertions.assertThatThrownBy(() -> parser.parse(code)).isInstanceOf(RecognitionException.class);
