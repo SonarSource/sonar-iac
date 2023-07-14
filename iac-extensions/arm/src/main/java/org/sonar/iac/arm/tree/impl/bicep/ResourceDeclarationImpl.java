@@ -54,6 +54,8 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private final Expression expression;
   private final SyntaxToken endOfLine;
 
+  // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
+  @SuppressWarnings("java:S107")
   public ResourceDeclarationImpl(
     List<Decorator> decorators,
     SyntaxToken keyword,

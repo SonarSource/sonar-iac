@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -36,7 +37,7 @@ import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
-public class OutputDeclarationImpl extends AbstractArmTreeImpl implements OutputDeclaration {
+public class OutputDeclarationImpl extends AbstractArmTreeImpl implements OutputDeclaration, HasDecorators {
 
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
@@ -132,5 +133,10 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
     children.add(equ);
     children.add(expression);
     return children;
+  }
+
+  @Override
+  public List<Decorator> decorators() {
+    return decorators;
   }
 }

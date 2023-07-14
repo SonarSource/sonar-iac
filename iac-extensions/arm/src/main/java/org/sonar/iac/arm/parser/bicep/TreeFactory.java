@@ -224,6 +224,8 @@ public class TreeFactory {
     return new StringLiteralImpl(token);
   }
 
+  // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
+  @SuppressWarnings("java:S107")
   public ResourceDeclaration resourceDeclaration(
     Optional<List<Decorator>> decorators,
     SyntaxToken keyword,

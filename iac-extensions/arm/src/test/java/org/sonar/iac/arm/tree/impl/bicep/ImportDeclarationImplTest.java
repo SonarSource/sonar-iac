@@ -47,11 +47,12 @@ class ImportDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseImportStatement() {
-    ArmTree tree = createParser(BicepLexicalGrammar.IMPORT_DECLARATION)
+    ImportDeclaration tree = (ImportDeclaration) createParser(BicepLexicalGrammar.IMPORT_DECLARATION)
       .parse("@decorator('parameter') import 'kubernetes@1.0.0' with {} as k8s");
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ImportDeclaration.class);
+    softly.assertThat(tree.decorators()).hasSize(1);
     softly.assertThat(tree.children()).hasSize(7);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.IMPORT_DECLARATION);
     softly.assertAll();
