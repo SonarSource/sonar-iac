@@ -17,37 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import java.util.List;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
+import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.Expression;
 
-public class IdentifierImpl extends AbstractArmTreeImpl implements Identifier {
-  private final SyntaxToken token;
+public interface MemberExpression extends Expression {
+  @CheckForNull
+  Expression expression();
 
-  public IdentifierImpl(SyntaxToken token) {
-    this.token = token;
-  }
-
-  @Override
-  public String value() {
-    return token.value();
-  }
-
-  @Override
-  public List<Tree> children() {
-    return List.of(token);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.IDENTIFIER;
-  }
-
-  public SyntaxToken getToken() {
-    return token;
-  }
+  Expression memberAccess();
 }
