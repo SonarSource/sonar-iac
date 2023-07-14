@@ -37,23 +37,23 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseParameterDeclaration() {
     ArmAssertions.assertThat(BicepLexicalGrammar.PARAMETER_DECLARATION)
-      .matches("parameter myParam int")
-      .matches("parameter myParam int = 123")
-      .matches("parameter myParam int=123")
-      .matches("parameter myParam resource 'interpolated string'")
-      .matches("parameter myParam resource 'interpolated string' = 123")
+      .matches("param myParam int")
+      .matches("param myParam int = 123")
+      .matches("param myParam int=123")
+      .matches("param myParam resource 'interpolated string'")
+      .matches("param myParam resource 'interpolated string' = 123")
       // invalid code that it still accepted by our parser
-      .matches("parameter myParam int 123")
-      .matches("parameter myParam resource interpolatedString")
+      .matches("param myParam int 123")
+      .matches("param myParam resource interpolatedString")
 
-      .notMatches("parameter")
-      .notMatches("parameter myParam")
-      .notMatches("parameter myParam = 123");
+      .notMatches("param")
+      .notMatches("param myParam")
+      .notMatches("param myParam = 123");
   }
 
   @Test
   void shouldParseParameterDeclarationMinimum() {
-    String code = code("parameter myParam int");
+    String code = code("param myParam int");
     ParameterDeclaration tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
     assertThat(tree.identifier().value()).isEqualTo("myParam");
@@ -66,12 +66,12 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
     assertThatThrownBy(tree::minLength).isInstanceOf(UnsupportedOperationException.class);
     assertThatThrownBy(tree::maxValue).isInstanceOf(UnsupportedOperationException.class);
     assertThatThrownBy(tree::minValue).isInstanceOf(UnsupportedOperationException.class);
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("parameter", "myParam", "int");
+    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("param", "myParam", "int");
   }
 
   @Test
   void shouldParseParameterDeclarationWithDefaultValue() {
-    String code = code("parameter myParam int = 5");
+    String code = code("param myParam int = 5");
     ParameterDeclaration tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
     assertThat(tree.identifier().value()).isEqualTo("myParam");
@@ -79,18 +79,18 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.defaultValue()).asNumericLiteral().hasValue(5);
     assertThat(tree.resourceType()).isNull();
     assertThat(tree.children()).hasSize(5);
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("parameter", "myParam", "int", "=", "5");
+    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("param", "myParam", "int", "=", "5");
   }
 
   @Test
   void shouldParseParameterDeclarationForResource() {
-    String code = code("parameter myParam resource 'myResource'");
+    String code = code("param myParam resource 'myResource'");
     ParameterDeclaration tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
     assertThat(tree.identifier().value()).isEqualTo("myParam");
     assertThat(tree.type()).isNull();
     assertThat(tree.defaultValue()).isNull();
     assertThat(tree.resourceType().value()).isEqualTo("myResource");
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("parameter", "myParam", "resource", "myResource");
+    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("param", "myParam", "resource", "myResource");
   }
 }
