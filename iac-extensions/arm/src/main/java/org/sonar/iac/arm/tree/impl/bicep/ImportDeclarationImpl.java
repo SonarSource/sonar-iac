@@ -19,6 +19,11 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -27,11 +32,9 @@ import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.Tree;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-
 public class ImportDeclarationImpl extends AbstractArmTreeImpl implements ImportDeclaration {
+  @CheckForNull
+  private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final InterpolatedString specification;
   @Nullable
@@ -39,7 +42,13 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
   @Nullable
   private final ImportAsClause asClause;
 
-  public ImportDeclarationImpl(SyntaxToken keyword, InterpolatedString specification, @Nullable ImportWithClause withClause, @Nullable ImportAsClause asClause) {
+  public ImportDeclarationImpl(
+    @Nullable List<Decorator> decorators,
+    SyntaxToken keyword,
+    InterpolatedString specification,
+    @Nullable ImportWithClause withClause,
+    @Nullable ImportAsClause asClause) {
+    this.decorators = decorators;
     this.keyword = keyword;
     this.specification = specification;
     this.withClause = withClause;
@@ -48,15 +57,23 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
 
   @Override
   public List<Tree> children() {
-    List<Tree> result = new ArrayList<>();
-    result.add(keyword);
-    result.add(specification);
+    List<Tree> children = new ArrayList<>();
+    if (decorators != null) {
+      children.addAll(decorators);
+    }
+    children.add(keyword);
+    children.add(specification);
     if (withClause != null) {
-      result.addAll(withClause.children());
+      children.addAll(withClause.children());
     }
     if (asClause != null) {
-      result.addAll(asClause.children());
+      children.addAll(asClause.children());
     }
-    return result;
+    return children;
+  }
+
+  @Override
+  public List<Decorator> decorators() {
+    return decorators;
   }
 }

@@ -21,9 +21,11 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +41,10 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
       .matches("output myOutput String = myValue")
       .matches("output myOutput resource 'myResource'=myValue")
       .matches("output myOutput resource 'myResource' = myValue")
+      .matches("@description('comment') output myOutput String = myValue")
+      .matches("@description('comment') output myOutput resource 'myResource' = myValue")
+      .matches("@sys.description('comment') output myOutput resource 'myResource' = myValue")
+      .matches(code("@description('comment')", "@decorator()", "output myOutput resource 'myResource' = myValue"))
 
       .notMatches("output")
       .notMatches("output myOutput")
@@ -53,18 +59,20 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleOutputDeclaration() {
-    String code = code("output myOutput String = myValue");
+    String code = code("@description('comment') output myOutput String = myValue");
     OutputDeclaration tree = parse(code, BicepLexicalGrammar.OUTPUT_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.OUTPUT_DECLARATION)).isTrue();
-    assertThat(tree.name()).has("value", "myOutput").hasRange(1, 7, 1, 15);
+    assertThat(tree.name()).has("value", "myOutput").hasRange(1, 31, 1, 39);
     TextTree type = (TextTree) tree.type();
     assertThat(type.value()).isEqualTo("String");
-    assertThat(type.textRange()).hasRange(1, 16, 1, 22);
-    assertThat(tree.value()).asStringLiteral().hasValue("myValue").hasRange(1, 25, 1, 32);
+    assertThat(type.textRange()).hasRange(1, 40, 1, 46);
+    assertThat(tree.value()).asStringLiteral().hasValue("myValue").hasRange(1, 49, 1, 56);
     assertThat(tree.condition()).isNull();
     assertThat(tree.copyCount()).isNull();
     assertThat(tree.copyInput()).isNull();
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("output", "myOutput", "String", "=", "myValue");
+    assertThat(((HasDecorators) tree).decorators()).hasSize(1);
+    assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("@", "description", "(", "comment", ")", "output", "myOutput", "String", "=", "myValue");
   }
 
   @Test

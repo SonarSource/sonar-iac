@@ -21,6 +21,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
@@ -38,6 +39,9 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
       .matches("type myType= abc")
       .matches("type myType =abc")
       .matches("type myType = abc")
+      .matches("@description('my type') type myType = abc")
+      .matches("@sys.description('my type') type myType = abc")
+      .matches(code("@description('my type')", "@decorator()", "type myType = abc"))
 
       .notMatches("type myType")
       .notMatches("type myType=")
@@ -48,11 +52,13 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleTypeDeclaration() {
-    String code = code("type myType = abc");
+    String code = code("@description('my type') type myType = abc");
     TypeDeclaration tree = parse(code, BicepLexicalGrammar.TYPE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
     assertThat(tree.name().value()).isEqualTo("myType");
     assertThat(tree.type().value()).isEqualTo("abc");
-    assertThat(tree.children()).map(token -> ((TextTree) token).value()).containsExactly("type", "myType", "=", "abc");
+    assertThat(tree.decorators()).hasSize(1);
+    assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("@", "description", "(", "my type", ")", "type", "myType", "=", "abc");
   }
 }

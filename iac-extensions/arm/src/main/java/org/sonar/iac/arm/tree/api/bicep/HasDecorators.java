@@ -19,11 +19,10 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.Statement;
+import java.util.List;
+import javax.annotation.CheckForNull;
 
-public interface FunctionDeclaration extends Statement, HasDecorators {
-  Identifier name();
-
-  TypedLambdaExpression lambdaExpression();
+public interface HasDecorators {
+  @CheckForNull
+  List<Decorator> decorators();
 }

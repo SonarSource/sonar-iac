@@ -31,6 +31,7 @@ import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 
 class VariableDeclarationImplTest extends BicepTreeModelTest {
   ActionParser<ArmTree> parser = createParser(BicepLexicalGrammar.VARIABLE_DECLARATION);
@@ -43,13 +44,20 @@ class VariableDeclarationImplTest extends BicepTreeModelTest {
     "var foo= 42",
     "var foo = abc",
     "var foo = true",
+    "@description('comment') var foo = true",
+    "@sys.description('comment') var foo = true",
   })
   void shouldParseSimpleVariableDeclaration(String code) {
     VariableDeclaration tree = (VariableDeclaration) parser.parse(code);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.name().value()).isEqualTo("foo");
     softly.assertThat(tree.value()).isInstanceOfAny(NumericLiteral.class, StringLiteral.class, BooleanLiteral.class);
-    softly.assertThat(tree.children()).hasSize(5);
+    if (((HasDecorators) tree).decorators() == null) {
+      softly.assertThat(tree.children()).hasSize(5);
+    } else {
+      softly.assertThat(tree.children()).hasSize(6);
+      softly.assertThat(((HasDecorators) tree).decorators()).hasSize(1);
+    }
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.VARIABLE_DECLARATION);
     softly.assertAll();
   }
@@ -57,6 +65,7 @@ class VariableDeclarationImplTest extends BicepTreeModelTest {
   @ParameterizedTest
   @CsvSource({
     "variable foo = 42",
+    "@description variable foo = 42",
   })
   void shouldFailOnInvalidVariableDeclaration(String code) {
     Assertions.assertThatThrownBy(() -> parser.parse(code)).isInstanceOf(RecognitionException.class);

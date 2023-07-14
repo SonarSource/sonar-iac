@@ -43,6 +43,9 @@ class ObjectTypePropertyImplTest extends BicepTreeModelTest {
       .matches("'string complete' : abc")
       .matches("'''single multiline''' : abc")
       .matches("'''\nsingle\nmultiline\n''' : abc")
+      .matches("@minLength(10) identifier:abc")
+      .matches("@sys.minLength(10) identifier:abc")
+      .matches(code("@sys.minLength(10)", "@decorator()", "identifier:abc"))
 
       .notMatches("identifier :")
       .notMatches("output myOutput : abc")
@@ -55,7 +58,7 @@ class ObjectTypePropertyImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleObjectTypeProperty() {
-    String code = code("identifier : abc");
+    String code = code("@minLength(10) identifier : abc");
 
     ObjectTypeProperty tree = parse(code, BicepLexicalGrammar.OBJECT_TYPE_PROPERTY);
 
@@ -63,19 +66,21 @@ class ObjectTypePropertyImplTest extends BicepTreeModelTest {
     assertThat(tree.name())
       .isInstanceOf(IdentifierImpl.class);
     assertThat(TextUtils.getValue(tree.name())).contains("identifier");
-    ArmAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 16);
+    ArmAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 31);
 
     assertThat(tree.typeExpression().value()).isEqualTo("abc");
 
-    Identifier token1 = (Identifier) tree.children().get(0);
+    assertThat(tree.decorators()).hasSize(1);
+
+    Identifier token1 = (Identifier) tree.children().get(1);
     assertThat(token1.value()).isEqualTo("identifier");
 
-    SyntaxToken token2 = (SyntaxToken) tree.children().get(1);
+    SyntaxToken token2 = (SyntaxToken) tree.children().get(2);
     assertThat(token2.value()).isEqualTo(":");
 
-    StringLiteral token3 = (StringLiteral) tree.children().get(2);
+    StringLiteral token3 = (StringLiteral) tree.children().get(3);
     assertThat(token3.value()).isEqualTo("abc");
 
-    assertThat(tree.children()).hasSize(3);
+    assertThat(tree.children()).hasSize(4);
   }
 }

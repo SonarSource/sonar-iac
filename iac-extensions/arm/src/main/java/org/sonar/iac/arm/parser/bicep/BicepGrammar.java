@@ -103,29 +103,32 @@ public class BicepGrammar {
         VARIABLE_DECLARATION(),
         IMPORT_DECLARATION(),
         MODULE_DECLARATION(),
-        RESOURCE_DECLARATION()));
+        RESOURCE_DECLARATION(),
+        OUTPUT_DECLARATION()));
   }
 
   public TypeDeclaration TYPE_DECLARATION() {
     return b.<TypeDeclaration>nonterminal(BicepLexicalGrammar.TYPE_DECLARATION).is(
       f.typeDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.TYPE),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
         STRING_LITERAL()));
   }
 
-  // TODO SONARIAC-967 Put in place decorator
   public OutputDeclaration OUTPUT_DECLARATION() {
     return b.<OutputDeclaration>nonterminal(BicepLexicalGrammar.OUTPUT_DECLARATION).is(
       b.firstOf(
         f.outputDeclaration(
+          b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.OUTPUT),
           IDENTIFIER(),
           IDENTIFIER(),
           b.token(Punctuator.EQU),
           PRIMARY_EXPRESSION()),
         f.outputDeclaration(
+          b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.OUTPUT),
           IDENTIFIER(),
           b.token(BicepKeyword.RESOURCE),
@@ -165,6 +168,7 @@ public class BicepGrammar {
   public FunctionDeclaration FUNCTION_DECLARATION() {
     return b.<FunctionDeclaration>nonterminal(BicepLexicalGrammar.FUNCTION_DECLARATION).is(
       f.functionDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.FUNC),
         IDENTIFIER(),
         TYPED_LAMBDA_EXPRESSION()));
@@ -183,6 +187,7 @@ public class BicepGrammar {
   public VariableDeclaration VARIABLE_DECLARATION() {
     return b.<VariableDeclaration>nonterminal(BicepLexicalGrammar.VARIABLE_DECLARATION).is(
       f.variableDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.VARIABLE),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
@@ -193,7 +198,7 @@ public class BicepGrammar {
   public ResourceDeclaration RESOURCE_DECLARATION() {
     return b.<ResourceDeclaration>nonterminal(BicepLexicalGrammar.RESOURCE_DECLARATION).is(
       f.resourceDeclaration(
-        // TODO SONARIAC-972 ARM Bicep: add decorator to resourceDecl
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.RESOURCE),
         IDENTIFIER(),
         INTERPOLATED_STRING(),
@@ -209,6 +214,7 @@ public class BicepGrammar {
   public ImportDeclaration IMPORT_DECLARATION() {
     return b.<ImportDeclaration>nonterminal(BicepLexicalGrammar.IMPORT_DECLARATION).is(
       f.importDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.IMPORT),
         INTERPOLATED_STRING(),
         b.optional(IMPORT_WITH_CLAUSE()),
@@ -230,6 +236,7 @@ public class BicepGrammar {
   public ModuleDeclaration MODULE_DECLARATION() {
     return b.<ModuleDeclaration>nonterminal(BicepLexicalGrammar.MODULE_DECLARATION).is(
       f.moduleDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(BicepKeyword.MODULE),
         IDENTIFIER(),
         INTERPOLATED_STRING(),
@@ -355,8 +362,8 @@ public class BicepGrammar {
 
   public ObjectTypeProperty OBJECT_TYPE_PROPERTY() {
     return b.<ObjectTypeProperty>nonterminal(BicepLexicalGrammar.OBJECT_TYPE_PROPERTY).is(
-      // TODO SONARIAC-971 Add decorator to objectTypeProperty to objectTypeAdditionalPropertiesMatcher
       f.objectTypeProperty(
+        b.zeroOrMore(DECORATOR()),
         b.firstOf(
           MULTILINE_STRING(),
           IDENTIFIER(),

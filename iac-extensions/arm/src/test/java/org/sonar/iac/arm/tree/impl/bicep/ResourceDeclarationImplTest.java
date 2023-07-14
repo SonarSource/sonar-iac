@@ -30,6 +30,7 @@ import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -46,7 +47,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     "if (condition) { key: value }"
   })
   void shouldParseMinimalResourceDeclarationObject(String body) {
-    String code = code("resource myName 'type@version' = " + body);
+    String code = code("@foo(10) resource myName 'type@version' = " + body);
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
@@ -58,13 +59,14 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(((StringLiteral) property.value()).value()).isEqualTo("value");
     assertThat(tree.existing()).isFalse();
 
-    assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("resource");
-    assertThat(((Identifier) tree.children().get(1)).value()).isEqualTo("myName");
-    assertThat(((StringComplete) tree.children().get(2)).value()).isEqualTo("type@version");
-    assertThat(((SyntaxToken) tree.children().get(3)).value()).isEqualTo("=");
-    assertThat(tree.children().get(4)).isInstanceOfAny(ObjectExpression.class, IfExpression.class);
-    assertThat(((SyntaxToken) tree.children().get(5)).value()).isBlank();
-    assertThat(tree.children()).hasSize(6);
+    assertThat(((HasDecorators) tree).decorators()).hasSize(1);
+    assertThat(((SyntaxToken) tree.children().get(1)).value()).isEqualTo("resource");
+    assertThat(((Identifier) tree.children().get(2)).value()).isEqualTo("myName");
+    assertThat(((StringComplete) tree.children().get(3)).value()).isEqualTo("type@version");
+    assertThat(((SyntaxToken) tree.children().get(4)).value()).isEqualTo("=");
+    assertThat(tree.children().get(5)).isInstanceOfAny(ObjectExpression.class, IfExpression.class);
+    assertThat(((SyntaxToken) tree.children().get(6)).value()).isBlank();
+    assertThat(tree.children()).hasSize(7);
 
     assertThat(tree.properties()).hasSize(1);
   }
@@ -96,6 +98,17 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
         "  myKey: myValue",
         "}"))
       .matches(code("resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {",
+        "  ABC: 123",
+        "  myKey: myValue",
+        "}"))
+      .matches(code("@batchSize(10)",
+        "resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {",
+        "  ABC: 123",
+        "  myKey: myValue",
+        "}"))
+      .matches(code("@sys.batchSize(10)",
+        "@secure()",
+        "resource a_b_c 'Microsoft.Network/ipGroups@2022-01-01' existing = {",
         "  ABC: 123",
         "  myKey: myValue",
         "}"))

@@ -30,6 +30,8 @@ import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.common.testing.IacCommonAssertions;
 import org.sonar.iac.common.testing.IacTestUtils;
 
+import static org.sonar.iac.common.testing.IacTestUtils.code;
+
 class ModuleDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseValidDeclarations() {
@@ -38,6 +40,9 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
       .matches("module foo 'path-to-file' = if (bar) {}")
       .matches("module foo 'path-to-file' = [for d in deployments: expression]")
       .matches("module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
+      .matches("@batchSize(4) module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
+      .matches("@sys.batchSize(4) module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
+      .matches(code("@sys.batchSize(4)", "@decorator()", "module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}"))
 
       .notMatches("module foo = {}")
       .notMatches("module 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
@@ -48,20 +53,22 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseDeclarationCorrectly() {
     ModuleDeclaration tree = (ModuleDeclaration) createParser(BicepLexicalGrammar.MODULE_DECLARATION).parse(
-      IacTestUtils.code("module stgModule '../storageAccount.bicep' = {",
+      code("@batchSize(4) ",
+        "module stgModule '../storageAccount.bicep' = {",
         "  name: 'storageDeploy'",
         "}"));
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ModuleDeclaration.class);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.MODULE_DECLARATION);
-    softly.assertThat(tree.children()).hasSize(5);
-    softly.assertThat(tree.children().get(4)).isInstanceOf(Expression.class);
+    softly.assertThat(tree.decorators()).hasSize(1);
+    softly.assertThat(tree.children()).hasSize(6);
+    softly.assertThat(tree.children().get(5)).isInstanceOf(Expression.class);
     softly.assertThat(tree.name().value()).isEqualTo("stgModule");
-    IacCommonAssertions.assertThat(tree.type().textRange()).hasRange(1, 17, 1, 42);
-    IacCommonAssertions.assertThat(tree.value().textRange()).hasRange(1, 45, 3, 1);
+    IacCommonAssertions.assertThat(tree.type().textRange()).hasRange(2, 17, 2, 42);
+    IacCommonAssertions.assertThat(tree.value().textRange()).hasRange(2, 45, 4, 1);
     softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("module", "stgModule", "../storageAccount.bicep", "=", "{", "name", ":", "storageDeploy", "}");
+      .containsExactly("@", "batchSize", "(", "4", ")", "module", "stgModule", "../storageAccount.bicep", "=", "{", "name", ":", "storageDeploy", "}");
     softly.assertAll();
   }
 }

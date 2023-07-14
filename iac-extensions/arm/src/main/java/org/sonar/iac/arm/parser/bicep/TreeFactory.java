@@ -142,19 +142,23 @@ public class TreeFactory {
     return new FileImpl(statements.or(emptyList()), eof);
   }
 
-  // TODO SONARIAC-951 Put in place decorator
-  public TypeDeclaration typeDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
-    return new TypeDeclarationImpl(keyword, name, equ, typeExpression);
+  public TypeDeclaration typeDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
+    return new TypeDeclarationImpl(decorators.orNull(), keyword, name, equ, typeExpression);
   }
 
-  // TODO SONARIAC-957 Put in place decorator
-  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, Identifier type, SyntaxToken equ, Expression expression) {
-    return new OutputDeclarationImpl(keyword, name, type, equ, expression);
+  public OutputDeclaration outputDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, Identifier type, SyntaxToken equ, Expression expression) {
+    return new OutputDeclarationImpl(decorators.orNull(), keyword, name, type, equ, expression);
   }
 
-  // TODO SONARIAC-957 Put in place decorator
-  public OutputDeclaration outputDeclaration(SyntaxToken keyword, Identifier name, SyntaxToken resource, InterpolatedString type, SyntaxToken equ, Expression expression) {
-    return new OutputDeclarationImpl(keyword, name, resource, type, equ, expression);
+  public OutputDeclaration outputDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Identifier name,
+    SyntaxToken resource,
+    InterpolatedString type,
+    SyntaxToken equ,
+    Expression expression) {
+    return new OutputDeclarationImpl(decorators.orNull(), keyword, name, resource, type, equ, expression);
   }
 
   public TargetScopeDeclaration targetScopeDeclaration(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
@@ -171,8 +175,8 @@ public class TreeFactory {
     return new ParameterDeclarationImpl(keyword, name, resource, typeInterp, equ.orNull(), defaultValue.orNull());
   }
 
-  public FunctionDeclaration functionDeclaration(SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
-    return new FunctionDeclarationImpl(func, name, lambdaExpression);
+  public FunctionDeclaration functionDeclaration(Optional<List<Decorator>> decorators, SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
+    return new FunctionDeclarationImpl(decorators.orNull(), func, name, lambdaExpression);
   }
 
   public MetadataDeclaration metadataDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals,
@@ -180,12 +184,24 @@ public class TreeFactory {
     return new MetadataDeclarationImpl(keyword, identifier, equals, expression, newLine);
   }
 
-  public VariableDeclaration variableDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
-    return new VariableDeclarationImpl(keyword, identifier, equals, expression, newLine);
+  public VariableDeclaration variableDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Identifier identifier,
+    SyntaxToken equals,
+    Expression expression,
+    SyntaxToken newLine) {
+    return new VariableDeclarationImpl(decorators.orNull(), keyword, identifier, equals, expression, newLine);
   }
 
-  public ModuleDeclaration moduleDeclaration(SyntaxToken keyword, Identifier name, InterpolatedString type, SyntaxToken equals, Expression value) {
-    return new ModuleDeclarationImpl(keyword, name, type, equals, value);
+  public ModuleDeclaration moduleDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    Identifier name,
+    InterpolatedString type,
+    SyntaxToken equals,
+    Expression value) {
+    return new ModuleDeclarationImpl(decorators.orNull(), keyword, name, type, equals, value);
   }
 
   public StringComplete stringComplete(SyntaxToken openingApostrophe, SyntaxToken value, SyntaxToken closingApostrophe) {
@@ -214,7 +230,10 @@ public class TreeFactory {
     return new StringLiteralImpl(token);
   }
 
+  // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
+  @SuppressWarnings("java:S107")
   public ResourceDeclaration resourceDeclaration(
+    Optional<List<Decorator>> decorators,
     SyntaxToken keyword,
     Identifier identifier,
     InterpolatedString type,
@@ -222,7 +241,7 @@ public class TreeFactory {
     SyntaxToken equalsSign,
     Expression expression,
     SyntaxToken endOfLine) {
-    return new ResourceDeclarationImpl(keyword, identifier, type, existing.orNull(), equalsSign, expression, endOfLine);
+    return new ResourceDeclarationImpl(decorators.orNull(), keyword, identifier, type, existing.orNull(), equalsSign, expression, endOfLine);
   }
 
   public FunctionCall functionCall(Identifier identifier, SyntaxToken leftParenthesis, Optional<SeparatedList<Expression, SyntaxToken>> argumentList,
@@ -315,9 +334,13 @@ public class TreeFactory {
     return new NullLiteralImpl(token);
   }
 
-  // TODO SONARIAC-970 Put in place decorator
-  public ImportDeclaration importDeclaration(SyntaxToken keyword, InterpolatedString specification, Optional<ImportWithClause> withClause, Optional<ImportAsClause> asClause) {
-    return new ImportDeclarationImpl(keyword, specification, withClause.orNull(), asClause.orNull());
+  public ImportDeclaration importDeclaration(
+    Optional<List<Decorator>> decorators,
+    SyntaxToken keyword,
+    InterpolatedString specification,
+    Optional<ImportWithClause> withClause,
+    Optional<ImportAsClause> asClause) {
+    return new ImportDeclarationImpl(decorators.orNull(), keyword, specification, withClause.orNull(), asClause.orNull());
   }
 
   public ImportWithClause importWithClause(SyntaxToken keyword, ObjectExpression object) {
@@ -336,8 +359,8 @@ public class TreeFactory {
     return new ObjectTypeImpl(openingCurlyBracket, properties.or(List.of()), closingCurlyBracket);
   }
 
-  public ObjectTypeProperty objectTypeProperty(TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
-    return new ObjectTypePropertyImpl(name, colon, typeExpression);
+  public ObjectTypeProperty objectTypeProperty(Optional<List<Decorator>> decorators, TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
+    return new ObjectTypePropertyImpl(decorators.orNull(), name, colon, typeExpression);
   }
 
   public AmbientTypeReference ambientTypeReference(SyntaxToken token) {

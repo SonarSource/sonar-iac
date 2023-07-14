@@ -23,7 +23,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
 
-public interface ModuleDeclaration extends Statement {
+public interface ModuleDeclaration extends Statement, HasDecorators {
   @Override
   default Kind getKind() {
     return Kind.MODULE_DECLARATION;

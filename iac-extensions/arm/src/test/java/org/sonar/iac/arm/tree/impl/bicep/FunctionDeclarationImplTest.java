@@ -39,6 +39,12 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
       .matches("func myFunction () string =>   'result'")
       .matches("func myFunction(foo int) string => '${foo}'")
       .matches("func myFunction(foo int, bar object) int => 0")
+      .matches("@description('comment') func myFunction(foo int, bar object) int => 0")
+      .matches("@sys.description('comment') func myFunction(foo int, bar object) int => 0")
+      .matches(code(
+        "@description('comment')",
+        "@allowed([42])",
+        "func myFunction(foo int, bar object) int => 0"))
 
       .notMatches("func myFunction() => 'result'")
       .notMatches("func myFunction")
@@ -48,12 +54,13 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleFunctionDeclaration() {
-    String code = code("func myFunction() string => 'result'");
+    String code = code("@description('comment') func myFunction() string => 'result'");
     FunctionDeclaration tree = parse(code, BicepLexicalGrammar.FUNCTION_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.FUNCTION_DECLARATION)).isTrue();
     assertThat(tree.lambdaExpression().is(ArmTree.Kind.TYPED_LAMBDA_EXPRESSION)).isTrue();
     assertThat(tree.name().value()).isEqualTo("myFunction");
+    assertThat(tree.decorators()).hasSize(1);
     assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("func", "myFunction", "(", ")", "string", "=>", "result");
+      .containsExactly("@", "description", "(", "comment", ")", "func", "myFunction", "(", ")", "string", "=>", "result");
   }
 }
