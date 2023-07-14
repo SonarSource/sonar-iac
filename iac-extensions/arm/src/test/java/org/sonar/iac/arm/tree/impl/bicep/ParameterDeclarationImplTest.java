@@ -145,7 +145,8 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.maxValue()).isNull();
     assertThat(tree.minValue()).isNull();
     assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("@", "description", "(", "another parameter description", ")", "@", "minLength", "(", "3", ")",
-        "@", "maxLength", "(", "6", ")", "@", "allowed", "(", "[", "foo", "bar", "foobar", "]", ")", "param", "myParam", "int");
+      .containsExactly("@", "description", "(", "another parameter description", ")", "@", "sys", ".", "minLength",
+        "(", "3", ")", "@", "sys", ".", "maxLength", "(", "6", ")", "@", "allowed", "(", "[", "foo", "bar", "foobar", "]", ")",
+        "param", "myParam", "int");
   }
 }
