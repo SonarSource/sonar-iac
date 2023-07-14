@@ -20,8 +20,9 @@
 package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.Expression;
 
 public interface Decorator extends ArmTree {
 
-  FunctionCall functionCall();
+  Expression expression();
 }

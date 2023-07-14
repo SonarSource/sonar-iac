@@ -523,15 +523,20 @@ public class BicepGrammar {
   public Expression MEMBER_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.MEMBER_EXPRESSION).is(
       b.firstOf(
-        f.memberExpression(
-          PRIMARY_EXPRESSION(),
-          b.oneOrMore(
-            b.firstOf(
-              MEMBER_EXPRESSION_EXCLAMATION_COMPONENT(),
-              MEMBER_EXPRESSION_FUNCTION_CALL_COMPONENT(),
-              MEMBER_EXPRESSION_IDENTIFIER_COMPONENT(),
-              MEMBER_EXPRESSION_ENCLOSED_EXPRESSION_COMPONENT()))),
+        MEMBER_EXPRESSION_WITHOUT_DIRECT_EXPRESSION_RESOLVING(),
         PRIMARY_EXPRESSION()));
+  }
+
+  public MemberExpression MEMBER_EXPRESSION_WITHOUT_DIRECT_EXPRESSION_RESOLVING() {
+    return b.<MemberExpression>nonterminal().is(
+      f.memberExpression(
+        PRIMARY_EXPRESSION(),
+        b.oneOrMore(
+          b.firstOf(
+            MEMBER_EXPRESSION_EXCLAMATION_COMPONENT(),
+            MEMBER_EXPRESSION_FUNCTION_CALL_COMPONENT(),
+            MEMBER_EXPRESSION_IDENTIFIER_COMPONENT(),
+            MEMBER_EXPRESSION_ENCLOSED_EXPRESSION_COMPONENT()))));
   }
 
   public MemberExpression MEMBER_EXPRESSION_EXCLAMATION_COMPONENT() {
@@ -680,6 +685,9 @@ public class BicepGrammar {
     return b.<Decorator>nonterminal(BicepLexicalGrammar.DECORATOR).is(
       f.decorator(
         b.token(Punctuator.AT),
-        FUNCTION_CALL()));
+        b.firstOf(
+          FUNCTION_CALL(),
+          MEMBER_EXPRESSION_WITHOUT_DIRECT_EXPRESSION_RESOLVING())));
   }
+
 }
