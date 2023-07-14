@@ -54,7 +54,7 @@ class EqualityExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void parseSimpleEqualityExpression() {
-    EqualityExpression expression = parse("1 == 2 != 3", BicepLexicalGrammar.EQUALITY_EXPRESSION);
+    EqualityExpression expression = parseBasic("1 == 2 != 3", BicepLexicalGrammar.EQUALITY_EXPRESSION);
     assertThat(expression.getKind()).isEqualTo(ArmTree.Kind.EQUALITY_EXPRESSION);
     SeparatedList<Expression, SyntaxToken> separatedList = expression.separatedList();
 

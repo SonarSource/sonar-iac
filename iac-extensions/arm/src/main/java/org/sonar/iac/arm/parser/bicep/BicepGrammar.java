@@ -530,7 +530,7 @@ public class BicepGrammar {
   public MemberExpression MEMBER_EXPRESSION_EXCLAMATION_COMPONENT() {
     return b.<MemberExpression>nonterminal().is(
       f.memberExpressionComponent(
-        b.token(Punctuator.EXCLAMATION)));
+        b.token(BicepLexicalGrammar.EXCLAMATION_SIGN_ALONE)));
   }
 
   public MemberExpression MEMBER_EXPRESSION_FUNCTION_CALL_COMPONENT() {
