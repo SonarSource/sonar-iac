@@ -61,6 +61,10 @@ import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
+import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
@@ -110,6 +114,7 @@ import org.sonar.iac.arm.tree.impl.bicep.TypedVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.UnaryOperatorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.AdditiveExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.expression.EqualityExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.MultiplicativeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.RelationalExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.UnaryExpressionImpl;
@@ -429,15 +434,19 @@ public class TreeFactory {
     return new UnaryExpressionImpl(unaryOperator, expression);
   }
 
-  public Expression multiplicativeExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+  public MultiplicativeExpression multiplicativeExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
     return new MultiplicativeExpressionImpl(SeparatedListImpl.separatedList(expression, list));
   }
 
-  public Expression additiveExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+  public AdditiveExpression additiveExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
     return new AdditiveExpressionImpl(SeparatedListImpl.separatedList(expression, list));
   }
 
-  public Expression relationalExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+  public RelationalExpression relationalExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
     return new RelationalExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+  }
+
+  public EqualityExpression equalityExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+    return new EqualityExpressionImpl(SeparatedListImpl.separatedList(expression, list));
   }
 }
