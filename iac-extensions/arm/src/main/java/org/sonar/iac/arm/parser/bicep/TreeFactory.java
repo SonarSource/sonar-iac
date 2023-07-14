@@ -32,8 +32,10 @@ import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
@@ -59,6 +61,7 @@ import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
@@ -102,14 +105,17 @@ import org.sonar.iac.arm.tree.impl.bicep.ObjectTypePropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.OutputDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParameterDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.ParenthesizedTypeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.SingularTypeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TupleItemImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TupleTypeImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
+import org.sonar.iac.arm.tree.impl.bicep.TypeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypedLambdaExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypedLocalVariableImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypedVariableBlockImpl;
@@ -370,11 +376,29 @@ public class TreeFactory {
     return new Tuple<>(first, second);
   }
 
+  public TypeExpressionAble typeExpression(SingularTypeExpression expression, Optional<List<Tuple<SyntaxToken, SingularTypeExpression>>> listOptional) {
+    // It is not possible to put this if condition into grammar, because singularTypeExpression is followed by zeroOrMore
+    // singularTypeExpression ->
+    // (primaryTypeExpression | parenthesizedTypeExpression) ("[]" | "?")*
+    if (!listOptional.isPresent()) {
+      return expression;
+    }
+    return new TypeExpressionImpl(separatedList(expression, listOptional));
+  }
+
+  public SingularTypeExpression singularTypeExpression(TypeExpressionAble expression, Optional<List<SyntaxToken>> bracketOrQuestionMark) {
+    return new SingularTypeExpressionImpl(expression, bracketOrQuestionMark.or(List.of()));
+  }
+
+  public ParenthesizedTypeExpression parenthesizedTypeExpression(SyntaxToken openingParenthesis, TypeExpressionAble typeExpression, SyntaxToken closingParenthesis) {
+    return new ParenthesizedTypeExpressionImpl(openingParenthesis, typeExpression, closingParenthesis);
+  }
+
   public ObjectType objectType(SyntaxToken openingCurlyBracket, Optional<List<ArmTree>> properties, SyntaxToken closingCurlyBracket) {
     return new ObjectTypeImpl(openingCurlyBracket, properties.or(List.of()), closingCurlyBracket);
   }
 
-  public ObjectTypeProperty objectTypeProperty(Optional<List<Decorator>> decorators, TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
+  public ObjectTypeProperty objectTypeProperty(Optional<List<Decorator>> decorators, TextTree name, SyntaxToken colon, TypeExpressionAble typeExpression) {
     return new ObjectTypePropertyImpl(decorators.or(emptyList()), name, colon, typeExpression);
   }
 
@@ -386,7 +410,7 @@ public class TreeFactory {
     return new UnaryOperatorImpl(token);
   }
 
-  public TupleItem tupleItem(Optional<List<Decorator>> decorators, StringLiteral typeExpression, SyntaxToken endOfLine) {
+  public TupleItem tupleItem(Optional<List<Decorator>> decorators, TypeExpressionAble typeExpression, SyntaxToken endOfLine) {
     return new TupleItemImpl(decorators.or(List.of()), typeExpression, endOfLine);
   }
 

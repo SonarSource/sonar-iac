@@ -30,6 +30,7 @@ import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class TupleTypeImplTest extends BicepTreeModelTest {
@@ -68,7 +69,8 @@ class TupleTypeImplTest extends BicepTreeModelTest {
     assertThat(tupleItem.decorators())
       .map(ArmTestUtils::recursiveTransformationOfTreeChildrenToStrings)
       .containsExactly(List.of("@", "functionName123", "(", ")"));
-    assertThat(tupleItem.typeExpression().value()).isEqualTo("typeExpr");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tupleItem.typeExpression()))
+      .containsExactly("typeExpr");
 
     assertThat(((SyntaxToken) tree.children().get(0)).value()).isEqualTo("[");
     assertThat(tree.children().get(1)).isInstanceOf(TupleItem.class);

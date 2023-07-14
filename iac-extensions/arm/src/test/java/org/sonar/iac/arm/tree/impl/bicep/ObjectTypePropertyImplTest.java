@@ -24,12 +24,13 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
+import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.checks.TextUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ObjectTypePropertyImplTest extends BicepTreeModelTest {
@@ -46,6 +47,8 @@ class ObjectTypePropertyImplTest extends BicepTreeModelTest {
       .matches("@minLength(10) identifier:abc")
       .matches("@sys.minLength(10) identifier:abc")
       .matches(code("@sys.minLength(10)", "@decorator()", "identifier:abc"))
+      .matches("identifier: ( array )")
+      .matches("identifier: ( bool | int )")
 
       .notMatches("identifier :")
       .notMatches("output myOutput : abc")
@@ -68,7 +71,8 @@ class ObjectTypePropertyImplTest extends BicepTreeModelTest {
     assertThat(TextUtils.getValue(tree.name())).contains("identifier");
     ArmAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 31);
 
-    assertThat(tree.typeExpression().value()).isEqualTo("abc");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree.typeExpression()))
+      .containsExactly("abc");
 
     assertThat(tree.decorators()).hasSize(1);
 
@@ -78,8 +82,9 @@ class ObjectTypePropertyImplTest extends BicepTreeModelTest {
     SyntaxToken token2 = (SyntaxToken) tree.children().get(2);
     assertThat(token2.value()).isEqualTo(":");
 
-    StringLiteral token3 = (StringLiteral) tree.children().get(3);
-    assertThat(token3.value()).isEqualTo("abc");
+    SingularTypeExpression token3 = (SingularTypeExpression) tree.children().get(3);
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(token3))
+      .containsExactly("abc");
 
     assertThat(tree.children()).hasSize(4);
   }

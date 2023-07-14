@@ -20,9 +20,10 @@
 package org.sonar.iac.arm.tree.api.bicep.expression;
 
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 
-public interface UnaryExpression extends Expression {
+public interface UnaryExpression extends Expression, TypeExpressionAble {
   UnaryOperator operator();
 
   Expression expression();

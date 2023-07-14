@@ -37,11 +37,14 @@ import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
+import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
@@ -101,6 +104,9 @@ public interface ArmTree extends Tree {
     FUNCTION_CALL(FunctionCall.class),
     FOR_EXPRESSION(ForExpression.class),
     FOR_VARIABLE_BLOCK(ForVariableBlock.class),
+    TYPE_EXPRESSION(TypeExpression.class),
+    SINGULAR_TYPE_EXPRESSION(SingularTypeExpression.class),
+    PARENTHESIZED_TYPE_EXPRESSION(ParenthesizedTypeExpression.class),
     OBJECT_TYPE(ObjectType.class),
     OBJECT_TYPE_PROPERTY(ObjectTypeProperty.class),
     IF_EXPRESSION(IfExpression.class),

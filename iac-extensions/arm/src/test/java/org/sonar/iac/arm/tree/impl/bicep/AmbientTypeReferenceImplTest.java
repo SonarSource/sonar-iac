@@ -30,6 +30,7 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
 class AmbientTypeReferenceImplTest extends BicepTreeModelTest {
 
@@ -73,9 +74,7 @@ class AmbientTypeReferenceImplTest extends BicepTreeModelTest {
     AmbientTypeReference tree = parse("array", BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE);
     Assertions.assertThat(tree.value()).isEqualTo("array");
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.AMBIENT_TYPE_REFERENCE);
-    Assertions.assertThat(tree.children())
-      .map(c -> ((SyntaxToken) c).value())
-      .containsExactly("array");
+    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("array");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 5);
   }
 
@@ -84,9 +83,7 @@ class AmbientTypeReferenceImplTest extends BicepTreeModelTest {
     AmbientTypeReference tree = parse("bool", BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE);
     Assertions.assertThat(tree.value()).isEqualTo("bool");
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.AMBIENT_TYPE_REFERENCE);
-    Assertions.assertThat(tree.children())
-      .map(c -> ((SyntaxToken) c).value())
-      .containsExactly("bool");
+    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("bool");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 4);
   }
 
@@ -95,9 +92,7 @@ class AmbientTypeReferenceImplTest extends BicepTreeModelTest {
     AmbientTypeReference tree = parse("int", BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE);
     Assertions.assertThat(tree.value()).isEqualTo("int");
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.AMBIENT_TYPE_REFERENCE);
-    Assertions.assertThat(tree.children())
-      .map(c -> ((SyntaxToken) c).value())
-      .containsExactly("int");
+    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("int");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 3);
   }
 
@@ -106,9 +101,7 @@ class AmbientTypeReferenceImplTest extends BicepTreeModelTest {
     AmbientTypeReference tree = parse("object", BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE);
     Assertions.assertThat(tree.value()).isEqualTo("object");
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.AMBIENT_TYPE_REFERENCE);
-    Assertions.assertThat(tree.children())
-      .map(c -> ((SyntaxToken) c).value())
-      .containsExactly("object");
+    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("object");
     assertThat(tree.textRange()).hasRange(1, 0, 1, 6);
   }
 
@@ -117,9 +110,7 @@ class AmbientTypeReferenceImplTest extends BicepTreeModelTest {
     AmbientTypeReference tree = parse("string", BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE);
     Assertions.assertThat(tree.value()).isEqualTo("string");
     Assertions.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.AMBIENT_TYPE_REFERENCE);
-    Assertions.assertThat(tree.children())
-      .map(c -> ((SyntaxToken) c).value())
-      .containsExactly("string");
+    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("string");
     ArmAssertions.assertThat(tree.textRange()).hasRange(1, 0, 1, 6);
   }
 

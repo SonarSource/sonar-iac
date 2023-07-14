@@ -25,16 +25,17 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class TupleItemImpl extends AbstractArmTreeImpl implements TupleItem {
 
   private final List<Decorator> decorators;
-  private final StringLiteral typeExpression;
+  private final TypeExpressionAble typeExpression;
   private final SyntaxToken endOfLine;
 
-  public TupleItemImpl(List<Decorator> decorators, StringLiteral typeExpression, SyntaxToken endOfLine) {
+  public TupleItemImpl(List<Decorator> decorators, TypeExpressionAble typeExpression, SyntaxToken endOfLine) {
     this.decorators = decorators;
     this.typeExpression = typeExpression;
     this.endOfLine = endOfLine;
@@ -46,7 +47,7 @@ public class TupleItemImpl extends AbstractArmTreeImpl implements TupleItem {
   }
 
   @Override
-  public StringLiteral typeExpression() {
+  public TypeExpressionAble typeExpression() {
     return typeExpression;
   }
 

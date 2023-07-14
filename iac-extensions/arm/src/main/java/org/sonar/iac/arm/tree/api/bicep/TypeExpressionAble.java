@@ -19,13 +19,10 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import java.util.List;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-public interface TupleType extends TypeExpressionAble {
-  List<TupleItem> items();
-
-  @Override
-  default Kind getKind() {
-    return Kind.TUPLE_TYPE;
-  }
+/**
+ * Marker interface for all Types that might be in subtree of typeExpression
+ */
+public interface TypeExpressionAble extends ArmTree {
 }

@@ -22,6 +22,6 @@ package org.sonar.iac.arm.tree.api.bicep;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ArmTree;
 
-public interface ObjectType extends ArmTree {
+public interface ObjectType extends TypeExpressionAble {
   List<ArmTree> properties();
 }
