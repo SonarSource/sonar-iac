@@ -17,16 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep.expression;
+package org.sonar.iac.arm.tree.api.bicep.expression;
 
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
 import org.sonar.iac.common.api.tree.SeparatedList;
 
-public class RelationalExpressionImpl extends AbstractBinaryOperation implements RelationalExpression {
-
-  public RelationalExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
-    super(separatedList);
-  }
+public interface BinaryOperation extends Expression {
+  SeparatedList<Expression, SyntaxToken> separatedList();
 }

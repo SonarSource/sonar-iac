@@ -21,12 +21,12 @@ package org.sonar.iac.arm.tree.impl.bicep.expression;
 
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.BinaryExpression;
 import org.sonar.iac.common.api.tree.SeparatedList;
 
-public class RelationalExpressionImpl extends AbstractBinaryOperation implements RelationalExpression {
+public class BinaryExpressionImpl extends AbstractBinaryOperation implements BinaryExpression {
 
-  public RelationalExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
+  public BinaryExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
     super(separatedList);
   }
 }

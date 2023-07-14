@@ -36,6 +36,7 @@ public enum Punctuator implements GrammarRuleKey {
   RPARENTHESIS(")"),
   OR("||"),
   AND("&&"),
+  COALESCE("??"),
   EQUAL("=="),
   NOT_EQUAL("!="),
   GREATER_THAN(">"),

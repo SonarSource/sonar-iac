@@ -24,7 +24,7 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
 import org.sonar.iac.common.api.tree.SeparatedList;
 
-public class MultiplicativeExpressionImpl extends BinaryOperationExpressionImpl implements MultiplicativeExpression {
+public class MultiplicativeExpressionImpl extends AbstractBinaryOperation implements MultiplicativeExpression {
 
   public MultiplicativeExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
     super(separatedList);

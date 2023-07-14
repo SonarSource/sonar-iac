@@ -24,7 +24,7 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
 import org.sonar.iac.common.api.tree.SeparatedList;
 
-public class AdditiveExpressionImpl extends BinaryOperationExpressionImpl implements AdditiveExpression {
+public class AdditiveExpressionImpl extends AbstractBinaryOperation implements AdditiveExpression {
 
   public AdditiveExpressionImpl(SeparatedList<Expression, SyntaxToken> separatedList) {
     super(separatedList);

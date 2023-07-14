@@ -62,6 +62,7 @@ import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.AdditiveExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.BinaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
@@ -114,6 +115,7 @@ import org.sonar.iac.arm.tree.impl.bicep.TypedVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.UnaryOperatorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.VariableDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.AdditiveExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.expression.BinaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.EqualityExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.MultiplicativeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.RelationalExpressionImpl;
@@ -448,5 +450,9 @@ public class TreeFactory {
 
   public EqualityExpression equalityExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
     return new EqualityExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+  }
+
+  public BinaryExpression binaryExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
+    return new BinaryExpressionImpl(SeparatedListImpl.separatedList(expression, list));
   }
 }

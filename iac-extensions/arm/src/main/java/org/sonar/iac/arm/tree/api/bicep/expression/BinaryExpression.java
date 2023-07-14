@@ -19,10 +19,9 @@
  */
 package org.sonar.iac.arm.tree.api.bicep.expression;
 
-import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.common.api.tree.SeparatedList;
+public interface BinaryExpression extends BinaryOperation {
 
-public interface BinaryOperationExpression extends Expression {
-  SeparatedList<Expression, SyntaxToken> separatedList();
+  default Kind getKind() {
+    return Kind.BINARY_EXPRESSION;
+  }
 }

@@ -447,7 +447,17 @@ public class BicepGrammar {
 
   public Expression BINARY_EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.BINARY_EXPRESSION).is(
-      b.firstOf(EQUALITY_EXPRESSION()));
+      b.firstOf(
+        f.binaryExpression(
+          EQUALITY_EXPRESSION(),
+          b.oneOrMore(
+            f.tuple(
+              b.firstOf(
+                b.token(Punctuator.AND),
+                b.token(Punctuator.OR),
+                b.token(Punctuator.COALESCE)),
+              EQUALITY_EXPRESSION()))),
+        EQUALITY_EXPRESSION()));
   }
 
   public Expression EQUALITY_EXPRESSION() {
