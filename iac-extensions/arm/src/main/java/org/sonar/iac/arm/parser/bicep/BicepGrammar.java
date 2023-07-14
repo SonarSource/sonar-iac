@@ -442,9 +442,18 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.EOL)));
   }
 
+  // Not an infinite recursion, SSLR can handle it
+  @SuppressWarnings("javabugs:S2190")
   public Expression EXPRESSION() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.EXPRESSION).is(
-      b.firstOf(BINARY_EXPRESSION()));
+      b.firstOf(
+        f.ternaryExpression(
+          BINARY_EXPRESSION(),
+          b.token(Punctuator.QUERY),
+          EXPRESSION(),
+          b.token(Punctuator.COLON),
+          EXPRESSION()),
+        BINARY_EXPRESSION()));
   }
 
   public Expression BINARY_EXPRESSION() {
