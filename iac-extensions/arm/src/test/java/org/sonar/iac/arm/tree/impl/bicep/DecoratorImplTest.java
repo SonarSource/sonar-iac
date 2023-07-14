@@ -19,14 +19,16 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class DecoratorImplTest extends BicepTreeModelTest {
@@ -38,22 +40,36 @@ class DecoratorImplTest extends BicepTreeModelTest {
     ArmAssertions.assertThat(BicepLexicalGrammar.DECORATOR)
       .matches("@functionName123()")
       .matches("@functionName123(expr, expr)")
+      .matches("@member.functionName123()")
+      .matches("@member.functionName123().functionName456()")
+      .matches("@member.functionName123()!.functionName456()")
 
-      .notMatches("functionName123()")
+      .notMatches("memberExpression")
       .notMatches("@");
   }
 
   @Test
-  void shouldParseDecoratorWithDetailedAssertions() {
+  void shouldParseDecoratorWithFunctionCallDetailedAssertions() {
     String code = code("@functionName123()");
 
     Decorator tree = (Decorator) parser.parse(code, null);
-    SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(tree.is(ArmTree.Kind.DECORATOR)).isTrue();
-    softly.assertThat(tree.functionCall().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
-    softly.assertThat(tree.children()).hasSize(2);
+    assertThat(tree.is(ArmTree.Kind.DECORATOR)).isTrue();
+    assertThat(tree.expression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
+    assertThat(tree.children()).hasSize(2);
+  }
 
-    softly.assertAll();
+  @Test
+  void shouldParseDecoratorWithMemberExpression() {
+    String code = code("@member.functionName123()");
+
+    Decorator tree = (Decorator) parser.parse(code, null);
+    assertThat(tree.is(ArmTree.Kind.DECORATOR)).isTrue();
+    assertThat(tree.children()).hasSize(2);
+
+    assertThat(tree.expression().is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
+    assertThat(((MemberExpression) tree.expression()).expression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
+    assertThat(((MemberExpression) tree.expression()).memberAccess().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    assertThat(((StringLiteral) ((MemberExpression) tree.expression()).memberAccess()).value()).isEqualTo("member");
   }
 
 }
