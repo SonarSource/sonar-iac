@@ -45,6 +45,7 @@ public class BicepLexicalConstant {
   public static final String AMBIENT_TYPE = "(?:array|bool|int|object|string)(?=\\s|\\)|,|\\z)";
   public static final String UNARY_OPERATOR = "!|-|\\+";
   public static final String MULTILINE_STRING = "(?:(?!''')(?:[\\s\\S])?+)*+";
+  public static final String EXCLAMATION_SIGN_ALONE = "!(?!=)";
 
   private BicepLexicalConstant() {
   }

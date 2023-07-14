@@ -33,6 +33,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
    * Lexical
    */
   EOF,
+  EXCLAMATION_SIGN_ALONE,
 
   /**
    * SPACING
@@ -148,6 +149,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
         b.commentTrivia(b.regexp(BicepLexicalConstant.COMMENT)),
         b.skippedTrivia(b.regexp("[" + LexicalConstant.LINE_TERMINATOR + LexicalConstant.WHITESPACE + "]*+"))))
       .skip();
+    b.rule(EXCLAMATION_SIGN_ALONE).is(SPACING, b.regexp(BicepLexicalConstant.EXCLAMATION_SIGN_ALONE));
 
     b.rule(IDENTIFIER_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.IDENTIFIER_LITERAL));
     b.rule(QUOTED_STRING_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.QUOTED_STRING_LITERAL_NO_QUOTES));
