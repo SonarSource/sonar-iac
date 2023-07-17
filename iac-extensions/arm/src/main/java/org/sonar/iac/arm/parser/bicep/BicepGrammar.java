@@ -118,7 +118,7 @@ public class BicepGrammar {
         b.token(BicepKeyword.TYPE),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
-        STRING_LITERAL()));
+        TYPE_EXPRESSION()));
   }
 
   public OutputDeclaration OUTPUT_DECLARATION() {
@@ -277,6 +277,7 @@ public class BicepGrammar {
         FOR_EXPRESSION(),
         LAMBDA_EXPRESSION(),
         LITERAL_VALUE(),
+        // TODO SONARIAC-1000 ARM Bicep primaryExpression should accept string complete instead of alpha numeral string
         ALPHA_NUMERAL_STRING(),
         INTERPOLATED_STRING()));
   }

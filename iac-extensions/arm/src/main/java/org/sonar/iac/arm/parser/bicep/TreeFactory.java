@@ -152,7 +152,7 @@ public class TreeFactory {
     return new FileImpl(statements.or(emptyList()), eof);
   }
 
-  public TypeDeclaration typeDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
+  public TypeDeclaration typeDeclaration(Optional<List<Decorator>> decorators, SyntaxToken keyword, Identifier name, SyntaxToken equ, TypeExpressionAble typeExpression) {
     return new TypeDeclarationImpl(decorators.or(emptyList()), keyword, name, equ, typeExpression);
   }
 
