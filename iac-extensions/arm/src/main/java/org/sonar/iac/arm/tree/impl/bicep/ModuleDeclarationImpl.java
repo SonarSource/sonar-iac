@@ -20,8 +20,7 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -30,8 +29,6 @@ import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
-
-import java.util.List;
 
 public class ModuleDeclarationImpl extends AbstractArmTreeImpl implements ModuleDeclaration {
   private final List<Decorator> decorators;
