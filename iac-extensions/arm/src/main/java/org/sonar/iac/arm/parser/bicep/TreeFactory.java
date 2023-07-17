@@ -66,6 +66,7 @@ import org.sonar.iac.arm.tree.api.bicep.expression.BinaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.TernaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
@@ -119,6 +120,7 @@ import org.sonar.iac.arm.tree.impl.bicep.expression.BinaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.EqualityExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.MultiplicativeExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.RelationalExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.expression.TernaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.UnaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
@@ -465,5 +467,9 @@ public class TreeFactory {
 
   public BinaryExpression binaryExpression(Expression expression, List<Tuple<SyntaxToken, Expression>> list) {
     return new BinaryExpressionImpl(SeparatedListImpl.separatedList(expression, list));
+  }
+
+  public TernaryExpression ternaryExpression(Expression condition, SyntaxToken query, Expression ifTrueExpression, SyntaxToken colon, Expression elseExpression) {
+    return new TernaryExpressionImpl(condition, query, ifTrueExpression, colon, elseExpression);
   }
 }

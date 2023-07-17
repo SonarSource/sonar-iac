@@ -49,6 +49,7 @@ import org.sonar.iac.arm.tree.api.bicep.expression.BinaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.EqualityExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.TernaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
@@ -110,6 +111,7 @@ public interface ArmTree extends Tree {
     EQUALITY_EXPRESSION(EqualityExpression.class),
     MEMBER_EXPRESSION(MemberExpression.class),
     BINARY_EXPRESSION(BinaryExpression.class),
+    TERNARY_EXPRESSION(TernaryExpression.class),
     PARENTHESIZED_EXPRESSION(ParenthesizedExpression.class),
     AMBIENT_TYPE_REFERENCE(AmbientTypeReference.class),
     UNARY_OPERATOR(UnaryOperator.class),
