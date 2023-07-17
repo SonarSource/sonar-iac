@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -148,5 +149,20 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
       .containsExactly("@", "description", "(", "another parameter description", ")", "@", "sys", ".", "minLength",
         "(", "3", ")", "@", "sys", ".", "maxLength", "(", "6", ")", "@", "allowed", "(", "[", "foo", "bar", "foobar", "]", ")",
         "param", "myParam", "int");
+  }
+
+  @Test
+  void accessorsWithInvalidDecorators() {
+    String code = code(
+      "@description(44)",
+      "@minValue('0')",
+      "@maxValue([10])",
+      "@allowed(0)",
+      "param myParam int");
+    ParameterDeclaration tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
+
+    assertThatThrownBy(tree::description).isInstanceOf(ClassCastException.class);
+    assertThatThrownBy(tree::maxValue).isInstanceOf(ClassCastException.class);
+    assertThatThrownBy(tree::minValue).isInstanceOf(ClassCastException.class);
   }
 }
