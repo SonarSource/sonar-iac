@@ -149,7 +149,6 @@ public class BicepGrammar {
         PRIMARY_EXPRESSION()));
   }
 
-  // TODO SONARIAC-962 Put in place decorator
   public ParameterDeclaration PARAMETER_DECLARATION() {
     return b.<ParameterDeclaration>nonterminal(BicepLexicalGrammar.PARAMETER_DECLARATION).is(
       b.firstOf(
@@ -165,8 +164,7 @@ public class BicepGrammar {
           b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.PARAMETER),
           IDENTIFIER(),
-          // TODO SONARIAC-963 Put in place typeExpresion
-          STRING_LITERAL(),
+          TYPE_EXPRESSION(),
           b.optional(b.token(Punctuator.EQU)),
           b.optional(PRIMARY_EXPRESSION()))));
   }
