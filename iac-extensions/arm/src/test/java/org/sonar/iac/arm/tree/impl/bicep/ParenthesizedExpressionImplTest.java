@@ -40,6 +40,7 @@ class ParenthesizedExpressionImplTest extends BicepTreeModelTest {
     ArmAssertions.assertThat(BicepLexicalGrammar.PARENTHESIZED_EXPRESSION)
       .matches("(expression)")
       .matches("( expression )")
+      .matches("(1 < 2)")
 
       .notMatches("expression")
       .notMatches("()");

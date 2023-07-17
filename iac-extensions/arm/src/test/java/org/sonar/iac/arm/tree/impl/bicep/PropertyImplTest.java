@@ -42,6 +42,7 @@ class PropertyImplTest extends BicepTreeModelTest {
       .matches("'a${123}b${456}c':value")
       .matches("'a${123}${456}c':value")
       .matches("key: value")
+      .matches("key: 1 > 2")
       .matches("key :value")
       .matches("key : value")
       .matches("key1: value1")

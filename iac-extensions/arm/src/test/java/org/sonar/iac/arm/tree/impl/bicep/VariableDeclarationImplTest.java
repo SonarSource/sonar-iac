@@ -23,8 +23,10 @@ import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
@@ -34,24 +36,27 @@ import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 
 class VariableDeclarationImplTest extends BicepTreeModelTest {
-  ActionParser<ArmTree> parser = createParser(BicepLexicalGrammar.VARIABLE_DECLARATION);
 
-  @ParameterizedTest
-  @CsvSource({
-    "var foo = 42",
-    "var foo =42",
-    "var foo=42",
-    "var foo= 42",
-    "var foo = abc",
-    "var foo = true",
-    "@description('comment') var foo = true",
-    "@sys.description('comment') var foo = true",
-  })
-  void shouldParseSimpleVariableDeclaration(String code) {
-    VariableDeclaration tree = (VariableDeclaration) parser.parse(code);
+  @Test
+  void shouldParseVariableDeclaration() {
+    ArmAssertions.assertThat(BicepLexicalGrammar.VARIABLE_DECLARATION)
+      .matches("var foo=42")
+      .matches("var foo= 42")
+      .matches("var foo =42")
+      .matches("var foo = 42")
+      .matches("var foo = abc")
+      .matches("var foo = true")
+      .matches("var foo = 1 > 2")
+      .matches("@description('comment') var foo = true")
+      .matches("@sys.description('comment') var foo = true");
+  }
+
+  @Test
+  void shouldParseSimpleVariableDeclaration() {
+    VariableDeclaration tree = parse("var foo = 42", BicepLexicalGrammar.VARIABLE_DECLARATION);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.name().value()).isEqualTo("foo");
-    softly.assertThat(tree.value()).isInstanceOfAny(NumericLiteral.class, StringLiteral.class, BooleanLiteral.class);
+    softly.assertThat(tree.value()).isInstanceOfAny(NumericLiteral.class);
     if (((HasDecorators) tree).decorators().isEmpty()) {
       softly.assertThat(tree.children()).hasSize(5);
     } else {
@@ -68,6 +73,6 @@ class VariableDeclarationImplTest extends BicepTreeModelTest {
     "@description variable foo = 42",
   })
   void shouldFailOnInvalidVariableDeclaration(String code) {
-    Assertions.assertThatThrownBy(() -> parser.parse(code)).isInstanceOf(RecognitionException.class);
+    Assertions.assertThatThrownBy(() -> parse(code, BicepLexicalGrammar.VARIABLE_DECLARATION)).isInstanceOf(RecognitionException.class);
   }
 }
