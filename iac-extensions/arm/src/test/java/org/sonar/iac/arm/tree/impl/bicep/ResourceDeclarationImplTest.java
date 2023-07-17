@@ -30,6 +30,7 @@ import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
@@ -44,7 +45,8 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
   @ParameterizedTest
   @ValueSource(strings = {
     "{ key: value }",
-    "if (condition) { key: value }"
+    "if (condition) { key: value }",
+    "[for item in collection: { key: value }]"
   })
   void shouldParseMinimalResourceDeclarationObject(String body) {
     String code = code("@foo(10) resource myName 'type@version' = " + body);
@@ -64,7 +66,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(((Identifier) tree.children().get(2)).value()).isEqualTo("myName");
     assertThat(((StringComplete) tree.children().get(3)).value()).isEqualTo("type@version");
     assertThat(((SyntaxToken) tree.children().get(4)).value()).isEqualTo("=");
-    assertThat(tree.children().get(5)).isInstanceOfAny(ObjectExpression.class, IfExpression.class);
+    assertThat(tree.children().get(5)).isInstanceOfAny(ObjectExpression.class, IfExpression.class, ForExpression.class);
     assertThat(((SyntaxToken) tree.children().get(6)).value()).isBlank();
     assertThat(tree.children()).hasSize(7);
 
@@ -140,5 +142,12 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
       .isInstanceOf(UnsupportedOperationException.class);
     assertThatThrownBy(tree::version)
       .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void shouldProvideEmptyPropertiesWithForBodyNotObject() {
+    String code = code("resource myName 'foo@bar@baz' = [for item in collection: 'value']");
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(tree.properties()).isEmpty();
   }
 }

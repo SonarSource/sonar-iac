@@ -107,7 +107,6 @@ public class BicepGrammar {
         VARIABLE_DECLARATION(),
         IMPORT_DECLARATION(),
         MODULE_DECLARATION(),
-        RESOURCE_DECLARATION(),
         OUTPUT_DECLARATION()));
   }
 
@@ -209,9 +208,9 @@ public class BicepGrammar {
         b.optional(b.token(BicepKeyword.EXISTING)),
         b.token(Punctuator.EQU),
         b.firstOf(
-          // TODO SONARIAC-974 ARM Bicep add forExpression to resourceDecl
           OBJECT_EXPRESSION(),
-          IF_EXPRESSION()),
+          IF_EXPRESSION(),
+          FOR_EXPRESSION()),
         b.token(BicepLexicalGrammar.EOL)));
   }
 
@@ -273,6 +272,7 @@ public class BicepGrammar {
         FUNCTION_CALL(),
         ARRAY_EXPRESSION(),
         FOR_EXPRESSION(),
+        OBJECT_EXPRESSION(),
         LAMBDA_EXPRESSION(),
         LITERAL_VALUE(),
         OBJECT_EXPRESSION(),

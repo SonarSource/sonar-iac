@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -31,6 +32,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
@@ -145,8 +147,15 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   public List<Property> properties() {
     if (expression.is(Kind.OBJECT_EXPRESSION)) {
       return ((ObjectExpression) expression).properties();
-    } else {
+    } else if (expression.is(Kind.IF_EXPRESSION)) {
       return ((IfExpression) expression).object().properties();
+    } else {
+      Expression bodyExpression = ((ForExpression) expression).bodyExpression();
+      if (bodyExpression.is(Kind.OBJECT_EXPRESSION)) {
+        return ((ObjectExpression) bodyExpression).properties();
+      } else {
+        return Collections.emptyList();
+      }
     }
   }
 
