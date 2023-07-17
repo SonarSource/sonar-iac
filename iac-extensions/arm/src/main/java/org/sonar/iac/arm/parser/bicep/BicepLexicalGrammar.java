@@ -21,6 +21,7 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.GenericTokenType;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
@@ -156,7 +157,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
       .skip();
     b.rule(EXCLAMATION_SIGN_ALONE).is(SPACING, b.regexp(BicepLexicalConstant.EXCLAMATION_SIGN_ALONE));
 
-    b.rule(IDENTIFIER_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.IDENTIFIER_LITERAL));
+    b.rule(IDENTIFIER_LITERAL).is(SPACING, b.regexp(computeIdentifierLiteralRegex()));
     b.rule(QUOTED_STRING_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.QUOTED_STRING_LITERAL_NO_QUOTES));
     b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
     b.rule(STRING_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.STRING));
@@ -167,6 +168,14 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(NULL_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NULL));
     b.rule(AMBIENT_TYPE_REFERENCE_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.AMBIENT_TYPE));
     b.rule(UNARY_OPERATOR_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.UNARY_OPERATOR));
+  }
+
+  private static String computeIdentifierLiteralRegex() {
+    // Add negative look ahead to not match any reserved keyword
+    String exceptKeywords = Arrays.stream(BicepKeyword.values())
+      .map(keyword -> keyword.getValue() + "\\b")
+      .collect(Collectors.joining("|"));
+    return "(?!" + exceptKeywords + ")\\b" + BicepLexicalConstant.IDENTIFIER_LITERAL;
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {

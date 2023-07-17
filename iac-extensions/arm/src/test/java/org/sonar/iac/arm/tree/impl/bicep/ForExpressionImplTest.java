@@ -27,6 +27,7 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
+import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -38,26 +39,29 @@ class ForExpressionImplTest {
   @Test
   void shouldParseForExpression() {
     ArmAssertions.assertThat(BicepLexicalGrammar.FOR_EXPRESSION)
-      .matches("[for identifier123 in headerExpression:bodyExpression]")
-      .matches("[ for identifier123 in headerExpression : bodyExpression ]")
-      .matches("[for (itemIdentifier123 , indexIdentifier123) in headerExpression : bodyExpression]")
-      .matches("[for(itemIdentifier123,indexIdentifier123) in headerExpression:bodyExpression]")
+      .matches("[for identifier123 in headerExpression:'bodyExpression']")
+      .matches("[ for identifier123 in headerExpression : 'bodyExpression' ]")
+      .matches("[for (itemIdentifier123 , indexIdentifier123) in headerExpression : 'bodyExpression']")
+      .matches("[for(itemIdentifier123,indexIdentifier123) in headerExpression:'bodyExpression']")
       .matches("[for(itemIdentifier123,indexIdentifier123) in headerExpression: if(condition){key:value}]")
 
-      .notMatches("[for (itemIdentifier123) in headerExpression:bodyExpression]")
-      .notMatches("[for (itemIdentifier123,) in headerExpression:bodyExpression]")
-      .notMatches("[for (,) in headerExpression:bodyExpression]")
-      .notMatches("[for (,indexIdentifier123) in headerExpression:bodyExpression]")
+      // TODO SONARIAC-999 Add object to PRIMARY_EXPRESSION
+      .notMatches("[for identifier123 in headerExpression:{key:value}]")
+
+      .notMatches("[for (itemIdentifier123) in headerExpression:'bodyExpression']")
+      .notMatches("[for (itemIdentifier123,) in headerExpression:'bodyExpression']")
+      .notMatches("[for (,) in headerExpression:'bodyExpression']")
+      .notMatches("[for (,indexIdentifier123) in headerExpression:'bodyExpression']")
       .notMatches("[for identifier123 in headerExpressionbodyExpression]")
-      .notMatches("[for in headerExpression:bodyExpression]")
-      .notMatches("[in headerExpression:bodyExpression]")
-      .notMatches("in headerExpression:bodyExpression]")
-      .notMatches("[for identifier123 in headerExpression:bodyExpression");
+      .notMatches("[for in headerExpression:'bodyExpression']")
+      .notMatches("[in headerExpression:'bodyExpression']")
+      .notMatches("in headerExpression:'bodyExpression']")
+      .notMatches("[for identifier123 in headerExpression:'bodyExpression'");
   }
 
   @Test
   void shouldParseForExpressionWithDetailedAssertions() {
-    String code = code("[for (itemIdentifier123,indexIdentifier123) in headerExpression:bodyExpression]");
+    String code = code("[for (itemIdentifier123,indexIdentifier123) in headerExpression:'bodyExpression']");
 
     ForExpression tree = (ForExpression) parser.parse(code, null);
     SoftAssertions softly = new SoftAssertions();
@@ -73,8 +77,8 @@ class ForExpressionImplTest {
     softly.assertThat(tree.headerExpression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
     softly.assertThat(((StringLiteral) tree.headerExpression()).value()).isEqualTo("headerExpression");
 
-    softly.assertThat(tree.bodyExpression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    softly.assertThat(((StringLiteral) tree.bodyExpression()).value()).isEqualTo("bodyExpression");
+    softly.assertThat(tree.bodyExpression().is(ArmTree.Kind.STRING_COMPLETE)).isTrue();
+    softly.assertThat(((StringComplete) tree.bodyExpression()).value()).isEqualTo("bodyExpression");
 
     softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("[", "for", "(", "itemIdentifier123", ",", "indexIdentifier123", ")",

@@ -28,7 +28,7 @@ class ExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseExpression() {
-    assertThat(BicepLexicalGrammar.PRIMARY_EXPRESSION)
+    assertThat(BicepLexicalGrammar.EXPRESSION)
       .matches("123")
       .matches(" 123")
       .matches("true")
@@ -37,6 +37,50 @@ class ExpressionImplTest extends BicepTreeModelTest {
       .matches("abdcef")
       .matches("functionName123()")
       .matches("functionName123(123, 456, 135)")
+
+      .notMatches(".123456")
+      .notMatches("-")
+      .notMatches("_A1")
+      .notMatches("_abc");
+  }
+
+  @Test
+  void shouldParsePrimaryExpression() {
+    assertThat(BicepLexicalGrammar.PRIMARY_EXPRESSION)
+      // literalValue
+      .matches("123")
+      .matches("true")
+      .matches("false")
+      .matches("null")
+
+      // functionCall
+      .matches("functionName123()")
+      .matches("functionName123(123, 456, 135)")
+
+      // interpString
+      .matches("'abdcef'")
+      .matches("'abd${expr}cef'")
+
+      // multilineString
+      // TODO SONARIAC-998 Bicep: Add multilineString to PRIMARY_EXPRESSION
+      .notMatches("'''abc def'''")
+
+      // array
+      .matches("['val']")
+
+      // forExpression
+      .matches("[for identifier123 in headerExpression:bodyExpression]")
+
+      // object
+      // TODO SONARIAC-999 Bicep: Add object to PRIMARY_EXPRESSION
+      .notMatches("{key:'val'}")
+
+      // parenthesizedExpression
+      // TODO SONARIAC-1003 Bicep: Add parenthesizedExpression to PRIMARY_EXPRESSION
+      .notMatches("(123)")
+
+      // lambdaExpression
+      .matches("foo => 0")
 
       .notMatches(".123456")
       .notMatches("-")

@@ -38,7 +38,7 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
     ArmAssertions.assertThat(BicepLexicalGrammar.MODULE_DECLARATION)
       .matches("module foo 'path-to-file' = {}")
       .matches("module foo 'path-to-file' = if (bar) {}")
-      .matches("module foo 'path-to-file' = [for d in deployments: expression]")
+      .matches("module foo 'path-to-file' = [for d in deployments: 'expression']")
       .matches("module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
       .matches("@batchSize(4) module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
       .matches("@sys.batchSize(4) module foo 'br:mcr.microsoft.com/bicep/foo.bicep:bar' = {}")
