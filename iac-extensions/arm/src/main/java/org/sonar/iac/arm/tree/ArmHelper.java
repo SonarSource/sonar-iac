@@ -19,7 +19,6 @@
  */
 package org.sonar.iac.arm.tree;
 
-import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
