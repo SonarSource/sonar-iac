@@ -35,10 +35,4 @@ public class ArmHelper {
       children.add(tree);
     }
   }
-
-  public static void addChildrenIfPresent(List<Tree> children, @Nullable Collection<? extends ArmTree> trees) {
-    if (trees != null) {
-      children.addAll(trees);
-    }
-  }
 }

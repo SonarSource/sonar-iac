@@ -33,13 +33,12 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class ObjectTypePropertyImpl extends AbstractArmTreeImpl implements ObjectTypeProperty {
 
-  @CheckForNull
   private final List<Decorator> decorators;
   private final TextTree name;
   private final SyntaxToken colon;
   private final StringLiteral typeExpression;
 
-  public ObjectTypePropertyImpl(@Nullable List<Decorator> decorators, TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
+  public ObjectTypePropertyImpl(List<Decorator> decorators, TextTree name, SyntaxToken colon, StringLiteral typeExpression) {
     this.decorators = decorators;
     this.name = name;
     this.colon = colon;
@@ -58,10 +57,7 @@ public class ObjectTypePropertyImpl extends AbstractArmTreeImpl implements Objec
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    if (decorators != null) {
-      children.addAll(decorators);
-    }
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(name);
     children.add(colon);
     children.add(typeExpression);

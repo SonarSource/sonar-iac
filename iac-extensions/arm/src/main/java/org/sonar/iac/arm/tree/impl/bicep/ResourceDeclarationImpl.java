@@ -45,7 +45,6 @@ import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration, HasDecorators {
 
-  @CheckForNull
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final Identifier name;
@@ -59,7 +58,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
   @SuppressWarnings("java:S107")
   public ResourceDeclarationImpl(
-    @Nullable List<Decorator> decorators,
+    List<Decorator> decorators,
     SyntaxToken keyword,
     Identifier name,
     InterpolatedString typeAndVersion,
@@ -80,10 +79,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    if (decorators != null) {
-      children.addAll(decorators);
-    }
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(keyword);
     children.add(name);
     children.add(typeAndVersion);

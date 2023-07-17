@@ -33,13 +33,12 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements FunctionDeclaration {
 
-  @CheckForNull
   private final List<Decorator> decorators;
   private final SyntaxToken func;
   private final Identifier name;
   private final TypedLambdaExpression lambdaExpression;
 
-  public FunctionDeclarationImpl(@Nullable List<Decorator> decorators, SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
+  public FunctionDeclarationImpl(List<Decorator> decorators, SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
     this.decorators = decorators;
     this.func = func;
     this.name = name;
@@ -58,10 +57,7 @@ public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements Func
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    if (decorators != null) {
-      children.addAll(decorators);
-    }
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(func);
     children.add(name);
     children.add(lambdaExpression);

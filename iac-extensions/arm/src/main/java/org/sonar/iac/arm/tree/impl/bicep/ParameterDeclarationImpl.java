@@ -43,7 +43,6 @@ import org.sonar.iac.common.api.tree.Tree;
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration, HasDecorators {
-  @CheckForNull
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final Identifier name;
@@ -59,7 +58,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   private final Expression defaultValue;
 
   public ParameterDeclarationImpl(
-    @Nullable List<Decorator> decorators,
+    List<Decorator> decorators,
     SyntaxToken keyword,
     Identifier name,
     @Nullable StringLiteral typeExpression,
@@ -76,7 +75,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   public ParameterDeclarationImpl(
-    @Nullable List<Decorator> decorators,
+    List<Decorator> decorators,
     SyntaxToken keyword,
     Identifier name,
     @Nullable SyntaxToken resource,
@@ -166,8 +165,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    addChildrenIfPresent(children, decorators);
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(keyword);
     children.add(name);
     addChildrenIfPresent(children, typeExpression);

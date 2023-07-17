@@ -33,14 +33,13 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDeclaration {
 
-  @CheckForNull
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final Identifier name;
   private final SyntaxToken equ;
   private final StringLiteral typeExpression;
 
-  public TypeDeclarationImpl(@Nullable List<Decorator> decorators, SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
+  public TypeDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
     this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;
@@ -50,10 +49,7 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    if (decorators != null) {
-      children.addAll(decorators);
-    }
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(keyword);
     children.add(name);
     children.add(equ);

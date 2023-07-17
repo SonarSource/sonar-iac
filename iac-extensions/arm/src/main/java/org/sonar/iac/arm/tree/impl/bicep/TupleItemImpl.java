@@ -32,12 +32,11 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class TupleItemImpl extends AbstractArmTreeImpl implements TupleItem {
 
-  @CheckForNull
   private final List<Decorator> decorators;
   private final StringLiteral typeExpression;
   private final SyntaxToken endOfLine;
 
-  public TupleItemImpl(@Nullable List<Decorator> decorators, StringLiteral typeExpression, SyntaxToken endOfLine) {
+  public TupleItemImpl(List<Decorator> decorators, StringLiteral typeExpression, SyntaxToken endOfLine) {
     this.decorators = decorators;
     this.typeExpression = typeExpression;
     this.endOfLine = endOfLine;
@@ -55,10 +54,7 @@ public class TupleItemImpl extends AbstractArmTreeImpl implements TupleItem {
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    if (decorators != null) {
-      children.addAll(decorators);
-    }
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(typeExpression);
     children.add(endOfLine);
     return children;
