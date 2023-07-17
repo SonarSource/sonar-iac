@@ -20,16 +20,21 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.TextTree;
@@ -37,8 +42,8 @@ import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
-public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
-
+public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration, HasDecorators {
+  private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final Identifier name;
   @Nullable
@@ -52,10 +57,14 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @Nullable
   private final Expression defaultValue;
 
-  public ParameterDeclarationImpl(SyntaxToken keyword, Identifier name,
+  public ParameterDeclarationImpl(
+    List<Decorator> decorators,
+    SyntaxToken keyword,
+    Identifier name,
     @Nullable StringLiteral typeExpression,
     @Nullable SyntaxToken equ,
     @Nullable Expression defaultValue) {
+    this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;
     this.typeExpression = typeExpression;
@@ -65,12 +74,15 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     this.typeInterp = null;
   }
 
-  public ParameterDeclarationImpl(SyntaxToken keyword,
+  public ParameterDeclarationImpl(
+    List<Decorator> decorators,
+    SyntaxToken keyword,
     Identifier name,
     @Nullable SyntaxToken resource,
     @Nullable InterpolatedString typeInterp,
     @Nullable SyntaxToken equ,
     @Nullable Expression defaultValue) {
+    this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;
     this.resource = resource;
@@ -109,48 +121,51 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
 
   @Override
   public List<Expression> allowedValues() {
-    // TODO SONARIAC-962 Put in place decorator: extract this value from the decorator
-    throw new UnsupportedOperationException("allowedValues() not implemented yet: TODO SONARIAC-962 Put in place decorator");
+    return findDecoratorByName("allowed").map(Decorator::functionCallOrMemberFunctionCall).map(
+      d -> ((ArrayExpression) (d.argumentList().elements().get(0))).elements()).orElse(Collections.emptyList());
   }
 
   @Override
   @CheckForNull
   public StringLiteral description() {
-    // TODO SONARIAC-962 Put in place decorator: extract this value from the decorator
-    throw new UnsupportedOperationException("description() not implemented yet: TODO SONARIAC-962 Put in place decorator");
+    return findDecoratorByName("description")
+      .map(Decorator::functionCallOrMemberFunctionCall)
+      .map(d -> (d.argumentList().elements().get(0)))
+      .map(s -> ((StringComplete) s).content())
+      .orElse(null);
   }
 
   @Override
   @CheckForNull
   public NumericLiteral minValue() {
-    // TODO SONARIAC-962 Put in place decorator: extract this value from the decorator
-    throw new UnsupportedOperationException("minValue() not implemented yet: TODO SONARIAC-962 Put in place decorator");
+    return findDecoratorByName("minValue").map(Decorator::functionCallOrMemberFunctionCall).map(
+      d -> ((NumericLiteral) (d.argumentList().elements().get(0)))).orElse(null);
   }
 
   @Override
   @CheckForNull
   public NumericLiteral maxValue() {
-    // TODO SONARIAC-962 Put in place decorator: extract this value from the decorator
-    throw new UnsupportedOperationException("maxValue() not implemented yet: TODO SONARIAC-962 Put in place decorator");
+    return findDecoratorByName("maxValue").map(Decorator::functionCallOrMemberFunctionCall).map(
+      d -> ((NumericLiteral) (d.argumentList().elements().get(0)))).orElse(null);
   }
 
   @Override
   @CheckForNull
   public NumericLiteral minLength() {
-    // TODO SONARIAC-962 Put in place decorator: extract this value from the decorator
-    throw new UnsupportedOperationException("minLength() not implemented yet: TODO SONARIAC-962 Put in place decorator");
+    return findDecoratorByName("minLength").map(Decorator::functionCallOrMemberFunctionCall).map(
+      d -> ((NumericLiteral) (d.argumentList().elements().get(0)))).orElse(null);
   }
 
   @Override
   @CheckForNull
   public NumericLiteral maxLength() {
-    // TODO SONARIAC-962 Put in place decorator: extract this value from the decorator
-    throw new UnsupportedOperationException("maxLength() not implemented yet: TODO SONARIAC-962 Put in place decorator");
+    return findDecoratorByName("maxLength").map(Decorator::functionCallOrMemberFunctionCall).map(
+      d -> ((NumericLiteral) (d.argumentList().elements().get(0)))).orElse(null);
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(keyword);
     children.add(name);
     addChildrenIfPresent(children, typeExpression);
@@ -159,5 +174,10 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     addChildrenIfPresent(children, equ);
     addChildrenIfPresent(children, defaultValue);
     return children;
+  }
+
+  @Override
+  public List<Decorator> decorators() {
+    return decorators;
   }
 }

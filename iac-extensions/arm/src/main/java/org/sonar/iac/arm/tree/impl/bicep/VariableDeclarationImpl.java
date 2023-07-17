@@ -21,8 +21,6 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
@@ -32,20 +30,16 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class VariableDeclarationImpl extends AbstractDeclaration implements VariableDeclaration, HasDecorators {
-  @CheckForNull
   private final List<Decorator> decorators;
 
-  public VariableDeclarationImpl(@Nullable List<Decorator> decorators, SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
+  public VariableDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
     super(keyword, identifier, equals, expression, newLine);
     this.decorators = decorators;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    if (decorators != null) {
-      children.addAll(decorators);
-    }
+    List<Tree> children = new ArrayList<>(decorators);
     children.addAll(super.children());
     return children;
   }

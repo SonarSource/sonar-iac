@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -50,5 +51,10 @@ public class StringCompleteImpl extends AbstractArmTreeImpl implements StringCom
   @Override
   public String value() {
     return value.value();
+  }
+
+  @Override
+  public StringLiteral content() {
+    return new StringLiteralImpl(value);
   }
 }

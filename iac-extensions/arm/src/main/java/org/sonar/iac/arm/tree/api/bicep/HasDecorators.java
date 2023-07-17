@@ -20,9 +20,16 @@
 package org.sonar.iac.arm.tree.api.bicep;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
+import java.util.Optional;
 
 public interface HasDecorators {
-  @CheckForNull
   List<Decorator> decorators();
+
+  default Optional<Decorator> findDecoratorByName(String decoratorName) {
+    return decorators().stream()
+      .filter(it -> Optional.ofNullable(it.functionCallOrMemberFunctionCall())
+        .map(functionCall -> decoratorName.equals(functionCall.name().value()))
+        .orElse(false))
+      .findFirst();
+  }
 }

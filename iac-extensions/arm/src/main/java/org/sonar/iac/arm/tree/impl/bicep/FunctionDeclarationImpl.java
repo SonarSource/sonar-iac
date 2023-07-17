@@ -21,8 +21,6 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
@@ -33,13 +31,12 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements FunctionDeclaration {
 
-  @CheckForNull
   private final List<Decorator> decorators;
   private final SyntaxToken func;
   private final Identifier name;
   private final TypedLambdaExpression lambdaExpression;
 
-  public FunctionDeclarationImpl(@Nullable List<Decorator> decorators, SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
+  public FunctionDeclarationImpl(List<Decorator> decorators, SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
     this.decorators = decorators;
     this.func = func;
     this.name = name;
@@ -58,10 +55,7 @@ public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements Func
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>();
-    if (decorators != null) {
-      children.addAll(decorators);
-    }
+    List<Tree> children = new ArrayList<>(decorators);
     children.add(func);
     children.add(name);
     children.add(lambdaExpression);
