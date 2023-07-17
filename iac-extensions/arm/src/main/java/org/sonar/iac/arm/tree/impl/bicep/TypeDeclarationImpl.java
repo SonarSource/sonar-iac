@@ -22,10 +22,10 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -35,9 +35,9 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
   private final SyntaxToken keyword;
   private final Identifier name;
   private final SyntaxToken equ;
-  private final StringLiteral typeExpression;
+  private final TypeExpressionAble typeExpression;
 
-  public TypeDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, SyntaxToken equ, StringLiteral typeExpression) {
+  public TypeDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier name, SyntaxToken equ, TypeExpressionAble typeExpression) {
     this.decorators = decorators;
     this.keyword = keyword;
     this.name = name;
@@ -66,7 +66,7 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
   }
 
   @Override
-  public StringLiteral type() {
+  public TypeExpressionAble type() {
     return typeExpression;
   }
 

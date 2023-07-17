@@ -21,11 +21,9 @@ package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 
 public interface TypeDeclaration extends Statement, HasDecorators {
   Identifier name();
 
-  // TODO SONARIAC-949 Put in place typeExpression instead of StringLiteral
-  StringLiteral type();
+  TypeExpressionAble type();
 }
