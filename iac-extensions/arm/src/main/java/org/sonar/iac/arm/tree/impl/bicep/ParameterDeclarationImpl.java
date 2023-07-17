@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.BicepTypeExpressionResolution;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -36,6 +37,7 @@ import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -47,7 +49,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   private final SyntaxToken keyword;
   private final Identifier name;
   @Nullable
-  private final StringLiteral typeExpression;
+  private final TypeExpressionAble typeExpression;
   @Nullable
   private final SyntaxToken resource;
   @Nullable
@@ -61,7 +63,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     List<Decorator> decorators,
     SyntaxToken keyword,
     Identifier name,
-    @Nullable StringLiteral typeExpression,
+    @Nullable TypeExpressionAble typeExpression,
     @Nullable SyntaxToken equ,
     @Nullable Expression defaultValue) {
     this.decorators = decorators;
@@ -101,8 +103,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @CheckForNull
   public ParameterType type() {
     if (typeExpression != null) {
-      // TODO SONARIAC-963 Put in place typeExpression
-      return ParameterType.fromName(typeExpression.value());
+      return ParameterType.fromName(BicepTypeExpressionResolution.resolve(typeExpression));
     }
     return null;
   }

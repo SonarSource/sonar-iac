@@ -179,7 +179,7 @@ public class TreeFactory {
     Optional<List<Decorator>> decorators,
     SyntaxToken keyword,
     Identifier name,
-    StringLiteral typeExpression,
+    TypeExpressionAble typeExpression,
     Optional<SyntaxToken> equ,
     Optional<Expression> defaultValue) {
     return new ParameterDeclarationImpl(decorators.or(emptyList()), keyword, name, typeExpression, equ.orNull(), defaultValue.orNull());
