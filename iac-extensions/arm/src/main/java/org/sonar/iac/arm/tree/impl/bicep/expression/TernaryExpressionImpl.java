@@ -61,9 +61,4 @@ public class TernaryExpressionImpl extends AbstractArmTreeImpl implements Ternar
   public List<Tree> children() {
     return List.of(condition, query, ifTrueExpression, colon, elseExpression);
   }
-
-  @Override
-  public Kind getKind() {
-    return Kind.TERNARY_EXPRESSION;
-  }
 }

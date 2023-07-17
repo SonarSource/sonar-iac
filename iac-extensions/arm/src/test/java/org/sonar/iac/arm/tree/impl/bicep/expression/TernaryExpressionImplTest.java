@@ -19,16 +19,13 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep.expression;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
+import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.bicep.expression.TernaryExpression;
 import org.sonar.iac.arm.tree.impl.bicep.BicepTreeModelTest;
-import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
@@ -57,18 +54,7 @@ class TernaryExpressionImplTest extends BicepTreeModelTest {
     assertThat(expression.ifTrueExpression()).asNumericLiteral().hasValue(2);
     assertThat(expression.elseExpression()).asNumericLiteral().hasValue(3);
 
-    List<String> children = expression.children().stream()
-      .map(t -> {
-        if (t instanceof TextTree) {
-          return ((TextTree) t).value();
-        } else if (t instanceof BooleanLiteral) {
-          return ((BooleanLiteral) t).value() ? "true" : "false";
-        } else {
-          throw new RuntimeException("Invalid cast from " + t.getClass());
-        }
-      })
-      .collect(Collectors.toList());
-    assertThat(children).containsExactly("true", "?", "2", ":", "3");
+    assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(expression)).containsExactly("true", "?", "2", ":", "3");
   }
 
 }

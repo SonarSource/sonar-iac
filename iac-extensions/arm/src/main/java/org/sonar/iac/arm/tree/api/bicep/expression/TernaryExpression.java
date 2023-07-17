@@ -27,4 +27,8 @@ public interface TernaryExpression extends Expression {
   Expression ifTrueExpression();
 
   Expression elseExpression();
+
+  default Kind getKind() {
+    return Kind.TERNARY_EXPRESSION;
+  }
 }
