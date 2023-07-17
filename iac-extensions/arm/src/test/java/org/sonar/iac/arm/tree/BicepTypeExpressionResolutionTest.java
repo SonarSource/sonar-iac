@@ -38,11 +38,7 @@ class BicepTypeExpressionResolutionTest {
 
   @Test
   void shouldResolveSimpleAmbientTypeReference() {
-    SyntaxToken syntaxToken = new SyntaxTokenImpl("array", TextRanges.range(1, 0, 1, 5), List.of());
-    AmbientTypeReference ambientTypeReference = new AmbientTypeReferenceImpl(syntaxToken);
-    SingularTypeExpression singularTypeExpression = new SingularTypeExpressionImpl(ambientTypeReference, List.of());
-    SeparatedListImpl<SingularTypeExpression, SyntaxToken> list = SeparatedListImpl.separatedList(singularTypeExpression, List.of());
-    TypeExpression typeExpression = new TypeExpressionImpl(list);
+    TypeExpression typeExpression = createExampleTypeExpression();
 
     String actual = BicepTypeExpressionResolution.resolve(typeExpression);
 
@@ -51,22 +47,19 @@ class BicepTypeExpressionResolutionTest {
 
   @Test
   void shouldResolveMaxDepth1() {
+    TypeExpression typeExpression = createExampleTypeExpression();
+
+    String actual = BicepTypeExpressionResolution.resolve(typeExpression, 1);
+
+    assertThat(actual).isEmpty();
+  }
+
+  private static TypeExpression createExampleTypeExpression() {
     SyntaxToken syntaxToken = new SyntaxTokenImpl("array", TextRanges.range(1, 0, 1, 5), List.of());
     AmbientTypeReference ambientTypeReference = new AmbientTypeReferenceImpl(syntaxToken);
     SingularTypeExpression singularTypeExpression = new SingularTypeExpressionImpl(ambientTypeReference, List.of());
     SeparatedListImpl<SingularTypeExpression, SyntaxToken> list = SeparatedListImpl.separatedList(singularTypeExpression, List.of());
     TypeExpression typeExpression = new TypeExpressionImpl(list);
-
-    String actual = BicepTypeExpressionResolution.resolve(typeExpression, 1);
-
-    assertThat(actual).isEqualTo("");
+    return typeExpression;
   }
 }
-
-// ARRAY("array"),
-// BOOL("bool"),
-// INT("int"),
-// OBJECT("object"),
-// SECURE_OBJECT("secureObject"),
-// SECURE_STRING("securestring"),
-// STRING("string");
