@@ -51,14 +51,18 @@ import org.sonar.iac.arm.tree.api.bicep.MultilineString;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
+import org.sonar.iac.arm.tree.api.bicep.ParenthesizedTypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TargetScopeDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TupleType;
 import org.sonar.iac.arm.tree.api.bicep.TypeDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
+import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
@@ -353,6 +357,49 @@ public class BicepGrammar {
         AMBIENT_TYPE_REFERENCE()));
   }
 
+  public TypeExpressionAble TYPE_EXPRESSION() {
+    return b.<TypeExpressionAble>nonterminal(BicepLexicalGrammar.TYPE_EXPRESSION).is(
+      f.typeExpression(
+        SINGULAR_TYPE_EXPRESSION(),
+        b.zeroOrMore(
+          f.tuple(
+            b.token(Punctuator.PIPE),
+            SINGULAR_TYPE_EXPRESSION()))));
+  }
+
+  public SingularTypeExpression SINGULAR_TYPE_EXPRESSION() {
+    return b.<SingularTypeExpression>nonterminal(BicepLexicalGrammar.SINGULAR_TYPE_EXPRESSION).is(
+      f.singularTypeExpression(
+        b.firstOf(
+          PRIMARY_TYPE_EXPRESSION(),
+          PARENTHESIZED_TYPE_EXPRESSION()),
+        b.zeroOrMore(
+          b.firstOf(
+            b.token(Punctuator.BRACKET),
+            b.token(Punctuator.QUERY)))));
+  }
+
+  public TypeExpressionAble PRIMARY_TYPE_EXPRESSION() {
+    return b.<TypeExpressionAble>nonterminal(BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION).is(
+      b.firstOf(
+        MULTILINE_STRING(),
+        AMBIENT_TYPE_REFERENCE(),
+        LITERAL_VALUE_AS_TYPE_EXPRESSION_ABLE(),
+        IDENTIFIER(),
+        UNARY_OPERATOR_LITERAL_VALUE(),
+        STRING_COMPLETE(),
+        OBJECT_TYPE(),
+        TUPLE_TYPE()));
+  }
+
+  public ParenthesizedTypeExpression PARENTHESIZED_TYPE_EXPRESSION() {
+    return b.<ParenthesizedTypeExpression>nonterminal(BicepLexicalGrammar.PARENTHESIZED_TYPE_EXPRESSION).is(
+      f.parenthesizedTypeExpression(
+        b.token(Punctuator.LPARENTHESIS),
+        TYPE_EXPRESSION(),
+        b.token(Punctuator.RPARENTHESIS)));
+  }
+
   public ObjectType OBJECT_TYPE() {
     return b.<ObjectType>nonterminal(BicepLexicalGrammar.OBJECT_TYPE).is(
       f.objectType(
@@ -372,8 +419,7 @@ public class BicepGrammar {
           STRING_COMPLETE(),
           b.token(Punctuator.STAR)),
         b.token(Punctuator.COLON),
-        // TODO Replace by typeExpression in SONARIAC-969 ARM Bicep support: create typeExpression
-        STRING_LITERAL()));
+        TYPE_EXPRESSION()));
   }
 
   public Expression ARRAY_EXPRESSION() {
@@ -419,6 +465,13 @@ public class BicepGrammar {
       f.ambientTypeReference(b.token(BicepLexicalGrammar.AMBIENT_TYPE_REFERENCE_VALUE)));
   }
 
+  public UnaryExpression UNARY_OPERATOR_LITERAL_VALUE() {
+    return b.<UnaryExpression>nonterminal(BicepLexicalGrammar.UNARY_OPERATOR_LITERAL_VALUE).is(
+      f.unaryExpression(
+        UNARY_OPERATOR(),
+        LITERAL_VALUE()));
+  }
+
   public UnaryOperator UNARY_OPERATOR() {
     return b.<UnaryOperator>nonterminal(BicepLexicalGrammar.UNARY_OPERATOR).is(
       f.unaryOperator(b.token(BicepLexicalGrammar.UNARY_OPERATOR_VALUE)));
@@ -437,8 +490,7 @@ public class BicepGrammar {
     return b.<TupleItem>nonterminal(BicepLexicalGrammar.TUPLE_ITEM).is(
       f.tupleItem(
         b.zeroOrMore(DECORATOR()),
-        // TODO replace by typeExpression in SONARIAC-969 ARM Bicep support: create typeExpression
-        STRING_LITERAL(),
+        TYPE_EXPRESSION(),
         b.token(BicepLexicalGrammar.EOL)));
   }
 
@@ -592,6 +644,14 @@ public class BicepGrammar {
 
   public Expression LITERAL_VALUE() {
     return b.<Expression>nonterminal(BicepLexicalGrammar.LITERAL_VALUE).is(
+      b.firstOf(
+        NUMERIC_LITERAL(),
+        BOOLEAN_LITERAL(),
+        NULL_LITERAL()));
+  }
+
+  public TypeExpressionAble LITERAL_VALUE_AS_TYPE_EXPRESSION_ABLE() {
+    return b.<TypeExpressionAble>nonterminal().is(
       b.firstOf(
         NUMERIC_LITERAL(),
         BOOLEAN_LITERAL(),

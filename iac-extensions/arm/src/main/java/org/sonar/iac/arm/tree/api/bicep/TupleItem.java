@@ -20,14 +20,12 @@
 package org.sonar.iac.arm.tree.api.bicep;
 
 import java.util.List;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 
-public interface TupleItem extends ArmTree {
+public interface TupleItem extends TypeExpressionAble {
 
   List<Decorator> decorators();
 
-  StringLiteral typeExpression();
+  TypeExpressionAble typeExpression();
 
   @Override
   default Kind getKind() {

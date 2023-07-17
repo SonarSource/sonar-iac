@@ -25,12 +25,13 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class TupleItemImplTest extends BicepTreeModelTest {
@@ -39,7 +40,9 @@ class TupleItemImplTest extends BicepTreeModelTest {
   void shouldParseTupleItem() {
     ArmAssertions.assertThat(BicepLexicalGrammar.TUPLE_ITEM)
       .matches("typeExpr")
-      .matches("typeExpr")
+      .matches("array[][]")
+      .matches("array | int")
+      .matches("bool[]?[] | int??")
       .matches("@functionName123() typeExpr")
       .matches("@description('some desc')\n@maxLength(12)\ntypeExpr")
 
@@ -56,9 +59,10 @@ class TupleItemImplTest extends BicepTreeModelTest {
     assertThat(tree.decorators())
       .map(ArmTestUtils::recursiveTransformationOfTreeChildrenToStrings)
       .containsExactly(List.of("@", "functionName123", "(", ")"));
-    assertThat(tree.typeExpression().value()).isEqualTo("typeExpr");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree.typeExpression()))
+      .containsExactly("typeExpr");
     assertThat(tree.children().get(0)).isInstanceOf(Decorator.class);
-    assertThat(((StringLiteral) tree.children().get(1)).value()).isEqualTo("typeExpr");
+    assertThat(tree.children().get(1)).isInstanceOf(SingularTypeExpression.class);
     assertThat(((SyntaxToken) tree.children().get(2)).value()).isBlank();
     assertThat(tree.children()).hasSize(3);
   }

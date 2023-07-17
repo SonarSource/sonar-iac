@@ -19,7 +19,9 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-public interface NullLiteral extends Expression {
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
+
+public interface NullLiteral extends Expression, TypeExpressionAble {
   default Kind getKind() {
     return Kind.NULL_LITERAL;
   }

@@ -19,12 +19,14 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.NullLiteral;
 
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
 class NullLiteralImplTest extends BicepTreeModelTest {
 
@@ -45,5 +47,6 @@ class NullLiteralImplTest extends BicepTreeModelTest {
   void shouldParseNullValue() {
     NullLiteral tree = parse("null", BicepLexicalGrammar.NULL_LITERAL);
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.NULL_LITERAL);
+    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("null");
   }
 }

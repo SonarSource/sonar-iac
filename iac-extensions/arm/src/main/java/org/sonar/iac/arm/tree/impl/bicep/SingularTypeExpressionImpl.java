@@ -21,55 +21,36 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.Decorator;
-import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
+import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class ObjectTypePropertyImpl extends AbstractArmTreeImpl implements ObjectTypeProperty {
+public class SingularTypeExpressionImpl extends AbstractArmTreeImpl implements SingularTypeExpression {
+  private final TypeExpressionAble expression;
+  private final List<SyntaxToken> bracketOrQuestionMarks;
 
-  private final List<Decorator> decorators;
-  private final TextTree name;
-  private final SyntaxToken colon;
-  private final TypeExpressionAble typeExpression;
-
-  public ObjectTypePropertyImpl(List<Decorator> decorators, TextTree name, SyntaxToken colon, TypeExpressionAble typeExpression) {
-    this.decorators = decorators;
-    this.name = name;
-    this.colon = colon;
-    this.typeExpression = typeExpression;
+  public SingularTypeExpressionImpl(TypeExpressionAble expression, List<SyntaxToken> bracketOrQuestionMarks) {
+    this.expression = expression;
+    this.bracketOrQuestionMarks = bracketOrQuestionMarks;
   }
 
   @Override
-  public TextTree name() {
-    return name;
+  public TypeExpressionAble expression() {
+    return expression;
   }
 
   @Override
-  public TypeExpressionAble typeExpression() {
-    return typeExpression;
+  public List<SyntaxToken> bracketOrQuestionMarks() {
+    return bracketOrQuestionMarks;
   }
 
   @Override
   public List<Tree> children() {
-    List<Tree> children = new ArrayList<>(decorators);
-    children.add(name);
-    children.add(colon);
-    children.add(typeExpression);
+    List<Tree> children = new ArrayList<>();
+    children.add(expression);
+    children.addAll(bracketOrQuestionMarks);
     return children;
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.OBJECT_TYPE_PROPERTY;
-  }
-
-  @Override
-  public List<Decorator> decorators() {
-    return decorators;
   }
 }

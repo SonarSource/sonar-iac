@@ -28,6 +28,7 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ObjectTypeImplTest extends BicepTreeModelTest {
@@ -59,13 +60,12 @@ class ObjectTypeImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseSimpleObjectType() {
-    String code = code("{ identifier : abc }");
-
-    ObjectType tree = parse(code, BicepLexicalGrammar.OBJECT_TYPE);
+    ObjectType tree = parse(code("{ identifier : abc }"), BicepLexicalGrammar.OBJECT_TYPE);
 
     assertThat(tree.is(ArmTree.Kind.OBJECT_TYPE)).isTrue();
     ObjectTypeProperty property = (ObjectTypeProperty) tree.properties().get(0);
     assertThat(property.name()).isInstanceOf(Identifier.class);
-    assertThat(property.typeExpression().value()).isEqualTo("abc");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(property.typeExpression()))
+      .containsExactly("abc");
   }
 }

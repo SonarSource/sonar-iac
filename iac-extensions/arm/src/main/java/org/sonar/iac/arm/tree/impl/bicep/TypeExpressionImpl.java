@@ -17,15 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api.bicep;
+package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
+import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpression;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.SeparatedList;
+import org.sonar.iac.common.api.tree.Tree;
 
-public interface TupleType extends TypeExpressionAble {
-  List<TupleItem> items();
+public class TypeExpressionImpl extends AbstractArmTreeImpl implements TypeExpression {
+
+  private final SeparatedList<SingularTypeExpression, SyntaxToken> expressions;
+
+  public TypeExpressionImpl(SeparatedList<SingularTypeExpression, SyntaxToken> expressions) {
+    this.expressions = expressions;
+  }
 
   @Override
-  default Kind getKind() {
-    return Kind.TUPLE_TYPE;
+  public List<SingularTypeExpression> expressions() {
+    return expressions.elements();
+  }
+
+  @Override
+  public List<Tree> children() {
+    return expressions.elementsAndSeparators();
   }
 }

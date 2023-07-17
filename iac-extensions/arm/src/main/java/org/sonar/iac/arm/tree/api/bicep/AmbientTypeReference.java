@@ -19,12 +19,11 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.api.tree.TextTree;
 
 /**
  * Marker interface for following grammar:
  * {@code ambientTypeReference -> "string" | "int" | "bool" | "array" | "object"}
  */
-public interface AmbientTypeReference extends ArmTree, TextTree {
+public interface AmbientTypeReference extends TypeExpressionAble, TextTree {
 }

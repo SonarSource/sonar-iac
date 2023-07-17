@@ -21,11 +21,13 @@ package org.sonar.iac.arm.tree.api.bicep;
 
 import java.util.List;
 
-public interface TupleType extends TypeExpressionAble {
-  List<TupleItem> items();
-
+public interface SingularTypeExpression extends TypeExpressionAble {
   @Override
   default Kind getKind() {
-    return Kind.TUPLE_TYPE;
+    return Kind.SINGULAR_TYPE_EXPRESSION;
   }
+
+  TypeExpressionAble expression();
+
+  List<SyntaxToken> bracketOrQuestionMarks();
 }

@@ -19,13 +19,11 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import java.util.List;
-
-public interface TupleType extends TypeExpressionAble {
-  List<TupleItem> items();
-
+public interface ParenthesizedTypeExpression extends TypeExpressionAble {
   @Override
   default Kind getKind() {
-    return Kind.TUPLE_TYPE;
+    return Kind.PARENTHESIZED_TYPE_EXPRESSION;
   }
+
+  TypeExpressionAble typeExpression();
 }

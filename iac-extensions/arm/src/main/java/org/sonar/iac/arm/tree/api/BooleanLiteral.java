@@ -19,7 +19,9 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-public interface BooleanLiteral extends Expression {
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
+
+public interface BooleanLiteral extends Expression, TypeExpressionAble {
   boolean value();
 
   default Kind getKind() {
