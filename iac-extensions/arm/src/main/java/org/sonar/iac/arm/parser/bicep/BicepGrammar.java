@@ -210,8 +210,7 @@ public class BicepGrammar {
         b.firstOf(
           OBJECT_EXPRESSION(),
           IF_EXPRESSION(),
-          FOR_EXPRESSION()),
-        b.token(BicepLexicalGrammar.EOL)));
+          FOR_EXPRESSION())));
   }
 
   public ImportDeclaration IMPORT_DECLARATION() {
