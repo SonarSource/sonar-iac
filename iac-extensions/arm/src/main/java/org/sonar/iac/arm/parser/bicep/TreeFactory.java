@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -142,6 +143,7 @@ import org.sonar.iac.common.api.tree.impl.Tuple;
 import static java.util.Collections.emptyList;
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.emptySeparatedList;
 import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedList;
+import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedListOptionalSeparator;
 
 public class TreeFactory {
 
@@ -344,11 +346,8 @@ public class TreeFactory {
     return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
   }
 
-  public ArrayExpression arrayExpression(
-    SyntaxToken lBracket,
-    Optional<List<Expression>> elements,
-    SyntaxToken rBracket) {
-    return new ArrayExpressionImpl(lBracket, elements.or(emptyList()), rBracket);
+  public ArrayExpression arrayExpression(SyntaxToken lBracket, Optional<List<Tuple<Optional<SyntaxToken>, Expression>>> elements, SyntaxToken rBracket) {
+    return new ArrayExpressionImpl(lBracket, separatedListOptionalSeparator(elements.or(Collections.emptyList())), rBracket);
   }
 
   public NumericLiteral numericLiteral(SyntaxToken token) {

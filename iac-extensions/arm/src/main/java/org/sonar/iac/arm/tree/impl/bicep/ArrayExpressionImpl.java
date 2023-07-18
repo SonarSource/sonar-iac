@@ -25,14 +25,15 @@ import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExpression {
   private final SyntaxToken lBracket;
-  private final List<Expression> elements;
+  private final SeparatedList<Expression, SyntaxToken> elements;
   private final SyntaxToken rBracket;
 
-  public ArrayExpressionImpl(SyntaxToken lBracket, List<Expression> elements, SyntaxToken rBracket) {
+  public ArrayExpressionImpl(SyntaxToken lBracket, SeparatedList<Expression, SyntaxToken> elements, SyntaxToken rBracket) {
     this.lBracket = lBracket;
     this.elements = elements;
     this.rBracket = rBracket;
@@ -42,13 +43,13 @@ public class ArrayExpressionImpl extends AbstractArmTreeImpl implements ArrayExp
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>();
     children.add(lBracket);
-    children.addAll(elements);
+    children.addAll(elements.elementsAndSeparators());
     children.add(rBracket);
     return children;
   }
 
   @Override
   public List<Expression> elements() {
-    return elements;
+    return elements.elements();
   }
 }
