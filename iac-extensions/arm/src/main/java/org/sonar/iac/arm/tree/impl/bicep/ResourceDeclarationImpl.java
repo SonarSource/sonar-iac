@@ -20,8 +20,8 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.parser.bicep.BicepKeyword;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -31,6 +31,7 @@ import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
+import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
@@ -52,8 +53,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Nullable
   private final SyntaxToken existing;
   private final SyntaxToken equalsSign;
-  private final Expression expression;
-  private final SyntaxToken endOfLine;
+  private final Expression body;
 
   // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
   @SuppressWarnings("java:S107")
@@ -64,8 +64,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     InterpolatedString typeAndVersion,
     @Nullable SyntaxToken existing,
     SyntaxToken equalsSign,
-    Expression expression,
-    SyntaxToken endOfLine) {
+    Expression body) {
 
     this.decorators = decorators;
     this.keyword = keyword;
@@ -73,8 +72,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     this.typeAndVersion = typeAndVersion;
     this.existing = existing;
     this.equalsSign = equalsSign;
-    this.expression = expression;
-    this.endOfLine = endOfLine;
+    this.body = body;
   }
 
   @Override
@@ -85,8 +83,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     children.add(typeAndVersion);
     addChildrenIfPresent(children, existing);
     children.add(equalsSign);
-    children.add(expression);
-    children.add(endOfLine);
+    children.add(body);
     return children;
   }
 
@@ -143,10 +140,17 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public List<Property> properties() {
-    if (expression.is(Kind.OBJECT_EXPRESSION)) {
-      return ((ObjectExpression) expression).properties();
+    if (body.is(Kind.OBJECT_EXPRESSION)) {
+      return ((ObjectExpression) body).properties();
+    } else if (body.is(Kind.IF_EXPRESSION)) {
+      return ((IfExpression) body).object().properties();
     } else {
-      return ((IfExpression) expression).object().properties();
+      Expression bodyExpression = ((ForExpression) body).bodyExpression();
+      if (bodyExpression.is(Kind.OBJECT_EXPRESSION)) {
+        return ((ObjectExpression) bodyExpression).properties();
+      } else {
+        return Collections.emptyList();
+      }
     }
   }
 

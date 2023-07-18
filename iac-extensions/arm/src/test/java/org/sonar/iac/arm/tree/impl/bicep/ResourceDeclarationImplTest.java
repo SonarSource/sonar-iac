@@ -19,56 +19,75 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import org.fest.assertions.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
-import org.sonar.iac.arm.tree.api.bicep.IfExpression;
-import org.sonar.iac.arm.tree.api.bicep.StringComplete;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.Decorator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-    "{ key: value }",
-    "if (condition) { key: value }"
-  })
-  void shouldParseMinimalResourceDeclarationObject(String body) {
-    String code = code("@foo(10) resource myName 'type@version' = " + body);
+  @Test
+  void shouldParseResourceDeclarationObject() {
+    String code = code("resource myName 'type@version' = { key: value }");
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
     assertThat(tree.name().value()).isEqualTo("myName");
     assertThat(tree.type().value()).isEqualTo("type");
     assertThat(tree.version().value()).isEqualTo("version");
+
+    assertThat(tree.properties()).hasSize(1);
     Property property = tree.properties().get(0);
     assertThat(property.key().value()).isEqualTo("key");
     assertThat(((StringLiteral) property.value()).value()).isEqualTo("value");
     assertThat(tree.existing()).isFalse();
 
-    assertThat(((HasDecorators) tree).decorators()).hasSize(1);
-    assertThat(((SyntaxToken) tree.children().get(1)).value()).isEqualTo("resource");
-    assertThat(((Identifier) tree.children().get(2)).value()).isEqualTo("myName");
-    assertThat(((StringComplete) tree.children().get(3)).value()).isEqualTo("type@version");
-    assertThat(((SyntaxToken) tree.children().get(4)).value()).isEqualTo("=");
-    assertThat(tree.children().get(5)).isInstanceOfAny(ObjectExpression.class, IfExpression.class);
-    assertThat(((SyntaxToken) tree.children().get(6)).value()).isBlank();
-    assertThat(tree.children()).hasSize(7);
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("resource", "myName", "type@version", "=", "{", "key", ":", "value", "}");
+  }
+
+  @Test
+  void shouldRetrievePropertiesFromIfExpression() {
+    String code = code("resource myName 'type@version' = if (condition) { key: value }");
+
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
 
     assertThat(tree.properties()).hasSize(1);
+    Property property = tree.properties().get(0);
+    assertThat(property.key().value()).isEqualTo("key");
+    assertThat(((StringLiteral) property.value()).value()).isEqualTo("value");
+    assertThat(tree.existing()).isFalse();
+
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("resource", "myName", "type@version", "=", "if", "(", "condition", ")", "{", "key", ":", "value", "}");
+  }
+
+  @Test
+  void shouldRetrievePropertiesFromForExpression() {
+    String code = code("resource myName 'type@version' = [for item in collection: { key: value }]");
+
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
+
+    assertThat(tree.properties()).hasSize(1);
+    Property property = tree.properties().get(0);
+    assertThat(property.key().value()).isEqualTo("key");
+    assertThat(((StringLiteral) property.value()).value()).isEqualTo("value");
+    assertThat(tree.existing()).isFalse();
+
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("resource", "myName", "type@version", "=", "[", "for", "item", "in", "collection", ":", "{", "key", ":", "value", "}", "]");
   }
 
   @Test
@@ -140,5 +159,25 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
       .isInstanceOf(UnsupportedOperationException.class);
     assertThatThrownBy(tree::version)
       .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void shouldParseResourceDeclarationWithDecorator() {
+    String code = code("@foo(10) resource myName 'type@version' = { key: value }");
+    ResourceDeclarationImpl tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
+
+    assertThat(tree.decorators()).hasSize(1);
+    Decorator decorator = tree.decorators().get(0);
+    Assertions.assertThat(decorator.is(ArmTree.Kind.DECORATOR)).isTrue();
+    Assertions.assertThat(decorator.expression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
+    Assertions.assertThat(decorator.children()).hasSize(2);
+  }
+
+  @Test
+  void shouldProvideEmptyPropertiesWithForBodyNotObject() {
+    String code = code("resource myName 'foo@bar@baz' = [for item in collection: 'value']");
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(tree.properties()).isEmpty();
   }
 }
