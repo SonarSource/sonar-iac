@@ -62,8 +62,7 @@ class ExpressionImplTest extends BicepTreeModelTest {
       .matches("'abd${expr}cef'")
 
       // multilineString
-      // TODO SONARIAC-998 Bicep: Add multilineString to PRIMARY_EXPRESSION
-      .notMatches("'''abc def'''")
+      .matches("'''abc def'''")
 
       // array
       .matches("['val']")
@@ -72,12 +71,10 @@ class ExpressionImplTest extends BicepTreeModelTest {
       .matches("[for identifier123 in headerExpression:bodyExpression]")
 
       // object
-      // TODO SONARIAC-999 Bicep: Add object to PRIMARY_EXPRESSION
-      .notMatches("{key:'val'}")
+      .matches("{key:'val'}")
 
       // parenthesizedExpression
-      // TODO SONARIAC-1003 Bicep: Add parenthesizedExpression to PRIMARY_EXPRESSION
-      .notMatches("(123)")
+      .matches("(123)")
 
       // lambdaExpression
       .matches("foo => 0")
