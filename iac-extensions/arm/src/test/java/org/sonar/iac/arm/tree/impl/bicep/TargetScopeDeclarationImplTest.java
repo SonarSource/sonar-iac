@@ -41,6 +41,7 @@ class TargetScopeDeclarationImplTest extends BicepTreeModelTest {
       .matches("targetScope=123")
       .matches("targetScope =123")
       .matches("targetScope = 123")
+      .matches("targetScope = 1 > 2")
 
       .notMatches("targetScope")
       .notMatches("targetScope=")

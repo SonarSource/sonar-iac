@@ -45,7 +45,7 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
       .matches("param myParam resource 'interpolated string' = 123")
       // invalid code that it still accepted by our parser
       .matches("param myParam int 123")
-      .matches("param myParam resource interpolatedString")
+      .matches("param myParam resource 'interpolatedString'")
 
       .notMatches("param")
       .notMatches("param myParam")

@@ -42,7 +42,9 @@ class FunctionCallImplTest {
     ArmAssertions.assertThat(BicepLexicalGrammar.FUNCTION_CALL)
       .matches("functionName123()")
       .matches("functionName123(123)")
+      .matches("functionName123(1 < 2)")
       .matches("functionName123(123, 456)")
+      .matches("functionName123(1 < 2, 1 != 2)")
       .matches("functionName123(123, 456, 135)")
 
       .notMatches("functionName123")

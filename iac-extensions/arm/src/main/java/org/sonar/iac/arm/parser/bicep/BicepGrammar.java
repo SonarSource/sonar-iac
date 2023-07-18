@@ -130,7 +130,7 @@ public class BicepGrammar {
           IDENTIFIER(),
           IDENTIFIER(),
           b.token(Punctuator.EQU),
-          PRIMARY_EXPRESSION()),
+          EXPRESSION()),
         f.outputDeclaration(
           b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.OUTPUT),
@@ -138,7 +138,7 @@ public class BicepGrammar {
           b.token(BicepKeyword.RESOURCE),
           INTERPOLATED_STRING(),
           b.token(Punctuator.EQU),
-          PRIMARY_EXPRESSION())));
+          EXPRESSION())));
   }
 
   public TargetScopeDeclaration TARGET_SCOPE_DECLARATION() {
@@ -146,7 +146,7 @@ public class BicepGrammar {
       f.targetScopeDeclaration(
         b.token(BicepKeyword.TARGET_SCOPE),
         b.token(Punctuator.EQU),
-        PRIMARY_EXPRESSION()));
+        EXPRESSION()));
   }
 
   public ParameterDeclaration PARAMETER_DECLARATION() {
@@ -159,14 +159,14 @@ public class BicepGrammar {
           b.token(BicepKeyword.RESOURCE),
           INTERPOLATED_STRING(),
           b.optional(b.token(Punctuator.EQU)),
-          b.optional(PRIMARY_EXPRESSION())),
+          b.optional(EXPRESSION())),
         f.parameterDeclaration(
           b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.PARAMETER),
           IDENTIFIER(),
           TYPE_EXPRESSION(),
           b.optional(b.token(Punctuator.EQU)),
-          b.optional(PRIMARY_EXPRESSION()))));
+          b.optional(EXPRESSION()))));
   }
 
   public FunctionDeclaration FUNCTION_DECLARATION() {
@@ -195,7 +195,7 @@ public class BicepGrammar {
         b.token(BicepKeyword.VARIABLE),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
-        PRIMARY_EXPRESSION(),
+        EXPRESSION(),
         b.token(BicepLexicalGrammar.EOL)));
   }
 
@@ -264,7 +264,7 @@ public class BicepGrammar {
       f.objectProperty(
         b.firstOf(IDENTIFIER(), INTERPOLATED_STRING()),
         b.token(Punctuator.COLON),
-        PRIMARY_EXPRESSION()));
+        EXPRESSION()));
   }
 
   public Expression PRIMARY_EXPRESSION() {
@@ -309,7 +309,7 @@ public class BicepGrammar {
   public InterpolatedStringMiddlePiece INTERPOLATED_STRING_MIDDLE_PIECE() {
     return b.<InterpolatedStringMiddlePiece>nonterminal().is(
       f.interpolatedStringMiddlePiece(
-        PRIMARY_EXPRESSION(),
+        EXPRESSION(),
         b.token(Punctuator.RCURLYBRACE),
         b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
         b.token(Punctuator.DOLLAR_LCURLY)));
@@ -318,7 +318,7 @@ public class BicepGrammar {
   public InterpolatedStringRightPiece INTERPOLATED_STRING_RIGHT_PIECE() {
     return b.<InterpolatedStringRightPiece>nonterminal().is(
       f.interpolatedStringRightPiece(
-        PRIMARY_EXPRESSION(),
+        EXPRESSION(),
         b.token(Punctuator.RCURLYBRACE),
         b.token(BicepLexicalGrammar.QUOTED_STRING_LITERAL),
         b.token(Punctuator.APOSTROPHE)));
@@ -331,7 +331,7 @@ public class BicepGrammar {
         // TODO: replace with PRIMARY_TYPE_EXPRESSION (after SONARIAC-871)
         AMBIENT_TYPE_REFERENCE(),
         b.token(Punctuator.DOUBLEARROW),
-        PRIMARY_EXPRESSION()));
+        EXPRESSION()));
   }
 
   public TypedVariableBlock TYPED_VARIABLE_BLOCK() {
@@ -702,9 +702,9 @@ public class BicepGrammar {
   public SeparatedList<Expression, SyntaxToken> FUNCTION_CALL_ARGUMENTS() {
     return b.<SeparatedList<Expression, SyntaxToken>>nonterminal().is(
       f.functionCallArguments(
-        PRIMARY_EXPRESSION(),
+        EXPRESSION(),
         b.zeroOrMore(
-          f.tuple(b.token(Punctuator.COMMA), PRIMARY_EXPRESSION()))));
+          f.tuple(b.token(Punctuator.COMMA), EXPRESSION()))));
   }
 
   public ForExpression FOR_EXPRESSION() {
@@ -714,11 +714,11 @@ public class BicepGrammar {
         b.token(BicepKeyword.FOR),
         FOR_VARIABLE_BLOCK(),
         b.token(BicepKeyword.IN),
-        PRIMARY_EXPRESSION(),
+        EXPRESSION(),
         b.token(Punctuator.COLON),
         b.firstOf(
           IF_EXPRESSION(),
-          PRIMARY_EXPRESSION()),
+          EXPRESSION()),
         b.token(Punctuator.RBRACKET)));
   }
 
@@ -746,7 +746,7 @@ public class BicepGrammar {
     return b.<ParenthesizedExpression>nonterminal(BicepLexicalGrammar.PARENTHESIZED_EXPRESSION).is(
       f.parenthesizedExpression(
         b.token(Punctuator.LPARENTHESIS),
-        PRIMARY_EXPRESSION(),
+        EXPRESSION(),
         b.token(Punctuator.RPARENTHESIS)));
   }
 

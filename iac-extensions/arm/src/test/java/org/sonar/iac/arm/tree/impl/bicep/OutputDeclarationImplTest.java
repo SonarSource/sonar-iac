@@ -39,6 +39,7 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
     ArmAssertions.assertThat(BicepLexicalGrammar.OUTPUT_DECLARATION)
       .matches("output myOutput String=myValue")
       .matches("output myOutput String = myValue")
+      .matches("output myOutput bool = 5 <= 3")
       .matches("output myOutput resource 'myResource'=myValue")
       .matches("output myOutput resource 'myResource' = myValue")
       .matches("@description('comment') output myOutput String = myValue")
