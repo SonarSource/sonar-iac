@@ -275,8 +275,11 @@ public class BicepGrammar {
         FOR_EXPRESSION(),
         LAMBDA_EXPRESSION(),
         LITERAL_VALUE(),
+        OBJECT_EXPRESSION(),
+        PARENTHESIZED_EXPRESSION(),
         // TODO SONARIAC-1000 ARM Bicep primaryExpression should accept string complete instead of alpha numeral string
         ALPHA_NUMERAL_STRING(),
+        MULTILINE_STRING(),
         INTERPOLATED_STRING()));
   }
 

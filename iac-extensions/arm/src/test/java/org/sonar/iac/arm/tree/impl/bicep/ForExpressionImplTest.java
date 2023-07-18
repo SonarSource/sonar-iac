@@ -44,9 +44,7 @@ class ForExpressionImplTest {
       .matches("[for (itemIdentifier123 , indexIdentifier123) in headerExpression : 'bodyExpression']")
       .matches("[for(itemIdentifier123,indexIdentifier123) in headerExpression:'bodyExpression']")
       .matches("[for(itemIdentifier123,indexIdentifier123) in headerExpression: if(condition){key:value}]")
-
-      // TODO SONARIAC-999 Add object to PRIMARY_EXPRESSION
-      .notMatches("[for identifier123 in headerExpression:{key:value}]")
+      .matches("[for identifier123 in headerExpression:{key:value}]")
 
       .notMatches("[for (itemIdentifier123) in headerExpression:'bodyExpression']")
       .notMatches("[for (itemIdentifier123,) in headerExpression:'bodyExpression']")
