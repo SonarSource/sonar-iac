@@ -20,6 +20,7 @@
 package org.sonar.iac.common.api.tree.impl;
 
 import com.sonar.sslr.api.typed.Optional;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.IacToken;
@@ -28,6 +29,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.CommonTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.api.tree.impl.SeparatedListImpl.separatedListOptionalSeparator;
 
 class SeparatedListImplTest {
 
@@ -61,5 +63,32 @@ class SeparatedListImplTest {
 
     assertThat(resultingSeparatedList.elements()).containsExactly(firstElement);
     assertThat(resultingSeparatedList.separators()).isEmpty();
+  }
+
+  @Test
+  void separatedListWithOptionalSeparators() {
+    // Three elements list with only first separator: tree1, tree2, separator1, tree3
+    Tree tree1 = CommonTestUtils.TestTree.tree();
+    Tree tree2 = CommonTestUtils.TestTree.tree();
+    Tree tree3 = CommonTestUtils.TestTree.tree();
+    IacToken separator1 = CommonTestUtils.TestIacToken.token();
+
+    List<Tuple<Optional<IacToken>, Tree>> elementsWithOptionalSeparators = List.of(
+      new Tuple<>(Optional.absent(), tree1),
+      new Tuple<>(Optional.absent(), tree2),
+      new Tuple<>(Optional.of(separator1), tree3));
+    SeparatedList<Tree, IacToken> separatedList = separatedListOptionalSeparator(elementsWithOptionalSeparators);
+
+    assertThat(separatedList.elements()).containsExactly(tree1, tree2, tree3);
+    assertThat(separatedList.separators()).containsExactly(separator1);
+    assertThat(separatedList.elementsAndSeparators()).containsExactly(tree1, tree2, separator1, tree3);
+  }
+
+  @Test
+  void separatedListWithOptionalSeparatorsEmpty() {
+    SeparatedList<Tree, IacToken> separatedList = separatedListOptionalSeparator(Collections.emptyList());
+    assertThat(separatedList.elements()).isEmpty();
+    assertThat(separatedList.separators()).isEmpty();
+    assertThat(separatedList.elementsAndSeparators()).isEmpty();
   }
 }

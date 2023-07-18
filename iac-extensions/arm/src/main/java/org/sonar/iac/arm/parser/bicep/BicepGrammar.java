@@ -422,7 +422,10 @@ public class BicepGrammar {
     return b.<ArrayExpression>nonterminal(BicepLexicalGrammar.ARRAY_EXPRESSION).is(
       f.arrayExpression(
         b.token(Punctuator.LBRACKET),
-        b.zeroOrMore(EXPRESSION()),
+        b.zeroOrMore(
+          f.tuple(
+            b.optional(b.token(Punctuator.COMMA)),
+            EXPRESSION())),
         b.token(Punctuator.RBRACKET)));
   }
 
