@@ -55,8 +55,8 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
 
     ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
     ArmAssertions.assertThat(tree)
-      .containsKeyValue("key1", "value1")
-      .containsKeyValue("key2", "value2")
+      .containsIdentifierKeyValue("key1", "value1")
+      .containsIdentifierKeyValue("key2", "value2")
       .hasSize(2)
       .hasRange(1, 0, 4, 1);
     assertThat(tree.is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();

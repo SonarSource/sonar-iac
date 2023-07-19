@@ -19,8 +19,19 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
-import org.sonar.iac.common.api.tree.TextTree;
+import org.assertj.core.api.Assertions;
 
-public interface Identifier extends TypeExpressionAble, TextTree, Expression {
+public class IdentifierAssert extends HasTextRangeAssert<IdentifierAssert, Identifier> {
+  private IdentifierAssert(Identifier identifier) {
+    super(identifier, IdentifierAssert.class);
+  }
+
+  public static IdentifierAssert assertThat(Identifier actual) {
+    return new IdentifierAssert(actual);
+  }
+
+  public IdentifierAssert hasValue(String value) {
+    Assertions.assertThat(actual.value()).isEqualTo(value);
+    return this;
+  }
 }

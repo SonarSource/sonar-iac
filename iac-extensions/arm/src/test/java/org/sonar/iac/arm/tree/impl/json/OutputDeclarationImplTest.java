@@ -80,8 +80,8 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration.textRange()).hasRange(3, 4, 9, 32);
 
     assertThat(outputDeclaration.name())
-      .is(IDENTIFIER)
-      .has("value", "myOutputValue")
+      .hasKind(IDENTIFIER)
+      .hasValue("myOutputValue")
       .hasRange(3, 4, 3, 19);
 
     List<Tree> children = outputDeclaration.children();
@@ -218,8 +218,8 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration.value()).asStringLiteral().hasValue("my output value");
 
     assertThat(outputDeclaration.name())
-      .is(IDENTIFIER)
-      .has("value", "myOutputValue")
+      .hasKind(IDENTIFIER)
+      .hasValue("myOutputValue")
       .hasRange(3, 4, 3, 19);
 
     List<Tree> children = outputDeclaration.children();

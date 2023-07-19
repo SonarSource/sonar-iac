@@ -19,17 +19,18 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class PropertyImplTest extends BicepTreeModelTest {
@@ -57,10 +58,10 @@ class PropertyImplTest extends BicepTreeModelTest {
     String code = code("key:value");
 
     Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
-    assertThat(((StringLiteral) tree.value()).value()).isEqualTo("value");
+    assertThat(tree.value()).asIdentifier().hasValue("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
-    assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
+    Assertions.assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
     Identifier key = (Identifier) tree.children().get(0);
     assertThat(key.value()).isEqualTo("key");
 
@@ -68,8 +69,8 @@ class PropertyImplTest extends BicepTreeModelTest {
     assertThat(colon.children()).isEmpty();
     assertThat(colon.comments()).isEmpty();
 
-    assertThat(((ArmTree) tree.children().get(2)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
-    StringLiteral value = (StringLiteral) tree.children().get(2);
+    Assertions.assertThat(((ArmTree) tree.children().get(2)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
+    Identifier value = (Identifier) tree.children().get(2);
     assertThat(value.value()).isEqualTo("value");
 
     assertThat(tree.children()).hasSize(3);
@@ -80,18 +81,18 @@ class PropertyImplTest extends BicepTreeModelTest {
     String code = code("'key':value");
 
     Property tree = parse(code, BicepLexicalGrammar.PROPERTY);
-    assertThat(((StringLiteral) tree.value()).value()).isEqualTo("value");
+    assertThat(tree.value()).asIdentifier().hasValue("value");
     assertThat(tree.is(ArmTree.Kind.PROPERTY)).isTrue();
 
-    assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.STRING_COMPLETE);
+    Assertions.assertThat(((ArmTree) tree.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.STRING_COMPLETE);
     InterpolatedString key = (InterpolatedString) tree.children().get(0);
 
     SyntaxToken colon = (SyntaxToken) tree.children().get(1);
     assertThat(colon.children()).isEmpty();
     assertThat(colon.comments()).isEmpty();
 
-    assertThat(((ArmTree) tree.children().get(2)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
-    StringLiteral value = (StringLiteral) tree.children().get(2);
+    Assertions.assertThat(((ArmTree) tree.children().get(2)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
+    Identifier value = (Identifier) tree.children().get(2);
     assertThat(value.value()).isEqualTo("value");
 
     assertThat(tree.children()).hasSize(3);

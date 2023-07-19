@@ -30,36 +30,14 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class StringCompleteImplTest {
-
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.STRING_COMPLETE);
-
-  @Test
-  void shouldParseSimpleStringComplete() {
-    String code = code("'abc123DEF'");
-
-    StringComplete tree = (StringComplete) parser.parse(code, null);
-    assertThat(tree.value()).isEqualTo("abc123DEF");
-    assertThat(tree.is(ArmTree.Kind.STRING_COMPLETE)).isTrue();
-
-    SyntaxToken token1 = (SyntaxToken) tree.children().get(0);
-    assertThat(token1.value()).isEqualTo("'");
-
-    SyntaxToken token2 = (SyntaxToken) tree.children().get(1);
-    assertThat(token2.children()).isEmpty();
-    assertThat(token2.comments()).isEmpty();
-
-    SyntaxToken token3 = (SyntaxToken) tree.children().get(2);
-    assertThat(token3.value()).isEqualTo("'");
-
-    assertThat(tree.children()).hasSize(3);
-  }
+class StringCompleteImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseStringComplete() {
     ArmAssertions.assertThat(BicepLexicalGrammar.STRING_COMPLETE)
       .matches("'123'")
       .matches("'abc'")
+      .matches("'ab\\'c'")
       .matches("  'abc'")
       .matches("'A'")
       .matches("'Z'")
@@ -75,8 +53,32 @@ class StringCompleteImplTest {
       .notMatches(".12'3456")
       .notMatches("-")
       .notMatches("_A1")
+      .notMatches("\\'abc'")
+      .notMatches("'ab\\\\'c'")
+      .notMatches("'abc\\'")
       .notMatches("$123'")
       .notMatches("{123}")
       .notMatches("(abc");
+  }
+
+  @Test
+  void shouldParseSimpleStringComplete() {
+    String code = code("'abc123DEF'");
+
+    StringComplete tree = parse(code, BicepLexicalGrammar.STRING_COMPLETE);
+    assertThat(tree.value()).isEqualTo("abc123DEF");
+    assertThat(tree.is(ArmTree.Kind.STRING_COMPLETE)).isTrue();
+
+    SyntaxToken token1 = (SyntaxToken) tree.children().get(0);
+    assertThat(token1.value()).isEqualTo("'");
+
+    SyntaxToken token2 = (SyntaxToken) tree.children().get(1);
+    assertThat(token2.children()).isEmpty();
+    assertThat(token2.comments()).isEmpty();
+
+    SyntaxToken token3 = (SyntaxToken) tree.children().get(2);
+    assertThat(token3.value()).isEqualTo("'");
+
+    assertThat(tree.children()).hasSize(3);
   }
 }

@@ -34,13 +34,11 @@ public class BicepLexicalConstant {
     + "|" + SINGLE_LINE_COMMENT_HASH
     + "|" + MULTI_LINE_COMMENT + ")";
 
-  public static final String ALPHA_NUMERAL_STRING = "[a-zA-Z0-9]++";
-  public static final String STRING = "[a-zA-Z]++";
   public static final String NUMBER = "[0-9]++";
   public static final String TRUE = "true";
   public static final String FALSE = "false";
   public static final String NULL = "null";
-  public static final String QUOTED_STRING_LITERAL_NO_QUOTES = "(?:(?!'|\\$\\{)[\\s\\S])*+";
+  public static final String QUOTED_STRING_LITERAL_NO_QUOTES = "(?:(?!\\$\\{)(?:\\\\[\\S]|[^']))*+";
   public static final String IDENTIFIER_LITERAL = "[a-zA-Z_][a-zA-Z_0-9]*+";
   public static final String AMBIENT_TYPE = "(?:array|bool|int|object|string)(?=\\s|\\)|,|\\z)";
   public static final String UNARY_OPERATOR = "!|-|\\+";

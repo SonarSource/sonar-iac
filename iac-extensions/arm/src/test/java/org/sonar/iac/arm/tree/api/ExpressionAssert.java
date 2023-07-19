@@ -50,6 +50,11 @@ public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expre
     return StringLiteralAssert.assertThat((StringLiteral) actual);
   }
 
+  public IdentifierAssert asIdentifier() {
+    Assertions.assertThat(actual.is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    return IdentifierAssert.assertThat((Identifier) actual);
+  }
+
   public NumericLiteralAssert asNumericLiteral() {
     Assertions.assertThat(actual.is(ArmTree.Kind.NUMERIC_LITERAL)).isTrue();
     return NumericLiteralAssert.assertThat((NumericLiteral) actual);

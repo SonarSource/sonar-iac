@@ -37,11 +37,11 @@ class ExpressionImplTest extends BicepTreeModelTest {
       .matches("abdcef")
       .matches("functionName123()")
       .matches("functionName123(123, 456, 135)")
+      .matches("_A1")
+      .matches("_abc")
 
       .notMatches(".123456")
-      .notMatches("-")
-      .notMatches("_A1")
-      .notMatches("_abc");
+      .notMatches("-");
   }
 
   @Test
@@ -68,7 +68,7 @@ class ExpressionImplTest extends BicepTreeModelTest {
       .matches("['val']")
 
       // forExpression
-      .matches("[for identifier123 in headerExpression:bodyExpression]")
+      .matches("[for identifier123 in headerExpression:{}]")
 
       // object
       .matches("{key:'val'}")
@@ -79,9 +79,11 @@ class ExpressionImplTest extends BicepTreeModelTest {
       // lambdaExpression
       .matches("foo => 0")
 
+      // identifier
+      .matches("_A1")
+      .matches("_abc")
+
       .notMatches(".123456")
-      .notMatches("-")
-      .notMatches("_A1")
-      .notMatches("_abc");
+      .notMatches("-");
   }
 }

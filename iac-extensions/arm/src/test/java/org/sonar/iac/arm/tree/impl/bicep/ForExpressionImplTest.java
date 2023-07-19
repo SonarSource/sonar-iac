@@ -25,6 +25,7 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
@@ -72,8 +73,8 @@ class ForExpressionImplTest {
     softly.assertThat(tree.forVariableBlock().indexIdentifier().is(ArmTree.Kind.IDENTIFIER)).isTrue();
     softly.assertThat(tree.forVariableBlock().indexIdentifier().value()).isEqualTo("indexIdentifier123");
 
-    softly.assertThat(tree.headerExpression().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    softly.assertThat(((StringLiteral) tree.headerExpression()).value()).isEqualTo("headerExpression");
+    softly.assertThat(tree.headerExpression().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    softly.assertThat(((Identifier) tree.headerExpression()).value()).isEqualTo("headerExpression");
 
     softly.assertThat(tree.bodyExpression().is(ArmTree.Kind.STRING_COMPLETE)).isTrue();
     softly.assertThat(((StringComplete) tree.bodyExpression()).value()).isEqualTo("bodyExpression");
