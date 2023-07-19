@@ -33,15 +33,22 @@ class InterpolatedStringImplTest extends BicepTreeModelTest {
   @Test
   void shouldMatchValidStrings() {
     ArmAssertions.assertThat(BicepLexicalGrammar.INTERPOLATED_STRING)
+      .matches("'123'")
       .matches("'${123}'")
       .matches("'a${123}'")
+      .matches("'a\\'a${123}'")
       .matches("'${123}b'")
+      .matches("'${123}b\\'b'")
       .matches("'a${123}b'")
       .matches("'a${123}b${456}c'")
+      .matches("'a${123}b\\'b${456}c'")
       .matches("'a${1 > 2}b${1 != 2}c'")
       .matches("'a${123}${456}c'")
 
       .notMatches("123")
+      .notMatches("\\'123'")
+      .notMatches("'12\\\\'3'")
+      .notMatches("'123\\'")
       .notMatches("${123}");
   }
 

@@ -55,7 +55,7 @@ class VariableDeclarationImplTest {
 
     VariableDeclaration var = (VariableDeclaration) tree.statements().get(0);
 
-    assertThat(var.name()).is(ArmTree.Kind.IDENTIFIER).has("value", "var").hasRange(3, 4, 3, 9);
+    assertThat(var.name()).hasKind(ArmTree.Kind.IDENTIFIER).hasValue("var").hasRange(3, 4, 3, 9);
     assertThat(var.value()).asStringLiteral().hasValue("val").hasRange(3, 11, 3, 16);
 
     assertThat(var.children()).hasSize(2);

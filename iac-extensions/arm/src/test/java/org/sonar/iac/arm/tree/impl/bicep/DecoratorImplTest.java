@@ -22,16 +22,15 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class DecoratorImplTest extends BicepTreeModelTest {
@@ -40,7 +39,7 @@ class DecoratorImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseDecorator() {
-    ArmAssertions.assertThat(BicepLexicalGrammar.DECORATOR)
+    assertThat(BicepLexicalGrammar.DECORATOR)
       .matches("@functionName123()")
       .matches("@functionName123(expr, expr)")
       .matches("@member.functionName123()")
@@ -71,8 +70,7 @@ class DecoratorImplTest extends BicepTreeModelTest {
 
     assertThat(tree.expression().is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
     assertThat(((MemberExpression) tree.expression()).expression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
-    assertThat(((MemberExpression) tree.expression()).memberAccess().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    assertThat(((StringLiteral) ((MemberExpression) tree.expression()).memberAccess()).value()).isEqualTo("member");
+    assertThat(((MemberExpression) tree.expression()).memberAccess()).asIdentifier().hasValue("member");
   }
 
   @ParameterizedTest

@@ -92,7 +92,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   ARRAY_EXPRESSION,
 
   LITERAL_VALUE,
-  ALPHA_NUMERAL_STRING,
   INTERPOLATED_STRING,
   STRING_COMPLETE,
   QUOTED_STRING_LITERAL,
@@ -112,7 +111,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   /**
    * Values
    */
-  STRING_LITERAL_VALUE,
   NUMERIC_LITERAL_VALUE,
   TRUE_LITERAL_VALUE,
   FALSE_LITERAL_VALUE,
@@ -159,8 +157,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
 
     b.rule(IDENTIFIER_LITERAL).is(SPACING, b.regexp(computeIdentifierLiteralRegex()));
     b.rule(QUOTED_STRING_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.QUOTED_STRING_LITERAL_NO_QUOTES));
-    b.rule(ALPHA_NUMERAL_STRING).is(SPACING, b.regexp(BicepLexicalConstant.ALPHA_NUMERAL_STRING));
-    b.rule(STRING_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.STRING));
     b.rule(MULTILINE_STRING_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.MULTILINE_STRING));
     b.rule(NUMERIC_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NUMBER));
     b.rule(TRUE_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.TRUE));

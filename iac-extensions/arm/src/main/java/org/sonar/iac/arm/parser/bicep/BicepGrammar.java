@@ -33,7 +33,6 @@ import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -276,10 +275,9 @@ public class BicepGrammar {
         LITERAL_VALUE(),
         OBJECT_EXPRESSION(),
         PARENTHESIZED_EXPRESSION(),
-        // TODO SONARIAC-1000 ARM Bicep primaryExpression should accept string complete instead of alpha numeral string
-        ALPHA_NUMERAL_STRING(),
         MULTILINE_STRING(),
-        INTERPOLATED_STRING()));
+        INTERPOLATED_STRING(),
+        IDENTIFIER()));
   }
 
   public InterpolatedString INTERPOLATED_STRING() {
@@ -678,12 +676,6 @@ public class BicepGrammar {
         b.token(BicepLexicalGrammar.NULL_LITERAL_VALUE)));
   }
 
-  // Temporary implementation of StringLiteral, will be removed by further implementation of Expression
-  public StringLiteral STRING_LITERAL() {
-    return b.<StringLiteral>nonterminal().is(
-      f.stringLiteral(b.token(BicepLexicalGrammar.STRING_LITERAL_VALUE)));
-  }
-
   public MultilineString MULTILINE_STRING() {
     return b.<MultilineString>nonterminal(BicepLexicalGrammar.MULTILINE_STRING).is(
       f.multilineString(
@@ -756,11 +748,6 @@ public class BicepGrammar {
     return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER).is(
       f.identifier(
         b.token(BicepLexicalGrammar.IDENTIFIER_LITERAL)));
-  }
-
-  public StringLiteral ALPHA_NUMERAL_STRING() {
-    return b.<StringLiteral>nonterminal().is(
-      f.stringLiteral(b.token(BicepLexicalGrammar.ALPHA_NUMERAL_STRING)));
   }
 
   public Decorator DECORATOR() {

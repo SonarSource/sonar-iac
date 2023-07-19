@@ -32,6 +32,8 @@ import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.BooleanLiteralAssert;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ExpressionAssert;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.IdentifierAssert;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.NumericLiteralAssert;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -54,6 +56,10 @@ public class ArmAssertions {
 
   public static ExpressionAssert assertThat(Expression actual) {
     return ExpressionAssert.assertThat(actual);
+  }
+
+  public static IdentifierAssert assertThat(Identifier actual) {
+    return IdentifierAssert.assertThat(actual);
   }
 
   public static StringLiteralAssert assertThat(StringLiteral actual) {

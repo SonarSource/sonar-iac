@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
@@ -57,8 +57,8 @@ class MetadataDeclarationImplTest {
     softly.assertThat(tree.is(ArmTree.Kind.METADATA_DECLARATION)).isTrue();
     softly.assertThat(tree.name().is(ArmTree.Kind.IDENTIFIER)).isTrue();
     softly.assertThat(tree.name().value()).isEqualTo("identifier123");
-    softly.assertThat(tree.value().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    softly.assertThat(((StringLiteral) tree.value()).value()).isEqualTo("abc");
+    softly.assertThat(tree.value().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    softly.assertThat(((Identifier) tree.value()).value()).isEqualTo("abc");
     softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("metadata", "identifier123", "=", "abc", "");
     softly.assertAll();
   }

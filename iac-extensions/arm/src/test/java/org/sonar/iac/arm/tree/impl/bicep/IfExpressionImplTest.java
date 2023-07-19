@@ -25,6 +25,7 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.IfExpression;
 
@@ -57,8 +58,8 @@ class IfExpressionImplTest extends BicepTreeModelTest {
     softly.assertThat(tree.is(ArmTree.Kind.IF_EXPRESSION)).isTrue();
 
     softly.assertThat(((ArmTree) tree.children().get(1)).is(ArmTree.Kind.PARENTHESIZED_EXPRESSION)).isTrue();
-    softly.assertThat(tree.conditionValue().is(ArmTree.Kind.STRING_LITERAL)).isTrue();
-    softly.assertThat(((StringLiteral) tree.conditionValue()).value()).isEqualTo("expression");
+    softly.assertThat(tree.conditionValue().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    softly.assertThat(((Identifier) tree.conditionValue()).value()).isEqualTo("expression");
 
     softly.assertThat(tree.object().is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
 

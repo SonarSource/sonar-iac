@@ -26,11 +26,11 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -49,7 +49,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.properties()).hasSize(1);
     Property property = tree.properties().get(0);
     assertThat(property.key().value()).isEqualTo("key");
-    assertThat(((StringLiteral) property.value()).value()).isEqualTo("value");
+    assertThat(property.value()).asIdentifier().hasValue("value");
     assertThat(tree.existing()).isFalse();
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
@@ -66,7 +66,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.properties()).hasSize(1);
     Property property = tree.properties().get(0);
     assertThat(property.key().value()).isEqualTo("key");
-    assertThat(((StringLiteral) property.value()).value()).isEqualTo("value");
+    assertThat(property.value()).asIdentifier().hasValue("value");
     assertThat(tree.existing()).isFalse();
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
@@ -83,7 +83,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.properties()).hasSize(1);
     Property property = tree.properties().get(0);
     assertThat(property.key().value()).isEqualTo("key");
-    assertThat(((StringLiteral) property.value()).value()).isEqualTo("value");
+    assertThat(property.value()).asIdentifier().hasValue("value");
     assertThat(tree.existing()).isFalse();
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
