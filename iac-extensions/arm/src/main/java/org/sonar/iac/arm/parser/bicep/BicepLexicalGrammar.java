@@ -167,11 +167,12 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   }
 
   private static String computeIdentifierLiteralRegex() {
-    // Add negative look ahead to not match any reserved keyword
-    String exceptKeywords = Arrays.stream(BicepKeyword.values())
-      .map(keyword -> keyword.getValue() + "\\b")
+    Stream<String> keywords = Arrays.stream(BicepKeyword.values()).map(BicepKeyword::getValue);
+    Stream<String> reservedWords = Stream.of(BicepLexicalConstant.TRUE, BicepLexicalConstant.FALSE, BicepLexicalConstant.NULL);
+    String exceptionRegex = Stream.concat(keywords, reservedWords)
+      .map(word -> word + "\\b")
       .collect(Collectors.joining("|"));
-    return "(?!" + exceptKeywords + ")\\b" + BicepLexicalConstant.IDENTIFIER_LITERAL;
+    return "(?!" + exceptionRegex + ")\\b" + BicepLexicalConstant.IDENTIFIER_LITERAL;
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
