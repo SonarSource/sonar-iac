@@ -37,6 +37,7 @@ import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -141,7 +142,11 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   public List<Property> properties() {
     if (body.is(Kind.OBJECT_EXPRESSION)) {
-      return ((ObjectExpression) body).properties();
+      return ((ObjectExpression) body).properties().stream()
+        .filter(propertyTree -> "properties".equals(((TextTree) propertyTree.key()).value()))
+        .map(p -> (Collections.<Property>unmodifiableList(((ObjectExpression) ((Property) p).value()).properties())))
+        .findFirst()
+        .orElse(List.of());
     } else if (body.is(Kind.IF_CONDITION)) {
       return ((IfCondition) body).object().properties();
     } else {
