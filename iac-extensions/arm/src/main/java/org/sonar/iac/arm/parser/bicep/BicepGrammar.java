@@ -40,7 +40,7 @@ import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.IfExpression;
+import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
@@ -206,7 +206,7 @@ public class BicepGrammar {
         b.token(Punctuator.EQU),
         b.firstOf(
           OBJECT_EXPRESSION(),
-          IF_EXPRESSION(),
+          IF_CONDITION(),
           FOR_EXPRESSION())));
   }
 
@@ -241,7 +241,7 @@ public class BicepGrammar {
         INTERPOLATED_STRING(),
         b.token(Punctuator.EQU),
         b.firstOf(
-          IF_EXPRESSION(),
+          IF_CONDITION(),
           OBJECT_EXPRESSION(),
           FOR_EXPRESSION())));
   }
@@ -707,7 +707,7 @@ public class BicepGrammar {
         EXPRESSION(),
         b.token(Punctuator.COLON),
         b.firstOf(
-          IF_EXPRESSION(),
+          IF_CONDITION(),
           EXPRESSION()),
         b.token(Punctuator.RBRACKET)));
   }
@@ -724,9 +724,9 @@ public class BicepGrammar {
           b.token(Punctuator.RPARENTHESIS))));
   }
 
-  public IfExpression IF_EXPRESSION() {
-    return b.<IfExpression>nonterminal(BicepLexicalGrammar.IF_EXPRESSION).is(
-      f.ifExpression(
+  public IfCondition IF_CONDITION() {
+    return b.<IfCondition>nonterminal(BicepLexicalGrammar.IF_CONDITION).is(
+      f.ifCondition(
         b.token(BicepKeyword.IF),
         PARENTHESIZED_EXPRESSION(),
         OBJECT_EXPRESSION()));

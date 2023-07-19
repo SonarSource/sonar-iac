@@ -57,7 +57,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
   }
 
   @Test
-  void shouldRetrievePropertiesFromIfExpression() {
+  void shouldRetrievePropertiesFromIfCondition() {
     String code = code("resource myName 'type@version' = if (condition) { key: value }");
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
