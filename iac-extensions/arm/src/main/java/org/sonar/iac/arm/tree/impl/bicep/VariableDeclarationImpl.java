@@ -32,8 +32,8 @@ import org.sonar.iac.common.api.tree.Tree;
 public class VariableDeclarationImpl extends AbstractDeclaration implements VariableDeclaration, HasDecorators {
   private final List<Decorator> decorators;
 
-  public VariableDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
-    super(keyword, identifier, equals, expression, newLine);
+  public VariableDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression) {
+    super(keyword, identifier, equals, expression);
     this.decorators = decorators;
   }
 

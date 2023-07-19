@@ -22,7 +22,6 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TupleItem;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -32,12 +31,10 @@ public class TupleItemImpl extends AbstractArmTreeImpl implements TupleItem {
 
   private final List<Decorator> decorators;
   private final TypeExpressionAble typeExpression;
-  private final SyntaxToken endOfLine;
 
-  public TupleItemImpl(List<Decorator> decorators, TypeExpressionAble typeExpression, SyntaxToken endOfLine) {
+  public TupleItemImpl(List<Decorator> decorators, TypeExpressionAble typeExpression) {
     this.decorators = decorators;
     this.typeExpression = typeExpression;
-    this.endOfLine = endOfLine;
   }
 
   @Override
@@ -54,7 +51,6 @@ public class TupleItemImpl extends AbstractArmTreeImpl implements TupleItem {
   public List<Tree> children() {
     List<Tree> children = new ArrayList<>(decorators);
     children.add(typeExpression);
-    children.add(endOfLine);
     return children;
   }
 }
