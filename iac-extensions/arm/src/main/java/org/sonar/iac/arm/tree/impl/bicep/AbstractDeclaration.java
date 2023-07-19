@@ -32,18 +32,16 @@ public abstract class AbstractDeclaration extends AbstractArmTreeImpl {
   protected final Identifier identifier;
   protected final SyntaxToken equals;
   protected final Expression expression;
-  protected final SyntaxToken newLine;
 
-  protected AbstractDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
+  protected AbstractDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression) {
     this.keyword = keyword;
     this.identifier = identifier;
     this.equals = equals;
     this.expression = expression;
-    this.newLine = newLine;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(keyword, identifier, equals, expression, newLine);
+    return List.of(keyword, identifier, equals, expression);
   }
 }

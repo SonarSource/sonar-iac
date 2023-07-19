@@ -97,16 +97,16 @@ public class BicepGrammar {
   public Statement STATEMENT() {
     return b.<Statement>nonterminal(BicepLexicalGrammar.STATEMENT).is(
       b.firstOf(
-        RESOURCE_DECLARATION(),
-        TYPE_DECLARATION(),
         TARGET_SCOPE_DECLARATION(),
-        PARAMETER_DECLARATION(),
-        FUNCTION_DECLARATION(),
-        METADATA_DECLARATION(),
-        VARIABLE_DECLARATION(),
         IMPORT_DECLARATION(),
+        METADATA_DECLARATION(),
+        PARAMETER_DECLARATION(),
+        TYPE_DECLARATION(),
+        VARIABLE_DECLARATION(),
+        RESOURCE_DECLARATION(),
         MODULE_DECLARATION(),
-        OUTPUT_DECLARATION()));
+        OUTPUT_DECLARATION(),
+        FUNCTION_DECLARATION()));
   }
 
   public TypeDeclaration TYPE_DECLARATION() {
@@ -182,8 +182,7 @@ public class BicepGrammar {
         b.token(BicepKeyword.METADATA),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
-        EXPRESSION(),
-        b.token(BicepLexicalGrammar.EOL)));
+        EXPRESSION()));
   }
 
   public VariableDeclaration VARIABLE_DECLARATION() {
@@ -193,8 +192,7 @@ public class BicepGrammar {
         b.token(BicepKeyword.VARIABLE),
         IDENTIFIER(),
         b.token(Punctuator.EQU),
-        EXPRESSION(),
-        b.token(BicepLexicalGrammar.EOL)));
+        EXPRESSION()));
   }
 
   public ResourceDeclaration RESOURCE_DECLARATION() {
@@ -268,15 +266,14 @@ public class BicepGrammar {
     return b.<Expression>nonterminal(BicepLexicalGrammar.PRIMARY_EXPRESSION).is(
       b.firstOf(
         FUNCTION_CALL(),
+        LITERAL_VALUE(),
+        MULTILINE_STRING(),
+        INTERPOLATED_STRING(),
         ARRAY_EXPRESSION(),
         FOR_EXPRESSION(),
         OBJECT_EXPRESSION(),
-        LAMBDA_EXPRESSION(),
-        LITERAL_VALUE(),
-        OBJECT_EXPRESSION(),
         PARENTHESIZED_EXPRESSION(),
-        MULTILINE_STRING(),
-        INTERPOLATED_STRING(),
+        LAMBDA_EXPRESSION(),
         IDENTIFIER()));
   }
 
@@ -381,11 +378,11 @@ public class BicepGrammar {
   public TypeExpressionAble PRIMARY_TYPE_EXPRESSION() {
     return b.<TypeExpressionAble>nonterminal(BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION).is(
       b.firstOf(
-        MULTILINE_STRING(),
         AMBIENT_TYPE_REFERENCE(),
-        LITERAL_VALUE_AS_TYPE_EXPRESSION_ABLE(),
         IDENTIFIER(),
+        LITERAL_VALUE_AS_TYPE_EXPRESSION_ABLE(),
         UNARY_OPERATOR_LITERAL_VALUE(),
+        MULTILINE_STRING(),
         STRING_COMPLETE(),
         OBJECT_TYPE(),
         TUPLE_TYPE()));
@@ -489,8 +486,7 @@ public class BicepGrammar {
     return b.<TupleItem>nonterminal(BicepLexicalGrammar.TUPLE_ITEM).is(
       f.tupleItem(
         b.zeroOrMore(DECORATOR()),
-        TYPE_EXPRESSION(),
-        b.token(BicepLexicalGrammar.EOL)));
+        TYPE_EXPRESSION()));
   }
 
   // Not an infinite recursion, SSLR can handle it

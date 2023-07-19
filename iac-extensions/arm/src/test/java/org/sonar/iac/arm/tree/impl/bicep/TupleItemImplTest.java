@@ -63,7 +63,6 @@ class TupleItemImplTest extends BicepTreeModelTest {
       .containsExactly("typeExpr");
     assertThat(tree.children().get(0)).isInstanceOf(Decorator.class);
     assertThat(tree.children().get(1)).isInstanceOf(SingularTypeExpression.class);
-    assertThat(((SyntaxToken) tree.children().get(2)).value()).isBlank();
-    assertThat(tree.children()).hasSize(3);
+    assertThat(tree.children()).hasSize(2);
   }
 }

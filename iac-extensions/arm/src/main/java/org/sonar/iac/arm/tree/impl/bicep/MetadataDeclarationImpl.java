@@ -25,8 +25,8 @@ import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 
 public class MetadataDeclarationImpl extends AbstractDeclaration implements MetadataDeclaration {
-  public MetadataDeclarationImpl(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression, SyntaxToken newLine) {
-    super(keyword, identifier, equals, expression, newLine);
+  public MetadataDeclarationImpl(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression) {
+    super(keyword, identifier, equals, expression);
   }
 
   @Override

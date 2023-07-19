@@ -38,7 +38,10 @@ public enum BicepKeyword implements GrammarRuleKey {
   IMPORT("import"),
   WITH("with"),
   AS("as"),
-  MODULE("module");
+  MODULE("module"),
+  TRUE("true"),
+  FALSE("false"),
+  NULL("null");
 
   private final String value;
 

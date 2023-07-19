@@ -198,9 +198,8 @@ public class TreeFactory {
     return new FunctionDeclarationImpl(decorators.or(emptyList()), func, name, lambdaExpression);
   }
 
-  public MetadataDeclaration metadataDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals,
-    Expression expression, SyntaxToken newLine) {
-    return new MetadataDeclarationImpl(keyword, identifier, equals, expression, newLine);
+  public MetadataDeclaration metadataDeclaration(SyntaxToken keyword, Identifier identifier, SyntaxToken equals, Expression expression) {
+    return new MetadataDeclarationImpl(keyword, identifier, equals, expression);
   }
 
   public VariableDeclaration variableDeclaration(
@@ -208,9 +207,8 @@ public class TreeFactory {
     SyntaxToken keyword,
     Identifier identifier,
     SyntaxToken equals,
-    Expression expression,
-    SyntaxToken newLine) {
-    return new VariableDeclarationImpl(decorators.or(emptyList()), keyword, identifier, equals, expression, newLine);
+    Expression expression) {
+    return new VariableDeclarationImpl(decorators.or(emptyList()), keyword, identifier, equals, expression);
   }
 
   public ModuleDeclaration moduleDeclaration(
@@ -402,8 +400,8 @@ public class TreeFactory {
     return new UnaryOperatorImpl(token);
   }
 
-  public TupleItem tupleItem(Optional<List<Decorator>> decorators, TypeExpressionAble typeExpression, SyntaxToken endOfLine) {
-    return new TupleItemImpl(decorators.or(List.of()), typeExpression, endOfLine);
+  public TupleItem tupleItem(Optional<List<Decorator>> decorators, TypeExpressionAble typeExpression) {
+    return new TupleItemImpl(decorators.or(List.of()), typeExpression);
   }
 
   public TupleType tupleType(SyntaxToken openingBracket, Optional<List<TupleItem>> tupleItems, SyntaxToken closingBracket) {

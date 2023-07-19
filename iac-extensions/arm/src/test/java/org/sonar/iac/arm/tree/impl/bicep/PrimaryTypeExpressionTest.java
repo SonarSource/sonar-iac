@@ -143,6 +143,7 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
       .matches("[\n@functionName123() typeExpr\n]")
       .matches("[@description('some desc')\n@maxLength(12)\ntypeExpr\n]")
       .matches("[\n@description('some desc')\n@maxLength(12)\ntypeExpr\n]")
+      .matches("[\ntypeExpr\ntypeExpr2]")
 
       .notMatches("!!")
       .notMatches("!!12")
@@ -176,7 +177,6 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
       .notMatches("foo '''bar''' : baz")
       .notMatches("identifier = abc")
       .notMatches("identifier = {}")
-      .notMatches("[\ntypeExpr\ntypeExpr2]")
       .notMatches("[]typeExpr")
       .notMatches("[\ntypeExpr")
       .notMatches("typeExpr]")
@@ -271,6 +271,6 @@ class PrimaryTypeExpressionTest extends BicepTreeModelTest {
     TupleType tree = parse(code, BicepLexicalGrammar.TUPLE_TYPE);
     assertThat(tree.is(ArmTree.Kind.TUPLE_TYPE)).isTrue();
     Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("[", "@", "functionName123", "(", ")", "typeExpr", "\n", "]");
+      .containsExactly("[", "@", "functionName123", "(", ")", "typeExpr", "]");
   }
 }
