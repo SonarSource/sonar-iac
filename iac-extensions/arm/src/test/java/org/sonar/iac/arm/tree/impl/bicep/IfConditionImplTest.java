@@ -34,8 +34,6 @@ import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class IfConditionImplTest extends BicepTreeModelTest {
 
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.IF_CONDITION);
-
   @Test
   void shouldParseIfCondition() {
     ArmAssertions.assertThat(BicepLexicalGrammar.IF_CONDITION)
@@ -53,13 +51,13 @@ class IfConditionImplTest extends BicepTreeModelTest {
   void shouldParseIfConditionWithDetailedAssertions() {
     String code = code("if(condition){key:value}");
 
-    IfCondition tree = (IfCondition) parser.parse(code, null);
+    IfCondition tree = parse(code, BicepLexicalGrammar.IF_CONDITION);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.IF_CONDITION)).isTrue();
 
     softly.assertThat(((ArmTree) tree.children().get(1)).is(ArmTree.Kind.PARENTHESIZED_EXPRESSION)).isTrue();
     softly.assertThat(tree.condition().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    softly.assertThat(((Identifier) tree.condition()).value()).isEqualTo("expression");
+    softly.assertThat(((Identifier) tree.condition()).value()).isEqualTo("condition");
 
     softly.assertThat(tree.object().is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
 
