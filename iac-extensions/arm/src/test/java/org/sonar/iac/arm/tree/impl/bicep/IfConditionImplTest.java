@@ -27,44 +27,42 @@ import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.api.bicep.IfExpression;
+import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class IfExpressionImplTest extends BicepTreeModelTest {
-
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.IF_EXPRESSION);
+class IfConditionImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseIfExpression() {
-    ArmAssertions.assertThat(BicepLexicalGrammar.IF_EXPRESSION)
-      .matches("if (expression){key:value}")
-      .matches("if(expression){key:value}")
-      .matches("if(expression){}")
-      .matches("if ( expression ) { key : value }")
+  void shouldParseIfCondition() {
+    ArmAssertions.assertThat(BicepLexicalGrammar.IF_CONDITION)
+      .matches("if (condition){key:value}")
+      .matches("if(condition){key:value}")
+      .matches("if(condition){}")
+      .matches("if ( condition ) { key : value }")
 
       .notMatches("if{}")
-      .notMatches("if(expression)")
+      .notMatches("if(condition)")
       .notMatches("if{key:value}");
   }
 
   @Test
-  void shouldParseIfExpressionWithDetailedAssertions() {
-    String code = code("if(expression){key:value}");
+  void shouldParseIfConditionWithDetailedAssertions() {
+    String code = code("if(condition){key:value}");
 
-    IfExpression tree = (IfExpression) parser.parse(code, null);
+    IfCondition tree = parse(code, BicepLexicalGrammar.IF_CONDITION);
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(tree.is(ArmTree.Kind.IF_EXPRESSION)).isTrue();
+    softly.assertThat(tree.is(ArmTree.Kind.IF_CONDITION)).isTrue();
 
     softly.assertThat(((ArmTree) tree.children().get(1)).is(ArmTree.Kind.PARENTHESIZED_EXPRESSION)).isTrue();
-    softly.assertThat(tree.conditionValue().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    softly.assertThat(((Identifier) tree.conditionValue()).value()).isEqualTo("expression");
+    softly.assertThat(tree.condition().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    softly.assertThat(((Identifier) tree.condition()).value()).isEqualTo("condition");
 
     softly.assertThat(tree.object().is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
 
     softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly(
-      "if", "(", "expression", ")", "{", "key", ":", "value", "}");
+      "if", "(", "condition", ")", "{", "key", ":", "value", "}");
 
     softly.assertAll();
   }

@@ -22,19 +22,19 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
-import org.sonar.iac.arm.tree.api.bicep.IfExpression;
+import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class IfExpressionImpl extends AbstractArmTreeImpl implements IfExpression {
+public class IfConditionImpl extends AbstractArmTreeImpl implements IfCondition {
 
   private final SyntaxToken keyword;
   private final ParenthesizedExpression condition;
   private final ObjectExpression object;
 
-  public IfExpressionImpl(SyntaxToken keyword, ParenthesizedExpression condition, ObjectExpression object) {
+  public IfConditionImpl(SyntaxToken keyword, ParenthesizedExpression condition, ObjectExpression object) {
     this.keyword = keyword;
     this.condition = condition;
     this.object = object;
@@ -47,11 +47,11 @@ public class IfExpressionImpl extends AbstractArmTreeImpl implements IfExpressio
 
   @Override
   public Kind getKind() {
-    return Kind.IF_EXPRESSION;
+    return Kind.IF_CONDITION;
   }
 
   @Override
-  public Expression conditionValue() {
+  public Expression condition() {
     return condition.expression();
   }
 

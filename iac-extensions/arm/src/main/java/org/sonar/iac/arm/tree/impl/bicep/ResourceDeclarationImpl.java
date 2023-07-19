@@ -33,7 +33,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
-import org.sonar.iac.arm.tree.api.bicep.IfExpression;
+import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -142,8 +142,8 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   public List<Property> properties() {
     if (body.is(Kind.OBJECT_EXPRESSION)) {
       return ((ObjectExpression) body).properties();
-    } else if (body.is(Kind.IF_EXPRESSION)) {
-      return ((IfExpression) body).object().properties();
+    } else if (body.is(Kind.IF_CONDITION)) {
+      return ((IfCondition) body).object().properties();
     } else {
       Expression bodyExpression = ((ForExpression) body).bodyExpression();
       if (bodyExpression.is(Kind.OBJECT_EXPRESSION)) {

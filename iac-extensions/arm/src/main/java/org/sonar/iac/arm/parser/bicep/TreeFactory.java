@@ -42,7 +42,7 @@ import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.ForVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
-import org.sonar.iac.arm.tree.api.bicep.IfExpression;
+import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
@@ -88,7 +88,7 @@ import org.sonar.iac.arm.tree.impl.bicep.ForVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FunctionCallImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FunctionDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.IdentifierImpl;
-import org.sonar.iac.arm.tree.impl.bicep.IfExpressionImpl;
+import org.sonar.iac.arm.tree.impl.bicep.IfConditionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.LambdaExpressionImpl;
@@ -282,8 +282,8 @@ public class TreeFactory {
     return new ForVariableBlockImpl(leftParenthesis, itemIdentifier, comma, indexIdentifier, rightParenthesis);
   }
 
-  public IfExpression ifExpression(SyntaxToken keyword, ParenthesizedExpression condition, ObjectExpression object) {
-    return new IfExpressionImpl(keyword, condition, object);
+  public IfCondition ifCondition(SyntaxToken keyword, ParenthesizedExpression condition, ObjectExpression object) {
+    return new IfConditionImpl(keyword, condition, object);
   }
 
   public MemberExpression memberExpression(Expression value, List<MemberExpression> memberExpressionComponents) {
