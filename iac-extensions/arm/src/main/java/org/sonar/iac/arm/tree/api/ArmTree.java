@@ -59,7 +59,6 @@ import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
-import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -78,7 +77,6 @@ public interface ArmTree extends Tree {
     FILE(File.class),
     OUTPUT_DECLARATION(OutputDeclaration.class),
     PARAMETER_DECLARATION(ParameterDeclaration.class),
-    RESOURCE_GROUP_DECLARATION(ResourceGroupDeclarationImpl.class),
     RESOURCE_DECLARATION(ResourceDeclaration.class),
     VARIABLE_DECLARATION(VariableDeclaration.class),
     MODULE_DECLARATION(ModuleDeclaration.class),

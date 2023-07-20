@@ -210,4 +210,21 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.properties()).isEmpty();
   }
+
+  @Test
+  void shouldParseNestedResource() {
+    String code = code("resource myName 'type1@version1' = {",
+      "  resource childResource 'type2@version2' = {",
+      "    name: 'name'",
+      "  }",
+      "}");
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(tree.type().value()).isEqualTo("type1");
+    assertThat(tree.version().value()).isEqualTo("version1");
+
+    assertThat(tree.childResources()).hasSize(1);
+    ResourceDeclaration child = tree.childResources().get(0);
+    assertThat(child.type().value()).isEqualTo("type2");
+    assertThat(child.version().value()).isEqualTo("version2");
+  }
 }
