@@ -37,6 +37,8 @@ import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
+import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -55,8 +57,6 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private final SyntaxToken equalsSign;
   private final Expression body;
 
-  // Ignore constructor with 8 parameters, as splitting it doesn't improve readability
-  @SuppressWarnings("java:S107")
   public ResourceDeclarationImpl(
     List<Decorator> decorators,
     SyntaxToken keyword,
@@ -141,13 +141,13 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   public List<Property> properties() {
     if (body.is(Kind.OBJECT_EXPRESSION)) {
-      return ((ObjectExpression) body).properties();
+      return propertiesOrEmpty(((ObjectExpression) body).properties());
     } else if (body.is(Kind.IF_CONDITION)) {
-      return ((IfCondition) body).object().properties();
+      return propertiesOrEmpty(((IfCondition) body).object().properties());
     } else {
       Expression bodyExpression = ((ForExpression) body).bodyExpression();
       if (bodyExpression.is(Kind.OBJECT_EXPRESSION)) {
-        return ((ObjectExpression) bodyExpression).properties();
+        return propertiesOrEmpty(((ObjectExpression) bodyExpression).properties());
       } else {
         return Collections.emptyList();
       }
@@ -166,5 +166,13 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   public List<Decorator> decorators() {
     return decorators;
+  }
+
+  private static List<Property> propertiesOrEmpty(List<PropertyTree> properties) {
+    return properties.stream()
+      .filter(propertyTree -> "properties".equals(((TextTree) propertyTree.key()).value()))
+      .map(p -> (Collections.<Property>unmodifiableList(((ObjectExpression) ((Property) p).value()).properties())))
+      .findFirst()
+      .orElse(List.of());
   }
 }
