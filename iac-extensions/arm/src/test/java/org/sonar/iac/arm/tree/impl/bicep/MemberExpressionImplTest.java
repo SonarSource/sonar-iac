@@ -21,7 +21,6 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -31,11 +30,8 @@ import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class MemberExpressionImplTest extends BicepTreeModelTest {
-
-  BicepParser parser = BicepParser.create(BicepLexicalGrammar.MEMBER_EXPRESSION);
 
   @Test
   void shouldParseMemberExpression() {
@@ -84,8 +80,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMemberExpressionWithTwoExpressionsInside() {
-    String code = code("memberExpression.identifier123!");
-    MemberExpression tree = (MemberExpression) parser.parse(code, null);
+    MemberExpression tree = parse("memberExpression.identifier123!", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
     assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
@@ -107,16 +102,14 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldNotWrapStringLiteralIntoMemberExpressionButBeParseable() {
-    String code = code("memberExpression");
-    Expression tree = (Expression) parser.parse(code, null);
+    Expression tree = parse("memberExpression", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
     assertThat(tree.is(ArmTree.Kind.IDENTIFIER)).isTrue();
   }
 
   @Test
   void shouldParseMemberExpressionWithFunctionCall() {
-    String code = code("memberExpression.functionCall()");
-    MemberExpression tree = (MemberExpression) parser.parse(code, null);
+    MemberExpression tree = parse("memberExpression.functionCall()", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
     assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
@@ -130,8 +123,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMemberExpressionWithIdentifier() {
-    String code = code("memberExpression:identifier");
-    MemberExpression tree = (MemberExpression) parser.parse(code, null);
+    MemberExpression tree = parse("memberExpression:identifier", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
     assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
@@ -145,8 +137,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMemberExpressionDoubleColonWithIdentifier() {
-    String code = code("virtualNetwork::subnet1");
-    MemberExpression tree = (MemberExpression) parser.parse(code, null);
+    MemberExpression tree = parse("virtualNetwork::subnet1", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
     assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
@@ -160,8 +151,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMemberExpressionWithExpression() {
-    String code = code("memberExpression[stringLiteral]");
-    MemberExpression tree = (MemberExpression) parser.parse(code, null);
+    MemberExpression tree = parse("memberExpression[stringLiteral]", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
     assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
 
