@@ -49,6 +49,7 @@ import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
+import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
@@ -322,7 +323,7 @@ public class TreeFactory {
     return new PropertyImpl(key, colon, value);
   }
 
-  public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<Property>> properties, SyntaxToken rightCurlyBrace) {
+  public ObjectExpression objectExpression(SyntaxToken leftCurlyBrace, Optional<List<ObjectProperty>> properties, SyntaxToken rightCurlyBrace) {
     return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
   }
 

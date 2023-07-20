@@ -29,7 +29,6 @@ import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -173,27 +172,23 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
   }
 
   @Test
-  void shouldThrowExceptionForInvalidTypeAndVersion() {
+  void shouldProvideTypeAndVersionAsThisForInvalidTypeAndVersion() {
     String code = code("resource myName 'type_version' = {",
       "}");
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
-    assertThatThrownBy(tree::type)
-      .isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(tree::version)
-      .isInstanceOf(UnsupportedOperationException.class);
+    assertThat(tree.type().value()).isEqualTo("type_version");
+    assertThat(tree.version().value()).isEqualTo("type_version");
   }
 
   @Test
-  void shouldThrowExceptionForInvalidTypeAndVersion2() {
+  void shouldProvideTypeAndVersionAsThisForInvalidTypeAndVersion2() {
     String code = code("resource myName 'foo@bar@baz' = {",
       "}");
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
-    assertThatThrownBy(tree::type)
-      .isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(tree::version)
-      .isInstanceOf(UnsupportedOperationException.class);
+    assertThat(tree.type().value()).isEqualTo("foo@bar@baz");
+    assertThat(tree.version().value()).isEqualTo("foo@bar@baz");
   }
 
   @Test

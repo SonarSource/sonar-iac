@@ -20,10 +20,12 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
@@ -31,25 +33,36 @@ import org.sonar.iac.common.api.tree.Tree;
 public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectExpression {
 
   private final SyntaxToken leftCurlyBrace;
-  private final List<Property> properties;
+  private final List<ObjectProperty> objectProperties;
   private final SyntaxToken rightCurlyBrace;
 
-  public ObjectExpressionImpl(SyntaxToken leftCurlyBrace, List<Property> properties, SyntaxToken rightCurlyBrace) {
+  public ObjectExpressionImpl(SyntaxToken leftCurlyBrace, List<ObjectProperty> objectProperties, SyntaxToken rightCurlyBrace) {
     this.leftCurlyBrace = leftCurlyBrace;
-    this.properties = properties;
+    this.objectProperties = objectProperties;
     this.rightCurlyBrace = rightCurlyBrace;
   }
 
   @Override
   public List<Property> properties() {
-    return Collections.unmodifiableList(properties);
+    return objectProperties.stream()
+      .filter(Property.class::isInstance)
+      .map(Property.class::cast)
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<ResourceDeclaration> nestedResources() {
+    return objectProperties.stream()
+      .filter(ResourceDeclaration.class::isInstance)
+      .map(ResourceDeclaration.class::cast)
+      .collect(Collectors.toList());
   }
 
   @Override
   public List<Tree> children() {
     List<Tree> list = new ArrayList<>();
     list.add(leftCurlyBrace);
-    list.addAll(properties);
+    list.addAll(objectProperties);
     list.add(rightCurlyBrace);
     return list;
   }

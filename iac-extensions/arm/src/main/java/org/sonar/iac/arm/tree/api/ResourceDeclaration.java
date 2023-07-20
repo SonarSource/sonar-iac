@@ -20,15 +20,17 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
+import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.TextTree;
 
-public interface ResourceDeclaration extends Statement, HasProperties {
+public interface ResourceDeclaration extends Statement, HasProperties, ObjectProperty {
 
   Identifier name();
 
-  StringLiteral version();
+  TextTree version();
 
-  StringLiteral type();
+  TextTree type();
 
   List<Property> properties();
 

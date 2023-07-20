@@ -30,7 +30,6 @@ import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
-import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.Statement;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
@@ -47,6 +46,7 @@ import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.MetadataDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.MultilineString;
+import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.ObjectType;
 import org.sonar.iac.arm.tree.api.bicep.ObjectTypeProperty;
 import org.sonar.iac.arm.tree.api.bicep.ParenthesizedExpression;
@@ -250,16 +250,18 @@ public class BicepGrammar {
     return b.<ObjectExpression>nonterminal(BicepLexicalGrammar.OBJECT_EXPRESSION).is(
       f.objectExpression(
         b.token(Punctuator.LCURLYBRACE),
-        b.zeroOrMore(PROPERTY()),
+        b.zeroOrMore(OBJECT_PROPERTY()),
         b.token(Punctuator.RCURLYBRACE)));
   }
 
-  public Property PROPERTY() {
-    return b.<Property>nonterminal(BicepLexicalGrammar.PROPERTY).is(
-      f.objectProperty(
-        b.firstOf(IDENTIFIER(), INTERPOLATED_STRING()),
-        b.token(Punctuator.COLON),
-        EXPRESSION()));
+  public ObjectProperty OBJECT_PROPERTY() {
+    return b.<ObjectProperty>nonterminal(BicepLexicalGrammar.PROPERTY).is(
+      b.firstOf(
+        f.objectProperty(
+          b.firstOf(IDENTIFIER(), INTERPOLATED_STRING()),
+          b.token(Punctuator.COLON),
+          EXPRESSION()),
+        RESOURCE_DECLARATION()));
   }
 
   public Expression PRIMARY_EXPRESSION() {
