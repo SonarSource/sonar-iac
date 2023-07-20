@@ -1,9 +1,9 @@
 {
-'azureresourcemanager-project:ruling/src/test/resources/sources/azureresourcemanager/rules/darktrace-vsensor-autoscaling-azuredeploy.json':[
+"azureresourcemanager-project:ruling/src/test/resources/sources/azureresourcemanager/rules/darktrace-vsensor-autoscaling-azuredeploy.json": [
 586,
-1017,
+1017
 ],
-'azureresourcemanager-project:ruling/src/test/resources/sources/azureresourcemanager/rules/sas9.4-viya-azuredeploy.json':[
+"azureresourcemanager-project:ruling/src/test/resources/sources/azureresourcemanager/rules/sas9.4-viya-azuredeploy.json": [
 628,
 1447,
 1452,
@@ -21,64 +21,67 @@
 3463,
 3468,
 3754,
-3759,
+3759
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/create-storage-account/azuredeploy.bicep':[
-21,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/create-storage-account/azuredeploy.bicep": [
+21
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/create-storage-account/main.bicep':[
-21,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/create-storage-account/main.bicep": [
+21
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/createStorage.bicep':[
-3,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/createStorage.bicep": [
+3
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopArrayObject.bicep':[
-13,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopArrayObject.bicep": [
+13
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopArrayString.bicep':[
-7,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopArrayString.bicep": [
+7
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopArrayStringAndNumber.bicep':[
-7,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopArrayStringAndNumber.bicep": [
+7
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopNumbered.bicep':[
-4,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopNumbered.bicep": [
+4
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopObject.bicep':[
-14,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopObject.bicep": [
+14
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopWithCondition.bicep':[
-5,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops-quickstart/loopWithCondition.bicep": [
+5
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops/loopserialstorage.bicep':[
-7,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops/loopserialstorage.bicep": [
+7
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops/loopstorage.bicep':[
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops/loopstorage.bicep": [
+6
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops/loopstoragewitharray.bicep": [
+9
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-configuration-set/main.bicep": [
+69
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-name-generation/storage.bicep": [
 6,
+16
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/loops/loopstoragewitharray.bicep':[
-9,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-rbac/scope.bicep": [
+7
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-configuration-set/main.bicep':[
-69,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-secrets/function-app.bicep": [
+8
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-name-generation/storage.bicep':[
-6,
-16,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/fullnamedeclaration.bicep": [
+1
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-rbac/scope.bicep':[
-7,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/insidedeclaration.bicep": [
+1
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-secrets/function-app.bicep':[
-8,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/outsidedeclaration.bicep": [
+1
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/fullnamedeclaration.bicep':[
-1,
-],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/outsidedeclaration.bicep':[
-1,
-],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/variables/variableswithfunction.bicep':[
-6,
-],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/variables/variableswithfunction.bicep": [
+6
+]
 }

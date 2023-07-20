@@ -1,47 +1,44 @@
 {
-'azureresourcemanager-project:ruling/src/test/resources/sources/azureresourcemanager/parseError.json':[
-4,
+"azureresourcemanager-project:ruling/src/test/resources/sources/azureresourcemanager/parseError.json": [
+4
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/create-template-spec/azuredeploy.bicep':[
-32,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/create-template-spec/azuredeploy.bicep": [
+32
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/create-template-spec/main.bicep':[
-32,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/create-template-spec/main.bicep": [
+32
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/deploymentscript-keyvault-mi.bicep':[
-126,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/deploymentscript-keyvault-mi.bicep": [
+126
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/deploymentscript-keyvault.bicep':[
-108,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/deploymentscript-keyvault.bicep": [
+108
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/passValue-cli.bicep':[
-10,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/passValue-cli.bicep": [
+10
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/sample.bicep':[
-10,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/deployment-script/sample.bicep": [
+10
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-monitoring/autoscaling-rules.bicep':[
-32,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-monitoring/autoscaling-rules.bicep": [
+32
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-virtual-networks/vnet.bicep':[
-32,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-virtual-networks/vnet.bicep": [
+41
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/child-resource-name-type/insidedeclaration.bicep':[
-9,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/functions/loadTextContent/loaddeploymentscript.bicep": [
+6
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/functions/loadTextContent/loaddeploymentscript.bicep':[
-6,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/conditional-definition.bicep": [
+2
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/conditional-definition.bicep':[
-2,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/dependsOn-definition.bicep": [
+1
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/dependsOn-definition.bicep':[
-1,
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/iterative-definition.bicep": [
+3
 ],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/iterative-definition.bicep':[
-3,
-],
-'azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/scope-definition.bicep':[
-2,
-],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/modules/scope-definition.bicep": [
+2
+]
 }

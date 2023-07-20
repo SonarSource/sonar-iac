@@ -71,8 +71,8 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isFalse();
 
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resourceDeclaration.type()).hasValue("Microsoft.Kusto/clusters");
-    assertThat(resourceDeclaration.version()).hasValue("2022-12-29");
+    assertThat(resourceDeclaration.type().value()).isEqualTo("Microsoft.Kusto/clusters");
+    assertThat(resourceDeclaration.version().value()).isEqualTo("2022-12-29");
     assertThat(resourceDeclaration.existing()).isFalse();
 
     assertThat(resourceDeclaration.name().value()).isEqualTo("myResource");
@@ -214,14 +214,14 @@ class ResourceDeclarationImplTest {
     assertThat(tree.statements().get(1)).isInstanceOf(ResourceDeclaration.class);
 
     ResourceDeclaration resourceDeclaration1 = (ResourceDeclaration) tree.statements().get(0);
-    assertThat(resourceDeclaration1.type()).hasValue("type1");
-    assertThat(resourceDeclaration1.version()).hasValue("version1");
+    assertThat(resourceDeclaration1.type().value()).isEqualTo("type1");
+    assertThat(resourceDeclaration1.version().value()).isEqualTo("version1");
     assertThat(resourceDeclaration1.name().value()).isEqualTo("name1");
     assertThat(resourceDeclaration1.properties()).isEmpty();
 
     ResourceDeclaration resourceDeclaration2 = (ResourceDeclaration) tree.statements().get(1);
-    assertThat(resourceDeclaration2.type()).hasValue("type2");
-    assertThat(resourceDeclaration2.version()).hasValue("version2");
+    assertThat(resourceDeclaration2.type().value()).isEqualTo("type2");
+    assertThat(resourceDeclaration2.version().value()).isEqualTo("version2");
     assertThat(resourceDeclaration2.name().value()).isEqualTo("name2");
     assertThat(resourceDeclaration2.properties()).isEmpty();
   }
@@ -264,8 +264,8 @@ class ResourceDeclarationImplTest {
 
     ResourceDeclaration childResource = parentResource.childResources().get(0);
     assertThat(childResource.name().value()).isEqualTo("child resource");
-    assertThat(childResource.type()).hasValue("securityRules");
-    assertThat(childResource.version()).hasValue("2022-11-01");
+    assertThat(childResource.type().value()).isEqualTo("securityRules");
+    assertThat(childResource.version().value()).isEqualTo("2022-11-01");
     assertThat(childResource.properties()).hasSize(1);
     Property property = childResource.properties().get(0);
     assertThat(property.key().value()).isEqualTo("attr");
@@ -320,8 +320,8 @@ class ResourceDeclarationImplTest {
     ResourceDeclaration innerChildResource = childResource.childResources().get(0);
     assertThat(innerChildResource.is(RESOURCE_DECLARATION)).isTrue();
     assertThat(innerChildResource.name().value()).isEqualTo("inner child resource");
-    assertThat(innerChildResource.type()).hasValue("firewall");
-    assertThat(innerChildResource.version()).hasValue("2022-11-01");
+    assertThat(innerChildResource.type().value()).isEqualTo("firewall");
+    assertThat(innerChildResource.version().value()).isEqualTo("2022-11-01");
 
     assertThat(parentResource.childResources()).containsExactly(childResource);
     assertThat(childResource.childResources()).containsExactly(innerChildResource);

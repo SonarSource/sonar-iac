@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -40,6 +41,11 @@ public class ObjectExpressionImpl extends AbstractArmTreeImpl implements ObjectE
   @Override
   public List<Property> properties() {
     return Collections.unmodifiableList(properties);
+  }
+
+  @Override
+  public List<ResourceDeclaration> nestedResources() {
+    return Collections.emptyList();
   }
 
   @Override

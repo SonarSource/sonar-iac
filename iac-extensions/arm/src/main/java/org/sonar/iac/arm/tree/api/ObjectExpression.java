@@ -19,8 +19,9 @@
  */
 package org.sonar.iac.arm.tree.api;
 
+import java.util.List;
 import org.sonar.iac.common.api.tree.HasProperties;
 
 public interface ObjectExpression extends Expression, HasProperties {
-
+  List<ResourceDeclaration> nestedResources();
 }

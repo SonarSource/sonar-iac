@@ -29,7 +29,6 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
@@ -98,7 +97,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public StringLiteral version() {
+  public TextTree version() {
     String text = TextUtils.getValue(typeAndVersion).orElse("");
     if (text.contains("@")) {
       String[] split = text.split("@");
@@ -115,11 +114,11 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
         return new StringLiteralImpl(token);
       }
     }
-    throw new UnsupportedOperationException("The typeAndVersion field should contains `type@version` value, but it's " + text);
+    return typeAndVersion;
   }
 
   @Override
-  public StringLiteral type() {
+  public TextTree type() {
     String text = TextUtils.getValue(typeAndVersion).orElse("");
     if (text.contains("@")) {
       String[] split = text.split("@");
@@ -135,7 +134,8 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
         return new StringLiteralImpl(token);
       }
     }
-    throw new UnsupportedOperationException("The typeAndVersion field should contains `type@version` value, but it's " + text);
+    // TODO SONARIAC-1019 ARM Bicep: make ResourceDelcaration.type() @CheckForNull
+    return typeAndVersion;
   }
 
   @Override

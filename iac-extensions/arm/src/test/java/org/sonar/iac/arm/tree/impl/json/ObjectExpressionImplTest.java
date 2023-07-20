@@ -22,6 +22,7 @@ package org.sonar.iac.arm.tree.impl.json;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,15 +35,16 @@ class ObjectExpressionImplTest {
 
   @Test
   void shouldParseObjectExpression() {
-    Property objectProperty = parseProperty(parser, "\"object_prop\": {\"key\":\"val\"}");
-    assertThat(objectProperty.value())
-      .asObjectExpression()
+    ObjectExpression objectExpression = (ObjectExpression) parseProperty(parser, "\"object_prop\": {\"key\":\"val\"}").value();
+
+    assertThat(objectExpression)
       .containsKeyValue("key", "val")
       .hasRange(LINE_OFFSET + 1, 15, LINE_OFFSET + 1, 28);
-    assertThat(objectProperty.value().getKind()).isEqualTo(ArmTree.Kind.OBJECT_EXPRESSION);
-    assertThat(objectProperty.value().children()).hasSize(2);
-    assertThat(((ArmTree) objectProperty.value().children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
-    assertThat(((ArmTree) objectProperty.value().children().get(1)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
+    assertThat(objectExpression.getKind()).isEqualTo(ArmTree.Kind.OBJECT_EXPRESSION);
+    assertThat(objectExpression.nestedResources()).isEmpty();
+    assertThat(objectExpression.children()).hasSize(2);
+    assertThat(((ArmTree) objectExpression.children().get(0)).getKind()).isEqualTo(ArmTree.Kind.IDENTIFIER);
+    assertThat(((ArmTree) objectExpression.children().get(1)).getKind()).isEqualTo(ArmTree.Kind.STRING_LITERAL);
   }
 
   @Test

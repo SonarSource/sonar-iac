@@ -17,18 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
-import org.sonar.iac.common.api.tree.PropertyTree;
-import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-public interface Property extends PropertyTree, ObjectProperty {
-  TextTree key();
-
-  Expression value();
-
-  default Kind getKind() {
-    return Kind.PROPERTY;
-  }
+public interface ObjectProperty extends ArmTree {
 }
