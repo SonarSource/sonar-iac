@@ -23,6 +23,7 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public enum Punctuator implements GrammarRuleKey {
   COLON(":"),
+  DOUBLE_COLON("::"),
   COMMA(","),
   DOUBLEARROW("=>"),
   DOT("."),

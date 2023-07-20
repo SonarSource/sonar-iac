@@ -45,6 +45,7 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
       .matches("memberExpression.identifier123")
       .matches("memberExpression.functionCall()")
       .matches("memberExpression:identifier123")
+      .matches("memberExpression::identifier123")
       .matches("memberExpression!")
 
       .matches("memberExpression[stringLiteral][strings]")
@@ -66,6 +67,11 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
       .matches("memberExpression:identifier123.identifier456")
       .matches("memberExpression:identifier123.functionCall()")
       .matches("memberExpression:identifier123:identifier456")
+
+      .matches("memberExpression::identifier123[strings]")
+      .matches("memberExpression::identifier123.identifier456")
+      .matches("memberExpression::identifier123.functionCall()")
+      .matches("memberExpression::identifier123:identifier456")
 
       .matches("memberExpression![strings]")
       .matches("memberExpression!.identifier123")
@@ -135,6 +141,21 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
     assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo(":");
+  }
+
+  @Test
+  void shouldParseMemberExpressionDoubleColonWithIdentifier() {
+    String code = code("virtualNetwork::subnet1");
+    MemberExpression tree = (MemberExpression) parser.parse(code, null);
+
+    assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
+
+    assertThat(tree.memberAccess().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    assertThat(tree.expression().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+
+    assertThat(tree.children()).hasSize(3);
+    assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
+    assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo("::");
   }
 
   @Test
