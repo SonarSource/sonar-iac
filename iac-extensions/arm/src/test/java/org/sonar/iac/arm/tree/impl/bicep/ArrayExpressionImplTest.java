@@ -63,7 +63,11 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMixedInlineAndMultilineArray() {
-    ArrayExpression tree = parse(code("[", "'a', 'b'", "'c'", "]"), BicepLexicalGrammar.ARRAY_EXPRESSION);
+    String code = code("[",
+      "'a', 'b'",
+      "'c'",
+      "]");
+    ArrayExpression tree = parse(code, BicepLexicalGrammar.ARRAY_EXPRESSION);
 
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.ARRAY_EXPRESSION);
     assertThat(tree.elements()).hasSize(3);
