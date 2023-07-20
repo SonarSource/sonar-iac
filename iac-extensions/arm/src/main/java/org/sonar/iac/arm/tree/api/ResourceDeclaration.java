@@ -24,7 +24,7 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.TextTree;
 
-public interface ResourceDeclaration extends Statement, HasProperties, ObjectProperty {
+public interface ResourceDeclaration extends Statement, HasProperties, ObjectProperty, HasResources {
 
   Identifier name();
 

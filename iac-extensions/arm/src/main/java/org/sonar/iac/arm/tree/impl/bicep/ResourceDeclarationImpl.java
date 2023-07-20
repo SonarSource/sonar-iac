@@ -22,6 +22,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.parser.bicep.BicepKeyword;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -140,18 +141,31 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public List<Property> properties() {
+    return getObjectBody()
+      .map(objectBody -> propertiesOrEmpty(objectBody.properties()))
+      .orElse(Collections.emptyList());
+  }
+
+  private Optional<ObjectExpression> getObjectBody() {
+    ObjectExpression objectBody = null;
     if (body.is(Kind.OBJECT_EXPRESSION)) {
-      return propertiesOrEmpty(((ObjectExpression) body).properties());
+      objectBody = (ObjectExpression) body;
     } else if (body.is(Kind.IF_CONDITION)) {
-      return propertiesOrEmpty(((IfCondition) body).object().properties());
+      objectBody = ((IfCondition) body).object();
     } else {
       Expression bodyExpression = ((ForExpression) body).bodyExpression();
       if (bodyExpression.is(Kind.OBJECT_EXPRESSION)) {
-        return propertiesOrEmpty(((ObjectExpression) bodyExpression).properties());
-      } else {
-        return Collections.emptyList();
+        objectBody = ((ObjectExpression) bodyExpression);
       }
     }
+    return Optional.ofNullable(objectBody);
+  }
+
+  @Override
+  public List<ResourceDeclaration> childResources() {
+    return getObjectBody()
+      .map(ObjectExpression::nestedResources)
+      .orElse(Collections.emptyList());
   }
 
   @Override

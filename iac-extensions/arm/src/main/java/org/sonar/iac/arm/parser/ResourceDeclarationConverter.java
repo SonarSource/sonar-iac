@@ -29,7 +29,6 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
-import org.sonar.iac.arm.tree.impl.json.ResourceGroupDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -72,15 +71,15 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
       .orElse(Collections.emptyList());
 
     return PropertyUtils.get(tree, "resources")
-      .map(childResources -> toResourceGroupDeclaration(type, version, name, otherProperties, childResources))
+      .map(childResources -> toResourceDeclarationWithChildren(type, version, name, otherProperties, childResources))
       .orElseGet(() -> toResourceDeclaration(type, version, name, otherProperties));
   }
 
   private static ResourceDeclaration toResourceDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties) {
-    return new ResourceDeclarationImpl(name, version, type, otherProperties);
+    return new ResourceDeclarationImpl(name, version, type, otherProperties, Collections.emptyList());
   }
 
-  private ResourceDeclaration toResourceGroupDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties,
+  private ResourceDeclaration toResourceDeclarationWithChildren(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties,
     PropertyTree childResourcesProperty) {
     List<ResourceDeclaration> childResources = Optional.of(childResourcesProperty.value())
       .filter(SequenceTree.class::isInstance)
@@ -88,6 +87,6 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
       .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
       .map(m -> m.stream().map(this::convertToResourceDeclaration).collect(Collectors.toList()))
       .orElse(Collections.emptyList());
-    return new ResourceGroupDeclarationImpl(name, version, type, otherProperties, childResources);
+    return new ResourceDeclarationImpl(name, version, type, otherProperties, childResources);
   }
 }
