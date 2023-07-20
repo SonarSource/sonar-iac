@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.parser.bicep.BicepKeyword;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -98,6 +99,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
+  @CheckForNull
   public TextTree version() {
     String text = TextUtils.getValue(typeAndVersion).orElse("");
     if (text.contains("@")) {
@@ -115,7 +117,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
         return new StringLiteralImpl(token);
       }
     }
-    return typeAndVersion;
+    return null;
   }
 
   @Override
