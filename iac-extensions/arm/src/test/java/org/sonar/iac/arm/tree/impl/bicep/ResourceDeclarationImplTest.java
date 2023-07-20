@@ -66,40 +66,63 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     Property property = tree.properties().get(0);
     assertThat(property.key().value()).isEqualTo("prop1");
     assertThat(property.value()).asIdentifier().hasValue("val1");
+    assertThat(tree.properties()).hasSize(1);
   }
 
   @Test
   void shouldRetrievePropertiesFromIfCondition() {
-    String code = code("resource myName 'type@version' = if (condition) { key: value }");
+    String code = code("resource myName 'type@version' = if (!empty(logAnalytics)) {",
+      "key: value",
+      "properties: {",
+      "prop1: val1",
+      "}",
+      "}");
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
 
-    assertThat(tree.properties()).hasSize(1);
     Property property = tree.properties().get(0);
-    assertThat(property.key().value()).isEqualTo("key");
-    assertThat(property.value()).asIdentifier().hasValue("value");
+    assertThat(property.key().value()).isEqualTo("prop1");
+    assertThat(property.value()).asIdentifier().hasValue("val1");
+    assertThat(tree.properties()).hasSize(1);
     assertThat(tree.existing()).isFalse();
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("resource", "myName", "type@version", "=", "if", "(", "condition", ")", "{", "key", ":", "value", "}");
+      .containsExactly("resource", "myName", "type@version", "=", "if", "(", "!", "empty", "(", "logAnalytics", ")", ")", "{",
+        "key", ":", "value",
+        "properties", ":", "{",
+        "prop1", ":", "val1",
+        "}",
+        "}");
   }
 
   @Test
   void shouldRetrievePropertiesFromForExpression() {
-    String code = code("resource myName 'type@version' = [for item in collection: { key: value }]");
+    String code = code("resource myName 'type@version' = [for item in collection: {",
+      "key: value",
+      "properties: {",
+      "prop1: val1",
+      "}",
+      "}",
+      "]");
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
 
-    assertThat(tree.properties()).hasSize(1);
     Property property = tree.properties().get(0);
-    assertThat(property.key().value()).isEqualTo("key");
-    assertThat(property.value()).asIdentifier().hasValue("value");
+    assertThat(property.key().value()).isEqualTo("prop1");
+    assertThat(property.value()).asIdentifier().hasValue("val1");
+    assertThat(tree.properties()).hasSize(1);
     assertThat(tree.existing()).isFalse();
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("resource", "myName", "type@version", "=", "[", "for", "item", "in", "collection", ":", "{", "key", ":", "value", "}", "]");
+      .containsExactly("resource", "myName", "type@version", "=", "[", "for", "item", "in", "collection", ":", "{",
+        "key", ":", "value",
+        "properties", ":", "{",
+        "prop1", ":", "val1",
+        "}",
+        "}",
+        "]");
   }
 
   @Test
