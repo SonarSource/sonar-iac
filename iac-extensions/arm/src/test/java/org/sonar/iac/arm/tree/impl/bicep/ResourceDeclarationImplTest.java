@@ -178,7 +178,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.type().value()).isEqualTo("type_version");
-    assertThat(tree.version().value()).isEqualTo("type_version");
+    assertThat(tree.version()).isNull();
   }
 
   @Test
@@ -188,7 +188,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.type().value()).isEqualTo("foo@bar@baz");
-    assertThat(tree.version().value()).isEqualTo("foo@bar@baz");
+    assertThat(tree.version()).isNull();
   }
 
   @Test
