@@ -71,17 +71,6 @@ public class SeparatedListImpl<T extends Tree, U extends IacToken> implements Se
     return result;
   }
 
-  public static <R extends Tree, S extends IacToken> SeparatedListImpl<R, S> separatedListOptionalSeparator(List<Tuple<Optional<S>, R>> elementsWithOptionalsSeparators) {
-    if (elementsWithOptionalsSeparators.isEmpty()) {
-      return emptySeparatedList();
-    } else {
-      List<Tuple<S, R>> elementsWithNullSeparators = elementsWithOptionalsSeparators.stream()
-        .map(tuple -> new Tuple<>(tuple.first().orNull(), tuple.second()))
-        .collect(Collectors.toList());
-      return separatedList(elementsWithNullSeparators.remove(0).second(), elementsWithNullSeparators);
-    }
-  }
-
   public static <R extends Tree, S extends IacToken> SeparatedListImpl<R, S> separatedList(R firstElement, Optional<List<Tuple<S, R>>> additionalElements) {
     return separatedList(firstElement, additionalElements.or(Collections.emptyList()));
   }
