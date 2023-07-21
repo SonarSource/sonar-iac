@@ -21,8 +21,8 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -30,11 +30,11 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class TypedLambdaExpressionImpl extends AbstractArmTreeImpl implements TypedLambdaExpression {
   private final TypedVariableBlock typedVariableBlock;
-  private final AmbientTypeReference primaryTypeExpression;
+  private final TypeExpressionAble primaryTypeExpression;
   private final SyntaxToken doubleArrow;
   private final Expression expression;
 
-  public TypedLambdaExpressionImpl(TypedVariableBlock typedVariableBlock, AmbientTypeReference primaryTypeExpression, SyntaxToken doubleArrow, Expression expression) {
+  public TypedLambdaExpressionImpl(TypedVariableBlock typedVariableBlock, TypeExpressionAble primaryTypeExpression, SyntaxToken doubleArrow, Expression expression) {
     this.typedVariableBlock = typedVariableBlock;
     this.primaryTypeExpression = primaryTypeExpression;
     this.doubleArrow = doubleArrow;
