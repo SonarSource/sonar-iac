@@ -23,9 +23,6 @@
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-monitoring/autoscaling-rules.bicep": [
 32
 ],
-"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-virtual-networks/vnet.bicep": [
-41
-],
 "azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/syntax-samples/functions/loadTextContent/loaddeploymentscript.bicep": [
 6
 ],

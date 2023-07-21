@@ -605,6 +605,7 @@ public class BicepGrammar {
           b.firstOf(
             MEMBER_EXPRESSION_EXCLAMATION_COMPONENT(),
             MEMBER_EXPRESSION_FUNCTION_CALL_COMPONENT(),
+            MEMBER_EXPRESSION_DOUBLE_COLON_COMPONENT(),
             MEMBER_EXPRESSION_IDENTIFIER_COMPONENT(),
             MEMBER_EXPRESSION_ENCLOSED_EXPRESSION_COMPONENT()))));
   }
@@ -620,6 +621,13 @@ public class BicepGrammar {
       f.memberExpressionComponent(
         b.token(Punctuator.DOT),
         FUNCTION_CALL()));
+  }
+
+  public MemberExpression MEMBER_EXPRESSION_DOUBLE_COLON_COMPONENT() {
+    return b.<MemberExpression>nonterminal().is(
+      f.memberExpressionComponent(
+        b.token(Punctuator.DOUBLE_COLON),
+        IDENTIFIER()));
   }
 
   public MemberExpression MEMBER_EXPRESSION_IDENTIFIER_COMPONENT() {
