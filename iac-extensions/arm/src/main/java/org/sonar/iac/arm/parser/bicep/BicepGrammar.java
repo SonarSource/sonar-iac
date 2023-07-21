@@ -156,15 +156,20 @@ public class BicepGrammar {
           IDENTIFIER(),
           b.token(BicepKeyword.RESOURCE),
           INTERPOLATED_STRING(),
-          b.optional(b.token(Punctuator.EQU)),
-          b.optional(EXPRESSION())),
+          b.optional(
+            f.tuple(
+              b.token(Punctuator.EQU),
+              EXPRESSION()))),
+        // one line
         f.parameterDeclaration(
           b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.PARAMETER),
           IDENTIFIER(),
           TYPE_EXPRESSION(),
-          b.optional(b.token(Punctuator.EQU)),
-          b.optional(EXPRESSION()))));
+          b.optional(
+            f.tuple(
+              b.token(Punctuator.EQU),
+              EXPRESSION())))));
   }
 
   public FunctionDeclaration FUNCTION_DECLARATION() {

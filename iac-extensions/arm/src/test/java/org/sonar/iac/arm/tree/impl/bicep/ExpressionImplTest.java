@@ -39,6 +39,7 @@ class ExpressionImplTest extends BicepTreeModelTest {
       .matches("functionName123(123, 456, 135)")
       .matches("_A1")
       .matches("_abc")
+      .matches("utcNow()")
 
       .notMatches(".123456")
       .notMatches("-");

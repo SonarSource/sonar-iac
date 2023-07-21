@@ -179,9 +179,17 @@ public class TreeFactory {
     SyntaxToken keyword,
     Identifier name,
     TypeExpressionAble typeExpression,
-    Optional<SyntaxToken> equ,
-    Optional<Expression> defaultValue) {
-    return new ParameterDeclarationImpl(decorators.or(emptyList()), keyword, name, typeExpression, equ.orNull(), defaultValue.orNull());
+    Optional<Tuple<SyntaxToken, Expression>> equDefaultValue) {
+    if (equDefaultValue.isPresent()) {
+      return new ParameterDeclarationImpl(decorators.or(emptyList()),
+        keyword,
+        name,
+        typeExpression,
+        equDefaultValue.get().first(),
+        equDefaultValue.get().second());
+    } else {
+      return new ParameterDeclarationImpl(decorators.or(emptyList()), keyword, name, typeExpression, null, null);
+    }
   }
 
   public ParameterDeclaration parameterDeclaration(
@@ -190,9 +198,18 @@ public class TreeFactory {
     Identifier name,
     SyntaxToken resource,
     InterpolatedString typeInterp,
-    Optional<SyntaxToken> equ,
-    Optional<Expression> defaultValue) {
-    return new ParameterDeclarationImpl(decorators.or(emptyList()), keyword, name, resource, typeInterp, equ.orNull(), defaultValue.orNull());
+    Optional<Tuple<SyntaxToken, Expression>> equDefaultValue) {
+    if (equDefaultValue.isPresent()) {
+      return new ParameterDeclarationImpl(decorators.or(emptyList()),
+        keyword,
+        name,
+        resource,
+        typeInterp,
+        equDefaultValue.get().first(),
+        equDefaultValue.get().second());
+    } else {
+      return new ParameterDeclarationImpl(decorators.or(emptyList()), keyword, name, resource, typeInterp, null, null);
+    }
   }
 
   public FunctionDeclaration functionDeclaration(Optional<List<Decorator>> decorators, SyntaxToken func, Identifier name, TypedLambdaExpression lambdaExpression) {
