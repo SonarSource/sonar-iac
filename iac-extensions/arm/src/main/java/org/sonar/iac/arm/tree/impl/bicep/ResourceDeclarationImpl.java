@@ -37,6 +37,7 @@ import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.expression.TernaryExpression;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.TextTree;
@@ -187,7 +188,20 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private static List<Property> propertiesOrEmpty(List<PropertyTree> properties) {
     return properties.stream()
       .filter(propertyTree -> "properties".equals(((TextTree) propertyTree.key()).value()))
-      .map(p -> (Collections.<Property>unmodifiableList(((ObjectExpression) ((Property) p).value()).properties())))
+      .map(p -> {
+        Expression value = ((Property) p).value();
+        if (value instanceof ObjectExpression) {
+          return (Collections.<Property>unmodifiableList(((ObjectExpression) value).properties()));
+        } else {
+          TernaryExpression ternaryExpression = (TernaryExpression) value;
+          ObjectExpression ifTrue = (ObjectExpression) ternaryExpression.ifTrueExpression();
+          ObjectExpression ifElse = (ObjectExpression) ternaryExpression.elseExpression();
+          List<Property> result = new ArrayList<>();
+          result.addAll(ifTrue.properties());
+          result.addAll(ifElse.properties());
+          return result;
+        }
+      })
       .findFirst()
       .orElse(List.of());
   }

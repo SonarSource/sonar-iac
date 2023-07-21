@@ -22,6 +22,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import org.fest.assertions.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
+import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Property;
@@ -234,5 +235,26 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     ResourceDeclaration child = tree.childResources().get(0);
     assertThat(child.type().value()).isEqualTo("type2");
     assertThat(child.version().value()).isEqualTo("version2");
+  }
+
+  @Test
+  void shouldParseResourceWithTernaryExpression() {
+    String code = code("resource searchService 'Microsoft.Search/searchServices@2021-04-01-Preview' = {",
+      "  properties: isPublicCloud ? {",
+      "    semanticSearch: standard",
+      "  } : {",
+      "    semanticSearch: notStandard",
+      "}",
+      "}");
+
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+
+    Property property = tree.properties().get(0);
+    assertThat(property.key().value()).isEqualTo("semanticSearch");
+    assertThat(property.value()).asIdentifier().hasValue("standard");
+    Property property2 = tree.properties().get(1);
+    assertThat(property2.key().value()).isEqualTo("semanticSearch");
+    assertThat(property2.value()).asIdentifier().hasValue("notStandard");
+    assertThat(tree.properties()).hasSize(2);
   }
 }
