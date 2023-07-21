@@ -37,11 +37,15 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
   @Test
   void shouldParseOutputDeclaration() {
     ArmAssertions.assertThat(BicepLexicalGrammar.OUTPUT_DECLARATION)
-      .matches("output myOutput String=myValue")
-      .matches("output myOutput String = myValue")
+      .matches("output myOutput string=myValue")
+      .matches("output myOutput string = myValue")
       .matches("output myOutput bool = 5 <= 3")
       .matches("output myOutput resource 'myResource'=myValue")
       .matches("output myOutput resource 'myResource' = myValue")
+      // defining an output of name the same as keyword is possible
+      .matches("output type string = myValue")
+      .matches("output if string = myValue")
+      .matches("output for string = myValue")
       .matches("output myOutput string = virtualNetwork::subnet1.id")
       .matches("@description('comment') output myOutput String = myValue")
       .matches("@description('comment') output myOutput resource 'myResource' = myValue")

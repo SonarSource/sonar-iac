@@ -65,6 +65,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   PRIMARY_EXPRESSION,
   FUNCTION_CALL,
   IDENTIFIER,
+  IDENTIFIER_NOT_KEYWORD,
   PROPERTY,
   OBJECT_EXPRESSION,
   FOR_EXPRESSION,
@@ -96,6 +97,7 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   STRING_COMPLETE,
   QUOTED_STRING_LITERAL,
   IDENTIFIER_LITERAL,
+  IDENTIFIER_NOT_KEYWORD_LITERAL,
 
   STRING_LITERAL,
   MULTILINE_STRING,
@@ -155,7 +157,8 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
       .skip();
     b.rule(EXCLAMATION_SIGN_ALONE).is(SPACING, b.regexp(BicepLexicalConstant.EXCLAMATION_SIGN_ALONE));
 
-    b.rule(IDENTIFIER_LITERAL).is(SPACING, b.regexp(computeIdentifierLiteralRegex()));
+    b.rule(IDENTIFIER_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.IDENTIFIER_LITERAL));
+    b.rule(IDENTIFIER_NOT_KEYWORD_LITERAL).is(SPACING, b.regexp(computeIdentifierLiteralRegex()));
     b.rule(QUOTED_STRING_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.QUOTED_STRING_LITERAL_NO_QUOTES));
     b.rule(MULTILINE_STRING_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.MULTILINE_STRING));
     b.rule(NUMERIC_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NUMBER));

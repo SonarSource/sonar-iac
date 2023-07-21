@@ -47,6 +47,14 @@ class VariableDeclarationImplTest extends BicepTreeModelTest {
       .matches("var foo = abc")
       .matches("var foo = true")
       .matches("var foo = 1 > 2")
+      // defining a variable of name the same as keyword is possible
+      .matches("var for = 42")
+      .matches("var if = 42")
+      .matches("var metadata = 42")
+      .matches("var func = 42")
+      .matches("var param = 42")
+      .matches("var output = 42")
+
       .matches("@description('comment') var foo = true")
       .matches("@sys.description('comment') var foo = true");
   }

@@ -39,6 +39,13 @@ class ImportDeclarationImplTest extends BicepTreeModelTest {
       .matches("@decorator('parameter') import 'foo' with {} as bar")
       .matches("@sys.decorator('parameter') import 'foo' with {} as bar")
       .matches(code("@sys.decorator('parameter')", "@decorator()", "import 'foo' with {} as bar"))
+      // defining an import as of name the same as keyword is possible
+      .matches("import 'kubernetes@1.0.0' with {namespace: 'default'} as if")
+      .matches("import 'kubernetes@1.0.0' with {namespace: 'default'} as type")
+      .matches("import 'kubernetes@1.0.0' with {namespace: 'default'} as var")
+      .matches("import 'kubernetes@1.0.0' with {namespace: 'default'} as param")
+      .matches("import 'kubernetes@1.0.0' with {namespace: 'default'} as for")
+      .matches("import 'kubernetes@1.0.0' with {namespace: 'default'} as func")
 
       .notMatches("import")
       .notMatches("import with {}")

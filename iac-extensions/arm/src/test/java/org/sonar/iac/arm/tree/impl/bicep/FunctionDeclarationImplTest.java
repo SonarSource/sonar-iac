@@ -39,6 +39,11 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
       .matches("func myFunction () string =>   'result'")
       .matches("func myFunction(foo int) string => '${foo}'")
       .matches("func myFunction(foo int, bar object) int => 0")
+      // defining a function of name the same as keyword is possible
+      .matches("func func() string => 'result'")
+      .matches("func if() string => 'result'")
+      .matches("func for() string => 'result'")
+      .matches("func param() string => 'result'")
       .matches("@description('comment') func myFunction(foo int, bar object) int => 0")
       .matches("@sys.description('comment') func myFunction(foo int, bar object) int => 0")
       .matches(code(

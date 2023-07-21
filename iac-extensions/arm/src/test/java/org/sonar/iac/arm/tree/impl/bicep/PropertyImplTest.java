@@ -48,6 +48,13 @@ class PropertyImplTest extends BicepTreeModelTest {
       .matches("key : value")
       .matches("key1: value1")
       .matches("Ke1: VALu3")
+      .matches("key: 'string'")
+      // defining a key of name the same as keyword is possible
+      .matches("if: 'string'")
+      .matches("type: 'string'")
+      .matches("for: 'string'")
+      .matches("metadata: 'string'")
+      .matches("func: 'string'")
 
       .notMatches("1key: 1value")
       .notMatches("@abc x value");

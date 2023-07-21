@@ -39,8 +39,13 @@ public class ParserAssert extends GenericAssert<ParserAssert, ActionParser<ArmTr
     TokenLocation loc = new TokenLocation(1, 0, input);
     if (!tree.textRange().end().equals(new TextPointer(loc.endLine(), loc.endLineOffset()))) {
       throw new RecognitionException(
-        0, "Did not match till EOF, but till line " + tree.textRange().end().line());
+        0, "Did not match till EOF, but till line " + tree.textRange().end().line() + ":" + (tree.textRange().end().lineOffset()) +
+          "\n" + input + "\n" + repeatSpace(tree) + "^\n");
     }
+  }
+
+  private static String repeatSpace(ArmTree tree) {
+    return " ".repeat(Math.max(tree.textRange().end().lineOffset(), 0));
   }
 
   public ParserAssert matches(String input) {
