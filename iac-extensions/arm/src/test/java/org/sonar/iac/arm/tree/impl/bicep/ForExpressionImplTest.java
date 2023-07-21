@@ -26,12 +26,12 @@ import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
+import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
-import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ForExpressionImplTest {
 
@@ -60,7 +60,7 @@ class ForExpressionImplTest {
 
   @Test
   void shouldParseForExpressionWithDetailedAssertions() {
-    String code = code("[for (itemIdentifier123,indexIdentifier123) in headerExpression:'bodyExpression']");
+    String code = "[for (itemIdentifier123,indexIdentifier123) in headerExpression:'bodyExpression']";
 
     ForExpression tree = (ForExpression) parser.parse(code, null);
     SoftAssertions softly = new SoftAssertions();
@@ -86,4 +86,18 @@ class ForExpressionImplTest {
     softly.assertAll();
   }
 
+  @Test
+  void shouldParseForExpressionWithIfCondition() {
+    String code = "[for(itemIdentifier123,indexIdentifier123) in headerExpression: if(condition){key:value}]";
+    ForExpression tree = (ForExpression) parser.parse(code, null);
+
+    assertThat(tree.is(ArmTree.Kind.FOR_EXPRESSION)).isTrue();
+    assertThat(tree.forVariableBlock().is(ArmTree.Kind.FOR_VARIABLE_BLOCK)).isTrue();
+
+    assertThat(tree.bodyExpression().is(ArmTree.Kind.IF_CONDITION)).isTrue();
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(((IfCondition) tree.bodyExpression()).condition()))
+      .containsExactly("condition");
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(((IfCondition) tree.bodyExpression()).object()))
+      .containsExactly("{", "key", ":", "value", "}");
+  }
 }

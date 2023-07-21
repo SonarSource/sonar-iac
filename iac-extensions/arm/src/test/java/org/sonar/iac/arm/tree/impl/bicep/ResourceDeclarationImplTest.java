@@ -165,6 +165,14 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
         "  ABC: 123",
         "  myKey: myValue",
         "}"))
+      .matches("resource abc 'Microsoft.Web/sites@2022-09-01' = { name: value }")
+      // defining a resource of name the same as keyword is possible
+      .matches("resource for 'Microsoft.Web/sites@2022-09-01' = { name: value }")
+      .matches("resource if 'Microsoft.Web/sites@2022-09-01' = { name: value }")
+      .matches("resource metadata 'Microsoft.Web/sites@2022-09-01' = { name: value }")
+      .matches("resource func 'Microsoft.Web/sites@2022-09-01' = { name: value }")
+      .matches("resource param 'Microsoft.Web/sites@2022-09-01' = { name: value }")
+      .matches("resource output 'Microsoft.Web/sites@2022-09-01' = { name: value }")
 
       .notMatches(code("resource myName 'type_version' = {",
         "abc",

@@ -381,8 +381,9 @@ public class BicepGrammar {
     return b.<TypeExpressionAble>nonterminal(BicepLexicalGrammar.PRIMARY_TYPE_EXPRESSION).is(
       b.firstOf(
         AMBIENT_TYPE_REFERENCE(),
-        IDENTIFIER(),
+        // The literal value needs to be before identifier
         LITERAL_VALUE_AS_TYPE_EXPRESSION_ABLE(),
+        IDENTIFIER(),
         UNARY_OPERATOR_LITERAL_VALUE(),
         MULTILINE_STRING(),
         STRING_COMPLETE(),
@@ -630,13 +631,18 @@ public class BicepGrammar {
         IDENTIFIER()));
   }
 
+  // Sections of code should not be commented out
+  @SuppressWarnings("java:S125")
   public MemberExpression MEMBER_EXPRESSION_IDENTIFIER_COMPONENT() {
     return b.<MemberExpression>nonterminal().is(
       f.memberExpressionComponent(
         b.firstOf(
           b.token(Punctuator.DOT),
           b.token(Punctuator.COLON)),
-        IDENTIFIER()));
+        // Using IDENTIFIER_NOT_KEYWORD here instead of IDENTIFIER is needed to parse:
+        // [for(itemIdentifier123,indexIdentifier123) in headerExpression: if(condition){key:value}]
+        // If IDENTIFIER will be used then "headerExpression:if" will be memberExpression
+        IDENTIFIER_NOT_KEYWORD()));
   }
 
   public MemberExpression MEMBER_EXPRESSION_ENCLOSED_EXPRESSION_COMPONENT() {
@@ -754,6 +760,12 @@ public class BicepGrammar {
     return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER).is(
       f.identifier(
         b.token(BicepLexicalGrammar.IDENTIFIER_LITERAL)));
+  }
+
+  public Identifier IDENTIFIER_NOT_KEYWORD() {
+    return b.<Identifier>nonterminal(BicepLexicalGrammar.IDENTIFIER_NOT_KEYWORD).is(
+      f.identifier(
+        b.token(BicepLexicalGrammar.IDENTIFIER_NOT_KEYWORD_LITERAL)));
   }
 
   public Decorator DECORATOR() {

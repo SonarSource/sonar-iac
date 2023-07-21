@@ -36,12 +36,16 @@ class MetadataDeclarationImplTest {
 
   @Test
   void shouldParseExpression() {
-    String simpleMetaDataDeclaration = "metadata identifier123=123";
     assertThat(BicepLexicalGrammar.METADATA_DECLARATION)
-      .matches(simpleMetaDataDeclaration)
+      .matches("metadata identifier123=123")
       .matches("metadata identifier123 =123")
       .matches("metadata identifier123= 123")
       .matches("metadata identifier123 = 123")
+      // defining a metadata of name the same as keyword is possible
+      .matches("metadata func = 123")
+      .matches("metadata for = 123")
+      .matches("metadata metadata = 123")
+      .matches("metadata param = 123")
 
       .notMatches("metadata identifier123")
       .notMatches("identifier123=123")

@@ -43,6 +43,11 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
       .matches("param myParam int=123")
       .matches("param myParam resource 'interpolated string'")
       .matches("param myParam resource 'interpolated string' = 123")
+      // defining a param of name the same as keyword is possible
+      .matches("param type int = 123")
+      .matches("param if int = 123")
+      .matches("param for int = 123")
+      .matches("param param int = 123")
       // invalid code that it still accepted by our parser
       .matches("param myParam int 123")
       .matches("param myParam resource 'interpolatedString'")
