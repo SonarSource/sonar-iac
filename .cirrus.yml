@@ -85,7 +85,12 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
 # ----------------------------------------------
 
 only_sonarsource_qa: &ONLY_IF_SONARSOURCE_QA
-  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" &&
+    ($CIRRUS_PR != "" || $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
+
+only_main_branches: &ONLY_MAIN_BRANCHES
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" &&
+    ($CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*")
 
 qa_task_filter_template: &QA_TASK_FILTER
   depends_on:
@@ -121,7 +126,7 @@ qa_os_win_task:
 sca_scan_task:
   <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
-  <<: *ONLY_IF_SONARSOURCE_QA
+  <<: *ONLY_MAIN_BRANCHES
   env:
     <<: *WS_SCAN_SECRETS
   whitesource_script:
