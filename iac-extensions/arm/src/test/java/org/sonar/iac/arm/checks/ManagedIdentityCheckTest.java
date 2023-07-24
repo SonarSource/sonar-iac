@@ -19,29 +19,17 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.iac.common.testing.Verifier;
 
-public class ArmCheckList {
+class ManagedIdentityCheckTest {
+  ManagedIdentityCheck check = new ManagedIdentityCheck();
 
-  private ArmCheckList() {
-  }
-
-  public static List<Class<?>> checks() {
-    return List.of(
-      CertificateBasedAuthenticationCheck.class,
-      ClearTextProtocolsCheck.class,
-      HighPrivilegedRoleCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      LogRetentionCheck.class,
-      ManagedIdentityCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class,
-      RoleBasedAccessControlCheck.class,
-      ShortBackupRetentionCheck.class,
-      SubscriptionOwnerCapabilitiesCheck.class,
-      SubscriptionRoleAssignmentCheck.class,
-      TlsVersionCheck.class,
-      UnencryptedCloudServicesCheck.class);
+  @Test
+  void shouldFindIssuesInWebSitesResource() {
+    ArmVerifier.verify("ManagedIdentityCheck/Microsoft.Web_sites.json", check,
+      Verifier.issue(6, 14, 8, 23, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
+      Verifier.issue(16, 18, 23, 13, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
+      Verifier.issue(34, 18, 41, 13, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
   }
 }
