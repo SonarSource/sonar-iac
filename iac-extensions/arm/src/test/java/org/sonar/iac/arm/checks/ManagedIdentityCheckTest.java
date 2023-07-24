@@ -32,4 +32,12 @@ class ManagedIdentityCheckTest {
       Verifier.issue(16, 18, 23, 13, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
       Verifier.issue(34, 18, 41, 13, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
   }
+
+  @Test
+  void shouldFindIssuesInApiManagementService() {
+    ArmVerifier.verify("ManagedIdentityCheck/Microsoft.ApiManagement_service.json", check,
+      Verifier.issue(6, 14, 13, 30, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
+      Verifier.issue(24, 18, 28, 28, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
+      Verifier.issue(34, 14, 41, 30, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
+  }
 }

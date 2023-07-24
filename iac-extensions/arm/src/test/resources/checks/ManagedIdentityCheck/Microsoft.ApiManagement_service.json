@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "example",
+      "resources": [
+        {
+          "type": "apis",
+          "apiVersion": "2022-09-01-preview",
+          "name": "exampleApi",
+          "properties": {}
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "example",
+      "resources": [
+        {
+          "type": "portalsettings",
+          "apiVersion": "2022-09-01-preview",
+          "name": "signin",
+          "properties": {
+            "enabled": false
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "example",
+      "resources": [
+        {
+          "type": "apis",
+          "apiVersion": "2022-09-01-preview",
+          "name": "exampleApi",
+          "properties": {
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "example",
+      "resources": [
+        {
+          "type": "portalsettings",
+          "apiVersion": "2022-09-01-preview",
+          "name": "signin",
+          "properties": {
+            "enabled": true
+          }
+        },
+        {
+          "type": "apis",
+          "apiVersion": "2022-09-01-preview",
+          "name": "exampleApi",
+          "properties": {
+            "authenticationSettings": {
+              "openid": {
+                "bearerTokenSendingMethods": ["authorizationHeader"],
+                "openidProviderId": "<an OpenID provider ID>"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

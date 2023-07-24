@@ -21,14 +21,18 @@ package org.sonar.iac.arm.checks;
 
 import java.util.Optional;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.checks.utils.CheckUtils;
+import org.sonar.iac.arm.checks.utils.ResourceUtils;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
+import static org.sonar.iac.arm.checks.utils.ResourceUtils.findChildResource;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6378")
@@ -38,19 +42,18 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Web/sites", ManagedIdentityCheck::check);
+    register("Microsoft.Web/sites", ManagedIdentityCheck::checkWebSites);
+    register("Microsoft.ApiManagement/service", ManagedIdentityCheck::checkApiManagementService);
   }
 
-  private static void check(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
-    Optional<ResourceDeclaration> authSettingsV2 = resourceDeclaration.childResources().stream()
-      .filter(child -> isValue(child.name(), "authsettingsV2").isTrue())
-      .findFirst();
+  private static void checkWebSites(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
+    Optional<ResourceDeclaration> authSettingsV2 = ResourceUtils.findChildResource(resourceDeclaration, "authsettingsV2");
     boolean authSettingAbsentOrInsecure = authSettingsV2
       .map(r -> PropertyUtils.valueOrNull(r, "globalValidation", ObjectExpression.class))
       .map(g -> {
         boolean isInsecureAuthSetting = false;
         for (PropertyTree property : g.properties()) {
-          if (isValue(property.key(), "requireAuthentication").isTrue() && CheckUtils.isFalse().test((BooleanLiteral) property.value()) ||
+          if (isValue(property.key(), "requireAuthentication").isTrue() && isFalse().test((BooleanLiteral) property.value()) ||
             isValue(property.key(), "unauthenticatedClientAction").isTrue() && isValue(property.value(), "AllowAnonymous").isTrue()) {
             isInsecureAuthSetting = true;
           }
@@ -60,6 +63,29 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
 
     if (authSettingAbsentOrInsecure) {
       checkContext.reportIssue(authSettingsV2.orElse(resourceDeclaration).textRange(), MANAGED_IDENTITY_MESSAGE);
+    }
+  }
+
+  private static void checkApiManagementService(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
+    Optional<ResourceDeclaration> signIn = ResourceUtils.findChildResource(resourceDeclaration, "signin")
+      .filter(child -> isValue(child.type(), "portalsettings").isTrue());
+
+    boolean isSignInDisabled = signIn.flatMap(r -> PropertyUtils.get(r, "enabled"))
+      .map(it -> (BooleanLiteral) it.value())
+      .filter(isFalse())
+      .isPresent();
+
+    Optional<ResourceDeclaration> apis = findChildResource(resourceDeclaration, "apis");
+
+    boolean isApisAuthenticationMissing = apis
+      .map(it -> PropertyUtils.isMissing(it, "authenticationSettings"))
+      .orElse(false);
+
+    if (signIn.isEmpty() || isSignInDisabled || isApisAuthenticationMissing) {
+      TextRange range = signIn.map(HasTextRange::textRange)
+        .or(() -> apis.map(HasTextRange::textRange))
+        .orElse(resourceDeclaration.textRange());
+      checkContext.reportIssue(range, MANAGED_IDENTITY_MESSAGE);
     }
   }
 }
