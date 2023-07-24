@@ -25,7 +25,10 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 class ArrayExpressionImplTest extends BicepTreeModelTest {
@@ -34,6 +37,8 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
     ArmAssertions.assertThat(BicepLexicalGrammar.ARRAY_EXPRESSION)
       .matches(code("[", "]"))
       .matches(code("[", "'a'", "]"))
+      .matches(code("['a', 'b']"))
+      .matches(code("[", "'a', 'b'", "'c'", "]"))
       .matches(code("[", "'a'", "'b'", "]"))
       .matches(code("[", "    'a'", "    'b'", "]"))
       .matches(code("[", "", "", "   'a'", "", "    'b'", "]"))
@@ -47,13 +52,33 @@ class ArrayExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseValidExpression() {
-    ArrayExpression tree = (ArrayExpression) createParser(BicepLexicalGrammar.ARRAY_EXPRESSION).parse(
-      code("[", "'a'", "'b'", "]"));
+    ArrayExpression tree = parse(code("[", "'a'", "'b'", "]"), BicepLexicalGrammar.ARRAY_EXPRESSION);
 
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ArrayExpression.class);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.ARRAY_EXPRESSION);
     softly.assertThat(tree.elements()).hasSize(2);
     softly.assertAll();
+  }
+
+  @Test
+  void shouldParseMixedInlineAndMultilineArray() {
+    String code = code("[",
+      "'a', 'b'",
+      "'c'",
+      "]");
+    ArrayExpression tree = parse(code, BicepLexicalGrammar.ARRAY_EXPRESSION);
+
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.ARRAY_EXPRESSION);
+    assertThat(tree.elements()).hasSize(3);
+    StringComplete a = (StringComplete) tree.elements().get(0);
+    StringComplete b = (StringComplete) tree.elements().get(1);
+    StringComplete c = (StringComplete) tree.elements().get(2);
+    ArmAssertions.assertThat(a.content()).hasValue("a");
+    ArmAssertions.assertThat(b.content()).hasValue("b");
+    ArmAssertions.assertThat(c.content()).hasValue("c");
+
+    assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
+      .containsExactly("[", "a", ",", "b", "c", "]");
   }
 }

@@ -21,6 +21,7 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
@@ -344,11 +345,17 @@ public class TreeFactory {
     return new ObjectExpressionImpl(leftCurlyBrace, properties.or(emptyList()), rightCurlyBrace);
   }
 
-  public ArrayExpression arrayExpression(
-    SyntaxToken lBracket,
-    Optional<List<Expression>> elements,
-    SyntaxToken rBracket) {
-    return new ArrayExpressionImpl(lBracket, elements.or(emptyList()), rBracket);
+  public ArrayExpression arrayExpression(SyntaxToken lBracket, Optional<List<Tuple<Optional<SyntaxToken>, Expression>>> elements, SyntaxToken rBracket) {
+    SeparatedList<Expression, SyntaxToken> arrayContent = emptySeparatedList();
+    if (elements.isPresent()) {
+      // replace Optional<SyntaxToken> by SyntaxToken or null
+      List<Tuple<SyntaxToken, Expression>> elementsWithNullSeparators = elements.get().stream()
+        .map(tuple -> new Tuple<>(tuple.first().orNull(), tuple.second()))
+        .collect(Collectors.toList());
+      Expression firstElement = elementsWithNullSeparators.remove(0).second();
+      arrayContent = separatedList(firstElement, elementsWithNullSeparators);
+    }
+    return new ArrayExpressionImpl(lBracket, arrayContent, rBracket);
   }
 
   public NumericLiteral numericLiteral(SyntaxToken token) {
