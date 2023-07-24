@@ -21,16 +21,16 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
+import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class TypedLocalVariableImpl extends AbstractArmTreeImpl implements TypedLocalVariable {
   private final Identifier identifier;
-  private final AmbientTypeReference primaryTypeExpression;
+  private final TypeExpressionAble primaryTypeExpression;
 
-  public TypedLocalVariableImpl(Identifier identifier, AmbientTypeReference primaryTypeExpression) {
+  public TypedLocalVariableImpl(Identifier identifier, TypeExpressionAble primaryTypeExpression) {
     this.identifier = identifier;
     this.primaryTypeExpression = primaryTypeExpression;
   }

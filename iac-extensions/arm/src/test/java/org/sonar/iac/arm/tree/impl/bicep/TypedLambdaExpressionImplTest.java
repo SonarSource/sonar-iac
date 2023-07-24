@@ -56,9 +56,11 @@ class TypedLambdaExpressionImplTest extends BicepTreeModelTest {
   void shouldParseValidExpressions() {
     ArmAssertions.assertThat(BicepLexicalGrammar.TYPED_LAMBDA_EXPRESSION)
       .matches("(foo int) int => 0")
+      .matches("(foo int) customType => 0")
       .matches("(foo int, bar int) int => 0")
       .matches("() int => 0")
       .matches("(foo int) array => 0")
+      .matches("(foo customType) int => 0")
       // defining a typed lambda expression with name the same as keyword is possible
       .matches("(for int) int => 0")
       .matches("(if int) int => 0")
@@ -68,7 +70,6 @@ class TypedLambdaExpressionImplTest extends BicepTreeModelTest {
       .matches("(output int) int => 0")
 
       .notMatches("foo int => 0")
-      .notMatches("(foo integer) int => 0")
       .notMatches("(foo int) => 0");
   }
 }

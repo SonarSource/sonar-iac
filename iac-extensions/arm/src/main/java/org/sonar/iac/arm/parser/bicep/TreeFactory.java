@@ -437,7 +437,7 @@ public class TreeFactory {
     return new MultilineStringImpl(openingTripleApostrophe, text, closingTripleApostrophe);
   }
 
-  public TypedLocalVariable typedLocalVariable(Identifier identifier, AmbientTypeReference primaryTypeExpression) {
+  public TypedLocalVariable typedLocalVariable(Identifier identifier, TypeExpressionAble primaryTypeExpression) {
     return new TypedLocalVariableImpl(identifier, primaryTypeExpression);
   }
 
@@ -450,7 +450,7 @@ public class TreeFactory {
 
   public TypedLambdaExpression typedLambdaExpression(
     TypedVariableBlock typedVariableBlock,
-    AmbientTypeReference primaryTypeExpression,
+    TypeExpressionAble primaryTypeExpression,
     SyntaxToken doubleArrow,
     Expression expression) {
     return new TypedLambdaExpressionImpl(typedVariableBlock, primaryTypeExpression, doubleArrow, expression);
