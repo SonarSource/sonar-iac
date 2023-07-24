@@ -66,6 +66,22 @@ class SeparatedListImplTest {
   }
 
   @Test
+  void separatedListWithBothSeparatorAndNullSeparator() {
+    Tree firstElement = CommonTestUtils.TestTree.tree();
+    IacToken firstSeparator = CommonTestUtils.TestIacToken.token();
+    Tree tupleElement1 = CommonTestUtils.TestTree.tree();
+    Tree tupleElement2 = CommonTestUtils.TestTree.tree();
+
+    SeparatedList<Tree, IacToken> resultingSeparatedList = SeparatedListImpl.separatedList(firstElement, Optional.of(List.of(
+      new Tuple<>(firstSeparator, tupleElement1),
+      new Tuple<>(null, tupleElement2))));
+
+    assertThat(resultingSeparatedList.elements()).containsExactly(firstElement, tupleElement1, tupleElement2);
+    assertThat(resultingSeparatedList.separators()).containsExactly(firstSeparator);
+    assertThat(resultingSeparatedList.elementsAndSeparators()).containsExactly(firstElement, firstSeparator, tupleElement1, tupleElement2);
+  }
+
+  @Test
   void absentOptionalShouldRetrieveSeparatedListWithOnlyOneElement() {
     Tree firstElement = CommonTestUtils.TestTree.tree();
 
