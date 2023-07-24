@@ -43,18 +43,25 @@ public class ParameterDeclarationImplTest extends BicepTreeModelTest {
       .matches("param myParam int=123")
       .matches("param myParam resource 'interpolated string'")
       .matches("param myParam resource 'interpolated string' = 123")
+      .matches("param utcValue string = utcNow()")
+      .matches("param location string = deployment().location")
+      .matches("param appServiceAppName string = 'app-contoso-${environmentName}-${uniqueString(resourceGroup().id)}'")
+      .matches("param identity string")
+      .matches("param utcValue string = utcNow()")
+      .matches("param storageAccountName string = 'mystore'")
       // defining a param of name the same as keyword is possible
       .matches("param type int = 123")
       .matches("param if int = 123")
       .matches("param for int = 123")
       .matches("param param int = 123")
       // invalid code that it still accepted by our parser
-      .matches("param myParam int 123")
       .matches("param myParam resource 'interpolatedString'")
 
       .notMatches("param")
       .notMatches("param myParam")
       .notMatches("param myParam = 123")
+      .notMatches("param myParam int 123")
+      .notMatches("param identity string param")
       .notMatches("@decorator[] param myParam = 123");
   }
 
