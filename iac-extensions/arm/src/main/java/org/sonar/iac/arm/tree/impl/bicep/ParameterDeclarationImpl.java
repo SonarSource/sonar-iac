@@ -103,7 +103,15 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @CheckForNull
   public ParameterType type() {
     if (typeExpression != null) {
-      return ParameterType.fromName(BicepTypeExpressionResolution.resolve(typeExpression));
+      ParameterType parameterType = ParameterType.fromName(BicepTypeExpressionResolution.resolve(typeExpression));
+      if (findDecoratorByName("secure").isPresent()) {
+        if (parameterType == ParameterType.STRING) {
+          return ParameterType.SECURE_STRING;
+        } else if (parameterType == ParameterType.OBJECT) {
+          return ParameterType.SECURE_OBJECT;
+        }
+      }
+      return parameterType;
     }
     return null;
   }

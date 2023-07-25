@@ -22,18 +22,16 @@ package org.sonar.iac.arm.checks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualMap;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.arm.tree.api.ArrayExpression;
-import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isArrayWithValues;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyArray;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 
@@ -184,13 +182,5 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
   private static boolean isResourceVersionEqualsOrAfter(ContextualResource resource, String version) {
     return resource.version.compareTo(version) >= 0;
-  }
-
-  private static Predicate<Expression> isArrayWithValues() {
-    return expr -> expr.is(ArmTree.Kind.ARRAY_EXPRESSION) && !((ArrayExpression) expr).elements().isEmpty();
-  }
-
-  private static Predicate<Expression> isEmptyArray() {
-    return expr -> expr.is(ArmTree.Kind.ARRAY_EXPRESSION) && ((ArrayExpression) expr).elements().isEmpty();
   }
 }

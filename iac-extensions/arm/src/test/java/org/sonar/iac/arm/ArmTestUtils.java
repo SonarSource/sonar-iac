@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -51,6 +52,15 @@ public class ArmTestUtils {
       "}");
     File file = (File) PARSER.parse(wrappedCode, null);
     return (ResourceDeclaration) file.statements().get(0);
+  }
+
+  public static ParameterDeclaration parseParameter(String parameterName, String type, String defaultValue) {
+    String wrappedParameterCode = code("\"" + parameterName + "\": {",
+      "  \"type\": \"" + type + "\",",
+      "  \"defaultValue\": \"" + defaultValue + "\"",
+      "}");
+    File file = (File) PARSER.parse("{ \"parameters\": {" + wrappedParameterCode + "}}", null);
+    return (ParameterDeclaration) file.statements().get(0);
   }
 
   public static Property parseProperty(String propertyCode) {

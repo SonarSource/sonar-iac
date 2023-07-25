@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "normalString": {
+      "type": "string"
+    },
+    "secureString": {
+      "type": "securestring"
+    },
+    "nonCompliant1": {
+      "type": "securestring",
+      "defaultValue": "my secret"
+    },
+    "nonCompliant2": {
+      "type": "secureObject",
+      "defaultValue": {
+        "key": "my secret"
+      }
+    },
+    "nonCompliant3": {
+      "type": "securestring",
+      "defaultValue": "[[newGuid()]"
+    },
+    "nonCompliant4": {
+      "type": "securestring",
+      "defaultValue": "[uniqueString('secret')]"
+    },
+    "nonCompliant5": {
+      "type": "securestring",
+      "defaultValue": "[parameters('normalString')]"
+    },
+    "nonCompliant6": {
+      "type": "securestring",
+      "defaultValue": "[parameters('secureString')]"
+    },
+    "compliant1": {
+      "type": "securestring"
+    },
+    "compliant2": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+    "compliant3": {
+      "type": "secureObject"
+    },
+    "compliant4": {
+      "type": "secureObject",
+      "defaultValue": {}
+    },
+    "compliant5": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()]"
+    },
+    "compliant6": {
+      "type": "string",
+      "defaultValue": "secret"
+    },
+    "compliant7": {
+      "type": "unknown",
+      "defaultValue": "secret"
+    }
+  }
+}
