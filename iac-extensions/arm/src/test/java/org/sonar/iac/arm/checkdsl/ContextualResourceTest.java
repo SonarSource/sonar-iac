@@ -21,7 +21,10 @@ package org.sonar.iac.arm.checkdsl;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmTestUtils;
+import org.sonar.iac.arm.parser.BicepParser;
+import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.impl.bicep.BicepTreeModelTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -36,6 +39,8 @@ class ContextualResourceTest {
     "  \"apiVersion\": \"2022-12-29\",",
     "  \"name\": \"myResource\"",
     "}"));
+  static ResourceDeclaration RESOURCE_DECL_NO_VERSION = (ResourceDeclaration) BicepParser.create(BicepLexicalGrammar.RESOURCE_DECLARATION)
+    .parse("resource myName 'type' = {}", null);
 
   @Test
   void createCtFromResourceDeclaration() {
@@ -44,6 +49,15 @@ class ContextualResourceTest {
     assertThat(contextualResource.name).isEqualTo("myResource");
     assertThat(contextualResource.type).isEqualTo("Microsoft.Kusto/clusters");
     assertThat(contextualResource.version).isEqualTo("2022-12-29");
+  }
+
+  @Test
+  void createCtFromResourceDeclarationWithoutVersion() {
+    ContextualResource contextualResource = ContextualResource.fromPresent(CTX, RESOURCE_DECL_NO_VERSION);
+
+    assertThat(contextualResource.name).isEqualTo("myName");
+    assertThat(contextualResource.type).isEqualTo("type");
+    assertThat(contextualResource.version).isEmpty();
   }
 
   @Test

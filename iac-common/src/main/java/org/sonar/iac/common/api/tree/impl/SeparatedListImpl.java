@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;
@@ -45,7 +47,7 @@ public class SeparatedListImpl<T extends Tree, U extends IacToken> implements Se
 
   @Override
   public List<U> separators() {
-    return separators;
+    return separators.stream().filter(Objects::nonNull).collect(Collectors.toList());
   }
 
   @Override
@@ -57,7 +59,10 @@ public class SeparatedListImpl<T extends Tree, U extends IacToken> implements Se
 
     while (elementsIterator.hasNext() && separatorIterator.hasNext()) {
       result.add(elementsIterator.next());
-      result.add(separatorIterator.next());
+      U separator = separatorIterator.next();
+      if (separator != null) {
+        result.add(separator);
+      }
     }
     if (elementsIterator.hasNext()) {
       result.add(elementsIterator.next());

@@ -19,30 +19,23 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.check.Rule;
+import org.sonar.iac.arm.checkdsl.ContextualResource;
+import org.sonar.iac.common.checks.TextUtils;
 
-public class ArmCheckList {
+@Rule(key = "S6379")
+public class ResourceSpecificAdminAccountCheck extends AbstractArmResourceCheck {
 
-  private ArmCheckList() {
+  private static final String MESSAGE = "Make sure that enabling an administrative account or administrative permissions is safe here.";
+
+  @Override
+  protected void registerResourceConsumer() {
+    register("Microsoft.Batch/batchAccounts/pools", ResourceSpecificAdminAccountCheck::checkBatchAccountsPools);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CertificateBasedAuthenticationCheck.class,
-      ClearTextProtocolsCheck.class,
-      HighPrivilegedRoleCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      LogRetentionCheck.class,
-      ManagedIdentityCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class,
-      ResourceSpecificAdminAccountCheck.class,
-      RoleBasedAccessControlCheck.class,
-      ShortBackupRetentionCheck.class,
-      SubscriptionOwnerCapabilitiesCheck.class,
-      SubscriptionRoleAssignmentCheck.class,
-      TlsVersionCheck.class,
-      UnencryptedCloudServicesCheck.class);
+  private static void checkBatchAccountsPools(ContextualResource contextualResource) {
+    contextualResource.objectsByPath("startTask/userIdentity/autoUser")
+      .forEach(autoUser -> autoUser.property("elevationLevel")
+        .reportIf(expression -> TextUtils.isValue(expression, "Admin").isTrue(), MESSAGE));
   }
 }

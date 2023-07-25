@@ -332,8 +332,7 @@ public class BicepGrammar {
     return b.<TypedLambdaExpression>nonterminal(BicepLexicalGrammar.TYPED_LAMBDA_EXPRESSION).is(
       f.typedLambdaExpression(
         TYPED_VARIABLE_BLOCK(),
-        // TODO: replace with PRIMARY_TYPE_EXPRESSION (after SONARIAC-871)
-        AMBIENT_TYPE_REFERENCE(),
+        PRIMARY_TYPE_EXPRESSION(),
         b.token(Punctuator.DOUBLEARROW),
         EXPRESSION()));
   }
@@ -356,8 +355,7 @@ public class BicepGrammar {
     return b.<TypedLocalVariable>nonterminal(BicepLexicalGrammar.TYPED_LOCAL_VARIABLE).is(
       f.typedLocalVariable(
         IDENTIFIER(),
-        // TODO: replace with PRIMARY_TYPE_EXPRESSION (after SONARIAC-871)
-        AMBIENT_TYPE_REFERENCE()));
+        PRIMARY_TYPE_EXPRESSION()));
   }
 
   public TypeExpressionAble TYPE_EXPRESSION() {
@@ -430,7 +428,10 @@ public class BicepGrammar {
     return b.<ArrayExpression>nonterminal(BicepLexicalGrammar.ARRAY_EXPRESSION).is(
       f.arrayExpression(
         b.token(Punctuator.LBRACKET),
-        b.zeroOrMore(EXPRESSION()),
+        b.zeroOrMore(
+          f.tuple(
+            b.optional(b.token(Punctuator.COMMA)),
+            EXPRESSION())),
         b.token(Punctuator.RBRACKET)));
   }
 

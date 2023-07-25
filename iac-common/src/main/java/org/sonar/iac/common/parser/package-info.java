@@ -17,32 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.checks;
-
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
-
-public class ArmCheckList {
-
-  private ArmCheckList() {
-  }
-
-  public static List<Class<?>> checks() {
-    return List.of(
-      CertificateBasedAuthenticationCheck.class,
-      ClearTextProtocolsCheck.class,
-      HighPrivilegedRoleCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      LogRetentionCheck.class,
-      ManagedIdentityCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class,
-      ResourceSpecificAdminAccountCheck.class,
-      RoleBasedAccessControlCheck.class,
-      ShortBackupRetentionCheck.class,
-      SubscriptionOwnerCapabilitiesCheck.class,
-      SubscriptionRoleAssignmentCheck.class,
-      TlsVersionCheck.class,
-      UnencryptedCloudServicesCheck.class);
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.common.parser;

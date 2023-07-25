@@ -36,7 +36,7 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
   private ContextualResource(CheckContext ctx, ResourceDeclaration tree, String type) {
     super(ctx, tree, tree.name().value(), null);
     this.type = type;
-    this.version = tree.version().value();
+    this.version = tree.version() != null ? tree.version().value() : "";
   }
 
   public static ContextualResource fromPresent(CheckContext ctx, ResourceDeclaration tree) {

@@ -19,30 +19,21 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.sonar.iac.arm.parser.BicepParser;
+import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.testing.Verifier;
 
-public class ArmCheckList {
+public class BicepVerifier {
+  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+  private static final BicepParser PARSER = BicepParser.create();
 
-  private ArmCheckList() {
+  public static void verify(String fileName, IacCheck check) {
+    Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CertificateBasedAuthenticationCheck.class,
-      ClearTextProtocolsCheck.class,
-      HighPrivilegedRoleCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      LogRetentionCheck.class,
-      ManagedIdentityCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class,
-      ResourceSpecificAdminAccountCheck.class,
-      RoleBasedAccessControlCheck.class,
-      ShortBackupRetentionCheck.class,
-      SubscriptionOwnerCapabilitiesCheck.class,
-      SubscriptionRoleAssignmentCheck.class,
-      TlsVersionCheck.class,
-      UnencryptedCloudServicesCheck.class);
+  public static void verifyNoIssue(String fileName, IacCheck check) {
+    Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
   }
 }
