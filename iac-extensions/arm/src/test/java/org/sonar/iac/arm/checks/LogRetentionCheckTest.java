@@ -78,7 +78,7 @@ class LogRetentionCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] should check log retention duration for type {0}")
+  @ParameterizedTest(name = "[{index}] should check log retention duration for type {0}")
   void shouldCheckLogRetentionAsSimpleProperty(String type) {
     String content = ArmTestUtils.readTemplateAndReplace("LogRetentionCheck/simpleRetentionDaysProperty_template.json", type);
     int endColumnForType = 16 + type.length();

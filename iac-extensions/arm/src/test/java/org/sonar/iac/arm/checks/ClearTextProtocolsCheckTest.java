@@ -79,7 +79,7 @@ class ClearTextProtocolsCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] property sslEnforcement should be set to Enabled for type {0}")
+  @ParameterizedTest(name = "[{index}] property sslEnforcement should be set to Enabled for type {0}")
   void testClearTextProtocolWithSslEnforcementInDifferentDatabases(String type) {
     String content = readTemplateAndReplace("ClearTextProtocolsCheck/Microsoft.DBforDbname_servers_template.json", type);
     verifyContent(content, check,

@@ -180,6 +180,16 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
+  public List<Property> resourceProperties() {
+    Optional<ObjectExpression> objectBody = getObjectBody();
+    if (objectBody.isPresent()) {
+      return objectBody.get().properties();
+    } else {
+      return List.of();
+    }
+  }
+
+  @Override
   public List<Decorator> decorators() {
     return decorators;
   }

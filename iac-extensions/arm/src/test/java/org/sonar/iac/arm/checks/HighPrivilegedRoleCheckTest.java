@@ -42,7 +42,7 @@ class HighPrivilegedRoleCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] should check Security Sensitive role {1} ({0})")
+  @ParameterizedTest(name = "[{index}] should check Security Sensitive role {1} ({0})")
   void shouldCheckSecuritySensitiveRoles(String role, String roleName) {
     String content = readTemplateAndReplace("HighPrivilegedRoleCheck/highPrivilegedRoleCheck.json", "${role}", role);
 
@@ -63,7 +63,7 @@ class HighPrivilegedRoleCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] should check Security Sensitive role {1} ({0})")
+  @ParameterizedTest(name = "[{index}] should check Security Sensitive role {1} ({0})")
   void shouldCheckSafeRoles(String role) {
     String content = readTemplateAndReplace("HighPrivilegedRoleCheck/highPrivilegedRoleCheck.json", "${role}", role);
 

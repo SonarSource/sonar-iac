@@ -69,6 +69,24 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
   }
 
   @Test
+  void shouldParseResourceDeclarationObjectAndReadResourceProperties() {
+    String code = code("resource myName 'type@version' = { key: value",
+      "properties: {",
+      "prop1: val1",
+      "}",
+      "}");
+
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+
+    Property property1 = tree.resourceProperties().get(0);
+    assertThat(property1.key().value()).isEqualTo("key");
+    assertThat(property1.value()).asIdentifier().hasValue("value");
+    Property property2 = tree.resourceProperties().get(1);
+    assertThat(property2.key().value()).isEqualTo("properties");
+    assertThat(tree.resourceProperties()).hasSize(2);
+  }
+
+  @Test
   void shouldRetrievePropertiesFromIfCondition() {
     String code = code("resource myName 'type@version' = if (!empty(logAnalytics)) {",
       "key: value",

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: no identity.type is defined"
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: identity.type is defined and it is not None",
+      "identity": {
+        "type": "SystemAssigned"
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: identity.type is defined ",
+      "identity": {
+        "type": "None"
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Compliant: identity.type is not string literal",
+      "identity": {
+        "type": {}
+      }
+    },
+    {
+      "type": "${type}",
+      "apiVersion": "dummy",
+      "name": "Sensitive: identity is defined but identity.type not",
+      "identity": {
+        "foo": "bar"
+      }
+    }
+  ]
+}
