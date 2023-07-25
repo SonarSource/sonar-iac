@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant: elevationLevel is set to 'Admin'",
+      "type": "Microsoft.Batch/batchAccounts/pools",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "startTask": {
+          "userIdentity": {
+            "autoUser": {
+              "elevationLevel": "Admin"
+            }
+          }
+        }
+      }
+    },
+
+    {
+      "name": "Compliant: elevationLevel is set to other than 'Admin'",
+      "type": "Microsoft.Batch/batchAccounts/pools",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "startTask": {
+          "userIdentity": {
+            "autoUser": {
+              "elevationLevel": "NonAdmin"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Compliant: elevationLevel is not set",
+      "type": "Microsoft.Batch/batchAccounts/pools",
+      "apiVersion": "2022-10-01",
+      "properties": {
+        "startTask": {
+          "userIdentity": {
+            "autoUser": {
+            }
+          }
+        }
+      }
+    }
+  ]
+}

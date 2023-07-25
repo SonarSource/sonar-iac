@@ -19,29 +19,21 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 
-public class ArmCheckList {
+import static org.sonar.iac.common.testing.Verifier.issue;
 
-  private ArmCheckList() {
+class ResourceSpecificAdminAccountCheckTest {
+
+  @Test
+  void checkArmBatchAccountsPools() {
+    ArmVerifier.verify("ResourceSpecificAdminAccountCheck/Microsoft.Batch_batchAccounts_pools.json",
+      new ResourceSpecificAdminAccountCheck(),
+      issue(13, 14, 13, 39, "Make sure that enabling an administrative account or administrative permissions is safe here."));
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      CertificateBasedAuthenticationCheck.class,
-      ClearTextProtocolsCheck.class,
-      HighPrivilegedRoleCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      LogRetentionCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class,
-      ResourceSpecificAdminAccountCheck.class,
-      RoleBasedAccessControlCheck.class,
-      ShortBackupRetentionCheck.class,
-      SubscriptionOwnerCapabilitiesCheck.class,
-      SubscriptionRoleAssignmentCheck.class,
-      TlsVersionCheck.class,
-      UnencryptedCloudServicesCheck.class);
+  @Test
+  void checkBicepBatchAccountsPools() {
+    BicepVerifier.verify("ResourceSpecificAdminAccountCheck/Microsoft.Batch_batchAccounts_pools.bicep", new ResourceSpecificAdminAccountCheck());
   }
 }
