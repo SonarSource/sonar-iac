@@ -160,7 +160,6 @@ public class BicepGrammar {
             f.tuple(
               b.token(Punctuator.EQU),
               EXPRESSION()))),
-        // one line
         f.parameterDeclaration(
           b.zeroOrMore(DECORATOR()),
           b.token(BicepKeyword.PARAMETER),

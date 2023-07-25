@@ -47,8 +47,10 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
    * <pre>
    * {@code
    *   {
-   *     "key1": "value1",
-   *     "key2": "value2"
+   *     properties: {
+   *       "key1": "value1",
+   *       "key2": "value2"
+   *     }
    *   }
    * }
    * </pre>
@@ -71,12 +73,14 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
    * <pre>
    * {@code
    *   {
-   *     "key1": {
-   *       "key11": {
-   *         "key111": "value111"
-   *        }
-   *      }
-   *    }
+   *     properties: {
+   *       "key1": {
+   *         "key11": {
+   *           "key111": "value111"
+   *         }
+   *       }
+   *     }
+   *   }
    * }
    * </pre>
    *
@@ -109,14 +113,16 @@ public abstract class ContextualMap<S extends ContextualMap<S, T>, T extends Has
    * <pre>
    * {@code
    *   {
-   *     "key": [
-   *       {
-   *         "key1": "value1"
-   *       },
-   *       {
-   *         "key2": "value2"
-   *       }
-   *     ]
+   *     properties: {
+   *       "key": [
+   *         {
+   *           "key1": "value1"
+   *         },
+   *         {
+   *           "key2": "value2"
+   *         }
+   *       ]
+   *     }
    *   }
    * }
    * </pre>

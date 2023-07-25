@@ -34,6 +34,7 @@ public class ArmCheckList {
       HighPrivilegedRoleCheck.class,
       IpRestrictedAdminAccessCheck.class,
       LogRetentionCheck.class,
+      ManagedIdentityCheck.class,
       ParsingErrorCheck.class,
       PublicNetworkAccessCheck.class,
       ResourceSpecificAdminAccountCheck.class,

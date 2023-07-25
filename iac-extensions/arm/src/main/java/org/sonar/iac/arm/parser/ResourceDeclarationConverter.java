@@ -25,10 +25,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.ResourceDeclarationImpl;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -65,21 +67,40 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
     StringLiteral type = toStringLiteralOrException(tree, "type");
     StringLiteral version = toStringLiteralOrException(tree, "apiVersion");
     Identifier name = toIdentifierOrException(tree, "name");
+    List<Property> resourceProperties = toResourceProperties(tree);
     List<Property> otherProperties = PropertyUtils.get(tree, "properties")
       .map(PropertyTree::value)
       .map(this::toProperties)
       .orElse(Collections.emptyList());
 
     return PropertyUtils.get(tree, "resources")
-      .map(childResources -> toResourceDeclarationWithChildren(type, version, name, otherProperties, childResources))
-      .orElseGet(() -> toResourceDeclaration(type, version, name, otherProperties));
+      .map(childResources -> toResourceDeclarationWithChildren(type, version, name, otherProperties, resourceProperties, childResources))
+      .orElseGet(() -> toResourceDeclaration(type, version, name, otherProperties, resourceProperties));
   }
 
-  private static ResourceDeclaration toResourceDeclaration(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties) {
-    return new ResourceDeclarationImpl(name, version, type, otherProperties, Collections.emptyList());
+  private List<Property> toResourceProperties(MappingTree tree) {
+    return tree.elements().stream()
+      .map(tupleTree -> {
+        Identifier key = toIdentifier(tupleTree.key());
+        Expression value = toExpression(tupleTree.value());
+        return new PropertyImpl(key, value);
+      })
+      .collect(Collectors.toList());
   }
 
-  private ResourceDeclaration toResourceDeclarationWithChildren(StringLiteral type, StringLiteral version, Identifier name, List<Property> otherProperties,
+  private static ResourceDeclaration toResourceDeclaration(StringLiteral type,
+    StringLiteral version,
+    Identifier name,
+    List<Property> otherProperties,
+    List<Property> resourceProperties) {
+    return new ResourceDeclarationImpl(name, version, type, otherProperties, resourceProperties, Collections.emptyList());
+  }
+
+  private ResourceDeclaration toResourceDeclarationWithChildren(StringLiteral type,
+    StringLiteral version,
+    Identifier name,
+    List<Property> otherProperties,
+    List<Property> resourceProperties,
     PropertyTree childResourcesProperty) {
     List<ResourceDeclaration> childResources = Optional.of(childResourcesProperty.value())
       .filter(SequenceTree.class::isInstance)
@@ -87,6 +108,6 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
       .map(sequenceTree -> mappingTreeOnly(sequenceTree.elements()))
       .map(m -> m.stream().map(this::convertToResourceDeclaration).collect(Collectors.toList()))
       .orElse(Collections.emptyList());
-    return new ResourceDeclarationImpl(name, version, type, otherProperties, childResources);
+    return new ResourceDeclarationImpl(name, version, type, otherProperties, resourceProperties, childResources);
   }
 }

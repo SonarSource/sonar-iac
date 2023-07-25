@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -108,7 +109,7 @@ class ResourceDeclarationImplTest {
   }
 
   @Test
-  void shouldParseResourceWithExtraProperties() {
+  void shouldParseResourceWithProperties() {
     String code = code("{",
       "  \"resources\": [",
       "    {",
@@ -144,6 +145,42 @@ class ResourceDeclarationImplTest {
     assertThat(arrayExpression.elements().get(0)).asStringLiteral().hasValue("val");
 
     IacCommonAssertions.assertThat(properties.get(0).textRange()).hasRange(8, 8, 8, 56);
+  }
+
+  @Test
+  void shouldParseResourceWithResourceProperties() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"type\": \"Microsoft.Kusto/clusters\",",
+      "      \"apiVersion\": \"2022-12-29\",",
+      "      \"name\": \"myResource\",",
+      "      \"resourceProperty1\": \"resourcePropertyValue\",",
+      "      \"resourceProperty2\": {\"obj\": \"random value\"},",
+      "      \"properties\": {",
+      "        \"prop1\": \"value1\"",
+      "      },",
+      "    }",
+      "  ]",
+      "}");
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(RESOURCE_DECLARATION)).isTrue();
+
+    ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
+
+    Property resourceProperty1 = resourceDeclaration.resourceProperties().stream().filter(p -> p.key().value().equals("resourceProperty1")).findFirst().get();
+    assertThat(resourceProperty1.key().value()).isEqualTo("resourceProperty1");
+    assertThat(resourceProperty1.value()).asStringLiteral().hasValue("resourcePropertyValue");
+
+    Property resourceProperty2 = resourceDeclaration.resourceProperties().stream().filter(p -> p.key().value().equals("resourceProperty2")).findFirst().get();
+    assertThat(resourceProperty2.key().value()).isEqualTo("resourceProperty2");
+    assertThat(resourceProperty2.value()).asObjectExpression().containsKeyValue("obj", "random value");
+
+    Property properties = resourceDeclaration.resourceProperties().stream().filter(p -> p.key().value().equals("properties")).findFirst().get();
+    assertThat(properties.key().value()).isEqualTo("properties");
+    List<String> allKeys = resourceDeclaration.resourceProperties().stream().map(p -> p.key().value()).collect(Collectors.toList());
+    assertThat(allKeys).containsExactly("type", "apiVersion", "name", "resourceProperty1", "resourceProperty2", "properties");
   }
 
   @Test
