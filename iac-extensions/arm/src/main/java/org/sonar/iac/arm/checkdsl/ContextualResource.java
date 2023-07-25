@@ -19,11 +19,14 @@
  */
 package org.sonar.iac.arm.checkdsl;
 
+import java.util.Optional;
+import java.util.function.Predicate;
 import javax.annotation.CheckForNull;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.common.checks.TextUtils;
 
 public final class ContextualResource extends ContextualMap<ContextualResource, ResourceDeclaration> {
 
@@ -53,5 +56,19 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
   @Override
   protected HasTextRange toHighlight() {
     return tree != null ? tree.type() : null;
+  }
+
+  public Optional<ContextualResource> childResourceByName(String name) {
+    return childResourceBy(resource -> TextUtils.isValue(resource.name(), name).isTrue());
+  }
+
+  public Optional<ContextualResource> childResourceByType(String type) {
+    return childResourceBy(resource -> TextUtils.isValue(resource.type(), type).isTrue());
+  }
+
+  public Optional<ContextualResource> childResourceBy(Predicate<ResourceDeclaration> predicate) {
+    return Optional.ofNullable(tree)
+      .flatMap(resource -> resource.childResources().stream().filter(predicate).findFirst())
+      .map(it -> ContextualResource.fromPresent(ctx, it, type));
   }
 }

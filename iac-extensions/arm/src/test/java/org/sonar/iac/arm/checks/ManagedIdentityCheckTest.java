@@ -28,22 +28,22 @@ class ManagedIdentityCheckTest {
   @Test
   void shouldFindIssuesInWebSitesResource() {
     ArmVerifier.verify("ManagedIdentityCheck/Microsoft.Web_sites.json", check,
-      Verifier.issue(6, 14, 8, 43, "Omitting authsettingsV2 disables authentication. Make sure it is safe here."),
+      Verifier.issue(6, 14, 6, 35, "Omitting authsettingsV2 disables authentication. Make sure it is safe here."),
       Verifier.issue(20, 32, 23, 13, "Make sure that disabling authentication is safe here."));
   }
 
   @Test
   void shouldFindIssuesInApiManagementService() {
     ArmVerifier.verify("ManagedIdentityCheck/Microsoft.ApiManagement_service.json", check,
-      Verifier.issue(6, 14, 13, 30, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."),
-      Verifier.issue(24, 18, 28, 28, "Make sure that giving anonymous access without enforcing sign-in is safe here."),
-      Verifier.issue(34, 14, 41, 30, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."));
+      Verifier.issue(6, 14, 6, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."),
+      Verifier.issue(28, 12, 28, 28, "Make sure that giving anonymous access without enforcing sign-in is safe here."),
+      Verifier.issue(34, 14, 34, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."));
   }
 
   @Test
   void shouldFindIssuesInDataFactory() {
     ArmVerifier.verify("ManagedIdentityCheck/Microsoft.DataFactory_factories_linkedservices.json", check,
-      Verifier.issue(12, 32, 12, 43, "Make sure that authorizing anonymous access is safe here."));
+      Verifier.issue(12, 10, 12, 43, "Make sure that authorizing anonymous access is safe here."));
   }
 
   @Test
@@ -56,6 +56,6 @@ class ManagedIdentityCheckTest {
   @Test
   void shouldFindIssuesInCache() {
     ArmVerifier.verify("ManagedIdentityCheck/Microsoft.Cache_redis.json", check,
-      Verifier.issue(11, 29, 11, 35, "Make sure that disabling authentication is safe here."));
+      Verifier.issue(11, 10, 11, 35, "Make sure that disabling authentication is safe here."));
   }
 }

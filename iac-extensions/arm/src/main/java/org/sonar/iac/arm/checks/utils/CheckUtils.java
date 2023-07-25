@@ -43,6 +43,10 @@ public class CheckUtils {
     return expr -> TextUtils.matchesValue(expr, str -> str.contains(targetString)).isTrue();
   }
 
+  public static Predicate<Expression> isTrue() {
+    return expr -> !isFalse().test(expr);
+  }
+
   public static Predicate<Expression> isFalse() {
     return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
   }

@@ -22,23 +22,14 @@ package org.sonar.iac.arm.checks;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.checks.utils.ResourceUtils;
-import org.sonar.iac.arm.tree.api.BooleanLiteral;
-import org.sonar.iac.arm.tree.api.ObjectExpression;
-import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.tree.HasProperties;
-import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.common.api.tree.PropertyTree;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.TextRange;
-import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.arm.checkdsl.ContextualObject;
+import org.sonar.iac.arm.checkdsl.ContextualProperty;
+import org.sonar.iac.arm.checkdsl.ContextualResource;
+import org.sonar.iac.arm.checks.utils.CheckUtils;
+import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.checks.Trilean;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
-import static org.sonar.iac.arm.checks.utils.ResourceUtils.findChildResource;
-import static org.sonar.iac.arm.checks.utils.ResourceUtils.findChildResourceByType;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6380")
@@ -48,7 +39,7 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
   private static final String APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
   private static final String APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE = "Omitting sign_in authorizes anonymous access. Make sure it is safe here.";
   private static final String APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE = "Omitting authenticationSettings disables authentication. Make sure it is safe here.";
-  private static final String DATA_FACTORY_ANONYMOUYS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
+  private static final String DATA_FACTORY_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final String STORAGE_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing potential anonymous access is safe here.";
   private static final String CACHE_AUTHENTICATION_DISABLED_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final List<String> DATA_FACTORY_SENSITIVE_TYPES = List.of("AzureBlobStorage", "FtpServer", "HBase", "Hive", "HttpServer", "Impala", "MongoDb", "OData", "Phoenix",
@@ -63,101 +54,91 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
     register("Microsoft.Cache/redis", ManagedIdentityCheck::checkRedisCache);
   }
 
-  private static void checkWebSites(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
-    Optional<ResourceDeclaration> authSettingsV2 = ResourceUtils.findChildResource(resourceDeclaration, "authsettingsV2");
+  private static void checkWebSites(ContextualResource resource) {
+    Optional<ContextualResource> authSettingsV2 = resource.childResourceByName("authsettingsV2");
 
     if (authSettingsV2.isEmpty()) {
-      checkContext.reportIssue(resourceDeclaration.textRange(), WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE);
+      resource.report(WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE);
       return;
     }
 
-    Optional<Tree> globalValidation = authSettingsV2
-      .map(r -> PropertyUtils.valueOrNull(r, "globalValidation", ObjectExpression.class));
-    boolean authSettingInsecure = globalValidation
-      .map(g -> {
-        boolean isAuthDisabled = false;
-        boolean isAnonymousAccessAllowed = false;
-        for (PropertyTree property : ((HasProperties) g).properties()) {
-          if (isValue(property.key(), "requireAuthentication").isTrue() && isFalse().test((BooleanLiteral) property.value())) {
-            isAuthDisabled = true;
-          } else if (isValue(property.key(), "unauthenticatedClientAction").isTrue() && isValue(property.value(), "AllowAnonymous").isTrue()) {
-            isAnonymousAccessAllowed = true;
-          }
-        }
-        return isAuthDisabled && isAnonymousAccessAllowed;
-      }).orElse(true);
+    Optional<ContextualObject> globalValidation = authSettingsV2
+      .map(r -> r.object("globalValidation"))
+      .filter(ContextualTree::isPresent);
+    boolean authSettingInsecure = globalValidation.map(object -> {
+      boolean isAuthDisabled = isFalse().test(object.property("requireAuthentication").valueOrNull());
+      boolean isAnonymousAccessAllowed = isValue(object.property("unauthenticatedClientAction").valueOrNull(), "AllowAnonymous").isTrue();
+      return isAuthDisabled && isAnonymousAccessAllowed;
+    }).orElse(true);
 
     if (authSettingInsecure) {
-      checkContext.reportIssue(globalValidation.or(() -> authSettingsV2).orElse(resourceDeclaration).textRange(), WEBSITES_DISABLED_AUTH_MESSAGE);
+      globalValidation.ifPresentOrElse(it -> it.report(WEBSITES_DISABLED_AUTH_MESSAGE), () -> resource.report(WEBSITES_DISABLED_AUTH_MESSAGE));
     }
   }
 
-  private static void checkApiManagementService(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
-    Optional<ResourceDeclaration> signIn = ResourceUtils.findChildResource(resourceDeclaration, "signin")
-      .filter(child -> isValue(child.type(), "portalsettings").isTrue());
+  private static void checkApiManagementService(ContextualResource resource) {
+    Optional<ContextualResource> signIn = resource.childResourceByName("signin")
+      .filter(child -> child.isPresent() && isValue(child.tree.type(), "portalsettings").isTrue());
 
-    boolean isSignInDisabled = signIn.flatMap(r -> PropertyUtils.get(r, "enabled"))
-      .map(it -> (BooleanLiteral) it.value())
-      .filter(isFalse())
-      .isPresent();
-
-    Optional<ResourceDeclaration> apis = findChildResource(resourceDeclaration, "apis");
-
-    boolean isApisAuthenticationMissing = apis
-      .map(it -> PropertyUtils.isMissing(it, "authenticationSettings"))
-      .orElse(false);
-
-    if (signIn.isEmpty() || isSignInDisabled || isApisAuthenticationMissing) {
-      TextRange range = signIn.or(() -> apis)
-        .map(HasTextRange::textRange)
-        .orElse(resourceDeclaration.textRange());
-      String message;
-      if (isSignInDisabled) {
-        message = APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE;
-      } else if (signIn.isEmpty()) {
-        message = APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE;
-      } else {
-        message = APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE;
-      }
-      checkContext.reportIssue(range, message);
-    }
-  }
-
-  private static void checkDataFactories(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
-    if (TextUtils.matchesValue(
-      PropertyUtils.valueOrNull(resourceDeclaration, "type"), DATA_FACTORY_SENSITIVE_TYPES::contains).isFalse()) {
+    if (signIn.isEmpty()) {
+      resource.report(APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE);
       return;
     }
 
-    Optional<Tree> authenticationType = PropertyUtils.value(resourceDeclaration, "typeProperties")
-      .flatMap(o -> PropertyUtils.value(o, "authenticationType"));
+    Optional<ContextualProperty> enabled = signIn.map(r -> r.property("enabled"));
+    boolean isSignInDisabled = enabled
+      .map(ContextualProperty::valueOrNull)
+      .filter(CheckUtils.isFalse())
+      .isPresent();
 
-    if (authenticationType.isPresent() && TextUtils.isValue(authenticationType.get(), "Anonymous").isTrue()) {
-      checkContext.reportIssue(authenticationType.get().textRange(), DATA_FACTORY_ANONYMOUYS_ACCESS_MESSAGE);
+    if (isSignInDisabled) {
+      enabled.get().report(APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE);
+      return;
+    }
+
+    Optional<ContextualResource> apis = resource.childResourceByName("apis");
+    boolean isApisAuthenticationMissing = apis
+      .map(it -> it.property("authenticationSettings").isAbsent())
+      .orElse(false);
+
+    if (isApisAuthenticationMissing) {
+      apis.get().report(APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE);
     }
   }
 
-  private static void checkRedisCache(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
-    Optional<Tree> authNotRequired = PropertyUtils.value(resourceDeclaration, "redisConfiguration")
-      .flatMap(it -> PropertyUtils.value(it, "authnotrequired"));
-
-    if (authNotRequired.isPresent() && TextUtils.isValueTrue(authNotRequired.get())) {
-      checkContext.reportIssue(authNotRequired.get().textRange(), CACHE_AUTHENTICATION_DISABLED_MESSAGE);
+  private static void checkDataFactories(ContextualResource resource) {
+    if (TextUtils.matchesValue(
+      resource.property("type").valueOrNull(), DATA_FACTORY_SENSITIVE_TYPES::contains).isFalse()) {
+      return;
     }
+
+    ContextualProperty authenticationType = resource.object("typeProperties")
+      .property("authenticationType");
+
+    authenticationType.reportIf(e -> TextUtils.isValue(e, "Anonymous").isTrue(), DATA_FACTORY_ANONYMOUS_ACCESS_MESSAGE);
   }
 
-  private static void checkStorageAccounts(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
-    Optional<PropertyTree> flagAllowBlobPublicAccess = PropertyUtils.get(resourceDeclaration, "allowBlobPublicAccess");
-    boolean isFlagTrueOrMissing = flagAllowBlobPublicAccess.map(it -> ((BooleanLiteral) it.value()).value()).orElse(true);
+  private static void checkRedisCache(ContextualResource resource) {
+    ContextualProperty authNotRequired = resource.object("redisConfiguration").property("authnotrequired");
 
-    Optional<PropertyTree> containersPublicAccessMode = findChildResourceByType(resourceDeclaration, "blobServices/containers")
-      .flatMap(it -> PropertyUtils.get(it, "publicAccess"));
-    boolean isPublicAccessInsecure = containersPublicAccessMode.map(it -> TextUtils.isValue(it.value(), "Blob"))
-      .map(Trilean::isTrue).orElse(false);
+    authNotRequired.reportIf(TextUtils::isValueTrue, CACHE_AUTHENTICATION_DISABLED_MESSAGE);
+  }
 
-    if (isFlagTrueOrMissing || isPublicAccessInsecure) {
-      TextRange range = flagAllowBlobPublicAccess.or(() -> containersPublicAccessMode).map(HasTextRange::textRange).orElse(resourceDeclaration.textRange());
-      checkContext.reportIssue(range, STORAGE_ANONYMOUS_ACCESS_MESSAGE);
-    }
+  private static void checkStorageAccounts(ContextualResource resource) {
+    ContextualProperty flagAllowBlobPublicAccess = resource.property("allowBlobPublicAccess");
+
+    Optional.ofNullable(flagAllowBlobPublicAccess.valueOrNull())
+      .filter(CheckUtils.isTrue())
+      .ifPresent(e -> flagAllowBlobPublicAccess.report(STORAGE_ANONYMOUS_ACCESS_MESSAGE));
+
+    resource.childResourceByType("blobServices/containers")
+      .map(it -> it.property("publicAccess"))
+      .ifPresent(containersPublicAccessMode -> {
+        boolean isPublicAccessInsecure = TextUtils.isValue(containersPublicAccessMode.valueOrNull(), "Blob").isTrue();
+
+        if (isPublicAccessInsecure) {
+          containersPublicAccessMode.report(STORAGE_ANONYMOUS_ACCESS_MESSAGE);
+        }
+      });
   }
 }
