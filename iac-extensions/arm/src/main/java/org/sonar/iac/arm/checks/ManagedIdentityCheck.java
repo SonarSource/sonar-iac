@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
 import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checks.utils.ResourceUtils;
@@ -47,12 +48,16 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
   private static final String APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
   private static final String APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE = "Omitting sign_in authorizes anonymous access. Make sure it is safe here.";
   private static final String APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE = "Omitting authenticationSettings disables authentication. Make sure it is safe here.";
+  private static final String DATA_FACTORY_ANONYMOUYS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final String STORAGE_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing potential anonymous access is safe here.";
+  private static final List<String> DATA_FACTORY_SENSITIVE_TYPES = List.of("AzureBlobStorage", "FtpServer", "HBase", "Hive", "HttpServer", "Impala", "MongoDb", "OData", "Phoenix",
+    "Presto", "RestService", "Spark", "Web");
 
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", ManagedIdentityCheck::checkWebSites);
     register("Microsoft.ApiManagement/service", ManagedIdentityCheck::checkApiManagementService);
+    register("Microsoft.DataFactory/factories/linkedservices", ManagedIdentityCheck::checkDataFactories);
     register("Microsoft.Storage/storageAccounts", ManagedIdentityCheck::checkStorageAccounts);
   }
 
@@ -113,6 +118,20 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
         message = APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE;
       }
       checkContext.reportIssue(range, message);
+    }
+  }
+
+  private static void checkDataFactories(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
+    if (TextUtils.matchesValue(
+      PropertyUtils.valueOrNull(resourceDeclaration, "type"), DATA_FACTORY_SENSITIVE_TYPES::contains).isFalse()) {
+      return;
+    }
+
+    Optional<Tree> authenticationType = PropertyUtils.value(resourceDeclaration, "typeProperties")
+      .flatMap(o -> PropertyUtils.value(o, "authenticationType"));
+
+    if (authenticationType.isPresent() && TextUtils.isValue(authenticationType.get(), "Anonymous").isTrue()) {
+      checkContext.reportIssue(authenticationType.get().textRange(), DATA_FACTORY_ANONYMOUYS_ACCESS_MESSAGE);
     }
   }
 

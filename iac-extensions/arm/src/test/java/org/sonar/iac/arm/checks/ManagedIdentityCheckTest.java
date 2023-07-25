@@ -41,6 +41,12 @@ class ManagedIdentityCheckTest {
   }
 
   @Test
+  void shouldFindIssuesInDataFactory() {
+    ArmVerifier.verify("ManagedIdentityCheck/Microsoft.DataFactory_factories_linkedservices.json", check,
+      Verifier.issue(12, 32, 12, 43, "Make sure that authorizing anonymous access is safe here."));
+  }
+
+  @Test
   void shouldFindIssuesInStorageAccounts() {
     ArmVerifier.verify("ManagedIdentityCheck/Microsoft.Storage_storageAccounts.json", check,
       Verifier.issue(10, 8, 10, 37, "Make sure that authorizing potential anonymous access is safe here."),
