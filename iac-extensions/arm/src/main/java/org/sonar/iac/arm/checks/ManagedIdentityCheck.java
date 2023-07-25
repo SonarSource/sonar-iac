@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import org.sonar.check.Rule;
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
@@ -236,11 +235,9 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
     Expression identityPropertyContent = identityProperty.value();
     Optional<PropertyTree> type = PropertyUtils.get(identityPropertyContent, "type");
     if (type.isPresent()) {
-      if (((ArmTree) type.get().value()).is(ArmTree.Kind.STRING_LITERAL)) {
-        Optional<String> typeValue = TextUtils.getValue(type.get().value());
-        if (typeValue.isPresent() && ("None".equals(typeValue.get()))) {
-          ctx.reportIssue(type.get().value(), DISABLING_MESSAGE);
-        }
+      Optional<String> typeValue = TextUtils.getValue(type.get().value());
+      if (typeValue.isPresent() && ("None".equals(typeValue.get()))) {
+        ctx.reportIssue(type.get().value(), DISABLING_MESSAGE);
       }
     } else {
       ctx.reportIssue(identityProperty, OMITTING_TYPE_MESSAGE);

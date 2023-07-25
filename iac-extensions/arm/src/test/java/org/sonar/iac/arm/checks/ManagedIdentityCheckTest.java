@@ -226,9 +226,9 @@ class ManagedIdentityCheckTest {
   void shouldCheckManagedIdentityCheckBicep(String type) {
     String content = ArmTestUtils.readTemplateAndReplace("ManagedIdentityCheck/managedIdentityCheck_template.bicep", type);
 
-    verifyContent(content, check,
-      issue(8, 14, 8, 54, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
-      issue(23, 16, 23, 22, "Make sure that disabling Azure Managed Identities is safe here."),
-      issue(38, 6, 40, 7, "Omitting the \"type\" in \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
+    BicepVerifier.verifyContent(content, check,
+      issue(1, 9, 1, 39, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
+      issue(18, 10, 18, 16, "Make sure that disabling Azure Managed Identities is safe here."),
+      issue(33, 2, 35, 3, "Omitting the \"type\" in \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
   }
 }
