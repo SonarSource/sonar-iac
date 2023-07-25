@@ -36,6 +36,6 @@ public class ResourceSpecificAdminAccountCheck extends AbstractArmResourceCheck 
   private static void checkBatchAccountsPools(ContextualResource contextualResource) {
     contextualResource.objectsByPath("startTask/userIdentity/autoUser")
       .forEach(autoUser -> autoUser.property("elevationLevel")
-        .reportIf(expression -> TextUtils.matchesValue(expression, "Admin"::equals).isTrue(), MESSAGE));
+        .reportIf(expression -> TextUtils.isValue(expression, "Admin").isTrue(), MESSAGE));
   }
 }
