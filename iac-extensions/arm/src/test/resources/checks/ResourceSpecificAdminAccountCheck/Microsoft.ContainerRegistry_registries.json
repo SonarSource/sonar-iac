@@ -31,9 +31,7 @@
       "name": "Compliant: adminUserEnabled is not set",
       "type": "Microsoft.ContainerRegistry/registries",
       "apiVersion": "2019-05-01",
-      "properties": {
-        "__comment": "Compliant: default value for adminUserEnabled is false"
-      }
+      "properties": {}
     }
   ]
 }
