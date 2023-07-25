@@ -35,15 +35,15 @@ class ManagedIdentityCheckTest {
   @Test
   void shouldFindIssuesInApiManagementService() {
     ArmVerifier.verify("ManagedIdentityCheck/Microsoft.ApiManagement_service.json", check,
-      Verifier.issue(6, 14, 13, 30, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
-      Verifier.issue(24, 18, 28, 28, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
-      Verifier.issue(34, 14, 41, 30, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
+      Verifier.issue(6, 14, 13, 30, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."),
+      Verifier.issue(24, 18, 28, 28, "Make sure that giving anonymous access without enforcing sign-in is safe here."),
+      Verifier.issue(34, 14, 41, 30, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."));
   }
 
   @Test
   void shouldFindIssuesInStorageAccounts() {
     ArmVerifier.verify("ManagedIdentityCheck/Microsoft.Storage_storageAccounts.json", check,
-      Verifier.issue(10, 8, 10, 37, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
-      Verifier.issue(23, 12, 23, 34, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
+      Verifier.issue(10, 8, 10, 37, "Make sure that authorizing potential anonymous access is safe here."),
+      Verifier.issue(23, 12, 23, 34, "Make sure that authorizing potential anonymous access is safe here."));
   }
 }

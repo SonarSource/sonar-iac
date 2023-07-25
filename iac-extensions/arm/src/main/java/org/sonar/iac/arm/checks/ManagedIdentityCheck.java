@@ -42,10 +42,12 @@ import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6380")
 public class ManagedIdentityCheck extends AbstractArmResourceCheck {
-  private static final String MANAGED_IDENTITY_MESSAGE = "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here.";
-  private static final String DATA_FACTORY_MESSAGE = "Make sure that disabling Azure Managed Identities is safe here.";
-  private static final String MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
-  private static final String DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
+  private static final String WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
+  private static final String WEBSITES_DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
+  private static final String APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
+  private static final String APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE = "Omitting sign_in authorizes anonymous access. Make sure it is safe here.";
+  private static final String APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE = "Omitting authenticationSettings disables authentication. Make sure it is safe here.";
+  private static final String STORAGE_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing potential anonymous access is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
@@ -58,7 +60,7 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
     Optional<ResourceDeclaration> authSettingsV2 = ResourceUtils.findChildResource(resourceDeclaration, "authsettingsV2");
 
     if (authSettingsV2.isEmpty()) {
-      checkContext.reportIssue(resourceDeclaration.textRange(), MISSING_AUTH_SETTINGS_MESSAGE);
+      checkContext.reportIssue(resourceDeclaration.textRange(), WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE);
       return;
     }
 
@@ -79,7 +81,7 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
       }).orElse(true);
 
     if (authSettingInsecure) {
-      checkContext.reportIssue(globalValidation.or(() -> authSettingsV2).orElse(resourceDeclaration).textRange(), DISABLED_AUTH_MESSAGE);
+      checkContext.reportIssue(globalValidation.or(() -> authSettingsV2).orElse(resourceDeclaration).textRange(), WEBSITES_DISABLED_AUTH_MESSAGE);
     }
   }
 
@@ -102,7 +104,15 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
       TextRange range = signIn.or(() -> apis)
         .map(HasTextRange::textRange)
         .orElse(resourceDeclaration.textRange());
-      checkContext.reportIssue(range, MANAGED_IDENTITY_MESSAGE);
+      String message;
+      if (isSignInDisabled) {
+        message = APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE;
+      } else if (signIn.isEmpty()) {
+        message = APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE;
+      } else {
+        message = APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE;
+      }
+      checkContext.reportIssue(range, message);
     }
   }
 
@@ -117,7 +127,7 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
 
     if (isFlagTrueOrMissing || isPublicAccessInsecure) {
       TextRange range = flagAllowBlobPublicAccess.or(() -> containersPublicAccessMode).map(HasTextRange::textRange).orElse(resourceDeclaration.textRange());
-      checkContext.reportIssue(range, MANAGED_IDENTITY_MESSAGE);
+      checkContext.reportIssue(range, STORAGE_ANONYMOUS_ACCESS_MESSAGE);
     }
   }
 }
