@@ -1,0 +1,11 @@
+{
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-configuration-set/main.bicep": [
+57
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/patterns-name-generation/app-service.bicep": [
+6
+],
+"azureresourcemanager-project:sources/azureresourcemanager/azure-docs-bicep-samples/samples/scenarios-secrets/function-app.bicep": [
+14
+]
+}
