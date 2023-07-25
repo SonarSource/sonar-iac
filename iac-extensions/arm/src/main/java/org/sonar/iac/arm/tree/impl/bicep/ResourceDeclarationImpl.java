@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.parser.bicep.BicepKeyword;
@@ -181,12 +182,11 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   @Override
   public List<Property> resourceProperties() {
-    Optional<ObjectExpression> objectBody = getObjectBody();
-    if (objectBody.isPresent()) {
-      return objectBody.get().properties();
-    } else {
-      return List.of();
-    }
+    return getObjectBody()
+      .map(b -> b.properties().stream()
+        .map(Property.class::cast)
+        .collect(Collectors.toList()))
+      .orElse(List.of());
   }
 
   @Override

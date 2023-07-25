@@ -31,7 +31,7 @@ class ManagedIdentityCheckTest {
 
   ManagedIdentityCheck check = new ManagedIdentityCheck();
 
-  static List<String> shouldCheckManagedIdentityCheckJson() {
+  static List<String> managedIdentityTypes() {
     return List.of(
       "Microsoft.AVS/privateClouds",
       "Microsoft.AgFoodPlatform/farmBeats",
@@ -211,10 +211,21 @@ class ManagedIdentityCheckTest {
       "Microsoft.Workloads/sapVirtualInstances");
   }
 
-  @MethodSource
-  @ParameterizedTest(name = "[{index}] should check managed identity check for type {0}")
+  @MethodSource(value = "managedIdentityTypes")
+  @ParameterizedTest(name = "[{index}] JSON should check managed identity check for type {0}")
   void shouldCheckManagedIdentityCheckJson(String type) {
     String content = ArmTestUtils.readTemplateAndReplace("ManagedIdentityCheck/managedIdentityCheck_template.json", type);
+    verifyContent(content, check,
+      issue(8, 14, 8, 54, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
+      issue(23, 16, 23, 22, "Make sure that disabling Azure Managed Identities is safe here."),
+      issue(38, 6, 40, 7, "Omitting the \"type\" in \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
+  }
+
+  @MethodSource(value = "managedIdentityTypes")
+  @ParameterizedTest(name = "[{index}] Bicep should check managed identity check for type {0}")
+  void shouldCheckManagedIdentityCheckBicep(String type) {
+    String content = ArmTestUtils.readTemplateAndReplace("ManagedIdentityCheck/managedIdentityCheck_template.bicep", type);
+
     verifyContent(content, check,
       issue(8, 14, 8, 54, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
       issue(23, 16, 23, 22, "Make sure that disabling Azure Managed Identities is safe here."),

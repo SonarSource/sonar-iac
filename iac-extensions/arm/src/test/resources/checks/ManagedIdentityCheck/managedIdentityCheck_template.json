@@ -18,7 +18,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Sensitive: identity.type is defined ",
+      "name": "Sensitive: identity.type is defined",
       "identity": {
         "type": "None"
       }
