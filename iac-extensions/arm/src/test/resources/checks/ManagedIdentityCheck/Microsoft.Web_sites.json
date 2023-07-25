@@ -5,12 +5,30 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
-      "name": "example"
+      "name": "Sensitive, no auth settings"
     },
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
-      "name": "example",
+      "name": "Non-compliant: bad globalValidation settings - how should it look like?",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "name": "authsettingsV2",
+          "properties": {
+            "globalValidation": {
+              "requireAuthentication": false,
+              "unauthenticatedClientAction": "AllowAnonymous"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Compliant",
       "resources": [
         {
           "type": "config",

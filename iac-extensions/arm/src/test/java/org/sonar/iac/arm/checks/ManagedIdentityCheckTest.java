@@ -28,9 +28,8 @@ class ManagedIdentityCheckTest {
   @Test
   void shouldFindIssuesInWebSitesResource() {
     ArmVerifier.verify("ManagedIdentityCheck/Microsoft.Web_sites.json", check,
-      Verifier.issue(6, 14, 8, 23, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
-      Verifier.issue(16, 18, 23, 13, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
-      Verifier.issue(34, 18, 41, 13, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
+      Verifier.issue(6, 14, 8, 43, "Omitting authsettingsV2 disables authentication. Make sure it is safe here."),
+      Verifier.issue(20, 32, 23, 13, "Make sure that disabling authentication is safe here."));
   }
 
   @Test
@@ -39,5 +38,12 @@ class ManagedIdentityCheckTest {
       Verifier.issue(6, 14, 13, 30, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
       Verifier.issue(24, 18, 28, 28, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
       Verifier.issue(34, 14, 41, 30, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
+  }
+
+  @Test
+  void shouldFindIssuesInStorageAccounts() {
+    ArmVerifier.verify("ManagedIdentityCheck/Microsoft.Storage_storageAccounts.json", check,
+      Verifier.issue(10, 8, 10, 37, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."),
+      Verifier.issue(23, 12, 23, 34, "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here."));
   }
 }

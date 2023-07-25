@@ -26,43 +26,60 @@ import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.PropertyTree;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
+import org.sonar.iac.common.checks.Trilean;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 import static org.sonar.iac.arm.checks.utils.ResourceUtils.findChildResource;
+import static org.sonar.iac.arm.checks.utils.ResourceUtils.findChildResourceByType;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 
-@Rule(key = "S6378")
+@Rule(key = "S6380")
 public class ManagedIdentityCheck extends AbstractArmResourceCheck {
   private static final String MANAGED_IDENTITY_MESSAGE = "Omitting the \"identity\" block disables Azure Managed Identities. Make sure it is safe here.";
   private static final String DATA_FACTORY_MESSAGE = "Make sure that disabling Azure Managed Identities is safe here.";
+  private static final String MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
+  private static final String DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", ManagedIdentityCheck::checkWebSites);
     register("Microsoft.ApiManagement/service", ManagedIdentityCheck::checkApiManagementService);
+    register("Microsoft.Storage/storageAccounts", ManagedIdentityCheck::checkStorageAccounts);
   }
 
   private static void checkWebSites(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
     Optional<ResourceDeclaration> authSettingsV2 = ResourceUtils.findChildResource(resourceDeclaration, "authsettingsV2");
-    boolean authSettingAbsentOrInsecure = authSettingsV2
-      .map(r -> PropertyUtils.valueOrNull(r, "globalValidation", ObjectExpression.class))
+
+    if (authSettingsV2.isEmpty()) {
+      checkContext.reportIssue(resourceDeclaration.textRange(), MISSING_AUTH_SETTINGS_MESSAGE);
+      return;
+    }
+
+    Optional<Tree> globalValidation = authSettingsV2
+      .map(r -> PropertyUtils.valueOrNull(r, "globalValidation", ObjectExpression.class));
+    boolean authSettingInsecure = globalValidation
       .map(g -> {
-        boolean isInsecureAuthSetting = false;
-        for (PropertyTree property : g.properties()) {
-          if (isValue(property.key(), "requireAuthentication").isTrue() && isFalse().test((BooleanLiteral) property.value()) ||
-            isValue(property.key(), "unauthenticatedClientAction").isTrue() && isValue(property.value(), "AllowAnonymous").isTrue()) {
-            isInsecureAuthSetting = true;
+        boolean isAuthDisabled = false;
+        boolean isAnonymousAccessAllowed = false;
+        for (PropertyTree property : ((HasProperties) g).properties()) {
+          if (isValue(property.key(), "requireAuthentication").isTrue() && isFalse().test((BooleanLiteral) property.value())) {
+            isAuthDisabled = true;
+          } else if (isValue(property.key(), "unauthenticatedClientAction").isTrue() && isValue(property.value(), "AllowAnonymous").isTrue()) {
+            isAnonymousAccessAllowed = true;
           }
         }
-        return isInsecureAuthSetting;
+        return isAuthDisabled && isAnonymousAccessAllowed;
       }).orElse(true);
 
-    if (authSettingAbsentOrInsecure) {
-      checkContext.reportIssue(authSettingsV2.orElse(resourceDeclaration).textRange(), MANAGED_IDENTITY_MESSAGE);
+    if (authSettingInsecure) {
+      checkContext.reportIssue(globalValidation.or(() -> authSettingsV2).orElse(resourceDeclaration).textRange(), DISABLED_AUTH_MESSAGE);
     }
   }
 
@@ -82,9 +99,24 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
       .orElse(false);
 
     if (signIn.isEmpty() || isSignInDisabled || isApisAuthenticationMissing) {
-      TextRange range = signIn.map(HasTextRange::textRange)
-        .or(() -> apis.map(HasTextRange::textRange))
+      TextRange range = signIn.or(() -> apis)
+        .map(HasTextRange::textRange)
         .orElse(resourceDeclaration.textRange());
+      checkContext.reportIssue(range, MANAGED_IDENTITY_MESSAGE);
+    }
+  }
+
+  private static void checkStorageAccounts(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
+    Optional<PropertyTree> flagAllowBlobPublicAccess = PropertyUtils.get(resourceDeclaration, "allowBlobPublicAccess");
+    boolean isFlagTrueOrMissing = flagAllowBlobPublicAccess.map(it -> ((BooleanLiteral) it.value()).value()).orElse(true);
+
+    Optional<PropertyTree> containersPublicAccessMode = findChildResourceByType(resourceDeclaration, "blobServices/containers")
+      .flatMap(it -> PropertyUtils.get(it, "publicAccess"));
+    boolean isPublicAccessInsecure = containersPublicAccessMode.map(it -> TextUtils.isValue(it.value(), "Blob"))
+      .map(Trilean::isTrue).orElse(false);
+
+    if (isFlagTrueOrMissing || isPublicAccessInsecure) {
+      TextRange range = flagAllowBlobPublicAccess.or(() -> containersPublicAccessMode).map(HasTextRange::textRange).orElse(resourceDeclaration.textRange());
       checkContext.reportIssue(range, MANAGED_IDENTITY_MESSAGE);
     }
   }

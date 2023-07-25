@@ -11,4 +11,8 @@ public class ResourceUtils {
   public static Optional<ResourceDeclaration> findChildResource(ResourceDeclaration resource, String name) {
     return resource.childResources().stream().filter(it -> TextUtils.isValue(it.name(), name).isTrue()).findFirst();
   }
+
+  public static Optional<ResourceDeclaration> findChildResourceByType(ResourceDeclaration resource, String type) {
+    return resource.childResources().stream().filter(it -> TextUtils.isValue(it.type(), type).isTrue()).findFirst();
+  }
 }
