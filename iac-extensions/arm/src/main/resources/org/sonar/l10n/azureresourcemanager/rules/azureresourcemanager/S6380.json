@@ -1,0 +1,28 @@
+{
+  "title": "Authorizing anonymous access to Azure resources is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "45min"
+  },
+  "tags": [
+    "cwe",
+    "azure"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6380",
+  "sqKey": "S6380",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      668
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  }
+}
