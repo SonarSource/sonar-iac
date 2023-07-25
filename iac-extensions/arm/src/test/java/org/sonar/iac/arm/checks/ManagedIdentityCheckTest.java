@@ -52,4 +52,10 @@ class ManagedIdentityCheckTest {
       Verifier.issue(10, 8, 10, 37, "Make sure that authorizing potential anonymous access is safe here."),
       Verifier.issue(23, 12, 23, 34, "Make sure that authorizing potential anonymous access is safe here."));
   }
+
+  @Test
+  void shouldFindIssuesInCache() {
+    ArmVerifier.verify("ManagedIdentityCheck/Microsoft.Cache_redis.json", check,
+      Verifier.issue(11, 29, 11, 35, "Make sure that disabling authentication is safe here."));
+  }
 }

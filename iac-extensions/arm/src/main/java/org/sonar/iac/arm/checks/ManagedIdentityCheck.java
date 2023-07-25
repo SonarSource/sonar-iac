@@ -50,6 +50,7 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
   private static final String APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE = "Omitting authenticationSettings disables authentication. Make sure it is safe here.";
   private static final String DATA_FACTORY_ANONYMOUYS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final String STORAGE_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing potential anonymous access is safe here.";
+  private static final String CACHE_AUTHENTICATION_DISABLED_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final List<String> DATA_FACTORY_SENSITIVE_TYPES = List.of("AzureBlobStorage", "FtpServer", "HBase", "Hive", "HttpServer", "Impala", "MongoDb", "OData", "Phoenix",
     "Presto", "RestService", "Spark", "Web");
 
@@ -59,6 +60,7 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
     register("Microsoft.ApiManagement/service", ManagedIdentityCheck::checkApiManagementService);
     register("Microsoft.DataFactory/factories/linkedservices", ManagedIdentityCheck::checkDataFactories);
     register("Microsoft.Storage/storageAccounts", ManagedIdentityCheck::checkStorageAccounts);
+    register("Microsoft.Cache/redis", ManagedIdentityCheck::checkRedisCache);
   }
 
   private static void checkWebSites(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
@@ -132,6 +134,15 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
 
     if (authenticationType.isPresent() && TextUtils.isValue(authenticationType.get(), "Anonymous").isTrue()) {
       checkContext.reportIssue(authenticationType.get().textRange(), DATA_FACTORY_ANONYMOUYS_ACCESS_MESSAGE);
+    }
+  }
+
+  private static void checkRedisCache(CheckContext checkContext, ResourceDeclaration resourceDeclaration) {
+    Optional<Tree> authNotRequired = PropertyUtils.value(resourceDeclaration, "redisConfiguration")
+      .flatMap(it -> PropertyUtils.value(it, "authnotrequired"));
+
+    if (authNotRequired.isPresent() && TextUtils.isValueTrue(authNotRequired.get())) {
+      checkContext.reportIssue(authNotRequired.get().textRange(), CACHE_AUTHENTICATION_DISABLED_MESSAGE);
     }
   }
 
