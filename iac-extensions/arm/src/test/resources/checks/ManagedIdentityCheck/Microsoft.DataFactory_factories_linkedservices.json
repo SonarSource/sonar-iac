@@ -23,6 +23,16 @@
           "authenticationType": "Basic"
         }
       }
+    },
+    {
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "name": "Compliant - not a sensitive type",
+      "properties": {
+        "type": "MariaDB",
+        "typeProperties": {
+        }
+      }
     }
   ]
 }

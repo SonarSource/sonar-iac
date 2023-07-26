@@ -85,25 +85,15 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
       return;
     }
 
-    Optional<ContextualProperty> enabled = signIn.map(r -> r.property("enabled"));
-    boolean isSignInDisabled = enabled
-      .map(ContextualProperty::valueOrNull)
-      .filter(CheckUtils.isFalse())
-      .isPresent();
+    ContextualProperty enabled = signIn.map(r -> r.property("enabled")).orElse(ContextualProperty.fromAbsent(signIn.get().ctx, "enabled", signIn.get()));
+    boolean isSignInDisabled = CheckUtils.isFalse().test(enabled.valueOrNull());
 
     if (isSignInDisabled) {
-      enabled.get().report(APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE);
+      enabled.report(APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE);
       return;
     }
 
-    Optional<ContextualResource> apis = resource.childResourceByName("apis");
-    boolean isApisAuthenticationMissing = apis
-      .map(it -> it.property("authenticationSettings").isAbsent())
-      .orElse(false);
-
-    if (isApisAuthenticationMissing) {
-      apis.get().report(APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE);
-    }
+    resource.childResourceByName("apis").ifPresent(apis -> apis.property("authenticationSettings").reportIfAbsent(APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE));
   }
 
   private static void checkDataFactories(ContextualResource resource) {
