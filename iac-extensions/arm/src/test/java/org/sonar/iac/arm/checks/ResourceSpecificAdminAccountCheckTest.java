@@ -36,4 +36,16 @@ class ResourceSpecificAdminAccountCheckTest {
   void checkBicepBatchAccountsPools() {
     BicepVerifier.verify("ResourceSpecificAdminAccountCheck/Microsoft.Batch_batchAccounts_pools.bicep", new ResourceSpecificAdminAccountCheck());
   }
+
+  @Test
+  void checkArmContainerRegistryRegistries() {
+    ArmVerifier.verify("ResourceSpecificAdminAccountCheck/Microsoft.ContainerRegistry_registries.json",
+      new ResourceSpecificAdminAccountCheck(),
+      issue(10, 8, 10, 32, "Make sure that enabling an administrative account or administrative permissions is safe here."));
+  }
+
+  @Test
+  void checkBicepContainerRegistryRegistries() {
+    BicepVerifier.verify("ResourceSpecificAdminAccountCheck/Microsoft.ContainerRegistry_registries.bicep", new ResourceSpecificAdminAccountCheck());
+  }
 }

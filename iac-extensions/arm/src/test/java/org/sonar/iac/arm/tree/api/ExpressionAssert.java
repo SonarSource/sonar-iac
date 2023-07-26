@@ -31,37 +31,51 @@ public class ExpressionAssert extends HasTextRangeAssert<ExpressionAssert, Expre
   }
 
   public ArrayExpressionAssert asArrayExpression() {
-    Assertions.assertThat(actual.is(ArmTree.Kind.ARRAY_EXPRESSION)).isTrue();
+    Assertions.assertThat(actual.is(ArmTree.Kind.ARRAY_EXPRESSION))
+      .overridingErrorMessage("Expected Array Expression, but it is kind: " + actual.getKind())
+      .isTrue();
     return ArrayExpressionAssert.assertThat((ArrayExpression) actual);
   }
 
   public ExpressionAssert isNullLiteral() {
-    Assertions.assertThat(actual.is(ArmTree.Kind.NULL_LITERAL)).isTrue();
+    Assertions.assertThat(actual.is(ArmTree.Kind.NULL_LITERAL))
+      .overridingErrorMessage("Expected Null Literal, but it is kind: " + actual.getKind())
+      .isTrue();
     return this;
   }
 
   public ObjectExpressionAssert asObjectExpression() {
-    Assertions.assertThat(actual.is(ArmTree.Kind.OBJECT_EXPRESSION)).isTrue();
+    Assertions.assertThat(actual.is(ArmTree.Kind.OBJECT_EXPRESSION))
+      .overridingErrorMessage("Expected Object Expression, but it is kind: " + actual.getKind())
+      .isTrue();
     return ObjectExpressionAssert.assertThat(((ObjectExpression) actual));
   }
 
   public StringLiteralAssert asStringLiteral() {
-    Assertions.assertThat(actual.is(ArmTree.Kind.STRING_LITERAL)).isTrue();
+    Assertions.assertThat(actual.is(ArmTree.Kind.STRING_LITERAL))
+      .overridingErrorMessage("Expected String Literal, but it is kind: " + actual.getKind())
+      .isTrue();
     return StringLiteralAssert.assertThat((StringLiteral) actual);
   }
 
   public IdentifierAssert asIdentifier() {
-    Assertions.assertThat(actual.is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    Assertions.assertThat(actual.is(ArmTree.Kind.IDENTIFIER))
+      .overridingErrorMessage("Expected Identifier, but it is kind: " + actual.getKind())
+      .isTrue();
     return IdentifierAssert.assertThat((Identifier) actual);
   }
 
   public NumericLiteralAssert asNumericLiteral() {
-    Assertions.assertThat(actual.is(ArmTree.Kind.NUMERIC_LITERAL)).isTrue();
+    Assertions.assertThat(actual.is(ArmTree.Kind.NUMERIC_LITERAL))
+      .overridingErrorMessage("Expected Numeric Literal, but it is kind: " + actual.getKind())
+      .isTrue();
     return NumericLiteralAssert.assertThat((NumericLiteral) actual);
   }
 
   public BooleanLiteralAssert asBooleanLiteral() {
-    Assertions.assertThat(actual.is(ArmTree.Kind.BOOLEAN_LITERAL)).isTrue();
+    Assertions.assertThat(actual.is(ArmTree.Kind.BOOLEAN_LITERAL))
+      .overridingErrorMessage("Expected Boolean Literal, but it is kind: " + actual.getKind())
+      .isTrue();
     return BooleanLiteralAssert.assertThat((BooleanLiteral) actual);
   }
 }

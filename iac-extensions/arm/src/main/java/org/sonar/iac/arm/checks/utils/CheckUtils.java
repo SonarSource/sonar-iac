@@ -44,7 +44,7 @@ public class CheckUtils {
   }
 
   public static Predicate<Expression> isTrue() {
-    return expr -> !isFalse().test(expr);
+    return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && ((BooleanLiteral) expr).value();
   }
 
   public static Predicate<Expression> isFalse() {

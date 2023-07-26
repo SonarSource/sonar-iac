@@ -1,0 +1,66 @@
+<p>Disabling Managed Identities can reduce an organization’s ability to protect itself against configuration faults and credentials leaks.</p>
+<p>Authenticating via managed identities to an Azure resource solely relies on an API call with a non-secret token. The process is inner to Azure:
+secrets used by Azure are not even accessible to end-users.</p>
+<p>In typical scenarios without managed identities, the use of credentials can lead to mistakenly leaving them in code bases. In addition,
+configuration faults may also happen when storing these values or assigning them permissions.</p>
+<p>By transparently taking care of the Azure Active Directory authentication, Managed Identities allow getting rid of day-to-day credentials
+management.</p>
+<h2>Ask Yourself Whether</h2>
+<p>The resource:</p>
+<ul>
+  <li> Needs to authenticate to Azure resources that support Azure Active Directory (AAD). </li>
+  <li> Uses a different Access Control system that doesn’t guarantee the same security controls as AAD, or no Access Control system at all. </li>
+</ul>
+<p>There is a risk if you answered yes to all of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Enable the Managed Identities capabilities of this Azure resource. If supported, use a System-Assigned managed identity, as:</p>
+<ul>
+  <li> It cannot be shared across resources. </li>
+  <li> Its life cycle is deeply tied to the life cycle of its Azure resource. </li>
+  <li> It provides a unique independent identity. </li>
+</ul>
+<p>Alternatively, User-Assigned Managed Identities can also be used but don’t guarantee the properties listed above.</p>
+<h2>Sensitive Code Example</h2>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.ApiManagement/service",
+            "apiVersion": "2022-09-01-preview",
+            "name": "apiManagementService",
+        }
+    ]
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.ApiManagement/service",
+            "apiVersion": "2022-09-01-preview",
+            "name": "apiManagementService",
+            "identity": {
+                "type": "SystemAssigned"
+            }
+        }
+    ]
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A05</a> - Security Misconfiguration </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A06</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview">Azure AD Documentation - Managed
+  Identities Overview</a> </li>
+  <li> <a
+  href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/managed-identity-best-practice-recommendations">Azure AD Documentation - Managed Identities Best Practices</a> </li>
+  <li> <a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/services-support-managed-identities">Azure
+  AD Documentation - Services that support managed identities</a> </li>
+</ul>
+

@@ -165,7 +165,7 @@ class PublicNetworkAccessCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] should check Public Network Access Simplified for type {0}")
+  @ParameterizedTest(name = "[{index}] should check Public Network Access Simplified for type {0}")
   void shouldCheckPublicNetworkAccessSimplified(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess/simplified-template.json", type);
 
@@ -194,7 +194,7 @@ class PublicNetworkAccessCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] should check range public IP Address for type {0}")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address for type {0}")
   void shouldCheckRangePublicIPAddress(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/rangePublicIPAddress-template.json", type);
     verifyContent(content, CHECK,
@@ -246,7 +246,7 @@ class PublicNetworkAccessCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] should check range public IP Address for type {0}")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address for type {0}")
   void shouldCheckPublicNetworkAccessSimplifiedInSiteConfig(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess/siteConfig-template.json", type);
     verifyContent(content, CHECK,
@@ -279,7 +279,7 @@ class PublicNetworkAccessCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] should check range public IP Address in Firewall Rules for type {0}")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address in Firewall Rules for type {0}")
   void shouldCheckRangePublicIPAddressInFirewallRules(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-template.json", type);
     verifyContent(content, CHECK,
@@ -359,7 +359,7 @@ class PublicNetworkAccessCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] should check range public IP Address in Firewall Rules Properties for type {0}")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address in Firewall Rules Properties for type {0}")
   void shouldCheckRangePublicIPAddressInFirewallRulesProperties(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-properties-template.json", type);
     verifyContent(content, CHECK,
@@ -392,7 +392,7 @@ class PublicNetworkAccessCheckTest {
   }
 
   @MethodSource
-  @ParameterizedTest(name = "[${index}] should check range public IP Address in Properties Firewall Rules for type {0}")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address in Properties Firewall Rules for type {0}")
   void shouldCheckRangePublicIPAddressInPropertiesFirewallRules(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/properties-firewallRules-template.json", type);
     verifyContent(content, CHECK,

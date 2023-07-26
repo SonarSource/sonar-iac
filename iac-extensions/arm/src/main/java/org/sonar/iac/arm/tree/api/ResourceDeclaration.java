@@ -34,9 +34,40 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
 
   TextTree type();
 
+  /**
+   * Returns list of properties under the "properties" property.
+   * <p>
+   * For following JSON:
+   * <pre>
+   *   {@code
+   *    {
+   *      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+   *      "contentVersion": "1.0.0.0",
+   *      "resources": [
+   *        {
+   *          "type": "Microsoft.ApiManagement/service",
+   *          "apiVersion": "2021-08-01",
+   *          "name": "example name",
+   *          "location": "[parameters('location')]",
+   *          "properties": {
+   *            "property1": "value1"
+   *          }
+   *        }
+   *      ]
+   *    }
+   *   }
+   * </pre>
+   *
+   * The {@code property1} will be returned. To read {@code location} property please see {@link ResourceDeclaration#resourceProperties()}.
+   */
   List<Property> properties();
 
   default boolean existing() {
     return false;
   }
+
+  /**
+   * Returns list of all op level resource properties.
+   */
+  List<Property> resourceProperties();
 }

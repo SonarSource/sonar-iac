@@ -114,8 +114,8 @@ build_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 qa_os_win_task:
+  <<: *QA_TASK_FILTER
   <<: *WINDOWS_VM_DEFINITION
-  <<: *ONLY_IF_SONARSOURCE_QA
   maven_cache:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
@@ -124,6 +124,8 @@ qa_os_win_task:
     - mvn.cmd clean verify
 
 sca_scan_task:
+  depends_on:
+    - build
   <<: *LINUX_3_5_CPU_7G
   <<: *MAVEN_CACHE
   <<: *ONLY_MAIN_BRANCHES

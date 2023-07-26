@@ -23,6 +23,8 @@ import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.common.checks.TextUtils;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isTrue;
+
 @Rule(key = "S6379")
 public class ResourceSpecificAdminAccountCheck extends AbstractArmResourceCheck {
 
@@ -31,11 +33,17 @@ public class ResourceSpecificAdminAccountCheck extends AbstractArmResourceCheck 
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Batch/batchAccounts/pools", ResourceSpecificAdminAccountCheck::checkBatchAccountsPools);
+    register("Microsoft.ContainerRegistry/registries", ResourceSpecificAdminAccountCheck::checkContainerRegistryRegistries);
   }
 
   private static void checkBatchAccountsPools(ContextualResource contextualResource) {
     contextualResource.objectsByPath("startTask/userIdentity/autoUser")
       .forEach(autoUser -> autoUser.property("elevationLevel")
         .reportIf(expression -> TextUtils.isValue(expression, "Admin").isTrue(), MESSAGE));
+  }
+
+  private static void checkContainerRegistryRegistries(ContextualResource contextualResource) {
+    contextualResource.property("adminUserEnabled")
+      .reportIf(isTrue(), MESSAGE);
   }
 }

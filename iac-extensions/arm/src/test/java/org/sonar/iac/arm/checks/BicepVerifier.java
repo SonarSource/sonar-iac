@@ -33,6 +33,10 @@ public class BicepVerifier {
     Verifier.verify(PARSER, BASE_DIR.resolve(fileName), check);
   }
 
+  public static void verifyContent(String content, IacCheck check, Verifier.Issue... expectedIssues) {
+    Verifier.verify(PARSER, content, check, expectedIssues);
+  }
+
   public static void verifyNoIssue(String fileName, IacCheck check) {
     Verifier.verifyNoIssue(PARSER, BASE_DIR.resolve(fileName), check);
   }
