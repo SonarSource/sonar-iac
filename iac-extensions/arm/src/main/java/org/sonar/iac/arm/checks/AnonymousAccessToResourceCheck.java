@@ -33,7 +33,7 @@ import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6380")
-public class ManagedIdentityCheck extends AbstractArmResourceCheck {
+public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   private static final String WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
   private static final String WEBSITES_DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final String APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
@@ -47,11 +47,11 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
 
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Web/sites", ManagedIdentityCheck::checkWebSites);
-    register("Microsoft.ApiManagement/service", ManagedIdentityCheck::checkApiManagementService);
-    register("Microsoft.DataFactory/factories/linkedservices", ManagedIdentityCheck::checkDataFactories);
-    register("Microsoft.Storage/storageAccounts", ManagedIdentityCheck::checkStorageAccounts);
-    register("Microsoft.Cache/redis", ManagedIdentityCheck::checkRedisCache);
+    register("Microsoft.Web/sites", AnonymousAccessToResourceCheck::checkWebSites);
+    register("Microsoft.ApiManagement/service", AnonymousAccessToResourceCheck::checkApiManagementService);
+    register("Microsoft.DataFactory/factories/linkedservices", AnonymousAccessToResourceCheck::checkDataFactories);
+    register("Microsoft.Storage/storageAccounts", AnonymousAccessToResourceCheck::checkStorageAccounts);
+    register("Microsoft.Cache/redis", AnonymousAccessToResourceCheck::checkRedisCache);
   }
 
   private static void checkWebSites(ContextualResource resource) {

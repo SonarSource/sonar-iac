@@ -22,8 +22,8 @@ package org.sonar.iac.arm.checks;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.testing.Verifier;
 
-class ManagedIdentityCheckTest {
-  ManagedIdentityCheck check = new ManagedIdentityCheck();
+class AnonymousAccessToResourceCheckTest {
+  AnonymousAccessToResourceCheck check = new AnonymousAccessToResourceCheck();
 
   @Test
   void shouldFindIssuesInWebSitesResource() {
