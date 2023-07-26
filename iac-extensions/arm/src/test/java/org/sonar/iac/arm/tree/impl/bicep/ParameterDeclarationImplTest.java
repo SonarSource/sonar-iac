@@ -33,7 +33,7 @@ import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-public class ParameterDeclarationImplTest extends BicepTreeModelTest {
+class ParameterDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseParameterDeclaration() {
