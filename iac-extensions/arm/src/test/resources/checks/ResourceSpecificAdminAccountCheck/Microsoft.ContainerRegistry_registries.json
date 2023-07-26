@@ -1,0 +1,37 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "Noncompliant: adminUserEnabled is set to true",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-05-01",
+      "properties": {
+        "adminUserEnabled": true
+      }
+    },
+
+    {
+      "name": "Compliant: adminUserEnabled is set to false",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-05-01",
+      "properties": {
+        "adminUserEnabled": false
+      }
+    },
+    {
+      "name": "Compliant: adminUserEnabled is to an invalid value",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-05-01",
+      "properties": {
+        "adminUserEnabled": "true"
+      }
+    },
+    {
+      "name": "Compliant: adminUserEnabled is not set",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-05-01",
+      "properties": {}
+    }
+  ]
+}
