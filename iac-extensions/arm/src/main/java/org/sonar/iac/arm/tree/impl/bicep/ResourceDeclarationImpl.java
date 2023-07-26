@@ -197,6 +197,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private static List<Property> propertiesOrEmpty(List<PropertyTree> properties) {
     return properties.stream()
       .filter(propertyTree -> "properties".equals(((TextTree) propertyTree.key()).value()))
+      .filter(propertyTree -> ((Property) propertyTree).value().is(Kind.OBJECT_EXPRESSION))
       .map(p -> (Collections.<Property>unmodifiableList(((ObjectExpression) ((Property) p).value()).properties())))
       .findFirst()
       .orElse(List.of());

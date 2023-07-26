@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -252,5 +253,34 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     ResourceDeclaration child = tree.childResources().get(0);
     assertThat(child.type().value()).isEqualTo("type2");
     assertThat(child.version().value()).isEqualTo("version2");
+  }
+
+  @Test
+  void shouldProvideEmptyPropertiesForTernaryExpression() {
+    String code = code("resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {",
+      "  name: myName",
+      "  properties: isPublicCloud ? {",
+      "    semanticSearch: 'standard'",
+      "  } : {",
+      "    semanticSearch: 'private'",
+      "  }",
+      "}");
+
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(tree.properties()).isEmpty();
+  }
+
+  @Test
+  void shouldProvideEmptyPropertiesForIdentifier() {
+    String code = code("var myProperties = { property: 'value'}",
+      "",
+      "resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {",
+      "  name: myName",
+      "  properties: myProperties",
+      "}");
+
+    File tree = parse(code, BicepLexicalGrammar.FILE);
+    ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(1);
+    assertThat(resource.properties()).isEmpty();
   }
 }
