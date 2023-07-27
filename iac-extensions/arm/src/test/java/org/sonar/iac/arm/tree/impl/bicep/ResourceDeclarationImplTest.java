@@ -25,6 +25,7 @@ import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -282,5 +283,27 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     File tree = parse(code, BicepLexicalGrammar.FILE);
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(1);
     assertThat(resource.properties()).isEmpty();
+  }
+
+  @Test
+  void accessParent() {
+    String code = code("resource myName 'type1@version1' = {",
+      "  resource childResource 'type2@version2' = {",
+      "    name: 'name'",
+      "  }",
+      "}");
+    ResourceDeclaration resourceParent = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(resourceParent.parent()).isNull();
+    assertThat(resourceParent.children()).hasSize(5);
+    assertThat(((ArmTree) resourceParent.children().get(0)).parent()).isSameAs(resourceParent);
+    assertThat(((ArmTree) resourceParent.children().get(1)).parent()).isSameAs(resourceParent);
+    assertThat(((ArmTree) resourceParent.children().get(2)).parent()).isSameAs(resourceParent);
+    assertThat(((ArmTree) resourceParent.children().get(3)).parent()).isSameAs(resourceParent);
+    assertThat(((ArmTree) resourceParent.children().get(4)).parent()).isSameAs(resourceParent);
+
+    ObjectExpression propertiesObject = (ObjectExpression) resourceParent.children().get(4);
+    ResourceDeclaration resourceChild = resourceParent.childResources().get(0);
+    assertThat(resourceChild.parent()).isSameAs(propertiesObject);
+    assertThat(propertiesObject.parent()).isSameAs(resourceParent);
   }
 }

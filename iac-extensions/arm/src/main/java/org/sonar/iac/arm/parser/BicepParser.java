@@ -67,10 +67,25 @@ public class BicepParser extends ActionParser<ArmTree> implements TreeParser<Tre
   @Override
   public ArmTree parse(String source, @Nullable InputFileContext inputFileContext) {
     try {
-      return super.parse(source);
+      return parse(source);
     } catch (RecognitionException recognitionException) {
       InputFile inputFile = inputFileContext != null ? inputFileContext.inputFile : null;
       throw ParseException.createGeneralParseException("parse", inputFile, recognitionException, new BasicTextPointer(recognitionException.getLine(), 0));
+    }
+  }
+
+  @Override
+  public ArmTree parse(String source) {
+    ArmTree tree = super.parse(source);
+    setParents(tree);
+    return tree;
+  }
+
+  private static void setParents(ArmTree tree) {
+    for (Tree children : tree.children()) {
+      ArmTree child = (ArmTree) children;
+      child.setParent(tree);
+      setParents(child);
     }
   }
 
