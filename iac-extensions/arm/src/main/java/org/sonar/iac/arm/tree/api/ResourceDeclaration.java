@@ -27,7 +27,11 @@ import org.sonar.iac.common.api.tree.TextTree;
 
 public interface ResourceDeclaration extends Statement, HasProperties, ObjectProperty, HasResources {
 
-  Identifier name();
+  @CheckForNull
+  StringLiteral name();
+
+  @CheckForNull
+  Identifier symbolicName();
 
   @CheckForNull
   TextTree version();

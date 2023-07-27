@@ -24,7 +24,6 @@ import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.impl.bicep.BicepTreeModelTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,7 +39,7 @@ class ContextualResourceTest {
     "  \"name\": \"myResource\"",
     "}"));
   static ResourceDeclaration RESOURCE_DECL_NO_VERSION = (ResourceDeclaration) BicepParser.create(BicepLexicalGrammar.RESOURCE_DECLARATION)
-    .parse("resource myName 'type' = {}", null);
+    .parse("resource mySymbolicName 'type' = { name : 'myName' }", null);
 
   @Test
   void createCtFromResourceDeclaration() {

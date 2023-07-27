@@ -32,11 +32,13 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
+import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.PropertyTree;
@@ -95,7 +97,19 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public Identifier name() {
+  @CheckForNull
+  public StringLiteral name() {
+    return resourceProperties().stream()
+      .filter(prop -> TextUtils.isValue(prop.key(), "name").isTrue())
+      .filter(prop -> prop.value().is(Kind.STRING_COMPLETE))
+      .findFirst()
+      .map(prop -> ((StringComplete) prop.value()).content())
+      .orElse(null);
+  }
+
+  @CheckForNull
+  @Override
+  public Identifier symbolicName() {
     return name;
   }
 
