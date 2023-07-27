@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -252,5 +254,56 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     ResourceDeclaration child = tree.childResources().get(0);
     assertThat(child.type().value()).isEqualTo("type2");
     assertThat(child.version().value()).isEqualTo("version2");
+  }
+
+  @Test
+  void shouldProvideEmptyPropertiesForTernaryExpression() {
+    String code = code("resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {",
+      "  name: myName",
+      "  properties: isPublicCloud ? {",
+      "    semanticSearch: 'standard'",
+      "  } : {",
+      "    semanticSearch: 'private'",
+      "  }",
+      "}");
+
+    ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(tree.properties()).isEmpty();
+  }
+
+  @Test
+  void shouldProvideEmptyPropertiesForIdentifier() {
+    String code = code("var myProperties = { property: 'value'}",
+      "",
+      "resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {",
+      "  name: myName",
+      "  properties: myProperties",
+      "}");
+
+    File tree = parse(code, BicepLexicalGrammar.FILE);
+    ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(1);
+    assertThat(resource.properties()).isEmpty();
+  }
+
+  @Test
+  void accessParent() {
+    String code = code("resource myName 'type1@version1' = {",
+      "  resource childResource 'type2@version2' = {",
+      "    name: 'name'",
+      "  }",
+      "}");
+    ResourceDeclaration resourceParent = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
+    assertThat(resourceParent.parent()).isNull();
+    assertThat(resourceParent.children()).hasSize(5);
+    assertThat(((ArmTree) resourceParent.children().get(0)).parent()).isSameAs(resourceParent);
+    assertThat(((ArmTree) resourceParent.children().get(1)).parent()).isSameAs(resourceParent);
+    assertThat(((ArmTree) resourceParent.children().get(2)).parent()).isSameAs(resourceParent);
+    assertThat(((ArmTree) resourceParent.children().get(3)).parent()).isSameAs(resourceParent);
+    assertThat(((ArmTree) resourceParent.children().get(4)).parent()).isSameAs(resourceParent);
+
+    ObjectExpression propertiesObject = (ObjectExpression) resourceParent.children().get(4);
+    ResourceDeclaration resourceChild = resourceParent.childResources().get(0);
+    assertThat(resourceChild.parent()).isSameAs(propertiesObject);
+    assertThat(propertiesObject.parent()).isSameAs(resourceParent);
   }
 }

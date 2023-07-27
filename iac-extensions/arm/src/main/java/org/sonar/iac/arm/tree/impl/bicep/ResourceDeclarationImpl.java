@@ -197,6 +197,8 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   private static List<Property> propertiesOrEmpty(List<PropertyTree> properties) {
     return properties.stream()
       .filter(propertyTree -> "properties".equals(((TextTree) propertyTree.key()).value()))
+      // TODO SONARIAC-1036 ARM Bicep: support Expression other than ObjectExpression for resource properties
+      .filter(propertyTree -> ((Property) propertyTree).value().is(Kind.OBJECT_EXPRESSION))
       .map(p -> (Collections.<Property>unmodifiableList(((ObjectExpression) ((Property) p).value()).properties())))
       .findFirst()
       .orElse(List.of());
