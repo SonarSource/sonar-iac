@@ -24,10 +24,8 @@ import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
-import org.sonar.iac.arm.tree.impl.bicep.BicepTreeModelTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.sonar.iac.arm.ArmTestUtils.CTX;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -59,13 +57,4 @@ class ContextualResourceTest {
     assertThat(contextualResource.type).isEqualTo("type");
     assertThat(contextualResource.version).isEmpty();
   }
-
-  @Test
-  void raiseExceptionWhenReportIssueOnResource() {
-    ContextualResource contextualResource = ContextualResource.fromPresent(CTX, SIMPLE_RESOURCE_DECL);
-
-    Exception exception = assertThrows(UnsupportedOperationException.class, () -> contextualResource.reportIfAbsent("test"));
-    assertThat(exception.getMessage()).isEqualTo("Resource tree should always exists");
-  }
-
 }
