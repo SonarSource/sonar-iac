@@ -21,6 +21,8 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.fest.assertions.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -71,6 +73,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(property.key().value()).isEqualTo("prop1");
     assertThat(property.value()).asIdentifier().hasValue("val1");
     assertThat(tree.properties()).hasSize(1);
+    assertThat(tree.name()).as("Name is not set in resource declaration").isNull();
   }
 
   @Test
@@ -286,6 +289,18 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     File tree = parse(code, BicepLexicalGrammar.FILE);
     ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(1);
     assertThat(resource.properties()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"myName", "condition ? foo : 'bar'", "'my${foo}Name'"})
+  void shouldProvideEmptyPropertiesForOtherNameTypes(String nameValue) {
+    String code = code("resource myResource 'Microsoft.Search/searchServices@2021-04-01-Preview' = {",
+      "  name: " + nameValue,
+      "}");
+
+    File tree = parse(code, BicepLexicalGrammar.FILE);
+    ResourceDeclaration resource = (ResourceDeclaration) tree.statements().get(0);
+    assertThat(resource.name()).isNull();
   }
 
   @Test

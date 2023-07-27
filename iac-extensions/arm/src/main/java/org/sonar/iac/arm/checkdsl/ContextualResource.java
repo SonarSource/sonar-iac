@@ -33,7 +33,7 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
   public final String version;
 
   private ContextualResource(CheckContext ctx, ResourceDeclaration tree, String type) {
-    super(ctx, tree, tree.name().value(), null);
+    super(ctx, tree, Optional.ofNullable(tree.name()).map(TextTree::value).orElse(null), null);
     this.type = type;
     this.version = Optional.ofNullable(tree.version()).map(TextTree::value).orElse("");
   }

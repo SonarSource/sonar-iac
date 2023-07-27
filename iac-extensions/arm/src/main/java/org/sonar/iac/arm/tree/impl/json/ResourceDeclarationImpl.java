@@ -67,12 +67,14 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
+  @CheckForNull
   public StringLiteral name() {
     return name;
   }
 
   @Override
-  public @CheckForNull Identifier symbolicName() {
+  @CheckForNull
+  public Identifier symbolicName() {
     return null;
   }
 
