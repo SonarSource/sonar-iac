@@ -66,7 +66,7 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
   public ResourceDeclaration convertToResourceDeclaration(MappingTree tree) {
     StringLiteral type = toStringLiteralOrException(tree, "type");
     StringLiteral version = toStringLiteralOrException(tree, "apiVersion");
-    Identifier name = toIdentifierOrException(tree, "name");
+    StringLiteral name = toStringLiteralOrException(tree, "name");
     List<Property> resourceProperties = toResourceProperties(tree);
     List<Property> otherProperties = PropertyUtils.get(tree, "properties")
       .map(PropertyTree::value)
@@ -90,7 +90,7 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
 
   private static ResourceDeclaration toResourceDeclaration(StringLiteral type,
     StringLiteral version,
-    Identifier name,
+    StringLiteral name,
     List<Property> otherProperties,
     List<Property> resourceProperties) {
     return new ResourceDeclarationImpl(name, version, type, otherProperties, resourceProperties, Collections.emptyList());
@@ -98,7 +98,7 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
 
   private ResourceDeclaration toResourceDeclarationWithChildren(StringLiteral type,
     StringLiteral version,
-    Identifier name,
+    StringLiteral name,
     List<Property> otherProperties,
     List<Property> resourceProperties,
     PropertyTree childResourcesProperty) {

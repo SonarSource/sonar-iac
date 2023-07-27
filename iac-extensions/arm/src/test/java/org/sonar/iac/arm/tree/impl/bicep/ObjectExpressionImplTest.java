@@ -19,10 +19,7 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.ArmAssertions;
-import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -87,11 +84,11 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
     String code = code("{",
       "  key1: value1",
       "  resource subnet1 'subnets' = {",
-      "    name: subnet1Name",
+      "    name: 'subnet1Name'",
       "  }",
       "  key2: value2",
       "  resource subnet2 'subnets' = {",
-      "    name: subnet2Name",
+      "    name: 'subnet2Name'",
       "  }",
       "}");
     ObjectExpression tree = parse(code, BicepLexicalGrammar.OBJECT_EXPRESSION);
@@ -108,9 +105,9 @@ class ObjectExpressionImplTest extends BicepTreeModelTest {
     assertThat(property2.value()).asIdentifier().hasValue("value2");
 
     ResourceDeclaration resource1 = tree.nestedResources().get(0);
-    assertThat(resource1.name()).hasValue("subnet1");
+    assertThat(resource1.name()).hasValue("subnet1Name");
     ResourceDeclaration resource2 = tree.nestedResources().get(1);
-    assertThat(resource2.name()).hasValue("subnet2");
+    assertThat(resource2.name()).hasValue("subnet2Name");
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("{", "key1", ":", "value1", "resource", "subnet1", "subnets",
       "=", "{", "name", ":", "subnet1Name", "}", "key2", ":", "value2", "resource", "subnet2", "subnets", "=", "{", "name",

@@ -224,7 +224,7 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
     return (ctx, resource) -> {
       Optional<Property> identityProperty = resource.resourceProperties().stream().filter(p -> "identity".equals(p.key().value())).findFirst();
       if (identityProperty.isEmpty()) {
-        ctx.reportIssue(resource.name(), OMITTING_IDENTITY_MESSAGE);
+        ctx.reportIssue(resource.symbolicName() != null ? resource.symbolicName() : resource.name(), OMITTING_IDENTITY_MESSAGE);
       } else {
         checkIdentityBlock(ctx, identityProperty.get());
       }

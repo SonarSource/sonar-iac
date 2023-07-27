@@ -39,7 +39,10 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseResourceDeclarationObject() {
-    String code = code("resource myName 'type@version' = { key: value }");
+    String code = code("resource mySymbolicName 'type@version' = {",
+      "name: 'myName'",
+      "key: value",
+      "}");
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.RESOURCE_DECLARATION)).isTrue();
@@ -51,7 +54,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.existing()).isFalse();
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
-      .containsExactly("resource", "myName", "type@version", "=", "{", "key", ":", "value", "}");
+      .containsExactly("resource", "mySymbolicName", "type@version", "=", "{", "name", ":", "myName", "key", ":", "value", "}");
   }
 
   @Test
