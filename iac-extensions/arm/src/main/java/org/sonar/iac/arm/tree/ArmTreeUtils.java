@@ -24,8 +24,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
+import java.util.stream.Stream;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 
@@ -76,5 +80,13 @@ public class ArmTreeUtils {
       }
     }
     return tree != null ? List.of(tree) : Collections.emptyList();
+  }
+
+  public static File getRootNode(ArmTree tree) {
+    return (File) Stream.iterate(tree, Objects::nonNull, ArmTree::parent)
+      .filter(t -> t.parent() == null)
+      .findFirst()
+      // There should always be a FILE node in a real-world tree
+      .get();
   }
 }

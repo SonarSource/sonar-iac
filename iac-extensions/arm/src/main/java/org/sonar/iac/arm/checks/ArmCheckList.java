@@ -39,6 +39,7 @@ public class ArmCheckList {
       PublicNetworkAccessCheck.class,
       ResourceSpecificAdminAccountCheck.class,
       RoleBasedAccessControlCheck.class,
+      SecureValuesExposureCheck.class,
       ShortBackupRetentionCheck.class,
       SubscriptionOwnerCapabilitiesCheck.class,
       SubscriptionRoleAssignmentCheck.class,
