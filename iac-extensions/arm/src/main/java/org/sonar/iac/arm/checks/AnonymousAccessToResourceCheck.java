@@ -55,24 +55,26 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkWebSites(ContextualResource resource) {
-    Optional<ContextualResource> authSettingsV2 = resource.childResourceByName("authsettingsV2");
+    ContextualResource authSettingsV2 = resource.childResourceBy("config", it -> isValue(it.name(), "authsettingsV2").isTrue());
 
-    if (authSettingsV2.isEmpty()) {
+    if (authSettingsV2.isAbsent()) {
       resource.report(WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE);
       return;
     }
 
-    Optional<ContextualObject> globalValidation = authSettingsV2
-      .map(r -> r.object("globalValidation"))
-      .filter(ContextualTree::isPresent);
-    boolean authSettingInsecure = globalValidation.map(object -> {
-      boolean isAuthDisabled = isFalse().test(object.property("requireAuthentication").valueOrNull());
-      boolean isAnonymousAccessAllowed = isValue(object.property("unauthenticatedClientAction").valueOrNull(), "AllowAnonymous").isTrue();
-      return isAuthDisabled && isAnonymousAccessAllowed;
-    }).orElse(true);
+    ContextualObject globalValidation = authSettingsV2.object("globalValidation");
+    if (globalValidation.isAbsent()) {
+      resource.report(WEBSITES_DISABLED_AUTH_MESSAGE);
+      return;
+    }
+
+    boolean isAuthDisabled = isFalse().test(globalValidation.property("requireAuthentication").valueOrNull());
+    boolean isAnonymousAccessAllowed = isValue(globalValidation.property("unauthenticatedClientAction").valueOrNull(), "AllowAnonymous").isTrue();
+    boolean authSettingInsecure = isAuthDisabled && isAnonymousAccessAllowed;
 
     if (authSettingInsecure) {
-      globalValidation.ifPresentOrElse(it -> it.report(WEBSITES_DISABLED_AUTH_MESSAGE), () -> resource.report(WEBSITES_DISABLED_AUTH_MESSAGE));
+      globalValidation.property("requireAuthentication").report(WEBSITES_DISABLED_AUTH_MESSAGE);
+      globalValidation.report(WEBSITES_DISABLED_AUTH_MESSAGE);
     }
   }
 
