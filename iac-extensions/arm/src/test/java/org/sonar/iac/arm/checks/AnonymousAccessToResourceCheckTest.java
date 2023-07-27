@@ -26,7 +26,7 @@ class AnonymousAccessToResourceCheckTest {
   AnonymousAccessToResourceCheck check = new AnonymousAccessToResourceCheck();
 
   @Test
-  void shouldFindIssuesInWebSitesResource() {
+  void shouldFindIssuesInWebSitesResourceJson() {
     ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Web_sites.json", check,
       Verifier.issue(6, 14, 6, 35, "Omitting authsettingsV2 disables authentication. Make sure it is safe here."),
       Verifier.issue(21, 14, 21, 44, "Make sure that disabling authentication is safe here."),
@@ -34,5 +34,10 @@ class AnonymousAccessToResourceCheckTest {
       Verifier.issue(39, 14, 39, 44, "Make sure that disabling authentication is safe here."),
       Verifier.issue(58, 14, 58, 61, "Make sure that disabling authentication is safe here."),
       Verifier.issue(70, 10, 70, 40, "Make sure that disabling authentication is safe here."));
+  }
+
+  @Test
+  void shouldFindIssuesInWebSitesResourceBicep() {
+    BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Web_sites.bicep", check);
   }
 }
