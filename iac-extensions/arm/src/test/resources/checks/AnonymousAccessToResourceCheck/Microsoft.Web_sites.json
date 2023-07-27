@@ -10,7 +10,7 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
-      "name": "Non-compliant: bad globalValidation settings - how should it look like?",
+      "name": "Non-compliant: bad globalValidation settings",
       "resources": [
         {
           "type": "config",
@@ -24,6 +24,53 @@
           }
         }
       ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Non-compliant: auth is not required",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "name": "authsettingsV2",
+          "properties": {
+            "globalValidation": {
+              "requireAuthentication": false,
+              "unauthenticatedClientAction": "RedirectToLoginPage"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Non-compliant: anonymous access is allowed",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "name": "authsettingsV2",
+          "properties": {
+            "globalValidation": {
+              "requireAuthentication": true,
+              "unauthenticatedClientAction": "AllowAnonymous"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2021-02-01",
+      "name": "authsettingsV2",
+      "properties": {
+        "globalValidation": {
+          "requireAuthentication": false,
+          "unauthenticatedClientAction": "RedirectToLoginPage"
+        }
+      }
     },
     {
       "type": "Microsoft.Web/sites",
@@ -36,7 +83,7 @@
           "name": "authsettingsV2",
           "properties": {
             "globalValidation": {
-              "requireAuthentication": false,
+              "requireAuthentication": true,
               "unauthenticatedClientAction": "RedirectToLoginPage"
             }
           }
@@ -46,17 +93,13 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
-      "name": "example",
+      "name": "Compliant: authsettingsV2 is present, globalValidation is absent",
       "resources": [
         {
           "type": "config",
           "apiVersion": "2022-03-01",
           "name": "authsettingsV2",
           "properties": {
-            "globalValidation": {
-              "requireAuthentication": true,
-              "unauthenticatedClientAction": "AllowAnonymous"
-            }
           }
         }
       ]
@@ -64,17 +107,14 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
-      "name": "example",
+      "name": "Compliant: authsettingsV2 is present, globalValidation is empty",
       "resources": [
         {
           "type": "config",
           "apiVersion": "2022-03-01",
           "name": "authsettingsV2",
           "properties": {
-            "globalValidation": {
-              "requireAuthentication": true,
-              "unauthenticatedClientAction": "RedirectToLoginPage"
-            }
+            "globalValidation": {}
           }
         }
       ]

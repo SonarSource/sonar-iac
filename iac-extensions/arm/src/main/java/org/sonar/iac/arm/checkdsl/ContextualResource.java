@@ -25,7 +25,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.TextUtils;
@@ -54,11 +53,6 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
 
   public static ContextualResource fromAbsent(CheckContext ctx, String resourceType, ContextualMap<?, ?> parent) {
     return new ContextualResource(ctx, null, resourceType, parent);
-  }
-
-  @Override
-  public ContextualResource reportIfAbsent(String message, SecondaryLocation... secondaries) {
-    throw new UnsupportedOperationException("Resource tree should always exists");
   }
 
   @CheckForNull

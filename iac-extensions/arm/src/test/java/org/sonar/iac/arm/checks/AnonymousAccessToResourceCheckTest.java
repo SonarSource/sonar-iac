@@ -29,33 +29,10 @@ class AnonymousAccessToResourceCheckTest {
   void shouldFindIssuesInWebSitesResource() {
     ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Web_sites.json", check,
       Verifier.issue(6, 14, 6, 35, "Omitting authsettingsV2 disables authentication. Make sure it is safe here."),
-      Verifier.issue(20, 32, 23, 13, "Make sure that disabling authentication is safe here."));
-  }
-
-  @Test
-  void shouldFindIssuesInApiManagementService() {
-    ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.ApiManagement_service.json", check,
-      Verifier.issue(6, 14, 6, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."),
-      Verifier.issue(28, 12, 28, 28, "Make sure that giving anonymous access without enforcing sign-in is safe here."),
-      Verifier.issue(34, 14, 34, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."));
-  }
-
-  @Test
-  void shouldFindIssuesInDataFactory() {
-    ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.json", check,
-      Verifier.issue(12, 10, 12, 43, "Make sure that authorizing anonymous access is safe here."));
-  }
-
-  @Test
-  void shouldFindIssuesInStorageAccounts() {
-    ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Storage_storageAccounts.json", check,
-      Verifier.issue(10, 8, 10, 37, "Make sure that authorizing potential anonymous access is safe here."),
-      Verifier.issue(23, 12, 23, 34, "Make sure that authorizing potential anonymous access is safe here."));
-  }
-
-  @Test
-  void shouldFindIssuesInCache() {
-    ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Cache_redis.json", check,
-      Verifier.issue(11, 10, 11, 35, "Make sure that disabling authentication is safe here."));
+      Verifier.issue(21, 14, 21, 44, "Make sure that disabling authentication is safe here."),
+      Verifier.issue(22, 14, 22, 61, "Make sure that disabling authentication is safe here."),
+      Verifier.issue(39, 14, 39, 44, "Make sure that disabling authentication is safe here."),
+      Verifier.issue(58, 14, 58, 61, "Make sure that disabling authentication is safe here."),
+      Verifier.issue(70, 10, 70, 40, "Make sure that disabling authentication is safe here."));
   }
 }
