@@ -1,0 +1,26 @@
+{
+  "title": "Secure strings and objects should not have default values",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "60min"
+  },
+  "tags": [
+    "azure"
+  ],
+  "securityStandards": {
+    "CWE": [
+      200,
+      532
+    ],
+    "ASVS 4.0": [
+      "7.1.1"
+    ]
+  },
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6648",
+  "sqKey": "S6648",
+  "scope": "All",
+  "quickfix": "unknown"
+}

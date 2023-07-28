@@ -19,32 +19,27 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.util.List;
-import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.junit.jupiter.api.Test;
 
-public class ArmCheckList {
+import static org.sonar.iac.common.testing.Verifier.issue;
 
-  private ArmCheckList() {
+class SecureParameterDefaultValueCheckTest {
+
+  @Test
+  void checkBicepSecureParameter() {
+    BicepVerifier.verify("SecureParameterDefaultValueCheck/secureParameter.bicep", new SecureParameterDefaultValueCheck());
   }
 
-  public static List<Class<?>> checks() {
-    return List.of(
-      AnonymousAccessToResourceCheck.class,
-      CertificateBasedAuthenticationCheck.class,
-      ClearTextProtocolsCheck.class,
-      HighPrivilegedRoleCheck.class,
-      IpRestrictedAdminAccessCheck.class,
-      LogRetentionCheck.class,
-      ManagedIdentityCheck.class,
-      ParsingErrorCheck.class,
-      PublicNetworkAccessCheck.class,
-      ResourceSpecificAdminAccountCheck.class,
-      RoleBasedAccessControlCheck.class,
-      SecureParameterDefaultValueCheck.class,
-      ShortBackupRetentionCheck.class,
-      SubscriptionOwnerCapabilitiesCheck.class,
-      SubscriptionRoleAssignmentCheck.class,
-      TlsVersionCheck.class,
-      UnencryptedCloudServicesCheck.class);
+  @Test
+  void checkArmSecureParameter() {
+    ArmVerifier.verify("SecureParameterDefaultValueCheck/secureParameter.json", new SecureParameterDefaultValueCheck(),
+      issue(13, 22, 13, 33, "Remove the default value from this secure string."),
+      issue(17, 22, 19, 7, "Remove the default value from this secure object."),
+      issue(23, 22, 23, 36),
+      issue(27, 22, 27, 38),
+      issue(31, 22, 31, 38),
+      issue(35, 22, 35, 48),
+      issue(39, 22, 39, 52),
+      issue(43, 22, 43, 52));
   }
 }
