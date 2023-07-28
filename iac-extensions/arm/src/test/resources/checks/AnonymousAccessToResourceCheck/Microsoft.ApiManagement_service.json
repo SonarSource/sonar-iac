@@ -1,0 +1,160 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "Noncompliant: `portalsettings` and `apis` child resources do not exist"
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "Noncompliant: signin is explicitly disabled",
+      "resources": [
+        {
+          "type": "portalsettings",
+          "apiVersion": "2022-09-01-preview",
+          "name": "signin",
+          "properties": {
+            "enabled": false
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "Noncompliant: `apis` doesn't have `authenticationSettings`, `portalsettings` are missing",
+      "resources": [
+        {
+          "type": "apis",
+          "apiVersion": "2022-09-01-preview",
+          "name": "exampleApi",
+          "properties": {
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "Noncompliant: `apis` doesn't have `authenticationSettings`",
+      "resources": [
+        {
+          "type": "portalsettings",
+          "apiVersion": "2022-09-01-preview",
+          "name": "signin",
+          "properties": {
+            "enabled": true
+          }
+        },
+        {
+          "type": "apis",
+          "apiVersion": "2022-09-01-preview",
+          "name": "exampleApi"
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "Noncompliant: `signin` is exlicitly disabled",
+      "resources": [
+        {
+          "type": "portalsettings",
+          "apiVersion": "2022-09-01-preview",
+          "name": "signin",
+          "properties": {
+            "enabled": false
+          }
+        },
+        {
+          "type": "apis",
+          "apiVersion": "2022-09-01-preview",
+          "name": "exampleApi",
+          "properties": {
+            "authenticationSettings": {
+              "openid": {
+                "bearerTokenSendingMethods": ["authorizationHeader"],
+                "openidProviderId": "<an OpenID provider ID>"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "Noncompliant: `signin` is missing",
+      "resources": [
+        {
+          "type": "apis",
+          "apiVersion": "2022-09-01-preview",
+          "name": "exampleApi",
+          "properties": {
+            "authenticationSettings": {
+              "openid": {
+                "bearerTokenSendingMethods": ["authorizationHeader"],
+                "openidProviderId": "<an OpenID provider ID>"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "Compliant",
+      "resources": [
+        {
+          "type": "portalsettings",
+          "apiVersion": "2022-09-01-preview",
+          "name": "signin",
+          "properties": {
+            "enabled": true
+          }
+        },
+        {
+          "type": "apis",
+          "apiVersion": "2022-09-01-preview",
+          "name": "exampleApi",
+          "properties": {
+            "authenticationSettings": {
+              "openid": {
+                "bearerTokenSendingMethods": ["authorizationHeader"],
+                "openidProviderId": "<an OpenID provider ID>"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2022-09-01-preview",
+      "name": "Compliant, because we don't check content of `authenticationSettings`",
+      "resources": [
+        {
+          "type": "portalsettings",
+          "apiVersion": "2022-09-01-preview",
+          "name": "signin",
+          "properties": {
+            "enabled": true
+          }
+        },
+        {
+          "type": "apis",
+          "apiVersion": "2022-09-01-preview",
+          "name": "exampleApi",
+          "properties": {
+            "authenticationSettings": {
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
