@@ -24,13 +24,21 @@
     },
     "nonCompliant4": {
       "type": "securestring",
-      "defaultValue": "[uniqueString('secret')]"
+      "defaultValue": "   [newGuid()]"
     },
     "nonCompliant5": {
       "type": "securestring",
+      "defaultValue": "[newGuid()]   "
+    },
+    "nonCompliant7": {
+      "type": "securestring",
+      "defaultValue": "[uniqueString('secret')]"
+    },
+    "nonCompliant8": {
+      "type": "securestring",
       "defaultValue": "[parameters('normalString')]"
     },
-    "nonCompliant6": {
+    "nonCompliant9": {
       "type": "securestring",
       "defaultValue": "[parameters('secureString')]"
     },
@@ -48,9 +56,21 @@
       "type": "secureObject",
       "defaultValue": {}
     },
-    "compliant5": {
+    "compliant5_1": {
       "type": "securestring",
       "defaultValue": "[newGuid()]"
+    },
+    "compliant5_2": {
+      "type": "securestring",
+      "defaultValue": "[   newGuid()]"
+    },
+    "compliant5_3": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()   ]"
+    },
+    "compliant5_4": {
+      "type": "securestring",
+      "defaultValue": "[newGuid(   )]"
     },
     "compliant6": {
       "type": "string",

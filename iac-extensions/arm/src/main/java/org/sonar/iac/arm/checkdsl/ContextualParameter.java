@@ -59,6 +59,7 @@ public class ContextualParameter extends ContextualTree<ContextualParameter, Par
   @Override
   @CheckForNull
   protected HasTextRange toHighlight() {
-    return tree.defaultValue();
+    Expression defaultValue = tree.defaultValue();
+    return defaultValue != null ? defaultValue : tree;
   }
 }

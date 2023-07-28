@@ -36,8 +36,10 @@ class SecureParameterDefaultValueCheckTest {
       issue(13, 22, 13, 33, "Remove the default value from this secure string."),
       issue(17, 22, 19, 7, "Remove the default value from this secure object."),
       issue(23, 22, 23, 36),
-      issue(27, 22, 27, 48),
-      issue(31, 22, 31, 52),
-      issue(35, 22, 35, 52));
+      issue(27, 22, 27, 38),
+      issue(31, 22, 31, 38),
+      issue(35, 22, 35, 48),
+      issue(39, 22, 39, 52),
+      issue(43, 22, 43, 52));
   }
 }

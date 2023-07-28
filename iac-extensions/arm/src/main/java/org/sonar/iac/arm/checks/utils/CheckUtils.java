@@ -75,11 +75,11 @@ public class CheckUtils {
   }
 
   public static Predicate<Expression> isFunctionCall(String functionName) {
-    // TODO SONARIAC-10038 ARM Json: parse expression in string and build the AST to be same as Bicep equivalent
+    // TODO SONARIAC-1038 ARM Json: parse expression in string and build the AST to be same as Bicep equivalent
     // Here we detect functionCall in two ways:
     // - in Bicep we expect a FunctionCall object
     // - in Json we expect a StringLiteral with this format: "[functionName(...)]"
-    return expr -> (expr.is(ArmTree.Kind.STRING_LITERAL) && isRegexMatch("^\\[" + functionName + "\\(.*\\)\\]$").test(expr)) // ARM Json
+    return expr -> (expr.is(ArmTree.Kind.STRING_LITERAL) && isRegexMatch("^\\[\\s*+" + functionName + "\\(.*\\)\\s*+\\]$").test(expr)) // ARM Json
       || (expr.is(ArmTree.Kind.FUNCTION_CALL) && ((FunctionCall) expr).name().value().equals(functionName));// ARM Bicep
   }
 }

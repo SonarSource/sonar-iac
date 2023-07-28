@@ -24,11 +24,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.Property;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -39,12 +41,20 @@ import static org.sonar.iac.arm.ArmTestUtils.parseProperty;
 class ContextualParameterTest {
 
   ParameterDeclaration parameter = parseParameter("myParam", "string", "myValue");
+  ParameterDeclaration parameterNoDefaultValue = parseParameter("myParam", "string", null);
   ContextualParameter present = ContextualParameter.fromPresent(CTX, parameter, null);
+  ContextualParameter presentNoDefaultValue = ContextualParameter.fromPresent(CTX, parameterNoDefaultValue, null);
 
   @Test
-  void reportIfOnPresentProperty() {
-    present.reportIf(expression -> true, "message");
-    verify(CTX, times(1)).reportIssue(parameter.defaultValue(), "message", Collections.emptyList());
+  void reportOnPresentParameterNoDefaultValue() {
+    presentNoDefaultValue.report("message");
+    verify(CTX, times(1)).reportIssue(parameterNoDefaultValue, "message", Collections.emptyList());
+  }
+
+  @Test
+  void noReportIfOnPresentParameterWithNoDefaultValut() {
+    presentNoDefaultValue.reportIf(expression -> true, "message");
+    verify(CTX, never()).reportIssue(parameterNoDefaultValue, "message", Collections.emptyList());
   }
 
   @Test

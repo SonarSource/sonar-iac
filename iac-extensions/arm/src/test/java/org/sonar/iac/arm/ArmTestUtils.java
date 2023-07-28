@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -54,11 +55,11 @@ public class ArmTestUtils {
     return (ResourceDeclaration) file.statements().get(0);
   }
 
-  public static ParameterDeclaration parseParameter(String parameterName, String type, String defaultValue) {
-    String wrappedParameterCode = code("\"" + parameterName + "\": {",
-      "  \"type\": \"" + type + "\",",
-      "  \"defaultValue\": \"" + defaultValue + "\"",
-      "}");
+  public static ParameterDeclaration parseParameter(String parameterName, String type, @Nullable String defaultValue) {
+    String wrappedParameterCode = "\"" + parameterName + "\": {" +
+      "  \"type\": \"" + type + "\"" +
+      (defaultValue != null ? ", \"defaultValue\": \"" + defaultValue + "\"" : "") +
+      "}";
     File file = (File) PARSER.parse("{ \"parameters\": {" + wrappedParameterCode + "}}", null);
     return (ParameterDeclaration) file.statements().get(0);
   }
