@@ -33,14 +33,11 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
 
   public final String type;
   public final String version;
-  @Nullable
-  private final ContextualMap<?, ?> parent;
 
   private ContextualResource(CheckContext ctx, @Nullable ResourceDeclaration tree, String type, @Nullable ContextualMap<?, ?> parent) {
-    super(ctx, tree, Optional.ofNullable(tree.name()).map(TextTree::value).orElse(null), null);
+    super(ctx, tree, Optional.ofNullable(tree).map(ResourceDeclaration::name).map(TextTree::value).orElse(null), parent);
     this.type = type;
     this.version = Optional.ofNullable(tree).map(ResourceDeclaration::version).map(TextTree::value).orElse("");
-    this.parent = parent;
   }
 
   public static ContextualResource fromPresent(CheckContext ctx, ResourceDeclaration tree) {
@@ -58,8 +55,7 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
   @CheckForNull
   @Override
   protected HasTextRange toHighlight() {
-    HasTextRange fallbackForAbsent = parent != null ? parent.tree : null;
-    return tree != null ? tree.type() : fallbackForAbsent;
+    return tree != null ? tree.type() : null;
   }
 
   public ContextualResource childResourceBy(String type, Predicate<ResourceDeclaration> predicate) {
