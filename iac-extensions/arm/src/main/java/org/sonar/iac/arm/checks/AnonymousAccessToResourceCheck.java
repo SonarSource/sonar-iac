@@ -23,11 +23,13 @@ import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6380")
 public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
+  private static final String AUTH_SETTINGS_V2_RESOURCE_NAME = "authsettingsV2";
   private static final String WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
   private static final String WEBSITES_DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
 
@@ -38,7 +40,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkWebSites(ContextualResource resource) {
-    ContextualResource authSettingsV2 = resource.childResourceBy("config", it -> isValue(it.name(), "authsettingsV2").isTrue());
+    ContextualResource authSettingsV2 = resource.childResourceBy("config", it -> isValue(it.name(), AUTH_SETTINGS_V2_RESOURCE_NAME).isTrue());
 
     if (authSettingsV2.isAbsent()) {
       resource.report(WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE);
@@ -47,9 +49,13 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     }
   }
 
-  private static void checkWebSitesAuthSettings(ContextualResource authSettingsV2) {
-    ContextualObject globalValidation = authSettingsV2.object("globalValidation");
+  private static void checkWebSitesAuthSettings(ContextualResource contextualResource) {
+    if (!isEqual(AUTH_SETTINGS_V2_RESOURCE_NAME).test(contextualResource.tree.name())) {
+      return;
+    }
+
+    ContextualObject globalValidation = contextualResource.object("globalValidation");
     globalValidation.property("requireAuthentication").reportIf(isFalse(), WEBSITES_DISABLED_AUTH_MESSAGE);
-    globalValidation.property("unauthenticatedClientAction").reportIf(e -> isValue(e, "AllowAnonymous").isTrue(), WEBSITES_DISABLED_AUTH_MESSAGE);
+    globalValidation.property("unauthenticatedClientAction").reportIf(isEqual("AllowAnonymous"), WEBSITES_DISABLED_AUTH_MESSAGE);
   }
 }
