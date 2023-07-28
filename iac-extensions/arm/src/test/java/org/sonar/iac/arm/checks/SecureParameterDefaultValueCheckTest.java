@@ -38,8 +38,8 @@ class SecureParameterDefaultValueCheckTest {
       issue(23, 22, 23, 36),
       issue(27, 22, 27, 38),
       issue(31, 22, 31, 38),
-      issue(35, 22, 35, 48),
-      issue(39, 22, 39, 52),
+      issue(35, 22, 35, 52),
+      issue(39, 22, 39, 48),
       issue(43, 22, 43, 52));
   }
 }
