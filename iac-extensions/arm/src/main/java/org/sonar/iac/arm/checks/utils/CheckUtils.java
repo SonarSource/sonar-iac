@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.checks.utils;
 
+import java.util.Collection;
 import java.util.function.Predicate;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -81,5 +82,9 @@ public class CheckUtils {
     // - in Json we expect a StringLiteral with this format: "[functionName(...)]"
     return expr -> (expr.is(ArmTree.Kind.STRING_LITERAL) && isRegexMatch("^\\[\\s*+" + functionName + "\\(.*\\)\\s*+\\]$").test(expr)) // ARM Json
       || (expr.is(ArmTree.Kind.FUNCTION_CALL) && ((FunctionCall) expr).name().value().equals(functionName));// ARM Bicep
+  }
+
+  public static Predicate<Expression> inCollection(Collection<String> collection) {
+    return expr -> TextUtils.matchesValue(expr, collection::contains).isTrue();
   }
 }

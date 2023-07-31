@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "name": "Sensitive",
+      "properties": {
+        "type": "${type}",
+        "typeProperties": {
+          "authenticationType": "Anonymous"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "name": "Compliant",
+      "properties": {
+        "type": "${type}",
+        "typeProperties": {
+          "authenticationType": "Basic"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "name": "Compliant - not a sensitive type",
+      "properties": {
+        "type": "MariaDB",
+        "typeProperties": {
+          "authenticationType": "Anonymous"
+        }
+      }
+    }
+  ]
+}
