@@ -19,8 +19,13 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.testing.Verifier;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.arm.ArmTestUtils;
+
+import static org.sonar.iac.common.testing.Verifier.issue;
 
 class AnonymousAccessToResourceCheckTest {
   AnonymousAccessToResourceCheck check = new AnonymousAccessToResourceCheck();
@@ -28,18 +33,20 @@ class AnonymousAccessToResourceCheckTest {
   @Test
   void shouldFindIssuesInWebSitesResourceJson() {
     ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Web_sites.json", check,
-      Verifier.issue(6, 14, 6, 35, "Omitting authsettingsV2 disables authentication. Make sure it is safe here."),
-      Verifier.issue(21, 14, 21, 44, "Make sure that disabling authentication is safe here."),
-      Verifier.issue(22, 14, 22, 61, "Make sure that disabling authentication is safe here."),
-      Verifier.issue(39, 14, 39, 44, "Make sure that disabling authentication is safe here."),
-      Verifier.issue(58, 14, 58, 61, "Make sure that disabling authentication is safe here."),
-      Verifier.issue(70, 10, 70, 40, "Make sure that disabling authentication is safe here."));
+      issue(6, 14, 6, 35, "Omitting authsettingsV2 disables authentication. Make sure it is safe here."),
+      issue(21, 14, 21, 44, "Make sure that disabling authentication is safe here."),
+      issue(22, 14, 22, 61, "Make sure that disabling authentication is safe here."),
+      issue(39, 14, 39, 44, "Make sure that disabling authentication is safe here."),
+      issue(58, 14, 58, 61, "Make sure that disabling authentication is safe here."),
+      issue(70, 10, 70, 40, "Make sure that disabling authentication is safe here."));
   }
 
-  @Test
-  void shouldFindIssuesInDataFactoryJson() {
-    ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.json", check,
-      Verifier.issue(12, 10, 12, 43, "Make sure that authorizing anonymous access is safe here."));
+  @MethodSource(value = "sensitiveDataFactoryTypes")
+  @ParameterizedTest(name = "[{index}] JSON should check data factory secure access for type {0}")
+  void shouldFindIssuesInDataFactoryJson(String type) {
+    String content = ArmTestUtils.readTemplateAndReplace("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.json", type);
+    ArmVerifier.verifyContent(content, check,
+      issue(12, 10, 12, 43, "Make sure that authorizing anonymous access is safe here."));
   }
 
   @Test
@@ -50,5 +57,21 @@ class AnonymousAccessToResourceCheckTest {
   @Test
   void shouldFindIssuesInDataFactoryBicep() {
     BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.bicep", check);
+  }
+
+  private static Stream<String> sensitiveDataFactoryTypes() {
+    return Stream.of("AzureBlobStorage",
+      "FtpServer",
+      "HBase",
+      "Hive",
+      "HttpServer",
+      "Impala",
+      "MongoDb",
+      "OData",
+      "Phoenix",
+      "Presto",
+      "RestService",
+      "Spark",
+      "Web");
   }
 }

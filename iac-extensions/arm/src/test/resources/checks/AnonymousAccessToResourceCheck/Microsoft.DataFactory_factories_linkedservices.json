@@ -7,7 +7,7 @@
       "apiVersion": "2018-06-01",
       "name": "Sensitive",
       "properties": {
-        "type": "Web",
+        "type": "${type}",
         "typeProperties": {
           "authenticationType": "Anonymous"
         }
@@ -18,7 +18,7 @@
       "apiVersion": "2018-06-01",
       "name": "Compliant",
       "properties": {
-        "type": "Web",
+        "type": "${type}",
         "typeProperties": {
           "authenticationType": "Basic"
         }

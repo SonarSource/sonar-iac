@@ -1,12 +1,12 @@
 resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-    name: 'example'
-    properties: {
-        type: 'Web'
-        typeProperties: {
-            // Noncompliant@+1 {{Make sure that authorizing anonymous access is safe here.}}
-            authenticationType: 'Anonymous'
-        }
+  name: 'example'
+  properties: {
+    type: '${type}'
+    typeProperties: {
+      // Noncompliant@+1 {{Make sure that authorizing anonymous access is safe here.}}
+      authenticationType: 'Anonymous'
     }
+  }
 }
 
 @secure()
@@ -14,28 +14,28 @@ resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-0
 param password string
 
 resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-    name: 'example'
-    properties: {
-        type: 'Web'
-        typeProperties: {
-            authenticationType: 'Basic' // Compliant
-            username: 'test'
-            password: {
-                type: 'SecureString'
-                value: password
-            }
-        }
+  name: 'example'
+  properties: {
+    type: '${type}'
+    typeProperties: {
+      authenticationType: 'Basic' // Compliant
+      username: 'test'
+      password: {
+        type: 'SecureString'
+        value: password
+      }
     }
+  }
 }
 
 
 resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-    name: 'example'
-    properties: {
-            // Compliant - not a sensitive type
-        type: 'MariaDB'
-        typeProperties: {
-            authenticationType: 'Anonymous'
-        }
+  name: 'example'
+  properties: {
+    // Compliant - not a sensitive type
+    type: 'MariaDB'
+    typeProperties: {
+      authenticationType: 'Anonymous'
     }
+  }
 }
