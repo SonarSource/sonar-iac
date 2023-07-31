@@ -43,6 +43,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     register("Microsoft.Web/sites/config", AnonymousAccessToResourceCheck::checkWebSitesAuthSettings);
     register("Microsoft.ApiManagement/service", AnonymousAccessToResourceCheck::checkApiManagementService);
     register("Microsoft.ApiManagement/service/portalsettings", AnonymousAccessToResourceCheck::checkApiManagementPortalSettings);
+    register("Microsoft.ApiManagement/service/apis", AnonymousAccessToResourceCheck::checkApiManagementServiceApis);
   }
 
   private static void checkWebSites(ContextualResource resource) {
@@ -73,6 +74,11 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     } else {
       checkApiManagementPortalSettings(signIn);
     }
+
+    ContextualResource apis = resource.childResourceBy("apis", r -> true);
+    if (apis.isPresent()) {
+      checkApiManagementServiceApis(apis);
+    }
   }
 
   private static void checkApiManagementPortalSettings(ContextualResource resource) {
@@ -81,9 +87,10 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     }
 
     resource.property("enabled").reportIf(isFalse(), APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE);
+  }
 
-    resource.childResourceBy("apis", r -> true)
-      .property("authenticationSettings")
+  private static void checkApiManagementServiceApis(ContextualResource resource) {
+    resource.property("authenticationSettings")
       .reportIfAbsent(APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE);
   }
 }

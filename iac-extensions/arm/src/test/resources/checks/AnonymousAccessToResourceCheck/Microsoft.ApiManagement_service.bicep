@@ -17,9 +17,16 @@ resource apiService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
 // Noncompliant@+1 {{Omitting sign_in authorizes anonymous access. Make sure it is safe here.}}
 resource apiService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
   name: 'apiService'
+  // Noncompliant@+1 {{Omitting authenticationSettings disables authentication. Make sure it is safe here.}}
   resource portalSettings 'apis@2022-09-01-preview' = {
     name: 'exampleApi'
   }
+}
+
+// Noncompliant@+1 {{Omitting authenticationSettings disables authentication. Make sure it is safe here.}}
+resource portalSettings 'Microsoft.ApiManagement/service/apis@2022-09-01-preview' = {
+  name: 'exampleApi'
+  parent: apiService
 }
 
 resource apiService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
