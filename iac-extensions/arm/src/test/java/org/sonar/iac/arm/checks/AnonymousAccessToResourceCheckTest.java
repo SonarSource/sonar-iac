@@ -37,7 +37,18 @@ class AnonymousAccessToResourceCheckTest {
   }
 
   @Test
+  void shouldFindIssuesInDataFactoryJson() {
+    ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.json", check,
+      Verifier.issue(12, 10, 12, 43, "Make sure that authorizing anonymous access is safe here."));
+  }
+
+  @Test
   void shouldFindIssuesInWebSitesResourceBicep() {
     BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Web_sites.bicep", check);
+  }
+
+  @Test
+  void shouldFindIssuesInDataFactoryBicep() {
+    BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.bicep", check);
   }
 }

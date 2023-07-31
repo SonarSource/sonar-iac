@@ -19,10 +19,12 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.inCollection;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFalse;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
@@ -32,11 +34,15 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   private static final String AUTH_SETTINGS_V2_RESOURCE_NAME = "authsettingsV2";
   private static final String WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
   private static final String WEBSITES_DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
+  private static final String DATA_FACTORY_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
+  private static final List<String> DATA_FACTORY_SENSITIVE_TYPES = List.of("AzureBlobStorage", "FtpServer", "HBase", "Hive", "HttpServer", "Impala", "MongoDb", "OData", "Phoenix",
+    "Presto", "RestService", "Spark", "Web");
 
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", AnonymousAccessToResourceCheck::checkWebSites);
     register("Microsoft.Web/sites/config", AnonymousAccessToResourceCheck::checkWebSitesAuthSettings);
+    register("Microsoft.DataFactory/factories/linkedservices", AnonymousAccessToResourceCheck::checkDataFactories);
   }
 
   private static void checkWebSites(ContextualResource resource) {
@@ -57,5 +63,15 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     ContextualObject globalValidation = contextualResource.object("globalValidation");
     globalValidation.property("requireAuthentication").reportIf(isFalse(), WEBSITES_DISABLED_AUTH_MESSAGE);
     globalValidation.property("unauthenticatedClientAction").reportIf(isEqual("AllowAnonymous"), WEBSITES_DISABLED_AUTH_MESSAGE);
+  }
+
+  private static void checkDataFactories(ContextualResource resource) {
+    if (!resource.property("type").is(inCollection(DATA_FACTORY_SENSITIVE_TYPES))) {
+      return;
+    }
+
+    resource.object("typeProperties")
+      .property("authenticationType")
+      .reportIf(isEqual("Anonymous"), DATA_FACTORY_ANONYMOUS_ACCESS_MESSAGE);
   }
 }
