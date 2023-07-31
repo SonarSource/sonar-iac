@@ -32,14 +32,13 @@ import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6380")
 public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
+  private static final String DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final String WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME = "authsettingsV2";
   private static final String WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
-  private static final String WEBSITES_DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final String APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME = "signin";
   private static final String APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
   private static final String APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE = "Omitting sign_in authorizes anonymous access. Make sure it is safe here.";
   private static final String APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE = "Omitting authenticationSettings disables authentication. Make sure it is safe here.";
-  private static final String CACHE_AUTHENTICATION_DISABLED_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final String DATA_FACTORY_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final List<String> DATA_FACTORY_SENSITIVE_TYPES = List.of("AzureBlobStorage", "FtpServer", "HBase", "Hive", "HttpServer", "Impala", "MongoDb", "OData", "Phoenix",
     "Presto", "RestService", "Spark", "Web");
@@ -71,8 +70,8 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     }
 
     ContextualObject globalValidation = contextualResource.object("globalValidation");
-    globalValidation.property("requireAuthentication").reportIf(isFalse(), WEBSITES_DISABLED_AUTH_MESSAGE);
-    globalValidation.property("unauthenticatedClientAction").reportIf(isEqual("AllowAnonymous"), WEBSITES_DISABLED_AUTH_MESSAGE);
+    globalValidation.property("requireAuthentication").reportIf(isFalse(), DISABLED_AUTH_MESSAGE);
+    globalValidation.property("unauthenticatedClientAction").reportIf(isEqual("AllowAnonymous"), DISABLED_AUTH_MESSAGE);
   }
 
   private static void checkApiManagementService(ContextualResource resource) {
@@ -106,7 +105,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   private static void checkRedisCache(ContextualResource resource) {
     resource.object("redisConfiguration")
       .property("authnotrequired")
-      .reportIf(TextUtils::isValueTrue, CACHE_AUTHENTICATION_DISABLED_MESSAGE);
+      .reportIf(TextUtils::isValueTrue, DISABLED_AUTH_MESSAGE);
   }
 
   private static void checkDataFactories(ContextualResource resource) {
