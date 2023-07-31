@@ -62,6 +62,12 @@ class AnonymousAccessToResourceCheckTest {
   }
 
   @Test
+  void shouldFindIssuesInRedisCacheJson() {
+    ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Cache_redis.json", check,
+      issue(11, 10, 11, 35, "Make sure that disabling authentication is safe here."));
+  }
+
+  @Test
   void shouldFindIssuesInWebSitesResourceBicep() {
     BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Web_sites.bicep", check);
   }
@@ -69,6 +75,11 @@ class AnonymousAccessToResourceCheckTest {
   @Test
   void shouldFindIssuesInApiManagementServiceBicep() {
     BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.ApiManagement_service.bicep", check);
+  }
+
+  @Test
+  void shouldFindIssuesInRedisCacheBicep() {
+    BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Cache_redis.bicep", check);
   }
 
   @Test

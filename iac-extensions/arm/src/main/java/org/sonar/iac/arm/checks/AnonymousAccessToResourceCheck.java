@@ -23,6 +23,7 @@ import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
+import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.inCollection;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
@@ -31,9 +32,9 @@ import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6380")
 public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
+  private static final String DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final String WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME = "authsettingsV2";
   private static final String WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
-  private static final String WEBSITES_DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final String APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME = "signin";
   private static final String APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
   private static final String APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE = "Omitting sign_in authorizes anonymous access. Make sure it is safe here.";
@@ -49,6 +50,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     register("Microsoft.ApiManagement/service", AnonymousAccessToResourceCheck::checkApiManagementService);
     register("Microsoft.ApiManagement/service/portalsettings", AnonymousAccessToResourceCheck::checkApiManagementPortalSettings);
     register("Microsoft.ApiManagement/service/apis", AnonymousAccessToResourceCheck::checkApiManagementServiceApis);
+    register("Microsoft.Cache/redis", AnonymousAccessToResourceCheck::checkRedisCache);
     register("Microsoft.DataFactory/factories/linkedservices", AnonymousAccessToResourceCheck::checkDataFactories);
   }
 
@@ -68,8 +70,8 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     }
 
     ContextualObject globalValidation = contextualResource.object("globalValidation");
-    globalValidation.property("requireAuthentication").reportIf(isFalse(), WEBSITES_DISABLED_AUTH_MESSAGE);
-    globalValidation.property("unauthenticatedClientAction").reportIf(isEqual("AllowAnonymous"), WEBSITES_DISABLED_AUTH_MESSAGE);
+    globalValidation.property("requireAuthentication").reportIf(isFalse(), DISABLED_AUTH_MESSAGE);
+    globalValidation.property("unauthenticatedClientAction").reportIf(isEqual("AllowAnonymous"), DISABLED_AUTH_MESSAGE);
   }
 
   private static void checkApiManagementService(ContextualResource resource) {
@@ -98,6 +100,12 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   private static void checkApiManagementServiceApis(ContextualResource resource) {
     resource.property("authenticationSettings")
       .reportIfAbsent(APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE);
+  }
+
+  private static void checkRedisCache(ContextualResource resource) {
+    resource.object("redisConfiguration")
+      .property("authnotrequired")
+      .reportIf(TextUtils::isValueTrue, DISABLED_AUTH_MESSAGE);
   }
 
   private static void checkDataFactories(ContextualResource resource) {
