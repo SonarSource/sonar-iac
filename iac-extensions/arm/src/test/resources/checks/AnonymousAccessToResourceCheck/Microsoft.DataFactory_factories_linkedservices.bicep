@@ -1,7 +1,7 @@
 resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'example'
   properties: {
-    type: '${type}'
+    type: 'Web'
     typeProperties: {
       // Noncompliant@+1 {{Make sure that authorizing anonymous access is safe here.}}
       authenticationType: 'Anonymous'
@@ -16,7 +16,7 @@ param password string
 resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'example'
   properties: {
-    type: '${type}'
+    type: 'Web'
     typeProperties: {
       authenticationType: 'Basic' // Compliant
       username: 'test'
