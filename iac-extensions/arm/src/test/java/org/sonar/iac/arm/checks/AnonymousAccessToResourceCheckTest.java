@@ -37,7 +37,23 @@ class AnonymousAccessToResourceCheckTest {
   }
 
   @Test
+  void shouldFindIssuesInStorageAccountsJson() {
+    ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Storage_storageAccounts.json", check,
+      Verifier.issue(6, 14, 6, 49, "Make sure that authorizing potential anonymous access is safe here."),
+      Verifier.issue(15, 8, 15, 37, "Make sure that authorizing potential anonymous access is safe here."),
+      Verifier.issue(31, 12, 31, 34, "Make sure that authorizing potential anonymous access is safe here."),
+      Verifier.issue(37, 14, 37, 49, "Make sure that authorizing potential anonymous access is safe here."),
+      Verifier.issue(46, 12, 46, 34, "Make sure that authorizing potential anonymous access is safe here."),
+      Verifier.issue(56, 8, 56, 30, "Make sure that authorizing potential anonymous access is safe here."));
+  }
+
+  @Test
   void shouldFindIssuesInWebSitesResourceBicep() {
     BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Web_sites.bicep", check);
+  }
+
+  @Test
+  void shouldFindIssuesInStorageAccountsBicep() {
+    BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Storage_storageAccounts.bicep", check);
   }
 }
