@@ -30,21 +30,28 @@ import static org.sonar.iac.common.checks.TextUtils.isValue;
 
 @Rule(key = "S6380")
 public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
-  private static final String AUTH_SETTINGS_V2_RESOURCE_NAME = "authsettingsV2";
+  private static final String WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME = "authsettingsV2";
   private static final String WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE = "Omitting authsettingsV2 disables authentication. Make sure it is safe here.";
   private static final String WEBSITES_DISABLED_AUTH_MESSAGE = "Make sure that disabling authentication is safe here.";
+  private static final String APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME = "signin";
+  private static final String APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
+  private static final String APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE = "Omitting sign_in authorizes anonymous access. Make sure it is safe here.";
+  private static final String APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE = "Omitting authenticationSettings disables authentication. Make sure it is safe here.";
   private static final String STORAGE_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing potential anonymous access is safe here.";
 
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.Web/sites", AnonymousAccessToResourceCheck::checkWebSites);
     register("Microsoft.Web/sites/config", AnonymousAccessToResourceCheck::checkWebSitesAuthSettings);
+    register("Microsoft.ApiManagement/service", AnonymousAccessToResourceCheck::checkApiManagementService);
+    register("Microsoft.ApiManagement/service/portalsettings", AnonymousAccessToResourceCheck::checkApiManagementPortalSettings);
+    register("Microsoft.ApiManagement/service/apis", AnonymousAccessToResourceCheck::checkApiManagementServiceApis);
     register("Microsoft.Storage/storageAccounts", AnonymousAccessToResourceCheck::checkStorageAccounts);
     register("Microsoft.Storage/storageAccounts/blobServices/containers", AnonymousAccessToResourceCheck::checkStorageAccountContainers);
   }
 
   private static void checkWebSites(ContextualResource resource) {
-    ContextualResource authSettingsV2 = resource.childResourceBy("config", it -> isValue(it.name(), AUTH_SETTINGS_V2_RESOURCE_NAME).isTrue());
+    ContextualResource authSettingsV2 = resource.childResourceBy("config", it -> isValue(it.name(), WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME).isTrue());
 
     if (authSettingsV2.isAbsent()) {
       resource.report(WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE);
@@ -54,13 +61,41 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkWebSitesAuthSettings(ContextualResource contextualResource) {
-    if (!isEqual(AUTH_SETTINGS_V2_RESOURCE_NAME).test(contextualResource.tree.name())) {
+    if (!isEqual(WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME).test(contextualResource.tree.name())) {
       return;
     }
 
     ContextualObject globalValidation = contextualResource.object("globalValidation");
     globalValidation.property("requireAuthentication").reportIf(isFalse(), WEBSITES_DISABLED_AUTH_MESSAGE);
     globalValidation.property("unauthenticatedClientAction").reportIf(isEqual("AllowAnonymous"), WEBSITES_DISABLED_AUTH_MESSAGE);
+  }
+
+  private static void checkApiManagementService(ContextualResource resource) {
+    ContextualResource signIn = resource.childResourceBy("portalsettings", it -> isEqual(APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME).test(it.name()));
+
+    if (signIn.isAbsent()) {
+      resource.report(APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE);
+    } else {
+      checkApiManagementPortalSettings(signIn);
+    }
+
+    ContextualResource apis = resource.childResourceBy("apis", r -> true);
+    if (apis.isPresent()) {
+      checkApiManagementServiceApis(apis);
+    }
+  }
+
+  private static void checkApiManagementPortalSettings(ContextualResource resource) {
+    if (!isEqual(APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME).test(resource.tree.name())) {
+      return;
+    }
+
+    resource.property("enabled").reportIf(isFalse(), APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE);
+  }
+
+  private static void checkApiManagementServiceApis(ContextualResource resource) {
+    resource.property("authenticationSettings")
+      .reportIfAbsent(APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE);
   }
 
   private static void checkStorageAccounts(ContextualResource resource) {
