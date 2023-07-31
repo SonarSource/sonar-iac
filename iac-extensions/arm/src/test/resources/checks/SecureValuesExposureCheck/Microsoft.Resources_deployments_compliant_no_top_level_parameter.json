@@ -5,7 +5,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "nestedDeployment-noncompliant",
+      "name": "Compliant: no sensitive parameters in the root template",
       "properties": {
         "mode": "Incremental",
         "template": {

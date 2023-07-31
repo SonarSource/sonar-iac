@@ -3,6 +3,7 @@ param adminUsername string = newGuid()
 
 // Noncompliant@+1 {{Change this code to not use an outer expression evaluation scope in nested templates.}}
 resource noncompliantDeployment 'Microsoft.Resources/deployments@2022-09-01' = {
+//                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 1
   name: 'nestedDeployment-noncompliant'
   properties: {
     // expressionEvaluationOptions is missing (defaults to 'Outer')
@@ -20,6 +21,7 @@ resource noncompliantDeployment 'Microsoft.Resources/deployments@2022-09-01' = {
             osProfile: {
               computerName: 'vm-example'
                 adminUsername: adminUsername
+//                             ^^^^^^^^^^^^^< {{This secure parameter is leaked through the deployment history.}}
             }
           }
         }

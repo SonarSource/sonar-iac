@@ -21,21 +21,32 @@ package org.sonar.iac.arm.tree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.ParameterDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 
 public class ArmTreeUtils {
 
   public static final String ARRAY_TOKEN = "*";
+  private static final Pattern jsonParameters = Pattern.compile("^\\[\\s*+parameters\\('(?<name>.*)'\\)\\s*+\\]$");
 
   private ArmTreeUtils() {
     // utils class to manipulate ArmTree components
@@ -88,5 +99,31 @@ public class ArmTreeUtils {
       .findFirst()
       // There should always be a FILE node in a real-world tree
       .get();
+  }
+
+  public static Map<String, ParameterDeclaration> getParametersByNames(ArmTree tree) {
+    // TODO: after SONARIAC-1034 use symbol table instead of accessing parameters through `FILE`
+    File file = ArmTreeUtils.getRootNode(tree);
+    return file.statements().stream()
+      .filter(ParameterDeclaration.class::isInstance)
+      .map(ParameterDeclaration.class::cast)
+      .collect(Collectors.toMap(param -> param.identifier().value(), param -> param));
+  }
+
+  public static Predicate<Expression> containsParameterReference(Collection<String> parameterNames) {
+    return expr -> {
+      // TODO SONARIAC-1038 ARM Json: parse expression in string and build the AST to be same as Bicep equivalent
+      if (expr.is(ArmTree.Kind.IDENTIFIER)) {
+        // ARM Bicep
+        return parameterNames.contains(((Identifier) expr).value());
+      } else if (expr.is(ArmTree.Kind.STRING_LITERAL)) {
+        // ARM Json
+        Matcher matcher = jsonParameters.matcher(((StringLiteral) expr).value());
+        if (matcher.find()) {
+          return parameterNames.contains(matcher.group("name"));
+        }
+      }
+      return false;
+    };
   }
 }

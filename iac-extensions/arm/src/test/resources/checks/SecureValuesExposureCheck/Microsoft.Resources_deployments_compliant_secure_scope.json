@@ -11,7 +11,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "nestedDeployment-noncompliant",
+      "name": "Compliant: inner scope contains parameter with the same name that overrides parameter from root template",
       "properties": {
         "mode": "Incremental",
         "expressionEvaluationOptions": {

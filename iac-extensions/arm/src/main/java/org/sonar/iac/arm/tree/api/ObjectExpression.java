@@ -22,20 +22,17 @@ package org.sonar.iac.arm.tree.api;
 import java.util.List;
 import java.util.stream.Stream;
 import org.sonar.iac.common.api.tree.HasProperties;
-import org.sonar.iac.common.api.tree.PropertyTree;
 
 public interface ObjectExpression extends Expression, HasProperties {
   List<ResourceDeclaration> nestedResources();
 
-  default Stream<PropertyTree> allLiteralProperties() {
+  default Stream<Property> allLiteralProperties() {
     return properties().stream().flatMap(p -> {
       Expression value = (Expression) p.value();
       if (value instanceof ObjectExpression) {
         return ((ObjectExpression) value).allLiteralProperties();
-      } else if (value instanceof StringLiteral) {
-        return Stream.of(p);
       } else {
-        return Stream.empty();
+        return Stream.of((Property) p);
       }
     });
   }
