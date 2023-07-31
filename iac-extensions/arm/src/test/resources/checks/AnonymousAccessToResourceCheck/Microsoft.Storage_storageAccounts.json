@@ -51,7 +51,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
       "apiVersion": "2022-09-01",
-      "name": "Sensitive",
+      "name": "Sensitive - `publicAccess` mode is set to `Blob`",
       "properties": {
         "publicAccess": "Blob"
       }

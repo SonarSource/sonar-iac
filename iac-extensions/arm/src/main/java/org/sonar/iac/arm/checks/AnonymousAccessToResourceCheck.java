@@ -61,8 +61,6 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
 
     if (authSettingsV2.isAbsent()) {
       resource.report(WEBSITES_MISSING_AUTH_SETTINGS_MESSAGE);
-    } else {
-      checkWebSitesAuthSettings(authSettingsV2);
     }
   }
 
@@ -81,13 +79,6 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
 
     if (signIn.isAbsent()) {
       resource.report(APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE);
-    } else {
-      checkApiManagementPortalSettings(signIn);
-    }
-
-    ContextualResource apis = resource.childResourceBy("apis", r -> true);
-    if (apis.isPresent()) {
-      checkApiManagementServiceApis(apis);
     }
   }
 
@@ -108,11 +99,6 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     resource.property("allowBlobPublicAccess")
       .reportIf(CheckUtils.isTrue(), STORAGE_ANONYMOUS_ACCESS_MESSAGE)
       .reportIfAbsent(STORAGE_ANONYMOUS_ACCESS_MESSAGE);
-
-    ContextualResource containers = resource.childResourceBy("blobServices/containers", r -> true);
-    if (containers.isPresent()) {
-      checkStorageAccountContainers(containers);
-    }
   }
 
   private static void checkStorageAccountContainers(ContextualResource resource) {
