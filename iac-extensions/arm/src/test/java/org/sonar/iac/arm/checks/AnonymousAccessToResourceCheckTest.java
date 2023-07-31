@@ -37,7 +37,24 @@ class AnonymousAccessToResourceCheckTest {
   }
 
   @Test
+  void shouldFindIssuesInApiManagementServiceJson() {
+    ArmVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.ApiManagement_service.json", check,
+      Verifier.issue(6, 14, 6, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."),
+      Verifier.issue(20, 12, 20, 28, "Make sure that giving anonymous access without enforcing sign-in is safe here."),
+      Verifier.issue(26, 14, 26, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."),
+      Verifier.issue(31, 18, 31, 24, "Omitting authenticationSettings disables authentication. Make sure it is safe here."),
+      Verifier.issue(53, 18, 53, 24, "Omitting authenticationSettings disables authentication. Make sure it is safe here."),
+      Verifier.issue(69, 12, 69, 28, "Make sure that giving anonymous access without enforcing sign-in is safe here."),
+      Verifier.issue(88, 14, 88, 47, "Omitting sign_in authorizes anonymous access. Make sure it is safe here."));
+  }
+
+  @Test
   void shouldFindIssuesInWebSitesResourceBicep() {
     BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Web_sites.bicep", check);
+  }
+
+  @Test
+  void shouldFindIssuesInApiManagementServiceBicep() {
+    BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.ApiManagement_service.bicep", check);
   }
 }
