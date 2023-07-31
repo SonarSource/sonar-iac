@@ -38,6 +38,7 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.testing.IacTestUtils.code;
 
 public abstract class AbstractMetricsTest {
 
@@ -65,10 +66,15 @@ public abstract class AbstractMetricsTest {
 
   protected abstract MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory);
 
+  protected MetricsVisitor scan(String... codeLines) {
+    return scan(code(codeLines));
+  }
+
   protected MetricsVisitor scan(String code) {
     inputFile = new TestInputFileBuilder("moduleKey", new File(tempFolder, "file").getName())
       .setCharset(StandardCharsets.UTF_8)
-      .initMetadata(code).build();
+      .setContents(code)
+      .build();
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
     visitor.scan(ctx, parser.parse(code, null));
     return visitor;
