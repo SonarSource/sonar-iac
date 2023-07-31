@@ -152,7 +152,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
   void raiseParserExceptionWhenAnalysingCorruptFile() throws IOException {
     Tree tree = mock(Tree.class);
     InputFile inputFile = mock(InputFile.class);
-    when(inputFile.contents()).thenThrow(new IOException("File not found"));
+    when(inputFile.inputStream()).thenThrow(new IOException("File not found"));
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
 
     ParseException thrown = assertThrows(ParseException.class, () -> visitor.scan(ctx, tree));

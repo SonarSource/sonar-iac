@@ -19,7 +19,9 @@
  */
 package org.sonar.iac.common.yaml.visitors;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -51,13 +53,14 @@ public class YamlMetricsVisitor extends MetricsVisitor {
    */
   private void analyzeFileContentForLoc(InputFile inputFile) throws IOException {
     int lineNumber = 1;
-    String[] lines = inputFile.contents().split("(\\r\\n|\\r|\\n)");
-    for (String line : lines) {
-      line = line.trim();
-      if (!(line.isBlank() || line.startsWith("#"))) {
-        linesOfCode().add(lineNumber);
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputFile.inputStream(), inputFile.charset()))) {
+      while (reader.ready()) {
+        String line = reader.readLine().trim();
+        if (!(line.isBlank() || line.startsWith("#"))) {
+          linesOfCode().add(lineNumber);
+        }
+        lineNumber++;
       }
-      lineNumber++;
     }
   }
 
