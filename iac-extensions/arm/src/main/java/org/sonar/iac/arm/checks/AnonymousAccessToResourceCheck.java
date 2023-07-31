@@ -23,6 +23,7 @@ import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
+import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.inCollection;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
@@ -38,6 +39,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   private static final String APIMGMT_PORTAL_SETTINGS_DISABLED_MESSAGE = "Make sure that giving anonymous access without enforcing sign-in is safe here.";
   private static final String APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE = "Omitting sign_in authorizes anonymous access. Make sure it is safe here.";
   private static final String APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE = "Omitting authenticationSettings disables authentication. Make sure it is safe here.";
+  private static final String CACHE_AUTHENTICATION_DISABLED_MESSAGE = "Make sure that disabling authentication is safe here.";
   private static final String DATA_FACTORY_ANONYMOUS_ACCESS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final List<String> DATA_FACTORY_SENSITIVE_TYPES = List.of("AzureBlobStorage", "FtpServer", "HBase", "Hive", "HttpServer", "Impala", "MongoDb", "OData", "Phoenix",
     "Presto", "RestService", "Spark", "Web");
@@ -49,6 +51,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
     register("Microsoft.ApiManagement/service", AnonymousAccessToResourceCheck::checkApiManagementService);
     register("Microsoft.ApiManagement/service/portalsettings", AnonymousAccessToResourceCheck::checkApiManagementPortalSettings);
     register("Microsoft.ApiManagement/service/apis", AnonymousAccessToResourceCheck::checkApiManagementServiceApis);
+    register("Microsoft.Cache/redis", AnonymousAccessToResourceCheck::checkRedisCache);
     register("Microsoft.DataFactory/factories/linkedservices", AnonymousAccessToResourceCheck::checkDataFactories);
   }
 
@@ -98,6 +101,12 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   private static void checkApiManagementServiceApis(ContextualResource resource) {
     resource.property("authenticationSettings")
       .reportIfAbsent(APIMGMT_AUTHENTICATION_SETTINGS_NOT_SET_MESSAGE);
+  }
+
+  private static void checkRedisCache(ContextualResource resource) {
+    resource.object("redisConfiguration")
+      .property("authnotrequired")
+      .reportIf(TextUtils::isValueTrue, CACHE_AUTHENTICATION_DISABLED_MESSAGE);
   }
 
   private static void checkDataFactories(ContextualResource resource) {
