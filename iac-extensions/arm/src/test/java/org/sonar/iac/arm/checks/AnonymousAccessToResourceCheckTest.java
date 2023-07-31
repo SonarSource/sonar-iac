@@ -19,7 +19,11 @@
  */
 package org.sonar.iac.arm.checks;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.arm.ArmTestUtils;
 
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -35,6 +39,14 @@ class AnonymousAccessToResourceCheckTest {
       issue(39, 14, 39, 44, "Make sure that disabling authentication is safe here."),
       issue(58, 14, 58, 61, "Make sure that disabling authentication is safe here."),
       issue(70, 10, 70, 40, "Make sure that disabling authentication is safe here."));
+  }
+
+  @MethodSource(value = "sensitiveDataFactoryTypes")
+  @ParameterizedTest(name = "[{index}] JSON should check data factory secure access for type {0}")
+  void shouldFindIssuesInDataFactoryJson(String type) {
+    String content = ArmTestUtils.readTemplateAndReplace("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.json", type);
+    ArmVerifier.verifyContent(content, check,
+      issue(12, 10, 12, 43, "Make sure that authorizing anonymous access is safe here."));
   }
 
   @Test
@@ -73,5 +85,26 @@ class AnonymousAccessToResourceCheckTest {
   @Test
   void shouldFindIssuesInStorageAccountsBicep() {
     BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.Storage_storageAccounts.bicep", check);
+  }
+
+  @Test
+  void shouldFindIssuesInDataFactoryBicep() {
+    BicepVerifier.verify("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.bicep", check);
+  }
+
+  private static Stream<String> sensitiveDataFactoryTypes() {
+    return Stream.of("AzureBlobStorage",
+      "FtpServer",
+      "HBase",
+      "Hive",
+      "HttpServer",
+      "Impala",
+      "MongoDb",
+      "OData",
+      "Phoenix",
+      "Presto",
+      "RestService",
+      "Spark",
+      "Web");
   }
 }
