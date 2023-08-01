@@ -26,14 +26,16 @@ import org.sonar.iac.common.api.tree.HasProperties;
 public interface ObjectExpression extends Expression, HasProperties {
   List<ResourceDeclaration> nestedResources();
 
-  default Stream<Property> allLiteralProperties() {
-    return properties().stream().flatMap(p -> {
-      Expression value = (Expression) p.value();
-      if (value instanceof ObjectExpression) {
-        return ((ObjectExpression) value).allLiteralProperties();
-      } else {
-        return Stream.of((Property) p);
-      }
-    });
+  default Stream<Property> allPropertiesFlattened() {
+    return properties().stream()
+      .map(Property.class::cast)
+      .flatMap(p -> {
+        Expression value = p.value();
+        if (value instanceof ObjectExpression) {
+          return ((ObjectExpression) value).allPropertiesFlattened();
+        } else {
+          return Stream.of(p);
+        }
+      });
   }
 }

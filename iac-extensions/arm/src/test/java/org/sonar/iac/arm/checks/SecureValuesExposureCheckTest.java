@@ -15,9 +15,10 @@ class SecureValuesExposureCheckTest {
   @Test
   void testBicep() {
     // ArmVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_compliant_secure_scope.json", new
-    // SecureValuesExposureCheck());
     // ArmVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_compliant_no_top_level_parameter.json", new
     // SecureValuesExposureCheck());
     BicepVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_noncompliant.bicep", new SecureValuesExposureCheck());
+    BicepVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_compliant.json", new SecureValuesExposureCheck());
+    // TODO: files `main.bicep` and `vm.bicep` are a preferred fix for the issue, but we don't support multiple files analysis yet
   }
 }
