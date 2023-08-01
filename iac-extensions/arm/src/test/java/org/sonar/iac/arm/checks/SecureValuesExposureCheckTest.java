@@ -34,6 +34,7 @@ class SecureValuesExposureCheckTest {
   @Test
   void testBicep() {
     BicepVerifier.verifyNoIssue("SecureValuesExposureCheck/Microsoft.Resources_deployments_compliant.bicep", new SecureValuesExposureCheck());
+    BicepVerifier.verifyNoIssue("SecureValuesExposureCheck/Microsoft.Resources_deployments_compliant_no_usages.bicep", new SecureValuesExposureCheck());
     BicepVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_noncompliant.bicep", new SecureValuesExposureCheck());
     // TODO: files `main.bicep` and `vm.bicep` are a preferred fix for the issue, but we don't support multiple files analysis yet
   }

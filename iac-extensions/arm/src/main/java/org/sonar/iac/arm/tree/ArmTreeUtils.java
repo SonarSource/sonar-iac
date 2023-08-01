@@ -97,8 +97,7 @@ public class ArmTreeUtils {
     return (File) Stream.iterate(tree, Objects::nonNull, ArmTree::parent)
       .filter(t -> t.parent() == null)
       .findFirst()
-      // There should always be a FILE node in a real-world tree
-      .get();
+      .orElseThrow(() -> new IllegalStateException("Tree doesn't have a File root node"));
   }
 
   public static Map<String, ParameterDeclaration> getParametersByNames(ArmTree tree) {
