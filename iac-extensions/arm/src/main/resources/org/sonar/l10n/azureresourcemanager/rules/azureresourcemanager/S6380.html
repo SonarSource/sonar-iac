@@ -1,0 +1,275 @@
+<p>Allowing anonymous access can reduce an organization’s ability to protect itself against attacks on its Azure resources.</p>
+<p>Security incidents may include disrupting critical functions, data theft, and additional Azure subscription costs due to resource overload.</p>
+<p>Using authentication coupled with fine-grained authorizations helps bring defense-in-depth and bring traceability to investigators of security
+incidents.</p>
+<p>Depending on the affected Azure resource, multiple authentication choices are possible: Active Directory Authentication, OpenID implementations
+(Google, Microsoft, etc.) or native Azure mechanisms.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> This Azure resource is essential for the information system infrastructure. </li>
+  <li> This Azure resource is essential for mission-critical functions. </li>
+  <li> This Azure resource stores or processes sensitive data. </li>
+  <li> Compliance policies require access to this resource to be authenticated. </li>
+</ul>
+<p>There is a risk if you answered yes to any of these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Enable authentication in this Azure resource, and disable anonymous access.</p>
+<p>If only Basic Authentication is available, enable it.</p>
+<h2>Sensitive Code Example</h2>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-03-01",
+            "name": "example"
+        }
+    ]
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.ApiManagement/service",
+            "apiVersion": "2022-09-01-preview",
+            "name": "example"
+        }
+    ]
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.DataFactory/factories/linkedservices",
+            "apiVersion": "2018-06-01",
+            "name": "example",
+            "properties": {
+                "type": "Web",
+                "typeProperties": {
+                    "authenticationType": "Anonymous"
+                }
+            }
+        }
+    ]
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts and Storage Containers</a>:</p>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2022-09-01",
+            "name": "example",
+            "properties": {
+                "allowBlobPublicAccess": true
+            }
+        }
+    ]
+}
+</pre>
+<pre data-diff-id="5" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2022-09-01",
+            "name": "example",
+            "resources": [
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2022-09-01",
+                    "name": "blobContainerExample",
+                    "properties": {
+                        "publicAccess": "Blob"
+                    }
+                }
+            ]
+        }
+    ]
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
+<pre data-diff-id="6" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Cache/redis",
+            "apiVersion": "2022-06-01",
+            "name": "example",
+            "properties": {
+                "redisConfiguration": {
+                    "authnotrequired": "true"
+                }
+            }
+        }
+    ]
+}
+</pre>
+<h2>Compliant Solution</h2>
+<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-03-01",
+            "name": "example",
+            "resources": [
+                {
+                    "type": "config",
+                    "apiVersion": "2022-03-01",
+                    "name": "authsettingsV2",
+                    "properties": {
+                        "globalValidation": {
+                            "requireAuthentication": true,
+                            "unauthenticatedClientAction": "RedirectToLoginPage"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
+<pre data-diff-id="2" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.ApiManagement/service",
+            "apiVersion": "2022-09-01-preview",
+            "name": "example",
+            "resources": [
+                {
+                    "type": "portalsettings",
+                    "apiVersion": "2022-09-01-preview",
+                    "name": "signin",
+                    "properties": {
+                        "enabled": true
+                    }
+                },
+                {
+                    "type": "apis",
+                    "apiVersion": "2022-09-01-preview",
+                    "name": "exampleApi",
+                    "properties": {
+                        "authenticationSettings": {
+                            "openid": {
+                                "bearerTokenSendingMethods": ["authorizationHeader"],
+                                "openidProviderId": "&lt;an OpenID provider ID&gt;"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
+<pre data-diff-id="3" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.DataFactory/factories/linkedservices",
+            "apiVersion": "2018-06-01",
+            "name": "example",
+            "properties": {
+                "type": "Web",
+                "typeProperties": {
+                    "authenticationType": "Basic"
+                }
+            }
+        }
+    ]
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts</a>:</p>
+<pre data-diff-id="4" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2022-09-01",
+            "name": "example",
+            "properties": {
+                "allowBlobPublicAccess": false
+            }
+        }
+    ]
+}
+</pre>
+<pre data-diff-id="5" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2022-09-01",
+            "name": "example",
+            "resources": [
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2022-09-01",
+                    "name": "blobContainerExample",
+                    "properties": {
+                        "publicAccess": "None"
+                    }
+                }
+            ]
+        }
+    ]
+}
+</pre>
+<p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
+<pre data-diff-id="6" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Cache/redis",
+            "apiVersion": "2022-06-01",
+            "name": "example",
+            "properties": {
+                "redisConfiguration": {}
+            }
+        }
+    ]
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
+</ul>
+

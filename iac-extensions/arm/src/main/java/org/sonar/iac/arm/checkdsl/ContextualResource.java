@@ -20,40 +20,51 @@
 package org.sonar.iac.arm.checkdsl;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
-import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.checks.TextUtils;
 
 public final class ContextualResource extends ContextualMap<ContextualResource, ResourceDeclaration> {
 
   public final String type;
   public final String version;
 
-  private ContextualResource(CheckContext ctx, ResourceDeclaration tree, String type) {
-    super(ctx, tree, tree.name().value(), null);
+  private ContextualResource(CheckContext ctx, @Nullable ResourceDeclaration tree, String type, @Nullable ContextualMap<?, ?> parent) {
+    super(ctx, tree, Optional.ofNullable(tree).map(ResourceDeclaration::name).map(TextTree::value).orElse(null), parent);
     this.type = type;
-    this.version = Optional.ofNullable(tree.version()).map(TextTree::value).orElse("");
+    this.version = Optional.ofNullable(tree).map(ResourceDeclaration::version).map(TextTree::value).orElse("");
   }
 
   public static ContextualResource fromPresent(CheckContext ctx, ResourceDeclaration tree) {
-    return new ContextualResource(ctx, tree, tree.type().value());
+    return new ContextualResource(ctx, tree, tree.type().value(), null);
   }
 
   public static ContextualResource fromPresent(CheckContext ctx, ResourceDeclaration tree, String resourceType) {
-    return new ContextualResource(ctx, tree, resourceType);
+    return new ContextualResource(ctx, tree, resourceType, null);
   }
 
-  @Override
-  public ContextualResource reportIfAbsent(String message, SecondaryLocation... secondaries) {
-    throw new UnsupportedOperationException("Resource tree should always exists");
+  public static ContextualResource fromAbsent(CheckContext ctx, String resourceType, ContextualMap<?, ?> parent) {
+    return new ContextualResource(ctx, null, resourceType, parent);
   }
 
   @CheckForNull
   @Override
   protected HasTextRange toHighlight() {
     return tree != null ? tree.type() : null;
+  }
+
+  public ContextualResource childResourceBy(String type, Predicate<ResourceDeclaration> predicate) {
+    return Optional.ofNullable(tree)
+      .flatMap(resource -> resource.childResources().stream()
+        .filter(it -> TextUtils.isValue(it.type(), type).isTrue())
+        .filter(predicate)
+        .findFirst())
+      .map(it -> new ContextualResource(ctx, it, it.type().value(), this))
+      .orElse(ContextualResource.fromAbsent(ctx, type, this));
   }
 }

@@ -27,6 +27,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
@@ -224,7 +225,8 @@ public class ManagedIdentityCheck extends AbstractArmResourceCheck {
     return (ctx, resource) -> {
       Optional<Property> identityProperty = resource.resourceProperties().stream().filter(p -> "identity".equals(p.key().value())).findFirst();
       if (identityProperty.isEmpty()) {
-        ctx.reportIssue(resource.name(), OMITTING_IDENTITY_MESSAGE);
+        HasTextRange nameToHighlight = resource.symbolicName() != null ? resource.symbolicName() : resource.name();
+        ctx.reportIssue(nameToHighlight, OMITTING_IDENTITY_MESSAGE);
       } else {
         checkIdentityBlock(ctx, identityProperty.get());
       }

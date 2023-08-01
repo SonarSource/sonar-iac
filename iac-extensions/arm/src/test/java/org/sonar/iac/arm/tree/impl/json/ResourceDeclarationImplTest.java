@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.ARRAY_EXPRESSION;
-import static org.sonar.iac.arm.tree.api.ArmTree.Kind.IDENTIFIER;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OBJECT_EXPRESSION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.OUTPUT_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
@@ -83,7 +82,7 @@ class ResourceDeclarationImplTest {
     List<Tree> children = resourceDeclaration.children();
     assertThat(children).hasSize(3);
 
-    assertThat((ArmTree) children.get(0)).is(IDENTIFIER).has("value", "myResource").hasRange(6, 14, 6, 26);
+    assertThat((ArmTree) children.get(0)).is(STRING_LITERAL).has("value", "myResource").hasRange(6, 14, 6, 26);
     assertThat((ArmTree) children.get(1)).is(STRING_LITERAL).has("value", "2022-12-29").hasRange(5, 20, 5, 32);
     assertThat((ArmTree) children.get(2)).is(STRING_LITERAL).has("value", "Microsoft.Kusto/clusters").hasRange(4, 14, 4, 40);
   }
@@ -293,7 +292,7 @@ class ResourceDeclarationImplTest {
     assertThat(parentResource.childResources()).hasSize(1);
     assertThat(parentResource.children()).hasSize(4);
 
-    assertThat(((ArmTree) parentResource.children().get(0)).is(IDENTIFIER)).isTrue();
+    assertThat(((ArmTree) parentResource.children().get(0)).is(STRING_LITERAL)).isTrue();
     assertThat(((ArmTree) parentResource.children().get(1)).is(STRING_LITERAL)).isTrue();
     assertThat(((ArmTree) parentResource.children().get(2)).is(STRING_LITERAL)).isTrue();
     assertThat(((ArmTree) parentResource.children().get(3)).is(RESOURCE_DECLARATION)).isTrue();

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Cache/redis",
+      "apiVersion": "2022-06-01",
+      "name": "Sensitive",
+      "properties": {
+        "redisConfiguration": {
+          "authnotrequired": "true"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Cache/redis",
+      "apiVersion": "2022-06-01",
+      "name": "Not sensitive - incorrect property type, no issue is raised",
+      "properties": {
+        "redisConfiguration": {
+          "authnotrequired": true
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Cache/redis",
+      "apiVersion": "2022-06-01",
+      "name": "Compliant",
+      "properties": {
+        "redisConfiguration": {}
+      }
+    },
+    {
+      "type": "Microsoft.Cache/redis",
+      "apiVersion": "2022-06-01",
+      "name": "Compliant"
+    },
+    {
+      "type": "Microsoft.Cache/redis",
+      "apiVersion": "2022-06-01",
+      "name": "Compliant",
+      "properties": {
+        "redisConfiguration": {
+          "authnotrequired": "false"
+        }
+      }
+    }
+  ]
+}

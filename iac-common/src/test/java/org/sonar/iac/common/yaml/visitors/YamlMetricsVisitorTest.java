@@ -19,17 +19,25 @@
  */
 package org.sonar.iac.common.yaml.visitors;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 import org.sonar.iac.common.yaml.YamlParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class YamlMetricsVisitorTest extends AbstractMetricsTest {
 
@@ -71,7 +79,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
       "key: |\n" +
       "  value1\n" +
       "  value2\n    ");
-    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4);
+    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3);
   }
 
   @Test
@@ -131,6 +139,26 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
       "  bar # comment");
     assertThat(visitor.linesOfCode()).containsExactly(1, 4);
     assertThat(visitor.commentLines()).containsExactly(2, 4);
+  }
+
+  @Test
+  void whitespaceLineShouldNotCountAsCode() {
+    scan("project: foo",
+      " ", " ", " ");
+    assertThat(visitor.linesOfCode()).containsExactly(1);
+  }
+
+  @Test
+  void raiseParserExceptionWhenAnalysingCorruptFile() throws IOException {
+    Tree tree = mock(Tree.class);
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.inputStream()).thenThrow(new IOException("File not found"));
+    InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
+
+    ParseException thrown = assertThrows(ParseException.class, () -> visitor.scan(ctx, tree));
+    assertThat(thrown.getMessage()).isEqualTo("Can not read file for metric calculation");
+    assertThat(thrown.getDetails()).isEqualTo("File not found");
+    assertThat(thrown.getPosition()).isNull();
   }
 
   @Test

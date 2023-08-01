@@ -1,0 +1,123 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Sensitive, no auth settings"
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Non-compliant: bad globalValidation settings",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "name": "authsettingsV2",
+          "properties": {
+            "globalValidation": {
+              "requireAuthentication": false,
+              "unauthenticatedClientAction": "AllowAnonymous"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Non-compliant: auth is not required",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "name": "authsettingsV2",
+          "properties": {
+            "globalValidation": {
+              "requireAuthentication": false,
+              "unauthenticatedClientAction": "RedirectToLoginPage"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Non-compliant: anonymous access is allowed",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "name": "authsettingsV2",
+          "properties": {
+            "globalValidation": {
+              "requireAuthentication": true,
+              "unauthenticatedClientAction": "AllowAnonymous"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2021-02-01",
+      "name": "authsettingsV2",
+      "properties": {
+        "globalValidation": {
+          "requireAuthentication": false,
+          "unauthenticatedClientAction": "RedirectToLoginPage"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Compliant",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "name": "authsettingsV2",
+          "properties": {
+            "globalValidation": {
+              "requireAuthentication": true,
+              "unauthenticatedClientAction": "RedirectToLoginPage"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Compliant: authsettingsV2 is present, globalValidation is absent",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "name": "authsettingsV2",
+          "properties": {
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "Compliant: authsettingsV2 is present, globalValidation is empty",
+      "resources": [
+        {
+          "type": "config",
+          "apiVersion": "2022-03-01",
+          "name": "authsettingsV2",
+          "properties": {
+            "globalValidation": {}
+          }
+        }
+      ]
+    }
+  ]
+}

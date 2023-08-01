@@ -1,0 +1,61 @@
+<p>Azure Resource Manager templates define parameters as a way to reuse templates in different environments. Secure parameters (secure strings and
+secure objects) should not be assigned a default value.</p>
+<h2>Why is this an issue?</h2>
+<p>Parameters with the type <code>securestring</code> and <code>secureObject</code> are designed to pass sensitive data to the resources being
+deployed. Unlike other data types, they cannot be accessed after the deployment is completed. They can neither be logged nor used as an output.</p>
+<p>Secure parameters can be assigned a default value which will be used if the parameter is not supplied. This default value is not protected and is
+stored in cleartext in the deployment history.</p>
+<h3>What is the potential impact?</h3>
+<p>If the default value contains a secret, it will be disclosed to all accounts that have read access to the deployment history.</p>
+<h2>How to fix it in ARM templates</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "secretValue": {
+      "type": "securestring",
+      "defaultValue": "S3CR3T"
+    }
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "secretValue": {
+      "type": "securestring"
+    }
+  }
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+@secure()
+param secureStringWithDefaultValue string = 'S3CR3T' // Noncompliant
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+@secure()
+param secureStringWithDefaultValue string
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/data-types">Data types in ARM templates</a> </li>
+  <li> <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#security-recommendations-for-parameters">ARM
+  template best practices - Security recommendations for parameters</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/200">MITRE, CWE-200</a> - Exposure of Sensitive Information to an Unauthorized Actor </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/532">MITRE, CWE-532</a> - Insertion of Sensitive Information into Log File </li>
+</ul>
+

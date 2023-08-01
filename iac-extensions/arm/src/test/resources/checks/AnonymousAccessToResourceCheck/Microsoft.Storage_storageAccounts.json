@@ -1,0 +1,84 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "Sensitive - `allowBlobPublicAccess` is unset"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "Sensitive - `allowBlobPublicAccess` is explicitly true",
+      "properties": {
+        "allowBlobPublicAccess": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "Sensitive - `publicAccess` mode is set to `Blob`",
+      "properties": {
+        "allowBlobPublicAccess": false
+      },
+      "resources": [
+        {
+          "type": "blobServices/containers",
+          "apiVersion": "2022-09-01",
+          "name": "blobContainerExample",
+          "properties": {
+            "publicAccess": "Blob"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "Sensitive - `allowBlobPublicAccess` is unset, `publicAccess` mode is set to `Blob`",
+      "resources": [
+        {
+          "type": "blobServices/containers",
+          "apiVersion": "2022-09-01",
+          "name": "blobContainerExample",
+          "properties": {
+            "publicAccess": "Blob"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2022-09-01",
+      "name": "Sensitive - `publicAccess` mode is set to `Blob`",
+      "properties": {
+        "publicAccess": "Blob"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "Compliant",
+      "properties": {
+        "allowBlobPublicAccess": false
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "Compliant - omitting `containers.publicAccess` defaults to \"None\"",
+      "properties": {
+        "allowBlobPublicAccess": false
+      },
+      "resources": [
+        {
+          "type": "blobServices/containers",
+          "apiVersion": "2022-09-01",
+          "name": "blobContainerExample",
+          "properties": {}
+        }
+      ]
+    }
+  ]
+}

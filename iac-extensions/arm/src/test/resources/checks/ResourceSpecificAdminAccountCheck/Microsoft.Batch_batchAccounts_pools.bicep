@@ -1,4 +1,5 @@
 resource nonCompliant1 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
+  name: 'nonCompliant1'
   properties: {
     startTask: {
       userIdentity: {
@@ -12,6 +13,7 @@ resource nonCompliant1 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
 }
 
 resource compliant1 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
+  name: 'compliant1'
   properties: {
     startTask: {
       userIdentity: {
@@ -24,6 +26,7 @@ resource compliant1 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
 }
 
 resource compliant2 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = {
+  name: 'compliant2'
   properties: {
     startTask: {
       userIdentity: {

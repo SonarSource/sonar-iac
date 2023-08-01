@@ -29,6 +29,7 @@ public class ArmCheckList {
 
   public static List<Class<?>> checks() {
     return List.of(
+      AnonymousAccessToResourceCheck.class,
       CertificateBasedAuthenticationCheck.class,
       ClearTextProtocolsCheck.class,
       HighPrivilegedRoleCheck.class,
@@ -39,6 +40,7 @@ public class ArmCheckList {
       PublicNetworkAccessCheck.class,
       ResourceSpecificAdminAccountCheck.class,
       RoleBasedAccessControlCheck.class,
+      SecureParameterDefaultValueCheck.class,
       SecureValuesExposureCheck.class,
       ShortBackupRetentionCheck.class,
       SubscriptionOwnerCapabilitiesCheck.class,
