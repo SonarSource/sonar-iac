@@ -1,0 +1,26 @@
+{
+  "title": "Template evaluation should not expose secure values",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "azure"
+  ],
+  "securityStandards": {
+    "CWE": [
+      200,
+      532
+    ],
+    "ASVS 4.0": [
+      "7.1.1"
+    ]
+  },
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6656",
+  "sqKey": "S6656",
+  "scope": "All",
+  "quickfix": "unknown"
+}
