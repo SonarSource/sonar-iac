@@ -26,13 +26,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -93,16 +91,20 @@ public class ArmTreeUtils {
     return tree != null ? List.of(tree) : Collections.emptyList();
   }
 
-  public static File getRootNode(ArmTree tree) {
-    return (File) Stream.iterate(tree, Objects::nonNull, ArmTree::parent)
-      .filter(t -> t.parent() == null)
-      .findFirst()
-      .orElseThrow(() -> new IllegalStateException("Tree doesn't have a File root node"));
+  public static ArmTree getRootNode(ArmTree tree) {
+    while (true) {
+      ArmTree parent = tree.parent();
+      if (parent == null) {
+        return tree;
+      } else {
+        tree = parent;
+      }
+    }
   }
 
   public static Map<String, ParameterDeclaration> getParametersByNames(ArmTree tree) {
     // TODO: after SONARIAC-1034 use symbol table instead of accessing parameters through `FILE`
-    File file = ArmTreeUtils.getRootNode(tree);
+    File file = (File) ArmTreeUtils.getRootNode(tree);
     return file.statements().stream()
       .filter(ParameterDeclaration.class::isInstance)
       .map(ParameterDeclaration.class::cast)

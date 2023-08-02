@@ -1,8 +1,9 @@
 {
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
-      "name": "Raise Issue as retentionDays are too low",
+      "name": "Noncompliant: Raise Issue as retentionDays are too low",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -13,7 +14,7 @@
       }
     },
     {
-      "name": "Raise Issue as retentionDays are missing",
+      "name": "Noncompliant: Raise Issue as retentionDays are missing",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -23,7 +24,7 @@
       }
     },
     {
-      "name": "Raise Issue as isEnabled is missing",
+      "name": "Noncompliant: Raise Issue as isEnabled is missing",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -33,7 +34,7 @@
       }
     },
     {
-      "name": "Raise Issue as retentionDays are too low and isEnabled is false",
+      "name": "Noncompliant: Raise Issue as retentionDays are too low and isEnabled is false",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -44,7 +45,7 @@
       }
     },
     {
-      "name": "Raise Issue as isEnabled is false",
+      "name": "Noncompliant: Raise Issue as isEnabled is false",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -55,7 +56,7 @@
       }
     },
     {
-      "name": "Raise Issue as insights is missing",
+      "name": "Noncompliant: Raise Issue as insights is missing",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -80,7 +81,7 @@
       ]
     },
     {
-      "name": "Compliant",
+      "name": "Compliant: isEnabled is true and retentionDays equals 15",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -91,7 +92,7 @@
       }
     },
     {
-      "name": "Compliant",
+      "name": "Compliant: isEnabled is true and retentionDays equals 0",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -102,7 +103,7 @@
       }
     },
     {
-      "name": "Compliant",
+      "name": "Compliant: isEnabled and retentionDays are in wrong format",
       "type": "Microsoft.Network/firewallPolicies",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -113,7 +114,7 @@
       }
     },
     {
-      "name": "Compliant",
+      "name": "Compliant: other type",
       "type": "Microsoft.Network/otherType",
       "apiVersion": "2022-07-01",
       "properties": {

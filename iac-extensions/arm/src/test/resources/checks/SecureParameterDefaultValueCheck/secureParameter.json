@@ -30,6 +30,10 @@
       "type": "securestring",
       "defaultValue": "[newGuid()]   "
     },
+    "nonCompliant6": {
+      "type": "securestring",
+      "defaultValue": "[parameters('unknownParam')]"
+    },
     "nonCompliant7": {
       "type": "securestring",
       "defaultValue": "[uniqueString('secret')]"
@@ -37,10 +41,6 @@
     "nonCompliant8": {
       "type": "securestring",
       "defaultValue": "[parameters('normalString')]"
-    },
-    "nonCompliant9": {
-      "type": "securestring",
-      "defaultValue": "[parameters('secureString')]"
     },
     "compliant1": {
       "type": "securestring"
@@ -79,6 +79,10 @@
     "compliant7": {
       "type": "unknown",
       "defaultValue": "secret"
+    },
+    "compliant8": {
+      "type": "securestring",
+      "defaultValue": "[parameters('secureString')]"
     }
   }
 }

@@ -79,7 +79,7 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
 
   private static Map<String, ParameterDeclaration> getSensitiveParameters(ContextualResource resource) {
     // TODO: after SONARIAC-1034 use symbol table instead of accessing parameters through `FILE`
-    File file = ArmTreeUtils.getRootNode(resource.tree);
+    File file = (File) ArmTreeUtils.getRootNode(resource.tree);
 
     return ArmTreeUtils.getParametersByNames(file)
       .entrySet()
