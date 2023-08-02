@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -76,5 +77,16 @@ public class ArmTreeUtils {
       }
     }
     return tree != null ? List.of(tree) : Collections.emptyList();
+  }
+
+  public static ArmTree getRootNode(ArmTree tree) {
+    while (true) {
+      ArmTree parent = tree.parent();
+      if (parent == null) {
+        return tree;
+      } else {
+        tree = parent;
+      }
+    }
   }
 }

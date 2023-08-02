@@ -15,10 +15,8 @@ param nonCompliant3 string = '[newGuid()]' // Noncompliant
 param nonCompliant4 string = uniqueString('secret') // Noncompliant
 @secure()
 param nonCompliant5 string = normalString // Noncompliant
-
-// FN fixed by SONARIAC-1042
 @secure()
-param nonCompliant6 string = secureString // Noncompliant
+param nonCompliant6 string = unknownParam // Noncompliant
 
 // Compliant use cases
 @secure()
@@ -34,3 +32,5 @@ param compliant5 string = newGuid()
 param compliant6 string = 'secret'
 @secure()
 param compliant7 unknown = 'secret'
+@secure()
+param compliant8 string = secureString
