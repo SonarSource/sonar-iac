@@ -78,19 +78,22 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
       if (expr.is(ArmTree.Kind.IDENTIFIER)) {
         // ARM Bicep
         Identifier identifier = (Identifier) expr;
-        ParameterDeclaration param = getParametersByNames(identifier).get(identifier.value());
-        return param != null && SENSITIVE_TYPE_WITH_DISPLAY_TYPE.containsKey(param.type());
+        return isSecureParameter(identifier, identifier.value());
       } else if (expr.is(ArmTree.Kind.STRING_LITERAL)) {
         // ARM Json
         StringLiteral stringLiteral = (StringLiteral) expr;
         Matcher matcher = jsonParameters.matcher(stringLiteral.value());
         if (matcher.find()) {
-          ParameterDeclaration param = getParametersByNames(stringLiteral).get(matcher.group("name"));
-          return param != null && SENSITIVE_TYPE_WITH_DISPLAY_TYPE.containsKey(param.type());
+          return isSecureParameter(stringLiteral, matcher.group("name"));
         }
       }
       return false;
     };
+  }
+
+  private static boolean isSecureParameter(ArmTree tree, String parameterName) {
+    ParameterDeclaration param = getParametersByNames(tree).get(parameterName);
+    return param != null && SENSITIVE_TYPE_WITH_DISPLAY_TYPE.containsKey(param.type());
   }
 
   private static Map<String, ParameterDeclaration> getParametersByNames(ArmTree tree) {
