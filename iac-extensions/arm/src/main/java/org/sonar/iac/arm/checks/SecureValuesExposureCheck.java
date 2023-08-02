@@ -32,7 +32,6 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.impl.bicep.ParameterDeclarationImpl;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.common.checks.TextUtils;
@@ -55,7 +54,7 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
     Map<String, ParameterDeclaration> sensitiveParameters = ArmTreeUtils.getParametersByNames(file)
       .entrySet()
       .stream()
-      .filter(it -> it.getValue().type() == ParameterType.SECURE_OBJECT || it.getValue().type() == ParameterType.SECURE_STRING || isSecureParameterInBicep(it.getValue()))
+      .filter(it -> it.getValue().type() == ParameterType.SECURE_OBJECT || it.getValue().type() == ParameterType.SECURE_STRING)
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     if (sensitiveParameters.isEmpty()) {
@@ -81,14 +80,6 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
           .reportIfAbsent(MESSAGE, sensitiveParameterUsages);
         expressionEvaluationOptions.reportIfAbsent(MESSAGE, sensitiveParameterUsages);
       }
-    }
-  }
-
-  private static boolean isSecureParameterInBicep(ParameterDeclaration parameterDeclaration) {
-    if (parameterDeclaration instanceof ParameterDeclarationImpl) {
-      return ((ParameterDeclarationImpl) parameterDeclaration).findDecoratorByName("secure").isPresent();
-    } else {
-      return false;
     }
   }
 }

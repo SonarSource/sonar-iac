@@ -20,13 +20,8 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 public interface HasResources {
 
   List<ResourceDeclaration> childResources();
-
-  default Stream<ResourceDeclaration> allNestedResources() {
-    return childResources().stream().flatMap(HasResources::allNestedResources);
-  }
 }

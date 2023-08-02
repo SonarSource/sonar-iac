@@ -5,7 +5,7 @@ resource compliantDeployment 'Microsoft.Resources/deployments@2022-09-01' = {
   name: 'nestedDeployment-compliant'
   properties: {
     expressionEvaluationOptions: {
-      scope: 'Inner' // Compliant
+      scope: 'Outer'
     }
     mode: 'Incremental'
     template: {
