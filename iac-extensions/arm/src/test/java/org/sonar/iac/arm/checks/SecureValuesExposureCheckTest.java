@@ -19,23 +19,49 @@
  */
 package org.sonar.iac.arm.checks;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.testing.Verifier;
 
 class SecureValuesExposureCheckTest {
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "Microsoft.Resources_deployments_compliant_secure_scope.json",
+    "Microsoft.Resources_deployments_compliant_no_top_level_parameter.json",
+    "Microsoft.Resources_deployments_compliant_not_secure_parameters.json",
+    "Microsoft.Resources_deployments_compliant_undefined_parameters.json",
+  })
+  void testJsonCompliant(String filename) {
+    ArmVerifier.verify("SecureValuesExposureCheck/" + filename, new SecureValuesExposureCheck());
+  }
+
   @Test
-  void testJson() {
-    ArmVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_compliant_secure_scope.json", new SecureValuesExposureCheck());
-    ArmVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_compliant_no_top_level_parameter.json", new SecureValuesExposureCheck());
+  void testJsonNonCompliant() {
     ArmVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_noncompliant.json", new SecureValuesExposureCheck(),
       Verifier.issue(12, 14, 12, 47, "Change this code to not use an outer expression evaluation scope in nested templates."));
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "Microsoft.Resources_deployments_compliant.bicep",
+    "Microsoft.Resources_deployments_compliant_no_usages.bicep",
+    "Microsoft.Resources_deployments_compliant_not_secure_parameters.bicep",
+    "Microsoft.Resources_deployments_compliant_undefined_parameters.bicep",
+  })
+  void testBicepCompliant(String filename) {
+    BicepVerifier.verifyNoIssue("SecureValuesExposureCheck/" + filename, new SecureValuesExposureCheck());
+  }
+
   @Test
-  void testBicep() {
-    BicepVerifier.verifyNoIssue("SecureValuesExposureCheck/Microsoft.Resources_deployments_compliant.bicep", new SecureValuesExposureCheck());
-    BicepVerifier.verifyNoIssue("SecureValuesExposureCheck/Microsoft.Resources_deployments_compliant_no_usages.bicep", new SecureValuesExposureCheck());
+  void testBicepNonCompliant() {
     BicepVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_noncompliant.bicep", new SecureValuesExposureCheck());
-    // TODO: files `main.bicep` and `vm.bicep` are a preferred fix for the issue, but we don't support multiple files analysis yet
+  }
+
+  @Test
+  @Disabled("Cross-file analysis is not yet supported for bicep")
+  void shouldCheckCompliantCrossFile() {
+    // BicepVerifier.verifyNoIssue("main.bicep", "vm.bicep");
   }
 }

@@ -49,14 +49,7 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkSecureParametersInNestedTemplates(ContextualResource resource) {
-    // TODO: after SONARIAC-1034 use symbol table instead of accessing parameters through `FILE`
-    File file = ArmTreeUtils.getRootNode(resource.tree);
-    Map<String, ParameterDeclaration> sensitiveParameters = ArmTreeUtils.getParametersByNames(file)
-      .entrySet()
-      .stream()
-      .filter(it -> it.getValue().type() == ParameterType.SECURE_OBJECT || it.getValue().type() == ParameterType.SECURE_STRING)
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
+    Map<String, ParameterDeclaration> sensitiveParameters = getSensitiveParameters(resource);
     if (sensitiveParameters.isEmpty()) {
       return;
     }
@@ -65,6 +58,7 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
     ContextualProperty scope = expressionEvaluationOptions.property("scope");
     if (scope.isAbsent() || TextUtils.isValue(scope.valueOrNull(), "Inner").isFalse()) {
       Set<String> sensitiveParameterNames = sensitiveParameters.keySet();
+      // TODO: can be improved after https://sonarsource.atlassian.net/browse/SONARIAC-1058
       List<SecondaryLocation> sensitiveParameterUsages = resource.object("template").list("resources").objects()
         .filter(ContextualTree::isPresent)
         .flatMap(o -> o.tree.allPropertiesFlattened())
@@ -73,7 +67,7 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
         .map(value -> new SecondaryLocation(value.textRange(), SECONDARY_MESSAGE))
         .collect(Collectors.toList());
 
-      // TODO: also check nested templates
+      // TODO: also check nested templates https://sonarsource.atlassian.net/browse/SONARIAC-1059
 
       if (!sensitiveParameterUsages.isEmpty()) {
         scope.report(MESSAGE, sensitiveParameterUsages)
@@ -81,5 +75,16 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
         expressionEvaluationOptions.reportIfAbsent(MESSAGE, sensitiveParameterUsages);
       }
     }
+  }
+
+  private static Map<String, ParameterDeclaration> getSensitiveParameters(ContextualResource resource) {
+    // TODO: after SONARIAC-1034 use symbol table instead of accessing parameters through `FILE`
+    File file = ArmTreeUtils.getRootNode(resource.tree);
+
+    return ArmTreeUtils.getParametersByNames(file)
+      .entrySet()
+      .stream()
+      .filter(it -> it.getValue().type() == ParameterType.SECURE_OBJECT || it.getValue().type() == ParameterType.SECURE_STRING)
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 }
