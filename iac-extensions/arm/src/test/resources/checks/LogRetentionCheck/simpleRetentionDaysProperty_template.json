@@ -19,7 +19,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Compliant",
+      "name": "Compliant: retentionDays is zero (no limit)",
       "properties": {
         "retentionDays": 0
       }
@@ -27,7 +27,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Compliant",
+      "name": "Compliant: retentionDays is 15",
       "properties": {
         "retentionDays": 15
       }
@@ -35,7 +35,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Compliant",
+      "name": "Compliant: wrong format",
       "properties": {
         "retentionDays": "not a number format"
       }
