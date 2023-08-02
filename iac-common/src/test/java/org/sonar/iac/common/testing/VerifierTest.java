@@ -95,20 +95,22 @@ class VerifierTest {
   void issues_list_verifier_failure_wrong_message() {
     Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range, "another message");
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheck, expectedIssue));
-    assertThat(exception.getMessage()).contains("[WRONG_MESSAGE]");
+    assertThat(exception.getMessage()).contains("[WRONG_MESSAGE]",
+      "expected: issue(1, 1, 1, 4, \"another message\")",
+      "but was:  issue(1, 1, 1, 4, \"issue message\")");
   }
 
   @Test
   void issues_list_verifier_failure_expected_but_not_found() {
     Verifier.Issue expectedIssue = new Verifier.Issue(DummyNonCompliantTree.range);
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, noIssueRaiseCheck, expectedIssue));
-    assertThat(exception.getMessage()).contains("[NO_ISSUE]");
+    assertThat(exception.getMessage()).contains("[NO_ISSUE]", "issue(1, 1, 1, 4, \"null\")");
   }
 
   @Test
   void issues_list_verifier_failure_not_expected_but_found() {
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verifyNoIssue(mockParser, path, issueRaiseCheck));
-    assertThat(exception.getMessage()).contains("[UNEXPECTED_ISSUE]");
+    assertThat(exception.getMessage()).contains("[UNEXPECTED_ISSUE]", "issue(1, 1, 1, 4, \"issue message\")");
   }
 
   @Test
@@ -141,8 +143,8 @@ class VerifierTest {
     SecondaryLocation secondaryLocationExpected = new SecondaryLocation(DummyNonCompliantTree.range, "different message");
     Verifier.Issue issue = new Verifier.Issue(DummyNonCompliantTree.range, "issue message", secondaryLocationExpected);
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, issueRaiseCheckSecondary, issue));
-    assertThat(exception.getMessage()).contains("[NO_SECONDARY]");
-    assertThat(exception.getMessage()).contains("[UNEXPECTED_SECONDARY]");
+    assertThat(exception.getMessage()).contains("[NO_SECONDARY]", "secondary(1, 1, 1, 4, \"different message\")");
+    assertThat(exception.getMessage()).contains("[UNEXPECTED_SECONDARY]", "secondary(1, 1, 1, 4, \"secondary message\")");
   }
 
   @Test
@@ -155,7 +157,9 @@ class VerifierTest {
       ctx.reportIssue(tree.textRange(), "wrong message");
     });
     AssertionError exception = assertThrows(AssertionError.class, () -> Verifier.verify(mockParser, path, check, firstExpectedIssue, secondExpectedIssue));
-    assertThat(exception.getMessage()).contains("[WRONG_MESSAGE]");
+    assertThat(exception.getMessage()).contains("[WRONG_MESSAGE]",
+      "expected: issue(1, 1, 1, 4, \"issue message\")",
+      "but was:  issue(1, 1, 1, 4, \"wrong message\")");
   }
 
   @Test
