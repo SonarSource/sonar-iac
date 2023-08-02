@@ -20,8 +20,22 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
+import java.util.stream.Stream;
 import org.sonar.iac.common.api.tree.HasProperties;
 
 public interface ObjectExpression extends Expression, HasProperties {
   List<ResourceDeclaration> nestedResources();
+
+  default Stream<Property> allPropertiesFlattened() {
+    return properties().stream()
+      .map(Property.class::cast)
+      .flatMap(p -> {
+        Expression value = p.value();
+        if (value instanceof ObjectExpression) {
+          return ((ObjectExpression) value).allPropertiesFlattened();
+        } else {
+          return Stream.of(p);
+        }
+      });
+  }
 }
