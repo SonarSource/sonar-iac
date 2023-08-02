@@ -294,12 +294,12 @@ public final class Verifier {
   }
 
   private static class Tuple {
-    private static final String NO_ISSUE = "* [NO_ISSUE] Expected but no issue on range %s.\n\n";
-    private static final String WRONG_MESSAGE = "* [WRONG_MESSAGE] Issue at %s : \nexpected: %s\nbut was: %s";
-    private static final String UNEXPECTED_ISSUE = "* [UNEXPECTED_ISSUE] at %s with a message: \"%s\"\n\n";
+    private static final String NO_ISSUE = "* [NO_ISSUE] %s\n\n";
+    private static final String WRONG_MESSAGE = "* [WRONG_MESSAGE]\nexpected: %s\nbut was:  %s";
+    private static final String UNEXPECTED_ISSUE = "* [UNEXPECTED_ISSUE] %s\n\n";
     private static final String WRONG_NUMBER = "* [WRONG_NUMBER] Range %s: Expecting %s issue, but actual issues number is %s\n\n";
-    private static final String NO_SECONDARY = "* [NO_SECONDARY] Expected but no secondary location for issue at line %d on range %s.\n\n";
-    private static final String UNEXPECTED_SECONDARY = "* [UNEXPECTED_SECONDARY] for issue at line %s at %s with a message: \"%s\"\n\n";
+    private static final String NO_SECONDARY = "* [NO_SECONDARY] %s\n\n";
+    private static final String UNEXPECTED_SECONDARY = "* [UNEXPECTED_SECONDARY] %s\n\n";
 
     List<Issue> actual = new ArrayList<>();
     List<Issue> expected = new ArrayList<>();
@@ -314,10 +314,10 @@ public final class Verifier {
 
     String check() {
       if (!actual.isEmpty() && expected.isEmpty()) {
-        return String.format(UNEXPECTED_ISSUE, actual.get(0).textRange, actual.get(0).message);
+        return String.format(UNEXPECTED_ISSUE, formatIssue(actual.get(0)));
 
       } else if (actual.isEmpty() && !expected.isEmpty()) {
-        return String.format(NO_ISSUE, expected.get(0).textRange);
+        return String.format(NO_ISSUE, formatIssue(expected.get(0)));
 
       } else if (actual.size() == 1 && expected.size() == 1) {
         Issue expectedIssue = expected.get(0);
@@ -330,7 +330,7 @@ public final class Verifier {
       } else {
         for (int i = 0; i < actual.size(); i++) {
           if (!actual.get(i).message.equals(expected.get(i).message)) {
-            return String.format(WRONG_MESSAGE, actual.get(i).textRange, expected.get(i).message, actual.get(i).message);
+            return String.format(WRONG_MESSAGE, formatIssue(expected.get(i)), formatIssue(actual.get(i)));
           }
         }
       }
@@ -338,11 +338,23 @@ public final class Verifier {
       return "";
     }
 
+    private static String formatIssue(Issue issue) {
+      return String.format("issue(%s, \"%s\")", formatTextRange(issue.textRange), issue.message);
+    }
+
+    private static String formatTextRange(TextRange textRange) {
+      return textRange.start().line() + ", " + textRange.start().lineOffset() + ", " + textRange.end().line() + ", " + textRange.end().lineOffset();
+    }
+
+    private static String formatSecondary(SecondaryLocation secondary) {
+      return String.format("secondary(%s, \"%s\")", formatTextRange(secondary.textRange), secondary.message);
+    }
+
     private static String compareIssues(Issue expectedIssue, Issue actualIssue) {
       String expectedMessage = expectedIssue.message;
 
       if (expectedMessage != null && !actualIssue.message.equals(expectedMessage)) {
-        return String.format(WRONG_MESSAGE, actualIssue.textRange, expectedMessage, actualIssue.message);
+        return String.format(WRONG_MESSAGE, formatIssue(expectedIssue), formatIssue(actualIssue));
       }
 
       StringBuilder secondaryMessages = new StringBuilder();
@@ -350,11 +362,11 @@ public final class Verifier {
       if (!expectedIssue.secondaryLocations.isEmpty()) {
         expectedIssue.secondaryLocations.stream()
           .filter(e -> !actualIssue.secondaryLocations.contains(e))
-          .forEach(second -> secondaryMessages.append(String.format(NO_SECONDARY, expectedIssue.textRange.start().line(), second.textRange)));
+          .forEach(second -> secondaryMessages.append(String.format(NO_SECONDARY, formatSecondary(second))));
 
         actualIssue.secondaryLocations.stream()
           .filter(e -> !expectedIssue.secondaryLocations.contains(e))
-          .forEach(second -> secondaryMessages.append(String.format(UNEXPECTED_SECONDARY, actualIssue.textRange.start().line(), second.textRange, second.message)));
+          .forEach(second -> secondaryMessages.append(String.format(UNEXPECTED_SECONDARY, formatSecondary(second))));
       }
 
       return secondaryMessages.toString();
