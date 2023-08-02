@@ -32,9 +32,13 @@ public class ArmParser implements TreeParser<Tree> {
 
   @Override
   public ArmTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    if (inputFileContext != null && inputFileContext.inputFile.filename().endsWith(".bicep")) {
+    if (inputFileContext != null && isBicepFile(inputFileContext)) {
       return bicepParser.parse(source, inputFileContext);
     }
     return jsonParser.parse(source, inputFileContext);
+  }
+
+  public static boolean isBicepFile(InputFileContext inputFileContext) {
+    return inputFileContext.inputFile.filename().endsWith(".bicep");
   }
 }
