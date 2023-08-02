@@ -62,6 +62,6 @@ class SecureValuesExposureCheckTest {
   @Test
   @Disabled("Cross-file analysis is not yet supported for bicep")
   void shouldCheckCompliantCrossFile() {
-    // BicepVerifier.verifyNoIssue("main.bicep", "vm.bicep");
+    BicepVerifier.verifyNoIssue("main.bicep+vm.bicep", new SecureValuesExposureCheck());
   }
 }
