@@ -26,6 +26,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 import org.sonar.iac.terraform.parser.HclParser;
+import org.sonar.iac.terraform.plugin.TerraformLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -40,6 +41,11 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
     return new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+  }
+
+  @Override
+  protected String languageKey() {
+    return TerraformLanguage.KEY;
   }
 
   @Test

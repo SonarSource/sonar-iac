@@ -25,12 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
@@ -49,6 +49,11 @@ class MetricsVisitorTest extends AbstractMetricsTest {
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
     return new MetricsVisitor(fileLinesContextFactory, noSonarFilter) {
     };
+  }
+
+  @Override
+  protected String languageKey() {
+    return "txt";
   }
 
   @Test

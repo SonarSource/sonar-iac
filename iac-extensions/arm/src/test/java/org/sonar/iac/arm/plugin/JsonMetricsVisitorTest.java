@@ -17,63 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.visitors;
+package org.sonar.iac.arm.plugin;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.arm.parser.ArmJsonParser;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
-import org.sonar.iac.docker.parser.DockerParser;
-import org.sonar.iac.docker.plugin.DockerLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class DockerMetricsVisitorTest extends AbstractMetricsTest {
-
+class JsonMetricsVisitorTest extends AbstractMetricsTest {
   @Override
   protected TreeParser<Tree> treeParser() {
-    return DockerParser.create();
+    return new ArmJsonParser();
   }
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+    return new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter);
   }
 
   @Override
   protected String languageKey() {
-    return new DockerLanguage().getKey();
+    return "json";
   }
 
   @Test
-  void linesOfCode() {
+  void shouldCalculateLoc() {
     scan(code(
-      "FROM foo",
-      "",
-      "MAINTAINER foo<bar>",
-      "",
-      "RUN \\",
-      "  command1 \\",
-      "  command2"));
-    assertThat(visitor.linesOfCode()).containsExactly(1, 3, 5, 6, 7);
-  }
-
-  @Test
-  @Disabled("Will be fixed with SONARIAC-606")
-  // TODO SONARIAC-606
-  void commentLines() {
-    scan(code(
-      "# comment 1",
-      "# comment 2",
-      "FROM foo",
-      "RUN \\",
-      "  command1 \\",
-      "  # comment 3",
-      "  command2"));
-    assertThat(visitor.commentLines()).containsExactly(1, 2, 6);
+      "{",
+      "\"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",",
+      "\"contentVersion\": \"1.0.0.0\",",
+      "\"resources\": [",
+      "  {",
+      "    \"type\": \"Microsoft.ContainerService/managedClusters\",",
+      "    \"apiVersion\": \"2023-03-01\",",
+      "    \"name\": \"Compliant\",",
+      "    \"properties\": {",
+      "    \"enableRBAC\": true",
+      "    }",
+      "  }",
+      "]",
+      "}"));
+    assertThat(visitor.linesOfCode()).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
   }
 }
