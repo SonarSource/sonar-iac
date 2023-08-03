@@ -38,25 +38,25 @@
     },
     
     {
-      "name": "Compliant",
+      "name": "Compliant: negotiateClientCertificate is set to true",
       "type": "Microsoft.ApiManagement/service/gateways/hostnameConfigurations", "apiVersion": "2022-11-01",
       "properties": {
         "negotiateClientCertificate" : true
       }
     },
     {
-      "name": "Do not raise an issue: the property value is not a boolean as expected, conservative approach",
+      "name": "Compliant: the property value is not a boolean as expected, conservative approach",
       "type": "Microsoft.ApiManagement/service/gateways/hostnameConfigurations", "apiVersion": "2022-11-01",
       "properties": {
         "negotiateClientCertificate" : "false"
       }
     },
     {
-      "name": "Compliant inner child",
+      "name": "Compliant: inner child does have the property negotiateClientCertificate set to true",
       "type": "Microsoft.ApiManagement/service/gateways", "apiVersion": "2022-11-01",
       "resources": [
         {
-          "name": "Raise an issue: test with inner child",
+          "name": "Compliant child",
           "type": "hostnameConfigurations", "apiVersion": "2022-11-01",
           "properties": {
             "negotiateClientCertificate" : true
