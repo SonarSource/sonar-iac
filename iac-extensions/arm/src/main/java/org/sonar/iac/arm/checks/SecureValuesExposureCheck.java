@@ -23,15 +23,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
+import org.sonar.iac.arm.checkdsl.ContextualArray;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
 import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
+import org.sonar.iac.arm.tree.api.ArrayExpression;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
-import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.common.checks.TextUtils;
@@ -42,6 +45,7 @@ import static org.sonar.iac.arm.tree.ArmTreeUtils.containsParameterReference;
 public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
   private static final String MESSAGE = "Change this code to not use an outer expression evaluation scope in nested templates.";
   private static final String SECONDARY_MESSAGE = "This secure parameter is leaked through the deployment history.";
+  private static final String RESOURCES_PROP_NAME = "resources";
 
   @Override
   protected void registerResourceConsumer() {
@@ -58,16 +62,10 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
     ContextualProperty scope = expressionEvaluationOptions.property("scope");
     if (scope.isAbsent() || TextUtils.isValue(scope.valueOrNull(), "Inner").isFalse()) {
       Set<String> sensitiveParameterNames = sensitiveParameters.keySet();
-      // TODO: can be improved after https://sonarsource.atlassian.net/browse/SONARIAC-1058
-      List<SecondaryLocation> sensitiveParameterUsages = resource.object("template").list("resources").objects()
-        .filter(ContextualTree::isPresent)
-        .flatMap(o -> o.tree.allPropertiesFlattened())
-        .map(Property::value)
+      List<SecondaryLocation> sensitiveParameterUsages = extractParameterReferencesFromTemplate(resource.object("template").list(RESOURCES_PROP_NAME))
         .filter(containsParameterReference(sensitiveParameterNames))
         .map(value -> new SecondaryLocation(value.textRange(), SECONDARY_MESSAGE))
         .collect(Collectors.toList());
-
-      // TODO: also check nested templates https://sonarsource.atlassian.net/browse/SONARIAC-1059
 
       if (!sensitiveParameterUsages.isEmpty()) {
         scope.report(MESSAGE, sensitiveParameterUsages)
@@ -75,6 +73,20 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
         expressionEvaluationOptions.reportIfAbsent(MESSAGE, sensitiveParameterUsages);
       }
     }
+  }
+
+  private static Stream<Expression> extractParameterReferencesFromTemplate(ContextualArray resources) {
+    // TODO: traversal of resources in nested templates can be improved after https://sonarsource.atlassian.net/browse/SONARIAC-1058
+    return resources.objects()
+      .filter(ContextualTree::isPresent)
+      .flatMap(ContextualObject::allPropertiesFlattened)
+      .flatMap(prop -> {
+        if (RESOURCES_PROP_NAME.equals(prop.name)) {
+          return extractParameterReferencesFromTemplate(ContextualArray.fromPresent(prop.ctx, (ArrayExpression) prop.valueOrNull(), RESOURCES_PROP_NAME, null));
+        } else {
+          return Stream.of(prop.valueOrNull());
+        }
+      });
   }
 
   private static Map<String, ParameterDeclaration> getSensitiveParameters(ContextualResource resource) {

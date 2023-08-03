@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.testing.Verifier;
 
 class SecureValuesExposureCheckTest {
@@ -40,7 +41,15 @@ class SecureValuesExposureCheckTest {
   @Test
   void testJsonNonCompliant() {
     ArmVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_noncompliant.json", new SecureValuesExposureCheck(),
-      Verifier.issue(12, 14, 12, 47, "Change this code to not use an outer expression evaluation scope in nested templates."));
+      Verifier.issue(12, 14, 12, 47, "Change this code to not use an outer expression evaluation scope in nested templates.",
+        SecondaryLocation.secondary(29, 35, 29, 66, "This secure parameter is leaked through the deployment history.")));
+  }
+
+  @Test
+  void testJsonNestedNonCompliant() {
+    ArmVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_noncompliant_nested.json", new SecureValuesExposureCheck(),
+      Verifier.issue(12, 14, 12, 47, "Change this code to not use an outer expression evaluation scope in nested templates.",
+        SecondaryLocation.secondary(39, 43, 39, 74, "This secure parameter is leaked through the deployment history.")));
   }
 
   @ParameterizedTest
@@ -54,9 +63,13 @@ class SecureValuesExposureCheckTest {
     BicepVerifier.verifyNoIssue("SecureValuesExposureCheck/" + filename, new SecureValuesExposureCheck());
   }
 
-  @Test
-  void testBicepNonCompliant() {
-    BicepVerifier.verify("SecureValuesExposureCheck/Microsoft.Resources_deployments_noncompliant.bicep", new SecureValuesExposureCheck());
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "Microsoft.Resources_deployments_noncompliant.bicep",
+    "Microsoft.Resources_deployments_noncompliant_nested.bicep",
+  })
+  void testBicepNonCompliant(String filename) {
+    BicepVerifier.verify("SecureValuesExposureCheck/" + filename, new SecureValuesExposureCheck());
   }
 
   @Test
