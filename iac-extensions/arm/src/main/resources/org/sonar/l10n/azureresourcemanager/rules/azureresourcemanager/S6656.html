@@ -1,0 +1,103 @@
+<p>When using nested deployments in Azure, template expressions can be evaluated within the scope of the parent template or the scope of the nested
+template. If such a template expression evaluates a secure value of the parent template, it is possible to expose this value in the deployment
+history.</p>
+<h2>Why is this an issue?</h2>
+<p>Parameters with the type <code>securestring</code> and <code>secureObject</code> are designed to pass sensitive data to the resources being
+deployed. Secure parameters cannot be accessed after the deployment is completed: they can neither be logged nor used as an output.</p>
+<p>When used in nested deployments, however, it is possible to embed secure parameters in such a way they can be visible afterward.</p>
+<h3>What is the potential impact?</h3>
+<p>If the nested deployment contains a secure parameter in this way, then the value of this parameter may be readable in the deployment history. This
+can lead to important credentials being leaked to unauthorized accounts.</p>
+<h2>How to fix it in ARM Templates</h2>
+<p>By setting <code>properties.expressionEvaluationOptions.scope</code> to <code>Inner</code> in the parent template, template evaluations are limited
+to the scope of the nested template. This makes it impossible to expose secure parameters defined in the parent template.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2022-11-01",
+              "properties": {
+                "osProfile": {
+                  "adminUsername": "[parameters('adminUsername')]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "Inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "adminUsername": {
+              "type": "securestring",
+              "defaultValue": "[newGuid()]"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2022-11-01",
+              "properties": {
+                "osProfile": {
+                  "adminUsername": "[parameters('adminUsername')]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.resources/deployments?pivots=deployment-language-arm-template"><code>Microsoft.Resources/deployments</code></a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/200">MITRE, CWE-200</a> - Exposure of Sensitive Information to an Unauthorized Actor </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/532">MITRE, CWE-532</a> - Insertion of Sensitive Information into Log File </li>
+</ul>
+

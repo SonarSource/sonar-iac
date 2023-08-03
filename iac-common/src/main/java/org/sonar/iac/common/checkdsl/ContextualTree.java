@@ -43,8 +43,12 @@ public abstract class ContextualTree<S extends ContextualTree<S, T>, T extends T
   }
 
   public S reportIfAbsent(String message, SecondaryLocation... secondaries) {
+    return reportIfAbsent(message, List.of(secondaries));
+  }
+
+  public S reportIfAbsent(String message, List<SecondaryLocation> secondaries) {
     if (tree == null && parent != null) {
-      parent.report(String.format(message, name), List.of(secondaries));
+      parent.report(String.format(message, name), secondaries);
     }
     return (S) this;
   }
