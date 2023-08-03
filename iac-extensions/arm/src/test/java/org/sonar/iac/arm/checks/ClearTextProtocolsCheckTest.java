@@ -27,8 +27,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 
 import static org.sonar.iac.arm.ArmTestUtils.readTemplateAndReplace;
-import static org.sonar.iac.arm.checks.ArmVerifier.verify;
-import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -38,51 +36,84 @@ class ClearTextProtocolsCheckTest {
 
   @ParameterizedTest
   @CsvSource({"Microsoft.Web_sites.json,httpsOnly", "Microsoft.Cdn_profiles_endpoints.json,isHttpAllowed"})
-  void testClearTextProtocolWithHttpsFlag(String fileName, String propertyName) {
+  void testClearTextProtocolWithHttpsFlagJson(String fileName, String propertyName) {
     int endColumnForProperty = 17 + propertyName.length();
     int endColumnForType = 11 + fileName.length();
-    verify("ClearTextProtocolsCheck/" + fileName, check,
+    ArmVerifier.verify("ClearTextProtocolsCheck/" + fileName, check,
       issue(range(9, 8, 9, endColumnForProperty), "Make sure that using clear-text protocols is safe here."),
       issue(range(14, 14, 14, endColumnForType), "Omitting \"" + propertyName + "\" allows the use of clear-text protocols. Make sure it is safe here."));
   }
 
   @Test
-  void testClearTextProtocolWithFtpsState() {
-    verify("ClearTextProtocolsCheck/Microsoft.Web_sites_config.json", check,
+  void testClearTextProtocolWithHttpsFlagBicep() {
+    BicepVerifier.verify("ClearTextProtocolsCheck/Microsoft.Web_sites.bicep", check);
+    BicepVerifier.verify("ClearTextProtocolsCheck/Microsoft.Cdn_profiles_endpoints.bicep", check);
+  }
+
+  @Test
+  void testClearTextProtocolWithFtpsStateJson() {
+    ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Web_sites_config.json", check,
       issue(range(9, 8, 9, 33), "Make sure that using clear-text protocols is safe here."));
   }
 
   @Test
-  void testClearTextProtocolWithHttpsTrafficOnly() {
-    verify("ClearTextProtocolsCheck/Microsoft.Storage_storageAccounts.json", check,
+  void testClearTextProtocolWithFtpsStateBicep() {
+    BicepVerifier.verify("ClearTextProtocolsCheck/Microsoft.Web_sites_config.bicep", check);
+  }
+
+  @Test
+  void testClearTextProtocolWithHttpsTrafficOnlyJson() {
+    ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Storage_storageAccounts.json", check,
       issue(range(9, 8, 9, 41), "Make sure that using clear-text protocols is safe here."));
   }
 
   @Test
-  void testClearTextProtocolWithProtocolsContainingHttps() {
-    verify("ClearTextProtocolsCheck/Microsoft.ApiManagement_service_apis.json", check,
+  void testClearTextProtocolWithHttpsTrafficOnlyBicep() {
+    BicepVerifier.verify("ClearTextProtocolsCheck/Microsoft.Storage_storageAccounts.bicep", check);
+  }
+
+  @Test
+  void testClearTextProtocolWithProtocolsContainingHttpsJson() {
+    ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.ApiManagement_service_apis.json", check,
       issue(range(10, 10, 10, 16), "Make sure that using clear-text protocols is safe here."),
       issue(range(21, 10, 21, 16)));
   }
 
   @Test
-  void testClearTextProtocolWithClientProtocol() {
-    verify("ClearTextProtocolsCheck/Microsoft.Cache_redisEnterprise_databases.json", check,
+  void testClearTextProtocolWithProtocolsContainingHttpsBicep() {
+    BicepVerifier.verify("ClearTextProtocolsCheck/Microsoft.ApiManagement_service_apis.bicep", check);
+  }
+
+  @Test
+  void testClearTextProtocolWithClientProtocolJson() {
+    ArmVerifier.verify("ClearTextProtocolsCheck/Microsoft.Cache_redisEnterprise_databases.json", check,
       issue(range(9, 8, 9, 37), "Make sure that using clear-text protocols is safe here."));
   }
 
-  static Stream<String> testClearTextProtocolWithSslEnforcementInDifferentDatabases() {
+  @Test
+  void testClearTextProtocolWithClientProtocolBicep() {
+    BicepVerifier.verify("ClearTextProtocolsCheck/Microsoft.Cache_redisEnterprise_databases.bicep", check);
+  }
+
+  static Stream<String> databaseTypeList() {
     return Stream.of(
       "Microsoft.DBforMySQL/servers",
       "Microsoft.DBforMariaDB/servers",
       "Microsoft.DBforPostgreSQL/servers");
   }
 
-  @MethodSource
+  @MethodSource("databaseTypeList")
   @ParameterizedTest(name = "[{index}] property sslEnforcement should be set to Enabled for type {0}")
-  void testClearTextProtocolWithSslEnforcementInDifferentDatabases(String type) {
+  void testClearTextProtocolWithSslEnforcementInDifferentDatabasesJson(String type) {
     String content = readTemplateAndReplace("ClearTextProtocolsCheck/Microsoft.DBforDbname_servers_template.json", type);
-    verifyContent(content, check,
+    ArmVerifier.verifyContent(content, check,
       issue(range(9, 8, 9, 36), "Make sure that using clear-text protocols is safe here."));
+  }
+
+  @MethodSource("databaseTypeList")
+  @ParameterizedTest(name = "[{index}] property sslEnforcement should be set to Enabled for type {0}")
+  void testClearTextProtocolWithSslEnforcementInDifferentDatabasesBicep(String type) {
+    String content = readTemplateAndReplace("ClearTextProtocolsCheck/Microsoft.DBforDbname_servers_template.bicep", type);
+    BicepVerifier.verifyContent(content, check);
   }
 }
