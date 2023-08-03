@@ -50,4 +50,8 @@ public class DecoratorImpl extends AbstractArmTreeImpl implements Decorator {
   public Expression expression() {
     return expression;
   }
+
+  public SyntaxToken keyword() {
+    return keyword;
+  }
 }

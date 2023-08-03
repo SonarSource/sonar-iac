@@ -19,13 +19,13 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep.importdecl;
 
+import java.util.List;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-import java.util.List;
-
-public class ImportWithClause {
+public class ImportWithClause extends AbstractArmTreeImpl {
   private final SyntaxToken keyword;
   private final ObjectExpression object;
 
@@ -36,5 +36,14 @@ public class ImportWithClause {
 
   public List<Tree> children() {
     return List.of(keyword, object);
+  }
+
+  public SyntaxToken keyword() {
+    return keyword;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.IMPORT_WITH_CLAUSE;
   }
 }

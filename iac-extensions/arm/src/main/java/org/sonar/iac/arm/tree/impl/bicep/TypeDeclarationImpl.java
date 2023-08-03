@@ -74,4 +74,8 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
   public List<Decorator> decorators() {
     return decorators;
   }
+
+  public SyntaxToken keyword() {
+    return keyword;
+  }
 }

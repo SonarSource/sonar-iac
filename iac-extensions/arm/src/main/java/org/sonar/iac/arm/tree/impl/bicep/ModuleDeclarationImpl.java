@@ -77,4 +77,8 @@ public class ModuleDeclarationImpl extends AbstractArmTreeImpl implements Module
   public List<Decorator> decorators() {
     return decorators;
   }
+
+  public SyntaxToken keyword() {
+    return keyword;
+  }
 }

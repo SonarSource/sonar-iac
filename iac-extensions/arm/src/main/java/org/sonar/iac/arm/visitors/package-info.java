@@ -17,33 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep.importdecl;
-
-import java.util.List;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.common.api.tree.Tree;
-
-public class ImportAsClause extends AbstractArmTreeImpl {
-  private final SyntaxToken keyword;
-  private final Identifier alias;
-
-  public ImportAsClause(SyntaxToken keyword, Identifier alias) {
-    this.keyword = keyword;
-    this.alias = alias;
-  }
-
-  public List<Tree> children() {
-    return List.of(keyword, alias);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.IMPORT_AS_CLAUSE;
-  }
-
-  public SyntaxToken keyword() {
-    return keyword;
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.arm.visitors;

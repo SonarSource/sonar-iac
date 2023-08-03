@@ -139,4 +139,8 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   public List<Decorator> decorators() {
     return decorators;
   }
+
+  public SyntaxToken keyword() {
+    return keyword;
+  }
 }

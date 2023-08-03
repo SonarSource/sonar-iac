@@ -44,4 +44,12 @@ public abstract class AbstractDeclaration extends AbstractArmTreeImpl {
   public List<Tree> children() {
     return List.of(keyword, identifier, equals, expression);
   }
+
+  public SyntaxToken keyword() {
+    return keyword;
+  }
+
+  public Identifier identifier() {
+    return identifier;
+  }
 }

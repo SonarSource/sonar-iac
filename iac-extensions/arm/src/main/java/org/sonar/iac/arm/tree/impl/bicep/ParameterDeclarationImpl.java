@@ -189,4 +189,13 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   public List<Decorator> decorators() {
     return decorators;
   }
+
+  public SyntaxToken keyword() {
+    return keyword;
+  }
+
+  @Nullable
+  public TypeExpressionAble getTypeExpression() {
+    return typeExpression;
+  }
 }

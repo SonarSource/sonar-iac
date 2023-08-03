@@ -31,6 +31,8 @@ import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.Tree;
 
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
+
 public class ImportDeclarationImpl extends AbstractArmTreeImpl implements ImportDeclaration {
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
@@ -58,17 +60,17 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
     List<Tree> children = new ArrayList<>(decorators);
     children.add(keyword);
     children.add(specification);
-    if (withClause != null) {
-      children.addAll(withClause.children());
-    }
-    if (asClause != null) {
-      children.addAll(asClause.children());
-    }
+    addChildrenIfPresent(children, withClause);
+    addChildrenIfPresent(children, asClause);
     return children;
   }
 
   @Override
   public List<Decorator> decorators() {
     return decorators;
+  }
+
+  public SyntaxToken keyword() {
+    return keyword;
   }
 }

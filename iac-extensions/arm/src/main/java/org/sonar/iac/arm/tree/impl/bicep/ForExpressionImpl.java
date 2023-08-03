@@ -76,4 +76,12 @@ public class ForExpressionImpl extends AbstractArmTreeImpl implements ForExpress
   public Expression bodyExpression() {
     return bodyExpression;
   }
+
+  public SyntaxToken forKeyword() {
+    return forKeyword;
+  }
+
+  public SyntaxToken inKeyword() {
+    return inKeyword;
+  }
 }

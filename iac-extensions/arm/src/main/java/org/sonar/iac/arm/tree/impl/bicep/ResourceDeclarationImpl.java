@@ -209,6 +209,15 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     return decorators;
   }
 
+  public SyntaxToken keyword() {
+    return keyword;
+  }
+
+  @Nullable
+  public SyntaxToken getExisting() {
+    return existing;
+  }
+
   private static List<Property> propertiesOrEmpty(List<PropertyTree> properties) {
     return properties.stream()
       .filter(propertyTree -> "properties".equals(((TextTree) propertyTree.key()).value()))

@@ -58,6 +58,8 @@ import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -98,7 +100,8 @@ public interface ArmTree extends Tree {
     FUNCTION_DECLARATION(FunctionDeclaration.class),
     METADATA_DECLARATION(MetadataDeclaration.class),
     IMPORT_DECLARATION(ImportDeclaration.class),
-
+    IMPORT_WITH_CLAUSE(ImportWithClause.class),
+    IMPORT_AS_CLAUSE(ImportAsClause.class),
     FUNCTION_CALL(FunctionCall.class),
     FOR_EXPRESSION(ForExpression.class),
     FOR_VARIABLE_BLOCK(ForVariableBlock.class),

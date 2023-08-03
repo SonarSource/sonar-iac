@@ -28,6 +28,7 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.iac.arm.visitors.BicepHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
@@ -145,7 +146,9 @@ class ArmSensorTest extends ExtensionSensorTest {
   @Test
   void shouldIncludeAllVisitorsInRegularContext() {
     List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(context, null);
-    assertThat(visitors).hasSize(3).hasOnlyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class, ChecksVisitor.class);
+    assertThat(visitors)
+      .hasOnlyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class, ChecksVisitor.class, BicepHighlightingVisitor.class)
+      .hasSize(4);
   }
 
   @Test

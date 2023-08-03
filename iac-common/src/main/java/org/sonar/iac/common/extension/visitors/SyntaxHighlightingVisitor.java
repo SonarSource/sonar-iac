@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -57,7 +58,10 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
     newHighlighting.save();
   }
 
-  protected void highlight(HasTextRange tree, TypeOfText typeOfText) {
+  protected void highlight(@Nullable HasTextRange tree, TypeOfText typeOfText) {
+    if (tree == null) {
+      return;
+    }
     if (!TextRanges.isValidAndNotEmpty(tree.textRange())) {
       LOG.debug("Tried to highlight a tree with an empty or invalid range. Skipping it.");
       return;
