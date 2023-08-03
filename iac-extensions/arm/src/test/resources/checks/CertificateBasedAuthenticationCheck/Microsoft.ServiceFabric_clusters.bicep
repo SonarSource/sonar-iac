@@ -1,12 +1,12 @@
 // Noncompliant@+1{{Omitting "clientCertificateCommonNames/clientCertificateThumbprints" disables certificate-based authentication. Make sure it is safe here.}}
-resource Sensitive_both_properties_are_not_defined 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
+resource noncompliant1 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
   name: 'Sensitive: both properties are not defined'
   properties: {}
 }
 
 // Noncompliant@+1{{Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.}}
-resource Sensitive_both_properties_are_defined_but_empty 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
-//                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource noncompliant2 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
+//                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Sensitive: both properties are defined but empty'
   properties: {
     clientCertificateCommonNames: []
@@ -17,7 +17,7 @@ resource Sensitive_both_properties_are_defined_but_empty 'Microsoft.ServiceFabri
 }
 
 // Noncompliant@+1
-resource Sensitive_only_one_property_is_defined_but_empty 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
+resource noncompliant3 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
   name: 'Sensitive: only one property is defined but empty'
   properties: {
     clientCertificateThumbprints: []
@@ -25,14 +25,14 @@ resource Sensitive_only_one_property_is_defined_but_empty 'Microsoft.ServiceFabr
 }
 
 // Noncompliant@+1
-resource Sensitive_only_one_property_is_defined_but_empty_bis 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
+resource noncompliant4 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
   name: 'Sensitive: only one property is defined but empty (bis)'
   properties: {
     clientCertificateCommonNames: []
   }
 }
 
-resource Compliant_one_properties_defined_and_not_empty_the_other_is_not_defined 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
+resource compliant1 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
   name: 'Compliant: one properties defined and not empty, the other is not defined'
   properties: {
     clientCertificateCommonNames: [
@@ -43,7 +43,7 @@ resource Compliant_one_properties_defined_and_not_empty_the_other_is_not_defined
   }
 }
 
-resource Compliant_one_properties_defined_and_not_empty_the_other_is_not_defined_bis 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
+resource compliant2 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
   name: 'Compliant: one properties defined and not empty, the other is not defined (bis)'
   properties: {
     clientCertificateThumbprints: [
@@ -54,7 +54,7 @@ resource Compliant_one_properties_defined_and_not_empty_the_other_is_not_defined
   }
 }
 
-resource Compliant_one_properties_defined_and_not_empty_the_other_is_defined_and_empty 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
+resource compliant3 'Microsoft.ServiceFabric/clusters@2016-03-01' = {
   name: 'Compliant: one properties defined and not empty, the other is defined and empty'
   properties: {
     clientCertificateCommonNames: []
@@ -66,7 +66,7 @@ resource Compliant_one_properties_defined_and_not_empty_the_other_is_defined_and
   }
 }
 
-resource Compliant_resource_type_is_not_impacted_by_the_check 'another type@2016-03-01' = {
+resource compliant4 'another type@2016-03-01' = {
   name: 'Compliant: resource type is not impacted by the check'
   properties: {
     clientCertificateThumbprints: []

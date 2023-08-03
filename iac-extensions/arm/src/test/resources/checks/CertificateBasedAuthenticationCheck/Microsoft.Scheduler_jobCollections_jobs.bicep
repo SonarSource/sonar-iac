@@ -1,4 +1,4 @@
-resource Sensitive_no_certificate_authentication_on_action_request_authentication_type 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
+resource noncompliant1 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
   name: 'Sensitive: no certificate authentication on action.request.authentication.type'
   properties: {
     action: {
@@ -12,7 +12,7 @@ resource Sensitive_no_certificate_authentication_on_action_request_authenticatio
   }
 }
 
-resource Sensitive_no_certificate_authentication_on_action_errorAction_request_authentication_type 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
+resource noncompliant2 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
   name: 'Sensitive: no certificate authentication on action.errorAction.request.authentication.type'
   properties: {
     action: {
@@ -27,10 +27,10 @@ resource Sensitive_no_certificate_authentication_on_action_errorAction_request_a
   }
 }
 
-resource Sensitive_nested_child_resource_with_sensitive_configuration 'Microsoft.Scheduler/jobCollections@2016-01-01' = {
+resource noncompliant3 'Microsoft.Scheduler/jobCollections@2016-01-01' = {
   name: 'Sensitive: nested child resource with sensitive configuration'
 
-  resource Sensitive_nested_child_resource_with_sensitive_configuration_nested_child 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
+  resource noncompliant3_nested_child 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
     name: 'nested child'
     properties: {
       action: {
@@ -46,7 +46,7 @@ resource Sensitive_nested_child_resource_with_sensitive_configuration 'Microsoft
   }
 }
 
-resource Microsoft_Scheduler_jobCollections_jobs_Compliant 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
+resource compliant1 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
   name: 'Compliant'
   properties: {
     action: {
@@ -59,7 +59,7 @@ resource Microsoft_Scheduler_jobCollections_jobs_Compliant 'Microsoft.Scheduler/
   }
 }
 
-resource Microsoft_Scheduler_jobCollections_jobs_Compliant 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
+resource compliant2 'Microsoft.Scheduler/jobCollections/jobs@2016-01-01' = {
   name: 'Compliant'
   properties: {
     action: {

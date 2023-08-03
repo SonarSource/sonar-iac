@@ -1,4 +1,4 @@
-resource Sensitive_Web_not_ClientCertificate 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+resource noncompliant1 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'Sensitive: \'Web\' + not \'ClientCertificate\''
   properties: {
     type: 'Web'
@@ -9,7 +9,7 @@ resource Sensitive_Web_not_ClientCertificate 'Microsoft.DataFactory/factories/li
   }
 }
 
-resource Sensitive_HttpServer_not_ClientCertificate 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+resource noncompliant2 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'Sensitive: \'HttpServer\' + not \'ClientCertificate\''
   properties: {
     type: 'HttpServer'
@@ -19,10 +19,10 @@ resource Sensitive_HttpServer_not_ClientCertificate 'Microsoft.DataFactory/facto
   }
 }
 
-resource Sensitive_Web_not_ClientCertificate_in_nested_resource 'Microsoft.DataFactory/factories@2018-06-01' = {
+resource noncompliant3 'Microsoft.DataFactory/factories@2018-06-01' = {
   name: 'Sensitive: \'Web\' + not \'ClientCertificate\' in nested resource'
 
-  resource Sensitive_Web_not_ClientCertificate_in_nested_resource_Sensitive_nested_resource 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+  resource noncompliant3_nested_child 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
     name: 'Sensitive nested resource'
     properties: {
       type: 'Web'
@@ -33,7 +33,7 @@ resource Sensitive_Web_not_ClientCertificate_in_nested_resource 'Microsoft.DataF
   }
 }
 
-resource Compliant_Web_ClientCertificate 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+resource compliant1 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'Compliant: \'Web\' + \'ClientCertificate\''
   properties: {
     type: 'Web'
@@ -43,7 +43,7 @@ resource Compliant_Web_ClientCertificate 'Microsoft.DataFactory/factories/linked
   }
 }
 
-resource Compliant_HttpServer_ClientCertificate 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+resource compliant2 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'Compliant: \'HttpServer\' + \'ClientCertificate\''
   properties: {
     type: 'HttpServer'
@@ -53,7 +53,7 @@ resource Compliant_HttpServer_ClientCertificate 'Microsoft.DataFactory/factories
   }
 }
 
-resource Compliant_other_than_Web_HttpServer_not_ClientCertificate 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+resource compliant3 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'Compliant: other than \'Web\'/\'HttpServer\' + not \'ClientCertificate\''
   properties: {
     type: 'Other'
@@ -63,7 +63,7 @@ resource Compliant_other_than_Web_HttpServer_not_ClientCertificate 'Microsoft.Da
   }
 }
 
-resource Compliant 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+resource compliant4 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'Compliant'
   properties: {
     type: 'Web'
