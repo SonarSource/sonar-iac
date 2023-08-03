@@ -44,6 +44,7 @@ public abstract class AbstractMetricsTest {
 
   protected NoSonarFilter noSonarFilter = mock(NoSonarFilter.class);
   protected TreeParser<Tree> parser;
+  protected String language;
   protected MetricsVisitor visitor;
   protected SensorContextTester sensorContext;
   protected DefaultInputFile inputFile;
@@ -60,7 +61,10 @@ public abstract class AbstractMetricsTest {
 
     parser = treeParser();
     visitor = metricsVisitor(fileLinesContextFactory);
+    language = languageKey();
   }
+
+  protected abstract String languageKey();
 
   protected abstract TreeParser<Tree> treeParser();
 
@@ -71,16 +75,13 @@ public abstract class AbstractMetricsTest {
   }
 
   protected MetricsVisitor scan(String code) {
-    inputFile = new TestInputFileBuilder("moduleKey", new File(tempFolder, testFileName()).getName())
+    inputFile = new TestInputFileBuilder("moduleKey", new File(tempFolder, "file").getName())
       .setCharset(StandardCharsets.UTF_8)
+      .setLanguage(language)
       .setContents(code)
       .build();
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
     visitor.scan(ctx, parser.parse(code, null));
     return visitor;
-  }
-
-  protected String testFileName() {
-    return "file";
   }
 }

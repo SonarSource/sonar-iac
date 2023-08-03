@@ -99,4 +99,8 @@ public class ArmSensor extends YamlSensor {
     visitors.add(new ChecksVisitor(checks, statistics));
     return visitors;
   }
+
+  public static boolean isBicepFile(InputFileContext inputFileContext) {
+    return ArmLanguage.KEY.equals(inputFileContext.inputFile.language());
+  }
 }

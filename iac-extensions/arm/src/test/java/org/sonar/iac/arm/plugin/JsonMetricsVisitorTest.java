@@ -42,8 +42,8 @@ class JsonMetricsVisitorTest extends AbstractMetricsTest {
   }
 
   @Override
-  protected String testFileName() {
-    return "file.json";
+  protected String languageKey() {
+    return "json";
   }
 
   @Test

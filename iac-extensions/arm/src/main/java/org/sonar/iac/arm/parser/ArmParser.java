@@ -25,6 +25,8 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
+import static org.sonar.iac.arm.plugin.ArmSensor.isBicepFile;
+
 public class ArmParser implements TreeParser<Tree> {
 
   private static final BicepParser bicepParser = BicepParser.create();
@@ -36,9 +38,5 @@ public class ArmParser implements TreeParser<Tree> {
       return bicepParser.parse(source, inputFileContext);
     }
     return jsonParser.parse(source, inputFileContext);
-  }
-
-  public static boolean isBicepFile(InputFileContext inputFileContext) {
-    return inputFileContext.inputFile.filename().endsWith(".bicep");
   }
 }

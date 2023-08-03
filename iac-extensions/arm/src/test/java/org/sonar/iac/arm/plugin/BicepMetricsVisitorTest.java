@@ -47,8 +47,8 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
   }
 
   @Override
-  protected String testFileName() {
-    return "file.bicep";
+  protected String languageKey() {
+    return ArmLanguage.KEY;
   }
 
   @Test

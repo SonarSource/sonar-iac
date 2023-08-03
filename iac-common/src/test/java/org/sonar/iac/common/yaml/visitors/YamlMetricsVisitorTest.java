@@ -51,6 +51,11 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
     return new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter);
   }
 
+  @Override
+  protected String languageKey() {
+    return "yaml";
+  }
+
   @Test
   void scalar_key_scalar_value() {
     scan("foo: bar");

@@ -27,6 +27,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 import org.sonar.iac.docker.parser.DockerParser;
+import org.sonar.iac.docker.plugin.DockerLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -41,6 +42,11 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
     return new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter);
+  }
+
+  @Override
+  protected String languageKey() {
+    return new DockerLanguage().getKey();
   }
 
   @Test

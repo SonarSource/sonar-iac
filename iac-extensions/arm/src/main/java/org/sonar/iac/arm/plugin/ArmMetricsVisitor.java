@@ -21,11 +21,11 @@ package org.sonar.iac.arm.plugin;
 
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
+
+import static org.sonar.iac.arm.plugin.ArmSensor.isBicepFile;
 
 public class ArmMetricsVisitor extends YamlMetricsVisitor {
   protected ArmMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
@@ -34,19 +34,11 @@ public class ArmMetricsVisitor extends YamlMetricsVisitor {
 
   @Override
   protected boolean acceptFileForLoc(InputFileContext inputFileContext) {
-    return !ArmParser.isBicepFile(inputFileContext);
+    return !isBicepFile(inputFileContext);
   }
 
   @Override
   protected void languageSpecificMetrics() {
-    register(SyntaxToken.class, (ctx, token) -> {
-      if (!(token.value().trim().isEmpty())) {
-        TextRange range = token.textRange();
-        for (int i = range.start().line(); i <= range.end().line(); i++) {
-          linesOfCode().add(i);
-        }
-      }
-      addCommentLines(token.comments());
-    });
+    register(SyntaxToken.class, defaultMetricsVisitor());
   }
 }
