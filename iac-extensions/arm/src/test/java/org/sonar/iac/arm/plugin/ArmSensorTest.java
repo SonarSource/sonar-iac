@@ -28,6 +28,11 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.MetricsVisitor;
+import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
@@ -135,5 +140,19 @@ class ArmSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).isEqualTo(message1);
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(1)).startsWith(message2);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+  }
+
+  @Test
+  void shouldIncludeAllVisitorsInRegularContext() {
+    List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(context, null);
+    assertThat(visitors).hasSize(3).hasOnlyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class, ChecksVisitor.class);
+  }
+
+  @Test
+  void shouldNotIncludeSomeVisitorsInSonarLintContext() {
+    List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, null);
+    assertThat(visitors)
+      .doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class)
+      .hasExactlyElementsOfTypes(ChecksVisitor.class);
   }
 }
