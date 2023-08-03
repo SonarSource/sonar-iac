@@ -115,7 +115,7 @@ public class IpAddressValidator {
 
   @CheckForNull
   private static String valueOrElseDefaultIfStringLiteralOrNull(@Nullable ArmTree tree, String defaultIpAddress) {
-    if (tree != null && tree.is(ArmTree.Kind.STRING_LITERAL)) {
+    if (tree != null && tree.is(ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.STRING_COMPLETE)) {
       return TextUtils.getValue(tree).orElse(defaultIpAddress);
     }
     return null;
