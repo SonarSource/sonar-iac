@@ -62,7 +62,7 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
     ContextualProperty scope = expressionEvaluationOptions.property("scope");
     if (scope.isAbsent() || TextUtils.isValue(scope.valueOrNull(), "Inner").isFalse()) {
       Set<String> sensitiveParameterNames = sensitiveParameters.keySet();
-      List<SecondaryLocation> sensitiveParameterUsages = extractParameterReferencesFromTemplate(resource.object("template").list(RESOURCES_PROP_NAME))
+      List<SecondaryLocation> sensitiveParameterUsages = extractPropertyValuesFromTemplate(resource.object("template").list(RESOURCES_PROP_NAME))
         .filter(containsParameterReference(sensitiveParameterNames))
         .map(value -> new SecondaryLocation(value.textRange(), SECONDARY_MESSAGE))
         .collect(Collectors.toList());
@@ -75,14 +75,14 @@ public class SecureValuesExposureCheck extends AbstractArmResourceCheck {
     }
   }
 
-  private static Stream<Expression> extractParameterReferencesFromTemplate(ContextualArray resources) {
+  static Stream<Expression> extractPropertyValuesFromTemplate(ContextualArray resources) {
     // TODO: traversal of resources in nested templates can be improved after https://sonarsource.atlassian.net/browse/SONARIAC-1058
     return resources.objects()
       .filter(ContextualTree::isPresent)
       .flatMap(ContextualObject::allPropertiesFlattened)
       .flatMap(prop -> {
         if (RESOURCES_PROP_NAME.equals(prop.name)) {
-          return extractParameterReferencesFromTemplate(ContextualArray.fromPresent(prop.ctx, (ArrayExpression) prop.valueOrNull(), RESOURCES_PROP_NAME, null));
+          return extractPropertyValuesFromTemplate(ContextualArray.fromPresent(prop.ctx, (ArrayExpression) prop.valueOrNull(), RESOURCES_PROP_NAME, null));
         } else {
           return Stream.of(prop.valueOrNull());
         }
