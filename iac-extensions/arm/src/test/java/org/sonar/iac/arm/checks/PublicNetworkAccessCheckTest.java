@@ -26,7 +26,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static org.sonar.iac.arm.ArmTestUtils.readTemplateAndReplace;
-import static org.sonar.iac.arm.checks.ArmVerifier.*;
 import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -38,15 +37,20 @@ class PublicNetworkAccessCheckTest {
   private static final String AND_HERE = "and here";
 
   @Test
-  void shouldCheckPublicNetworkAccess() {
-    verify("PublicNetworkAccessCheckTest/publicNetworkAccess/hostPools.json",
+  void shouldCheckPublicNetworkAccessJson() {
+    ArmVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/hostPools.json",
       CHECK,
       issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(18, 8, 18, 59),
       issue(26, 8, 26, 54));
   }
 
-  static Stream<String> shouldCheckPublicNetworkAccessSimplified() {
+  @Test
+  void shouldCheckPublicNetworkAccessBicep() {
+    BicepVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/hostPools.bicep", CHECK);
+  }
+
+  static Stream<String> listResourcesPublicNetworkAccessSimplified() {
     return Stream.of(
       "Microsoft.AgFoodPlatform/farmBeats",
       "Microsoft.ApiManagement/service",
@@ -164,17 +168,30 @@ class PublicNetworkAccessCheckTest {
       "Microsoft.Web/staticSites");
   }
 
-  @MethodSource
+  @MethodSource("listResourcesPublicNetworkAccessSimplified")
   @ParameterizedTest(name = "[{index}] should check Public Network Access Simplified for type {0}")
-  void shouldCheckPublicNetworkAccessSimplified(String type) {
+  void shouldCheckPublicNetworkAccessSimplifiedJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess/simplified-template.json", type);
 
-    verifyContent(content, CHECK, issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS));
+    ArmVerifier.verifyContent(content, CHECK, issue(10, 8, 10, 40, MESSAGE_PUBLIC_NETWORK_ACCESS));
+  }
+
+  @MethodSource("listResourcesPublicNetworkAccessSimplified")
+  @ParameterizedTest(name = "[{index}] should check Public Network Access Simplified for type {0}")
+  void shouldCheckPublicNetworkAccessSimplifiedBicep(String type) {
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess/simplified-template.bicep", type);
+
+    BicepVerifier.verifyContent(content, CHECK);
   }
 
   @Test
-  void shouldRaiseNoIssuesForUnknownType() {
-    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess/simplified-unknown-type.json", CHECK);
+  void shouldRaiseNoIssuesForUnknownTypeJson() {
+    ArmVerifier.verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess/simplified-unknown-type.json", CHECK);
+  }
+
+  @Test
+  void shouldRaiseNoIssuesForUnknownTypeBicep() {
+    BicepVerifier.verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess/simplified-unknown-type.bicep", CHECK);
   }
 
   static Stream<String> shouldCheckRangePublicIPAddress() {
@@ -193,11 +210,11 @@ class PublicNetworkAccessCheckTest {
       "Microsoft.Synapse/workspaces/firewallRules");
   }
 
-  @MethodSource
+  @MethodSource("shouldCheckRangePublicIPAddress")
   @ParameterizedTest(name = "[{index}] should check range public IP Address for type {0}")
-  void shouldCheckRangePublicIPAddress(String type) {
+  void shouldCheckRangePublicIPAddressJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/rangePublicIPAddress-template.json", type);
-    verifyContent(content, CHECK,
+    ArmVerifier.verifyContent(content, CHECK,
       issue(10, 26, 10, 35, MESSAGE_PUBLIC_IP_ACCESS, secondary(11, 24, 11, 41, AND_HERE)),
       issue(19, 24, 19, 33, MESSAGE_PUBLIC_IP_ACCESS),
       issue(27, 26, 27, 37),
@@ -220,47 +237,81 @@ class PublicNetworkAccessCheckTest {
       issue(178, 26, 178, 37, MESSAGE_PUBLIC_IP_ACCESS, secondary(179, 24, 179, 33, AND_HERE)));
   }
 
-  @Test
-  void shouldRaiseNoIssueForPublicIPAddressForUnknownType() {
-    verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/rangePublicIPAddress-unknown-type.json", CHECK);
+  @MethodSource("shouldCheckRangePublicIPAddress")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address for type {0}")
+  void shouldCheckRangePublicIPAddressBicep(String type) {
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/rangePublicIPAddress-template.bicep", type);
+    BicepVerifier.verifyContent(content, CHECK);
   }
 
   @Test
-  void shouldCheckDbForMySqlFlexibleServers() {
-    verify("PublicNetworkAccessCheckTest/publicNetworkAccess/flexibleServers.json",
+  void shouldRaiseNoIssueForPublicIPAddressForUnknownTypeJson() {
+    ArmVerifier.verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/rangePublicIPAddress-unknown-type.json", CHECK);
+  }
+
+  @Test
+  void shouldRaiseNoIssueForPublicIPAddressForUnknownTypeBicep() {
+    BicepVerifier.verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/rangePublicIPAddress-unknown-type.bicep", CHECK);
+  }
+
+  @Test
+  void shouldCheckDbForMySqlFlexibleServersJson() {
+    ArmVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/flexibleServers.json",
       CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
   @Test
-  void shouldCheckInsightsDataCollectionEndpoints() {
-    verify("PublicNetworkAccessCheckTest/publicNetworkAccess/dataCollectionEndpoints.json",
+  void shouldCheckDbForMySqlFlexibleServersBicep() {
+    BicepVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/flexibleServers.bicep", CHECK);
+  }
+
+  @Test
+  void shouldCheckInsightsDataCollectionEndpointsJson() {
+    ArmVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/dataCollectionEndpoints.json",
       CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
-  static Stream<String> shouldCheckPublicNetworkAccessSimplifiedInSiteConfig() {
+  @Test
+  void shouldCheckInsightsDataCollectionEndpointsBicep() {
+    BicepVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/dataCollectionEndpoints.bicep", CHECK);
+  }
+
+  static Stream<String> listTypesCheckPublicNetworkAccessSimplifiedInSiteConfig() {
     return Stream.of(
       "Microsoft.Web/sites",
       "Microsoft.Web/sites/slots");
   }
 
-  @MethodSource
+  @MethodSource("listTypesCheckPublicNetworkAccessSimplifiedInSiteConfig")
   @ParameterizedTest(name = "[{index}] should check range public IP Address for type {0}")
-  void shouldCheckPublicNetworkAccessSimplifiedInSiteConfig(String type) {
+  void shouldCheckPublicNetworkAccessSimplifiedInSiteConfigJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess/siteConfig-template.json", type);
-    verifyContent(content, CHECK,
+    ArmVerifier.verifyContent(content, CHECK,
       issue(11, 10, 11, 42, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
-  @Test
-  void shouldCheckPublicNetworkAccessSimplifiedInSiteConfigUnknownType() {
-    verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess/siteConfig-unknown-type.json", CHECK);
+  @MethodSource("listTypesCheckPublicNetworkAccessSimplifiedInSiteConfig")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address for type {0}")
+  void shouldCheckPublicNetworkAccessSimplifiedInSiteConfigBicep(String type) {
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/publicNetworkAccess/siteConfig-template.bicep", type);
+    BicepVerifier.verifyContent(content, CHECK);
   }
 
   @Test
-  void shouldCheckSubResourcesForPublicNetworkAccess() {
-    verify("PublicNetworkAccessCheckTest/publicNetworkAccess/subResources.json",
+  void shouldCheckPublicNetworkAccessSimplifiedInSiteConfigUnknownTypeJson() {
+    ArmVerifier.verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess/siteConfig-unknown-type.json", CHECK);
+  }
+
+  @Test
+  void shouldCheckPublicNetworkAccessSimplifiedInSiteConfigUnknownTypeBicep() {
+    BicepVerifier.verifyNoIssue("PublicNetworkAccessCheckTest/publicNetworkAccess/siteConfig-unknown-type.bicep", CHECK);
+  }
+
+  @Test
+  void shouldCheckSubResourcesForPublicNetworkAccessJson() {
+    ArmVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/subResources.json",
       CHECK,
       issue(15, 12, 15, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
       issue(30, 12, 30, 44, MESSAGE_PUBLIC_NETWORK_ACCESS),
@@ -272,17 +323,22 @@ class PublicNetworkAccessCheckTest {
       issue(120, 12, 120, 44, MESSAGE_PUBLIC_NETWORK_ACCESS));
   }
 
-  static Stream<String> shouldCheckRangePublicIPAddressInFirewallRules() {
+  @Test
+  void shouldCheckSubResourcesForPublicNetworkAccessBicep() {
+    BicepVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/subResources.bicep", CHECK);
+  }
+
+  static Stream<String> listResourceRangePublicIPAddressInFirewallRules() {
     return Stream.of(
       "Microsoft.Blockchain/blockchainMembers",
       "Microsoft.Blockchain/blockchainMembers/transactionNodes");
   }
 
-  @MethodSource
+  @MethodSource("listResourceRangePublicIPAddressInFirewallRules")
   @ParameterizedTest(name = "[{index}] should check range public IP Address in Firewall Rules for type {0}")
-  void shouldCheckRangePublicIPAddressInFirewallRules(String type) {
+  void shouldCheckRangePublicIPAddressInFirewallRulesJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-template.json", type);
-    verifyContent(content, CHECK,
+    ArmVerifier.verifyContent(content, CHECK,
       issue(12, 30, 12, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(13, 28, 13, 45, AND_HERE)),
       issue(25, 28, 25, 37, MESSAGE_PUBLIC_IP_ACCESS),
       issue(37, 30, 37, 41, MESSAGE_PUBLIC_IP_ACCESS),
@@ -305,14 +361,26 @@ class PublicNetworkAccessCheckTest {
       issue(256, 30, 256, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(257, 28, 257, 37, AND_HERE)));
   }
 
-  @Test
-  void shouldCheckRangePublicIPAddressInFirewallRulesUnknownType() {
-    verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-unknown-type.json", CHECK);
+  @MethodSource("listResourceRangePublicIPAddressInFirewallRules")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address in Firewall Rules for type {0}")
+  void shouldCheckRangePublicIPAddressInFirewallRulesBicep(String type) {
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-template.bicep", type);
+    BicepVerifier.verifyContent(content, CHECK);
   }
 
   @Test
-  void shouldCheckRangePublicIPAddressInBlockchainMembersInTransactionsNodes() {
-    verify(
+  void shouldCheckRangePublicIPAddressInFirewallRulesUnknownTypeJson() {
+    ArmVerifier.verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-unknown-type.json", CHECK);
+  }
+
+  @Test
+  void shouldCheckRangePublicIPAddressInFirewallRulesUnknownTypeBicep() {
+    BicepVerifier.verifyNoIssue("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-unknown-type.bicep", CHECK);
+  }
+
+  @Test
+  void shouldCheckRangePublicIPAddressInBlockchainMembersInTransactionsNodesJson() {
+    ArmVerifier.verify(
       "PublicNetworkAccessCheckTest/rangePublicIPAddress/transactionNodes.json",
       CHECK,
       issue(17, 34, 17, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(18, 32, 18, 49, AND_HERE)),
@@ -341,7 +409,12 @@ class PublicNetworkAccessCheckTest {
       issue(466, 34, 466, 45, MESSAGE_PUBLIC_IP_ACCESS, secondary(467, 32, 467, 43, AND_HERE)));
   }
 
-  static Stream<String> shouldCheckRangePublicIPAddressInFirewallRulesProperties() {
+  @Test
+  void shouldCheckRangePublicIPAddressInBlockchainMembersInTransactionsNodesBicep() {
+    BicepVerifier.verify("PublicNetworkAccessCheckTest/rangePublicIPAddress/transactionNodes.bicep", CHECK);
+  }
+
+  static Stream<String> listTypesRangePublicIPAddressInFirewallRulesProperties() {
     return Stream.of(
       "Microsoft.DBforMySQL/flexibleServers",
       "Microsoft.DBForPostgreSql/flexibleServers",
@@ -358,11 +431,11 @@ class PublicNetworkAccessCheckTest {
       "Microsoft.Synapse/workspaces");
   }
 
-  @MethodSource
+  @MethodSource("listTypesRangePublicIPAddressInFirewallRulesProperties")
   @ParameterizedTest(name = "[{index}] should check range public IP Address in Firewall Rules Properties for type {0}")
-  void shouldCheckRangePublicIPAddressInFirewallRulesProperties(String type) {
+  void shouldCheckRangePublicIPAddressInFirewallRulesPropertiesJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-properties-template.json", type);
-    verifyContent(content, CHECK,
+    ArmVerifier.verifyContent(content, CHECK,
       issue(15, 30, 15, 39, MESSAGE_PUBLIC_IP_ACCESS, secondary(16, 28, 16, 45, AND_HERE)),
       issue(31, 28, 31, 37, MESSAGE_PUBLIC_IP_ACCESS),
       issue(46, 30, 46, 41, MESSAGE_PUBLIC_IP_ACCESS),
@@ -385,17 +458,24 @@ class PublicNetworkAccessCheckTest {
       issue(316, 30, 316, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(317, 28, 317, 37, AND_HERE)));
   }
 
-  static Stream<String> shouldCheckRangePublicIPAddressInPropertiesFirewallRules() {
+  @MethodSource("listTypesRangePublicIPAddressInFirewallRulesProperties")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address in Firewall Rules Properties for type {0}")
+  void shouldCheckRangePublicIPAddressInFirewallRulesPropertiesBicep(String type) {
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/firewallRules-properties-template.bicep", type);
+    BicepVerifier.verifyContent(content, CHECK);
+  }
+
+  static Stream<String> listTypesRangePublicIPAddressInPropertiesFirewallRules() {
     return Stream.of(
       "Microsoft.DataLakeAnalytics/accounts",
       "Microsoft.DataLakeStore/accounts");
   }
 
-  @MethodSource
+  @MethodSource("listTypesRangePublicIPAddressInPropertiesFirewallRules")
   @ParameterizedTest(name = "[{index}] should check range public IP Address in Properties Firewall Rules for type {0}")
-  void shouldCheckRangePublicIPAddressInPropertiesFirewallRules(String type) {
+  void shouldCheckRangePublicIPAddressInPropertiesFirewallRulesJson(String type) {
     String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/properties-firewallRules-template.json", type);
-    verifyContent(content, CHECK,
+    ArmVerifier.verifyContent(content, CHECK,
       issue(13, 32, 13, 41, MESSAGE_PUBLIC_IP_ACCESS, secondary(14, 30, 14, 47, AND_HERE)),
       issue(28, 30, 28, 39, MESSAGE_PUBLIC_IP_ACCESS),
       issue(42, 32, 42, 43, MESSAGE_PUBLIC_IP_ACCESS),
@@ -420,5 +500,12 @@ class PublicNetworkAccessCheckTest {
       issue(337, 32, 337, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(338, 30, 338, 41, AND_HERE)),
       issue(352, 32, 352, 42, MESSAGE_PUBLIC_IP_ACCESS, secondary(353, 30, 353, 42, AND_HERE)),
       issue(358, 32, 358, 43, MESSAGE_PUBLIC_IP_ACCESS, secondary(359, 30, 359, 41, AND_HERE)));
+  }
+
+  @MethodSource("listTypesRangePublicIPAddressInPropertiesFirewallRules")
+  @ParameterizedTest(name = "[{index}] should check range public IP Address in Properties Firewall Rules for type {0}")
+  void shouldCheckRangePublicIPAddressInPropertiesFirewallRulesBicep(String type) {
+    String content = readTemplateAndReplace("PublicNetworkAccessCheckTest/rangePublicIPAddress/properties-firewallRules-template.bicep", type);
+    BicepVerifier.verifyContent(content, CHECK);
   }
 }
