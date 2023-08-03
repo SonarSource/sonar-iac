@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.arm.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -32,9 +34,14 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.arm.checks.ArmCheckList;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
 import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
+import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.yaml.YamlSensor;
+import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 
 public class ArmSensor extends YamlSensor {
 
@@ -80,5 +87,20 @@ public class ArmSensor extends YamlSensor {
   @Override
   protected TreeParser<Tree> treeParser() {
     return new ArmParser();
+  }
+
+  @Override
+  protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
+    List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+    if (isNotSonarLintContext(sensorContext)) {
+      visitors.add(new YamlHighlightingVisitor());
+      visitors.add(new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+    }
+    visitors.add(new ChecksVisitor(checks, statistics));
+    return visitors;
+  }
+
+  public static boolean isBicepFile(InputFileContext inputFileContext) {
+    return ArmLanguage.KEY.equals(inputFileContext.inputFile.language());
   }
 }

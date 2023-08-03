@@ -22,7 +22,7 @@ package org.sonar.iac.common.extension.visitors;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.iac.common.api.tree.impl.TextRange;
+import java.util.function.BiConsumer;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
@@ -31,6 +31,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
 
@@ -49,15 +50,7 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
   }
 
   protected void languageSpecificMetrics() {
-    register(IacToken.class, (ctx, token) -> {
-      if (!(token.value().trim().isEmpty())) {
-        TextRange range = token.textRange();
-        for (int i = range.start().line(); i <= range.end().line(); i++) {
-          linesOfCode().add(i);
-        }
-      }
-      addCommentLines(token.comments());
-    });
+    register(IacToken.class, defaultMetricsVisitor());
   }
 
   @Override
@@ -115,5 +108,17 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
 
   public Set<Integer> noSonarLines() {
     return noSonarLines;
+  }
+
+  public <T extends IacToken> BiConsumer<InputFileContext, T> defaultMetricsVisitor() {
+    return (ctx, token) -> {
+      if (!(token.value().trim().isEmpty())) {
+        TextRange range = token.textRange();
+        for (int i = range.start().line(); i <= range.end().line(); i++) {
+          linesOfCode().add(i);
+        }
+      }
+      addCommentLines(token.comments());
+    };
   }
 }

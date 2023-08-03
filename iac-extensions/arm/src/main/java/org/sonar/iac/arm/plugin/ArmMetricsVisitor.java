@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.parser;
+package org.sonar.iac.arm.plugin;
 
-import javax.annotation.Nullable;
-import org.sonar.iac.arm.tree.api.ArmTree;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.extension.TreeParser;
+import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 
 import static org.sonar.iac.arm.plugin.ArmSensor.isBicepFile;
 
-public class ArmParser implements TreeParser<Tree> {
-
-  private static final BicepParser bicepParser = BicepParser.create();
-  private static final ArmJsonParser jsonParser = new ArmJsonParser();
+public class ArmMetricsVisitor extends YamlMetricsVisitor {
+  protected ArmMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter) {
+    super(fileLinesContextFactory, noSonarFilter);
+  }
 
   @Override
-  public ArmTree parse(String source, @Nullable InputFileContext inputFileContext) {
-    if (inputFileContext != null && isBicepFile(inputFileContext)) {
-      return bicepParser.parse(source, inputFileContext);
-    }
-    return jsonParser.parse(source, inputFileContext);
+  protected boolean acceptFileForLoc(InputFileContext inputFileContext) {
+    return !isBicepFile(inputFileContext);
+  }
+
+  @Override
+  protected void languageSpecificMetrics() {
+    register(SyntaxToken.class, defaultMetricsVisitor());
   }
 }

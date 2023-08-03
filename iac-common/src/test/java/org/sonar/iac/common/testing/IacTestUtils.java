@@ -62,10 +62,15 @@ public class IacTestUtils {
   }
 
   public static InputFileContext createInputFileContextMock(String filename) {
+    return createInputFileContextMock(filename, "");
+  }
+
+  public static InputFileContext createInputFileContextMock(String filename, String languageKey) {
     InputFile inputFile = mock(InputFile.class);
     InputFileContext inputFileContext = new InputFileContext(mock(SensorContext.class), inputFile);
     when(inputFile.toString()).thenReturn("dir1/dir2/" + filename);
     when(inputFile.filename()).thenReturn(filename);
+    when(inputFile.language()).thenReturn(languageKey);
     return inputFileContext;
   }
 }

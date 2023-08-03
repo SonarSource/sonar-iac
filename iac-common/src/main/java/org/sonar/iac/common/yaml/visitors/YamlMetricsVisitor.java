@@ -40,10 +40,12 @@ public class YamlMetricsVisitor extends MetricsVisitor {
   @Override
   protected void before(InputFileContext ctx, Tree root) {
     super.before(ctx, root);
-    try {
-      analyzeFileContentForLoc(ctx.inputFile);
-    } catch (IOException e) {
-      throw new ParseException("Can not read file for metric calculation", null, e.getMessage());
+    if (acceptFileForLoc(ctx)) {
+      try {
+        analyzeFileContentForLoc(ctx.inputFile);
+      } catch (IOException e) {
+        throw new ParseException("Can not read file for metric calculation", null, e.getMessage());
+      }
     }
   }
 
@@ -67,5 +69,9 @@ public class YamlMetricsVisitor extends MetricsVisitor {
   @Override
   protected void languageSpecificMetrics() {
     register(YamlTree.class, (ctx, tree) -> addCommentLines(tree.metadata().comments()));
+  }
+
+  protected boolean acceptFileForLoc(InputFileContext inputFileContext) {
+    return true;
   }
 }

@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.parser;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.iac.arm.plugin.ArmLanguage;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.common.extension.ParseException;
@@ -62,7 +63,7 @@ class ArmParserTest {
 
   @Test
   void shouldParseEmptyBicep() {
-    File tree = (File) parser.parse("", createInputFileContextMock("foo.bicep"));
+    File tree = (File) parser.parse("", createInputFileContextMock("foo.bicep", ArmLanguage.KEY));
     assertThat(tree.is(ArmTree.Kind.FILE)).isTrue();
     assertThat(tree.statements()).isEmpty();
     assertThat(tree.children()).hasSize(1).extracting("value").containsExactly("");

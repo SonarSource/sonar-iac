@@ -21,8 +21,10 @@ package org.sonar.iac.common.testing;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,10 +37,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-
 import org.assertj.core.api.SoftAssertions;
-import org.sonar.iac.common.api.tree.impl.TextPointer;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -47,6 +46,8 @@ import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.api.tree.impl.TextPointer;
+import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.TreeContext;
@@ -83,6 +84,18 @@ public final class Verifier {
     SingleFileVerifier verifier = createVerifier(path, root);
     runAnalysis(contextSupplier.apply(verifier), check, root);
     verifier.assertOneOrMoreIssues();
+  }
+
+  public static void verify(TreeParser<Tree> parser, String content, IacCheck check) {
+    File tempFile;
+    try {
+      tempFile = File.createTempFile("tmp-parser-", "");
+      Files.write(tempFile.toPath(), content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+      tempFile.deleteOnExit();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    verify(parser, tempFile.toPath(), check);
   }
 
   public static void verify(TreeParser<Tree> parser, String content, IacCheck check, Issue... expectedIssues) {
