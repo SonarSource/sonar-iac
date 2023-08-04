@@ -9,7 +9,8 @@ resource noncompliant1 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     description: 'Assign the reader role'
     principalId: 'string'
     principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '${role}') // Noncompliant{{Make sure that assigning the ${roleName} role is safe here.}}
+    // Noncompliant@+1{{Make sure that assigning the ${roleName} role is safe here.}}
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '${role}')
   }
 }
 

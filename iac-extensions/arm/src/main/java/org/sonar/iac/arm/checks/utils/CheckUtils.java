@@ -51,7 +51,7 @@ public class CheckUtils {
     return expr -> TextUtils.matchesValue(expr, str -> str.contains(targetString)).isTrue();
   }
 
-  public static Predicate<Expression> containsAnywhere(String targetString) {
+  public static Predicate<Expression> containsRecursively(String targetString) {
     return expr -> containsRecursively(expr, targetString);
   }
 
