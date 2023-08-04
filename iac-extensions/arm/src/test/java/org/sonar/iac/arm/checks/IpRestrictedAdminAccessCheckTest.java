@@ -25,10 +25,11 @@ import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class IpRestrictedAdminAccessCheckTest {
+  private static final IpRestrictedAdminAccessCheck CHECK = new IpRestrictedAdminAccessCheck();
 
   @Test
-  void testSourceAddressPrefix() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/sourceAddressPrefix.json", new IpRestrictedAdminAccessCheck(),
+  void testSourceAddressPrefixJson() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/sourceAddressPrefix.json", CHECK,
       issue(7, 14, 7, 69, "Restrict IP addresses authorized to access administration services.",
         secondary(9, 22, 9, 31, "Sensitive direction"),
         secondary(10, 19, 10, 26, "Sensitive access"),
@@ -44,8 +45,13 @@ class IpRestrictedAdminAccessCheckTest {
   }
 
   @Test
-  void testDestinationPortRange() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/destinationPortRange.json", new IpRestrictedAdminAccessCheck(),
+  void testSourceAddressPrefixBicep() {
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/sourceAddressPrefix.bicep", CHECK);
+  }
+
+  @Test
+  void testDestinationPortRangeJson() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/destinationPortRange.json", CHECK,
       issue(7, 14, 7, 69),
       issue(18, 14, 18, 69),
       issue(29, 14, 29, 69),
@@ -58,26 +64,46 @@ class IpRestrictedAdminAccessCheckTest {
   }
 
   @Test
-  void testProtocol() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/protocol.json", new IpRestrictedAdminAccessCheck(),
+  void testDestinationPortRangeBicep() {
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/destinationPortRange.bicep", CHECK);
+  }
+
+  @Test
+  void testProtocolJson() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/protocol.json", CHECK,
       issue(7, 14, 7, 69),
-      issue(18, 14, 18, 69),
-      issue(29, 14, 29, 69));
+      issue(19, 14, 19, 69),
+      issue(31, 14, 31, 69));
   }
 
   @Test
-  void testOther() {
-    ArmVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/other.json", new IpRestrictedAdminAccessCheck());
+  void testProtocolBicep() {
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/protocol.bicep", CHECK);
   }
 
   @Test
-  void testMissingValues() {
-    ArmVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/missing_values.json", new IpRestrictedAdminAccessCheck());
+  void testOtherJson() {
+    ArmVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/other.json", CHECK);
   }
 
   @Test
-  void testResourceMicrosoftNetwork_networkSecurityGroup() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroup/test.json", new IpRestrictedAdminAccessCheck(),
+  void testOtherBicep() {
+    BicepVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/other.bicep", CHECK);
+  }
+
+  @Test
+  void testMissingValuesJson() {
+    ArmVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/missing_values.json", CHECK);
+  }
+
+  @Test
+  void testMissingValuesBicep() {
+    BicepVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/missing_values.bicep", CHECK);
+  }
+
+  @Test
+  void testResourceMicrosoftNetwork_networkSecurityGroupJson() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroup.json", CHECK,
       issue(7, 14, 7, 54),
       issue(25, 14, 25, 54, "Restrict IP addresses authorized to access administration services.",
         secondary(30, 27, 30, 36, "Sensitive direction"),
@@ -100,8 +126,13 @@ class IpRestrictedAdminAccessCheckTest {
   }
 
   @Test
-  void testResourceMicrosoftNetwork_virtualNetworks_subnets() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks_subnets/test.json", new IpRestrictedAdminAccessCheck(),
+  void testResourceMicrosoftNetwork_networkSecurityGroupBicep() {
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroup.bicep", CHECK);
+  }
+
+  @Test
+  void testResourceMicrosoftNetwork_virtualNetworks_subnetsJson() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks_subnets.json", CHECK,
       issue(7, 14, 7, 57, "Restrict IP addresses authorized to access administration services.",
         secondary(14, 32, 14, 41, "Sensitive direction"),
         secondary(15, 29, 15, 36, "Sensitive access"),
@@ -111,8 +142,13 @@ class IpRestrictedAdminAccessCheckTest {
   }
 
   @Test
-  void testResourceMicrosoftNetwork_virtualNetworks() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks/test.json", new IpRestrictedAdminAccessCheck(),
+  void testResourceMicrosoftNetwork_virtualNetworks_subnetsBicep() {
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks_subnets.bicep", CHECK);
+  }
+
+  @Test
+  void testResourceMicrosoftNetwork_virtualNetworksJson() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks.json", CHECK,
       issue(7, 14, 7, 49, "Restrict IP addresses authorized to access administration services.",
         secondary(17, 38, 17, 47, "Sensitive direction"),
         secondary(18, 35, 18, 42, "Sensitive access"),
@@ -123,8 +159,13 @@ class IpRestrictedAdminAccessCheckTest {
   }
 
   @Test
-  void testResourceMicrosoftNetwork_networkInterfaces() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkInterfaces/test.json", new IpRestrictedAdminAccessCheck(),
+  void testResourceMicrosoftNetwork_virtualNetworksBicep() {
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks.bicep", CHECK);
+  }
+
+  @Test
+  void testResourceMicrosoftNetwork_networkInterfacesJson() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkInterfaces.json", CHECK,
       issue(7, 14, 7, 51, "Restrict IP addresses authorized to access administration services.",
         secondary(19, 42, 19, 51, "Sensitive direction"),
         secondary(20, 39, 20, 46, "Sensitive access"),
@@ -134,11 +175,20 @@ class IpRestrictedAdminAccessCheckTest {
   }
 
   @Test
-  void testInnerChild() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/innerChilds/test.json", new IpRestrictedAdminAccessCheck(),
+  void testResourceMicrosoftNetwork_networkInterfacesBicep() {
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkInterfaces.bicep", CHECK);
+  }
+
+  @Test
+  void testInnerChildJson() {
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/innerChilds/innerChilds.json", CHECK,
       issue(11, 18, 11, 33),
       issue(32, 22, 32, 37),
       issue(51, 18, 51, 55));
   }
 
+  @Test
+  void testInnerChildBicep() {
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/innerChilds/innerChilds.bicep", CHECK);
+  }
 }

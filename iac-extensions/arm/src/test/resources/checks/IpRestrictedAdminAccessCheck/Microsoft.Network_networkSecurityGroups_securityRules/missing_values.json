@@ -49,7 +49,7 @@
         "direction" : "Inbound",
         "access" : "Allow",
         "protocol" : "TCP",
-        "destinationPortRange" : "22",
+        "destinationPortRange" : "22"
       }
     }
   ]
