@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.Expression;
 
-import static org.sonar.iac.arm.checks.utils.CheckUtils.contains;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.containsRecursively;
 
 @Rule(key = "S6381")
 public class HighPrivilegedRoleCheck extends AbstractArmResourceCheck {
@@ -48,14 +48,14 @@ public class HighPrivilegedRoleCheck extends AbstractArmResourceCheck {
   }
 
   private static Predicate<Expression> isContributor() {
-    return contains(CONTRIBUTOR_GUID);
+    return containsRecursively(CONTRIBUTOR_GUID);
   }
 
   private static Predicate<Expression> isOwner() {
-    return contains(OWNER_GUID);
+    return containsRecursively(OWNER_GUID);
   }
 
   private static Predicate<Expression> isUserAccessAdministrator() {
-    return contains(USER_ACCESS_ADMINISTRATOR_GUID);
+    return containsRecursively(USER_ACCESS_ADMINISTRATOR_GUID);
   }
 }

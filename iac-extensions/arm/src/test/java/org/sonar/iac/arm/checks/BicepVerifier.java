@@ -37,6 +37,10 @@ public class BicepVerifier {
     Verifier.verify(PARSER, content, check);
   }
 
+  public static void verifyContentNoIssue(String content, IacCheck check) {
+    Verifier.verifyNoIssue(PARSER, content, check);
+  }
+
   public static void verifyContent(String content, IacCheck check, Verifier.Issue... expectedIssues) {
     Verifier.verify(PARSER, content, check, expectedIssues);
   }

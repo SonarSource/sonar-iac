@@ -20,8 +20,8 @@ resource noncompliantDeployment 'Microsoft.Resources/deployments@2022-09-01' = {
           properties: {
             osProfile: {
               computerName: 'vm-example'
-                adminUsername: adminUsername
-//                             ^^^^^^^^^^^^^< {{This secure parameter is leaked through the deployment history.}}
+              adminUsername: adminUsername
+//                           ^^^^^^^^^^^^^< {{This secure parameter is leaked through the deployment history.}}
             }
           }
         }
