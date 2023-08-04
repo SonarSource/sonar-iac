@@ -58,10 +58,7 @@ public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileCon
     newHighlighting.save();
   }
 
-  protected void highlight(@Nullable HasTextRange tree, TypeOfText typeOfText) {
-    if (tree == null) {
-      return;
-    }
+  protected void highlight(HasTextRange tree, TypeOfText typeOfText) {
     if (!TextRanges.isValidAndNotEmpty(tree.textRange())) {
       LOG.debug("Tried to highlight a tree with an empty or invalid range. Skipping it.");
       return;

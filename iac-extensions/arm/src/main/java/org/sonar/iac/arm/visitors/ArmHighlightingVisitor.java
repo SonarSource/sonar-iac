@@ -20,9 +20,11 @@
 package org.sonar.iac.arm.visitors;
 
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.bicep.AbstractDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
@@ -56,8 +58,14 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
     register(HasKeyword.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
 
     register(ResourceDeclarationImpl.class, (ctx, tree) -> {
-      highlight(tree.symbolicName(), KEYWORD_LIGHT);
-      highlight(tree.getExisting(), KEYWORD);
+      Identifier identifier = tree.symbolicName();
+      if (identifier != null) {
+        highlight(identifier, KEYWORD_LIGHT);
+      }
+      SyntaxToken existing = tree.getExisting();
+      if (existing != null) {
+        highlight(existing, KEYWORD);
+      }
     });
     register(DecoratorImpl.class, (ctx, tree) -> {
       Expression expression = tree.expression();
