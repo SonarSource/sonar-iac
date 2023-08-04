@@ -86,29 +86,35 @@ public final class Verifier {
     verifier.assertOneOrMoreIssues();
   }
 
-  public static void verify(TreeParser<Tree> parser, String content, IacCheck check) {
+  private static File contentToTmp(@Nullable String content) {
     File tempFile;
     try {
       tempFile = File.createTempFile("tmp-parser-", "");
-      Files.write(tempFile.toPath(), content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+      if (content != null) {
+        Files.write(tempFile.toPath(), content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+      }
       tempFile.deleteOnExit();
+      return tempFile;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static void verify(TreeParser<Tree> parser, String content, IacCheck check) {
+    File tempFile = contentToTmp(content);
     verify(parser, tempFile.toPath(), check);
   }
 
   public static void verify(TreeParser<Tree> parser, String content, IacCheck check, Issue... expectedIssues) {
     Tree root = parser.parse(content, null);
-    File tempFile;
-    try {
-      tempFile = File.createTempFile("tmp-parser-", "");
-      tempFile.deleteOnExit();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    File tempFile = contentToTmp(null);
     List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root)), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
+  }
+
+  public static void verifyNoIssue(TreeParser<Tree> parser, String content, IacCheck check) {
+    File tempFile = contentToTmp(content);
+    verifyNoIssue(parser, tempFile.toPath(), check, TestContext::new);
   }
 
   public static void verifyNoIssue(TreeParser<Tree> parser, Path path, IacCheck check) {

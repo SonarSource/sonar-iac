@@ -51,6 +51,15 @@ public class CheckUtils {
     return expr -> TextUtils.matchesValue(expr, str -> str.contains(targetString)).isTrue();
   }
 
+  public static Predicate<Expression> containsAnywhere(String targetString) {
+    return expr -> containsRecursively(expr, targetString);
+  }
+
+  private static boolean containsRecursively(ArmTree tree, String targetString) {
+    return TextUtils.matchesValue(tree, str -> str.contains(targetString)).isTrue()
+      || tree.children().stream().anyMatch(child -> containsRecursively((ArmTree) child, targetString));
+  }
+
   public static Predicate<Expression> isTrue() {
     return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && ((BooleanLiteral) expr).value();
   }
