@@ -87,6 +87,11 @@ class IpRestrictedAdminAccessCheckTest {
   }
 
   @Test
+  void testOtherBicep() {
+    BicepVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/other.bicep", CHECK);
+  }
+
+  @Test
   void testMissingValuesJson() {
     ArmVerifier.verifyNoIssue("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/missing_values.json", CHECK);
   }
