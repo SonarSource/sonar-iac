@@ -76,6 +76,7 @@ public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements T
     }
   }
 
+  @Override
   public SyntaxToken keyword() {
     return keyword;
   }

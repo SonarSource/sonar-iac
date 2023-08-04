@@ -21,13 +21,14 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
 import java.util.List;
 
-public abstract class AbstractDeclaration extends AbstractArmTreeImpl {
+public abstract class AbstractDeclaration extends AbstractArmTreeImpl implements HasKeyword {
   protected final SyntaxToken keyword;
   protected final Identifier identifier;
   protected final SyntaxToken equals;
@@ -45,6 +46,7 @@ public abstract class AbstractDeclaration extends AbstractArmTreeImpl {
     return List.of(keyword, identifier, equals, expression);
   }
 
+  @Override
   public SyntaxToken keyword() {
     return keyword;
   }

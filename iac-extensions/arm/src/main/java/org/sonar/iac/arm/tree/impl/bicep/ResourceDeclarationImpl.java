@@ -36,6 +36,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
+import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
@@ -50,7 +51,7 @@ import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
-public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration, HasDecorators {
+public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration, HasDecorators, HasKeyword {
 
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;

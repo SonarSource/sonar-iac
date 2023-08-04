@@ -78,6 +78,7 @@ public class ModuleDeclarationImpl extends AbstractArmTreeImpl implements Module
     return decorators;
   }
 
+  @Override
   public SyntaxToken keyword() {
     return keyword;
   }

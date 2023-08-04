@@ -23,7 +23,7 @@ import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Statement;
 
-public interface TargetScopeDeclaration extends Statement {
+public interface TargetScopeDeclaration extends Statement, HasKeyword {
   File.Scope scope();
 
   Expression value();

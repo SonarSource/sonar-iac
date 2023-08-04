@@ -60,6 +60,7 @@ public class IfConditionImpl extends AbstractArmTreeImpl implements IfCondition 
     return object;
   }
 
+  @Override
   public SyntaxToken keyword() {
     return keyword;
   }

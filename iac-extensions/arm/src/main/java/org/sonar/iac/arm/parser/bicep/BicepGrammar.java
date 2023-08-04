@@ -62,6 +62,8 @@ import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
 import org.sonar.iac.arm.tree.api.bicep.TypedLambdaExpression;
 import org.sonar.iac.arm.tree.api.bicep.UnaryOperator;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
@@ -69,8 +71,6 @@ import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.parser.grammar.Punctuator;
 

@@ -26,9 +26,9 @@ import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ImportDeclaration;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
@@ -70,6 +70,7 @@ public class ImportDeclarationImpl extends AbstractArmTreeImpl implements Import
     return decorators;
   }
 
+  @Override
   public SyntaxToken keyword() {
     return keyword;
   }

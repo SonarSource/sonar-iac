@@ -28,23 +28,23 @@ import org.sonar.iac.arm.tree.impl.bicep.BicepTreeModelTest;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
-class ImportAsClauseTest extends BicepTreeModelTest {
+class ImportWithClauseImplTest extends BicepTreeModelTest {
 
   @Test
-  void shouldParseImportAsClause() {
-    assertThat(BicepLexicalGrammar.IMPORT_AS_CLAUSE)
-      .matches("as abc")
-      .matches("as myName1")
+  void shouldParseImportWthClause() {
+    assertThat(BicepLexicalGrammar.IMPORT_WITH_CLAUSE)
+      .matches("with {}")
 
-      .notMatches("aas abc");
+      .notMatches("with")
+      .notMatches("as abc");
   }
 
   @Test
-  void shouldParseSimpleImportAsClause() {
-    ImportAsClause tree = parse("as abc", BicepLexicalGrammar.IMPORT_AS_CLAUSE);
-    Assertions.assertThat(tree.keyword().value()).isEqualTo("as");
-    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.IMPORT_AS_CLAUSE);
-    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("as", "abc");
-    assertThat(tree.textRange()).hasRange(1, 0, 1, 6);
+  void shouldParseSimpleImportWithClause() {
+    ImportWithClauseImpl tree = parse("with {}", BicepLexicalGrammar.IMPORT_WITH_CLAUSE);
+    Assertions.assertThat(tree.keyword().value()).isEqualTo("with");
+    assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.IMPORT_WITH_CLAUSE);
+    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("with", "{", "}");
+    assertThat(tree.textRange()).hasRange(1, 0, 1, 7);
   }
 }

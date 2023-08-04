@@ -72,6 +72,7 @@ public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements Func
     return decorators;
   }
 
+  @Override
   public SyntaxToken keyword() {
     return keyword;
   }

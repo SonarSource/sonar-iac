@@ -75,7 +75,7 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
       "  key: 'value'",
       "})",
       "param logicAppReceivers array = []"));
-    assertHighlighting("@description", ANNOTATION);
+    assertHighlighting("@description", KEYWORD);
     assertHighlighting("'The list of logic app'", STRING);
 
     assertHighlighting(2, "sys.metadata", null);

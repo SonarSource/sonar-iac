@@ -20,29 +20,27 @@
 package org.sonar.iac.arm.tree.impl.bicep.importdecl;
 
 import java.util.List;
-import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
+import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class ImportAsClause extends AbstractArmTreeImpl {
+public class ImportWithClauseImpl extends AbstractArmTreeImpl implements ImportWithClause, HasKeyword {
   private final SyntaxToken keyword;
-  private final Identifier alias;
+  private final ObjectExpression object;
 
-  public ImportAsClause(SyntaxToken keyword, Identifier alias) {
+  public ImportWithClauseImpl(SyntaxToken keyword, ObjectExpression object) {
     this.keyword = keyword;
-    this.alias = alias;
+    this.object = object;
   }
 
   public List<Tree> children() {
-    return List.of(keyword, alias);
+    return List.of(keyword, object);
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.IMPORT_AS_CLAUSE;
-  }
-
   public SyntaxToken keyword() {
     return keyword;
   }

@@ -51,6 +51,7 @@ public class DecoratorImpl extends AbstractArmTreeImpl implements Decorator {
     return expression;
   }
 
+  @Override
   public SyntaxToken keyword() {
     return keyword;
   }

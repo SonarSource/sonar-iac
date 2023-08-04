@@ -22,14 +22,13 @@ package org.sonar.iac.arm.visitors;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
+import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.impl.bicep.AbstractDeclaration;
 import org.sonar.iac.arm.tree.impl.bicep.BooleanLiteralImpl;
 import org.sonar.iac.arm.tree.impl.bicep.DecoratorImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ForVariableBlockImpl;
 import org.sonar.iac.arm.tree.impl.bicep.FunctionDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.IfConditionImpl;
-import org.sonar.iac.arm.tree.impl.bicep.ImportDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.InterpolatedStringImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ModuleDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.MultilineStringImpl;
@@ -41,10 +40,7 @@ import org.sonar.iac.arm.tree.impl.bicep.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.bicep.ResourceDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringCompleteImpl;
 import org.sonar.iac.arm.tree.impl.bicep.StringLiteralImpl;
-import org.sonar.iac.arm.tree.impl.bicep.TargetScopeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.impl.bicep.variable.LocalVariableImpl;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 
@@ -57,48 +53,28 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
 public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
   @Override
   protected void languageSpecificHighlighting() {
+    register(HasKeyword.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
+
     register(ResourceDeclarationImpl.class, (ctx, tree) -> {
-      highlight(tree.keyword(), KEYWORD);
       highlight(tree.symbolicName(), KEYWORD_LIGHT);
       highlight(tree.getExisting(), KEYWORD);
     });
     register(DecoratorImpl.class, (ctx, tree) -> {
-      highlight(tree.keyword(), ANNOTATION);
       Expression expression = tree.expression();
       if (expression instanceof FunctionCall) {
-        highlight(((FunctionCall) expression).name(), ANNOTATION);
+        highlight(((FunctionCall) expression).name(), KEYWORD);
       }
     });
-    register(TargetScopeDeclarationImpl.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
-    register(ImportDeclarationImpl.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
-    register(ImportWithClause.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
-    register(ImportAsClause.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
-    register(ParameterDeclarationImpl.class, (ctx, tree) -> {
-      highlight(tree.keyword(), KEYWORD);
-      highlight(tree.identifier(), KEYWORD_LIGHT);
-    });
-    register(TypeDeclarationImpl.class, (ctx, tree) -> {
-      highlight(tree.keyword(), KEYWORD);
-      highlight(tree.name(), KEYWORD_LIGHT);
-    });
-    register(AbstractDeclaration.class, (ctx, tree) -> {
-      highlight(tree.keyword(), KEYWORD);
-      highlight(tree.identifier(), KEYWORD_LIGHT);
-    });
-    register(ModuleDeclarationImpl.class, (ctx, tree) -> {
-      highlight(tree.keyword(), KEYWORD);
-      highlight(tree.name(), KEYWORD_LIGHT);
-    });
+
+    register(ParameterDeclarationImpl.class, (ctx, tree) -> highlight(tree.identifier(), KEYWORD_LIGHT));
+    register(TypeDeclarationImpl.class, (ctx, tree) -> highlight(tree.name(), KEYWORD_LIGHT));
+    register(AbstractDeclaration.class, (ctx, tree) -> highlight(tree.identifier(), KEYWORD_LIGHT));
+    register(ModuleDeclarationImpl.class, (ctx, tree) -> highlight(tree.name(), KEYWORD_LIGHT));
     register(OutputDeclarationImpl.class, (ctx, tree) -> {
-      highlight(tree.keyword(), KEYWORD);
       highlight(tree.name(), KEYWORD_LIGHT);
       highlight(tree.type(), KEYWORD);
     });
-    register(FunctionDeclarationImpl.class, (ctx, tree) -> {
-      highlight(tree.keyword(), KEYWORD);
-      highlight(tree.name(), KEYWORD_LIGHT);
-    });
-    register(IfConditionImpl.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
+    register(FunctionDeclarationImpl.class, (ctx, tree) -> highlight(tree.name(), KEYWORD_LIGHT));
     register(ForExpressionImpl.class, (ctx, tree) -> {
       highlight(tree.forKeyword(), KEYWORD);
       highlight(tree.inKeyword(), KEYWORD);

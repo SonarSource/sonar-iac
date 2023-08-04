@@ -75,6 +75,7 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
     return decorators;
   }
 
+  @Override
   public SyntaxToken keyword() {
     return keyword;
   }

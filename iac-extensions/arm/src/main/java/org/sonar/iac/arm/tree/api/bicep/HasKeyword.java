@@ -19,11 +19,8 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-public interface ImportDeclaration extends Statement, HasDecorators, HasKeyword {
-  @Override
-  default Kind getKind() {
-    return Kind.IMPORT_DECLARATION;
-  }
+public interface HasKeyword extends ArmTree {
+  SyntaxToken keyword();
 }
