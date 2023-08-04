@@ -34,9 +34,4 @@ class ArmCheckListTest extends AbstractCheckListTest {
   protected File checkClassDir() {
     return new File("src/main/java/org/sonar/iac/arm/checks/");
   }
-
-  @Override
-  protected boolean hasTodoCommentCheck() {
-    return false;
-  }
 }
