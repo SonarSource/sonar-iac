@@ -21,6 +21,7 @@ package org.sonar.iac.arm.checks;
 
 import java.util.List;
 import org.sonar.iac.common.checks.ParsingErrorCheck;
+import org.sonar.iac.common.checks.ToDoCommentCheck;
 
 public class ArmCheckList {
 
@@ -46,6 +47,7 @@ public class ArmCheckList {
       SubscriptionOwnerCapabilitiesCheck.class,
       SubscriptionRoleAssignmentCheck.class,
       TlsVersionCheck.class,
+      ToDoCommentCheck.class,
       UnencryptedCloudServicesCheck.class);
   }
 }
