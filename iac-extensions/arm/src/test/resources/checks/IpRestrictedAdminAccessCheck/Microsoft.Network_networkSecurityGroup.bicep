@@ -1,5 +1,5 @@
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
+resource raiseAnIssue 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
   name: 'Raise an issue'
   properties: {
     securityRules: [
@@ -17,8 +17,8 @@ resource raise_an_issue 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
 }
 
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}} {{Restrict IP addresses authorized to access administration services.}}
-resource raise_2_issues_with_each_having_same_main_location_but_different_secondary_locations 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
-//                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource raise2IssuesWithEachHavingSameMainLocationButDifferentSecondaryLocations 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
+//                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise 2 issues, with each having same main location but different secondary locations'
   properties: {
     securityRules: [
@@ -50,8 +50,8 @@ resource raise_2_issues_with_each_having_same_main_location_but_different_second
 }
 
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
-resource raise_issue_on_second_security_rule_only 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
-//                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource raiseIssueOnSecondSecurityRuleOnly 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
+//                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise issue on second security rule only'
   properties: {
     securityRules: [
@@ -82,14 +82,14 @@ resource raise_issue_on_second_security_rule_only 'Microsoft.Network/networkSecu
   }
 }
 
-resource microsoft_Network_networkSecurityGroup_No_issue_to_raise 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
+resource microsoftNetworkNetworkSecurityGroupNoIssueToRaise 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
   name: 'No issue to raise'
   properties: {
     securityRules: []
   }
 }
 
-resource microsoft_Network_networkSecurityGroup_No_issue_to_raise 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
+resource microsoftNetworkNetworkSecurityGroupNoIssueToRaise 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
   name: 'No issue to raise'
   properties: {
     securityRules: [
@@ -100,7 +100,7 @@ resource microsoft_Network_networkSecurityGroup_No_issue_to_raise 'Microsoft.Net
   }
 }
 
-resource no_issue_to_raise_no_ArrayExpression_where_expected 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
+resource noIssueToRaiseNoArrayExpressionWhereExpected 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
   name: 'No issue to raise: no ArrayExpression where expected'
   properties: {
     securityRules: {

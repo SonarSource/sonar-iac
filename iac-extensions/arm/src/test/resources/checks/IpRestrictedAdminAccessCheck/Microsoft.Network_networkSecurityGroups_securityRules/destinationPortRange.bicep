@@ -1,5 +1,5 @@
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue_sensitive_case_destinationPortRange_values_1 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource raiseAnIssueSensitiveCaseDestinationPortRangeValues1 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Raise an issue: sensitive case destinationPortRange values 1'
   properties: {
     direction: 'Inbound'
@@ -11,7 +11,7 @@ resource raise_an_issue_sensitive_case_destinationPortRange_values_1 'Microsoft.
 }
 
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue_sensitive_case_destinationPortRange_values_2 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource raiseAnIssueSensitiveCaseDestinationPortRangeValues2 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Raise an issue: sensitive case destinationPortRange values 2'
   properties: {
     direction: 'Inbound'
@@ -23,7 +23,7 @@ resource raise_an_issue_sensitive_case_destinationPortRange_values_2 'Microsoft.
 }
 
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue_sensitive_case_destinationPortRange_values_3 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource raiseAnIssueSensitiveCaseDestinationPortRangeValues3 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Raise an issue: sensitive case destinationPortRange values 3'
   properties: {
     direction: 'Inbound'
@@ -35,7 +35,7 @@ resource raise_an_issue_sensitive_case_destinationPortRange_values_3 'Microsoft.
 }
 
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue_sensitive_case_destinationPortRange_values_4 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource raiseAnIssueSensitiveCaseDestinationPortRangeValues4 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Raise an issue: sensitive case destinationPortRange values 4'
   properties: {
     direction: 'Inbound'
@@ -47,7 +47,7 @@ resource raise_an_issue_sensitive_case_destinationPortRange_values_4 'Microsoft.
 }
 
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue_sensitive_case_destinationPortRange_values_5 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource raiseAnIssueSensitiveCaseDestinationPortRangeValues5 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Raise an issue: sensitive case destinationPortRange values 5'
   properties: {
     direction: 'Inbound'
@@ -59,7 +59,7 @@ resource raise_an_issue_sensitive_case_destinationPortRange_values_5 'Microsoft.
 }
 
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue_sensitive_case_destinationPortRange_values_6 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource raiseAnIssueSensitiveCaseDestinationPortRangeValues6 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Raise an issue: sensitive case destinationPortRange values 6'
   properties: {
     direction: 'Inbound'
@@ -71,7 +71,7 @@ resource raise_an_issue_sensitive_case_destinationPortRange_values_6 'Microsoft.
 }
 
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue_sensitive_case_destinationPortRanges_values_1 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource raiseAnIssueSensitiveCaseDestinationPortRangesValues1 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Raise an issue: sensitive case destinationPortRanges values 1'
   properties: {
     direction: 'Inbound'
@@ -85,7 +85,7 @@ resource raise_an_issue_sensitive_case_destinationPortRanges_values_1 'Microsoft
 }
 
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
-resource microsoft_Network_networkSecurityGroups_securityRules_Raise_an_issue_sensitive_case_destinationPortRanges_values_2 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource microsoftNetworkNetworkSecurityGroupsSecurityRulesRaiseAnIssueSensitiveCaseDestinationPortRangesValues2 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Raise an issue: sensitive case destinationPortRanges values 2'
   properties: {
     direction: 'Inbound'
@@ -100,7 +100,7 @@ resource microsoft_Network_networkSecurityGroups_securityRules_Raise_an_issue_se
 }
 
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
-resource microsoft_Network_networkSecurityGroups_securityRules_Raise_an_issue_sensitive_case_destinationPortRanges_values_2 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource microsoftNetworkNetworkSecurityGroupsSecurityRulesRaiseAnIssueSensitiveCaseDestinationPortRangesValues2 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Raise an issue: sensitive case destinationPortRanges values 2'
   properties: {
     direction: 'Inbound'
@@ -114,7 +114,7 @@ resource microsoft_Network_networkSecurityGroups_securityRules_Raise_an_issue_se
   }
 }
 
-resource microsoft_Network_networkSecurityGroups_securityRules_Compliant_destinationPortRanges_is_not_sensitive_1 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource microsoftNetworkNetworkSecurityGroupsSecurityRulesCompliantDestinationPortRangesIsNotSensitive1 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Compliant: destinationPortRanges is not sensitive 1'
   properties: {
     direction: 'Inbound'
@@ -127,7 +127,7 @@ resource microsoft_Network_networkSecurityGroups_securityRules_Compliant_destina
   }
 }
 
-resource microsoft_Network_networkSecurityGroups_securityRules_Compliant_destinationPortRanges_is_not_sensitive_1 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource microsoftNetworkNetworkSecurityGroupsSecurityRulesCompliantDestinationPortRangesIsNotSensitive1 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Compliant: destinationPortRanges is not sensitive 1'
   properties: {
     direction: 'Inbound'
@@ -141,7 +141,7 @@ resource microsoft_Network_networkSecurityGroups_securityRules_Compliant_destina
   }
 }
 
-resource compliant_destinationPortRanges_is_not_sensitive_2 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource compliantDestinationPortRangesIsNotSensitive2 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Compliant: destinationPortRanges is not sensitive 2'
   properties: {
     direction: 'Inbound'

@@ -1,6 +1,6 @@
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue 'Microsoft.Network/virtualNetworks@2022-11-01' = {
-//                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource raiseAnIssue 'Microsoft.Network/virtualNetworks@2022-11-01' = {
+//                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise an issue'
   properties: {
     subnets: [
@@ -33,8 +33,8 @@ resource raise_an_issue 'Microsoft.Network/virtualNetworks@2022-11-01' = {
 }
 
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue_check_on_multiple_elements_per_list 'Microsoft.Network/virtualNetworks@2022-11-01' = {
-//                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource raiseAnIssueCheckOnMultipleElementsPerList 'Microsoft.Network/virtualNetworks@2022-11-01' = {
+//                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise an issue: check on multiple elements per list'
   properties: {
     subnets: [
@@ -68,7 +68,7 @@ resource raise_an_issue_check_on_multiple_elements_per_list 'Microsoft.Network/v
   }
 }
 
-resource microsoft_Network_virtualNetworks_Compliant 'Microsoft.Network/virtualNetworks@2022-11-01' = {
+resource microsoftNetworkVirtualNetworksCompliant 'Microsoft.Network/virtualNetworks@2022-11-01' = {
   name: 'Compliant'
   properties: {
     subnets: [
@@ -97,7 +97,7 @@ resource microsoft_Network_virtualNetworks_Compliant 'Microsoft.Network/virtualN
   }
 }
 
-resource microsoft_Network_virtualNetworks_Compliant 'Microsoft.Network/virtualNetworks@2022-11-01' = {
+resource microsoftNetworkVirtualNetworksCompliant 'Microsoft.Network/virtualNetworks@2022-11-01' = {
   name: 'Compliant'
   properties: {
     subnets: [

@@ -1,6 +1,6 @@
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' = {
-//                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource raiseAnIssue 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' = {
+//                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise an issue'
   properties: {
     networkSecurityGroup: {
@@ -26,7 +26,7 @@ resource raise_an_issue 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' =
   }
 }
 
-resource microsoft_Network_virtualNetworks_subnets_Compliant 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' = {
+resource microsoftNetworkVirtualNetworksSubnetsCompliant 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' = {
   name: 'Compliant'
   properties: {
     networkSecurityGroup: {
@@ -47,7 +47,7 @@ resource microsoft_Network_virtualNetworks_subnets_Compliant 'Microsoft.Network/
   }
 }
 
-resource microsoft_Network_virtualNetworks_subnets_Compliant 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' = {
+resource microsoftNetworkVirtualNetworksSubnetsCompliant 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' = {
   name: 'Compliant'
   properties: {
     networkSecurityGroup: {

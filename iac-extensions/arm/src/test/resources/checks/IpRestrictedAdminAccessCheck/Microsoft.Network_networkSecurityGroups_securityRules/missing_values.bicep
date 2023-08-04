@@ -1,4 +1,4 @@
-resource do_not_raise_an_issue_missing_direction 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource doNotRaiseAnIssueMissingDirection 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Do not raise an issue: missing direction'
   properties: {
     access: 'Allow'
@@ -8,7 +8,7 @@ resource do_not_raise_an_issue_missing_direction 'Microsoft.Network/networkSecur
   }
 }
 
-resource do_not_raise_an_issue_missing_access 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource doNotRaiseAnIssueMissingAccess 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Do not raise an issue: missing access'
   properties: {
     direction: 'Inbound'
@@ -18,7 +18,7 @@ resource do_not_raise_an_issue_missing_access 'Microsoft.Network/networkSecurity
   }
 }
 
-resource do_not_raise_an_issue_missing_protocol 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource doNotRaiseAnIssueMissingProtocol 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Do not raise an issue: missing protocol'
   properties: {
     direction: 'Inbound'
@@ -28,7 +28,7 @@ resource do_not_raise_an_issue_missing_protocol 'Microsoft.Network/networkSecuri
   }
 }
 
-resource do_not_raise_an_issue_missing_destinationPortRange 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource doNotRaiseAnIssueMissingDestinationPortRange 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Do not raise an issue: missing destinationPortRange'
   properties: {
     direction: 'Inbound'
@@ -38,7 +38,7 @@ resource do_not_raise_an_issue_missing_destinationPortRange 'Microsoft.Network/n
   }
 }
 
-resource do_not_raise_an_issue_missing_sourceAddressPrefix 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+resource doNotRaiseAnIssueMissingSourceAddressPrefix 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
   name: 'Do not raise an issue: missing sourceAddressPrefix'
   properties: {
     direction: 'Inbound'

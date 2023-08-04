@@ -1,6 +1,6 @@
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
-resource raise_an_issue 'Microsoft.Network/networkInterfaces@2022-11-01' = {
-//                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource raiseAnIssue 'Microsoft.Network/networkInterfaces@2022-11-01' = {
+//                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise an issue'
   properties: {
     ipConfigurations: [
@@ -36,7 +36,7 @@ resource raise_an_issue 'Microsoft.Network/networkInterfaces@2022-11-01' = {
   }
 }
 
-resource microsoft_Network_networkInterfaces_Compliant 'Microsoft.Network/networkInterfaces@2022-11-01' = {
+resource microsoftNetworkNetworkInterfacesCompliant 'Microsoft.Network/networkInterfaces@2022-11-01' = {
   name: 'Compliant'
   properties: {
     ipConfigurations: [
@@ -67,7 +67,7 @@ resource microsoft_Network_networkInterfaces_Compliant 'Microsoft.Network/networ
   }
 }
 
-resource microsoft_Network_networkInterfaces_Compliant 'Microsoft.Network/networkInterfaces@2022-11-01' = {
+resource microsoftNetworkNetworkInterfacesCompliant 'Microsoft.Network/networkInterfaces@2022-11-01' = {
   name: 'Compliant'
   properties: {
     ipConfigurations: [

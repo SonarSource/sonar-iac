@@ -72,8 +72,8 @@ class IpRestrictedAdminAccessCheckTest {
   void testProtocolJson() {
     ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroups_securityRules/protocol.json", CHECK,
       issue(7, 14, 7, 69),
-      issue(18, 14, 18, 69),
-      issue(29, 14, 29, 69));
+      issue(19, 14, 19, 69),
+      issue(31, 14, 31, 69));
   }
 
   @Test
@@ -98,7 +98,7 @@ class IpRestrictedAdminAccessCheckTest {
 
   @Test
   void testResourceMicrosoftNetwork_networkSecurityGroupJson() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroup/test.json", CHECK,
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroup.json", CHECK,
       issue(7, 14, 7, 54),
       issue(25, 14, 25, 54, "Restrict IP addresses authorized to access administration services.",
         secondary(30, 27, 30, 36, "Sensitive direction"),
@@ -122,12 +122,12 @@ class IpRestrictedAdminAccessCheckTest {
 
   @Test
   void testResourceMicrosoftNetwork_networkSecurityGroupBicep() {
-    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroup/test.bicep", CHECK);
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkSecurityGroup.bicep", CHECK);
   }
 
   @Test
   void testResourceMicrosoftNetwork_virtualNetworks_subnetsJson() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks_subnets/test.json", CHECK,
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks_subnets.json", CHECK,
       issue(7, 14, 7, 57, "Restrict IP addresses authorized to access administration services.",
         secondary(14, 32, 14, 41, "Sensitive direction"),
         secondary(15, 29, 15, 36, "Sensitive access"),
@@ -138,12 +138,12 @@ class IpRestrictedAdminAccessCheckTest {
 
   @Test
   void testResourceMicrosoftNetwork_virtualNetworks_subnetsBicep() {
-    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks_subnets/test.bicep", CHECK);
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks_subnets.bicep", CHECK);
   }
 
   @Test
   void testResourceMicrosoftNetwork_virtualNetworksJson() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks/test.json", CHECK,
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks.json", CHECK,
       issue(7, 14, 7, 49, "Restrict IP addresses authorized to access administration services.",
         secondary(17, 38, 17, 47, "Sensitive direction"),
         secondary(18, 35, 18, 42, "Sensitive access"),
@@ -155,12 +155,12 @@ class IpRestrictedAdminAccessCheckTest {
 
   @Test
   void testResourceMicrosoftNetwork_virtualNetworksBicep() {
-    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks/test.bicep", CHECK);
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_virtualNetworks.bicep", CHECK);
   }
 
   @Test
   void testResourceMicrosoftNetwork_networkInterfacesJson() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkInterfaces/test.json", CHECK,
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkInterfaces.json", CHECK,
       issue(7, 14, 7, 51, "Restrict IP addresses authorized to access administration services.",
         secondary(19, 42, 19, 51, "Sensitive direction"),
         secondary(20, 39, 20, 46, "Sensitive access"),
@@ -171,12 +171,12 @@ class IpRestrictedAdminAccessCheckTest {
 
   @Test
   void testResourceMicrosoftNetwork_networkInterfacesBicep() {
-    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkInterfaces/test.bicep", CHECK);
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/Microsoft.Network_networkInterfaces.bicep", CHECK);
   }
 
   @Test
   void testInnerChildJson() {
-    ArmVerifier.verify("IpRestrictedAdminAccessCheck/innerChilds/test.json", CHECK,
+    ArmVerifier.verify("IpRestrictedAdminAccessCheck/innerChilds/innerChilds.json", CHECK,
       issue(11, 18, 11, 33),
       issue(32, 22, 32, 37),
       issue(51, 18, 51, 55));
@@ -184,6 +184,6 @@ class IpRestrictedAdminAccessCheckTest {
 
   @Test
   void testInnerChildBicep() {
-    BicepVerifier.verify("IpRestrictedAdminAccessCheck/innerChilds/test.bicep", CHECK);
+    BicepVerifier.verify("IpRestrictedAdminAccessCheck/innerChilds/innerChilds.bicep", CHECK);
   }
 }
