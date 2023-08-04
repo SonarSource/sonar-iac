@@ -11,7 +11,7 @@
       }
     },
     {
-      "name": "Noncompliant",
+      "name": "Noncompliant2",
       "type": "Microsoft.DataLakeStore/accounts",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -19,7 +19,7 @@
       }
     },
     {
-      "name": "Noncompliant",
+      "name": "Noncompliant3",
       "type": "Microsoft.DataLakeStore/accounts",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -34,7 +34,7 @@
       }
     },
     {
-      "name": "Noncompliant",
+      "name": "Noncompliant2",
       "type": "Microsoft.DBforPostgreSQL/servers",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -60,7 +60,7 @@
       }
     },
     {
-      "name": "Noncompliant",
+      "name": "Noncompliant2",
       "type": "Microsoft.RecoveryServices/vaults/backupEncryptionConfigs",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -76,7 +76,7 @@
       }
     },
     {
-      "name": "Compliant",
+      "name": "Compliant2",
       "type": "Microsoft.DataLakeStore/accounts",
       "apiVersion": "2022-07-01",
       "properties": {
@@ -84,7 +84,7 @@
       }
     },
     {
-      "name": "Compliant",
+      "name": "Compliant3",
       "type": "Microsoft.DataLakeStore/accounts",
       "apiVersion": "2022-07-01",
       "properties": {
