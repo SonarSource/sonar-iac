@@ -26,10 +26,12 @@ import static org.sonar.iac.common.testing.Verifier.issue;
 
 class CertificateBasedAuthenticationCheckTest {
 
+  private static final CertificateBasedAuthenticationCheck CHECK = new CertificateBasedAuthenticationCheck();
+
   @Test
-  void testHostnameConfigurations() {
+  void testHostnameConfigurationsJson() {
     ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ApiManagement_service_gateways_hostnameConfigurations.json",
-      new CertificateBasedAuthenticationCheck(),
+      CHECK,
       issue(7, 14, 7, 79, "Omitting \"negotiateClientCertificate\" disables certificate-based authentication. Make sure it is safe here."),
       issue(16, 8, 16, 44, "Make sure that disabling certificate-based authentication is safe here."),
       issue(21, 14, 21, 79),
@@ -37,8 +39,13 @@ class CertificateBasedAuthenticationCheckTest {
   }
 
   @Test
-  void testContainerApps() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.App_containerApps.json", new CertificateBasedAuthenticationCheck(),
+  void testHostnameConfigurationsBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ApiManagement_service_gateways_hostnameConfigurations.bicep", CHECK);
+  }
+
+  @Test
+  void testContainerAppsJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.App_containerApps.json", CHECK,
       issue(12, 12, 12, 45, "Make sure that disabling certificate-based authentication is safe here."),
       issue(24, 12, 24, 45, "Connections without client certificates will be permitted. Make sure it is safe here."),
       issue(36, 12, 36, 45),
@@ -46,8 +53,13 @@ class CertificateBasedAuthenticationCheckTest {
   }
 
   @Test
-  void testRegistries() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ContainerRegistry_registries_tokens.json", new CertificateBasedAuthenticationCheck(),
+  void testContainerAppsBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.App_containerApps.bicep", CHECK);
+  }
+
+  @Test
+  void testRegistriesJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ContainerRegistry_registries_tokens.json", CHECK,
       issue(16, 10, 20, 11, "This authentication method is not certificate-based. Make sure it is safe here."),
       issue(30, 10, 31, 11, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here."),
       issue(42, 23, 45, 9, "Omitting \"certificates\" disables certificate-based authentication. Make sure it is safe here."),
@@ -56,9 +68,14 @@ class CertificateBasedAuthenticationCheckTest {
   }
 
   @Test
-  void testFactoriesLinkedServices() {
+  void testRegistriesBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ContainerRegistry_registries_tokens.bicep", CHECK);
+  }
+
+  @Test
+  void testFactoriesLinkedServicesJson() {
     ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_linkedservices.json",
-      new CertificateBasedAuthenticationCheck(),
+      CHECK,
       issue(12, 10, 12, 39, "This authentication method is not certificate-based. Make sure it is safe here.",
         SecondaryLocation.secondary(10, 8, 10, 21, "Service type")),
       issue(23, 10, 23, 39),
@@ -66,23 +83,38 @@ class CertificateBasedAuthenticationCheckTest {
   }
 
   @Test
-  void testCassandraClusters() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DocumentDB_cassandraClusters.json", new CertificateBasedAuthenticationCheck(),
+  void testFactoriesLinkedServicesBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_linkedservices.bicep", CHECK);
+  }
+
+  @Test
+  void testCassandraClustersJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DocumentDB_cassandraClusters.json", CHECK,
       issue(7, 14, 7, 54, "Omitting \"clientCertificates\" disables certificate-based authentication. Make sure it is safe here."),
       issue(17, 8, 18, 9, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here."));
   }
 
   @Test
-  void testJobCollections() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Scheduler_jobCollections_jobs.json", new CertificateBasedAuthenticationCheck(),
+  void testCassandraClustersBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DocumentDB_cassandraClusters.bicep", CHECK);
+  }
+
+  @Test
+  void testJobCollectionsJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Scheduler_jobCollections_jobs.json", CHECK,
       issue(13, 14, 13, 29, "This authentication method is not certificate-based. Make sure it is safe here."),
       issue(28, 16, 28, 31),
       issue(49, 20, 49, 35));
   }
 
   @Test
-  void testServiceFabric() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ServiceFabric_clusters.json", new CertificateBasedAuthenticationCheck(),
+  void testJobCollectionsBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Scheduler_jobCollections_jobs.bicep", CHECK);
+  }
+
+  @Test
+  void testServiceFabricJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ServiceFabric_clusters.json", CHECK,
       issue(7, 14, 7, 48, "Omitting \"clientCertificateCommonNames/clientCertificateThumbprints\" disables certificate-based authentication. Make sure it is safe here."),
       issue(14, 14, 14, 48, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here.",
         SecondaryLocation.secondary(17, 8, 18, 9, "Empty certificate list"),
@@ -92,8 +124,13 @@ class CertificateBasedAuthenticationCheckTest {
   }
 
   @Test
-  void testWebSites() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Web_sites.json", new CertificateBasedAuthenticationCheck(),
+  void testServiceFabricBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.ServiceFabric_clusters.bicep", CHECK);
+  }
+
+  @Test
+  void testWebSitesJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Web_sites.json", CHECK,
       issue(7, 14, 7, 35, "Omitting \"clientCertEnabled\" disables certificate-based authentication. Make sure it is safe here."),
       issue(7, 14, 7, 35, "Omitting \"clientCertMode\" disables certificate-based authentication. Make sure it is safe here."),
       issue(14, 14, 14, 35),
@@ -105,8 +142,13 @@ class CertificateBasedAuthenticationCheckTest {
   }
 
   @Test
-  void testWebSitesSlots() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Web_sites_slots.json", new CertificateBasedAuthenticationCheck(),
+  void testWebSitesBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Web_sites.bicep", CHECK);
+  }
+
+  @Test
+  void testWebSitesSlotsJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Web_sites_slots.json", CHECK,
       issue(10, 8, 10, 34, "Make sure that disabling certificate-based authentication is safe here."),
       issue(18, 8, 18, 36, "Connections without client certificates will be permitted. Make sure it is safe here."),
       issue(27, 8, 27, 36),
@@ -117,8 +159,13 @@ class CertificateBasedAuthenticationCheckTest {
   }
 
   @Test
-  void testFactoriesPipelines() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_pipelines.json", new CertificateBasedAuthenticationCheck(),
+  void testWebSitesSlotsBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Web_sites_slots.bicep", CHECK);
+  }
+
+  @Test
+  void testFactoriesPipelinesJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_pipelines.json", CHECK,
       issue(14, 14, 14, 43, "This authentication method is not certificate-based. Make sure it is safe here.",
         SecondaryLocation.secondary(12, 12, 12, 33, "Pipeline type")),
       issue(34, 18, 34, 47),
@@ -126,23 +173,43 @@ class CertificateBasedAuthenticationCheckTest {
   }
 
   @Test
-  void testApplicationGateways() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Network_applicationGateways.json", new CertificateBasedAuthenticationCheck(),
+  void testFactoriesPipelinesBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.DataFactory_factories_pipelines.bicep", CHECK);
+  }
+
+  @Test
+  void testApplicationGatewaysJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Network_applicationGateways.json", CHECK,
       issue(7, 14, 7, 53, "Omitting \"trustedRootCertificates\" disables certificate-based authentication. Make sure it is safe here."),
       issue(17, 8, 18, 9, "Omitting a list of certificates disables certificate-based authentication. Make sure it is safe here."));
   }
 
   @Test
-  void testSignalRServiceSignalR() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.SignalRService_signalR.json", new CertificateBasedAuthenticationCheck(),
+  void testApplicationGateways() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.Network_applicationGateways.bicep", CHECK);
+  }
+
+  @Test
+  void testSignalRServiceSignalRJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.SignalRService_signalR.json", CHECK,
       issue(10, 15, 11, 9, "Omitting \"clientCertEnabled\" disables certificate-based authentication. Make sure it is safe here."),
       issue(20, 10, 20, 36, "Make sure that disabling certificate-based authentication is safe here."));
   }
 
   @Test
-  void testSignalRServiceWebPubSub() {
-    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.SignalRService_webPubSub.json", new CertificateBasedAuthenticationCheck(),
+  void testSignalRServiceSignalRBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.SignalRService_signalR.bicep", CHECK);
+  }
+
+  @Test
+  void testSignalRServiceWebPubSubJson() {
+    ArmVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.SignalRService_webPubSub.json", CHECK,
       issue(10, 15, 11, 9, "Omitting \"clientCertEnabled\" disables certificate-based authentication. Make sure it is safe here."),
       issue(20, 10, 20, 36, "Make sure that disabling certificate-based authentication is safe here."));
+  }
+
+  @Test
+  void testSignalRServiceWebPubSubBicep() {
+    BicepVerifier.verify("CertificateBasedAuthenticationCheck/Microsoft.SignalRService_webPubSub.bicep", CHECK);
   }
 }
