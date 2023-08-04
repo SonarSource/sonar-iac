@@ -31,10 +31,10 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD_LIGHT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
-class BicepHighlightingVisitorTest extends AbstractHighlightingTest {
+class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
 
-  protected BicepHighlightingVisitorTest() {
-    super(new BicepHighlightingVisitor(), BicepParser.create());
+  protected ArmHighlightingVisitorTest() {
+    super(new ArmHighlightingVisitor(), BicepParser.create());
   }
 
   @Test
@@ -71,14 +71,22 @@ class BicepHighlightingVisitorTest extends AbstractHighlightingTest {
   void testDecoratorAndParam() {
     highlight(code(
       "@description('The list of logic app')",
+      "@sys.metadata({",
+      "  key: 'value'",
+      "})",
       "param logicAppReceivers array = []"));
     assertHighlighting("@description", ANNOTATION);
     assertHighlighting("'The list of logic app'", STRING);
 
-    assertHighlighting(2, "param", KEYWORD);
-    assertHighlighting(2, "logicAppReceivers", KEYWORD_LIGHT);
-    assertHighlighting(2, "array", KEYWORD);
-    assertHighlighting(2, "= []", null);
+    assertHighlighting(2, "sys.metadata", null);
+
+    assertHighlighting(3, "key", ANNOTATION);
+    assertHighlighting(3, "'value'", STRING);
+
+    assertHighlighting(5, "param", KEYWORD);
+    assertHighlighting(5, "logicAppReceivers", KEYWORD_LIGHT);
+    assertHighlighting(5, "array", KEYWORD);
+    assertHighlighting(5, "= []", null);
   }
 
   @Test

@@ -194,8 +194,8 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     return keyword;
   }
 
-  @Nullable
-  public TypeExpressionAble getTypeExpression() {
+  @CheckForNull
+  public TypeExpressionAble typeExpression() {
     return typeExpression;
   }
 }

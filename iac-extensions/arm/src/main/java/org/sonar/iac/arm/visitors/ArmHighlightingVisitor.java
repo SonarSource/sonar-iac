@@ -46,7 +46,7 @@ import org.sonar.iac.arm.tree.impl.bicep.TypeDeclarationImpl;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.impl.bicep.variable.LocalVariableImpl;
-import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
+import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.ANNOTATION;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CONSTANT;
@@ -54,7 +54,7 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD_LIGHT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
 
-public class BicepHighlightingVisitor extends SyntaxHighlightingVisitor {
+public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
   @Override
   protected void languageSpecificHighlighting() {
     register(ResourceDeclarationImpl.class, (ctx, tree) -> {

@@ -213,7 +213,7 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     return keyword;
   }
 
-  @Nullable
+  @CheckForNull
   public SyntaxToken getExisting() {
     return existing;
   }
