@@ -29,12 +29,19 @@ import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class TlsVersionCheckTest {
+  private static final TlsVersionCheck CHECK = new TlsVersionCheck();
+
   @Test
-  void testTlsVersionIsIncorrectOrAbsentInStorageAccounts() {
-    verify("TlsVersionCheck/Microsoft.Storage_storageAccounts/test.json",
-      new TlsVersionCheck(),
+  void testTlsVersionIsIncorrectOrAbsentInStorageAccountsJson() {
+    verify("TlsVersionCheck/Microsoft.Storage_storageAccounts.json",
+      CHECK,
       issue(10, 8, 10, 37, "Change this code to disable support of older TLS versions."),
       issue(14, 14, 14, 49, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
+  }
+
+  @Test
+  void testTlsVersionIsIncorrectOrAbsentInStorageAccountsBicep() {
+    BicepVerifier.verify("TlsVersionCheck/Microsoft.Storage_storageAccounts.bicep", CHECK);
   }
 
   @ParameterizedTest(name = "[#{index}] should check minimal TLS version for resource type {0}")
@@ -43,12 +50,26 @@ class TlsVersionCheckTest {
     "Microsoft.DBforPostgreSQL/servers",
     "Microsoft.DBforMariaDB/servers"
   })
-  void testTlsVersionIsIncorrectOrAbsentInDatabaseResources(String resourceType) {
-    String content = ArmTestUtils.readTemplateAndReplace("TlsVersionCheck/Microsoft.DBfor_SQL_servers/test.json", resourceType);
+  void testTlsVersionIsIncorrectOrAbsentInDatabaseResourcesJson(String resourceType) {
+    String content = ArmTestUtils.readTemplateAndReplace("TlsVersionCheck/Microsoft.DBfor_SQL_servers_template.json", resourceType);
     int endColumn = 16 + resourceType.length();
     verifyContent(content,
-      new TlsVersionCheck(),
+      CHECK,
       issue(10, 8, 10, 37, "Change this code to disable support of older TLS versions."),
       issue(14, 14, 14, endColumn, "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
+  }
+
+  @ParameterizedTest(name = "[#{index}] should check minimal TLS version for resource type {0}")
+  @ValueSource(strings = {
+    "Microsoft.DBforMySQL/servers",
+    "Microsoft.DBforPostgreSQL/servers",
+    "Microsoft.DBforMariaDB/servers"
+  })
+  void testTlsVersionIsIncorrectOrAbsentInDatabaseResourcesBicep(String resourceType) {
+    String content = ArmTestUtils.readTemplateAndReplace("TlsVersionCheck/Microsoft.DBfor_SQL_servers_template.bicep", resourceType);
+    BicepVerifier.verifyContent(content,
+      CHECK,
+      issue(4, 4, 4, 31, "Change this code to disable support of older TLS versions."),
+      issue(8, 24, 8, 24 + resourceType.length(), "Set minimumTlsVersion/minimalTlsVersion to disable support of older TLS versions."));
   }
 }
