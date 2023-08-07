@@ -37,10 +37,10 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.asNumericValueOrNull;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 
@@ -128,8 +128,8 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
 
   @CheckForNull
   private static Double computeRetentionInDays(ContextualObject retentionPolicyObject) {
-    Double count = toDouble(retentionPolicyObject.property("count").tree);
-    String durationType = toString(retentionPolicyObject.property("durationType").tree);
+    Double count = propertyValueAsDoubleOrNull(retentionPolicyObject.property("count").tree);
+    String durationType = propertyValueAsStringOrNull(retentionPolicyObject.property("durationType").tree);
 
     if (count != null && durationType != null) {
       return POLICY_TO_DAYS.getOrDefault(durationType, val -> null).apply(count);
@@ -140,21 +140,13 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
 
   private static Predicate<Expression> isNumericValue(DoublePredicate predicate) {
     return expr -> {
-      if (expr.is(ArmTree.Kind.NUMERIC_LITERAL)) {
-        return predicate.test(((NumericLiteral) expr).asDouble());
-      } else if (expr.is(ArmTree.Kind.UNARY_EXPRESSION)) {
-        UnaryExpression unaryExpression = (UnaryExpression) expr;
-        if (unaryExpression.expression().is(ArmTree.Kind.NUMERIC_LITERAL)) {
-          double factor = unaryExpression.operator().value().equals("-") ? -1 : 1;
-          return predicate.test(((NumericLiteral) unaryExpression.expression()).asDouble() * factor);
-        }
-      }
-      return false;
+      Double value = asNumericValueOrNull(expr);
+      return value != null && predicate.test(value);
     };
   }
 
   @CheckForNull
-  private static Double toDouble(@Nullable Tree tree) {
+  private static Double propertyValueAsDoubleOrNull(@Nullable Tree tree) {
     return Optional.ofNullable(tree)
       .map(Property.class::cast)
       .map(Property::value)
@@ -164,7 +156,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   }
 
   @CheckForNull
-  private static String toString(@Nullable Tree tree) {
+  private static String propertyValueAsStringOrNull(@Nullable Tree tree) {
     return Optional.ofNullable(tree)
       .map(Property.class::cast)
       .map(Property::value)
