@@ -32,14 +32,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isFunctionCallWithPropertyAccess;
 import static org.sonar.iac.common.checks.TextUtils.isValue;
 import static org.sonar.iac.common.checks.TextUtils.matchesValue;
 
 @Rule(key = "S6385")
 public class SubscriptionOwnerCapabilitiesCheck extends AbstractArmResourceCheck {
   private static final String MESSAGE = "Narrow the number of actions or the assignable scope of this custom role.";
-  private static final String PERMISSION_MESSAGE = "Allows all actions.";
-  private static final String SCOPE_MESSAGE = "High scope level.";
+  private static final String PERMISSION_MESSAGE = "Allows all actions";
+  private static final String SCOPE_MESSAGE = "High scope level";
 
   private static final Pattern PLAIN_SUBSCRIPTION_SCOPE_PATTERN = Pattern.compile("^/subscriptions/[^/]+/?$");
 
@@ -77,8 +78,8 @@ public class SubscriptionOwnerCapabilitiesCheck extends AbstractArmResourceCheck
   }
 
   private static boolean isSensitiveScope(Tree scope) {
-    boolean hasSensitiveCall = isValue(scope, "[managementGroup().id]").isTrue() ||
-      isValue(scope, "[subscription().id]").isTrue();
+    boolean hasSensitiveCall = isFunctionCallWithPropertyAccess("managementGroup", "id").test((Expression) scope) ||
+      isFunctionCallWithPropertyAccess("subscription", "id").test((Expression) scope);
     boolean referencesSensitiveScope = matchesValue(scope, s -> PLAIN_SUBSCRIPTION_SCOPE_PATTERN.matcher(s).matches()).isTrue() ||
       matchesValue(scope, s -> s.startsWith("/providers/Microsoft.Management/managementGroups/")).isTrue();
     return hasSensitiveCall || referencesSensitiveScope;

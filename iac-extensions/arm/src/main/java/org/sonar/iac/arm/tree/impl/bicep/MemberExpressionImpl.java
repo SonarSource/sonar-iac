@@ -74,6 +74,11 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
   }
 
   @Override
+  public SyntaxToken separatingToken() {
+    return separatingToken;
+  }
+
+  @Override
   public Expression memberAccess() {
     return memberAccess;
   }
