@@ -22,6 +22,7 @@ package org.sonar.iac.arm.checks;
 import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
+import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.File.Scope;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -40,12 +41,10 @@ public class SubscriptionRoleAssignmentCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkRoleAssignments(ContextualResource resource) {
-    File file = (File) resource.tree.parent();
-    if (file != null) {
-      String sensitiveScope = SENSITIVE_SCOPE_WITH_NAME.get(file.targetScope());
-      if (sensitiveScope != null) {
-        resource.report(String.format(MESSAGE, sensitiveScope), new SecondaryLocation(file.targetScopeLiteral(), sensitiveScope));
-      }
+    File file = (File) ArmTreeUtils.getRootNode(resource.tree);
+    String sensitiveScope = SENSITIVE_SCOPE_WITH_NAME.get(file.targetScope());
+    if (sensitiveScope != null) {
+      resource.report(String.format(MESSAGE, sensitiveScope), new SecondaryLocation(file.targetScopeLiteral(), sensitiveScope));
     }
   }
 }
