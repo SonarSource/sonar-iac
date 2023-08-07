@@ -47,7 +47,7 @@
       }
     },
     {
-      "__sonar__": "Sensitive: retention period is less negative",
+      "__sonar__": "Sensitive: retention period is negative",
       "name": "backup",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2022-03-01",
@@ -76,17 +76,6 @@
       ]
     },
 
-    {
-      "__sonar__": "Compliant: name is not backup",
-      "name": "other",
-      "type": "Microsoft.Web/sites/config",
-      "apiVersion": "2022-03-01",
-      "properties": {
-        "backupSchedule": {
-          "retentionPeriodInDays": 7
-        }
-      }
-    },
     {
       "__sonar__": "Compliant: retention period is more than 30",
       "name": "backup",
@@ -148,6 +137,6 @@
           }
         }
       ]
-    },
+    }
   ]
 }

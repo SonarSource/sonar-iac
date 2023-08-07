@@ -37,9 +37,10 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 
+import static org.sonar.iac.arm.checks.utils.CheckUtils.asNumericValueOrNull;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
 
@@ -127,8 +128,8 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
 
   @CheckForNull
   private static Double computeRetentionInDays(ContextualObject retentionPolicyObject) {
-    Double count = toDouble(retentionPolicyObject.property("count").tree);
-    String durationType = toString(retentionPolicyObject.property("durationType").tree);
+    Double count = propertyValueAsDoubleOrNull(retentionPolicyObject.property("count").tree);
+    String durationType = propertyValueAsStringOrNull(retentionPolicyObject.property("durationType").tree);
 
     if (count != null && durationType != null) {
       return POLICY_TO_DAYS.getOrDefault(durationType, val -> null).apply(count);
@@ -138,11 +139,14 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   }
 
   private static Predicate<Expression> isNumericValue(DoublePredicate predicate) {
-    return expr -> expr.is(ArmTree.Kind.NUMERIC_LITERAL) && predicate.test(((NumericLiteral) expr).asDouble());
+    return expr -> {
+      Double value = asNumericValueOrNull(expr);
+      return value != null && predicate.test(value);
+    };
   }
 
   @CheckForNull
-  private static Double toDouble(@Nullable Tree tree) {
+  private static Double propertyValueAsDoubleOrNull(@Nullable Tree tree) {
     return Optional.ofNullable(tree)
       .map(Property.class::cast)
       .map(Property::value)
@@ -152,12 +156,12 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   }
 
   @CheckForNull
-  private static String toString(@Nullable Tree tree) {
+  private static String propertyValueAsStringOrNull(@Nullable Tree tree) {
     return Optional.ofNullable(tree)
       .map(Property.class::cast)
       .map(Property::value)
-      .filter(expr -> expr.is(ArmTree.Kind.STRING_LITERAL))
-      .map(expr -> ((StringLiteral) expr).value())
+      .filter(expr -> expr.is(ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.STRING_COMPLETE))
+      .flatMap(TextUtils::getValue)
       .orElse(null);
   }
 }

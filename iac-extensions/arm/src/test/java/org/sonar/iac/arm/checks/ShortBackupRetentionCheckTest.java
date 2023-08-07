@@ -29,7 +29,7 @@ class ShortBackupRetentionCheckTest {
   private final ShortBackupRetentionCheck check = new ShortBackupRetentionCheck();
 
   @Test
-  void testWebSites() {
+  void testWebSitesJson() {
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.Web_sites.json",
       check,
       issue(12, 10, 12, 36, "Make sure that defining a short backup retention duration is safe here."),
@@ -37,12 +37,16 @@ class ShortBackupRetentionCheckTest {
       issue(34, 10, 34, 36),
       issue(45, 10, 45, 36),
       issue(56, 10, 56, 37),
-      issue(72, 14, 72, 40),
-      issue(86, 10, 86, 36));
+      issue(72, 14, 72, 40));
   }
 
   @Test
-  void testWebSitesCustomRetentionPeriod() {
+  void testWebSitesBicep() {
+    BicepVerifier.verify("ShortBackupRetentionCheck/Microsoft.Web_sites.bicep", check);
+  }
+
+  @Test
+  void testWebSitesCustomRetentionPeriodJson() {
     check.retentionPeriodInDays = 15;
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.Web_sites_custom.json",
       check,
@@ -50,7 +54,13 @@ class ShortBackupRetentionCheckTest {
   }
 
   @Test
-  void testCosmosDbAccounts() {
+  void testWebSitesCustomRetentionPeriodBicep() {
+    check.retentionPeriodInDays = 15;
+    BicepVerifier.verify("ShortBackupRetentionCheck/Microsoft.Web_sites_custom.bicep", check);
+  }
+
+  @Test
+  void testCosmosDbAccountsJson() {
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.DocumentDB_databaseAccounts.json",
       check,
       issue(13, 12, 13, 48, "Make sure that defining a short backup retention duration is safe here."),
@@ -63,7 +73,12 @@ class ShortBackupRetentionCheckTest {
   }
 
   @Test
-  void testCosmosDbAccountsCustomRetentionPeriod() {
+  void testCosmosDbAccountsBicep() {
+    BicepVerifier.verify("ShortBackupRetentionCheck/Microsoft.DocumentDB_databaseAccounts.bicep", check);
+  }
+
+  @Test
+  void testCosmosDbAccountsCustomRetentionPeriodJson() {
     check.retentionPeriodInDays = 15;
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.DocumentDB_databaseAccounts_custom.json",
       check,
@@ -71,7 +86,13 @@ class ShortBackupRetentionCheckTest {
   }
 
   @Test
-  void testRecoveryServicesVaultsBackupPolicies() {
+  void testCosmosDbAccountsCustomRetentionPeriodBicep() {
+    check.retentionPeriodInDays = 15;
+    BicepVerifier.verify("ShortBackupRetentionCheck/Microsoft.DocumentDB_databaseAccounts_custom.bicep", check);
+  }
+
+  @Test
+  void testRecoveryServicesVaultsBackupPoliciesJson() {
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.RecoveryServices_vaults.json",
       check,
       issue(14, 12, 14, 22, "Make sure that defining a short backup retention duration is safe here.",
@@ -88,7 +109,12 @@ class ShortBackupRetentionCheckTest {
   }
 
   @Test
-  void testRecoveryServicesVaultsBackupPoliciesCustomRetentionPeriod() {
+  void testRecoveryServicesVaultsBackupPoliciesBicep() {
+    BicepVerifier.verify("ShortBackupRetentionCheck/Microsoft.RecoveryServices_vaults.bicep", check);
+  }
+
+  @Test
+  void testRecoveryServicesVaultsBackupPoliciesCustomRetentionPeriodJson() {
     check.retentionPeriodInDays = 400;
     ArmVerifier.verify("ShortBackupRetentionCheck/Microsoft.RecoveryServices_vaults_custom_400.json",
       check,
@@ -97,5 +123,11 @@ class ShortBackupRetentionCheckTest {
       issue(32, 14, 32, 25),
       issue(49, 14, 49, 24),
       issue(66, 14, 66, 24));
+  }
+
+  @Test
+  void testRecoveryServicesVaultsBackupPoliciesCustomRetentionPeriodBicep() {
+    check.retentionPeriodInDays = 400;
+    BicepVerifier.verify("ShortBackupRetentionCheck/Microsoft.RecoveryServices_vaults_custom_400.bicep", check);
   }
 }

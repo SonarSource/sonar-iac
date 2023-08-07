@@ -25,9 +25,11 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
 import org.sonar.iac.arm.tree.api.Expression;
+import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.bicep.FunctionCall;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
+import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.common.checks.TextUtils;
 
 public class CheckUtils {
@@ -125,5 +127,18 @@ public class CheckUtils {
 
   public static Predicate<Expression> inCollection(Collection<String> collection) {
     return expr -> TextUtils.matchesValue(expr, collection::contains).isTrue();
+  }
+
+  public static Double asNumericValueOrNull(ArmTree expr) {
+    if (expr.is(ArmTree.Kind.NUMERIC_LITERAL)) {
+      return ((NumericLiteral) expr).asDouble();
+    } else if (expr.is(ArmTree.Kind.UNARY_EXPRESSION)) {
+      UnaryExpression unaryExpression = (UnaryExpression) expr;
+      if (unaryExpression.expression().is(ArmTree.Kind.NUMERIC_LITERAL)) {
+        double factor = unaryExpression.operator().value().equals("-") ? -1 : 1;
+        return ((NumericLiteral) unaryExpression.expression()).asDouble() * factor;
+      }
+    }
+    return null;
   }
 }
