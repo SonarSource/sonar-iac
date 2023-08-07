@@ -37,8 +37,9 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.Property;
-import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEqual;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isValue;
@@ -138,7 +139,18 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
   }
 
   private static Predicate<Expression> isNumericValue(DoublePredicate predicate) {
-    return expr -> expr.is(ArmTree.Kind.NUMERIC_LITERAL) && predicate.test(((NumericLiteral) expr).asDouble());
+    return expr -> {
+      if (expr.is(ArmTree.Kind.NUMERIC_LITERAL)) {
+        return predicate.test(((NumericLiteral) expr).asDouble());
+      } else if (expr.is(ArmTree.Kind.UNARY_EXPRESSION)) {
+        UnaryExpression unaryExpression = (UnaryExpression) expr;
+        if (unaryExpression.expression().is(ArmTree.Kind.NUMERIC_LITERAL)) {
+          double factor = unaryExpression.operator().value().equals("-") ? -1 : 1;
+          return predicate.test(((NumericLiteral) unaryExpression.expression()).asDouble() * factor);
+        }
+      }
+      return false;
+    };
   }
 
   @CheckForNull
@@ -156,8 +168,8 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
     return Optional.ofNullable(tree)
       .map(Property.class::cast)
       .map(Property::value)
-      .filter(expr -> expr.is(ArmTree.Kind.STRING_LITERAL))
-      .map(expr -> ((StringLiteral) expr).value())
+      .filter(expr -> expr.is(ArmTree.Kind.STRING_LITERAL, ArmTree.Kind.STRING_COMPLETE))
+      .flatMap(TextUtils::getValue)
       .orElse(null);
   }
 }
