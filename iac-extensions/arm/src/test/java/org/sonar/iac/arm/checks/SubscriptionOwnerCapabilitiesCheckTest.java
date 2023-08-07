@@ -19,6 +19,7 @@
  */
 package org.sonar.iac.arm.checks;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -34,14 +35,19 @@ class SubscriptionOwnerCapabilitiesCheckTest {
     "/subscriptions/b24988ac-6180-42a0-ab88-20f7382dd24c",
     "/providers/Microsoft.Management/managementGroups/b24988ac-6180-42a0-ab88-20f7382dd24c"
   })
-  void shouldDetectSensitiveScopes(String assignableScope) {
+  void shouldDetectSensitiveScopesJson(String assignableScope) {
     String content = readTemplateAndReplace("SubscriptionOwnerCapabilitiesCheck/Authorization_roleDefinitions.json", assignableScope);
 
     int contentLength = assignableScope.length();
     ArmVerifier.verifyContent(content,
       new SubscriptionOwnerCapabilitiesCheck(),
       issue(38, 14, 38, 55, "Narrow the number of actions or the assignable scope of this custom role.",
-        secondary(44, 24, 44, 27, "Allows all actions."),
-        secondary(49, 10, 49, 12 + contentLength, "High scope level.")));
+        secondary(44, 24, 44, 27, "Allows all actions"),
+        secondary(49, 10, 49, 12 + contentLength, "High scope level")));
+  }
+
+  @Test
+  void shouldDetectSensitiveScopesBicep() {
+    BicepVerifier.verify("SubscriptionOwnerCapabilitiesCheck/Authorization_roleDefinitions.bicep", new SubscriptionOwnerCapabilitiesCheck());
   }
 }
