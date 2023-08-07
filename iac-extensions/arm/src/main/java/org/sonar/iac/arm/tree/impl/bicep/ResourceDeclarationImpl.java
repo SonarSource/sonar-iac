@@ -145,9 +145,10 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
         TextRange typeAndVersionRange = typeAndVersion.textRange();
         TextRange tokenRange = TextRanges.range(
           typeAndVersionRange.start().line(),
-          typeAndVersionRange.start().lineOffset(),
+          // The line offset needs to be shifted by 1 to take the quote into account
+          typeAndVersionRange.start().lineOffset() + 1,
           typeAndVersionRange.end().line(),
-          typeAndVersionRange.start().lineOffset() + type.length());
+          typeAndVersionRange.start().lineOffset() + type.length() + 1);
         SyntaxToken token = new SyntaxTokenImpl(type, tokenRange, List.of());
         return new StringLiteralImpl(token);
       }
