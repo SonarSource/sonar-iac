@@ -111,7 +111,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
 
   @CheckForNull
   @Override
-  public StringLiteral copyInput() {
+  public Expression copyInput() {
     // Same as above for copyCount
     return null;
   }

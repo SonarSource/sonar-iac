@@ -39,11 +39,11 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   private final StringLiteral type;
   private final StringLiteral condition;
   private final StringLiteral copyCount;
-  private final StringLiteral copyInput;
+  private final Expression copyInput;
   private final Expression value;
 
   public OutputDeclarationImpl(Identifier name, StringLiteral type, @Nullable StringLiteral condition, @Nullable StringLiteral copyCount,
-    @Nullable StringLiteral copyInput, @Nullable Expression value) {
+    @Nullable Expression copyInput, @Nullable Expression value) {
     this.name = name;
     this.type = type;
     this.condition = condition;
@@ -76,7 +76,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
 
   @CheckForNull
   @Override
-  public StringLiteral copyInput() {
+  public Expression copyInput() {
     return copyInput;
   }
 
