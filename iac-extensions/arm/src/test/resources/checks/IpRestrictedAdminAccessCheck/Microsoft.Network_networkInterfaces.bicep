@@ -1,6 +1,6 @@
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
 resource raiseAnIssue 'Microsoft.Network/networkInterfaces@2022-11-01' = {
-//                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise an issue'
   properties: {
     ipConfigurations: [

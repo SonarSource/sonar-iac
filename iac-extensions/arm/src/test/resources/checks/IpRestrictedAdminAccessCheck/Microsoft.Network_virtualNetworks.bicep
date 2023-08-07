@@ -1,6 +1,6 @@
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
 resource raiseAnIssue 'Microsoft.Network/virtualNetworks@2022-11-01' = {
-//                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise an issue'
   properties: {
     subnets: [
@@ -34,7 +34,7 @@ resource raiseAnIssue 'Microsoft.Network/virtualNetworks@2022-11-01' = {
 
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
 resource raiseAnIssueCheckOnMultipleElementsPerList 'Microsoft.Network/virtualNetworks@2022-11-01' = {
-//                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise an issue: check on multiple elements per list'
   properties: {
     subnets: [

@@ -18,7 +18,7 @@ resource raiseAnIssue 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
 
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}} {{Restrict IP addresses authorized to access administration services.}}
 resource raise2IssuesWithEachHavingSameMainLocationButDifferentSecondaryLocations 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
-//                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise 2 issues, with each having same main location but different secondary locations'
   properties: {
     securityRules: [
@@ -51,7 +51,7 @@ resource raise2IssuesWithEachHavingSameMainLocationButDifferentSecondaryLocation
 
 // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
 resource raiseIssueOnSecondSecurityRuleOnly 'Microsoft.Network/networkSecurityGroup@2022-11-01' = {
-//                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise issue on second security rule only'
   properties: {
     securityRules: [

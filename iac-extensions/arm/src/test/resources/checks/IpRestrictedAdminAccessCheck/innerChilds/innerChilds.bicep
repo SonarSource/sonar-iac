@@ -3,7 +3,7 @@ resource parentResourceCase1ParentParentChild 'Microsoft.Network/networkSecurity
 
   // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
   resource parentResourceCase1ParentParentChildInnerChild 'securityRules@2022-11-01' = {
-  //                                                      ^^^^^^^^^^^^^
+  //                                                       ^^^^^^^^^^^^^
     name: 'inner child'
     properties: {
       direction: 'Inbound'
@@ -28,7 +28,7 @@ resource parentResourceCase2ParentParent2Child 'Microsoft.Network@2022-11-01' = 
 
     // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
     resource parentResourceCase2ParentParent2ChildParent2Child 'securityRules@2022-11-01' = {
-    //                                                         ^^^^^^^^^^^^^
+    //                                                          ^^^^^^^^^^^^^
       name: 'child'
       properties: {
         direction: 'Inbound'
@@ -52,7 +52,7 @@ resource parentResourceCase3ParentChildChild 'Microsoft.Network@2022-11-01' = {
 
   // Noncompliant@+1 {{Restrict IP addresses authorized to access administration services.}}
   resource parentResourceCase3ParentChildChildChildChild 'networkSecurityGroups/securityRules@2022-11-01' = {
-  //                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     name: 'Parent resource case 3 : parent -> child/child/child/child'
     properties: {
       direction: 'Inbound'

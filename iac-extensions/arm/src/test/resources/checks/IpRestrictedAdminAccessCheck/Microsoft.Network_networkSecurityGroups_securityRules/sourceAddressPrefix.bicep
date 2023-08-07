@@ -1,6 +1,6 @@
 // Noncompliant@+1{{Restrict IP addresses authorized to access administration services.}}
 resource raiseAnIssueSensitiveCaseSourceAddressPrefixValues1 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
-//                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Raise an issue: sensitive case sourceAddressPrefix values 1'
   properties: {
     direction: 'Inbound'

@@ -3,7 +3,7 @@ param adminUsername string = newGuid()
 
 // Noncompliant@+1 {{Change this code to not use an outer expression evaluation scope in nested templates.}}
 resource noncompliantDeployment 'Microsoft.Resources/deployments@2022-09-01' = {
-//                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 1
+//                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 1
   name: 'Noncompliant: expressionEvaluationOptions is missing (defaults to \'Outer\')'
   properties: {
     // expressionEvaluationOptions is missing (defaults to 'Outer')

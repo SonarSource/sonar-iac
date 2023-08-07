@@ -1,5 +1,6 @@
 // Noncompliant@+1 {{Omitting sign_in authorizes anonymous access. Make sure it is safe here.}}
 resource apiService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
+//                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'apiService'
 }
 
