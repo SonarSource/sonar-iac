@@ -33,7 +33,7 @@ class UnencryptedCloudServicesCheckTest {
   IacCheck check = new UnencryptedCloudServicesCheck();
 
   @Test
-  void testVirtualMachines() {
+  void testVirtualMachinesJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachines.json", check,
       issue(13, 29, 14, 15, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
       issue(19, 18, 19, 26, "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
@@ -47,7 +47,12 @@ class UnencryptedCloudServicesCheckTest {
   }
 
   @Test
-  void testVirtualMachineScaleSets() {
+  void testVirtualMachinesBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachines.bicep", check);
+  }
+
+  @Test
+  void testVirtualMachineScaleSetsJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachineScaleSets.json", check,
       issue(14, 31, 14, 33, "Omitting \"diskEncryptionSet\" enables clear-text storage. Make sure it is safe here."),
       issue(19, 20, 19, 28, "Omitting \"id\" enables clear-text storage. Make sure it is safe here."),
@@ -61,7 +66,12 @@ class UnencryptedCloudServicesCheckTest {
   }
 
   @Test
-  void testMultiUnencryptedResources() {
+  void testVirtualMachineScaleSetsBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/Compute_virtualMachineScaleSets.bicep", check);
+  }
+
+  @Test
+  void testMultiUnencryptedResourcesJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/MultiUnencryptedResources.json", check,
       issue(7, 14, 7, 66, "Omitting \"managedDiskCustomerKeyUri\" enables clear-text storage. Make sure it is safe here."),
       issue(15, 14, 15, 66, "Omitting \"backupStorageCustomerKeyUri\" enables clear-text storage. Make sure it is safe here."),
@@ -73,14 +83,24 @@ class UnencryptedCloudServicesCheckTest {
   }
 
   @Test
-  void testSqlVirtualMachine() {
+  void testMultiUnencryptedResourcesBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/MultiUnencryptedResources.bicep", check);
+  }
+
+  @Test
+  void testSqlVirtualMachineJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/SqlVirtualMachine_sqlVirtualMachines.json", check,
       issue(11, 10, 11, 35, "Make sure that using unencrypted cloud storage is safe here."),
       issue(20, 30, 21, 9, "Omitting \"enableEncryption\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test
-  void testContainerServiceManagedClusters() {
+  void testSqlVirtualMachineBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/SqlVirtualMachine_sqlVirtualMachines.bicep", check);
+  }
+
+  @Test
+  void testContainerServiceManagedClustersJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/ContainerService_managedClusters.json", check,
       issue(7, 14, 7, 58, "Omitting \"diskEncryptionSetID\" enables clear-text storage. Make sure it is safe here."),
       issue(12, 12, 12, 43, "Make sure that using unencrypted cloud storage is safe here."),
@@ -90,14 +110,24 @@ class UnencryptedCloudServicesCheckTest {
   }
 
   @Test
-  void testAzureArcDataSqlServerInstancesDatabases() {
+  void testContainerServiceManagedClustersBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/ContainerService_managedClusters.bicep", check);
+  }
+
+  @Test
+  void testAzureArcDataSqlServerInstancesDatabasesJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/AzureArcData_sqlServerInstances_databases.json", check,
       issue(11, 10, 11, 30, "Make sure that using unencrypted cloud storage is safe here."),
       issue(20, 27, 21, 9, "Omitting \"isEncrypted\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test
-  void testHDInsightClusters() {
+  void testAzureArcDataSqlServerInstancesDatabasesBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/AzureArcData_sqlServerInstances_databases.bicep", check);
+  }
+
+  @Test
+  void testHDInsightClustersJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/HDInsight_clusters.json", check,
       issue(13, 14, 13, 39, "Make sure that using unencrypted cloud storage is safe here."),
       issue(26, 12, 27, 13, "Omitting \"encryptDataDisks\" enables clear-text storage. Make sure it is safe here."),
@@ -106,21 +136,36 @@ class UnencryptedCloudServicesCheckTest {
   }
 
   @Test
-  void testHDInsightClustersApplications() {
+  void testHDInsightClustersBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/HDInsight_clusters.bicep", check);
+  }
+
+  @Test
+  void testHDInsightClustersApplicationsJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/HDInsight_clusters_applications.json", check,
       issue(13, 14, 13, 39, "Make sure that using unencrypted cloud storage is safe here."),
       issue(26, 12, 27, 13, "Omitting \"encryptDataDisks\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test
-  void testKustoClusters() {
+  void testHDInsightClustersApplicationsBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/HDInsight_clusters_applications.bicep", check);
+  }
+
+  @Test
+  void testKustoClustersJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Kusto_clusters.json", check,
       issue(10, 8, 10, 37, "Make sure that using unencrypted cloud storage is safe here."),
       issue(15, 14, 15, 40, "Omitting \"enableDiskEncryption\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test
-  void testComputeDistAndSnapshots() {
+  void testKustoClustersBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/Kusto_clusters.bicep", check);
+  }
+
+  @Test
+  void testComputeDistAndSnapshotsJson() {
     String omittingAll3Properties = "Omitting \"encryption.diskEncryptionSetId\", \"encryptionSettingsCollection\" or \"securityProfile.secureVMDiskEncryptionSetId\" " +
       "enables clear-text storage. Make sure it is safe here.";
     ArmVerifier.verify("UnencryptedCloudServicesCheck/Compute_disk_and_snapshots.json", check,
@@ -131,7 +176,12 @@ class UnencryptedCloudServicesCheckTest {
   }
 
   @Test
-  void testDisabledEncryption() {
+  void testComputeDistAndSnapshotsBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/Compute_disk_and_snapshots.bicep", check);
+  }
+
+  @Test
+  void testDisabledEncryptionJson() {
     ArmVerifier.verify("UnencryptedCloudServicesCheck/DisabledEncryption.json", check,
       issue(10, 8, 10, 37, "Make sure that using unencrypted cloud storage is safe here."),
       issue(18, 8, 18, 31),
@@ -142,12 +192,17 @@ class UnencryptedCloudServicesCheckTest {
       issue(59, 8, 59, 51));
   }
 
+  @Test
+  void testDisabledEncryptionBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/DisabledEncryption.bicep", check);
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {
     "Microsoft.DBforMySQL/servers",
     "Microsoft.DBforPostgreSQL/servers"
   })
-  void testResourcesWithInfrastructureEncryption(String resourceType) {
+  void testResourcesWithInfrastructureEncryptionJson(String resourceType) {
     String content = ArmTestUtils.readTemplateAndReplace("UnencryptedCloudServicesCheck/MultiUnencryptedInfrastructureEncrypted.json", resourceType);
 
     int resourceTypeLength = resourceType.length();
@@ -159,13 +214,35 @@ class UnencryptedCloudServicesCheckTest {
       issue(52, 14, 52, 16 + resourceTypeLength, "Omitting \"infrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "Microsoft.DBforMySQL/servers",
+    "Microsoft.DBforPostgreSQL/servers"
+  })
+  void testResourcesWithInfrastructureEncryptionBicep(String resourceType) {
+    String content = ArmTestUtils.readTemplateAndReplace("UnencryptedCloudServicesCheck/MultiUnencryptedInfrastructureEncrypted_template.bicep", resourceType);
+
+    int resourceTypeLength = resourceType.length();
+    BicepVerifier.verifyContent(content, check,
+      issue(18, 4, 18, 31, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(25, 4, 25, 25, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(29, 23, 29, 55, "Omitting \"encryptionState\" enables clear-text storage. Make sure it is safe here."),
+      issue(36, 4, 36, 40, "Make sure that using unencrypted cloud storage is safe here."),
+      issue(40, 23, 40, 23 + resourceTypeLength, "Omitting \"infrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
+  }
+
   @Test
-  void testStorageAccountResources() {
+  void testStorageAccountResourcesJson() {
     verify("UnencryptedCloudServicesCheck/Storage_storageAccounts.json", check,
       issue(29, 10, 29, 50, "Make sure that using unencrypted cloud storage is safe here."),
       issue(38, 8, 38, 48, "Make sure that using unencrypted cloud storage is safe here."),
       issue(43, 14, 43, 49, "Omitting \"encryption\" enables clear-text storage. Make sure it is safe here."),
       issue(52, 22, 52, 24, "Omitting \"requireInfrastructureEncryption\" enables clear-text storage. Make sure it is safe here."),
       issue(57, 14, 57, 66, "Omitting \"requireInfrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
+  }
+
+  @Test
+  void testStorageAccountResourcesBicep() {
+    BicepVerifier.verify("UnencryptedCloudServicesCheck/Storage_storageAccounts.bicep", check);
   }
 }

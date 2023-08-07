@@ -58,7 +58,7 @@
       }
     },
     {
-      "name": "Noncompliant",
+      "name": "Noncompliant2",
       "type": "Microsoft.RedHatOpenShift/openShiftClusters",
       "apiVersion": "2022-07-01",
       "properties": {
