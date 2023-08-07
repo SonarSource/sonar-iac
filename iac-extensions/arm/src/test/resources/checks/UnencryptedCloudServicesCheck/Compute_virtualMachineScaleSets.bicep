@@ -1,4 +1,4 @@
-resource noncompliant 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
+resource nonCompliant1 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
   name: 'Noncompliant'
   properties: {
     virtualMachineProfile: {
@@ -64,7 +64,7 @@ resource compliant 'Microsoft.Compute/virtualMachineScaleSets@2022-07-01' = {
   }
 }
 
-resource noncompliantEncryptionAtHostIsSetToFalse 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
+resource nonCompliant2 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
   name: 'Noncompliant: encryptionAtHost is set to false'
   properties: {
     virtualMachineProfile: {
@@ -75,7 +75,7 @@ resource noncompliantEncryptionAtHostIsSetToFalse 'Microsoft.Compute/virtualMach
   }
 }
 
-resource noncompliantEncryptionAtHostIsMissing 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
+resource nonCompliant3 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
   name: 'Noncompliant: encryptionAtHost is missing'
   properties: {
     virtualMachineProfile: {
@@ -84,7 +84,7 @@ resource noncompliantEncryptionAtHostIsMissing 'Microsoft.Compute/virtualMachine
   }
 }
 
-resource compliantEncryptionAtHostIsSetToTrue 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
+resource compliant2 'Microsoft.Compute/virtualMachineScaleSets@2022-11-01' = {
   name: 'Compliant: encryptionAtHost is set to true'
   properties: {
     virtualMachineProfile: {

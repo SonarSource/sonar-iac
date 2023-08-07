@@ -1,4 +1,4 @@
-resource noncompliantEnableDiskEncryptionIsSetToFalse 'Microsoft.Kusto/clusters@2022-12-29' = {
+resource nonCompliant1 'Microsoft.Kusto/clusters@2022-12-29' = {
   name: 'Noncompliant: enableDiskEncryption is set to false'
   properties: {
     // Noncompliant@+1 {{Make sure that using unencrypted cloud storage is safe here.}}
@@ -8,12 +8,12 @@ resource noncompliantEnableDiskEncryptionIsSetToFalse 'Microsoft.Kusto/clusters@
 }
 
 // Noncompliant@+1 {{Omitting "enableDiskEncryption" enables clear-text storage. Make sure it is safe here.}}
-resource noncompliantEnableDiskEncryptionIsMissing 'Microsoft.Kusto/clusters@2022-12-29' = {
+resource nonCompliant2 'Microsoft.Kusto/clusters@2022-12-29' = {
   name: 'Noncompliant: enableDiskEncryption is missing'
   properties: {}
 }
 
-resource compliantEnableDiskEncryptionIsSetToTrue 'Microsoft.Kusto/clusters@2022-12-29' = {
+resource compliant1 'Microsoft.Kusto/clusters@2022-12-29' = {
   name: 'Compliant: enableDiskEncryption is set to true'
   properties: {
     enableDiskEncryption: true

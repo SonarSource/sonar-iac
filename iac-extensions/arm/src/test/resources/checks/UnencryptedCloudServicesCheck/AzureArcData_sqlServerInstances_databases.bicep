@@ -1,4 +1,4 @@
-resource noncompliantIsEncryptedIsSetToFalse 'Microsoft.AzureArcData/sqlServerInstances/databases@2023-03-15-preview' = {
+resource nonCompliant1 'Microsoft.AzureArcData/sqlServerInstances/databases@2023-03-15-preview' = {
   name: 'Noncompliant: isEncrypted is set to false'
   properties: {
     databaseOptions: {
@@ -9,7 +9,7 @@ resource noncompliantIsEncryptedIsSetToFalse 'Microsoft.AzureArcData/sqlServerIn
   }
 }
 
-resource noncompliantIsEncryptedIsNotSet 'Microsoft.AzureArcData/sqlServerInstances/databases@2023-03-15-preview' = {
+resource nonCompliant2 'Microsoft.AzureArcData/sqlServerInstances/databases@2023-03-15-preview' = {
   name: 'Noncompliant: isEncrypted is not set'
   properties: {
     databaseOptions: {}  // Noncompliant {{Omitting "isEncrypted" enables clear-text storage. Make sure it is safe here.}}
@@ -17,7 +17,7 @@ resource noncompliantIsEncryptedIsNotSet 'Microsoft.AzureArcData/sqlServerInstan
   }
 }
 
-resource compliantIsEncryptedIsSetToTrue 'Microsoft.AzureArcData/sqlServerInstances/databases@2023-03-15-preview' = {
+resource compliant 'Microsoft.AzureArcData/sqlServerInstances/databases@2023-03-15-preview' = {
   name: 'Compliant: isEncrypted is set to true'
   properties: {
     databaseOptions: {

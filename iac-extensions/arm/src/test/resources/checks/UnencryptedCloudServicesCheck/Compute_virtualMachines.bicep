@@ -1,4 +1,4 @@
-resource microsoftComputeVirtualMachinesNoncompliant 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+resource nonCompliant1 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   name: 'Noncompliant'
   properties: {
     storageProfile: {
@@ -35,7 +35,7 @@ resource microsoftComputeVirtualMachinesNoncompliant 'Microsoft.Compute/virtualM
   }
 }
 
-resource microsoftComputeVirtualMachinesNoncompliant 'Microsoft.Compute/virtualMachines@2022-07-01' = {
+resource nonCompliant2 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   name: 'Noncompliant'
   properties: {
     storageProfile: {
@@ -66,7 +66,7 @@ resource compliant 'Microsoft.Compute/virtualMachines@2022-07-01' = {
   }
 }
 
-resource noncompliantEncryptionAtHostIsSetToFalse 'Microsoft.Compute/virtualMachines@2022-11-01' = {
+resource nonCompliant3 'Microsoft.Compute/virtualMachines@2022-11-01' = {
   name: 'Noncompliant: encryptionAtHost is set to false'
   properties: {
     securityProfile: {
@@ -75,14 +75,14 @@ resource noncompliantEncryptionAtHostIsSetToFalse 'Microsoft.Compute/virtualMach
   }
 }
 
-resource noncompliantEncryptionAtHostIsMissing 'Microsoft.Compute/virtualMachines@2022-11-01' = {
+resource nonCompliant4 'Microsoft.Compute/virtualMachines@2022-11-01' = {
   name: 'Noncompliant: encryptionAtHost is missing'
   properties: {
     securityProfile: {} // Noncompliant {{Omitting "encryptionAtHost" enables clear-text storage. Make sure it is safe here.}}
   }
 }
 
-resource compliantEncryptionAtHostIsSetToTrue 'Microsoft.Compute/virtualMachines@2022-11-01' = {
+resource compliant2 'Microsoft.Compute/virtualMachines@2022-11-01' = {
   name: 'Compliant: encryptionAtHost is set to true'
   properties: {
     securityProfile: {

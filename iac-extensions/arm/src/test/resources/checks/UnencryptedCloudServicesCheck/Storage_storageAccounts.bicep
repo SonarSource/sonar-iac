@@ -1,4 +1,4 @@
-resource compliant 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
+resource compliant1 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
   name: 'Compliant'
   properties: {
     encryption: {
@@ -7,14 +7,14 @@ resource compliant 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
   }
 }
 
-resource microsoftStorageStorageAccountsEncryptionScopesCompliant 'Microsoft.Storage/storageAccounts/encryptionScopes@2023-03-02-preview' = {
+resource compliant2 'Microsoft.Storage/storageAccounts/encryptionScopes@2023-03-02-preview' = {
   name: 'Compliant'
   properties: {
     requireInfrastructureEncryption: true
   }
 }
 
-resource nonCompliantEncryptionIsDisabled 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
+resource nonCompliant1 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
   name: 'Non-compliant: encryption is disabled'
   properties: {
     encryption: {
@@ -25,7 +25,7 @@ resource nonCompliantEncryptionIsDisabled 'Microsoft.Storage/storageAccounts@202
   }
 }
 
-resource microsoftStorageStorageAccountsEncryptionScopesNonCompliantEncryptionIsDisabled 'Microsoft.Storage/storageAccounts/encryptionScopes@2023-03-02-preview' = {
+resource nonCompliant2 'Microsoft.Storage/storageAccounts/encryptionScopes@2023-03-02-preview' = {
   name: 'Non-compliant: encryption is disabled'
   properties: {
     // Noncompliant@+1 {{Make sure that using unencrypted cloud storage is safe here.}}
@@ -35,13 +35,13 @@ resource microsoftStorageStorageAccountsEncryptionScopesNonCompliantEncryptionIs
 }
 
 // Noncompliant@+1 {{Omitting "encryption" enables clear-text storage. Make sure it is safe here.}}
-resource nonCompliantEncryptionRelatedPropertyIsOmitted 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
-//                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource nonCompliant3 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
+//                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Non-compliant: encryption-related property is omitted'
   properties: {}
 }
 
-resource nonCompliantEncryptionObjectIsPresentRequireInfrastructureEncryptionIsOmitted 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
+resource nonCompliant4 'Microsoft.Storage/storageAccounts@2023-03-02-preview' = {
   name: 'Non-compliant: encryption object is present, requireInfrastructureEncryption is omitted'
   properties: {
     encryption: {} // Noncompliant {{Omitting "requireInfrastructureEncryption" enables clear-text storage. Make sure it is safe here.}}
@@ -50,8 +50,8 @@ resource nonCompliantEncryptionObjectIsPresentRequireInfrastructureEncryptionIsO
 }
 
 // Noncompliant@+1 {{Omitting "requireInfrastructureEncryption" enables clear-text storage. Make sure it is safe here.}}
-resource microsoftStorageStorageAccountsEncryptionScopesNonCompliantEncryptionRelatedPropertyIsOmitted 'Microsoft.Storage/storageAccounts/encryptionScopes@2023-03-02-preview' = {
-//                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+resource nonCompliant7 'Microsoft.Storage/storageAccounts/encryptionScopes@2023-03-02-preview' = {
+//                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'Non-compliant: encryption-related property is omitted'
   properties: {}
 }

@@ -1,5 +1,5 @@
 // Noncompliant@+1 {{Omitting "diskEncryptionSetID" enables clear-text storage. Make sure it is safe here.}}
-resource noncompliantEnableEncryptionAtHostIsSetToFalse 'Microsoft.ContainerService/managedClusters@2023-03-02-preview' = {
+resource nonCompliant1 'Microsoft.ContainerService/managedClusters@2023-03-02-preview' = {
   name: 'Noncompliant: enableEncryptionAtHost is set to false'
   properties: {
     agentPoolProfiles: [
@@ -12,7 +12,7 @@ resource noncompliantEnableEncryptionAtHostIsSetToFalse 'Microsoft.ContainerServ
 }
 
 // Noncompliant@+1 {{Omitting "diskEncryptionSetID" enables clear-text storage. Make sure it is safe here.}}
-resource noncompliantEnableEncryptionAtHostIsMissing 'Microsoft.ContainerService/managedClusters@2023-03-02-preview' = {
+resource nonCompliant2 'Microsoft.ContainerService/managedClusters@2023-03-02-preview' = {
   name: 'Noncompliant: enableEncryptionAtHost is missing'
   properties: {
     agentPoolProfiles: [
@@ -22,7 +22,7 @@ resource noncompliantEnableEncryptionAtHostIsMissing 'Microsoft.ContainerService
 }
 
 // Noncompliant@+1 {{Omitting "diskEncryptionSetID" enables clear-text storage. Make sure it is safe here.}}
-resource compliantEnableEncryptionAtHostIsSetToTrue 'Microsoft.ContainerService/managedClusters@2023-03-02-preview' = {
+resource compliant 'Microsoft.ContainerService/managedClusters@2023-03-02-preview' = {
   name: 'Compliant: enableEncryptionAtHost is set to true'
   properties: {
     agentPoolProfiles: [

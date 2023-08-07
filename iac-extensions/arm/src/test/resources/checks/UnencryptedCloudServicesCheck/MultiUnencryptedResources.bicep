@@ -1,5 +1,5 @@
 // Noncompliant@+1 {{Omitting "managedDiskCustomerKeyUri" enables clear-text storage. Make sure it is safe here.}}
-resource microsoftDocumentDBCassandraClustersDataCentersNoncompliant 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-07-01' = {
+resource nonCompliant1 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-07-01' = {
   name: 'Noncompliant'
   properties: {
     backupStorageCustomerKeyUri: 'uri'
@@ -7,14 +7,14 @@ resource microsoftDocumentDBCassandraClustersDataCentersNoncompliant 'Microsoft.
 }
 
 // Noncompliant@+1 {{Omitting "backupStorageCustomerKeyUri" enables clear-text storage. Make sure it is safe here.}}
-resource microsoftDocumentDBCassandraClustersDataCentersNoncompliant 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-07-01' = {
+resource nonCompliant2 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-07-01' = {
   name: 'Noncompliant'
   properties: {
     managedDiskCustomerKeyUri: 'uri'
   }
 }
 
-resource compliant 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-07-01' = {
+resource compliant1 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-07-01' = {
   name: 'Compliant'
   properties: {
     backupStorageCustomerKeyUri: 'uri'
@@ -23,19 +23,19 @@ resource compliant 'Microsoft.DocumentDB/cassandraClusters/dataCenters@2022-07-0
 }
 
 // Noncompliant@+1 {{Omitting "diskEncryptionSetID" enables clear-text storage. Make sure it is safe here.}}
-resource microsoftContainerServiceManagedClustersNoncompliant 'Microsoft.ContainerService/managedClusters@2022-07-01' = {
+resource nonCompliant3 'Microsoft.ContainerService/managedClusters@2022-07-01' = {
   name: 'Noncompliant'
   properties: {}
 }
 
-resource microsoftContainerServiceManagedClustersCompliant 'Microsoft.ContainerService/managedClusters@2022-07-01' = {
+resource compliant2 'Microsoft.ContainerService/managedClusters@2022-07-01' = {
   name: 'Compliant'
   properties: {
     diskEncryptionSetID: 'id'
   }
 }
 
-resource microsoftRedHatOpenShiftOpenShiftClustersNoncompliant 'Microsoft.RedHatOpenShift/openShiftClusters@2022-07-01' = {
+resource nonCompliant4 'Microsoft.RedHatOpenShift/openShiftClusters@2022-07-01' = {
   name: 'Noncompliant'
   properties: {
     // Noncompliant@+1 {{Omitting "encryptionAtHost" enables clear-text storage. Make sure it is safe here.}}
@@ -52,7 +52,7 @@ resource microsoftRedHatOpenShiftOpenShiftClustersNoncompliant 'Microsoft.RedHat
   }
 }
 
-resource noncompliant2 'Microsoft.RedHatOpenShift/openShiftClusters@2022-07-01' = {
+resource nonCompliant5 'Microsoft.RedHatOpenShift/openShiftClusters@2022-07-01' = {
   name: 'Noncompliant2'
   properties: {
     masterProfile: { // Noncompliant {{Omitting "diskEncryptionSetId" enables clear-text storage. Make sure it is safe here.}}
@@ -68,7 +68,7 @@ resource noncompliant2 'Microsoft.RedHatOpenShift/openShiftClusters@2022-07-01' 
   }
 }
 
-resource microsoftRedHatOpenShiftOpenShiftClustersCompliant 'Microsoft.RedHatOpenShift/openShiftClusters@2022-07-01' = {
+resource compliant3 'Microsoft.RedHatOpenShift/openShiftClusters@2022-07-01' = {
   name: 'Compliant'
   properties: {
     masterProfile: {

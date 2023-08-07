@@ -1,4 +1,4 @@
-resource noncompliantEncryptDataDisksIsSetToFalse 'Microsoft.HDInsight/clusters/applications@2021-06-01' = {
+resource nonCompliant1 'Microsoft.HDInsight/clusters/applications@2021-06-01' = {
   name: 'Noncompliant: encryptDataDisks is set to false'
   properties: {
     computeProfile: {
@@ -13,7 +13,7 @@ resource noncompliantEncryptDataDisksIsSetToFalse 'Microsoft.HDInsight/clusters/
   }
 }
 
-resource noncompliantEncryptDataDisksIsMissing 'Microsoft.HDInsight/clusters/applications@2021-06-01' = {
+resource nonCompliant2 'Microsoft.HDInsight/clusters/applications@2021-06-01' = {
   name: 'Noncompliant: encryptDataDisks is missing'
   properties: {
     computeProfile: {
@@ -25,7 +25,7 @@ resource noncompliantEncryptDataDisksIsMissing 'Microsoft.HDInsight/clusters/app
   }
 }
 
-resource compliantEncryptDataDisksIsSetToTrue 'Microsoft.HDInsight/clusters/applications@2021-06-01' = {
+resource compliant1 'Microsoft.HDInsight/clusters/applications@2021-06-01' = {
   name: 'Compliant: encryptDataDisks is set to true'
   properties: {
     computeProfile: {

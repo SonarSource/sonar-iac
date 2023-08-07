@@ -1,4 +1,4 @@
-resource noncompliantEnableEncryptionIsSetToFalse 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-08-01-preview' = {
+resource nonCompliant1 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-08-01-preview' = {
   name: 'Noncompliant: enableEncryption is set to false'
   properties: {
     autoBackupSettings: {
@@ -9,7 +9,7 @@ resource noncompliantEnableEncryptionIsSetToFalse 'Microsoft.SqlVirtualMachine/s
   }
 }
 
-resource noncompliantEnableEncryptionIsMissing 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-08-01-preview' = {
+resource nonCompliant2 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-08-01-preview' = {
   name: 'Noncompliant: enableEncryption is missing'
   properties: {
     autoBackupSettings: {} // Noncompliant {{Omitting "enableEncryption" enables clear-text storage. Make sure it is safe here.}}
@@ -17,7 +17,7 @@ resource noncompliantEnableEncryptionIsMissing 'Microsoft.SqlVirtualMachine/sqlV
   }
 }
 
-resource noncompliantEnableEncryptionIsNotSet 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-08-01-preview' = {
+resource nonCompliant3 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-08-01-preview' = {
   name: 'Noncompliant: enableEncryption is not set'
   properties: {
     autoBackupSettings: {

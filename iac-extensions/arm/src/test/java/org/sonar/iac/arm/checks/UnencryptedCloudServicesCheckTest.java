@@ -226,9 +226,9 @@ class UnencryptedCloudServicesCheckTest {
     BicepVerifier.verifyContent(content, check,
       issue(18, 4, 18, 31, "Make sure that using unencrypted cloud storage is safe here."),
       issue(25, 4, 25, 25, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(29, 48, 29, 80, "Omitting \"encryptionState\" enables clear-text storage. Make sure it is safe here."),
+      issue(29, 23, 29, 55, "Omitting \"encryptionState\" enables clear-text storage. Make sure it is safe here."),
       issue(36, 4, 36, 40, "Make sure that using unencrypted cloud storage is safe here."),
-      issue(40, 52, 40, 52 + resourceTypeLength, "Omitting \"infrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
+      issue(40, 23, 40, 23 + resourceTypeLength, "Omitting \"infrastructureEncryption\" enables clear-text storage. Make sure it is safe here."));
   }
 
   @Test

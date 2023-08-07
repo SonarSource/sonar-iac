@@ -1,5 +1,5 @@
 // Noncompliant@+1 {{Omitting "encryption.diskEncryptionSetId", "encryptionSettingsCollection" or "securityProfile.secureVMDiskEncryptionSetId" enables clear-text storage. Make sure it is safe here.}}
-resource sensitiveDiskEncryptionSetIdEncryptionSettingsCollectionAndSecureVMDiskEncryptionSetIdAreNotSet 'Microsoft.Compute/disks@2022-07-02' = {
+resource nonCompliant1 'Microsoft.Compute/disks@2022-07-02' = {
   name: 'Sensitive: diskEncryptionSetId, encryptionSettingsCollection and secureVMDiskEncryptionSetId are not set'
   properties: {
     encryption: {
@@ -8,7 +8,7 @@ resource sensitiveDiskEncryptionSetIdEncryptionSettingsCollectionAndSecureVMDisk
   }
 }
 
-resource sensitiveDiskEncryptionSetIdAndSecureVMDiskEncryptionSetIdAreNotSetEncryptionSettingsCollectionIsFalse 'Microsoft.Compute/disks@2022-07-02' = {
+resource nonCompliant2 'Microsoft.Compute/disks@2022-07-02' = {
   name: 'Sensitive: diskEncryptionSetId, and secureVMDiskEncryptionSetId are not set, encryptionSettingsCollection is false'
   properties: {
     encryptionSettingsCollection: {
@@ -18,7 +18,7 @@ resource sensitiveDiskEncryptionSetIdAndSecureVMDiskEncryptionSetIdAreNotSetEncr
   }
 }
 
-resource compliantDiskEncryptionSetIdIsSet 'Microsoft.Compute/disks@2022-07-02' = {
+resource compliant 'Microsoft.Compute/disks@2022-07-02' = {
   name: 'Compliant: diskEncryptionSetId is set'
   properties: {
     encryption: {
@@ -27,7 +27,7 @@ resource compliantDiskEncryptionSetIdIsSet 'Microsoft.Compute/disks@2022-07-02' 
   }
 }
 
-resource compliantEncryptionSettingsCollectionEnabledIsTrue 'Microsoft.Compute/disks@2022-07-02' = {
+resource compliant2 'Microsoft.Compute/disks@2022-07-02' = {
   name: 'Compliant: encryptionSettingsCollection/enabled is true'
   properties: {
     encryptionSettingsCollection: {
@@ -36,7 +36,7 @@ resource compliantEncryptionSettingsCollectionEnabledIsTrue 'Microsoft.Compute/d
   }
 }
 
-resource compliantSecureVMDiskEncryptionSetIdIsSet 'Microsoft.Compute/disks@2022-07-02' = {
+resource compliant3 'Microsoft.Compute/disks@2022-07-02' = {
   name: 'Compliant: secureVMDiskEncryptionSetId is set'
   properties: {
     securityProfile: {
@@ -45,7 +45,7 @@ resource compliantSecureVMDiskEncryptionSetIdIsSet 'Microsoft.Compute/disks@2022
   }
 }
 
-resource compliantEncryptionSettingsCollectionEnabledIsNotBooleanLiteral 'Microsoft.Compute/disks@2022-07-02' = {
+resource compliant4 'Microsoft.Compute/disks@2022-07-02' = {
   name: 'Compliant: encryptionSettingsCollection/enabled is not boolean literal'
   properties: {
     encryptionSettingsCollection: {
@@ -54,7 +54,7 @@ resource compliantEncryptionSettingsCollectionEnabledIsNotBooleanLiteral 'Micros
   }
 }
 
-resource compliantDiskEncryptionSetIdEncryptionSettingsCollectionEnabledAndSecureVMDiskEncryptionSetIdIsSet 'Microsoft.Compute/disks@2022-07-02' = {
+resource compliant5 'Microsoft.Compute/disks@2022-07-02' = {
   name: 'Compliant: diskEncryptionSetId, encryptionSettingsCollection/enabled and secureVMDiskEncryptionSetId is set'
   properties: {
     encryption: {
@@ -70,14 +70,14 @@ resource compliantDiskEncryptionSetIdEncryptionSettingsCollectionEnabledAndSecur
 }
 
 // Noncompliant@+1 {{Omitting "encryption.diskEncryptionSetId", "encryptionSettingsCollection" or "securityProfile.secureVMDiskEncryptionSetId" enables clear-text storage. Make sure it is safe here.}}
-resource microsoftComputeSnapshotsSensitiveDiskEncryptionSetIdEncryptionSettingsCollectionAndSecureVMDiskEncryptionSetIdAreNotSet 'Microsoft.Compute/snapshots@2022-07-02' = {
+resource nonCompliant3 'Microsoft.Compute/snapshots@2022-07-02' = {
   name: 'Sensitive: diskEncryptionSetId, encryptionSettingsCollection and secureVMDiskEncryptionSetId are not set'
   properties: {
     encryption: {}
   }
 }
 
-resource microsoftComputeSnapshotsSensitiveDiskEncryptionSetIdAndSecureVMDiskEncryptionSetIdAreNotSetEncryptionSettingsCollectionIsFalse 'Microsoft.Compute/snapshots@2022-07-02' = {
+resource nonCompliant4 'Microsoft.Compute/snapshots@2022-07-02' = {
   name: 'Sensitive: diskEncryptionSetId, and secureVMDiskEncryptionSetId are not set, encryptionSettingsCollection is false'
   properties: {
     encryptionSettingsCollection: {
@@ -87,7 +87,7 @@ resource microsoftComputeSnapshotsSensitiveDiskEncryptionSetIdAndSecureVMDiskEnc
   }
 }
 
-resource microsoftComputeSnapshotsCompliantDiskEncryptionSetIdIsSet 'Microsoft.Compute/snapshots@2022-07-02' = {
+resource compliant6 'Microsoft.Compute/snapshots@2022-07-02' = {
   name: 'Compliant: diskEncryptionSetId is set'
   properties: {
     encryption: {
@@ -96,7 +96,7 @@ resource microsoftComputeSnapshotsCompliantDiskEncryptionSetIdIsSet 'Microsoft.C
   }
 }
 
-resource compliantEncryptionSettingsCollectionIsSet 'Microsoft.Compute/snapshots@2022-07-02' = {
+resource compliant7 'Microsoft.Compute/snapshots@2022-07-02' = {
   name: 'Compliant: encryptionSettingsCollection is set'
   properties: {
     encryptionSettingsCollection: {
@@ -105,7 +105,7 @@ resource compliantEncryptionSettingsCollectionIsSet 'Microsoft.Compute/snapshots
   }
 }
 
-resource compliantEncryptionSettingsCollectionIsNotBooleanLiteral 'Microsoft.Compute/snapshots@2022-07-02' = {
+resource compliant8 'Microsoft.Compute/snapshots@2022-07-02' = {
   name: 'Compliant: encryptionSettingsCollection is not boolean literal'
   properties: {
     encryptionSettingsCollection: {
@@ -114,7 +114,7 @@ resource compliantEncryptionSettingsCollectionIsNotBooleanLiteral 'Microsoft.Com
   }
 }
 
-resource microsoftComputeSnapshotsCompliantSecureVMDiskEncryptionSetIdIsSet 'Microsoft.Compute/snapshots@2022-07-02' = {
+resource compliant9 'Microsoft.Compute/snapshots@2022-07-02' = {
   name: 'Compliant: secureVMDiskEncryptionSetId is set'
   properties: {
     securityProfile: {
@@ -123,14 +123,14 @@ resource microsoftComputeSnapshotsCompliantSecureVMDiskEncryptionSetIdIsSet 'Mic
   }
 }
 
-resource compliantUnknownType 'unknown-type@2022-07-02' = {
+resource compliant10 'unknown-type@2022-07-02' = {
   name: 'Compliant: unknown type'
   properties: {
     securityProfile: {}
   }
 }
 
-resource microsoftComputeSnapshotsCompliantDiskEncryptionSetIdEncryptionSettingsCollectionEnabledAndSecureVMDiskEncryptionSetIdIsSet 'Microsoft.Compute/snapshots@2022-07-02' = {
+resource compliant11 'Microsoft.Compute/snapshots@2022-07-02' = {
   name: 'Compliant: diskEncryptionSetId, encryptionSettingsCollection/enabled and secureVMDiskEncryptionSetId is set'
   properties: {
     encryption: {

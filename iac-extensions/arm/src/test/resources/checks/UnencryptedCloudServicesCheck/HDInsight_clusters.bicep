@@ -1,4 +1,4 @@
-resource noncompliantEncryptDataDisksIsSetToFalse 'Microsoft.HDInsight/clusters@2021-06-01' = {
+resource nonCompliant1 'Microsoft.HDInsight/clusters@2021-06-01' = {
   name: 'Noncompliant: encryptDataDisks is set to false'
   properties: {
     computeProfile: {
@@ -12,7 +12,7 @@ resource noncompliantEncryptDataDisksIsSetToFalse 'Microsoft.HDInsight/clusters@
   }
 }
 
-resource noncompliantEncryptDataDisksIsMissing 'Microsoft.HDInsight/clusters@2021-06-01' = {
+resource nonCompliant2 'Microsoft.HDInsight/clusters@2021-06-01' = {
   name: 'Noncompliant: encryptDataDisks is missing'
   properties: {
     computeProfile: {
@@ -23,7 +23,7 @@ resource noncompliantEncryptDataDisksIsMissing 'Microsoft.HDInsight/clusters@202
   }
 }
 
-resource compliantEncryptDataDisksIsSetToTrue 'Microsoft.HDInsight/clusters@2021-06-01' = {
+resource compliant1 'Microsoft.HDInsight/clusters@2021-06-01' = {
   name: 'Compliant: encryptDataDisks is set to true'
   properties: {
     computeProfile: {
@@ -36,7 +36,7 @@ resource compliantEncryptDataDisksIsSetToTrue 'Microsoft.HDInsight/clusters@2021
   }
 }
 
-resource noncompliantEncryptionAtHostIsSetToFalse 'Microsoft.HDInsight/clusters@2021-06-01' = {
+resource nonCompliant4 'Microsoft.HDInsight/clusters@2021-06-01' = {
   name: 'Noncompliant: encryptionAtHost is set to false'
   properties: {
     diskEncryptionProperties: {
@@ -45,14 +45,14 @@ resource noncompliantEncryptionAtHostIsSetToFalse 'Microsoft.HDInsight/clusters@
   }
 }
 
-resource noncompliantEncryptionAtHostIsMissing 'Microsoft.HDInsight/clusters@2021-06-01' = {
+resource nonCompliant5 'Microsoft.HDInsight/clusters@2021-06-01' = {
   name: 'Noncompliant: encryptionAtHost is missing'
   properties: {
     diskEncryptionProperties: {}  // Noncompliant {{Omitting "encryptionAtHost" enables clear-text storage. Make sure it is safe here.}}
   }
 }
 
-resource compliantEncryptionAtHostIsSetToTrue 'Microsoft.HDInsight/clusters@2021-06-01' = {
+resource compliant2 'Microsoft.HDInsight/clusters@2021-06-01' = {
   name: 'Compliant: encryptionAtHost is set to true'
   properties: {
     diskEncryptionProperties: {
