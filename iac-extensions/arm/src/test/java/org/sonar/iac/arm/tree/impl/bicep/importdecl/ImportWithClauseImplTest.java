@@ -26,7 +26,6 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.impl.bicep.BicepTreeModelTest;
 
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
-import static org.sonar.iac.arm.ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings;
 
 class ImportWithClauseImplTest extends BicepTreeModelTest {
 
@@ -44,7 +43,8 @@ class ImportWithClauseImplTest extends BicepTreeModelTest {
     ImportWithClauseImpl tree = parse("with {}", BicepLexicalGrammar.IMPORT_WITH_CLAUSE);
     Assertions.assertThat(tree.keyword().value()).isEqualTo("with");
     assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.IMPORT_WITH_CLAUSE);
-    Assertions.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("with", "{", "}");
+    Assertions.assertThat(tree.children()).hasSize(2);
+    assertThat(tree.object().getKind()).isEqualTo(ArmTree.Kind.OBJECT_EXPRESSION);
     assertThat(tree.textRange()).hasRange(1, 0, 1, 7);
   }
 }

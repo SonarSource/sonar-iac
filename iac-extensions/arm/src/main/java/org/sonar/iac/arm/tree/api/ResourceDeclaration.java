@@ -21,7 +21,6 @@ package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
-
 import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.HasProperties;

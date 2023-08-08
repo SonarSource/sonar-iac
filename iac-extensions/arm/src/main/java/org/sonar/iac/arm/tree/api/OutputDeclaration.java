@@ -20,7 +20,6 @@
 package org.sonar.iac.arm.tree.api;
 
 import javax.annotation.CheckForNull;
-
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
 
 public interface OutputDeclaration extends Declaration {
