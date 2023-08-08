@@ -21,13 +21,12 @@ package org.sonar.iac.arm.tree.impl.bicep.importdecl;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class ImportAsClauseImpl extends AbstractArmTreeImpl implements ImportAsClause, HasKeyword {
+public class ImportAsClauseImpl extends AbstractArmTreeImpl implements ImportAsClause {
   private final SyntaxToken keyword;
   private final Identifier alias;
 

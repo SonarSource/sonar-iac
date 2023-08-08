@@ -147,7 +147,7 @@ class ArmSensorTest extends ExtensionSensorTest {
   void shouldIncludeAllVisitorsInRegularContext() {
     List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(context, null);
     assertThat(visitors)
-      .hasOnlyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class, ChecksVisitor.class, ArmHighlightingVisitor.class)
+      .hasOnlyElementsOfTypes(MetricsVisitor.class, ChecksVisitor.class, ArmHighlightingVisitor.class)
       .hasSize(3);
   }
 

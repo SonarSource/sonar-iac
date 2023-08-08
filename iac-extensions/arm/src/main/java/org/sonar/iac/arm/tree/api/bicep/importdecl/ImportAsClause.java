@@ -19,10 +19,10 @@
  */
 package org.sonar.iac.arm.tree.api.bicep.importdecl;
 
-import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 
-public interface ImportAsClause extends ArmTree {
+public interface ImportAsClause extends HasKeyword {
 
   @Override
   default Kind getKind() {

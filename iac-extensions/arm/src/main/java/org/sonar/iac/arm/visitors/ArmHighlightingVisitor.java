@@ -50,11 +50,26 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
 public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
   @Override
   protected void languageSpecificHighlighting() {
-    register(HasKeyword.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
+    register(ForVariableBlock.class, (ctx, tree) -> highlight(tree.itemIdentifier(), ANNOTATION));
+    register(LocalVariable.class, (ctx, tree) -> highlight(tree.identifier(), ANNOTATION));
+    register(Property.class, (ctx, tree) -> highlight(tree.key(), ANNOTATION));
+
     register(HasToken.class, (ctx, tree) -> highlight(tree.token(), CONSTANT));
 
-    register(Declaration.class, (ctx, tree) -> highlight(tree.declaratedName(), KEYWORD_LIGHT));
+    register(HasKeyword.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
     register(OutputDeclaration.class, (ctx, tree) -> highlight(tree.type(), KEYWORD));
+    register(Decorator.class, (ctx, tree) -> {
+      Expression expression = tree.expression();
+      if (expression instanceof FunctionCall) {
+        highlight(((FunctionCall) expression).name(), KEYWORD);
+      }
+    });
+    register(ForExpression.class, (ctx, tree) -> {
+      highlight(tree.forKeyword(), KEYWORD);
+      highlight(tree.inKeyword(), KEYWORD);
+    });
+
+    register(Declaration.class, (ctx, tree) -> highlight(tree.declaratedName(), KEYWORD_LIGHT));
 
     register(ResourceDeclaration.class, (ctx, tree) -> {
       Identifier identifier = tree.symbolicName();
@@ -66,22 +81,6 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
         highlight(existing, KEYWORD);
       }
     });
-
-    register(Decorator.class, (ctx, tree) -> {
-      Expression expression = tree.expression();
-      if (expression instanceof FunctionCall) {
-        highlight(((FunctionCall) expression).name(), KEYWORD);
-      }
-    });
-
-    register(ForExpression.class, (ctx, tree) -> {
-      highlight(tree.forKeyword(), KEYWORD);
-      highlight(tree.inKeyword(), KEYWORD);
-    });
-
-    register(ForVariableBlock.class, (ctx, tree) -> highlight(tree.itemIdentifier(), ANNOTATION));
-    register(LocalVariable.class, (ctx, tree) -> highlight(tree.identifier(), ANNOTATION));
-    register(Property.class, (ctx, tree) -> highlight(tree.key(), ANNOTATION));
 
     registerTree(AmbientTypeReference.class, KEYWORD);
     registerTree(InterpolatedString.class, STRING);
