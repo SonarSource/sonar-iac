@@ -67,11 +67,12 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
   }
 
   private static Predicate<Expression> isSensitiveDefaultValue() {
-    return isBlankString().negate()
-      .and(isEmptyObject().negate())
-      .and(isNull().negate())
-      .and(isFunctionCall("newGuid").negate())
-      .and(isSecureParameterReference().negate());
+    return isBlankString()
+      .or(isEmptyObject())
+      .or(isNull())
+      .or(isFunctionCall("newGuid"))
+      .or(isSecureParameterReference())
+      .negate();
   }
 
   private static Predicate<Expression> isSecureParameterReference() {
