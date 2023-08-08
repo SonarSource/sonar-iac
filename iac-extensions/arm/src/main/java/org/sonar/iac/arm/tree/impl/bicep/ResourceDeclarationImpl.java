@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.parser.bicep.BicepKeyword;
+
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -188,12 +188,9 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public boolean existing() {
-    if (existing != null) {
-      return BicepKeyword.EXISTING.getValue().equals(existing.value());
-    } else {
-      return false;
-    }
+  @CheckForNull
+  public SyntaxToken existing() {
+    return existing;
   }
 
   @Override
@@ -212,11 +209,6 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
 
   public SyntaxToken keyword() {
     return keyword;
-  }
-
-  @CheckForNull
-  public SyntaxToken getExisting() {
-    return existing;
   }
 
   private static List<Property> propertiesOrEmpty(List<PropertyTree> properties) {

@@ -21,11 +21,12 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
+import org.sonar.iac.arm.tree.api.bicep.HasToken;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class NumericLiteralImpl extends AbstractArmTreeImpl implements NumericLiteral {
+public class NumericLiteralImpl extends AbstractArmTreeImpl implements NumericLiteral, HasToken {
 
   private final SyntaxToken token;
 
@@ -46,5 +47,10 @@ public class NumericLiteralImpl extends AbstractArmTreeImpl implements NumericLi
   @Override
   public String value() {
     return token.value();
+  }
+
+  @Override
+  public SyntaxToken token() {
+    return token;
   }
 }

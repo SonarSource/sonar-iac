@@ -59,7 +59,7 @@ public class ModuleDeclarationImpl extends AbstractArmTreeImpl implements Module
   }
 
   @Override
-  public Identifier name() {
+  public Identifier declaratedName() {
     return name;
   }
 

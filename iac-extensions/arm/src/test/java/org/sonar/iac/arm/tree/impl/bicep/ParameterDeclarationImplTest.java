@@ -70,7 +70,7 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
     String code = code("param myParam int");
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
-    assertThat(tree.identifier().value()).isEqualTo("myParam");
+    assertThat(tree.declaratedName().value()).isEqualTo("myParam");
     assertThat(tree.type()).isEqualTo(ParameterType.INT);
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree.typeExpression())).containsExactly("int");
     assertThat(tree.defaultValue()).isNull();
@@ -90,7 +90,7 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
     String code = code("param myParam int = 5");
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
-    assertThat(tree.identifier().value()).isEqualTo("myParam");
+    assertThat(tree.declaratedName().value()).isEqualTo("myParam");
     assertThat(tree.type()).isEqualTo(ParameterType.INT);
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree.typeExpression())).containsExactly("int");
     assertThat(tree.defaultValue()).asNumericLiteral().hasValue(5);
@@ -104,7 +104,7 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
     String code = code("param myParam resource 'myResource'");
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
-    assertThat(tree.identifier().value()).isEqualTo("myParam");
+    assertThat(tree.declaratedName().value()).isEqualTo("myParam");
     assertThat(tree.type()).isNull();
     assertThat(tree.typeExpression()).isNull();
     assertThat(tree.defaultValue()).isNull();
@@ -121,7 +121,7 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
       "param myParam int");
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
-    assertThat(tree.identifier().value()).isEqualTo("myParam");
+    assertThat(tree.declaratedName().value()).isEqualTo("myParam");
     assertThat(tree.type()).isEqualTo(ParameterType.INT);
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree.typeExpression())).containsExactly("int");
     assertThat(tree.defaultValue()).isNull();
@@ -151,7 +151,7 @@ class ParameterDeclarationImplTest extends BicepTreeModelTest {
       "param myParam int");
     ParameterDeclarationImpl tree = parse(code, BicepLexicalGrammar.PARAMETER_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.PARAMETER_DECLARATION)).isTrue();
-    assertThat(tree.identifier().value()).isEqualTo("myParam");
+    assertThat(tree.declaratedName().value()).isEqualTo("myParam");
     assertThat(tree.type()).isEqualTo(ParameterType.INT);
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree.typeExpression())).containsExactly("int");
     assertThat(tree.defaultValue()).isNull();

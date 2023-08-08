@@ -44,4 +44,9 @@ public class ImportWithClauseImpl extends AbstractArmTreeImpl implements ImportW
   public SyntaxToken keyword() {
     return keyword;
   }
+
+  @Override
+  public ObjectExpression object() {
+    return object;
+  }
 }

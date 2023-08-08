@@ -20,11 +20,7 @@
 package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.Statement;
 
-public interface MetadataDeclaration extends Statement {
-  Identifier name();
-
+public interface MetadataDeclaration extends Declaration {
   Expression value();
 }

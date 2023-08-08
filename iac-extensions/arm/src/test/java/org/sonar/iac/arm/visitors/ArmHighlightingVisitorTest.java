@@ -146,26 +146,16 @@ class ArmHighlightingVisitorTest extends AbstractHighlightingTest {
   @Test
   void testResourceDeclarationForExpression() {
     highlight(code(
-      "resource myName2 'type@version' = [for item in collection: {",
+      "resource myName 'type@version' existing = {",
       "  key: value",
-      "  properties: {",
-      "    prop1: val1",
-      "  }",
-      "}",
-      "]"));
+      "}"));
     assertHighlighting(1, "resource", KEYWORD);
-    assertHighlighting(1, "myName2", KEYWORD_LIGHT);
+    assertHighlighting(1, "myName", KEYWORD_LIGHT);
     assertHighlighting(1, "'type@version'", STRING);
-    assertHighlighting(1, "for", KEYWORD);
-    assertHighlighting(1, "in", KEYWORD);
+    assertHighlighting(1, "existing", KEYWORD);
 
     assertHighlighting(2, "key", ANNOTATION);
     assertHighlighting(2, "value", null);
-
-    assertHighlighting(3, "properties", ANNOTATION);
-
-    assertHighlighting(4, "prop1", ANNOTATION);
-    assertHighlighting(4, "val1", null);
   }
 
   @Test

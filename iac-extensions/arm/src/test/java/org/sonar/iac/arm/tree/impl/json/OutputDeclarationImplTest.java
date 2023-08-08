@@ -81,7 +81,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration.value()).asStringLiteral().hasValue("my output value");
     assertThat(outputDeclaration.textRange()).hasRange(3, 4, 9, 32);
 
-    assertThat(outputDeclaration.name())
+    assertThat(outputDeclaration.declaratedName())
       .hasKind(IDENTIFIER)
       .hasValue("myOutputValue")
       .hasRange(3, 4, 3, 19);
@@ -180,7 +180,7 @@ class OutputDeclarationImplTest {
     assertThat(tree.statements().get(1).is(OUTPUT_DECLARATION)).isTrue();
 
     OutputDeclaration outputDeclaration1 = (OutputDeclaration) tree.statements().get(0);
-    assertThat(outputDeclaration1.name().value()).isEqualTo("myOutputValue1");
+    assertThat(outputDeclaration1.declaratedName().value()).isEqualTo("myOutputValue1");
     assertThat(((TextTree) outputDeclaration1.type()).value()).isEqualTo("my type 1");
     assertThat(outputDeclaration1.condition()).hasValue("my condition 1");
     assertThat(outputDeclaration1.copyCount()).hasValue("countValue 1");
@@ -189,7 +189,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration1.value()).asStringLiteral().hasValue("my output value 1");
 
     OutputDeclaration outputDeclaration2 = (OutputDeclaration) tree.statements().get(1);
-    assertThat(outputDeclaration2.name().value()).isEqualTo("myOutputValue2");
+    assertThat(outputDeclaration2.declaratedName().value()).isEqualTo("myOutputValue2");
     assertThat(((TextTree) outputDeclaration2.type()).value()).isEqualTo("my type 2");
     assertThat(outputDeclaration2.condition()).hasValue("my condition 2");
     assertThat(outputDeclaration2.copyCount()).hasValue("countValue 2");
@@ -236,7 +236,7 @@ class OutputDeclarationImplTest {
     assertThat(outputDeclaration.copyInput()).isNull();
     assertThat(outputDeclaration.value()).asStringLiteral().hasValue("my output value");
 
-    assertThat(outputDeclaration.name())
+    assertThat(outputDeclaration.declaratedName())
       .hasKind(IDENTIFIER)
       .hasValue("myOutputValue")
       .hasRange(3, 4, 3, 19);

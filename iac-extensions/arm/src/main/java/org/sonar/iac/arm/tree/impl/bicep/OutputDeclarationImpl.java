@@ -82,7 +82,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   }
 
   @Override
-  public Identifier name() {
+  public Identifier declaratedName() {
     return name;
   }
 

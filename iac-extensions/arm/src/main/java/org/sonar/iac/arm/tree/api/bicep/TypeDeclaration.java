@@ -19,11 +19,6 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.Statement;
-
-public interface TypeDeclaration extends Statement, HasDecorators, HasKeyword {
-  Identifier name();
-
+public interface TypeDeclaration extends Declaration, HasDecorators, HasKeyword {
   TypeExpressionAble type();
 }

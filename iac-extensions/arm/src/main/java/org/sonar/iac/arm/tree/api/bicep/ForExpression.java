@@ -27,4 +27,8 @@ public interface ForExpression extends Expression {
   Expression headerExpression();
 
   Expression bodyExpression();
+
+  SyntaxToken forKeyword();
+
+  SyntaxToken inKeyword();
 }

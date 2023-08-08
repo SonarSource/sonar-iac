@@ -68,7 +68,7 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
     String code = code("@description('comment') output myOutput String = myValue");
     OutputDeclaration tree = parse(code, BicepLexicalGrammar.OUTPUT_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.OUTPUT_DECLARATION)).isTrue();
-    assertThat(tree.name()).hasValue("myOutput").hasRange(1, 31, 1, 39);
+    assertThat(tree.declaratedName()).hasValue("myOutput").hasRange(1, 31, 1, 39);
     TextTree type = (TextTree) tree.type();
     assertThat(type.value()).isEqualTo("String");
     assertThat(type.textRange()).hasRange(1, 40, 1, 46);
@@ -86,7 +86,7 @@ class OutputDeclarationImplTest extends BicepTreeModelTest {
     String code = code("output myOutput resource 'myResource' = myValue");
     OutputDeclaration tree = parse(code, BicepLexicalGrammar.OUTPUT_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.OUTPUT_DECLARATION)).isTrue();
-    assertThat(tree.name()).hasValue("myOutput").hasRange(1, 7, 1, 15);
+    assertThat(tree.declaratedName()).hasValue("myOutput").hasRange(1, 7, 1, 15);
     assertThat(((TextTree) tree.type()).value()).isEqualTo("myResource");
     assertThat(tree.type().textRange()).hasRange(1, 25, 1, 37);
     assertThat(tree.value()).asIdentifier().hasValue("myValue").hasRange(1, 40, 1, 47);

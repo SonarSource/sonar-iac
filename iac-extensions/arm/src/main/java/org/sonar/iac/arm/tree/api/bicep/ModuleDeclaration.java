@@ -20,16 +20,12 @@
 package org.sonar.iac.arm.tree.api.bicep;
 
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.Identifier;
-import org.sonar.iac.arm.tree.api.Statement;
 
-public interface ModuleDeclaration extends Statement, HasDecorators, HasKeyword {
+public interface ModuleDeclaration extends Declaration, HasDecorators, HasKeyword {
   @Override
   default Kind getKind() {
     return Kind.MODULE_DECLARATION;
   }
-
-  Identifier name();
 
   InterpolatedString type();
 

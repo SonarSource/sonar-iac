@@ -21,7 +21,9 @@ package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
+
 import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.TextTree;
 
@@ -66,9 +68,7 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
    */
   List<Property> properties();
 
-  default boolean existing() {
-    return false;
-  }
+  SyntaxToken existing();
 
   /**
    * Returns list of all op level resource properties.

@@ -28,7 +28,6 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.ModuleDeclaration;
 import org.sonar.iac.common.testing.IacCommonAssertions;
-import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.sonar.iac.common.testing.IacTestUtils.code;
 
@@ -71,7 +70,7 @@ class ModuleDeclarationImplTest extends BicepTreeModelTest {
     softly.assertThat(tree.decorators()).hasSize(1);
     softly.assertThat(tree.children()).hasSize(6);
     softly.assertThat(tree.children().get(5)).isInstanceOf(Expression.class);
-    softly.assertThat(tree.name().value()).isEqualTo("stgModule");
+    softly.assertThat(tree.declaratedName().value()).isEqualTo("stgModule");
     IacCommonAssertions.assertThat(tree.type().textRange()).hasRange(2, 17, 2, 42);
     IacCommonAssertions.assertThat(tree.value().textRange()).hasRange(2, 45, 4, 1);
     softly.assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))

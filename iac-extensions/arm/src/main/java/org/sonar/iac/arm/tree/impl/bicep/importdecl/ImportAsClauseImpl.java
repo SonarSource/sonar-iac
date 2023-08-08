@@ -44,4 +44,9 @@ public class ImportAsClauseImpl extends AbstractArmTreeImpl implements ImportAsC
   public SyntaxToken keyword() {
     return keyword;
   }
+
+  @Override
+  public Identifier alias() {
+    return alias;
+  }
 }

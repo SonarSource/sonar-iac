@@ -20,6 +20,7 @@
 package org.sonar.iac.arm.tree.api.bicep.importdecl;
 
 import org.sonar.iac.arm.tree.api.ArmTree;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 
 public interface ImportWithClause extends ArmTree {
 
@@ -27,4 +28,6 @@ public interface ImportWithClause extends ArmTree {
   default Kind getKind() {
     return Kind.IMPORT_WITH_CLAUSE;
   }
+
+  ObjectExpression object();
 }

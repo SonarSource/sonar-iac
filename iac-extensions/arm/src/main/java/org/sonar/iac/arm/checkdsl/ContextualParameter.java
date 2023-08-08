@@ -45,7 +45,7 @@ public class ContextualParameter extends ContextualTree<ContextualParameter, Par
     CheckContext ctx,
     ParameterDeclaration tree,
     @Nullable ContextualTree<S, T> parent) {
-    return new ContextualParameter(ctx, tree, tree.identifier().value(), parent);
+    return new ContextualParameter(ctx, tree, tree.declaratedName().value(), parent);
   }
 
   public <S extends ContextualTree<S, T>, T extends ParameterDeclaration & Tree> S reportIf(Predicate<Expression> predicate, String message, SecondaryLocation... secondaries) {

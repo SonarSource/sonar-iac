@@ -61,7 +61,7 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
   }
 
   @Override
-  public Identifier name() {
+  public Identifier declaratedName() {
     return name;
   }
 

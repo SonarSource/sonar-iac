@@ -108,7 +108,7 @@ public class ArmTreeUtils {
     return file.statements().stream()
       .filter(ParameterDeclaration.class::isInstance)
       .map(ParameterDeclaration.class::cast)
-      .collect(Collectors.toMap(param -> param.identifier().value(), param -> param));
+      .collect(Collectors.toMap(param -> param.declaratedName().value(), param -> param));
   }
 
   public static Predicate<Expression> containsParameterReference(Collection<String> parameterNames) {

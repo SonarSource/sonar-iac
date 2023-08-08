@@ -17,43 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.Statement;
 
-import org.sonar.iac.arm.tree.api.bicep.Declaration;
-import org.sonar.iac.common.api.tree.TextTree;
-
-public interface ParameterDeclaration extends Declaration {
-
-  @CheckForNull
-  ParameterType type();
-
-  @CheckForNull
-  TextTree resourceType();
-
-  @CheckForNull
-  Expression defaultValue();
-
-  List<Expression> allowedValues();
-
-  @CheckForNull
-  StringLiteral description();
-
-  @CheckForNull
-  NumericLiteral minValue();
-
-  @CheckForNull
-  NumericLiteral maxValue();
-
-  @CheckForNull
-  NumericLiteral minLength();
-
-  @CheckForNull
-  NumericLiteral maxLength();
-
-  default Kind getKind() {
-    return Kind.PARAMETER_DECLARATION;
-  }
+public interface Declaration extends Statement {
+  Identifier declaratedName();
 }

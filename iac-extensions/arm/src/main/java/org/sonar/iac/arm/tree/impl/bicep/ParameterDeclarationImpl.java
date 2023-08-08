@@ -96,7 +96,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
-  public Identifier identifier() {
+  public Identifier declaratedName() {
     return name;
   }
 

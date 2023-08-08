@@ -44,7 +44,7 @@ public class FunctionDeclarationImpl extends AbstractArmTreeImpl implements Func
   }
 
   @Override
-  public Identifier name() {
+  public Identifier declaratedName() {
     return name;
   }
 

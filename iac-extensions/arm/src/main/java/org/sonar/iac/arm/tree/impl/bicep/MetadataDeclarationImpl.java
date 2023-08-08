@@ -35,11 +35,6 @@ public class MetadataDeclarationImpl extends AbstractDeclaration implements Meta
   }
 
   @Override
-  public Identifier name() {
-    return identifier;
-  }
-
-  @Override
   public Expression value() {
     return expression;
   }

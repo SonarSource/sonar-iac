@@ -71,7 +71,7 @@ class TypeDeclarationImplTest extends BicepTreeModelTest {
     String code = code("@description('my type') type myType = abc");
     TypeDeclaration tree = parse(code, BicepLexicalGrammar.TYPE_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.TYPE_DECLARATION)).isTrue();
-    assertThat(tree.name().value()).isEqualTo("myType");
+    assertThat(tree.declaratedName().value()).isEqualTo("myType");
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree.type())).containsExactly("abc");
     assertThat(tree.decorators()).hasSize(1);
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))

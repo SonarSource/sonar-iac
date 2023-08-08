@@ -21,11 +21,12 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
 import org.sonar.iac.arm.tree.api.BooleanLiteral;
+import org.sonar.iac.arm.tree.api.bicep.HasToken;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
-public class BooleanLiteralImpl extends AbstractArmTreeImpl implements BooleanLiteral {
+public class BooleanLiteralImpl extends AbstractArmTreeImpl implements BooleanLiteral, HasToken {
 
   private final SyntaxToken token;
 
@@ -41,5 +42,10 @@ public class BooleanLiteralImpl extends AbstractArmTreeImpl implements BooleanLi
   @Override
   public List<Tree> children() {
     return List.of(token);
+  }
+
+  @Override
+  public SyntaxToken token() {
+    return token;
   }
 }
