@@ -66,9 +66,6 @@ public class ExposePortCheck implements IacCheck {
 
   private void checkPort(CheckContext ctx, Argument arg) {
     String portStr = ArgumentResolution.of(arg).value();
-    if (portStr == null) {
-      return;
-    }
     try {
       Port port = new Port.PortParser(portStr).parsePort().parseProtocol().build();
       if (port.protocol == Protocol.TCP && isSensitivePort(port.portMin, port.portMax)) {

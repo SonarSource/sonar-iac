@@ -19,10 +19,12 @@
  */
 package org.sonar.iac.kubernetes.plugin;
 
+import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,6 +35,7 @@ import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
 
 class KubernetesSensorTest extends ExtensionSensorTest {
 
@@ -48,19 +51,19 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldNotParseYamlFileWithHelmChartTemplate() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + "foo: {{ .bar }}"));
-    asserNotSourceFileIsParsed();
+    assertNotSourceFileIsParsed();
   }
 
   @Test
   void shouldNotParseYamlFileWithoutIdentifiers() {
     analyse(sensor(), inputFile(""));
-    asserNotSourceFileIsParsed();
+    assertNotSourceFileIsParsed();
   }
 
   @Test
   void shouldNotParseYamlFileWithIncompleteIdentifiers() {
     analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n"));
-    asserNotSourceFileIsParsed();
+    assertNotSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).hasSize(1);
@@ -102,7 +105,17 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   @Test
   void shouldNotParseYamlFileWithHelmTemplateDirectives() {
     analyse(sensor(), inputFile(K8_IDENTIFIERS + "{{ .Values.count }}"));
-    asserNotSourceFileIsParsed();
+    assertNotSourceFileIsParsed();
+  }
+
+  @Test
+  void shouldParseYamlFileWithIdentasdifiers() throws IOException {
+    InputFile inputFile = spy(inputFile(K8_IDENTIFIERS));
+    Mockito.when(inputFile.inputStream()).thenThrow(IOException.class);
+    analyse(sensor(), inputFile);
+
+    assertThat(logTester.logs(Level.ERROR)).hasSize(2);
+    assertNotSourceFileIsParsed();
   }
 
   @ParameterizedTest
@@ -132,7 +145,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
   }
 
-  private void asserNotSourceFileIsParsed() {
+  private void assertNotSourceFileIsParsed() {
     assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
   }
 
