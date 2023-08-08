@@ -71,8 +71,12 @@ public class CheckUtils {
     return expr -> expr.is(ArmTree.Kind.BOOLEAN_LITERAL) && !((BooleanLiteral) expr).value();
   }
 
-  public static Predicate<Expression> isEmptyString() {
-    return expr -> TextUtils.isValue(expr, "").isTrue();
+  public static Predicate<Expression> isNull() {
+    return expr -> expr.is(ArmTree.Kind.NULL_LITERAL);
+  }
+
+  public static Predicate<Expression> isBlankString() {
+    return expr -> TextUtils.matchesValue(expr, String::isBlank).isTrue();
   }
 
   public static Predicate<Expression> isArrayWithValues() {

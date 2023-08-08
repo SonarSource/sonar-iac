@@ -39,8 +39,9 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyObject;
-import static org.sonar.iac.arm.checks.utils.CheckUtils.isEmptyString;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isBlankString;
 import static org.sonar.iac.arm.checks.utils.CheckUtils.isFunctionCall;
+import static org.sonar.iac.arm.checks.utils.CheckUtils.isNull;
 
 @Rule(key = "S6648")
 public class SecureParameterDefaultValueCheck implements IacCheck {
@@ -61,13 +62,14 @@ public class SecureParameterDefaultValueCheck implements IacCheck {
 
     if (type != null && SENSITIVE_TYPE_WITH_DISPLAY_TYPE.containsKey(type)) {
       ContextualParameter param = ContextualParameter.fromPresent(ctx, parameterDeclaration, null);
-      param.reportIf(isSensitiveSecureDefaultValue(), String.format(MESSAGE, SENSITIVE_TYPE_WITH_DISPLAY_TYPE.get(type)));
+      param.reportIf(isSensitiveDefaultValue(), String.format(MESSAGE, SENSITIVE_TYPE_WITH_DISPLAY_TYPE.get(type)));
     }
   }
 
-  private static Predicate<Expression> isSensitiveSecureDefaultValue() {
-    return isEmptyString().negate()
+  private static Predicate<Expression> isSensitiveDefaultValue() {
+    return isBlankString().negate()
       .and(isEmptyObject().negate())
+      .and(isNull().negate())
       .and(isFunctionCall("newGuid").negate())
       .and(isSecureParameterReference().negate());
   }

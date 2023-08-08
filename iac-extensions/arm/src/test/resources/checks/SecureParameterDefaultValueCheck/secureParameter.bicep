@@ -24,13 +24,17 @@ param compliant1 string
 @secure()
 param compliant2 string = ''
 @secure()
-param compliant3 object
+param compliant3 string = ' '
 @secure()
-param compliant4 object = {}
+param compliant4 string = null
 @secure()
-param compliant5 string = newGuid()
-param compliant6 string = 'secret'
+param compliant5 object
 @secure()
-param compliant7 unknown = 'secret'
+param compliant6 object = {}
 @secure()
-param compliant8 string = secureString
+param compliant7 string = newGuid()
+param compliant8 string = 'secret'
+@secure()
+param compliant9 unknown = 'secret'
+@secure()
+param compliant10 string = secureString
