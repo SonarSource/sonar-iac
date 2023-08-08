@@ -28,7 +28,9 @@ import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.File;
+import org.sonar.iac.arm.tree.api.ObjectExpression;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
+import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
@@ -97,9 +99,7 @@ class OutputDeclarationImplTest {
   @ParameterizedTest
   @ValueSource(strings = {
     "\"type\": 5",
-    "\"type\": \"code\", \"condition\":5",
-    "\"type\": \"code\", \"copy\": { \"count\": []}",
-    "\"type\": \"code\", \"copy\": { \"input\": 5}",
+    "\"type\": \"code\", \"condition\":5"
   })
   void shouldFailOnInvalidPropertyValueType(String invalidPropertyType) {
     String code = code("{",
@@ -113,6 +113,23 @@ class OutputDeclarationImplTest {
     assertThatThrownBy(() -> parser.parse(code, null))
       .isInstanceOf(ParseException.class)
       .hasMessageContainingAll("Couldn't convert", "into StringLiteral", "expecting", "got", "instead");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "\"type\": \"code\", \"copy\": { \"count\": []}",
+    "\"type\": \"code\", \"copy\": { \"count\": {}}"
+  })
+  void shouldIgnoreOnInvalidPropertyValueType(String invalidPropertyType) {
+    String code = code("{",
+      "  \"outputs\": {",
+      "    \"myOutputValue\": {",
+      invalidPropertyType,
+      "    }",
+      "  }",
+      "}");
+    OutputDeclaration output = (OutputDeclaration) ((File) parser.parse(code, null)).statements().get(0);
+    assertThat(output.copyCount()).isNull();
   }
 
   @Test
@@ -167,7 +184,8 @@ class OutputDeclarationImplTest {
     assertThat(((TextTree) outputDeclaration1.type()).value()).isEqualTo("my type 1");
     assertThat(outputDeclaration1.condition()).hasValue("my condition 1");
     assertThat(outputDeclaration1.copyCount()).hasValue("countValue 1");
-    assertThat(outputDeclaration1.copyInput()).hasValue("inputValue 1");
+    assertThat(outputDeclaration1.copyInput()).isInstanceOf(StringLiteral.class)
+      .asStringLiteral().hasValue("inputValue 1");
     assertThat(outputDeclaration1.value()).asStringLiteral().hasValue("my output value 1");
 
     OutputDeclaration outputDeclaration2 = (OutputDeclaration) tree.statements().get(1);
@@ -175,7 +193,8 @@ class OutputDeclarationImplTest {
     assertThat(((TextTree) outputDeclaration2.type()).value()).isEqualTo("my type 2");
     assertThat(outputDeclaration2.condition()).hasValue("my condition 2");
     assertThat(outputDeclaration2.copyCount()).hasValue("countValue 2");
-    assertThat(outputDeclaration2.copyInput()).hasValue("inputValue 2");
+    assertThat(outputDeclaration2.copyInput()).isInstanceOf(StringLiteral.class)
+      .asStringLiteral().hasValue("inputValue 2");
     assertThat(outputDeclaration2.value()).asStringLiteral().hasValue("my output value 2");
   }
 
@@ -262,21 +281,20 @@ class OutputDeclarationImplTest {
   }
 
   @Test
-  void shouldFailOnCopyInternalUnexpectedFormat() {
+  void shouldParseOutputWithObjectAsInput() {
     String code = code("{",
       "  \"outputs\": {",
       "    \"myOutputValue\": {",
       "      \"type\": \"my type\",",
       "      \"copy\": {",
-      "        \"count\": []",
+      "        \"input\": {",
+      "          \"foo\": \"bar\"",
+      "        }",
       "      }",
       "    }",
       "  }",
       "}");
-    ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Couldn't convert 'count' into StringLiteral: expecting ScalarTree, got SequenceTreeImpl instead at null:6:17");
-    assertThat(parseException.getDetails()).isNull();
-    assertThat(parseException.getPosition().line()).isEqualTo(6);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(16);
+    OutputDeclaration output = (OutputDeclaration) ((File) parser.parse(code, null)).statements().get(0);
+    assertThat(output.copyInput()).isInstanceOf(ObjectExpression.class);
   }
 }

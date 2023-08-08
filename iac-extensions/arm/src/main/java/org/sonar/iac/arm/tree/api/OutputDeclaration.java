@@ -33,7 +33,7 @@ public interface OutputDeclaration extends Statement {
   StringLiteral copyCount();
 
   @CheckForNull
-  StringLiteral copyInput();
+  Expression copyInput();
 
   @CheckForNull
   Expression value();
