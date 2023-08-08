@@ -26,6 +26,7 @@ import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
+import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
@@ -75,6 +76,12 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   @CheckForNull
   public Identifier symbolicName() {
+    return null;
+  }
+
+  @Override
+  @CheckForNull
+  public SyntaxToken existing() {
     return null;
   }
 

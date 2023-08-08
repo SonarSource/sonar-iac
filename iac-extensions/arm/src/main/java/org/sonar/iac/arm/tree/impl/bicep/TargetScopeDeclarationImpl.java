@@ -30,19 +30,19 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements TargetScopeDeclaration {
 
-  private final SyntaxToken targetScope;
+  private final SyntaxToken keyword;
   private final SyntaxToken equals;
   private final Expression expression;
 
   public TargetScopeDeclarationImpl(SyntaxToken keyword, SyntaxToken equals, Expression expression) {
-    this.targetScope = keyword;
+    this.keyword = keyword;
     this.equals = equals;
     this.expression = expression;
   }
 
   @Override
   public List<Tree> children() {
-    return List.of(targetScope, equals, expression);
+    return List.of(keyword, equals, expression);
   }
 
   @Override
@@ -74,5 +74,10 @@ public class TargetScopeDeclarationImpl extends AbstractArmTreeImpl implements T
     } else {
       return File.Scope.UNKNOWN;
     }
+  }
+
+  @Override
+  public SyntaxToken keyword() {
+    return keyword;
   }
 }

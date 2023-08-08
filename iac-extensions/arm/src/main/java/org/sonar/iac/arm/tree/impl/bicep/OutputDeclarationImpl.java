@@ -30,6 +30,7 @@ import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
+import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
@@ -37,7 +38,7 @@ import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
-public class OutputDeclarationImpl extends AbstractArmTreeImpl implements OutputDeclaration, HasDecorators {
+public class OutputDeclarationImpl extends AbstractArmTreeImpl implements OutputDeclaration, HasDecorators, HasKeyword {
 
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
@@ -81,7 +82,7 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   }
 
   @Override
-  public Identifier name() {
+  public Identifier declaratedName() {
     return name;
   }
 
@@ -138,5 +139,10 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
   @Override
   public List<Decorator> decorators() {
     return decorators;
+  }
+
+  @Override
+  public SyntaxToken keyword() {
+    return keyword;
   }
 }

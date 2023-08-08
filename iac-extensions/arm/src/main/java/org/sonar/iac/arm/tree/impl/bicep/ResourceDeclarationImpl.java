@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.iac.arm.parser.bicep.BicepKeyword;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -36,6 +35,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.ForExpression;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
+import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.IfCondition;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
@@ -50,7 +50,7 @@ import org.sonar.iac.common.checks.TextUtils;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
-public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration, HasDecorators {
+public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration, HasDecorators, HasKeyword {
 
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
@@ -187,12 +187,9 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  public boolean existing() {
-    if (existing != null) {
-      return BicepKeyword.EXISTING.getValue().equals(existing.value());
-    } else {
-      return false;
-    }
+  @CheckForNull
+  public SyntaxToken existing() {
+    return existing;
   }
 
   @Override
@@ -207,6 +204,10 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   @Override
   public List<Decorator> decorators() {
     return decorators;
+  }
+
+  public SyntaxToken keyword() {
+    return keyword;
   }
 
   private static List<Property> propertiesOrEmpty(List<PropertyTree> properties) {

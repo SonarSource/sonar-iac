@@ -22,7 +22,7 @@ package org.sonar.iac.arm.tree.api.bicep;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
 
-public interface IfCondition extends Expression {
+public interface IfCondition extends Expression, HasKeyword {
 
   Expression condition();
 

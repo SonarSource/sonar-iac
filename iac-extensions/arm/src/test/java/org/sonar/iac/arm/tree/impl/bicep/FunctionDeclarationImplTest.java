@@ -25,7 +25,6 @@ import org.sonar.iac.arm.ArmTestUtils;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.FunctionDeclaration;
-import org.sonar.iac.common.api.tree.TextTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
@@ -63,7 +62,7 @@ class FunctionDeclarationImplTest extends BicepTreeModelTest {
     FunctionDeclaration tree = parse(code, BicepLexicalGrammar.FUNCTION_DECLARATION);
     assertThat(tree.is(ArmTree.Kind.FUNCTION_DECLARATION)).isTrue();
     assertThat(tree.lambdaExpression().is(ArmTree.Kind.TYPED_LAMBDA_EXPRESSION)).isTrue();
-    assertThat(tree.name().value()).isEqualTo("myFunction");
+    assertThat(tree.declaratedName().value()).isEqualTo("myFunction");
     assertThat(tree.decorators()).hasSize(1);
     assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("@", "description", "(", "comment", ")", "func", "myFunction", "(", ")", "string", "=>", "result");

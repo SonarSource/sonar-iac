@@ -59,8 +59,8 @@ class MetadataDeclarationImplTest {
     MetadataDeclaration tree = (MetadataDeclaration) parser.parse(code, null);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree.is(ArmTree.Kind.METADATA_DECLARATION)).isTrue();
-    softly.assertThat(tree.name().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    softly.assertThat(tree.name().value()).isEqualTo("identifier123");
+    softly.assertThat(tree.declaratedName().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    softly.assertThat(tree.declaratedName().value()).isEqualTo("identifier123");
     softly.assertThat(tree.value().is(ArmTree.Kind.IDENTIFIER)).isTrue();
     softly.assertThat(((Identifier) tree.value()).value()).isEqualTo("abc");
     softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree)).containsExactly("metadata", "identifier123", "=", "abc");

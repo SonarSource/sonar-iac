@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api.bicep;
+package org.sonar.iac.arm.tree.api.bicep.importdecl;
 
-import org.sonar.iac.arm.tree.api.Statement;
+import org.sonar.iac.arm.tree.api.Identifier;
+import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 
-public interface ImportDeclaration extends Statement, HasDecorators, HasKeyword {
+public interface ImportAsClause extends HasKeyword {
+
   @Override
   default Kind getKind() {
-    return Kind.IMPORT_DECLARATION;
+    return Kind.IMPORT_AS_CLAUSE;
   }
+
+  Identifier alias();
 }

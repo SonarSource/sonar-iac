@@ -42,6 +42,7 @@ public abstract class AbstractHighlightingTest {
   private final TreeParser<Tree> parser;
   protected SensorContextTester sensorContext;
   private DefaultInputFile inputFile;
+  private String code;
 
   protected AbstractHighlightingTest(SyntaxHighlightingVisitor highlightingVisitor, TreeParser<Tree> parser) {
     this.highlightingVisitor = highlightingVisitor;
@@ -61,6 +62,7 @@ public abstract class AbstractHighlightingTest {
       .setCharset(StandardCharsets.UTF_8)
       .initMetadata(code)
       .build();
+    this.code = code;
     InputFileContext ctx = new InputFileContext(sensorContext, inputFile);
     highlightingVisitor.scan(ctx, parser.parse(code, null));
   }
@@ -87,5 +89,19 @@ public abstract class AbstractHighlightingTest {
         assertThat(typeOfTexts).as("Expect no highlighting at line " + line + " lineOffset " + i).containsExactly();
       }
     }
+  }
+
+  protected void assertHighlighting(String text, TypeOfText typeOfText) {
+    assertHighlighting(1, text, typeOfText);
+  }
+
+  protected void assertHighlighting(int line, String text, TypeOfText typeOfText) {
+    String[] lines = code.split("\\n");
+    int startColumn = lines[line - 1].indexOf(text);
+    if (startColumn == -1) {
+      throw new RuntimeException(String.format("Not found `%s` in line:\n%s", text, lines[line - 1]));
+    }
+    int endColumn = startColumn + text.length();
+    assertHighlighting(line, startColumn, endColumn - 1, typeOfText);
   }
 }

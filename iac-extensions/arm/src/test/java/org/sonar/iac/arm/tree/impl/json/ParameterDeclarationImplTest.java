@@ -22,18 +22,16 @@ package org.sonar.iac.arm.tree.impl.json;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
-import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.common.extension.ParseException;
@@ -42,8 +40,6 @@ import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.PARAMETER_DECLARATION;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.RESOURCE_DECLARATION;
@@ -71,7 +67,7 @@ class ParameterDeclarationImplTest {
     File tree = (File) parser.parse(code, null);
 
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
-    assertThat(parameter.identifier().value()).isEqualTo("enabledForDeployment");
+    assertThat(parameter.declaratedName().value()).isEqualTo("enabledForDeployment");
     assertThat(parameter.type()).isEqualTo(ParameterType.BOOL);
     assertThat(parameter.getKind()).isEqualTo(PARAMETER_DECLARATION);
     assertThat(parameter.is(PARAMETER_DECLARATION)).isTrue();
@@ -129,7 +125,7 @@ class ParameterDeclarationImplTest {
     File tree = (File) parser.parse(code, null);
 
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
-    assertThat(parameter.identifier().value()).isEqualTo("enabledForDeployment");
+    assertThat(parameter.declaratedName().value()).isEqualTo("enabledForDeployment");
     assertThat(parameter.description()).hasValue("some description");
   }
 
@@ -159,7 +155,7 @@ class ParameterDeclarationImplTest {
     File tree = (File) parser.parse(code, null);
 
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
-    assertThat(parameter.identifier().value()).isEqualTo("exampleParam");
+    assertThat(parameter.declaratedName().value()).isEqualTo("exampleParam");
     assertThat(parameter.type()).isEqualTo(ParameterType.STRING);
     assertThat(parameter.defaultValue()).asStringLiteral().hasValue("a").hasRange(5, 28, 5, 31);
     assertThat(parameter.minValue()).hasValue(7);
@@ -234,7 +230,7 @@ class ParameterDeclarationImplTest {
     DefaultInputFile file = IacTestUtils.inputFile("parameters_all_types.json", "json");
     File tree = (File) parser.parse(file.contents(), mockFile);
     List<String> names = tree.statements().stream()
-      .map(statement -> ((ParameterDeclarationImpl) statement).identifier().value())
+      .map(statement -> ((ParameterDeclarationImpl) statement).declaratedName().value())
       .collect(Collectors.toList());
     assertThat(names).contains("vaultName", "softDeleteRetentionInDays", "networkRuleBypassOptions", "ipRules", "tags", "certData", "secretsObject");
   }
@@ -257,7 +253,7 @@ class ParameterDeclarationImplTest {
     File tree = (File) parser.parse(code, mockFile);
 
     ParameterDeclarationImpl parameter = (ParameterDeclarationImpl) tree.statements().get(0);
-    assertThat(parameter.identifier().value()).isEqualTo("existingVirtualNetworkName");
+    assertThat(parameter.declaratedName().value()).isEqualTo("existingVirtualNetworkName");
     assertThat(parameter.type()).isNull();
     assertThat(parameter.getKind()).isEqualTo(PARAMETER_DECLARATION);
     assertThat(parameter.is(PARAMETER_DECLARATION)).isTrue();

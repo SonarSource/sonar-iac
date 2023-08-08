@@ -17,24 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.impl.bicep.importdecl;
+package org.sonar.iac.arm.tree.api.bicep;
 
-import org.sonar.iac.arm.tree.api.ObjectExpression;
-import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
-import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.arm.tree.api.ArmTree;
 
-import java.util.List;
-
-public class ImportWithClause {
-  private final SyntaxToken keyword;
-  private final ObjectExpression object;
-
-  public ImportWithClause(SyntaxToken keyword, ObjectExpression object) {
-    this.keyword = keyword;
-    this.object = object;
-  }
-
-  public List<Tree> children() {
-    return List.of(keyword, object);
-  }
+public interface HasToken extends ArmTree {
+  SyntaxToken token();
 }

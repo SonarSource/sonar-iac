@@ -17,13 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.arm.tree.api.bicep;
-
-import org.sonar.iac.arm.tree.api.Statement;
-
-public interface ImportDeclaration extends Statement, HasDecorators, HasKeyword {
-  @Override
-  default Kind getKind() {
-    return Kind.IMPORT_DECLARATION;
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.iac.arm.tree.api.bicep.importdecl;

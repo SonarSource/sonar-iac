@@ -26,9 +26,9 @@ import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.VariableDeclaration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 import static org.sonar.iac.arm.tree.api.ArmTree.Kind.VARIABLE_DECLARATION;
 import static org.sonar.iac.common.testing.IacTestUtils.code;
-import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
 class VariableDeclarationImplTest {
 
@@ -55,7 +55,7 @@ class VariableDeclarationImplTest {
 
     VariableDeclaration var = (VariableDeclaration) tree.statements().get(0);
 
-    assertThat(var.name()).hasKind(ArmTree.Kind.IDENTIFIER).hasValue("var").hasRange(3, 4, 3, 9);
+    assertThat(var.declaratedName()).hasKind(ArmTree.Kind.IDENTIFIER).hasValue("var").hasRange(3, 4, 3, 9);
     assertThat(var.value()).asStringLiteral().hasValue("val").hasRange(3, 11, 3, 16);
 
     assertThat(var.children()).hasSize(2);

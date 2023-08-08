@@ -50,11 +50,6 @@ public class VariableDeclarationImpl extends AbstractDeclaration implements Vari
   }
 
   @Override
-  public Identifier name() {
-    return this.identifier;
-  }
-
-  @Override
   public Expression value() {
     return this.expression;
   }

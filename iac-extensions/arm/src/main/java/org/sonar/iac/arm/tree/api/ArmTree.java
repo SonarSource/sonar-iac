@@ -54,11 +54,12 @@ import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.TernaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedLocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.typed.TypedVariableBlock;
 import org.sonar.iac.arm.tree.api.bicep.variable.LocalVariable;
 import org.sonar.iac.arm.tree.api.bicep.variable.VariableBlock;
-import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -81,7 +82,7 @@ public interface ArmTree extends Tree {
     VARIABLE_DECLARATION(VariableDeclaration.class),
     MODULE_DECLARATION(ModuleDeclaration.class),
     IDENTIFIER(Identifier.class),
-    PROPERTY(PropertyImpl.class),
+    PROPERTY(Property.class),
     BOOLEAN_LITERAL(BooleanLiteral.class),
     NUMERIC_LITERAL(NumericLiteral.class),
     NULL_LITERAL(NullLiteral.class),
@@ -98,7 +99,8 @@ public interface ArmTree extends Tree {
     FUNCTION_DECLARATION(FunctionDeclaration.class),
     METADATA_DECLARATION(MetadataDeclaration.class),
     IMPORT_DECLARATION(ImportDeclaration.class),
-
+    IMPORT_WITH_CLAUSE(ImportWithClause.class),
+    IMPORT_AS_CLAUSE(ImportAsClause.class),
     FUNCTION_CALL(FunctionCall.class),
     FOR_EXPRESSION(ForExpression.class),
     FOR_VARIABLE_BLOCK(ForVariableBlock.class),

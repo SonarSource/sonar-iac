@@ -59,4 +59,9 @@ public class IfConditionImpl extends AbstractArmTreeImpl implements IfCondition 
   public ObjectExpression object() {
     return object;
   }
+
+  @Override
+  public SyntaxToken keyword() {
+    return keyword;
+  }
 }

@@ -64,7 +64,7 @@ class ImportDeclarationImplTest extends BicepTreeModelTest {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(tree).isInstanceOf(ImportDeclaration.class);
     softly.assertThat(tree.decorators()).isNotNull().hasSize(1);
-    softly.assertThat(tree.children()).hasSize(7);
+    softly.assertThat(tree.children()).hasSize(5);
     softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.IMPORT_DECLARATION);
     softly.assertAll();
   }

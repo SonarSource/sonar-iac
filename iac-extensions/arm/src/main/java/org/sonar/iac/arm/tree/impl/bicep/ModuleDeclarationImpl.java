@@ -59,7 +59,7 @@ public class ModuleDeclarationImpl extends AbstractArmTreeImpl implements Module
   }
 
   @Override
-  public Identifier name() {
+  public Identifier declaratedName() {
     return name;
   }
 
@@ -76,5 +76,10 @@ public class ModuleDeclarationImpl extends AbstractArmTreeImpl implements Module
   @Override
   public List<Decorator> decorators() {
     return decorators;
+  }
+
+  @Override
+  public SyntaxToken keyword() {
+    return keyword;
   }
 }

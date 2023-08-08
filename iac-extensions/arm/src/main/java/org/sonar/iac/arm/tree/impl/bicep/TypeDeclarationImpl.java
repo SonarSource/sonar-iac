@@ -61,7 +61,7 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
   }
 
   @Override
-  public Identifier name() {
+  public Identifier declaratedName() {
     return name;
   }
 
@@ -73,5 +73,10 @@ public class TypeDeclarationImpl extends AbstractArmTreeImpl implements TypeDecl
   @Override
   public List<Decorator> decorators() {
     return decorators;
+  }
+
+  @Override
+  public SyntaxToken keyword() {
+    return keyword;
   }
 }

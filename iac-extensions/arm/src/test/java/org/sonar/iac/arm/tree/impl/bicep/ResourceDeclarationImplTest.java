@@ -53,7 +53,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(tree.version().value()).isEqualTo("version");
 
     assertThat(tree.properties()).isEmpty();
-    assertThat(tree.existing()).isFalse();
+    assertThat(tree.existing()).isNull();
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("resource", "mySymbolicName", "type@version", "=", "{", "name", ":", "myName", "key", ":", "value", "}");
@@ -110,7 +110,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(property.key().value()).isEqualTo("prop1");
     assertThat(property.value()).asIdentifier().hasValue("val1");
     assertThat(tree.properties()).hasSize(1);
-    assertThat(tree.existing()).isFalse();
+    assertThat(tree.existing()).isNull();
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("resource", "myName", "type@version", "=", "if", "(", "!", "empty", "(", "logAnalytics", ")", ")", "{",
@@ -138,7 +138,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
     assertThat(property.key().value()).isEqualTo("prop1");
     assertThat(property.value()).asIdentifier().hasValue("val1");
     assertThat(tree.properties()).hasSize(1);
-    assertThat(tree.existing()).isFalse();
+    assertThat(tree.existing()).isNull();
 
     assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
       .containsExactly("resource", "myName", "type@version", "=", "[", "for", "item", "in", "collection", ":", "{",
@@ -158,7 +158,7 @@ class ResourceDeclarationImplTest extends BicepTreeModelTest {
 
     ResourceDeclaration tree = parse(code, BicepLexicalGrammar.RESOURCE_DECLARATION);
 
-    assertThat(tree.existing()).isTrue();
+    assertThat(tree.existing()).isNotNull();
   }
 
   @Test

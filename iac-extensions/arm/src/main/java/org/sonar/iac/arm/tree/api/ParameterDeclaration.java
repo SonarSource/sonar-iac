@@ -21,11 +21,10 @@ package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.common.api.tree.TextTree;
 
-public interface ParameterDeclaration extends Statement {
-
-  Identifier identifier();
+public interface ParameterDeclaration extends Declaration {
 
   @CheckForNull
   ParameterType type();

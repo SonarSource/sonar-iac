@@ -72,6 +72,8 @@ import org.sonar.iac.arm.tree.api.bicep.expression.MultiplicativeExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.RelationalExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.TernaryExpression;
 import org.sonar.iac.arm.tree.api.bicep.expression.UnaryExpression;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportAsClause;
+import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportWithClause;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringLeftPiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringMiddlePiece;
 import org.sonar.iac.arm.tree.api.bicep.interpstring.InterpolatedStringRightPiece;
@@ -128,8 +130,8 @@ import org.sonar.iac.arm.tree.impl.bicep.expression.MultiplicativeExpressionImpl
 import org.sonar.iac.arm.tree.impl.bicep.expression.RelationalExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.TernaryExpressionImpl;
 import org.sonar.iac.arm.tree.impl.bicep.expression.UnaryExpressionImpl;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClause;
-import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClause;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportAsClauseImpl;
+import org.sonar.iac.arm.tree.impl.bicep.importdecl.ImportWithClauseImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringLeftPieceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringMiddlePieceImpl;
 import org.sonar.iac.arm.tree.impl.bicep.interpstring.InterpolatedStringRightPieceImpl;
@@ -380,11 +382,11 @@ public class TreeFactory {
   }
 
   public ImportWithClause importWithClause(SyntaxToken keyword, ObjectExpression object) {
-    return new ImportWithClause(keyword, object);
+    return new ImportWithClauseImpl(keyword, object);
   }
 
   public ImportAsClause importAsClause(SyntaxToken keyword, Identifier alias) {
-    return new ImportAsClause(keyword, alias);
+    return new ImportAsClauseImpl(keyword, alias);
   }
 
   public <T, U> Tuple<T, U> tuple(T first, U second) {

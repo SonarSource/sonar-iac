@@ -34,6 +34,7 @@ import org.sonar.iac.arm.tree.api.ParameterType;
 import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
+import org.sonar.iac.arm.tree.api.bicep.HasKeyword;
 import org.sonar.iac.arm.tree.api.bicep.InterpolatedString;
 import org.sonar.iac.arm.tree.api.bicep.StringComplete;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -44,7 +45,7 @@ import org.sonar.iac.common.api.tree.Tree;
 
 import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
-public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration, HasDecorators {
+public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration, HasDecorators, HasKeyword {
   private final List<Decorator> decorators;
   private final SyntaxToken keyword;
   private final Identifier name;
@@ -95,7 +96,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
-  public Identifier identifier() {
+  public Identifier declaratedName() {
     return name;
   }
 
@@ -188,5 +189,15 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   @Override
   public List<Decorator> decorators() {
     return decorators;
+  }
+
+  @Override
+  public SyntaxToken keyword() {
+    return keyword;
+  }
+
+  @CheckForNull
+  public TypeExpressionAble typeExpression() {
+    return typeExpression;
   }
 }

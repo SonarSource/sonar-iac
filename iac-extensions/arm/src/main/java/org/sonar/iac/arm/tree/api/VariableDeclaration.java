@@ -19,8 +19,9 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-public interface VariableDeclaration extends Statement {
-  Identifier name();
+import org.sonar.iac.arm.tree.api.bicep.Declaration;
+
+public interface VariableDeclaration extends Declaration {
 
   Expression value();
 }

@@ -37,7 +37,7 @@ public class VariableDeclarationImpl extends AbstractArmTreeImpl implements Vari
   }
 
   @Override
-  public Identifier name() {
+  public Identifier declaratedName() {
     return name;
   }
 
