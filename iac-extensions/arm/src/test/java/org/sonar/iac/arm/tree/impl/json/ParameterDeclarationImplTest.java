@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.arm.parser.ArmParser;
@@ -52,7 +51,7 @@ class ParameterDeclarationImplTest {
   private final InputFileContext mockFile = createInputFileContextMock("foo.json");
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void shouldParseMinimalParameter() {

@@ -47,7 +47,7 @@ class TerraformProvidersTest {
   protected File baseDir;
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void provider_with_valid_version() {

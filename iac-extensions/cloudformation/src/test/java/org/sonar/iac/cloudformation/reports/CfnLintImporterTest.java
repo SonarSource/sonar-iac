@@ -48,7 +48,7 @@ class CfnLintImporterTest {
 
   private static final String PATH_PREFIX = "src/test/resources/cfn-lint";
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private SensorContextTester context;
 
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);

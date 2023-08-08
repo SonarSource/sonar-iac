@@ -33,7 +33,7 @@ class DurationStatisticsTest {
   private SensorContextTester sensorContext = SensorContextTester.create(Paths.get("."));
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void statistics_disabled() {
