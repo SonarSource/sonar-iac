@@ -23,6 +23,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
@@ -30,8 +32,6 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.yaml.YamlSensor;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
 
@@ -69,7 +69,7 @@ public class KubernetesSensor extends YamlSensor {
 
     // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
     private static final Set<String> IDENTIFIER = Set.of("apiVersion", "kind", "metadata", "spec");
-    private static final Logger LOG = Loggers.get(KubernetesFilePredicate.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KubernetesFilePredicate.class);
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 
     @Override
@@ -99,7 +99,7 @@ public class KubernetesSensor extends YamlSensor {
           }
         }
       } catch (IOException e) {
-        LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
+        LOG.error("Unable to read file: {}.", inputFile.uri());
         LOG.error(e.getMessage());
       }
 

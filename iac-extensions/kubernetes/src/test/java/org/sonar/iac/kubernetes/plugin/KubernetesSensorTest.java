@@ -21,16 +21,14 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
@@ -64,7 +62,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     analyse(sensor(), inputFile("apiVersion: ~\nkind: ~\nmetadata: ~\n"));
     asserNotSourceFileIsParsed();
 
-    var logs = logTester.logs(LoggerLevel.DEBUG);
+    var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).hasSize(1);
     assertThat(logs.get(0))
       .startsWith("File without Kubernetes identifier:").endsWith("k8.yaml");
@@ -135,11 +133,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   private void asserNotSourceFileIsParsed() {
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("0 source files to be analyzed");
+    assertThat(logTester.logs(Level.INFO)).contains("0 source files to be analyzed");
   }
 
   private void assertOneSourceFileIsParsed() {
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("1 source file to be analyzed");
+    assertThat(logTester.logs(Level.INFO)).contains("1 source file to be analyzed");
   }
 
   protected InputFile inputFile(String content) {
@@ -198,10 +196,10 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'k8.yaml:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+    assertThat(logTester.logs(Level.DEBUG).get(0))
       .isEqualTo(message1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+    assertThat(logTester.logs(Level.DEBUG).get(1))
       .startsWith(message2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
 }

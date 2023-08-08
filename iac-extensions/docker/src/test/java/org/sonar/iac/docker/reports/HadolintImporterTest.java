@@ -28,12 +28,12 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.docker.reports.hadolint.HadolintImporter;
 
@@ -51,7 +51,7 @@ class HadolintImporterTest {
   private static final String PATH_PREFIX = "src/test/resources/hadolint";
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private SensorContextTester context;
 
   @BeforeEach
@@ -74,7 +74,7 @@ class HadolintImporterTest {
     String logMessage = String.format(expectedLog, path);
 
     importReport(reportFile);
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -90,7 +90,7 @@ class HadolintImporterTest {
     }).when(reportFile).toPath();
 
     importReport(reportFile);
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -108,7 +108,7 @@ class HadolintImporterTest {
     String logMessage = String.format("Hadolint report importing: could not save 1 out of 1 issues from %s.", reportFile.getPath());
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -150,7 +150,7 @@ class HadolintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     String logMessage = String.format("Hadolint report importing: could not save 1 out of 2 issues from %s.", reportFile.getPath());
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
@@ -213,7 +213,7 @@ class HadolintImporterTest {
     importReport(reportFile);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(expectedLog);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(expectedLog);
     verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
   }
 

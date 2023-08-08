@@ -21,13 +21,13 @@ package org.sonar.iac.cloudformation.plugin;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
@@ -66,7 +66,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     analyse(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
     assertThat(context.allIssues()).isEmpty();
 
-    var logs = logTester.logs(LoggerLevel.DEBUG);
+    var logs = logTester.logs(Level.DEBUG);
     assertThat(logs).hasSize(1);
     assertThat(logs.get(0))
       .startsWith("File without identifier 'myIdentifier':").endsWith("parserError.json");
@@ -143,7 +143,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
     String message1 = "while scanning a quoted scalar\n" +
       " in reader, line 1, column 1:\n" +
       "    \"a'\n" +
@@ -155,8 +155,8 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).isEqualTo(message1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1)).startsWith(message2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(message1);
+    assertThat(logTester.logs(Level.DEBUG).get(1)).startsWith(message2);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
 }

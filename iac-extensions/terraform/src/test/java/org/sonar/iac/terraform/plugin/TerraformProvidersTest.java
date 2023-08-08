@@ -23,12 +23,12 @@ import java.io.File;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonar.iac.terraform.plugin.TerraformProviders.Provider;
 
@@ -47,7 +47,7 @@ class TerraformProvidersTest {
   protected File baseDir;
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @Test
   void provider_with_valid_version() {
@@ -63,7 +63,7 @@ class TerraformProvidersTest {
     Provider provider = providers.provider(Provider.Identifier.AWS);
 
     assertThat(provider.providerVersion).isNull();
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .containsExactly("Can not parse provider version \"sonar.terraform.provider.aws.version\". Input: \"v1.3.4\"");
     verify(analysisWarnings, times(1))
       .addWarning("Can not parse provider version for \"sonar.terraform.provider.aws.version\". " +

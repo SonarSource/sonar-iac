@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -45,7 +46,6 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -132,15 +132,15 @@ class IacSensorTest extends AbstractSensorTest {
     TextPointer textPointer = analysisError.location();
     assertThat(textPointer).isNull();
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .containsExactly("Cannot parse 'file1.iac'");
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+    assertThat(logTester.logs(Level.DEBUG).get(0))
       .isEqualTo("RuntimeException message");
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+    assertThat(logTester.logs(Level.DEBUG).get(1))
       .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac'" +
         System.lineSeparator() +
         "\tat org.sonar.iac");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
 
   @Test
@@ -327,12 +327,12 @@ class IacSensorTest extends AbstractSensorTest {
 
     analyse(sensorParseException(checkFactory), inputFile);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .containsExactly("ParseException message");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG).get(0))
       .startsWith("Details of error");
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+    assertThat(logTester.logs(Level.DEBUG).get(1))
       .startsWith("org.sonar.iac.common.extension.ParseException: ParseException message"
         + System.lineSeparator() +
         "\tat org.sonar.iac");
@@ -350,15 +350,15 @@ class IacSensorTest extends AbstractSensorTest {
 
     analyse(sensorRecognitionException(checkFactory), inputFile);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .containsExactly("Cannot parse 'file1.iac:1:1'");
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+    assertThat(logTester.logs(Level.DEBUG).get(0))
       .startsWith("RecognitionException message");
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+    assertThat(logTester.logs(Level.DEBUG).get(1))
       .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'file1.iac:1:1'" +
         System.lineSeparator() +
         "\tat org.sonar.iac.common");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
 
   @Test
@@ -386,7 +386,7 @@ class IacSensorTest extends AbstractSensorTest {
 
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .containsExactly("Cannot analyse 'file1.iac': 100 is not a valid line offset for pointer. File file1.iac has 3 character(s) at line 1");
   }
 

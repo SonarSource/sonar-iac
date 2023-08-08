@@ -36,7 +36,7 @@ class TerraformRulesDefinitionTest {
   void testActivationSonarLint() {
     RulesDefinition.Repository repository = terraformRuleRepository(9, 3);
     assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("SonarQube");
+    assertThat(repository.name()).isEqualTo("Sonar");
     assertThat(repository.language()).isEqualTo("terraform");
     assertThat(repository.rules()).hasSize(TerraformCheckList.checks().size());
   }

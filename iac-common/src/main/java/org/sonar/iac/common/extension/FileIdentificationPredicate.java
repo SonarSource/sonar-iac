@@ -22,15 +22,15 @@ package org.sonar.iac.common.extension;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 public class FileIdentificationPredicate implements FilePredicate {
 
   private static final int DEFAULT_BUFFER_SIZE = 8192;
-  private static final Logger LOG = Loggers.get(FileIdentificationPredicate.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FileIdentificationPredicate.class);
   private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
 
   private final String fileIdentifier;
@@ -60,7 +60,7 @@ public class FileIdentificationPredicate implements FilePredicate {
         }
       }
     } catch (IOException e) {
-      LOG.error(String.format("Unable to read file: %s.", inputFile.uri()));
+      LOG.error("Unable to read file: {}.", inputFile.uri());
       LOG.error(e.getMessage());
     }
     LOG.debug("File without identifier '{}': {}", fileIdentifier, inputFile.uri());
