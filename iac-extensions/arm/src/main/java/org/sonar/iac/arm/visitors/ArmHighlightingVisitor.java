@@ -51,11 +51,10 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
   @Override
   protected void languageSpecificHighlighting() {
     register(HasKeyword.class, (ctx, tree) -> highlight(tree.keyword(), KEYWORD));
+    register(HasToken.class, (ctx, tree) -> highlight(tree.token(), CONSTANT));
 
     register(Declaration.class, (ctx, tree) -> highlight(tree.declaratedName(), KEYWORD_LIGHT));
     register(OutputDeclaration.class, (ctx, tree) -> highlight(tree.type(), KEYWORD));
-
-    register(HasToken.class, (ctx, tree) -> highlight(tree.token(), CONSTANT));
 
     register(ResourceDeclaration.class, (ctx, tree) -> {
       Identifier identifier = tree.symbolicName();
@@ -85,7 +84,6 @@ public class ArmHighlightingVisitor extends YamlHighlightingVisitor {
     register(Property.class, (ctx, tree) -> highlight(tree.key(), ANNOTATION));
 
     registerTree(AmbientTypeReference.class, KEYWORD);
-
     registerTree(InterpolatedString.class, STRING);
     registerTree(MultilineString.class, STRING);
     registerTree(StringLiteral.class, STRING);
