@@ -50,37 +50,45 @@
       "defaultValue": ""
     },
     "compliant3": {
-      "type": "secureObject"
+      "type": "securestring",
+      "defaultValue": " "
     },
     "compliant4": {
+      "type": "securestring",
+      "defaultValue": null
+    },
+    "compliant5": {
+      "type": "secureObject"
+    },
+    "compliant6": {
       "type": "secureObject",
       "defaultValue": {}
     },
-    "compliant5_1": {
+    "compliant7_1": {
       "type": "securestring",
       "defaultValue": "[newGuid()]"
     },
-    "compliant5_2": {
+    "compliant7_2": {
       "type": "securestring",
       "defaultValue": "[   newGuid()]"
     },
-    "compliant5_3": {
+    "compliant7_3": {
       "type": "securestring",
       "defaultValue": "[newGuid()   ]"
     },
-    "compliant5_4": {
+    "compliant7_4": {
       "type": "securestring",
       "defaultValue": "[newGuid(   )]"
     },
-    "compliant6": {
+    "compliant8": {
       "type": "string",
       "defaultValue": "secret"
     },
-    "compliant7": {
+    "compliant9": {
       "type": "unknown",
       "defaultValue": "secret"
     },
-    "compliant8": {
+    "compliant10": {
       "type": "securestring",
       "defaultValue": "[parameters('secureString')]"
     }
