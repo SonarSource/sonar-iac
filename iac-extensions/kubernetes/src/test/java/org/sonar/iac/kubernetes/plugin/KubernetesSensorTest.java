@@ -109,7 +109,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void shouldParseYamlFileWithIdentasdifiers() throws IOException {
+  void shouldNotParseFileAndLogAndCatchIOException() throws IOException {
     InputFile inputFile = spy(inputFile(K8_IDENTIFIERS));
     Mockito.when(inputFile.inputStream()).thenThrow(IOException.class);
     analyse(sensor(), inputFile);

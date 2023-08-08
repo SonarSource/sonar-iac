@@ -170,6 +170,12 @@
         <version>${version.sonar}</version>
       </dependency>
       <dependency>
+        <groupId>org.sonarsource.api.plugin</groupId>
+        <artifactId>sonar-plugin-api-test-fixtures</artifactId>
+        <version>${version.sonar.api}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter</artifactId>
         <version>${version.junit}</version>
@@ -212,12 +218,6 @@
         <artifactId>sonar-plugin-api</artifactId>
         <version>${version.sonar.api}</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.api.plugin</groupId>
-        <artifactId>sonar-plugin-api-test-fixtures</artifactId>
-        <version>${version.sonar.api}</version>
-        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
