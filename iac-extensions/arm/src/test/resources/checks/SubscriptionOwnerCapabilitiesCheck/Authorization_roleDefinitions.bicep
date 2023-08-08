@@ -122,7 +122,7 @@ resource compliant3 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
       }
     ]
     assignableScopes: [
-      subscription():id
+      subscription()::id
     ]
   }
 }

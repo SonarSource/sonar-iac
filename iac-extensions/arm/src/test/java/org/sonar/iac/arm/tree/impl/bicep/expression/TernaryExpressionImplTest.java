@@ -38,7 +38,10 @@ class TernaryExpressionImplTest extends BicepTreeModelTest {
       .matches("true ? 2 : 3")
       .matches("true?2:3")
       .matches("5 > 3 ? 5 : 3")
+      .matches("5 == 3 ? 5 : 3")
+      .matches("(5 > 3) ? 5 : 3")
       .matches("5 > 3 ? 3 < 2 ? 1 : 2 : 0")
+      .matches("5 > 3 ? 1 : 3 < 2 ? 2 : 0")
 
       .notMatches("1 ? 2 :")
       .notMatches("? 2 :3")
@@ -57,4 +60,22 @@ class TernaryExpressionImplTest extends BicepTreeModelTest {
     assertThat(ArmTestUtils.recursiveTransformationOfTreeChildrenToStrings(expression)).containsExactly("true", "?", "2", ":", "3");
   }
 
+  @Test
+  void parseTernaryExpressionWithDifferentParts() {
+    ArmAssertions.assertThat(BicepLexicalGrammar.EXPRESSION)
+      .matches(
+        "(newOrExistingRole == 'new') ? resourceId('Microsoft.Authorization/roleDefinitions/', roleDefinitionId) : (resourceId('Microsoft.Authorization/roleDefinitions/', '${role}'))")
+      .matches("true ? 1 :b")
+      .matches("true?1:b")
+      .matches("1>2?1:b")
+      .matches("1 > 2 ? 1 : b()")
+      .matches("1 > 2 ? c() : b()")
+      .matches("1 > 2 ? 1 : '$b'")
+      .matches("1 > 2 ? 1 : []")
+      .matches("1 > 2 ? 1 : (b)")
+      .matches("1 > 2 ? 1 : 'b'")
+      .matches("1 > 2 ? a : 2")
+      .matches("1 > 2 ? (a) : 2")
+      .matches("1 > 2 ? a : (2)");
+  }
 }

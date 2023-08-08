@@ -20,59 +20,53 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.iac.arm.ArmAssertions;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
-import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.arm.ArmAssertions.assertThat;
 
 class MemberExpressionImplTest extends BicepTreeModelTest {
 
   @Test
   void shouldParseMemberExpression() {
-    ArmAssertions.assertThat(BicepLexicalGrammar.MEMBER_EXPRESSION)
+    assertThat((GrammarRuleKey) BicepLexicalGrammar.MEMBER_EXPRESSION)
       .matches("stringExpression")
       .matches("memberExpression[stringLiteral]")
       .matches("memberExpression.identifier123")
       .matches("memberExpression.functionCall()")
-      .matches("memberExpression:identifier123")
       .matches("memberExpression::identifier123")
       .matches("memberExpression!")
 
       .matches("memberExpression[stringLiteral][strings]")
       .matches("memberExpression[stringLiteral].identifier123")
       .matches("memberExpression[stringLiteral].functionCall()")
-      .matches("memberExpression[stringLiteral]:identifier123")
+      .matches("memberExpression[stringLiteral]::identifier123")
 
       .matches("memberExpression.identifier123[strings]")
       .matches("memberExpression.identifier123.identifier456")
       .matches("memberExpression.identifier123.functionCall()")
-      .matches("memberExpression.identifier123:identifier456")
+      .matches("memberExpression.identifier123::identifier456")
 
       .matches("memberExpression.functionCall()[strings]")
       .matches("memberExpression.functionCall().identifier456")
       .matches("memberExpression.functionCall().functionCall()")
-      .matches("memberExpression.functionCall():identifier456")
-
-      .matches("memberExpression:identifier123[strings]")
-      .matches("memberExpression:identifier123.identifier456")
-      .matches("memberExpression:identifier123.functionCall()")
-      .matches("memberExpression:identifier123:identifier456")
+      .matches("memberExpression.functionCall()::identifier456")
 
       .matches("memberExpression::identifier123[strings]")
       .matches("memberExpression::identifier123.identifier456")
       .matches("memberExpression::identifier123.functionCall()")
-      .matches("memberExpression::identifier123:identifier456")
+      .matches("memberExpression::identifier123::identifier456")
 
       .matches("memberExpression![strings]")
       .matches("memberExpression!.identifier123")
       .matches("memberExpression!.functionCall()")
-      .matches("memberExpression!:identifier123")
+      .matches("memberExpression!::identifier123")
 
       .notMatches("memberExpression[stringLiteral")
       .notMatches("memberExpression!identifier123");
@@ -82,9 +76,9 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
   void shouldParseMemberExpressionWithTwoExpressionsInside() {
     MemberExpression tree = parse("memberExpression.identifier123!", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
-    assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
+    assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
 
-    assertThat(tree.memberAccess().is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
     assertThat(tree.expression()).isNull();
     assertThat(tree.children()).hasSize(2);
 
@@ -92,9 +86,8 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo("!");
 
     MemberExpression outerMemberExpression = (MemberExpression) tree.memberAccess();
-    assertThat(outerMemberExpression.memberAccess().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    assertThat((((Identifier) outerMemberExpression.memberAccess()).value())).isEqualTo("memberExpression");
-    assertThat(outerMemberExpression.expression().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    assertThat(outerMemberExpression.memberAccess()).asIdentifier().hasValue("memberExpression");
+    assertThat(outerMemberExpression.expression()).hasKind(ArmTree.Kind.IDENTIFIER);
     assertThat(outerMemberExpression.children()).hasSize(3);
     assertThat(outerMemberExpression.children().get(1)).isInstanceOf(SyntaxToken.class);
     assertThat(((TextTree) outerMemberExpression.children().get(1)).value()).isEqualTo(".");
@@ -104,17 +97,17 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
   void shouldNotWrapStringLiteralIntoMemberExpressionButBeParseable() {
     Expression tree = parse("memberExpression", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
-    assertThat(tree.is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    assertThat(tree).hasKind(ArmTree.Kind.IDENTIFIER);
   }
 
   @Test
   void shouldParseMemberExpressionWithFunctionCall() {
     MemberExpression tree = parse("memberExpression.functionCall()", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
-    assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
+    assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
 
-    assertThat(tree.memberAccess().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    assertThat(tree.expression().is(ArmTree.Kind.FUNCTION_CALL)).isTrue();
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.IDENTIFIER);
+    assertThat(tree.expression()).hasKind(ArmTree.Kind.FUNCTION_CALL);
 
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
@@ -122,27 +115,13 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
   }
 
   @Test
-  void shouldParseMemberExpressionWithIdentifier() {
-    MemberExpression tree = parse("memberExpression:identifier", BicepLexicalGrammar.MEMBER_EXPRESSION);
-
-    assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
-
-    assertThat(tree.memberAccess().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    assertThat(tree.expression().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-
-    assertThat(tree.children()).hasSize(3);
-    assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
-    assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo(":");
-  }
-
-  @Test
   void shouldParseMemberExpressionDoubleColonWithIdentifier() {
     MemberExpression tree = parse("virtualNetwork::subnet1", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
-    assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
+    assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
 
-    assertThat(tree.memberAccess().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    assertThat(tree.expression().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.IDENTIFIER);
+    assertThat(tree.expression()).hasKind(ArmTree.Kind.IDENTIFIER);
 
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
@@ -153,10 +132,10 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
   void shouldParseMemberExpressionWithExpression() {
     MemberExpression tree = parse("memberExpression[stringLiteral]", BicepLexicalGrammar.MEMBER_EXPRESSION);
 
-    assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
+    assertThat(tree).hasKind(ArmTree.Kind.MEMBER_EXPRESSION);
 
-    assertThat(tree.memberAccess().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    assertThat(tree.expression().is(ArmTree.Kind.IDENTIFIER)).isTrue();
+    assertThat(tree.memberAccess()).hasKind(ArmTree.Kind.IDENTIFIER);
+    assertThat(tree.expression()).hasKind(ArmTree.Kind.IDENTIFIER);
 
     assertThat(tree.children()).hasSize(4);
     assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
