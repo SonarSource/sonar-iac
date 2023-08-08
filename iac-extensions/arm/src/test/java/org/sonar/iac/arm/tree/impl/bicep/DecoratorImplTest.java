@@ -77,7 +77,7 @@ class DecoratorImplTest extends BicepTreeModelTest {
   @CsvSource({
     "@foo(), true",
     "@namespace.foo(), true",
-    "@decorator:foo.bar(), true",
+    "@decorator::foo.bar(), true",
     "@decorator!, false",
   })
   void shouldProvideAccessToDecoratorExpression(String code, boolean shouldPass) {

@@ -40,39 +40,33 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
       .matches("memberExpression[stringLiteral]")
       .matches("memberExpression.identifier123")
       .matches("memberExpression.functionCall()")
-      .matches("memberExpression:identifier123")
       .matches("memberExpression::identifier123")
       .matches("memberExpression!")
 
       .matches("memberExpression[stringLiteral][strings]")
       .matches("memberExpression[stringLiteral].identifier123")
       .matches("memberExpression[stringLiteral].functionCall()")
-      .matches("memberExpression[stringLiteral]:identifier123")
+      .matches("memberExpression[stringLiteral]::identifier123")
 
       .matches("memberExpression.identifier123[strings]")
       .matches("memberExpression.identifier123.identifier456")
       .matches("memberExpression.identifier123.functionCall()")
-      .matches("memberExpression.identifier123:identifier456")
+      .matches("memberExpression.identifier123::identifier456")
 
       .matches("memberExpression.functionCall()[strings]")
       .matches("memberExpression.functionCall().identifier456")
       .matches("memberExpression.functionCall().functionCall()")
-      .matches("memberExpression.functionCall():identifier456")
-
-      .matches("memberExpression:identifier123[strings]")
-      .matches("memberExpression:identifier123.identifier456")
-      .matches("memberExpression:identifier123.functionCall()")
-      .matches("memberExpression:identifier123:identifier456")
+      .matches("memberExpression.functionCall()::identifier456")
 
       .matches("memberExpression::identifier123[strings]")
       .matches("memberExpression::identifier123.identifier456")
       .matches("memberExpression::identifier123.functionCall()")
-      .matches("memberExpression::identifier123:identifier456")
+      .matches("memberExpression::identifier123::identifier456")
 
       .matches("memberExpression![strings]")
       .matches("memberExpression!.identifier123")
       .matches("memberExpression!.functionCall()")
-      .matches("memberExpression!:identifier123")
+      .matches("memberExpression!::identifier123")
 
       .notMatches("memberExpression[stringLiteral")
       .notMatches("memberExpression!identifier123");
@@ -119,20 +113,6 @@ class MemberExpressionImplTest extends BicepTreeModelTest {
     assertThat(tree.children()).hasSize(3);
     assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
     assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo(".");
-  }
-
-  @Test
-  void shouldParseMemberExpressionWithIdentifier() {
-    MemberExpression tree = parse("memberExpression:identifier", BicepLexicalGrammar.MEMBER_EXPRESSION);
-
-    assertThat(tree.is(ArmTree.Kind.MEMBER_EXPRESSION)).isTrue();
-
-    assertThat(tree.memberAccess().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-    assertThat(tree.expression().is(ArmTree.Kind.IDENTIFIER)).isTrue();
-
-    assertThat(tree.children()).hasSize(3);
-    assertThat(tree.children().get(1)).isInstanceOf(SyntaxToken.class);
-    assertThat(((TextTree) tree.children().get(1)).value()).isEqualTo(":");
   }
 
   @Test

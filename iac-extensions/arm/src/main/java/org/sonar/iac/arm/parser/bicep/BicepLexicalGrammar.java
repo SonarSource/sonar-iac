@@ -21,7 +21,6 @@ package org.sonar.iac.arm.parser.bicep;
 
 import com.sonar.sslr.api.GenericTokenType;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.iac.common.parser.grammar.LexicalConstant;
 import org.sonar.iac.common.parser.grammar.Punctuator;
@@ -97,7 +96,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
   STRING_COMPLETE,
   QUOTED_STRING_LITERAL,
   IDENTIFIER_LITERAL,
-  IDENTIFIER_NOT_KEYWORD_LITERAL,
 
   STRING_LITERAL,
   MULTILINE_STRING,
@@ -158,7 +156,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(EXCLAMATION_SIGN_ALONE).is(SPACING, b.regexp(BicepLexicalConstant.EXCLAMATION_SIGN_ALONE));
 
     b.rule(IDENTIFIER_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.IDENTIFIER_LITERAL));
-    b.rule(IDENTIFIER_NOT_KEYWORD_LITERAL).is(SPACING, b.regexp(computeIdentifierLiteralRegex()));
     b.rule(QUOTED_STRING_LITERAL).is(SPACING, b.regexp(BicepLexicalConstant.QUOTED_STRING_LITERAL_NO_QUOTES));
     b.rule(MULTILINE_STRING_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.MULTILINE_STRING));
     b.rule(NUMERIC_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NUMBER));
@@ -167,15 +164,6 @@ public enum BicepLexicalGrammar implements GrammarRuleKey {
     b.rule(NULL_LITERAL_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.NULL));
     b.rule(AMBIENT_TYPE_REFERENCE_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.AMBIENT_TYPE));
     b.rule(UNARY_OPERATOR_VALUE).is(SPACING, b.regexp(BicepLexicalConstant.UNARY_OPERATOR));
-  }
-
-  private static String computeIdentifierLiteralRegex() {
-    Stream<String> keywords = Arrays.stream(BicepKeyword.values()).map(BicepKeyword::getValue);
-    Stream<String> reservedWords = Stream.of(BicepLexicalConstant.TRUE, BicepLexicalConstant.FALSE, BicepLexicalConstant.NULL);
-    String exceptionRegex = Stream.concat(keywords, reservedWords)
-      .map(word -> word + "\\b")
-      .collect(Collectors.joining("|"));
-    return "(?!" + exceptionRegex + ")\\b" + BicepLexicalConstant.IDENTIFIER_LITERAL;
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
