@@ -21,7 +21,7 @@ resource nonCompliant2 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   }
 }
 
-resource nonCompliant2 'other/type@2022-04-01' = {
+resource compliant1 'other/type@2022-04-01' = {
   name: 'Compliant: not a sensitive type'
   properties: {
   }
