@@ -77,7 +77,15 @@ resource apis 'apis@2022-09-01-preview' = {
 }
 
 resource portalSettings 'Microsoft.ApiManagement/service/portalsettings@2022-09-01-preview' = {
-  name: 'signIn'  // Incorrect resource name - won't be checked
+  name: 'incorrect_resource_name'  // Incorrect resource name - won't be checked
+  parent: apiServiceParent
+  properties: {
+    enabled: false
+  }
+}
+
+resource portalSettings 'Microsoft.ApiManagement/service/portalsettings@2022-09-01-preview' = {
+  name: 'signIn'  // Compliant as the name is case insensitive
   parent: apiServiceParent
   properties: {
     enabled: false

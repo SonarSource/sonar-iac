@@ -29,6 +29,7 @@ import org.sonar.iac.arm.tree.api.StringLiteral;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
@@ -67,6 +68,11 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
     return children;
   }
 
+  /**
+   * The name of a resource is case-insensitive. Comparisons to this field should always respect this property.
+   * An easy way to do this is via {@link TextUtils#isValue(Tree, String)}.
+   * @see <a href=”https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules”>Microsoft - Naming rules and restrictions for Azure resources</a>
+   */
   @Override
   @CheckForNull
   public StringLiteral name() {

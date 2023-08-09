@@ -67,7 +67,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkWebSitesAuthSettings(ContextualResource contextualResource) {
-    if (!isEqual(WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME).test(contextualResource.tree.name())) {
+    if (!isValue(contextualResource.tree.name(), WEBSITES_CONFIG_AUTH_SETTINGS_V2_RESOURCE_NAME).isTrue()) {
       return;
     }
 
@@ -77,7 +77,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkApiManagementService(ContextualResource resource) {
-    ContextualResource signIn = resource.childResourceBy("portalsettings", it -> isEqual(APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME).test(it.name()));
+    ContextualResource signIn = resource.childResourceBy("portalsettings", it -> isValue(it.name(), APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME).isTrue());
 
     if (signIn.isAbsent()) {
       resource.report(APIMGMT_MISSING_SIGN_IN_RESOURCE_MESSAGE);
@@ -85,7 +85,7 @@ public class AnonymousAccessToResourceCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkApiManagementPortalSettings(ContextualResource resource) {
-    if (!isEqual(APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME).test(resource.tree.name())) {
+    if (!isValue(resource.tree.name(), APIMGMT_PORTALSETTINGS_SIGNIN_RESOURCE_NAME).isTrue()) {
       return;
     }
 
