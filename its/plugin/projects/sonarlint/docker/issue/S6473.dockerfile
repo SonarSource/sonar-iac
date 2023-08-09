@@ -1,0 +1,2 @@
+FROM foo
+EXPOSE 22
