@@ -77,7 +77,8 @@ resource apis 'apis@2022-09-01-preview' = {
 }
 
 resource portalSettings 'Microsoft.ApiManagement/service/portalsettings@2022-09-01-preview' = {
-  name: 'incorrect_resource_name'  // Incorrect resource name - won't be checked
+  __sonar__: 'Compliant: Incorrect resource name that is not sensitive'
+  name: 'incorrect_resource_name'
   parent: apiServiceParent
   properties: {
     enabled: false
