@@ -92,11 +92,11 @@ public class ArmSensor extends YamlSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    if (isNotSonarLintContext(sensorContext)) {
-      visitors.add(new ArmHighlightingVisitor());
-      visitors.add(new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter));
-    }
     visitors.add(new ChecksVisitor(checks, statistics));
+    if (isNotSonarLintContext(sensorContext)) {
+      visitors.add(new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter));
+      visitors.add(new ArmHighlightingVisitor());
+    }
     return visitors;
   }
 

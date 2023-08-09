@@ -49,3 +49,16 @@ resource appService4 'Microsoft.Web/sites@2022-09-01' = {
         }
     }
 }
+
+resource appService4 'Microsoft.Web/sites@2022-09-01' = {
+    name: 'example'
+    resource authSettings 'config@2022-09-01' = {
+        name: 'authSettingsV2'
+        properties: {
+            globalValidation: {
+                requireAuthentication: true
+                unauthenticatedClientAction: 'RedirectToLoginPage'
+            }
+        }
+    }
+}

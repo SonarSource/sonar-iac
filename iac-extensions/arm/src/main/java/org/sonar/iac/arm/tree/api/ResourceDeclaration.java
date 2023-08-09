@@ -25,9 +25,16 @@ import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.TextTree;
+import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
 
 public interface ResourceDeclaration extends Statement, HasProperties, ObjectProperty, HasResources {
 
+  /**
+   * The name of a resource is case-insensitive. Comparisons to this field should always respect this property.
+   * An easy way to do this is via {@link TextUtils#isValue(Tree, String)}.
+   * @see <a href=”https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules”>Microsoft - Naming rules and restrictions for Azure resources</a>
+   */
   @CheckForNull
   StringLiteral name();
 
