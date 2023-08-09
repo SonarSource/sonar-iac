@@ -54,7 +54,6 @@ resource noncompliant5 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   }
 }
 
-/* TODO SONARIAC-1064 ARM Bicep: parsing error on TernaryExpression with callFunction
 resource noncompliant6 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: 'Sensitive: High-privilege ${role} role (Format 6)'
   properties: {
@@ -64,7 +63,6 @@ resource noncompliant6 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     roleDefinitionId: ((newOrExistingRole == 'new') ? resourceId('Microsoft.Authorization/roleDefinitions/', roleDefinitionId) : resourceId('Microsoft.Authorization/roleDefinitions/', '${role}')) // Noncompliant
   }
 }
-*/
 
 resource compliant1 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: 'Compliant: roleDefinitionId is not string literal'
