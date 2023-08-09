@@ -19,11 +19,11 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
@@ -33,7 +33,7 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 
 public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
 
-  private static final Logger LOG = Loggers.get(SyntaxHighlightingVisitor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SyntaxHighlightingVisitor.class);
 
   private NewHighlighting newHighlighting;
   private InputFile inputFile;

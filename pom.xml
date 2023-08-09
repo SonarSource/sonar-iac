@@ -61,8 +61,8 @@
     <sonar.organization>sonarsource</sonar.organization>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-    <version.sonar>9.3.0.51899</version.sonar>
-    <version.sonar.api>9.13.0.360</version.sonar.api>
+    <version.sonar>10.1.0.73491</version.sonar>
+    <version.sonar.api>10.0.0.695</version.sonar.api>
     <version.sonar.lint>8.16.0.67686</version.sonar.lint>
     <version.analyzer.commons>2.5.0.1358</version.analyzer.commons>
     <version.orchestrator>4.0.0.404</version.orchestrator>
@@ -71,6 +71,7 @@
     <version.assertj>3.23.1</version.assertj>
     <version.mockito>4.6.1</version.mockito>
     <version.archunit>1.0.1</version.archunit>
+    <version.slf4j>1.7.30</version.slf4j>
     <version.snakeyaml>2.6</version.snakeyaml>
     <version.spotless>2.34.0</version.spotless>
     <gitRepositoryName>sonar-iac</gitRepositoryName>
@@ -169,6 +170,12 @@
         <version>${version.sonar}</version>
       </dependency>
       <dependency>
+        <groupId>org.sonarsource.api.plugin</groupId>
+        <artifactId>sonar-plugin-api-test-fixtures</artifactId>
+        <version>${version.sonar.api}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter</artifactId>
         <version>${version.junit}</version>
@@ -198,6 +205,12 @@
         <version>${version.archunit}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${version.slf4j}</version>
+        <scope>test</scope>
+      </dependency>
 
       <!-- Provided dependencies -->
       <dependency>
@@ -215,7 +228,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <configuration />
+          <configuration>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+            <reportsDirectory>${project.build.directory}/test-reports</reportsDirectory>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

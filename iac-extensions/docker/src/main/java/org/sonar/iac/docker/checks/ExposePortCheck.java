@@ -22,8 +22,8 @@ package org.sonar.iac.docker.checks;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -36,7 +36,7 @@ import org.sonar.iac.docker.tree.api.ExposeInstruction;
 @Rule(key = "S6473")
 public class ExposePortCheck implements IacCheck {
 
-  private static final Logger LOG = Loggers.get(ExposePortCheck.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ExposePortCheck.class);
   private static final String MESSAGE = "Make sure that exposing administration services is safe here.";
   private static final String DEFAULT_SENSITIVE_PORTS = "22, 23, 3389, 5800, 5900";
 
@@ -66,8 +66,6 @@ public class ExposePortCheck implements IacCheck {
 
   private void checkPort(CheckContext ctx, Argument arg) {
     String portStr = ArgumentResolution.of(arg).value();
-    if (portStr == null)
-      return;
     try {
       Port port = new Port.PortParser(portStr).parsePort().parseProtocol().build();
       if (port.protocol == Protocol.TCP && isSensitivePort(port.portMin, port.portMax)) {

@@ -21,10 +21,6 @@ package org.sonar.iac.common.checks;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.iac.common.api.tree.Tree;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,10 +28,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.iac.common.api.tree.Tree;
 
 public final class ResourceAccessPolicyVector {
 
-  private static final Logger LOG = Loggers.get(ResourceAccessPolicyVector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ResourceAccessPolicyVector.class);
   private static final String VECTOR_FILE = "ResourceAccessPolicyVector.json";
 
   private ResourceAccessPolicyVector() {

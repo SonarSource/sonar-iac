@@ -36,7 +36,7 @@ class DockerRulesDefinitionTest {
   void testActivationSonarLint() {
     RulesDefinition.Repository repository = dockerRuleRepository(9, 3);
     assertThat(repository).isNotNull();
-    assertThat(repository.name()).isEqualTo("SonarQube");
+    assertThat(repository.name()).isEqualTo("Sonar");
     assertThat(repository.language()).isEqualTo("docker");
     assertThat(repository.rules()).hasSize(DockerCheckList.checks().size());
   }

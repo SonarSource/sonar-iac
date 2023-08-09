@@ -23,13 +23,12 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -76,12 +75,12 @@ public abstract class ExtensionSensorTest extends AbstractSensorTest {
     assertThat(analysisError.message()).startsWith("Unable to parse file:");
 
     // Test logging
-    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(1);
+    assertThat(logTester.logs(Level.ERROR)).hasSize(1);
     String errorMessage = "Cannot parse '%s:1:1'";
-    assertThat(logTester.logs(LoggerLevel.ERROR).get(0))
+    assertThat(logTester.logs(Level.ERROR).get(0))
       .startsWith(String.format(errorMessage, inputFile.filename()));
 
-    verifyDebugMessages(logTester.logs(LoggerLevel.DEBUG));
+    verifyDebugMessages(logTester.logs(Level.DEBUG));
   }
 
   @Test

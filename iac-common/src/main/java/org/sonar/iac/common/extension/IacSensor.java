@@ -28,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -41,8 +43,6 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
@@ -52,7 +52,7 @@ import static org.sonar.iac.common.extension.ParseException.createGeneralParseEx
 
 public abstract class IacSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(IacSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IacSensor.class);
   private static final Pattern EMPTY_FILE_CONTENT_PATTERN = Pattern.compile("\\s*+");
   private static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
 
@@ -228,7 +228,8 @@ public abstract class IacSensor implements Sensor {
       if (detailedMessage != null) {
         LOG.debug(detailedMessage);
       }
-      LOG.debug(getStackTrace(e));
+      String stackTrace = getStackTrace(e);
+      LOG.debug(stackTrace);
     }
 
     private String getStackTrace(ParseException e) {

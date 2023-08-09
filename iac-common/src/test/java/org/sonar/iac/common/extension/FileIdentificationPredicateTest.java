@@ -24,9 +24,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 class FileIdentificationPredicateTest {
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   private static final String IDENTIFIER = "myidentifier";
 
@@ -74,11 +74,11 @@ class FileIdentificationPredicateTest {
 
     FileIdentificationPredicate filePredicate = new FileIdentificationPredicate(IDENTIFIER);
     assertThat(filePredicate.apply(noFile)).isFalse();
-    assertThat(logTester.logs(LoggerLevel.ERROR)).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).isEqualTo("Unable to read file: nofile.txt.");
-    assertThat(logTester.logs(LoggerLevel.ERROR).get(1)).startsWith("File not found mock");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).startsWith("File without identifier '" + IDENTIFIER + "': nofile.txt");
+    assertThat(logTester.logs(Level.ERROR)).hasSize(2);
+    assertThat(logTester.logs(Level.ERROR).get(0)).isEqualTo("Unable to read file: nofile.txt.");
+    assertThat(logTester.logs(Level.ERROR).get(1)).startsWith("File not found mock");
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("File without identifier '" + IDENTIFIER + "': nofile.txt");
   }
 
 }

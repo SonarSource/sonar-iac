@@ -28,11 +28,11 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -73,7 +73,7 @@ class CfnLintImporterTest {
     String logMessage = String.format(expectedLog, path);
 
     importReport(reportFile);
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -89,7 +89,7 @@ class CfnLintImporterTest {
     }).when(reportFile).toPath();
 
     importReport(reportFile);
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -107,7 +107,7 @@ class CfnLintImporterTest {
     String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 1 issues from %s.", reportFile.getPath());
     importReport(reportFile);
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -130,7 +130,7 @@ class CfnLintImporterTest {
     importReport(reportFile);
     assertThat(context.allExternalIssues()).hasSize(1);
     String logMessage = String.format("Cfn-lint report importing: could not save 1 out of 2 issues from %s.", reportFile.getPath());
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
@@ -159,7 +159,7 @@ class CfnLintImporterTest {
     importReport(reportFile);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(expectedLog);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(expectedLog);
     verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
   }
 

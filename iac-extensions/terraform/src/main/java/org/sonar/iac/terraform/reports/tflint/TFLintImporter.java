@@ -25,6 +25,8 @@ import java.nio.file.Files;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.Severity;
@@ -32,8 +34,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.reports.AbstractJsonReportImporter;
 import org.sonar.iac.common.reports.ReportImporterException;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
@@ -46,7 +46,7 @@ import static org.sonar.iac.terraform.plugin.TFLintRulesDefinition.RULE_LOADER;
 
 public class TFLintImporter extends AbstractJsonReportImporter {
 
-  private static final Logger LOG = Loggers.get(TFLintImporter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TFLintImporter.class);
 
   private static final String MESSAGE_PREFIX = "TFLint report importing: ";
   // Matches: `: filename.tf:2,21-29:`
@@ -86,7 +86,7 @@ public class TFLintImporter extends AbstractJsonReportImporter {
         type = RULE_LOADER.ruleType(ruleId);
         effortInMinutes = RULE_LOADER.ruleConstantDebtMinutes(ruleId);
       } else {
-        LOG.trace(String.format("%s No rule definition for rule id: %s", MESSAGE_PREFIX, ruleId));
+        LOG.trace("{} No rule definition for rule id: {}", MESSAGE_PREFIX, ruleId);
       }
 
       externalIssue = context.newExternalIssue()

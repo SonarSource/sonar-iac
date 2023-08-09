@@ -22,14 +22,13 @@ package org.sonar.iac.arm.tree.impl.json;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.ParameterType;

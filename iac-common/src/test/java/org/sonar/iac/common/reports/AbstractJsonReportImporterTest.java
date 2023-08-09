@@ -29,14 +29,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.JSONParser;
@@ -52,7 +52,7 @@ import static org.sonar.iac.common.testing.IacTestUtils.addFileToContext;
 class AbstractJsonReportImporterTest {
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
   private SensorContextTester context;
 
@@ -77,7 +77,7 @@ class AbstractJsonReportImporterTest {
 
     testImporter.importReport(reportFile);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -90,7 +90,7 @@ class AbstractJsonReportImporterTest {
 
     testImporter.importReport(reportFile);
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .containsExactly(
         String.format("PREFIX  Importing external report from: %s", path),
         "Issue saved");
@@ -106,7 +106,7 @@ class AbstractJsonReportImporterTest {
 
     testImporter.importReport(reportFile);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactly("failed to save issue");
+    assertThat(logTester.logs(Level.DEBUG)).containsExactly("failed to save issue");
   }
 
   @Test
@@ -119,7 +119,7 @@ class AbstractJsonReportImporterTest {
 
     testImporter.importReport(reportFile);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(String.format(
+    assertThat(logTester.logs(Level.WARN)).containsExactly(String.format(
       "PREFIX could not save 1 out of 1 issues from %s. " +
         "Some file paths could not be resolved: foo/bar",
       path));
@@ -196,7 +196,7 @@ class AbstractJsonReportImporterTest {
 }
 
 class TestImporter extends AbstractJsonReportImporter {
-  private static final Logger LOG = Loggers.get(TestImporter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TestImporter.class);
 
   protected TestImporter(SensorContext context, AnalysisWarningsWrapper analysisWarnings, String warningPrefix) {
     super(context, analysisWarnings, warningPrefix);

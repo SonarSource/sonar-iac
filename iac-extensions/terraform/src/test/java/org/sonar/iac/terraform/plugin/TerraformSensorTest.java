@@ -22,6 +22,7 @@ package org.sonar.iac.terraform.plugin;
 import java.util.Collection;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -32,7 +33,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -40,7 +40,6 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
-import org.sonar.iac.common.testing.IacCommonAssertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.testing.IacCommonAssertions.assertThat;
@@ -148,17 +147,17 @@ class TerraformSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+    assertThat(logTester.logs(Level.DEBUG).get(0))
       .isEqualTo("Parse error at line 1 column 4:\n" +
         "\n" +
         "1: a {\n" +
         "      ^\n");
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1))
+    assertThat(logTester.logs(Level.DEBUG).get(1))
       .startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'parserError.tf:1:1'" +
         System.lineSeparator() +
         "\tat org.sonar.iac.common");
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(2);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
 }

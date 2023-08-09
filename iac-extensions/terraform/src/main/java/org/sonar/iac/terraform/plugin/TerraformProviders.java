@@ -23,11 +23,11 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -41,7 +41,7 @@ public class TerraformProviders {
   private static final String INVALID_PROVIDER_VERSION = "Can not parse provider version for \"%s\". " +
     "Please check the format of your used %s version in the project settings.";
 
-  private static final Logger LOG = Loggers.get(TerraformProviders.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TerraformProviders.class);
 
   private static final Provider UNKNOWN_PROVIDER = new Provider(null);
 

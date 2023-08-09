@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONArray;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
@@ -41,7 +41,7 @@ import org.sonarsource.analyzer.commons.internal.json.simple.parser.JSONParser;
 import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseException;
 
 public abstract class AbstractJsonReportImporter {
-  private static final Logger LOG = Loggers.get(AbstractJsonReportImporter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractJsonReportImporter.class);
   protected static final JSONParser jsonParser = new JSONParser();
 
   protected final SensorContext context;
@@ -61,7 +61,7 @@ public abstract class AbstractJsonReportImporter {
       logWarning(message);
       return;
     } else {
-      LOG.info(String.format("%s Importing external report from: %s", warningPrefix, reportFile.getPath()));
+      LOG.info("{} Importing external report from: {}", warningPrefix, reportFile.getPath());
     }
 
     parseJson(reportFile).forEach(issuesJson -> {

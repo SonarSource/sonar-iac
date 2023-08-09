@@ -29,12 +29,12 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -50,7 +50,7 @@ class TFLintImporterTest {
 
   private static final String PATH_PREFIX = "src/test/resources/tflint";
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.TRACE);
 
   private SensorContextTester context;
   private final AnalysisWarningsWrapper mockAnalysisWarnings = mock(AnalysisWarningsWrapper.class);
@@ -127,7 +127,7 @@ class TFLintImporterTest {
 
     importer.importReport(reportFile);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(String.format(expectedLog, path));
+    assertThat(logTester.logs(Level.WARN)).containsExactly(String.format(expectedLog, path));
   }
 
   @Test
@@ -144,7 +144,7 @@ class TFLintImporterTest {
 
     importer.importReport(reportFile);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(logMessage);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(logMessage);
     verify(mockAnalysisWarnings, times(1)).addWarning(logMessage);
   }
 
@@ -157,7 +157,7 @@ class TFLintImporterTest {
     importer.importReport(reportFile);
 
     String logMessage = "TFLint report importing:  No rule definition for rule id: id_doesnt_exist";
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsExactly(logMessage);
+    assertThat(logTester.logs(Level.TRACE)).containsExactly(logMessage);
   }
 
   @ParameterizedTest
@@ -174,7 +174,7 @@ class TFLintImporterTest {
     importer.importReport(reportFile);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactly(expectedLog);
+    assertThat(logTester.logs(Level.WARN)).containsExactly(expectedLog);
     verify(mockAnalysisWarnings, times(1)).addWarning(expectedLog);
   }
 

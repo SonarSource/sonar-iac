@@ -21,8 +21,8 @@ package org.sonar.iac.docker.checks;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +48,7 @@ class ExposePortCheckTest {
   void invalid_custom() {
     check.portList = "23, x";
     DockerVerifier.verify("ExposePortCheck/Dockerfile.default", check);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("The port list provided for ExposePortCheck (S6473) is not a comma seperated list of integers. " +
+    assertThat(logTester.logs(Level.WARN)).contains("The port list provided for ExposePortCheck (S6473) is not a comma seperated list of integers. " +
       "The default list is used. Invalid list of ports \"23, x\"");
 
   }
