@@ -33,7 +33,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 
-public class FileConverter extends ArmBaseConverter {
+public class FileConverter extends ArmJsonBaseConverter {
   public FileConverter(@Nullable InputFileContext inputFileContext) {
     super(inputFileContext);
   }

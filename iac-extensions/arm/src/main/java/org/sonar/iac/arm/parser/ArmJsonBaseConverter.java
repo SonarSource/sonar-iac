@@ -57,51 +57,34 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 import static org.sonar.iac.common.extension.ParseException.createParseException;
 
-public class ArmBaseConverter {
+public class ArmJsonBaseConverter {
 
   @Nullable
   protected final InputFileContext inputFileContext;
 
-  public ArmBaseConverter(@Nullable InputFileContext inputFileContext) {
+  public ArmJsonBaseConverter(@Nullable InputFileContext inputFileContext) {
     this.inputFileContext = inputFileContext;
   }
 
   public StringLiteral toStringLiteralOrNull(YamlTree tree, String key) {
-    return PropertyUtils.get(tree, key)
+    return PropertyUtils.get(tree, key::equalsIgnoreCase)
       .map(this::toStringLiteral)
       .orElse(null);
   }
 
-  public StringLiteral toStringLiteralOrException(TupleTree tree, String key) {
-    return PropertyUtils.get(tree.value(), key)
+  public StringLiteral toStringLiteralOrException(YamlTree tree, String key) {
+    return PropertyUtils.get(tree, key::equalsIgnoreCase)
       .map(this::toStringLiteral)
       .orElseThrow(() -> missingMandatoryAttributeError(tree, key));
   }
 
-  public StringLiteral toStringLiteralOrException(MappingTree tree, String key) {
-    return PropertyUtils.get(tree, key)
-      .map(this::toStringLiteral)
-      .orElseThrow(() -> missingMandatoryAttributeError(tree, key));
-  }
-
-  public StringLiteral toStringLiteral(PropertyTree property) {
+  private StringLiteral toStringLiteral(PropertyTree property) {
     ScalarTree value = toDoubleQuoteScalarTree(property);
     return new StringLiteralImpl(value.value(), value.metadata());
   }
 
   public StringLiteral toNestedStringLiteralOrNull(YamlTree tree, String parentKey, String childKey) {
     return PropertyUtils.get(tree, parentKey).map(m -> extractPropertyOrNull(m, childKey)).orElse(null);
-  }
-
-  public Identifier toIdentifierOrException(MappingTree tree, String key) {
-    return PropertyUtils.get(tree, key)
-      .map(this::toIdentifier)
-      .orElseThrow(() -> missingMandatoryAttributeError(tree, key));
-  }
-
-  public Identifier toIdentifier(PropertyTree property) {
-    ScalarTree value = toDoubleQuoteScalarTree(property);
-    return new IdentifierImpl(value.value(), value.metadata());
   }
 
   public Identifier toIdentifier(YamlTree tree) {
@@ -124,12 +107,12 @@ public class ArmBaseConverter {
   }
 
   public NumericLiteral toNumericLiteralOrNull(YamlTree tree, String key) {
-    return PropertyUtils.get(tree, key)
+    return PropertyUtils.get(tree, key::equalsIgnoreCase)
       .map(this::toNumericLiteral)
       .orElse(null);
   }
 
-  public NumericLiteral toNumericLiteral(PropertyTree property) {
+  private NumericLiteral toNumericLiteral(PropertyTree property) {
     if (!(property.value() instanceof ScalarTree)) {
       throw convertError(property, NumericLiteral.class.getSimpleName(), ScalarTree.class.getSimpleName());
     }
@@ -150,7 +133,7 @@ public class ArmBaseConverter {
     }
   }
 
-  public ObjectExpression toObjectExpression(MappingTree tree) {
+  private ObjectExpression toObjectExpression(MappingTree tree) {
     List<Property> properties = new ArrayList<>();
     tree.elements()
       .forEach(tupleTree -> {
@@ -163,17 +146,17 @@ public class ArmBaseConverter {
   }
 
   public ArrayExpression toArrayExpressionOrNull(YamlTree tree, String key) {
-    return PropertyUtils.get(tree, key).map(this::toArrayExpression).orElse(null);
+    return PropertyUtils.get(tree, key::equalsIgnoreCase).map(this::toArrayExpression).orElse(null);
   }
 
-  public ArrayExpression toArrayExpression(PropertyTree property) {
+  private ArrayExpression toArrayExpression(PropertyTree property) {
     if (!(property.value() instanceof SequenceTree)) {
       throw convertError(property, ArrayExpression.class.getSimpleName(), SequenceTree.class.getSimpleName());
     }
     return toArrayExpression((SequenceTree) property.value());
   }
 
-  public ArrayExpression toArrayExpression(SequenceTree tree) {
+  private ArrayExpression toArrayExpression(SequenceTree tree) {
     return new ArrayExpressionImpl(tree.metadata(),
       tree.elements().stream()
         .map(this::toExpression)
@@ -181,10 +164,10 @@ public class ArmBaseConverter {
   }
 
   public Expression toExpressionOrNull(TupleTree tree, String key) {
-    return PropertyUtils.get(tree.value(), key).map(this::toExpression).orElse(null);
+    return PropertyUtils.get(tree.value(), key::equalsIgnoreCase).map(this::toExpression).orElse(null);
   }
 
-  public Expression toExpression(PropertyTree tree) {
+  private Expression toExpression(PropertyTree tree) {
     return toExpression((YamlTree) tree.value());
   }
 
@@ -249,8 +232,8 @@ public class ArmBaseConverter {
   }
 
   @CheckForNull
-  public StringLiteral extractPropertyOrNull(PropertyTree property, String name) {
-    return PropertyUtils.get(property.value(), name)
+  private StringLiteral extractPropertyOrNull(PropertyTree property, String name) {
+    return PropertyUtils.get(property.value(), name::equalsIgnoreCase)
       .map(this::toStringLiteral)
       .orElse(null);
   }
@@ -266,7 +249,7 @@ public class ArmBaseConverter {
   }
 
   protected Predicate<TupleTree> filterOnField(String field) {
-    return tupleTree -> tupleTree.key() instanceof ScalarTree && field.equals(((ScalarTree) tupleTree.key()).value());
+    return tupleTree -> tupleTree.key() instanceof ScalarTree && field.equalsIgnoreCase(((ScalarTree) tupleTree.key()).value());
   }
 
   // Error generation

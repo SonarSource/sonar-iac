@@ -40,7 +40,7 @@ import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
-public class ResourceDeclarationConverter extends ArmBaseConverter {
+public class ResourceDeclarationConverter extends ArmJsonBaseConverter {
 
   public ResourceDeclarationConverter(@Nullable InputFileContext inputFileContext) {
     super(inputFileContext);
@@ -68,7 +68,7 @@ public class ResourceDeclarationConverter extends ArmBaseConverter {
     StringLiteral version = toStringLiteralOrException(tree, "apiVersion");
     StringLiteral name = toStringLiteralOrException(tree, "name");
     List<Property> resourceProperties = toResourceProperties(tree);
-    List<Property> otherProperties = PropertyUtils.get(tree, "properties")
+    List<Property> otherProperties = PropertyUtils.get(tree, "properties"::equalsIgnoreCase)
       .map(PropertyTree::value)
       .map(this::toProperties)
       .orElse(Collections.emptyList());

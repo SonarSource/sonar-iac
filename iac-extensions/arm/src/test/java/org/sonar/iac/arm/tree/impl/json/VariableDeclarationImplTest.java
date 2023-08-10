@@ -70,4 +70,23 @@ class VariableDeclarationImplTest {
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).isEmpty();
   }
+
+  @Test
+  void shouldParseVariableCaseInsensitive() {
+    String code = code("{",
+      "  \"VARIABLES\": {",
+      "    \"var\": \"val\"",
+      "  }",
+      "}");
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(1);
+    assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
+
+    VariableDeclaration var = (VariableDeclaration) tree.statements().get(0);
+
+    assertThat(var.declaratedName()).hasKind(ArmTree.Kind.IDENTIFIER).hasValue("var").hasRange(3, 4, 3, 9);
+    assertThat(var.value()).asStringLiteral().hasValue("val").hasRange(3, 11, 3, 16);
+
+    assertThat(var.children()).hasSize(2);
+  }
 }

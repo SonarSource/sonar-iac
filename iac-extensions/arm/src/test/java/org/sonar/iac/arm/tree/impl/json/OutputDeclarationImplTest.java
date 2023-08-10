@@ -19,11 +19,14 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -53,9 +56,10 @@ class OutputDeclarationImplTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Test
-  void shouldParseOutputs() {
-    String code = code("{",
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void shouldParseOutputs(boolean useUpperCaseNames) {
+    List<String> linesOfCode = Arrays.asList("{",
       "  \"outputs\": {",
       "    \"myOutputValue\": {",
       "      \"type\": \"my type\",",
@@ -67,6 +71,13 @@ class OutputDeclarationImplTest {
       "    }",
       "  }",
       "}");
+    if (useUpperCaseNames) {
+      for (int i : List.of(3, 4, 5, 8)) {
+        String line = linesOfCode.get(i);
+        linesOfCode.set(i, line.substring(0, line.indexOf(":")).toUpperCase(Locale.ROOT) + line.substring(line.indexOf(":")));
+      }
+    }
+    String code = StringUtils.join(linesOfCode, "\n");
     File tree = (File) parser.parse(code, null);
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(OUTPUT_DECLARATION)).isTrue();
@@ -208,10 +219,10 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:21");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(3);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(20);
   }
 
   @Test
@@ -256,10 +267,10 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:21");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(3);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(20);
   }
 
   @Test
@@ -274,10 +285,10 @@ class OutputDeclarationImplTest {
       "}");
     InputFileContext inputFileContext = createInputFileContextMock("foo.json");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, inputFileContext), ParseException.class);
-    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at dir1/dir2/foo.json:3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at dir1/dir2/foo.json:3:21");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(3);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(20);
   }
 
   @Test
