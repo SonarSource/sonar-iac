@@ -32,7 +32,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
-public class OutputDeclarationConverter extends ArmBaseConverter {
+public class OutputDeclarationConverter extends ArmJsonBaseConverter {
 
   public OutputDeclarationConverter(@Nullable InputFileContext inputFileContext) {
     super(inputFileContext);
@@ -44,7 +44,7 @@ public class OutputDeclarationConverter extends ArmBaseConverter {
 
   public OutputDeclaration convertOutputDeclaration(TupleTree tree) {
     Identifier name = toIdentifier(tree.key());
-    StringLiteral type = toStringLiteralOrException(tree, "type");
+    StringLiteral type = toStringLiteralOrException(tree.value(), "type");
     StringLiteral condition = toStringLiteralOrNull(tree.value(), "condition");
     Expression value = toExpressionOrNull(tree, "value");
     Expression copy = toExpressionOrNull(tree, "copy");

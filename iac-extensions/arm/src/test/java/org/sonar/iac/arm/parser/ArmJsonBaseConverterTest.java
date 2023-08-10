@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.sonar.iac.common.testing.IacTestUtils.createInputFileContextMock;
 
-class ArmBaseConverterTest {
+class ArmJsonBaseConverterTest {
 
   private InputFileContext inputFileContext;
   private YamlTreeMetadata yamlTreeMetadata;
@@ -54,7 +54,7 @@ class ArmBaseConverterTest {
 
   @Test
   void shouldThrowExceptionWhenToIdentifierNotScalarTree() {
-    ArmBaseConverter converter = new ArmBaseConverter(inputFileContext);
+    ArmJsonBaseConverter converter = new ArmJsonBaseConverter(inputFileContext);
     SequenceTree tree = new SequenceTreeImpl(List.of(), yamlTreeMetadata);
 
     ParseException exception = catchThrowableOfType(() -> converter.toIdentifier(tree), ParseException.class);
@@ -69,7 +69,7 @@ class ArmBaseConverterTest {
 
   @Test
   void shouldThrowExceptionWhenToExpressionWhenTupleTree() {
-    ArmBaseConverter converter = new ArmBaseConverter(inputFileContext);
+    ArmJsonBaseConverter converter = new ArmJsonBaseConverter(inputFileContext);
     TupleTree tree = new TupleTreeImpl(new SequenceTreeImpl(List.of(), yamlTreeMetadata), new SequenceTreeImpl(List.of(), yamlTreeMetadata), yamlTreeMetadata);
 
     ParseException exception = catchThrowableOfType(() -> converter.toExpression((YamlTree) tree), ParseException.class);

@@ -20,7 +20,9 @@
 package org.sonar.iac.arm.tree.impl.json;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.tree.api.File;
@@ -128,9 +131,10 @@ class ParameterDeclarationImplTest {
     assertThat(parameter.description()).hasValue("some description");
   }
 
-  @Test
-  void shouldParseFullParameter() {
-    String code = code("{",
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void shouldParseFullParameter(boolean useLowercaseKeys) {
+    List<String> linesOfCode = new ArrayList<>(List.of("{",
       "    \"parameters\": {",
       "        \"exampleParam\": {",
       "            \"type\": \"string\",",
@@ -149,7 +153,13 @@ class ParameterDeclarationImplTest {
       "            }",
       "        }",
       "    }",
-      "}");
+      "}"));
+    if (useLowercaseKeys) {
+      for (int i = 3; i < 9; ++i) {
+        linesOfCode.set(i, linesOfCode.get(i).toLowerCase(Locale.ROOT));
+      }
+    }
+    String code = StringUtils.join(linesOfCode, "\n");
 
     File tree = (File) parser.parse(code, null);
 

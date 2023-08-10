@@ -363,4 +363,28 @@ class ResourceDeclarationImplTest {
 
     assertThat(tree.statements()).hasSize(1);
   }
+
+  @Test
+  void shouldParseResourceCaseInsensitive() {
+    String code = code("{",
+      "  \"resources\": [",
+      "    {",
+      "      \"Type\": \"Microsoft.Kusto/clusters\",",
+      "      \"apiversion\": \"2022-12-29\",",
+      "      \"nAME\": \"myResource\",",
+      "      \"proPertIes\": {\"attr\": \"value\"}",
+      "    }",
+      "  ]",
+      "}");
+    File tree = (File) parser.parse(code, null);
+    assertThat(tree.statements()).hasSize(1);
+
+    ResourceDeclaration resourceDeclaration = (ResourceDeclaration) tree.statements().get(0);
+    assertThat(resourceDeclaration.type().value()).isEqualTo("Microsoft.Kusto/clusters");
+    assertThat(resourceDeclaration.version().value()).isEqualTo("2022-12-29");
+    assertThat(resourceDeclaration.existing()).isNull();
+    assertThat(resourceDeclaration.name().value()).isEqualTo("myResource");
+
+    assertThat(resourceDeclaration.properties()).hasSize(1);
+  }
 }

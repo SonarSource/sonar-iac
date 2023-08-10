@@ -208,10 +208,10 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:21");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(3);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(20);
   }
 
   @Test
@@ -256,10 +256,10 @@ class OutputDeclarationImplTest {
       "  }",
       "}");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, null), ParseException.class);
-    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at null:3:21");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(3);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(20);
   }
 
   @Test
@@ -274,10 +274,10 @@ class OutputDeclarationImplTest {
       "}");
     InputFileContext inputFileContext = createInputFileContextMock("foo.json");
     ParseException parseException = catchThrowableOfType(() -> parser.parse(code, inputFileContext), ParseException.class);
-    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at dir1/dir2/foo.json:3:4");
+    assertThat(parseException).hasMessage("Missing mandatory attribute 'type' at dir1/dir2/foo.json:3:21");
     assertThat(parseException.getDetails()).isNull();
     assertThat(parseException.getPosition().line()).isEqualTo(3);
-    assertThat(parseException.getPosition().lineOffset()).isEqualTo(3);
+    assertThat(parseException.getPosition().lineOffset()).isEqualTo(20);
   }
 
   @Test

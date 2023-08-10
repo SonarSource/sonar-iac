@@ -29,7 +29,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.tree.MappingTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
-public class VariableDeclarationConverter extends ArmBaseConverter {
+public class VariableDeclarationConverter extends ArmJsonBaseConverter {
 
   public VariableDeclarationConverter(@Nullable InputFileContext inputFileContext) {
     super(inputFileContext);
