@@ -1,23 +1,27 @@
-<p>Authorizing anonymous access can reduce an organization’s ability to protect itself against attacks on its Azure resources.</p>
-<p>Security incidents may include disrupting critical functions, data theft, and additional Azure subscription costs due to resource overload.</p>
-<p>Using authentication coupled with fine-grained authorizations helps bring Defense-In-Depth and bring traceability to investigators of security
-incidents.</p>
-<p>Depending on the affected Azure resource, multiple authentication choices are possible: Active Directory Authentication, OpenID implementations
-(Google, Microsoft, etc.) or native Azure mechanisms.</p>
+<p>Allowing anonymous access can reduce an organization’s ability to protect itself against attacks on its Azure
+  resources.</p>
+<p>Security incidents may include disrupting critical functions, data theft, and additional Azure subscription costs due
+  to resource overload.</p>
+<p>Using authentication coupled with fine-grained authorizations helps bring defense-in-depth and bring traceability to
+  investigators of security
+  incidents.</p>
+<p>Depending on the affected Azure resource, multiple authentication choices are possible: Active Directory
+  Authentication, OpenID implementations
+  (Google, Microsoft, etc.) or native Azure mechanisms.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> This Azure resource is essential for the information system infrastructure. </li>
-  <li> This Azure resource is essential for mission-critical functions. </li>
-  <li> This Azure resource stores or processes sensitive data. </li>
-  <li> Compliance policies require access to this resource to be authenticated. </li>
+  <li> This Azure resource is essential for the information system infrastructure.</li>
+  <li> This Azure resource is essential for mission-critical functions.</li>
+  <li> This Azure resource stores or processes sensitive data.</li>
+  <li> Compliance policies require access to this resource to be authenticated.</li>
 </ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
+<p>There is a risk if you answered yes to any of these questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>Enable authentication in this Azure resource, and disable anonymous access.</p>
 <p>If only Basic Authentication is available, enable it.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "azurerm_function_app" "example" {
   name = "example"
 
@@ -32,7 +36,7 @@ resource "azurerm_function_app" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 resource "azurerm_api_management_api" "example" { # Sensitive, the openid_authentication block is missing
   name = "example-api"
 }
@@ -44,13 +48,13 @@ resource "azurerm_api_management" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
-<pre>
+<pre data-diff-id="3" data-diff-type="noncompliant">
 resource "azurerm_data_factory_linked_service_sftp" "example" {
   authentication_type = "Anonymous"
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts</a>:</p>
-<pre>
+<pre data-diff-id="4" data-diff-type="noncompliant">
 resource "azurerm_storage_account" "example" {
   allow_blob_public_access = true # Sensitive
 }
@@ -60,7 +64,7 @@ resource "azurerm_storage_container" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
-<pre>
+<pre data-diff-id="5" data-diff-type="noncompliant">
 resource "azurerm_redis_cache" "example" {
   name = "example-cache"
 
@@ -71,7 +75,7 @@ resource "azurerm_redis_cache" "example" {
 </pre>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "azurerm_function_app" "example" {
   name = "example"
 
@@ -82,7 +86,7 @@ resource "azurerm_function_app" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 resource "azurerm_api_management_api" "example" {
   name = "example-api"
 
@@ -98,7 +102,7 @@ resource "azurerm_api_management" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
-<pre>
+<pre data-diff-id="3" data-diff-type="compliant">
 resource "azurerm_data_factory_linked_service_sftp" "example" {
   authentication_type = "Basic"
   username            = local.creds.username
@@ -113,7 +117,7 @@ resource "azurerm_data_factory_linked_service_odata" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts</a>:</p>
-<pre>
+<pre data-diff-id="4" data-diff-type="compliant">
 resource "azurerm_storage_account" "example" {
   allow_blob_public_access = true
 }
@@ -123,7 +127,7 @@ resource "azurerm_storage_container" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
-<pre>
+<pre data-diff-id="5" data-diff-type="compliant">
 resource "azurerm_redis_cache" "example" {
   name = "example-cache"
 

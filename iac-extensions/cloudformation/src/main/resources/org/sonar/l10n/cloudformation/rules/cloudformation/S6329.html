@@ -30,13 +30,14 @@ absence of a public IP address, assign a public IP address to it, but do not cre
 <h2>Sensitive Code Example</h2>
 <p>DMS and EC2 instances have a public IP address assigned to them:</p>
 <pre>
-DMSInstance:
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  DMSInstance:
     Type: AWS::DMS::ReplicationInstance
     Properties:
       PubliclyAccessible: true # sensitive, by default it's also set to true
 
-
-EC2Instance:
+  EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       NetworkInterfaces:
@@ -46,13 +47,14 @@ EC2Instance:
 <h2>Compliant Solution</h2>
 <p>DMS and EC2 instances doesn’t have a public IP address:</p>
 <pre>
-DMSInstance:
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  DMSInstance:
     Type: AWS::DMS::ReplicationInstance
     Properties:
       PubliclyAccessible: false
 
-
-EC2Instance:
+  EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       NetworkInterfaces:

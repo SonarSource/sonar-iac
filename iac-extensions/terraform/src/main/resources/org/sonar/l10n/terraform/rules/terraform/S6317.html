@@ -156,8 +156,8 @@ possible.</p>
 <p>This policy allows to update the code of any lambda function. Updating the code of a lambda executing with high privileges will lead to privilege
 escalation.</p>
 <pre>
-resource "aws_iam_policy" "lambdaUpdatePolicy" {
-  name = "lambdaUpdatePolicy"
+resource "aws_iam_policy" "example" {
+  name = "example"
   policy =&lt;&lt;EOF
 {
     "Version": "2012-10-17",
@@ -177,8 +177,8 @@ EOF
 <h3>Compliant solution</h3>
 <p>Narrow the policy to only allow to update the code of certain lambda functions.</p>
 <pre>
-resource "aws_iam_policy" "lambdaUpdatePolicy" {
-  name = "lambdaUpdatePolicy"
+resource "aws_iam_policy" "example" {
+  name = "example"
   policy =&lt;&lt;EOF
 {
     "Version": "2012-10-17",

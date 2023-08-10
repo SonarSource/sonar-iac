@@ -63,7 +63,15 @@ application or system.</p>
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-web">Microsoft.Web/sites/config</a>:</p>
+<pre data-diff-id="8" data-diff-type="noncompliant">
+resource symbolicname 'Microsoft.Web/sites@2022-03-01' = {
+  properties: {
+    httpsOnly: false // Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-web">Microsoft.Web/sites/config</a>:
+</p>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -79,7 +87,15 @@ application or system.</p>
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts">Microsoft.Storage/storageAccounts</a>:</p>
+<pre data-diff-id="9" data-diff-type="noncompliant">
+resource symbolicname 'Microsoft.Web/sites/config@2022-09-01' = {
+  properties: {
+    ftpsState: 'AllAllowed' // Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts">Microsoft.Storage/storageAccounts</a>:
+</p>
 <pre data-diff-id="3" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -95,7 +111,15 @@ application or system.</p>
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/apis">Microsoft.ApiManagement/service/apis</a>:</p>
+<pre data-diff-id="10" data-diff-type="noncompliant">
+resource symbolicname 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  properties: {
+    supportsHttpsTrafficOnly: false // Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/apis">Microsoft.ApiManagement/service/apis</a>:
+</p>
 <pre data-diff-id="4" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -111,7 +135,15 @@ application or system.</p>
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/endpoints">Microsoft.Cdn/profiles/endpoints</a>:</p>
+<pre data-diff-id="11" data-diff-type="noncompliant">
+resource symbolicname 'Microsoft.ApiManagement/service/apis@2022-08-01' = {
+  properties: {
+    protocols: ['http'] // Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/endpoints">Microsoft.Cdn/profiles/endpoints</a>:
+</p>
 <pre data-diff-id="5" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -127,8 +159,16 @@ application or system.</p>
   ]
 }
 </pre>
+<pre data-diff-id="12" data-diff-type="noncompliant">
+resource symbolicname 'Microsoft.Cdn/profiles/endpoints@2021-06-01' = {
+  properties: {
+    isHttpAllowed: true // Sensitive
+  }
+}
+</pre>
 <p>For <a
-href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisenterprise/databases">Microsoft.Cache/redisEnterprise/databases</a>:</p>
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisenterprise/databases">Microsoft.Cache/redisEnterprise/databases</a>:
+</p>
 <pre data-diff-id="6" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -144,9 +184,19 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisent
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformysql/servers">Microsoft.DBforMySQL/servers</a>, <a
-href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformariadb/servers">Microsoft.DBforMariaDB/servers</a>, and <a
-href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/servers">Microsoft.DBforPostgreSQL/servers</a>:</p>
+<pre data-diff-id="13" data-diff-type="noncompliant">
+resource symbolicname 'Microsoft.Cache/redisEnterprise/databases@2022-01-01' = {
+  properties: {
+    clientProtocol: "Plaintext" // Sensitive
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformysql/servers">Microsoft.DBforMySQL/servers</a>,
+  <a
+    href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformariadb/servers">Microsoft.DBforMariaDB/servers</a>,
+  and <a
+    href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/servers">Microsoft.DBforPostgreSQL/servers</a>:
+</p>
 <pre data-diff-id="7" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -160,6 +210,13 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
       }
     }
   ]
+}
+</pre>
+<pre data-diff-id="14" data-diff-type="noncompliant">
+resource symbolicname 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+  properties: {
+    sslEnforcement: "Disabled" // Sensitive
+  }
 }
 </pre>
 <h2>Compliant Solution</h2>
@@ -179,7 +236,15 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-web">Microsoft.Web/sites/config</a>:</p>
+<pre data-diff-id="8" data-diff-type="compliant">
+resource symbolicname 'Microsoft.Web/sites@2022-03-01' = {
+  properties: {
+    httpsOnly: true
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites/config-web">Microsoft.Web/sites/config</a>:
+</p>
 <pre data-diff-id="2" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -195,7 +260,15 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts">Microsoft.Storage/storageAccounts</a>:</p>
+<pre data-diff-id="9" data-diff-type="compliant">
+resource symbolicname 'Microsoft.Web/sites/config@2022-09-01' = {
+  properties: {
+    ftpsState: 'FtpsOnly'
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.storage/storageaccounts">Microsoft.Storage/storageAccounts</a>:
+</p>
 <pre data-diff-id="3" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -211,7 +284,15 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/apis">Microsoft.ApiManagement/service/apis</a>:</p>
+<pre data-diff-id="10" data-diff-type="compliant">
+resource symbolicname 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  properties: {
+    supportsHttpsTrafficOnly: true
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/apis">Microsoft.ApiManagement/service/apis</a>:
+</p>
 <pre data-diff-id="4" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -227,7 +308,15 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/endpoints">Microsoft.Cdn/profiles/endpoints</a>:</p>
+<pre data-diff-id="11" data-diff-type="compliant">
+resource symbolicname 'Microsoft.ApiManagement/service/apis@2022-08-01' = {
+  properties: {
+    protocols: ['https']
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cdn/profiles/endpoints">Microsoft.Cdn/profiles/endpoints</a>:
+</p>
 <pre data-diff-id="5" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -243,8 +332,16 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
   ]
 }
 </pre>
+<pre data-diff-id="12" data-diff-type="compliant">
+resource symbolicname 'Microsoft.Cdn/profiles/endpoints@2021-06-01' = {
+  properties: {
+    isHttpAllowed: false
+  }
+}
+</pre>
 <p>For <a
-href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisenterprise/databases">Microsoft.Cache/redisEnterprise/databases</a>:</p>
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisenterprise/databases">Microsoft.Cache/redisEnterprise/databases</a>:
+</p>
 <pre data-diff-id="6" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -260,9 +357,19 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.cache/redisent
   ]
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformysql/servers">Microsoft.DBforMySQL/servers</a>, <a
-href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformariadb/servers">Microsoft.DBforMariaDB/servers</a>, and <a
-href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/servers">Microsoft.DBforPostgreSQL/servers</a>:</p>
+<pre data-diff-id="13" data-diff-type="compliant">
+resource symbolicname 'Microsoft.Cache/redisEnterprise/databases@2022-01-01' = {
+  properties: {
+    clientProtocol: "Encrypted"
+  }
+}
+</pre>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformysql/servers">Microsoft.DBforMySQL/servers</a>,
+  <a
+    href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformariadb/servers">Microsoft.DBforMariaDB/servers</a>,
+  and <a
+    href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/servers">Microsoft.DBforPostgreSQL/servers</a>:
+</p>
 <pre data-diff-id="7" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -278,11 +385,24 @@ href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresq
   ]
 }
 </pre>
+<pre data-diff-id="14" data-diff-type="compliant">
+resource symbolicname 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+  properties: {
+    sslEnforcement: "Enabled"
+  }
+}
+</pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://cwe.mitre.org/data/definitions/200">MITRE, CWE-200</a> - Exposure of Sensitive Information to an Unauthorized Actor </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/319">MITRE, CWE-319</a> - Cleartext Transmission of Sensitive Information </li>
-  <li> <a href="https://security.googleblog.com/2016/09/moving-towards-more-secure-web.html">Google, Moving towards more secure web</a> </li>
-  <li> <a href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http/">Mozilla, Deprecating non secure http</a> </li>
+  <li><a href="https://cwe.mitre.org/data/definitions/200">MITRE, CWE-200</a> - Exposure of Sensitive Information to an
+    Unauthorized Actor
+  </li>
+  <li><a href="https://cwe.mitre.org/data/definitions/319">MITRE, CWE-319</a> - Cleartext Transmission of Sensitive
+    Information
+  </li>
+  <li><a href="https://security.googleblog.com/2016/09/moving-towards-more-secure-web.html">Google, Moving towards more
+    secure web</a></li>
+  <li><a href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http/">Mozilla, Deprecating non
+    secure http</a></li>
 </ul>
 

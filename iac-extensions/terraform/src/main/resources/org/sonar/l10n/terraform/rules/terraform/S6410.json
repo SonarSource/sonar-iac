@@ -1,6 +1,12 @@
 {
   "title": "Google Cloud load balancers SSL policies should not offer weak cipher suites",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

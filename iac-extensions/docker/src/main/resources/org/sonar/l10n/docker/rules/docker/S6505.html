@@ -10,18 +10,26 @@ code. Post-install scripts, for example, are a common way to execute malicious c
 surface and block a well-known supply chain attack vector.</p>
 <h2>Sensitive Code Example</h2>
 <pre>
+FROM node:latest
+
 # Sensitive
 RUN npm install
 </pre>
 <pre>
+FROM node:latest
+
 # Sensitive
 RUN yarn install
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
+FROM node:latest
+
 RUN npm install --ignore-scripts
 </pre>
 <pre>
+FROM node:latest
+
 RUN yarn install --ignore-scripts
 </pre>
 <h2>See</h2>

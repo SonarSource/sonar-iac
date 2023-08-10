@@ -1,18 +1,28 @@
-<p>A public API, which can be requested by any authenticated or unauthenticated identities, can lead to unauthorized actions and information
-disclosures.</p>
+<p>Creating APIs without authentication unnecessarily increases the attack surface on the target infrastructure.</p>
+<p>Unless another authentication method is used, attackers have the opportunity to attempt attacks against the
+  underlying API.<br> This means attacks
+  both on the functionality provided by the API and its infrastructure.</p>
 <h2>Ask Yourself Whether</h2>
-<p>The public API:</p>
 <ul>
-  <li> exposes sensitive data like personal information. </li>
-  <li> can be used to perform sensitive operations. </li>
+  <li> The underlying API exposes all of its contents to any anonymous Internet user.</li>
 </ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
+<p>There is a risk if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to restrict API access to authorized entities, unless the API offers a non-sensitive service designed to be public.</p>
+<p>In general, prefer limiting API access to a specific set of people or entities.</p>
+<p>AWS provides multiple methods to do so:</p>
+<ul>
+  <li><code>AWS_IAM</code>, to use standard AWS IAM roles and policies.</li>
+  <li><code>COGNITO_USER_POOLS</code>, to use customizable OpenID Connect (OIDC) identity providers (IdP).</li>
+  <li><code>CUSTOM</code>, to use an AWS-independant OIDC provider, glued to the infrastructure with a Lambda
+    authorizer.
+  </li>
+</ul>
 <h2>Sensitive Code Example</h2>
 <p>A public API that doesn’t have access control implemented:</p>
 <pre>
-NoncompliantApiGatewayMethod:
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExampleMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE # Sensitive
@@ -20,7 +30,9 @@ NoncompliantApiGatewayMethod:
 </pre>
 <p>A Serverless Application Model (SAM) API resource that is public by default:</p>
 <pre>
-OpenApiDefault: # Sensitive
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExampleApi: # Sensitive
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
@@ -28,7 +40,9 @@ OpenApiDefault: # Sensitive
 <h2>Compliant Solution</h2>
 <p>An API that implements AWS IAM permissions:</p>
 <pre>
-MyApiGatewayMethodIam:
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExampleMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: AWS_IAM
@@ -36,7 +50,9 @@ MyApiGatewayMethodIam:
 </pre>
 <p>A Serverless Application Model (SAM) API resource that has to be requested using a key:</p>
 <pre>
-ApiKeyApi:
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExampleApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
@@ -45,9 +61,11 @@ ApiKeyApi:
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
   <li> <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-control-access-to-api.html">AWS Documentation</a> -
   Controlling and managing access to a REST API in API Gateway </li>
+  <li><a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken
+    Access Control
+  </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-284</a> - Improper Access Control </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
   </li>

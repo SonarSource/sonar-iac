@@ -16,16 +16,18 @@ production, a strategy could be to review the monitored activity in order to red
 <h2>Sensitive Code Example</h2>
 <p>A customer-managed policy that grants all permissions by using the wildcard (*) in the <code>Action</code> property:</p>
 <pre>
-MyPolicy:
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExamplePolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
         PolicyDocument:
             Version: "2012-10-17"
             Statement:
                 - Effect: Allow
-                Action:
+                  Action:
                     - "*" # Sensitive
-                Resource:
+                  Resource:
                     - !Ref MyResource
         Roles:
             - !Ref MyRole
@@ -33,16 +35,18 @@ MyPolicy:
 <h2>Compliant Solution</h2>
 <p>A customer-managed policy that grants only the required permissions:</p>
 <pre>
-MyPolicy:
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExamplePolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
         PolicyDocument:
             Version: "2012-10-17"
             Statement:
                 - Effect: Allow
-                Action:
+                  Action:
                     - "s3:GetObject"
-                Resource:
+                  Resource:
                     - !Ref MyResource
         Roles:
             - !Ref MyRole

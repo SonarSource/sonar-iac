@@ -1,13 +1,40 @@
 <h2>Why is this an issue?</h2>
-<p>Log streams created on AWS will stay forever unless the <code>AWS::Logs::LogGroup</code> to which they belong to was configured with a retention
-policy. <code>Log Groups</code> should have their “RetentionInDays” property set with a valid value to be sure the log events are kept only for the
-expected duration.</p>
-<p>When the property is not set, the log events will be kept for ever or will be deleted only when the Log Group is removed.</p>
-<p>Keeping the logs for ever doesn’t come for free: AWS will charge for keeping these logs. Also from a security point of view, keeping the data for
-ever may be not compliant with company policy or regulatory rules.</p>
-<p>Note: this rule doesn’t check if the value provided to "RetentionInDays" is valid because AWS CloudFormation Linter (cfn-lint) do it already</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>Inadequately configured "Log Groups" can lead to indefinite storage of log streams on AWS, resulting in potential
+  cost implications and
+  non-compliance with data retention policies. It’s crucial to set the appropriate retention policy for <code>AWS::Logs::LogGroup</code>
+  by defining the
+  <code>RetentionInDays</code> property with a valid value.</p>
+<h3>What is the potential impact?</h3>
+<p>Properly managing log data is essential for effective system monitoring, troubleshooting, and security auditing. The
+  failure to configure a
+  retention policy for "Log Groups" in AWS can have several detrimental consequences.</p>
+<p>Unnecessary Cost: Log events stored indefinitely result in increased storage costs over time. AWS charges for data
+  storage, and retaining
+  unnecessary logs can lead to higher expenses that could have been avoided.</p>
+<p>Non-compliance: Many industries and organizations are bound by strict data retention policies and regulatory
+  requirements. Failing to enforce a
+  retention period for logs may lead to violations, penalties, or legal issues.</p>
+<p>Security Risks: Keeping logs indefinitely exposes sensitive information to potential breaches. Storing unnecessary
+  data for an extended period
+  increases the attack surface and the potential impact of a security incident.</p>
+<p>Operational Inefficiency: The absence of a proper retention policy makes it harder to manage log data effectively.
+  Over time, log management tasks
+  become more complex, requiring additional effort and resources.</p>
+<p>Note: This rule doesn’t check if the value provided to <code>RetentionInDays</code> is valid because AWS
+  CloudFormation Linter (cfn-lint) does it
+  already</p>
+<h2>How to fix it</h2>
+<p>Ensure that each <code>AWS::Logs::LogGroup</code> resource includes the <code>RetentionInDays</code> property. Set
+  this property to a valid value
+  that aligns with your organization’s data retention policies and regulatory requirements.</p>
+<p>Choose an appropriate value for the retention based on your specific use case. Consider factors such as compliance
+  regulations, data analysis
+  needs, and storage cost considerations. For example, setting the value to 30 days may strike a balance between
+  retaining sufficient data for analysis
+  and avoiding unnecessary storage costs.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
   MyLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -18,10 +45,9 @@ ever may be not compliant with company policy or regulatory rules.</p>
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]
-      # Noncompliant: "RetentionInDays" property is not set: logs are kept for ever
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
   MyLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -34,4 +60,10 @@ ever may be not compliant with company policy or regulatory rules.</p>
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref MyLambdaFunction]]
       RetentionInDays: 30
 </pre>
+<h2>Resources</h2>
+<ul>
+  <li> AWS Documentation <a
+    href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">AWS::Logs::LogGroup</a>
+  </li>
+</ul>
 

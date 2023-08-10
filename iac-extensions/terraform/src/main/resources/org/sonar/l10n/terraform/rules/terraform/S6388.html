@@ -9,16 +9,18 @@ to access unencrypted information.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>It’s recommended to encrypt cloud storages that contain sensitive information.</p>
 <h2>Sensitive Code Example</h2>
-<p>For <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_lake_store">azurerm_data_lake_store</a>:</p>
-<pre>
+<p>For <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_lake_store">azurerm_data_lake_store</a>:
+</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "azurerm_data_lake_store" "store" {
   name             = "store"
   encryption_state = "Disabled"  # Sensitive
 }
 </pre>
 <h2>Compliant Solution</h2>
-<p>For <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_lake_store">azurerm_data_lake_store</a>:</p>
-<pre>
+<p>For <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_lake_store">azurerm_data_lake_store</a>:
+</p>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "azurerm_data_lake_store" "store" {
   name             = "store"
   encryption_state = "Enabled"
@@ -27,14 +29,33 @@ resource "azurerm_data_lake_store" "store" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
-  <li> <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
-  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
-  <li> <a href="https://docs.aws.amazon.com/efs/latest/ug/encryption.html">Data encryption in Amazon EFS</a> </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
-  Exposure </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017 Category A6</a> - Security
-  Misconfiguration </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/311">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data </li>
+  <li><a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> -
+    Cryptographic Failures
+  </li>
+  <li><a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design
+  </li>
+  <li><a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security
+    Misconfiguration
+  </li>
+  <li><a href="https://docs.aws.amazon.com/efs/latest/ug/encryption.html">Data encryption in Amazon EFS</a></li>
+  <li><a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category
+    A3</a> - Sensitive Data
+    Exposure
+  </li>
+  <li><a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html">OWASP Top 10 2017
+    Category A6</a> - Security
+    Misconfiguration
+  </li>
+  <li><a href="https://cwe.mitre.org/data/definitions/311">MITRE, CWE-311</a> - Missing Encryption of Sensitive Data
+  </li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/backup/backup-encryption">Encryption in Azure Backup</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/mysql/single-server/concepts-security">Security in Azure Database
+    for MySQL</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/postgresql/single-server/concepts-security">Security in Azure
+    Database for PostgreSQL</a>
+  </li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/storage/common/infrastructure-encryption-enable?tabs=portal">Infrastructure
+    double encryption
+    of data</a></li>
 </ul>
 

@@ -16,6 +16,8 @@ Docker image size.</p>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
+FROM debian:latest
+
 # Sensitive
 RUN apt install -y build-essential
 
@@ -27,6 +29,8 @@ RUN aptitude install -y build-essential
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
+FROM debian:latest
+
 RUN apt install -y --no-install-recommends build-essential
 
 RUN apt-get install -y --no-install-recommends build-essential

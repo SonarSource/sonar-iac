@@ -12,15 +12,15 @@ compromised. So the key rotation period usually depends on the amount of data en
 security standards. In general, a period of time of 90 days can be used.</p>
 <h2>Sensitive Code Example</h2>
 <pre>
-resource "google_kms_crypto_key" "noncompliant-key" { # Sensitive: a rotation period is not defined
-  name            = "crypto-key-compliant"
-  key_ring        = google_kms_key_ring.keyring.id"
+resource "google_kms_crypto_key" "noncompliant-key" { # Sensitive: no rotation period is defined
+  name            = "example"
+  key_ring        = google_kms_key_ring.keyring.id
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
 resource "google_kms_crypto_key" "compliant-key" {
-  name            = "crypto-key-compliant"
+  name            = "example"
   key_ring        = google_kms_key_ring.keyring.id
   rotation_period = "7776000s" # 90 days
 }
