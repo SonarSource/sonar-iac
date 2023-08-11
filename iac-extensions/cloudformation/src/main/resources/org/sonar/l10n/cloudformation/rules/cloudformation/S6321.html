@@ -1,33 +1,45 @@
 <h2>Why is this an issue?</h2>
-<p>Cloud platforms such as AWS, Azure, or GCP support virtual firewalls that can be used to restrict access to services by controlling inbound and
-outbound traffic.<br> Any firewall rule allowing traffic from all IP addresses to standard network ports on which administration services
-traditionally listen, such as 22 for SSH, can expose these services to exploits and unauthorized access.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to restrict access to remote administration services to only trusted IP addresses. In practice, trusted IP addresses are those
-held by system administrators or those of <a href="https://aws.amazon.com/quickstart/architecture/linux-bastion/?nc1=h_ls">bastion-like</a>
-servers.</p>
-<h3>Noncompliant code example</h3>
-<p>An ingress rule allowing all inbound SSH traffic:</p>
-<pre>
-MySecurityGroup:
-    Type: "AWS::EC2::SecurityGroup"
+<p>Cloud platforms such as AWS support virtual firewalls that can be used to restrict access to services by controlling
+  inbound and outbound
+  traffic.<br> Any firewall rule allowing traffic from all IP addresses to standard network ports on which
+  administration services traditionally listen,
+  such as 22 for SSH, can expose these services to exploits and unauthorized access.</p>
+<h3>What is the potential impact?</h3>
+<p>Like any other service, administration services can contain vulnerabilities. Administration services run with
+  elevated privileges and thus a
+  vulnerability could have a high impact on the system.</p>
+<p>Additionally, credentials might be leaked through phishing or similar techniques. Attackers who are able to reach the
+  services could use the
+  credentials to log in to the system.</p>
+<h2>How to fix it</h2>
+<p>It is recommended to restrict access to remote administration services to only trusted IP addresses. In practice,
+  trusted IP addresses are those
+  held by system administrators or those of <a
+    href="https://aws.amazon.com/quickstart/architecture/linux-bastion/?nc1=h_ls">bastion-like</a>
+  servers.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExampleSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: "noncompliant"
-      VpcId: !Ref myVPC
+      VpcId: !Ref ExampleVpc
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22 # SSH traffic
           CidrIp: "0.0.0.0/0" # from all IP addresses is authorized
 </pre>
-<h3>Compliant solution</h3>
-<p>An ingress rule allowing inbound SSH traffic from specific IP addresses:</p>
-<pre>
-MySecurityGroup:
-    Type: "AWS::EC2::SecurityGroup"
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExampleSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: "compliant"
-      VpcId: !Ref myVPC
+      VpcId: !Ref ExampleVpc
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -35,14 +47,25 @@ MySecurityGroup:
           CidrIp: "1.2.3.0/24"
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-284</a> - Improper Access Control </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
+  <li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html">AWS Documentation</a> -
+    Security groups for your VPC
   </li>
-  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
-  <li> <a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html">AWS Documentation</a> - Security groups for your VPC </li>
-  <li> <a href="https://docs.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview">Azure Documentation</a> - Network security
-  groups </li>
-  <li> <a href="https://cloud.google.com/vpc/docs/using-firewalls">GCP Documentation</a> - Firewalls </li>
+  <li><a href="https://docs.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview">Azure
+    Documentation</a> - Network security
+    groups
+  </li>
+  <li><a href="https://cloud.google.com/vpc/docs/using-firewalls">GCP Documentation</a> - Firewalls</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li><a href="https://cwe.mitre.org/data/definitions/284">MITRE, CWE-284</a> - Improper Access Control</li>
+  <li><a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category
+    A5</a> - Broken Access Control
+  </li>
+  <li><a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken
+    Access Control
+  </li>
 </ul>
 

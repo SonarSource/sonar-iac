@@ -19,7 +19,7 @@ shutting down accesses.</p>
 </ul>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://azure.microsoft.com/fr-fr/services/kubernetes-service/">Azure Kubernetes Services</a>:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "azurerm_kubernetes_cluster" "example" {
   role_based_access_control {
     enabled = false # Sensitive
@@ -38,15 +38,14 @@ resource "azurerm_kubernetes_cluster" "example2" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a>:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 resource "azurerm_key_vault" "example" {
   enable_rbac_authorization = false # Sensitive
-
 }
 </pre>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://azure.microsoft.com/fr-fr/services/kubernetes-service/">Azure Kubernetes Services</a>:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "azurerm_kubernetes_cluster" "example" {
   role_based_access_control {
     enabled = true
@@ -65,10 +64,9 @@ resource "azurerm_kubernetes_cluster" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/fr-fr/services/key-vault/">Key Vaults</a>:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 resource "azurerm_key_vault" "example" {
   enable_rbac_authorization   = true
-
 }
 </pre>
 <h2>See</h2>

@@ -1,12 +1,48 @@
 <h2>Why is this an issue?</h2>
-<p>The Dockerfile instructions are not case-sensitive. However, they should be in upper case to distinguish them from arguments more easily. Shared
-coding conventions allow teams to collaborate effectively.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-from ubuntu:22.04 as jammy
+<p>While Dockerfile instructions are not case-sensitive, adhering to uppercase conventions for instructions helps
+  enhance clarity and collaboration
+  within development teams. This ensures that instructions are more easily distinguishable from arguments and
+  contributes to effective
+  collaboration.</p>
+<h3>What is the potential impact?</h3>
+<p>In the world of programming, even small details can have significant repercussions. The inconsistent use of uppercase
+  letters in Dockerfile
+  instructions may seem inconsequential at first glance, but it can lead to confusion, misinterpretation, and hinder
+  smooth teamwork.</p>
+<p>When Dockerfile instructions are written in a mix of lowercase and uppercase, it becomes challenging to quickly
+  identify and differentiate
+  instructions from arguments. This lack of visual uniformity can make it harder for developers to understand the
+  structure and purpose of the
+  Dockerfile. Teams may spend unnecessary time deciphering the code, which could be better utilized in productive
+  tasks.</p>
+<p>Inconsistencies in letter casing can lead to errors that are difficult to diagnose. Imagine spending hours trying to
+  locate a bug only to realize
+  that it resulted from a misinterpretation of an instruction due to inconsistent casing. Such situations can be
+  frustrating and can slow down the
+  development process.</p>
+<p>Additionally, modern IDEs provide syntax highlighting to help programmers navigate and comprehend code. However, IDEs
+  can sometimes fail to
+  highlight lowercase or mixed-case Dockerfile keywords properly, as they typically expect instructions to be in
+  uppercase.</p>
+<p>In essence, the inconsistent use of uppercase letters in Dockerfile instructions might seem like a minor concern, but
+  its impact reaches beyond
+  aesthetics. It affects comprehension, teamwork, error detection, and the overall development lifecycle.</p>
+<h2>How to fix it</h2>
+<p>Ensure that all Dockerfile instructions are written in uppercase letters. For instance, use FROM instead of from, RUN
+  instead of run, and so on. By
+  adopting this convention, you create a visual distinction between instructions and arguments.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+from ubuntu:22.04 aS jammy
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 FROM ubuntu:22.04 AS jammy
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> Dockerfile reference <a href="https://docs.docker.com/engine/reference/builder/#format">Format</a></li>
+</ul>
 

@@ -1,6 +1,12 @@
 {
   "title": "Azure custom roles should not grant subscription Owner capabilities",
   "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

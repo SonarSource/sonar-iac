@@ -37,12 +37,12 @@ stored in cleartext in the deployment history.</p>
 <h2>How to fix it in Bicep</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
+<pre data-diff-id="11" data-diff-type="noncompliant">
 @secure()
 param secureStringWithDefaultValue string = 'S3CR3T' // Noncompliant
 </pre>
 <h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
+<pre data-diff-id="11" data-diff-type="compliant">
 @secure()
 param secureStringWithDefaultValue string
 </pre>

@@ -32,6 +32,18 @@ servers.</p>
     ]
 }
 </pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource securityRules 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+  name: 'securityRules'
+  properties: {
+    direction: 'Inbound'
+    access: 'Allow'
+    protocol: '*'
+    destinationPortRange: '*'
+    sourceAddressPrefix: '*'
+  }
+}
+</pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
@@ -52,13 +64,29 @@ servers.</p>
     ]
 }
 </pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource securityRules 'Microsoft.Network/networkSecurityGroups/securityRules@2022-11-01' = {
+  name: 'securityRules'
+  properties: {
+    direction: 'Inbound'
+    access: 'Allow'
+    protocol: '*'
+    destinationPortRange: '22'
+    sourceAddressPrefix: '10.0.0.0/24'
+  }
+}
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html">AWS Documentation</a> - Security groups for your VPC </li>
-  <li> <a href="https://docs.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview">Azure Documentation</a> - Network security
-  groups </li>
-  <li> <a href="https://cloud.google.com/vpc/docs/using-firewalls">GCP Documentation</a> - Firewalls </li>
+  <li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html">AWS Documentation</a> -
+    Security groups for your VPC
+  </li>
+  <li><a href="https://docs.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview">Azure
+    Documentation</a> - Network security
+    groups
+  </li>
+  <li><a href="https://cloud.google.com/vpc/docs/using-firewalls">GCP Documentation</a> - Firewalls</li>
 </ul>
 <h3>Standards</h3>
 <ul>

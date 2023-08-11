@@ -13,16 +13,18 @@ resources depending on the sensitivity level of data they store or process. Ther
 <h2>Sensitive Code Example</h2>
 <p>Update permission is granted for all policies using the wildcard (*) in the <code>Resource</code> property:</p>
 <pre>
-MyPolicy:
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExamplePolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
         PolicyDocument:
             Version: "2012-10-17"
             Statement:
                 - Effect: Allow
-                Action:
+                  Action:
                     - "iam:CreatePolicyVersion"
-                Resource:
+                  Resource:
                     - "*" # Sensitive
         Roles:
             - !Ref MyRole
@@ -30,16 +32,18 @@ MyPolicy:
 <h2>Compliant Solution</h2>
 <p>Restrict update permission to the appropriate subset of policies:</p>
 <pre>
-MyPolicy:
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  ExamplePolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
         PolicyDocument:
             Version: "2012-10-17"
             Statement:
                 - Effect: Allow
-                Action:
+                  Action:
                     - "iam:CreatePolicyVersion"
-                Resource:
+                  Resource:
                     - !Sub "arn:aws:iam::${AWS::AccountId}:policy/team1/*"
         Roles:
             - !Ref MyRole

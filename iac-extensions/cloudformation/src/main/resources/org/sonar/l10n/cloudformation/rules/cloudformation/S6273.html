@@ -1,8 +1,57 @@
+<p>Amazon Web Services (AWS) resources tags are metadata labels with keys and optional values used to categorize and
+  manage resources. An ineffective
+  tagging strategy can lead to difficulties in resource identification, cost management, and overall AWS environment
+  management.</p>
 <h2>Why is this an issue?</h2>
-<p>Shared conventions allow teams to collaborate effectively. This rule allows to check that all tag keys match a provided regular expression.</p>
-<h3>Noncompliant code example</h3>
+<p>A well-structured tagging strategy is essential when working with AWS resources. Inadequate tagging practices can
+  lead to several potential issues
+  and make it challenging to manage your AWS environment effectively:</p>
+<p>When resources lack proper tags or have inconsistent tagging, it becomes difficult to identify their purpose, owner,
+  or role within the
+  infrastructure. This ambiguity can lead to confusion and errors during resource management and allocation. Without
+  clear and consistent tags, teams
+  may struggle to understand the resource’s function, hindering collaboration and efficiency.</p>
+<p>Effective tagging is crucial for monitoring and managing costs in AWS. Resources without appropriate tags may not be
+  adequately categorized, making
+  tracking their usage and associated expenses hard. As a result, it becomes challenging to allocate costs to specific
+  projects, departments, or teams
+  accurately. Poor cost visibility can lead to overspending, budgeting issues, and difficulty in optimizing resource
+  allocation.</p>
+<p>Tags play a significant role in resource security and compliance. Inadequate tagging can result in incorrectly
+  classified resources, leading to
+  potential security vulnerabilities and compliance risks. It becomes challenging to apply consistent security policies,
+  control access, and track
+  changes without proper tagging. This can leave the AWS environment more susceptible to unauthorized access and
+  compliance violations.</p>
+<p>Automation and governance rely on well-defined tags to enforce policies and ensure consistent resource management.
+  Inadequate tagging practices can
+  hinder automation efforts, making it challenging to automate resource provisioning, scaling, and deprovisioning.
+  Additionally, insufficient tags can
+  lead to governance challenges, making it harder to enforce standardized policies and configurations across
+  resources.</p>
+<p>Tags enable efficient resource search and filtering in the AWS Management Console and API. When tags are missing,
+  inconsistent, or irrelevant,
+  locating specific resources becomes cumbersome. Teams may need to resort to manual searches or resort to
+  resource-naming conventions, defeating the
+  purpose of tags. The lack of well-organized tags can increase the time and effort required for resource discovery and
+  impact productivity.</p>
+<p>Inadequate tagging practices can also impede resource lifecycle management. It becomes harder to track when resources
+  were created, their purpose,
+  and whether they are still in use. Without this vital information, it becomes challenging to identify and delete
+  unused or deprecated resources,
+  leading to resource sprawl and increased costs.</p>
+<p>In summary, an inadequate tagging strategy in AWS resources can lead to difficulties in resource identification, cost
+  management, security,
+  automation, and resource lifecycle management. It is crucial to establish a well-organized tagging approach to
+  mitigate these potential issues and
+  efficiently manage your AWS environment. In the following section, we will explore how to fix this code smell by
+  adopting best practices for tagging
+  AWS resources.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <p>With default provided regular expression ^([A-Z]<strong>:)</strong>([A-Z][A-Za-z]*)$:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   S3Bucket:
@@ -10,15 +59,13 @@ Resources:
     Properties:
       BucketName: "mybucketname"
       Tags:
-        - Key: "anycompany:cost-center" # Noncompliant
+        - Key: "anycompany:cost-center"
           Value: "Accounting"
-        - Key: "anycompany:EnvironmentType" # Noncompliant
+        - Key: "anycompany:EnvironmentType"
           Value: "PROD"
 </pre>
-<p>&nbsp;</p>
-<h3>Compliant solution</h3>
-<p>&nbsp;</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
   S3Bucket:
@@ -32,8 +79,8 @@ Resources:
           Value: "PROD"
 </pre>
 <h2>Resources</h2>
-<ul>
-  <li> <a href="https://docs.aws.amazon.com/whitepapers/latest/tagging-best-practices/adopt-a-standardized-approach-for-tag-names.html">AWS
-  Documentation</a>: Adopt a Standardized Approach for Tag Names </li>
-</ul>
+<h3>Documentation</h3>
+<p><a
+  href="https://docs.aws.amazon.com/whitepapers/latest/tagging-best-practices/adopt-a-standardized-approach-for-tag-names.html">AWS
+  Documentation</a> Adopt a Standardized Approach for Tag Names</p>
 

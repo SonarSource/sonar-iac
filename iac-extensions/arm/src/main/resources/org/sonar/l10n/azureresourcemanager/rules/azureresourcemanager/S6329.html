@@ -21,15 +21,27 @@ or disruption.</p>
 </ul>
 <p>There is a risk if you answered no to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Avoid publishing cloud services on the Internet unless they are intended to be publicly accessible, such as customer portals or e-commerce
-sites.</p>
-<p>Use private networks (and associated private IP addresses) and VPC peering or other secure communication tunnels to communicate with other cloud
-components.</p>
-<p>The goal is to prevent the component from intercepting traffic coming in via the public IP address. If the cloud resource does not support the
-absence of a public IP address, assign a public IP address to it, but do not create listeners for the public IP address.</p>
+<p>Avoid publishing cloud services on the Internet unless they are intended to be publicly accessible, such as customer
+  portals or e-commerce
+  sites.</p>
+<p>Use private networks (and associated private IP addresses) and VPC peering or other secure communication tunnels to
+  communicate with other cloud
+  components.</p>
+<p>The goal is to prevent the component from intercepting traffic coming in via the public IP address. If the cloud
+  resource does not support the
+  absence of a public IP address, assign a public IP address to it, but do not create listeners for the public IP
+  address.</p>
 <h2>Sensitive Code Example</h2>
 <p>Using <code>publicNetworkAccess</code> to control access to resources:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
+resource exampleSite "Microsoft.Web/sites@2020-12-01" {
+  name: 'example-site'
+  properties: {
+    publicNetworkAccess: 'Enabled'
+  }
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 {
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -37,7 +49,7 @@ absence of a public IP address, assign a public IP address to it, but do not cre
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-12-01",
-      "name": "example",
+      "name": "example-site",
       "properties": {
         "siteConfig": {
           "publicNetworkAccess": "Enabled"
@@ -47,7 +59,7 @@ absence of a public IP address, assign a public IP address to it, but do not cre
   ]
 }
 </pre>
-<pre data-diff-id="2" data-diff-type="noncompliant">
+<pre data-diff-id="3" data-diff-type="noncompliant">
 {
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -71,7 +83,16 @@ absence of a public IP address, assign a public IP address to it, but do not cre
 }
 </pre>
 <p>Using IP address ranges to control access to resources:</p>
-<pre data-diff-id="3" data-diff-type="noncompliant">
+<pre data-diff-id="4" data-diff-type="noncompliant">
+resource exampleFirewall "Microsoft.Sql/servers/firewallRules@2014-04-01" {
+  name: 'example-firewall'
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '255.255.255.255'
+  }
+}
+</pre>
+<pre data-diff-id="5" data-diff-type="noncompliant">
 {
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -79,7 +100,7 @@ absence of a public IP address, assign a public IP address to it, but do not cre
     {
       "type": "Microsoft.Sql/servers/firewallRules",
       "apiVersion": "2014-04-01",
-      "name": "example",
+      "name": "example-firewall",
       "properties": {
         "startIpAddress": "0.0.0.0",
         "endIpAddress": "255.255.255.255"
@@ -88,7 +109,7 @@ absence of a public IP address, assign a public IP address to it, but do not cre
   ]
 }
 </pre>
-<pre data-diff-id="4" data-diff-type="noncompliant">
+<pre data-diff-id="6" data-diff-type="noncompliant">
 {
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -96,7 +117,7 @@ absence of a public IP address, assign a public IP address to it, but do not cre
     {
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2014-04-01",
-      "name": "example",
+      "name": "example-database",
       "resources": [
         {
           "type": "firewallRules",
@@ -115,21 +136,11 @@ absence of a public IP address, assign a public IP address to it, but do not cre
 <h2>Compliant Solution</h2>
 <p>Using <code>publicNetworkAccess</code> to control access to resources:</p>
 <pre data-diff-id="1" data-diff-type="compliant">
-{
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2020-12-01",
-      "name": "example",
-      "properties": {
-        "siteConfig": {
-          "publicNetworkAccess": "Disabled"
-        }
-      }
-    }
-  ]
+resource exampleSite "Microsoft.Web/sites@2020-12-01" {
+  name: 'example-site'
+  properties: {
+    publicNetworkAccess: 'Disabled'
+  }
 }
 </pre>
 <pre data-diff-id="2" data-diff-type="compliant">
@@ -140,7 +151,25 @@ absence of a public IP address, assign a public IP address to it, but do not cre
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-12-01",
-      "name": "example",
+      "name": "example-site",
+      "properties": {
+        "siteConfig": {
+          "publicNetworkAccess": "Disabled"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="3" data-diff-type="compliant">
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-12-01",
+      "name": "example-site",
       "resources": [
         {
           "type": "config",
@@ -156,7 +185,16 @@ absence of a public IP address, assign a public IP address to it, but do not cre
 }
 </pre>
 <p>Using IP address ranges to control access to resources:</p>
-<pre data-diff-id="3" data-diff-type="compliant">
+<pre data-diff-id="4" data-diff-type="compliant">
+resource exampleFirewall "Microsoft.Sql/servers/firewallRules@2014-04-01" {
+  name: 'example-firewall'
+  properties: {
+    startIpAddress: '192.168.0.0'
+    endIpAddress: '192.168.255.255'
+  }
+}
+</pre>
+<pre data-diff-id="5" data-diff-type="compliant">
 {
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -164,7 +202,7 @@ absence of a public IP address, assign a public IP address to it, but do not cre
     {
       "type": "Microsoft.Sql/servers/firewallRules",
       "apiVersion": "2014-04-01",
-      "name": "example",
+      "name": "example-firewall",
       "properties": {
         "startIpAddress": "192.168.0.0",
         "endIpAddress": "192.168.255.255"
@@ -173,7 +211,7 @@ absence of a public IP address, assign a public IP address to it, but do not cre
   ]
 }
 </pre>
-<pre data-diff-id="4" data-diff-type="compliant">
+<pre data-diff-id="6" data-diff-type="compliant">
 {
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -181,7 +219,7 @@ absence of a public IP address, assign a public IP address to it, but do not cre
     {
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2014-04-01",
-      "name": "example",
+      "name": "example-database",
       "resources": [
         {
           "type": "firewallRules",

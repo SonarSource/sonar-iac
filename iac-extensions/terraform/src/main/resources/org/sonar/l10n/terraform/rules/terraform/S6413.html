@@ -6,14 +6,22 @@ enables them to quickly react to events, ranging from the most benign bugs to th
 allow investigators to establish a timeline of the actions perpetrated by an attacker.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> This component is essential for the information system infrastructure. </li>
-  <li> This component is essential for mission-critical functions. </li>
-  <li> Compliance policies require traceability for a longer duration. </li>
+  <li> This component is essential for the information system infrastructure.</li>
+  <li> This component is essential for mission-critical functions.</li>
+  <li> Compliance policies require traceability for a longer duration.</li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>Setting log retention period to 14 days is the bare minimum. It’s recommended to increase it to 30 days or above.</p>
 <h2>Sensitive Code Example</h2>
+<p>For <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html">AWS
+  Cloudwatch Logs</a>:</p>
+<pre>
+resource "aws_cloudwatch_log_group" "example" {
+  name = "example"
+  retention_in_days = 3 # Sensitive
+}
+</pre>
 <p>For <a href="https://docs.microsoft.com/en-us/azure/firewall-manager/policy-overview">Azure Firewall Policy</a>:</p>
 <pre>
 resource "azurerm_firewall_policy" "example" {
@@ -33,6 +41,14 @@ resource "google_logging_project_bucket_config" "example" {
 }
 </pre>
 <h2>Compliant Solution</h2>
+<p>For <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html">AWS
+  Cloudwatch Logs</a>:</p>
+<pre>
+resource "aws_cloudwatch_log_group" "example" {
+  name = "example"
+  retention_in_days = 30
+}
+</pre>
 <p>For <a href="https://docs.microsoft.com/en-us/azure/firewall-manager/policy-overview">Azure Firewall Policy</a>:</p>
 <pre>
 resource "azurerm_firewall_policy" "example" {
