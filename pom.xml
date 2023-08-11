@@ -10,7 +10,7 @@
 
   <groupId>org.sonarsource.iac</groupId>
   <artifactId>iac</artifactId>
-  <version>1.19-SNAPSHOT</version>
+  <version>1.20-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarSource IaC Analyzer</name>
