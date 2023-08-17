@@ -54,6 +54,7 @@ public class ArmSensor extends YamlSensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguages(JSON_LANGUAGE_KEY, language.getKey())
+      .processesFilesIndependently()
       .name("IaC " + language.getName() + " Sensor");
   }
 
