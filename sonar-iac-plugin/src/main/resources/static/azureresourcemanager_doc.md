@@ -8,7 +8,7 @@ key: azureresourcemanager
 | Format | Version          | Status              |
 |--------|------------------|---------------------|
 | JSON   | up to 2023-06-01 | Partially Supported |
-| Bicep  | any              | Not Supported       |
+| Bicep  | 0.20.x           | Partially Supported |
 
 ## Language-Specific Properties
 
