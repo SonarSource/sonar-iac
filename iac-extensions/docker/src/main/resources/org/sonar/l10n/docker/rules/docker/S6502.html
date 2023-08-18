@@ -1,34 +1,28 @@
 <p>Disabling builder sandboxes can lead to unauthorized access of the host system by malicious programs.</p>
 <p>By default, programs executed by a <code>RUN</code> statement use only a subset of <a
-  href="https://man7.org/linux/man-pages/man7/capabilities.7.html">capabilities</a> which are considered safe: this is
-  called <code>sandbox</code>
-  mode.</p>
-<p>If you disable the sandbox with the <code>--security=insecure</code> option, the executed command can use the full
-  set of Linux capabilities.<br>
-  This can lead to a container escape. For example, an attacker with the <code>SYS_ADMIN</code> capability is able to
-  mount devices from the host
-  system.</p>
-<p>This vulnerability allows an attacker who controls the behavior of the ran command to access the host system, break
-  out of the container and
-  penetrate the infrastructure.</p>
+href="https://man7.org/linux/man-pages/man7/capabilities.7.html">capabilities</a> which are considered safe: this is called <code>sandbox</code>
+mode.</p>
+<p>If you disable the sandbox with the <code>--security=insecure</code> option, the executed command can use the full set of Linux capabilities.<br>
+This can lead to a container escape. For example, an attacker with the <code>SYS_ADMIN</code> capability is able to mount devices from the host
+system.</p>
+<p>This vulnerability allows an attacker who controls the behavior of the ran command to access the host system, break out of the container and
+penetrate the infrastructure.</p>
 <p>After a successful intrusion, the underlying systems are exposed to:</p>
 <ul>
-  <li> theft of intellectual property and/or personal data</li>
-  <li> extortion</li>
-  <li> denial of service</li>
+  <li> theft of intellectual property and/or personal data </li>
+  <li> extortion </li>
+  <li> denial of service </li>
 </ul>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> The program is controlled by an external entity.</li>
-  <li> The program is part of a supply chain that could be a victim of a supply chain attack.</li>
+  <li> The program is controlled by an external entity. </li>
+  <li> The program is part of a supply chain that could be a victim of a supply chain attack. </li>
 </ul>
 <p>There is a risk if you answered yes to either of these questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Whenever possible, the sandbox should stay enabled to reduce unnecessary risk.</li>
-  <li> If elevated capabilities are absolutely necessary, make sure to verify the integrity of the program before
-    executing it.
-  </li>
+  <li> Whenever possible, the sandbox should stay enabled to reduce unnecessary risk. </li>
+  <li> If elevated capabilities are absolutely necessary, make sure to verify the integrity of the program before executing it. </li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>

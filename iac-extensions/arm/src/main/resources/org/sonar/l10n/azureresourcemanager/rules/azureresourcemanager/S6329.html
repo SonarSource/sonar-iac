@@ -21,16 +21,12 @@ or disruption.</p>
 </ul>
 <p>There is a risk if you answered no to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Avoid publishing cloud services on the Internet unless they are intended to be publicly accessible, such as customer
-  portals or e-commerce
-  sites.</p>
-<p>Use private networks (and associated private IP addresses) and VPC peering or other secure communication tunnels to
-  communicate with other cloud
-  components.</p>
-<p>The goal is to prevent the component from intercepting traffic coming in via the public IP address. If the cloud
-  resource does not support the
-  absence of a public IP address, assign a public IP address to it, but do not create listeners for the public IP
-  address.</p>
+<p>Avoid publishing cloud services on the Internet unless they are intended to be publicly accessible, such as customer portals or e-commerce
+sites.</p>
+<p>Use private networks (and associated private IP addresses) and VPC peering or other secure communication tunnels to communicate with other cloud
+components.</p>
+<p>The goal is to prevent the component from intercepting traffic coming in via the public IP address. If the cloud resource does not support the
+absence of a public IP address, assign a public IP address to it, but do not create listeners for the public IP address.</p>
 <h2>Sensitive Code Example</h2>
 <p>Using <code>publicNetworkAccess</code> to control access to resources:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">

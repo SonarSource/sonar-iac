@@ -43,12 +43,10 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2022-07-01' = {
   }
 }
 </pre>
-<p>Raise issue when <code>retentionDays</code> is smaller than <code>14</code>, but not <code>0</code> (zero), or if
-  <code>isEnabled</code> is
-  <code>false</code> or the <code>insights</code> block is missing.</p>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.network/networkwatchers/flowlogs">Microsoft
-  Network Network Watchers Flow
-  Logs</a>:</p>
+<p>Raise issue when <code>retentionDays</code> is smaller than <code>14</code>, but not <code>0</code> (zero), or if <code>isEnabled</code> is
+<code>false</code> or the <code>insights</code> block is missing.</p>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.network/networkwatchers/flowlogs">Microsoft Network Network Watchers Flow
+Logs</a>:</p>
 <pre data-diff-id="3" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -77,12 +75,10 @@ resource networkWatchersFlowLogs 'Microsoft.Network/networkWatchers/flowLogs@202
   }
 }
 </pre>
-<p>Raise issue when <code>days</code> is smaller than <code>14</code>, but not <code>0</code> (zero), or if <code>enabled</code>
-  is set to
-  <code>false</code> or <code>retentionPolicy</code> is missing.</p>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/2021-11-01/servers/auditingsettings">Microsoft
-  SQL Servers Auditing
-  Settings</a>:</p>
+<p>Raise issue when <code>days</code> is smaller than <code>14</code>, but not <code>0</code> (zero), or if <code>enabled</code> is set to
+<code>false</code> or <code>retentionPolicy</code> is missing.</p>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/2021-11-01/servers/auditingsettings">Microsoft SQL Servers Auditing
+Settings</a>:</p>
 <pre data-diff-id="5" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -108,14 +104,12 @@ resource sqlServerAudit 'Microsoft.Sql/servers/auditingSettings@2021-11-01' = {
 <p>Raise issue when retentionDays is smaller than <code>14</code>, but not <code>0</code> (zero).</p>
 <p>The same case applies to other types (when <code>type</code> field is set to one of following):</p>
 <ul>
-  <li><code>Microsoft.DBforMariaDB/servers/securityAlertPolicies</code> - for <a
-    href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformariadb/2018-06-01/servers/securityalertpolicies">Microsoft
-    DB for MariaDB
-    Servers Security Alert Policies</a></li>
-  <li><code>Microsoft.Sql/servers/databases/securityAlertPolicies</code> - for <a
-    href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers/databases/securityalertpolicies">Microsoft
-    Sql Servers Databases
-    Security Alert Policies</a></li>
+  <li> <code>Microsoft.DBforMariaDB/servers/securityAlertPolicies</code> - for <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.dbformariadb/2018-06-01/servers/securityalertpolicies">Microsoft DB for MariaDB
+  Servers Security Alert Policies</a> </li>
+  <li> <code>Microsoft.Sql/servers/databases/securityAlertPolicies</code> - for <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers/databases/securityalertpolicies">Microsoft Sql Servers Databases
+  Security Alert Policies</a> </li>
   <li> <code>Microsoft.Sql/servers/auditingPolicies</code> - for <a
   href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/servers/auditingpolicies">Microsoft Sql Servers Auditing Policies</a> </li>
   <li> <code>Microsoft.Synapse/workspaces/auditingSettings</code> - for <a
@@ -154,9 +148,8 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2022-07-01' = {
   }
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.network/networkwatchers/flowlogs">Microsoft
-  Network Network Watchers Flow
-  Logs</a>:</p>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.network/networkwatchers/flowlogs">Microsoft Network Network Watchers Flow
+Logs</a>:</p>
 <pre data-diff-id="3" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -185,9 +178,8 @@ resource networkWatchersFlowLogs 'Microsoft.Network/networkWatchers/flowLogs@202
   }
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/2021-11-01/servers/auditingsettings">Microsoft
-  SQL Servers Auditing
-  Settings</a>:</p>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.sql/2021-11-01/servers/auditingsettings">Microsoft SQL Servers Auditing
+Settings</a>:</p>
 <pre data-diff-id="5" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",

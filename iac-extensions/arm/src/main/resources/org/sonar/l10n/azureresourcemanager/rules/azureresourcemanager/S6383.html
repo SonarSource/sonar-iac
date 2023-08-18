@@ -49,9 +49,8 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-03-01' = {
   }
 }
 </pre>
-<p>For <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/2022-07-01/vaults?pivots=deployment-language-arm-template">Key
-  Vault</a>:</p>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/2022-07-01/vaults?pivots=deployment-language-arm-template">Key
+Vault</a>:</p>
 <pre data-diff-id="3" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -76,8 +75,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 </pre>
 <h2>Compliant Solution</h2>
 <p>For <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/2023-03-01/managedclusters?pivots=deployment-language-arm-template">AKS
-  Azure Kubernetes Service</a>:</p>
+href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/2023-03-01/managedclusters?pivots=deployment-language-arm-template">AKS
+Azure Kubernetes Service</a>:</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -106,9 +105,8 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-03-01' = {
   }
 }
 </pre>
-<p>For <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/2022-07-01/vaults?pivots=deployment-language-arm-template">Key
-  Vault</a>:</p>
+<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/2022-07-01/vaults?pivots=deployment-language-arm-template">Key
+Vault</a>:</p>
 <pre data-diff-id="3" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -133,13 +131,9 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 </pre>
 <h2>See</h2>
 <ul>
-  <li><a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access
-    Control
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
   </li>
-  <li><a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category
-    A5</a> - Broken Access Control
-  </li>
-  <li><a href="https://cwe.mitre.org/data/definitions/668">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere
-  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/668">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
 </ul>
 

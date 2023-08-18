@@ -1,37 +1,26 @@
 <h2>Why is this an issue?</h2>
-<p>Inadequately configured "Log Groups" can lead to indefinite storage of log streams on AWS, resulting in potential
-  cost implications and
-  non-compliance with data retention policies. It’s crucial to set the appropriate retention policy for <code>AWS::Logs::LogGroup</code>
-  by defining the
-  <code>RetentionInDays</code> property with a valid value.</p>
+<p>Inadequately configured "Log Groups" can lead to indefinite storage of log streams on AWS, resulting in potential cost implications and
+non-compliance with data retention policies. It’s crucial to set the appropriate retention policy for <code>AWS::Logs::LogGroup</code> by defining the
+<code>RetentionInDays</code> property with a valid value.</p>
 <h3>What is the potential impact?</h3>
-<p>Properly managing log data is essential for effective system monitoring, troubleshooting, and security auditing. The
-  failure to configure a
-  retention policy for "Log Groups" in AWS can have several detrimental consequences.</p>
-<p>Unnecessary Cost: Log events stored indefinitely result in increased storage costs over time. AWS charges for data
-  storage, and retaining
-  unnecessary logs can lead to higher expenses that could have been avoided.</p>
-<p>Non-compliance: Many industries and organizations are bound by strict data retention policies and regulatory
-  requirements. Failing to enforce a
-  retention period for logs may lead to violations, penalties, or legal issues.</p>
-<p>Security Risks: Keeping logs indefinitely exposes sensitive information to potential breaches. Storing unnecessary
-  data for an extended period
-  increases the attack surface and the potential impact of a security incident.</p>
-<p>Operational Inefficiency: The absence of a proper retention policy makes it harder to manage log data effectively.
-  Over time, log management tasks
-  become more complex, requiring additional effort and resources.</p>
-<p>Note: This rule doesn’t check if the value provided to <code>RetentionInDays</code> is valid because AWS
-  CloudFormation Linter (cfn-lint) does it
-  already</p>
+<p>Properly managing log data is essential for effective system monitoring, troubleshooting, and security auditing. The failure to configure a
+retention policy for "Log Groups" in AWS can have several detrimental consequences.</p>
+<p>Unnecessary Cost: Log events stored indefinitely result in increased storage costs over time. AWS charges for data storage, and retaining
+unnecessary logs can lead to higher expenses that could have been avoided.</p>
+<p>Non-compliance: Many industries and organizations are bound by strict data retention policies and regulatory requirements. Failing to enforce a
+retention period for logs may lead to violations, penalties, or legal issues.</p>
+<p>Security Risks: Keeping logs indefinitely exposes sensitive information to potential breaches. Storing unnecessary data for an extended period
+increases the attack surface and the potential impact of a security incident.</p>
+<p>Operational Inefficiency: The absence of a proper retention policy makes it harder to manage log data effectively. Over time, log management tasks
+become more complex, requiring additional effort and resources.</p>
+<p>Note: This rule doesn’t check if the value provided to <code>RetentionInDays</code> is valid because AWS CloudFormation Linter (cfn-lint) does it
+already</p>
 <h2>How to fix it</h2>
-<p>Ensure that each <code>AWS::Logs::LogGroup</code> resource includes the <code>RetentionInDays</code> property. Set
-  this property to a valid value
-  that aligns with your organization’s data retention policies and regulatory requirements.</p>
-<p>Choose an appropriate value for the retention based on your specific use case. Consider factors such as compliance
-  regulations, data analysis
-  needs, and storage cost considerations. For example, setting the value to 30 days may strike a balance between
-  retaining sufficient data for analysis
-  and avoiding unnecessary storage costs.</p>
+<p>Ensure that each <code>AWS::Logs::LogGroup</code> resource includes the <code>RetentionInDays</code> property. Set this property to a valid value
+that aligns with your organization’s data retention policies and regulatory requirements.</p>
+<p>Choose an appropriate value for the retention based on your specific use case. Consider factors such as compliance regulations, data analysis
+needs, and storage cost considerations. For example, setting the value to 30 days may strike a balance between retaining sufficient data for analysis
+and avoiding unnecessary storage costs.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -63,7 +52,6 @@
 <h2>Resources</h2>
 <ul>
   <li> AWS Documentation <a
-    href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">AWS::Logs::LogGroup</a>
-  </li>
+  href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">AWS::Logs::LogGroup</a> </li>
 </ul>
 
