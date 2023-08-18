@@ -1,23 +1,17 @@
-<p>Disabling certificate-based authentication can reduce an organization’s ability to react against attacks on its
-  critical functions and data.</p>
-<p>Azure offers various authentication options to access resources: Anonymous connections, Basic authentication,
-  password-based authentication, and
-  certificate-based authentication.</p>
-<p>Choosing certificate-based authentication helps bring client/host trust by allowing the host to verify the client and
-  vice versa. It cannot be
-  forged or forwarded by a man-in-the-middle eavesdropper, and the certificate’s private key is never sent over the
-  network so it’s harder to steal than
-  a password.</p>
-<p>In case of a security incident, certificates help bring investigators traceability and allow security operations
-  teams to react faster. For
-  example, all compromised certificates could be revoked individually, or an issuing certificate could be revoked which
-  causes all the certificates it
-  issued to become untrusted.</p>
+<p>Disabling certificate-based authentication can reduce an organization’s ability to react against attacks on its critical functions and data.</p>
+<p>Azure offers various authentication options to access resources: Anonymous connections, Basic authentication, password-based authentication, and
+certificate-based authentication.</p>
+<p>Choosing certificate-based authentication helps bring client/host trust by allowing the host to verify the client and vice versa. It cannot be
+forged or forwarded by a man-in-the-middle eavesdropper, and the certificate’s private key is never sent over the network so it’s harder to steal than
+a password.</p>
+<p>In case of a security incident, certificates help bring investigators traceability and allow security operations teams to react faster. For
+example, all compromised certificates could be revoked individually, or an issuing certificate could be revoked which causes all the certificates it
+issued to become untrusted.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> This Azure resource is essential for the information system infrastructure.</li>
-  <li> This Azure resource is essential for mission-critical functions.</li>
-  <li> Compliance policies require access to this resource to be authenticated with certificates.</li>
+  <li> This Azure resource is essential for the information system infrastructure. </li>
+  <li> This Azure resource is essential for mission-critical functions. </li>
+  <li> Compliance policies require access to this resource to be authenticated with certificates. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -30,7 +24,7 @@ resource "azurerm_app_service" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
-  href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
+href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
 <pre data-diff-id="2" data-diff-type="noncompliant">
 resource "azurerm_function_app" "example" {
   client_cert_mode = "Optional" # Sensitive
@@ -67,7 +61,7 @@ resource "azurerm_app_service" "example" {
 }
 </pre>
 <p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
-  href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
+href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
 <pre data-diff-id="2" data-diff-type="compliant">
 resource "azurerm_function_app" "example" {
   client_cert_mode = "Required"
@@ -95,11 +89,8 @@ resource "azurerm_linux_web_app" "exemple" {
 </pre>
 <h2>See</h2>
 <ul>
-  <li><a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access
-    Control
-  </li>
-  <li><a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category
-    A5</a> - Broken Access Control
+  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Boken Access Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control
   </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/668">MITRE, CWE-668</a> - Exposure of Resource to Wrong Sphere </li>
 </ul>

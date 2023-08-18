@@ -1,50 +1,35 @@
 <h2>Why is this an issue?</h2>
-<p>In certain AWS services, implicit creation of <code>Log Groups</code> can lead to unintended consequences when using
-  CloudFormation. Failure to
-  declare a <code>Log Group</code> within CloudFormation can result in unmanaged resources, impacting both cost and
-  security. To ensure effective
-  resource management and adherence to best practices, it is crucial to declare the target <code>Log Group</code> within
-  CloudFormation, aligning its
-  name with AWS conventions.</p>
+<p>In certain AWS services, implicit creation of <code>Log Groups</code> can lead to unintended consequences when using CloudFormation. Failure to
+declare a <code>Log Group</code> within CloudFormation can result in unmanaged resources, impacting both cost and security. To ensure effective
+resource management and adherence to best practices, it is crucial to declare the target <code>Log Group</code> within CloudFormation, aligning its
+name with AWS conventions.</p>
 <h3>What is the potential impact?</h3>
-<p>Implicit creation of <code>Log Groups</code> in certain AWS services poses a significant issue when working with
-  CloudFormation. When a Log Group
-  is not explicitly declared within CloudFormation, it is automatically generated at runtime. This leads to several
-  potentially dangerous
-  consequences.</p>
-<p>Unmanaged Resources: The automatically created <code>Log Groups</code> are not managed by CloudFormation. As a
-  result, they won’t be removed when
-  the associated Stack is deleted, leading to a clutter of unused resources over time.</p>
-<p>Lack of Configuration Control: Without explicit declaration, essential attributes of the Log Group, such as retention
-  policies, are not managed "as
-  code" within CloudFormation. This means that changes to these attributes can’t be tracked, versioned, or easily
-  replicated.</p>
-<p>Cost Implications: The perpetual existence of these auto-generated <code>Log Groups</code> can lead to unexpected and
-  unnecessary costs. Storing
-  data indefinitely in these logs can inflate storage expenses over time.</p>
-<p>Security Concerns: Prolonged retention of log data might conflict with company policies, industry regulations, or
-  best practices for data security
-  and privacy. Data that is intended to be temporary might inadvertently persist due to the lack of proper
-  management.</p>
-<p>Regulatory Compliance: Depending on the domain, industry, or region, organizations might be required to adhere to
-  specific data retention and
-  disposal guidelines. The uncontrolled retention of log data could lead to non-compliance issues.</p>
+<p>Implicit creation of <code>Log Groups</code> in certain AWS services poses a significant issue when working with CloudFormation. When a Log Group
+is not explicitly declared within CloudFormation, it is automatically generated at runtime. This leads to several potentially dangerous
+consequences.</p>
+<p>Unmanaged Resources: The automatically created <code>Log Groups</code> are not managed by CloudFormation. As a result, they won’t be removed when
+the associated Stack is deleted, leading to a clutter of unused resources over time.</p>
+<p>Lack of Configuration Control: Without explicit declaration, essential attributes of the Log Group, such as retention policies, are not managed "as
+code" within CloudFormation. This means that changes to these attributes can’t be tracked, versioned, or easily replicated.</p>
+<p>Cost Implications: The perpetual existence of these auto-generated <code>Log Groups</code> can lead to unexpected and unnecessary costs. Storing
+data indefinitely in these logs can inflate storage expenses over time.</p>
+<p>Security Concerns: Prolonged retention of log data might conflict with company policies, industry regulations, or best practices for data security
+and privacy. Data that is intended to be temporary might inadvertently persist due to the lack of proper management.</p>
+<p>Regulatory Compliance: Depending on the domain, industry, or region, organizations might be required to adhere to specific data retention and
+disposal guidelines. The uncontrolled retention of log data could lead to non-compliance issues.</p>
 <p>This rule applies to the following resources:</p>
 <ul>
-  <li><code>AWS::Lambda::Function</code></li>
-  <li><code>AWS::Serverless::Function</code></li>
-  <li><code>AWS::ApiGatewayV2::Api</code></li>
-  <li><code>AWS::CodeBuild::Project</code></li>
+  <li> <code>AWS::Lambda::Function</code> </li>
+  <li> <code>AWS::Serverless::Function</code> </li>
+  <li> <code>AWS::ApiGatewayV2::Api</code> </li>
+  <li> <code>AWS::CodeBuild::Project</code> </li>
 </ul>
 <h2>How to fix it</h2>
-<p>Ensure that you explicitly declare the <code>Log Group</code> resource. Assign it a logical name that aligns with AWS
-  naming conventions and your
-  application’s requirements.</p>
-<p>Depending on your application’s requirements, adjust additional properties of the <code>Log Group</code>, such as
-  retention policies, access
-  controls, and encryption settings. These properties should be managed within your CloudFormation template to ensure
-  consistency and versioned
-  control.</p>
+<p>Ensure that you explicitly declare the <code>Log Group</code> resource. Assign it a logical name that aligns with AWS naming conventions and your
+application’s requirements.</p>
+<p>Depending on your application’s requirements, adjust additional properties of the <code>Log Group</code>, such as retention policies, access
+controls, and encryption settings. These properties should be managed within your CloudFormation template to ensure consistency and versioned
+control.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre>
@@ -92,7 +77,6 @@ Resources:
 <h2>Resources</h2>
 <ul>
   <li> AWS Documentation <a
-    href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">AWS::Logs::LogGroup</a>
-  </li>
+  href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">AWS::Logs::LogGroup</a> </li>
 </ul>
 

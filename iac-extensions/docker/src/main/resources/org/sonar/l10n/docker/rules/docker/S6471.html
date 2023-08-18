@@ -1,29 +1,21 @@
-<p>Running containers as a privileged user weakens their runtime security, allowing any user whose code runs on the
-  container to perform
-  administrative actions.<br> In Linux containers, the privileged user is usually named <code>root</code>. In Windows
-  containers, the equivalent is
-  <code>ContainerAdministrator</code>.</p>
-<p>A malicious user can run code on a system either thanks to actions that could be deemed legitimate - depending on
-  internal business logic or
-  operational management shells - or thanks to malicious actions. For example, with arbitrary code execution after
-  exploiting a service that the
-  container hosts.</p>
+<p>Running containers as a privileged user weakens their runtime security, allowing any user whose code runs on the container to perform
+administrative actions.<br> In Linux containers, the privileged user is usually named <code>root</code>. In Windows containers, the equivalent is
+<code>ContainerAdministrator</code>.</p>
+<p>A malicious user can run code on a system either thanks to actions that could be deemed legitimate - depending on internal business logic or
+operational management shells - or thanks to malicious actions. For example, with arbitrary code execution after exploiting a service that the
+container hosts.</p>
 <p>Suppose the container is not hardened to prevent using a shell, interpreter, or <a
-  href="https://man7.org/linux/man-pages/man7/capabilities.7.html">Linux capabilities</a>. In this case, the malicious
-  user can read and exfiltrate any
-  file (including Docker volumes), open new network connections, install malicious software, or, worse, break out of the
-  container’s isolation context
-  by exploiting other components.</p>
-<p>This means giving the possibility to attackers to steal important infrastructure files, intellectual property, or
-  personal data.</p>
-<p>Depending on the infrastructure’s resilience, attackers may then extend their attack to other services, such as
-  Kubernetes clusters or cloud
-  providers, in order to maximize their reach.</p>
+href="https://man7.org/linux/man-pages/man7/capabilities.7.html">Linux capabilities</a>. In this case, the malicious user can read and exfiltrate any
+file (including Docker volumes), open new network connections, install malicious software, or, worse, break out of the container’s isolation context
+by exploiting other components.</p>
+<p>This means giving the possibility to attackers to steal important infrastructure files, intellectual property, or personal data.</p>
+<p>Depending on the infrastructure’s resilience, attackers may then extend their attack to other services, such as Kubernetes clusters or cloud
+providers, in order to maximize their reach.</p>
 <h2>Ask Yourself Whether</h2>
 <p>This container:</p>
 <ul>
-  <li> Serves services accessible from the Internet.</li>
-  <li> Does not require a privileged user to run.</li>
+  <li> Serves services accessible from the Internet. </li>
+  <li> Does not require a privileged user to run. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>

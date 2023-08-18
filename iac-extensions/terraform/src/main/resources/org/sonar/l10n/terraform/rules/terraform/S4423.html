@@ -1,58 +1,45 @@
 <p>This vulnerability exposes encrypted data to a number of attacks whose goal is to recover the plaintext.</p>
 <h2>Why is this an issue?</h2>
-<p>Encryption algorithms are essential for protecting sensitive information and ensuring secure communications in a
-  variety of domains. They are used
-  for several important reasons:</p>
+<p>Encryption algorithms are essential for protecting sensitive information and ensuring secure communications in a variety of domains. They are used
+for several important reasons:</p>
 <ul>
-  <li> Confidentiality, privacy, and intellectual property protection</li>
-  <li> Security during transmission or on storage devices</li>
-  <li> Data integrity, general trust, and authentication</li>
+  <li> Confidentiality, privacy, and intellectual property protection </li>
+  <li> Security during transmission or on storage devices </li>
+  <li> Data integrity, general trust, and authentication </li>
 </ul>
 <p>When selecting encryption algorithms, tools, or combinations, you should also consider two things:</p>
 <ol>
-  <li> No encryption is unbreakable.</li>
-  <li> The strength of an encryption algorithm is usually measured by the effort required to crack it within a
-    reasonable time frame.
-  </li>
+  <li> No encryption is unbreakable. </li>
+  <li> The strength of an encryption algorithm is usually measured by the effort required to crack it within a reasonable time frame. </li>
 </ol>
-<p>For these reasons, as soon as cryptography is included in a project, it is important to choose encryption algorithms
-  that are considered strong and
-  secure by the cryptography community.</p>
-<p>To provide communication security over a network, SSL and TLS are generally used. However, it is important to note
-  that the following protocols are
-  all considered weak by the cryptographic community, and are officially deprecated:</p>
+<p>For these reasons, as soon as cryptography is included in a project, it is important to choose encryption algorithms that are considered strong and
+secure by the cryptography community.</p>
+<p>To provide communication security over a network, SSL and TLS are generally used. However, it is important to note that the following protocols are
+all considered weak by the cryptographic community, and are officially deprecated:</p>
 <ul>
-  <li> SSL versions 1.0, 2.0 and 3.0</li>
-  <li> TLS versions 1.0 and 1.1</li>
+  <li> SSL versions 1.0, 2.0 and 3.0 </li>
+  <li> TLS versions 1.0 and 1.1 </li>
 </ul>
-<p>When these unsecured protocols are used, it is best practice to expect a breach: that a user or organization with
-  malicious intent will perform
-  mathematical attacks on this data after obtaining it by other means.</p>
+<p>When these unsecured protocols are used, it is best practice to expect a breach: that a user or organization with malicious intent will perform
+mathematical attacks on this data after obtaining it by other means.</p>
 <h3>What is the potential impact?</h3>
-<p>After retrieving encrypted data and performing cryptographic attacks on it on a given timeframe, attackers can
-  recover the plaintext that
-  encryption was supposed to protect.</p>
+<p>After retrieving encrypted data and performing cryptographic attacks on it on a given timeframe, attackers can recover the plaintext that
+encryption was supposed to protect.</p>
 <p>Depending on the recovered data, the impact may vary.</p>
-<p>Below are some real-world scenarios that illustrate the potential impact of an attacker exploiting the
-  vulnerability.</p>
+<p>Below are some real-world scenarios that illustrate the potential impact of an attacker exploiting the vulnerability.</p>
 <h4>Additional attack surface</h4>
-<p>By modifying the plaintext of the encrypted message, an attacker may be able to trigger additional vulnerabilities in
-  the code. An attacker can
-  further exploit a system to obtain more information.<br> Encrypted values are often considered trustworthy because it
-  would not be possible for a
-  third party to modify them under normal circumstances.</p>
+<p>By modifying the plaintext of the encrypted message, an attacker may be able to trigger additional vulnerabilities in the code. An attacker can
+further exploit a system to obtain more information.<br> Encrypted values are often considered trustworthy because it would not be possible for a
+third party to modify them under normal circumstances.</p>
 <h4>Breach of confidentiality and privacy</h4>
-<p>When encrypted data contains personal or sensitive information, its retrieval by an attacker can lead to privacy
-  violations, identity theft,
-  financial loss, reputational damage, or unauthorized access to confidential systems.</p>
+<p>When encrypted data contains personal or sensitive information, its retrieval by an attacker can lead to privacy violations, identity theft,
+financial loss, reputational damage, or unauthorized access to confidential systems.</p>
 <p>In this scenario, the company, its employees, users, and partners could be seriously affected.</p>
-<p>The impact is twofold, as data breaches and exposure of encrypted data can undermine trust in the organization, as
-  customers, clients and
-  stakeholders may lose confidence in the organization’s ability to protect their sensitive data.</p>
+<p>The impact is twofold, as data breaches and exposure of encrypted data can undermine trust in the organization, as customers, clients and
+stakeholders may lose confidence in the organization’s ability to protect their sensitive data.</p>
 <h4>Legal and compliance issues</h4>
-<p>In many industries and locations, there are legal and compliance requirements to protect sensitive data. If encrypted
-  data is compromised and the
-  plaintext can be recovered, companies face legal consequences, penalties, or violations of privacy laws.</p>
+<p>In many industries and locations, there are legal and compliance requirements to protect sensitive data. If encrypted data is compromised and the
+plaintext can be recovered, companies face legal consequences, penalties, or violations of privacy laws.</p>
 <h2>How to fix it in AWS API Gateway</h2>
 <h3>Code examples</h3>
 <p>These code samples illustrate how to fix this issue in both APIGateway and ApiGatewayV2.</p>
@@ -86,22 +73,17 @@ resource "aws_apigatewayv2_domain_name" "example" {
 }
 </pre>
 <h3>How does this work?</h3>
-<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong
-  by the cryptographic
-  community.</p>
+<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong by the cryptographic
+community.</p>
 <p>The best choices at the moment are the following.</p>
 <h4>Use TLS v1.2 or TLS v1.3</h4>
-<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography
-  community.<br></p>
-<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between
-  different systems that do not
-  yet have TLS v1.3 support.</p>
-<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and
-  insecure cipher suites that are
-  deprecated as insecure.</p>
-<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known
-  vulnerabilities from previous TLS
-  versions, and improves performance.</p>
+<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography community.<br></p>
+<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between different systems that do not
+yet have TLS v1.3 support.</p>
+<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and insecure cipher suites that are
+deprecated as insecure.</p>
+<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known vulnerabilities from previous TLS
+versions, and improves performance.</p>
 <h2>How to fix it in AWS OpenSearch</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -125,22 +107,17 @@ resource "aws_elasticsearch_domain" "example" {
 }
 </pre>
 <h3>How does this work?</h3>
-<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong
-  by the cryptographic
-  community.</p>
+<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong by the cryptographic
+community.</p>
 <p>The best choices at the moment are the following.</p>
 <h4>Use TLS v1.2 or TLS v1.3</h4>
-<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography
-  community.<br></p>
-<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between
-  different systems that do not
-  yet have TLS v1.3 support.</p>
-<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and
-  insecure cipher suites that are
-  deprecated as insecure.</p>
-<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known
-  vulnerabilities from previous TLS
-  versions, and improves performance.</p>
+<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography community.<br></p>
+<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between different systems that do not
+yet have TLS v1.3 support.</p>
+<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and insecure cipher suites that are
+deprecated as insecure.</p>
+<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known vulnerabilities from previous TLS
+versions, and improves performance.</p>
 <h2>How to fix it in Azure MSSQL</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -162,22 +139,17 @@ resource "azurerm_mssql_server" "example" {
 }
 </pre>
 <h3>How does this work?</h3>
-<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong
-  by the cryptographic
-  community.</p>
+<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong by the cryptographic
+community.</p>
 <p>The best choices at the moment are the following.</p>
 <h4>Use TLS v1.2 or TLS v1.3</h4>
-<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography
-  community.<br></p>
-<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between
-  different systems that do not
-  yet have TLS v1.3 support.</p>
-<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and
-  insecure cipher suites that are
-  deprecated as insecure.</p>
-<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known
-  vulnerabilities from previous TLS
-  versions, and improves performance.</p>
+<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography community.<br></p>
+<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between different systems that do not
+yet have TLS v1.3 support.</p>
+<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and insecure cipher suites that are
+deprecated as insecure.</p>
+<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known vulnerabilities from previous TLS
+versions, and improves performance.</p>
 <h2>How to fix it in GCP Load Balancers</h2>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
@@ -195,44 +167,33 @@ resource "google_compute_ssl_policy" "example" {
 }
 </pre>
 <h3>How does this work?</h3>
-<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong
-  by the cryptographic
-  community.</p>
+<p>As a rule of thumb, by default you should use the cryptographic algorithms and mechanisms that are considered strong by the cryptographic
+community.</p>
 <p>The best choices at the moment are the following.</p>
 <h4>Use TLS v1.2 or TLS v1.3</h4>
-<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography
-  community.<br></p>
-<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between
-  different systems that do not
-  yet have TLS v1.3 support.</p>
-<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and
-  insecure cipher suites that are
-  deprecated as insecure.</p>
-<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known
-  vulnerabilities from previous TLS
-  versions, and improves performance.</p>
+<p>Even though TLS V1.3 is available, using TLS v1.2 is still considered good and secure practice by the cryptography community.<br></p>
+<p>The use of TLS v1.2 ensures compatibility with a wide range of platforms and enables seamless communication between different systems that do not
+yet have TLS v1.3 support.</p>
+<p>The only drawback depends on whether the framework used is outdated: its TLS v1.2 settings may enable older and insecure cipher suites that are
+deprecated as insecure.</p>
+<p>On the other hand, TLS v1.3 removes support for older and weaker cryptographic algorithms, eliminates known vulnerabilities from previous TLS
+versions, and improves performance.</p>
 <h2>Resources</h2>
 <h3>Articles &amp; blog posts</h3>
 <ul>
-  <li><a href="https://en.wikipedia.org/wiki/Padding_oracle_attack">Wikipedia, Padding Oracle Attack</a></li>
-  <li><a href="https://en.wikipedia.org/wiki/Chosen-ciphertext_attack">Wikipedia, Chosen-Ciphertext Attack</a></li>
-  <li><a href="https://en.wikipedia.org/wiki/Chosen-plaintext_attack">Wikipedia, Chosen-Plaintext Attack</a></li>
-  <li><a href="https://en.wikipedia.org/wiki/Semantic_security">Wikipedia, Semantically Secure Cryptosystems</a></li>
-  <li><a href="https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding">Wikipedia, OAEP</a></li>
-  <li><a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode">Wikipedia, Galois/Counter Mode</a></li>
+  <li> <a href="https://en.wikipedia.org/wiki/Padding_oracle_attack">Wikipedia, Padding Oracle Attack</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Chosen-ciphertext_attack">Wikipedia, Chosen-Ciphertext Attack</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Chosen-plaintext_attack">Wikipedia, Chosen-Plaintext Attack</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Semantic_security">Wikipedia, Semantically Secure Cryptosystems</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding">Wikipedia, OAEP</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode">Wikipedia, Galois/Counter Mode</a> </li>
 </ul>
 <h3>Standards</h3>
 <ul>
-  <li><a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> -
-    Cryptographic Failures
-  </li>
-  <li><a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category
-    A6</a> - Security
-    Misconfiguration
-  </li>
-  <li><a href="https://cwe.mitre.org/data/definitions/327">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic
-    Algorithm
-  </li>
-  <li><a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses</li>
+  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/327">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>
 
