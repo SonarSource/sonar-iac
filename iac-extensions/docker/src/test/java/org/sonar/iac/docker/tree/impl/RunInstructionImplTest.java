@@ -19,6 +19,8 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -152,6 +154,12 @@ class RunInstructionImplTest {
       .matches("RUN <<\"EOT\"\n  mkdir -p foo/bar\nEOT")
       .notMatches("RUN <EOT\n  mkdir -p foo/bar\nEOT")
       .notMatches("RUN <<EOT\n  mkdir -p foo/bar\nEOT5");
+  }
+
+  @Test
+  void quickTest() {
+    RunInstruction tree = DockerTestUtils.parse("RUN echo \"foo && bar\" ${var}", DockerLexicalGrammar.RUN);
+    List<ArgumentResolution> resolved = tree.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
   }
 
   // SONARIAC-504

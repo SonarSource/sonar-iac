@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
@@ -70,7 +69,35 @@ class CommandDetectorTest {
     List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(2);
     assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(2));
+    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+  }
+
+  @Test
+  void shouldParseThreeCommandsWithNoSeparatorAnywhere() {
+    List<ArgumentResolution> arguments = buildArgumentList("command1;command2;command3");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> s.startsWith("command"))
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(3);
+    // TODO: add more test on value to check "command1", "command2" and "command3" with text range
+//    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
+//    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+//    assertThat(commands.get(2).resolvedArguments).containsExactly(arguments.get(2));
+  }
+
+  @Test
+  void shouldParseSingleCommandWithDoubleQuotes() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo \"foo && bar\"");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> true)
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(1);
+    // TODO: add more test on value to check "command1", "command2" and "command3" with text range
+//    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
+//    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+//    assertThat(commands.get(2).resolvedArguments).containsExactly(arguments.get(2));
   }
 
   @ParameterizedTest

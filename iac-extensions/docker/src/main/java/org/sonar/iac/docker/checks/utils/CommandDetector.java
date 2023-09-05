@@ -27,6 +27,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.command.Command;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -61,15 +63,13 @@ public class CommandDetector {
     return new Builder();
   }
 
-  private static final List<String> SPLIT_COMMAND_OPERATORS = List.of(";", "&&", "&", "||", "|");
-
   /**
    * A stack is formed on the basis of the arguments provided by a command instruction.
    * This stack is processed until there are no more usable elements.
    * The foremost element is taken from the stack and checked to see if it matches the command to be searched for.
    */
   public List<Command> search(List<ArgumentResolution> resolvedArguments) {
-    SeparatedList<List<ArgumentResolution>, ArgumentResolution> splitCommands = splitCommands(resolvedArguments);
+    SeparatedList<List<ArgumentResolution>, String> splitCommands = splitCommands(resolvedArguments);
     List<Command> commands = new ArrayList<>();
 
     for (List<ArgumentResolution> resolved : splitCommands.elements()) {
@@ -87,19 +87,35 @@ public class CommandDetector {
     return commands;
   }
 
-  private SeparatedList<List<ArgumentResolution>, ArgumentResolution> splitCommands(List<ArgumentResolution> resolvedArguments) {
+  private static final Pattern PATTERN_MULTIPLE_OPERATOR_DETECTION = Pattern.compile("(?<before>[^;&|]*)(?<operator>;|&&|&|\\|\\||\\|)(?<after>[^;&|]*)");
+  private SeparatedList<List<ArgumentResolution>, String> splitCommands(List<ArgumentResolution> resolvedArguments) {
     List<List<ArgumentResolution>> listOfArgumentList = new ArrayList<>();
-    List<ArgumentResolution> separators = new ArrayList<>();
-    int previousIndex = 0;
-    for (int i = 0; i < resolvedArguments.size(); i++) {
-      String str = resolvedArguments.get(i).value();
-      if (SPLIT_COMMAND_OPERATORS.contains(str)) {
-        listOfArgumentList.add(resolvedArguments.subList(previousIndex, i));
-        separators.add(resolvedArguments.get(i));
-        previousIndex = i + 1;
+    List<String> separators = new ArrayList<>();
+    List<ArgumentResolution> currentCommand = new ArrayList<>();
+
+    for (ArgumentResolution resolvedArgument : resolvedArguments) {
+      String str = resolvedArgument.value();
+      Matcher matcher = PATTERN_MULTIPLE_OPERATOR_DETECTION.matcher(str);
+      if (matcher.find()) {
+        do {
+          String before = matcher.group("before");
+          String operator = matcher.group("operator");
+          String after = matcher.group("after");
+          if (before != null) {
+            currentCommand.add(new ArgumentResolution(null, before, ArgumentResolution.Status.RESOLVED));
+          }
+          listOfArgumentList.add(currentCommand);
+          currentCommand = new ArrayList<>();
+          separators.add(operator);
+          if (after != null) {
+            currentCommand.add(new ArgumentResolution(null, after, ArgumentResolution.Status.RESOLVED));
+          }
+        } while (matcher.find());
+      } else {
+        currentCommand.add(resolvedArgument);
       }
     }
-    listOfArgumentList.add(resolvedArguments.subList(previousIndex, resolvedArguments.size()));
+    listOfArgumentList.add(currentCommand);
     return new SeparatedList<>(listOfArgumentList, separators);
   }
 

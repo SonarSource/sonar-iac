@@ -59,7 +59,7 @@ public class ArgumentResolution {
   @Nullable
   private final Argument argument;
 
-  private ArgumentResolution(@Nullable Argument argument, String value, Status status) {
+  public ArgumentResolution(@Nullable Argument argument, String value, Status status) {
     this.argument = argument;
     this.value = value;
     this.status = status;
