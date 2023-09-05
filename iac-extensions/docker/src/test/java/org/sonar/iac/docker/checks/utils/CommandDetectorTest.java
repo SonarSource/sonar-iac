@@ -22,6 +22,9 @@ package org.sonar.iac.docker.checks.utils;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
@@ -43,6 +46,84 @@ class CommandDetectorTest {
     assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
     assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
   }
+
+  @ParameterizedTest
+  @ValueSource(strings = {";", "&", "&&", "||", "|"})
+  void shouldParseMultipleCommand(String operator) {
+    List<ArgumentResolution> arguments = buildArgumentList("command1", operator, "command2");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> s.startsWith("command"))
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(2);
+    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
+    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(2));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {";", "&", "&&", "||", "|"})
+  void shouldParseMultipleCommandNoSeparatorAfter(String operator) {
+    List<ArgumentResolution> arguments = buildArgumentList("command1", operator + "command2");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> s.startsWith("command"))
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(2);
+    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
+    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(2));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {";", "&", "&&", "||", "|"})
+  void shouldParseMultipleCommandNoSeparatorBefore(String operator) {
+    List<ArgumentResolution> arguments = buildArgumentList("command1" + operator, "command2");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> s.startsWith("command"))
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(2);
+    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
+    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {";", "&", "&&", "||", "|"})
+  void shouldParseMultipleCommandFullyAttached(String operator) {
+    List<ArgumentResolution> arguments = buildArgumentList("command1" + operator + "command2");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> s.startsWith("command"))
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(2);
+    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
+    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+  }
+
+//  @ParameterizedTest
+//  @CsvSource({"(,)", "{,}", "[[,]]", "[,]", "`,`", "$(,)"})
+//  void shouldParseMultipleCommandWithGroupsDetached(String open, String close) {
+//    List<ArgumentResolution> arguments = buildArgumentList("command1", ";", open, "command2", close);
+//    CommandDetector detector = CommandDetector.builder()
+//      .with(s -> s.startsWith("command"))
+//      .build();
+//    List<CommandDetector.Command> commands = detector.search(arguments);
+//    assertThat(commands).hasSize(2);
+//    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
+//    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+//  }
+//
+//  @ParameterizedTest
+//  @CsvSource({"(,)", "{,}", "[[,]]", "[,]", "`,`", "$(,)"})
+//  void shouldParseMultipleCommandWithGroupsAttached(String open, String close) {
+//    List<ArgumentResolution> arguments = buildArgumentList("command1", ";", open + "command2" + close);
+//    CommandDetector detector = CommandDetector.builder()
+//      .with(s -> s.startsWith("command"))
+//      .build();
+//    List<CommandDetector.Command> commands = detector.search(arguments);
+//    assertThat(commands).hasSize(2);
+//    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
+//    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+//  }
 
   List<ArgumentResolution> buildArgumentList(String... strs) {
     List<ArgumentResolution> arguments = new ArrayList<>();

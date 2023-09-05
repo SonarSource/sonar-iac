@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.sonar.api.utils.command.Command;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -35,8 +36,11 @@ import org.sonar.iac.docker.checks.utils.command.CommandPredicate;
 import org.sonar.iac.docker.checks.utils.command.MultipleUnorderedOptionsPredicate;
 import org.sonar.iac.docker.checks.utils.command.OptionPredicate;
 import org.sonar.iac.docker.checks.utils.command.PredicateContext;
+import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
@@ -57,24 +61,46 @@ public class CommandDetector {
     return new Builder();
   }
 
+  private static final List<String> SPLIT_COMMAND_OPERATORS = List.of(";", "&&", "&", "||", "|");
+
   /**
    * A stack is formed on the basis of the arguments provided by a command instruction.
    * This stack is processed until there are no more usable elements.
    * The foremost element is taken from the stack and checked to see if it matches the command to be searched for.
    */
   public List<Command> search(List<ArgumentResolution> resolvedArguments) {
+    SeparatedList<List<ArgumentResolution>, ArgumentResolution> splitCommands = splitCommands(resolvedArguments);
     List<Command> commands = new ArrayList<>();
-    Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolvedArguments);
 
-    PredicateContext context = new PredicateContext(argumentStack, predicates);
+    for (List<ArgumentResolution> resolved : splitCommands.elements()) {
+      Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolved);
 
-    while (!argumentStack.isEmpty()) {
-      List<ArgumentResolution> commandArguments = fullMatch(context);
-      if (!commandArguments.isEmpty()) {
-        commands.add(new Command(commandArguments));
+      PredicateContext context = new PredicateContext(argumentStack, predicates);
+
+      while (!argumentStack.isEmpty()) {
+        List<ArgumentResolution> commandArguments = fullMatch(context);
+        if (!commandArguments.isEmpty()) {
+          commands.add(new Command(commandArguments));
+        }
       }
     }
     return commands;
+  }
+
+  private SeparatedList<List<ArgumentResolution>, ArgumentResolution> splitCommands(List<ArgumentResolution> resolvedArguments) {
+    List<List<ArgumentResolution>> listOfArgumentList = new ArrayList<>();
+    List<ArgumentResolution> separators = new ArrayList<>();
+    int previousIndex = 0;
+    for (int i = 0; i < resolvedArguments.size(); i++) {
+      String str = resolvedArguments.get(i).value();
+      if (SPLIT_COMMAND_OPERATORS.contains(str)) {
+        listOfArgumentList.add(resolvedArguments.subList(previousIndex, i));
+        separators.add(resolvedArguments.get(i));
+        previousIndex = i + 1;
+      }
+    }
+    listOfArgumentList.add(resolvedArguments.subList(previousIndex, resolvedArguments.size()));
+    return new SeparatedList<>(listOfArgumentList, separators);
   }
 
   /**
@@ -87,7 +113,7 @@ public class CommandDetector {
    */
   // Cognitive Complexity of methods should not be too high
   @SuppressWarnings("java:S3776")
-  public List<ArgumentResolution> fullMatch(PredicateContext context) {
+  private List<ArgumentResolution> fullMatch(PredicateContext context) {
     context.startNewfullMatchOn(context.getDetectorPredicates());
 
     while (context.arePredicatesToDetectLeft()) {
