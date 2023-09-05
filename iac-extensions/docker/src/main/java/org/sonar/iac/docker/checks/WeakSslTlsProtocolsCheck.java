@@ -28,6 +28,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
+import org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
@@ -41,7 +42,7 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
     .with("curl")
     .withOptionalRepeatingExcept("--tls-max")
     .with("--tls-max")
-    .with(WEAK_TLS_MAX_VERSIONS)
+    .with(new StringQuotedSetPredicate(WEAK_TLS_MAX_VERSIONS))
     .build();
 
   public static final Set<String> INSECURE_CURL_FLAGS = Set.of(
@@ -56,24 +57,24 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
 
   private static final CommandDetector WEAK_CURL_PROTOCOLS = CommandDetector.builder()
     .with("curl")
-    .withOptionalRepeatingExcept(INSECURE_CURL_FLAGS)
-    .with(INSECURE_CURL_FLAGS)
+    .withOptionalRepeatingExcept(new StringQuotedSetPredicate(INSECURE_CURL_FLAGS))
+    .with(new StringQuotedSetPredicate(INSECURE_CURL_FLAGS))
     .build();
 
   public static final String WGET_SECURE_PROTOCOL_FLAG = "--secure-protocol";
   public static final Set<String> INSECURE_WGET_PROTOCOLS = Set.of("SSLv2", "SSLv3", "TLSv1", "TLSv1_1");
   private static final CommandDetector WEAK_WGET_PROTOCOLS = CommandDetector.builder()
     .with("wget")
-    .withOptionalRepeatingExcept(WGET_SECURE_PROTOCOL_FLAG)
-    .with(WGET_SECURE_PROTOCOL_FLAG)
-    .with(INSECURE_WGET_PROTOCOLS)
+    .withOptionalRepeatingExcept(new StringQuotedSetPredicate(WGET_SECURE_PROTOCOL_FLAG))
+    .with(new StringQuotedSetPredicate(WGET_SECURE_PROTOCOL_FLAG))
+    .with(new StringQuotedSetPredicate(INSECURE_WGET_PROTOCOLS))
     .build();
 
-  private static final Pattern WEAK_WGET_PROTOCOLS_EQUAL_REGEX = Pattern.compile("--secure-protocol=((SSLv2)|(SSLv3)|(TLSv1)|(TLSv1_1))");
+  private static final Pattern WEAK_WGET_PROTOCOLS_EQUAL_REGEX = Pattern.compile("([\"'])?--secure-protocol=([\"'])?((SSLv2)|(SSLv3)|(TLSv1)|(TLSv1_1))([\"'])?");
 
   private static final CommandDetector WEAK_WGET_PROTOCOLS_EQUAL_SYNTAX = CommandDetector.builder()
     .with("wget")
-    .withOptionalRepeatingExcept(s -> s.startsWith(WGET_SECURE_PROTOCOL_FLAG))
+    .withOptionalRepeatingExcept(s -> WEAK_WGET_PROTOCOLS_EQUAL_REGEX.matcher(s).matches())
     .with(s -> WEAK_WGET_PROTOCOLS_EQUAL_REGEX.matcher(s).matches())
     .build();
 

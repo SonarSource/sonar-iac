@@ -442,9 +442,9 @@ RUN wget --user-agent "Mozilla" "${FLAG_AND_TLSV11_VERSION_ARG}" https://tls-v1-
 # The commands are not separated by `&&` or `|` or `;`, so the highlighting may be wrong
 # Noncompliant@+1
 RUN wget https://www.sonarsource.com && wget --user-agent "Mozilla" --secure-protocol TLSv1_1 https://tls-v1-0.badssl.com:1010
-#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-# Noncompliant@+1
+# Noncompliant@+3
 RUN wget https://www.sonarsource.com && \
     other command && \
     wget --user-agent "Mozilla" --secure-protocol TLSv1_1 https://tls-v1-0.badssl.com:1010 \

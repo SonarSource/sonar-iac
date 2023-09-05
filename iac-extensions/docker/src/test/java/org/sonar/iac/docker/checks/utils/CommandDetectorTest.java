@@ -97,6 +97,31 @@ class CommandDetectorTest {
     DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("echo");
     DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("\"foo && bar\"");
   }
+
+  @Test
+  void shouldParseSingleCommandWithSeparatorAtTheEnd() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "test", "&&");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> true)
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(2);
+    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("echo");
+    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("test");
+  }
+
+  @Test
+  void shouldParseSingleCommandWithSeparatorAtTheEndNoSpace() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "test&&");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> true)
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(2);
+    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("echo");
+    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("test");
+  }
+
   @Test
   void shouldParseSingleCommandWithSingleQuotes() {
     List<ArgumentResolution> arguments = buildArgumentList("echo", "'foo && bar'");
@@ -139,7 +164,7 @@ class CommandDetectorTest {
     List<ArgumentResolution> arguments = new ArrayList<>();
     for (String str : strs) {
       Argument arg = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(str, null, List.of()))));
-      arguments.add(ArgumentResolution.of(arg));
+      arguments.add(ArgumentResolution.ofNoStripQuotes(arg));
     }
     return arguments;
   }

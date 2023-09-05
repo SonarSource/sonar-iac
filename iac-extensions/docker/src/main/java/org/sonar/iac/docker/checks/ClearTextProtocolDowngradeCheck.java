@@ -28,8 +28,11 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
+import org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
+
+import static java.util.function.Predicate.not;
 
 @Rule(key = "S6506")
 public class ClearTextProtocolDowngradeCheck implements IacCheck {
@@ -53,7 +56,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final CommandDetector.Builder PROTO_FLAG_MISSING_OPTION_PREDICATES = CommandDetector.builder()
     .withOptional(OPTIONAL_OTHER_FLAGS)
     .with(PROTO_FLAG)
-    .notWith(PROTO_FLAG_OPTION::equals)
+    .notWith(new StringQuotedSetPredicate(PROTO_FLAG_OPTION))
     .withOptional(OPTIONAL_OTHER_FLAGS);
 
   private static final CommandDetector.Builder PROTO_FLAG_MISSING_PREDICATES = CommandDetector.builder()
@@ -64,7 +67,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final CommandDetector.Builder PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES = CommandDetector.builder()
     .withOptional(OPTIONAL_OTHER_FLAGS)
     .with(PROTO_FLAG)
-    .with(s -> !s.equals(PROTO_FLAG_OPTION))
+    .with(not(new StringQuotedSetPredicate(PROTO_FLAG_OPTION)))
     .withOptional(OPTIONAL_OTHER_FLAGS);
 
   // actual detectors

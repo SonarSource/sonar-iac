@@ -86,8 +86,8 @@ public class CommandDetector {
 
   private static final String COMMAND_WITHOUT_OPERATOR = "(?:\"(?:\\\\.|[^\"])*+\"|'(?:\\\\.|[^'])*+'|[^;&|])*+";
   private static final String OPERATOR_REGEX = ";|&&|&|\\|\\||\\|";
-  private static final Pattern PATTERN_MULTIPLE_OPERATOR_DETECTION = Pattern.compile(
-    "(?<before>" + COMMAND_WITHOUT_OPERATOR + ")(?<operator>" + OPERATOR_REGEX + ")(?<after>" + COMMAND_WITHOUT_OPERATOR + ")");
+  private static final Pattern PATTERN_MULTIPLE_OPERATOR_DETECTION_BEFORE = Pattern.compile(
+    "(?<before>" + COMMAND_WITHOUT_OPERATOR + ")(?<operator>" + OPERATOR_REGEX + ")");
 
   // Cognitive Complexity of methods should not be too high
   @SuppressWarnings("java:S3776")
@@ -101,22 +101,25 @@ public class CommandDetector {
       if ((str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'"))) {
         currentCommand.add(resolvedArgument);
       } else {
-        Matcher matcher = PATTERN_MULTIPLE_OPERATOR_DETECTION.matcher(str);
+        Matcher matcher = PATTERN_MULTIPLE_OPERATOR_DETECTION_BEFORE.matcher(str);
+        int endIndex = 0;
         if (matcher.find()) {
           do {
             String before = matcher.group("before");
             String operator = matcher.group("operator");
-            String after = matcher.group("after");
-            if (before != null) {
-              currentCommand.add(new ArgumentResolution(null, before, ArgumentResolution.Status.RESOLVED));
+            if (before != null && !before.isBlank()) {
+              // TODO improve argument
+              currentCommand.add(new ArgumentResolution(resolvedArgument.argument(), before, ArgumentResolution.Status.RESOLVED));
             }
             listOfArgumentList.add(currentCommand);
             currentCommand = new ArrayList<>();
             separators.add(operator);
-            if (after != null) {
-              currentCommand.add(new ArgumentResolution(null, after, ArgumentResolution.Status.RESOLVED));
-            }
+            endIndex = matcher.end();
           } while (matcher.find());
+          if (endIndex != str.length()) {
+            // TODO improve argument
+            currentCommand.add(new ArgumentResolution(resolvedArgument.argument(), str.substring(endIndex), ArgumentResolution.Status.RESOLVED));
+          }
         } else {
           currentCommand.add(resolvedArgument);
         }
