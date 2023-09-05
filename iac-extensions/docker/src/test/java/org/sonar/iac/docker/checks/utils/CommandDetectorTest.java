@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.iac.docker.DockerAssertions;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.impl.ArgumentImpl;
@@ -68,8 +69,8 @@ class CommandDetectorTest {
       .build();
     List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(2);
-    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
+    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("command2");
   }
 
   @Test
@@ -80,24 +81,32 @@ class CommandDetectorTest {
       .build();
     List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(3);
-    // TODO: add more test on value to check "command1", "command2" and "command3" with text range
-//    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-//    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
-//    assertThat(commands.get(2).resolvedArguments).containsExactly(arguments.get(2));
+    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
+    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("command2");
+    DockerAssertions.assertThat(commands.get(2).resolvedArguments.get(0)).hasValue("command3");
   }
 
   @Test
   void shouldParseSingleCommandWithDoubleQuotes() {
-    List<ArgumentResolution> arguments = buildArgumentList("echo \"foo && bar\"");
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "\"foo && bar\"");
     CommandDetector detector = CommandDetector.builder()
       .with(s -> true)
       .build();
     List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(1);
-    // TODO: add more test on value to check "command1", "command2" and "command3" with text range
-//    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-//    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
-//    assertThat(commands.get(2).resolvedArguments).containsExactly(arguments.get(2));
+    assertThat(commands).hasSize(2);
+    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("echo");
+    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("\"foo && bar\"");
+  }
+  @Test
+  void shouldParseSingleCommandWithSingleQuotes() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "'foo && bar'");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> true)
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(2);
+    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("echo");
+    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("'foo && bar'");
   }
 
   @ParameterizedTest
@@ -109,8 +118,8 @@ class CommandDetectorTest {
       .build();
     List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(2);
-    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
+    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("command2");
   }
 
   @ParameterizedTest
@@ -122,35 +131,9 @@ class CommandDetectorTest {
       .build();
     List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(2);
-    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
+    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
+    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("command2");
   }
-
-//  @ParameterizedTest
-//  @CsvSource({"(,)", "{,}", "[[,]]", "[,]", "`,`", "$(,)"})
-//  void shouldParseMultipleCommandWithGroupsDetached(String open, String close) {
-//    List<ArgumentResolution> arguments = buildArgumentList("command1", ";", open, "command2", close);
-//    CommandDetector detector = CommandDetector.builder()
-//      .with(s -> s.startsWith("command"))
-//      .build();
-//    List<CommandDetector.Command> commands = detector.search(arguments);
-//    assertThat(commands).hasSize(2);
-//    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-//    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
-//  }
-//
-//  @ParameterizedTest
-//  @CsvSource({"(,)", "{,}", "[[,]]", "[,]", "`,`", "$(,)"})
-//  void shouldParseMultipleCommandWithGroupsAttached(String open, String close) {
-//    List<ArgumentResolution> arguments = buildArgumentList("command1", ";", open + "command2" + close);
-//    CommandDetector detector = CommandDetector.builder()
-//      .with(s -> s.startsWith("command"))
-//      .build();
-//    List<CommandDetector.Command> commands = detector.search(arguments);
-//    assertThat(commands).hasSize(2);
-//    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-//    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
-//  }
 
   List<ArgumentResolution> buildArgumentList(String... strs) {
     List<ArgumentResolution> arguments = new ArrayList<>();

@@ -22,8 +22,10 @@ package org.sonar.iac.docker;
 import javax.annotation.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.TextRangeAssert;
+import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ArgumentAssert;
+import org.sonar.iac.docker.tree.api.ArgumentResolutionAssert;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.KeyValuePairAssert;
 
@@ -38,5 +40,9 @@ public class DockerAssertions {
 
   public static KeyValuePairAssert assertThat(KeyValuePair actual) {
     return KeyValuePairAssert.assertThat(actual);
+  }
+
+  public static ArgumentResolutionAssert assertThat(ArgumentResolution actual) {
+    return ArgumentResolutionAssert.assertThat(actual);
   }
 }

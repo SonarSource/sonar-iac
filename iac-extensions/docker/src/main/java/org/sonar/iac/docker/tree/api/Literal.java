@@ -21,4 +21,6 @@ package org.sonar.iac.docker.tree.api;
 
 public interface Literal extends Expression {
   String value();
+
+  String originalValue();
 }

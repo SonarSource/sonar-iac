@@ -149,7 +149,7 @@ public class ArgumentResolution {
     private void resolveExpression(Expression expression) {
       switch (expression.getKind()) {
         case STRING_LITERAL:
-          builder.addValue(((Literal) expression).value());
+          builder.addValue(((Literal) expression).originalValue());
           break;
         case EXPANDABLE_STRING_CHARACTERS:
           builder.addValue(((ExpandableStringCharacters) expression).value());

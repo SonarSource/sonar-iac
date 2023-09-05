@@ -30,7 +30,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.sonar.api.utils.command.Command;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
@@ -41,8 +40,6 @@ import org.sonar.iac.docker.checks.utils.command.PredicateContext;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
@@ -87,32 +84,42 @@ public class CommandDetector {
     return commands;
   }
 
-  private static final Pattern PATTERN_MULTIPLE_OPERATOR_DETECTION = Pattern.compile("(?<before>[^;&|]*)(?<operator>;|&&|&|\\|\\||\\|)(?<after>[^;&|]*)");
-  private SeparatedList<List<ArgumentResolution>, String> splitCommands(List<ArgumentResolution> resolvedArguments) {
+  private static final String COMMAND_WITHOUT_OPERATOR = "(?:\"(?:\\\\.|[^\"])*+\"|'(?:\\\\.|[^'])*+'|[^;&|])*+";
+  private static final String OPERATOR_REGEX = ";|&&|&|\\|\\||\\|";
+  private static final Pattern PATTERN_MULTIPLE_OPERATOR_DETECTION = Pattern.compile(
+    "(?<before>" + COMMAND_WITHOUT_OPERATOR + ")(?<operator>" + OPERATOR_REGEX + ")(?<after>" + COMMAND_WITHOUT_OPERATOR + ")");
+
+  // Cognitive Complexity of methods should not be too high
+  @SuppressWarnings("java:S3776")
+  private static SeparatedList<List<ArgumentResolution>, String> splitCommands(List<ArgumentResolution> resolvedArguments) {
     List<List<ArgumentResolution>> listOfArgumentList = new ArrayList<>();
     List<String> separators = new ArrayList<>();
     List<ArgumentResolution> currentCommand = new ArrayList<>();
 
     for (ArgumentResolution resolvedArgument : resolvedArguments) {
       String str = resolvedArgument.value();
-      Matcher matcher = PATTERN_MULTIPLE_OPERATOR_DETECTION.matcher(str);
-      if (matcher.find()) {
-        do {
-          String before = matcher.group("before");
-          String operator = matcher.group("operator");
-          String after = matcher.group("after");
-          if (before != null) {
-            currentCommand.add(new ArgumentResolution(null, before, ArgumentResolution.Status.RESOLVED));
-          }
-          listOfArgumentList.add(currentCommand);
-          currentCommand = new ArrayList<>();
-          separators.add(operator);
-          if (after != null) {
-            currentCommand.add(new ArgumentResolution(null, after, ArgumentResolution.Status.RESOLVED));
-          }
-        } while (matcher.find());
-      } else {
+      if ((str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'"))) {
         currentCommand.add(resolvedArgument);
+      } else {
+        Matcher matcher = PATTERN_MULTIPLE_OPERATOR_DETECTION.matcher(str);
+        if (matcher.find()) {
+          do {
+            String before = matcher.group("before");
+            String operator = matcher.group("operator");
+            String after = matcher.group("after");
+            if (before != null) {
+              currentCommand.add(new ArgumentResolution(null, before, ArgumentResolution.Status.RESOLVED));
+            }
+            listOfArgumentList.add(currentCommand);
+            currentCommand = new ArrayList<>();
+            separators.add(operator);
+            if (after != null) {
+              currentCommand.add(new ArgumentResolution(null, after, ArgumentResolution.Status.RESOLVED));
+            }
+          } while (matcher.find());
+        } else {
+          currentCommand.add(resolvedArgument);
+        }
       }
     }
     listOfArgumentList.add(currentCommand);
@@ -129,7 +136,7 @@ public class CommandDetector {
    */
   // Cognitive Complexity of methods should not be too high
   @SuppressWarnings("java:S3776")
-  private List<ArgumentResolution> fullMatch(PredicateContext context) {
+  private static List<ArgumentResolution> fullMatch(PredicateContext context) {
     context.startNewfullMatchOn(context.getDetectorPredicates());
 
     while (context.arePredicatesToDetectLeft()) {
