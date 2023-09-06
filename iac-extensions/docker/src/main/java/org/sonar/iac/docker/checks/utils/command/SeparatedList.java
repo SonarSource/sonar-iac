@@ -19,16 +19,9 @@
  */
 package org.sonar.iac.docker.checks.utils.command;
 
-import com.sonar.sslr.api.typed.Optional;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.sonar.iac.common.api.tree.IacToken;
-import org.sonar.iac.common.api.tree.Tree;
-import org.sonar.iac.common.api.tree.impl.Tuple;
 
 public class SeparatedList<T, U> {
 
@@ -47,26 +40,4 @@ public class SeparatedList<T, U> {
   public List<U> separators() {
     return separators.stream().filter(Objects::nonNull).collect(Collectors.toList());
   }
-
-  public static <R extends Tree, S extends IacToken> SeparatedList<R, S> separatedList(R firstElement, Optional<List<Tuple<S, R>>> additionalElements) {
-    return separatedList(firstElement, additionalElements.or(Collections.emptyList()));
-  }
-
-  public static <R extends Tree, S extends IacToken> SeparatedList<R, S> separatedList(R firstElement, List<Tuple<S, R>> additionalElements) {
-    List<R> elements = new ArrayList<>();
-    List<S> separators = new ArrayList<>();
-    elements.add(firstElement);
-
-    for (Tuple<S, R> elementsWithSeparators : additionalElements) {
-      separators.add(elementsWithSeparators.first());
-      elements.add(elementsWithSeparators.second());
-    }
-
-    return new SeparatedList<>(elements, separators);
-  }
-
-  public static <R extends Tree, S extends IacToken> SeparatedList<R, S> emptySeparatedList() {
-    return new SeparatedList<>(new ArrayList<>(), new ArrayList<>());
-  }
-
 }
