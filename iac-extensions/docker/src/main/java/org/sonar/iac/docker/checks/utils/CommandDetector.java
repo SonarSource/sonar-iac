@@ -81,28 +81,38 @@ public class CommandDetector {
    * This stack is processed until there are no more usable elements.
    * The foremost element is taken from the stack and checked to see if it matches the command to be searched for.
    */
-  public List<Command> search(List<ArgumentResolution> resolvedArguments) {
-    SeparatedList<List<ArgumentResolution>, String> splitCommands = splitCommands(resolvedArguments);
+  public List<Command> search(List<ArgumentResolution> resolved) {
     List<Command> commands = new ArrayList<>();
+    Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolved);
 
-    for (List<ArgumentResolution> resolved : splitCommands.elements()) {
-      Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolved);
+    PredicateContext context = new PredicateContext(argumentStack, predicates);
 
-      PredicateContext context = new PredicateContext(argumentStack, predicates);
-
-      while (!argumentStack.isEmpty()) {
-        List<ArgumentResolution> commandArguments = fullMatch(context);
-        if (!commandArguments.isEmpty()) {
-          commands.add(new Command(commandArguments));
-        }
+    while (!argumentStack.isEmpty()) {
+      List<ArgumentResolution> commandArguments = fullMatch(context);
+      if (!commandArguments.isEmpty()) {
+        commands.add(new Command(commandArguments));
       }
     }
     return commands;
   }
 
-  // Cognitive Complexity of methods should not be too high
-  @SuppressWarnings("java:S3776")
-  private static SeparatedList<List<ArgumentResolution>, String> splitCommands(List<ArgumentResolution> resolvedArguments) {
+  /**
+   * Perform the same {@link #search(List)} but before it split the command with {@link #splitCommands(List)}.
+   */
+  public List<Command> searchWithSplit(List<ArgumentResolution> resolvedArguments) {
+    SeparatedList<List<ArgumentResolution>, String> splitCommands = splitCommands(resolvedArguments);
+    List<Command> commands = new ArrayList<>();
+
+    for (List<ArgumentResolution> resolved : splitCommands.elements()) {
+      commands.addAll(search(resolved));
+    }
+    return commands;
+  }
+
+  /**
+   * Split commands by separators: {@code &&}, {@code ||}, {@code &}, {@code |} and {@code ;}.
+   */
+  public static SeparatedList<List<ArgumentResolution>, String> splitCommands(List<ArgumentResolution> resolvedArguments) {
     SeparatedListBuilder separatedListBuilder = new SeparatedListBuilder();
 
     for (ArgumentResolution resolvedArgument : resolvedArguments) {

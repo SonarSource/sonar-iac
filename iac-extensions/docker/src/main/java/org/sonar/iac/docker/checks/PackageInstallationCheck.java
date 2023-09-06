@@ -57,7 +57,7 @@ public class PackageInstallationCheck implements IacCheck {
   private static void checkRunInstruction(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
-    SENSITIVE_APT_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
-    SENSITIVE_APTITUDE_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    SENSITIVE_APT_COMMAND.searchWithSplit(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    SENSITIVE_APTITUDE_COMMAND.searchWithSplit(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
   }
 }
