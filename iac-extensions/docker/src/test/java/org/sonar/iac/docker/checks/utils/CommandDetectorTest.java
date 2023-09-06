@@ -51,113 +51,58 @@ class CommandDetectorTest {
   @ValueSource(strings = {";", "&", "&&", "||", "|"})
   void shouldParseMultipleCommand(String operator) {
     List<ArgumentResolution> arguments = buildArgumentList("command1", operator, "command2");
-    CommandDetector detector = CommandDetector.builder()
-      .with(s -> s.startsWith("command"))
-      .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(2);
-    assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
-    assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(2));
+    assertDetectedCommands(arguments, "command1", "command2");
   }
 
   @ParameterizedTest
   @ValueSource(strings = {";", "&", "&&", "||", "|"})
   void shouldParseMultipleCommandNoSeparatorAfter(String operator) {
     List<ArgumentResolution> arguments = buildArgumentList("command1", operator + "command2");
-    CommandDetector detector = CommandDetector.builder()
-      .with(s -> s.startsWith("command"))
-      .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(2);
-    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
-    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("command2");
-  }
-
-  @Test
-  void shouldParseThreeCommandsWithNoSeparatorAnywhere() {
-    List<ArgumentResolution> arguments = buildArgumentList("command1;command2;command3");
-    CommandDetector detector = CommandDetector.builder()
-      .with(s -> s.startsWith("command"))
-      .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(3);
-    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
-    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("command2");
-    DockerAssertions.assertThat(commands.get(2).resolvedArguments.get(0)).hasValue("command3");
-  }
-
-  @Test
-  void shouldParseSingleCommandWithDoubleQuotes() {
-    List<ArgumentResolution> arguments = buildArgumentList("echo", "\"foo && bar\"");
-    CommandDetector detector = CommandDetector.builder()
-      .with(s -> true)
-      .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(2);
-    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("echo");
-    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("\"foo && bar\"");
-  }
-
-  @Test
-  void shouldParseSingleCommandWithSeparatorAtTheEnd() {
-    List<ArgumentResolution> arguments = buildArgumentList("echo", "test", "&&");
-    CommandDetector detector = CommandDetector.builder()
-      .with(s -> true)
-      .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(2);
-    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("echo");
-    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("test");
-  }
-
-  @Test
-  void shouldParseSingleCommandWithSeparatorAtTheEndNoSpace() {
-    List<ArgumentResolution> arguments = buildArgumentList("echo", "test&&");
-    CommandDetector detector = CommandDetector.builder()
-      .with(s -> true)
-      .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(2);
-    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("echo");
-    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("test");
-  }
-
-  @Test
-  void shouldParseSingleCommandWithSingleQuotes() {
-    List<ArgumentResolution> arguments = buildArgumentList("echo", "'foo && bar'");
-    CommandDetector detector = CommandDetector.builder()
-      .with(s -> true)
-      .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(2);
-    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("echo");
-    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("'foo && bar'");
+    assertDetectedCommands(arguments, "command1", "command2");
   }
 
   @ParameterizedTest
   @ValueSource(strings = {";", "&", "&&", "||", "|"})
   void shouldParseMultipleCommandNoSeparatorBefore(String operator) {
     List<ArgumentResolution> arguments = buildArgumentList("command1" + operator, "command2");
-    CommandDetector detector = CommandDetector.builder()
-      .with(s -> s.startsWith("command"))
-      .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(2);
-    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
-    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("command2");
+    assertDetectedCommands(arguments, "command1", "command2");
   }
 
   @ParameterizedTest
   @ValueSource(strings = {";", "&", "&&", "||", "|"})
   void shouldParseMultipleCommandFullyAttached(String operator) {
     List<ArgumentResolution> arguments = buildArgumentList("command1" + operator + "command2");
-    CommandDetector detector = CommandDetector.builder()
-      .with(s -> s.startsWith("command"))
-      .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
-    assertThat(commands).hasSize(2);
-    DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
-    DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue("command2");
+    assertDetectedCommands(arguments, "command1", "command2");
+  }
+
+  @Test
+  void shouldParseThreeCommandsWithNoSeparatorAnywhere() {
+    List<ArgumentResolution> arguments = buildArgumentList("command1;command2;command3");
+    assertDetectedCommands(arguments, "command1", "command2", "command3");
+  }
+
+  @Test
+  void shouldParseSingleCommandWithMultipleOperatorInDoubleQuotes() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "\"foo && bar\"");
+    assertDetectedCommands(arguments, "echo", "\"foo && bar\"");
+  }
+
+  @Test
+  void shouldParseSingleCommandWithMultipleOperatorInSingleQuotes() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "'foo && bar'");
+    assertDetectedCommands(arguments, "echo", "'foo && bar'");
+  }
+
+  @Test
+  void shouldParseSingleCommandWithSeparatorAtTheEnd() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "test", "&&");
+    assertDetectedCommands(arguments, "echo", "test");
+  }
+
+  @Test
+  void shouldParseSingleCommandWithSeparatorAtTheEndNoSpace() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "test&&");
+    assertDetectedCommands(arguments, "echo", "test");
   }
 
   List<ArgumentResolution> buildArgumentList(String... strs) {
@@ -167,6 +112,17 @@ class CommandDetectorTest {
       arguments.add(ArgumentResolution.ofNoStripQuotes(arg));
     }
     return arguments;
+  }
+
+  void assertDetectedCommands(List<ArgumentResolution> resolvedArguments, String... commandList) {
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> true)
+      .build();
+    List<CommandDetector.Command> commands = detector.search(resolvedArguments);
+    assertThat(commands).hasSize(commandList.length);
+    for (int i = 0; i < commandList.length; i++) {
+      DockerAssertions.assertThat(commands.get(i).resolvedArguments.get(0)).hasValue(commandList[i]);
+    }
   }
 
 }

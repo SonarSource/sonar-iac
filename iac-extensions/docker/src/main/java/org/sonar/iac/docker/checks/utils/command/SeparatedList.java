@@ -36,8 +36,4 @@ public class SeparatedList<T, U> {
   public List<T> elements() {
     return elements;
   }
-
-  public List<U> separators() {
-    return separators.stream().filter(Objects::nonNull).collect(Collectors.toList());
-  }
 }
