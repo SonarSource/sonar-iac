@@ -17,38 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.checks.utils.command;
+package org.sonar.iac.docker.checks.utils;
 
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class StringQuotedSetPredicate implements Predicate<String> {
-  private final Set<String> values;
-
-  private StringQuotedSetPredicate(String value) {
-    this.values = Set.of(value);
+public class StringPredicate {
+  private StringPredicate() {
   }
 
-  private StringQuotedSetPredicate(Set<String> values) {
-    this.values = values;
+  public static Predicate<String> equalsIgnoreQuotes(String value) {
+    return str -> stripQuotes(str).equals(value);
   }
 
-  public static StringQuotedSetPredicate equalsIgnoreQuotes(String value) {
-    return new StringQuotedSetPredicate(value);
+  public static Predicate<String> containsIgnoreQuotes(Set<String> values) {
+    return str -> values.contains(stripQuotes(str));
   }
 
-  public static StringQuotedSetPredicate containsIgnoreQuotes(Set<String> values) {
-    return new StringQuotedSetPredicate(values);
-  }
-
-  @Override
-  public boolean test(String s) {
-    String text;
+  private static String stripQuotes(String s) {
     if ((s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("'") && s.endsWith("'"))) {
-      text = s.substring(1, s.length() - 1);
+      return s.substring(1, s.length() - 1);
     } else {
-      text = s;
+      return s;
     }
-    return values.contains(text);
   }
 }

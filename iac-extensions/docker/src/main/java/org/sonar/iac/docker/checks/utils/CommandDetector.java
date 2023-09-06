@@ -58,13 +58,21 @@ public class CommandDetector {
 
   private static final String STRING_IN_DOUBLE_QUOTES = "\"(?:\\\\.|[^\"])*+\"";
   private static final String STRING_IN_SIMPLE_QUOTES = "'(?:\\\\.|[^'])*+'";
-  private static final String CHARACTER_OUTSIDE_OF_QUOTES = "[^;&|]";
-  private static final String COMMAND_WITHOUT_OPERATOR = "(?:" + STRING_IN_DOUBLE_QUOTES + "|" + STRING_IN_SIMPLE_QUOTES + "|" + CHARACTER_OUTSIDE_OF_QUOTES + ")*+";
-  private static final String OPERATOR_REGEX = "(?:;|&&|&|\\|\\||\\|)";
-  private static final Pattern PATTERN_FULL_MULTIPLE_COMMAND = Pattern.compile(
-    "^(?<firstCommand>" + COMMAND_WITHOUT_OPERATOR + ")(?<rest>(?:" + OPERATOR_REGEX + COMMAND_WITHOUT_OPERATOR + ")++)$");
-  private static final Pattern PATTERN_PARSE_REST = Pattern.compile(
-    "(?<operator>" + OPERATOR_REGEX + ")(?<command>" + COMMAND_WITHOUT_OPERATOR + ")");
+  private static final String NON_SEPARATOR_CHARACTER = "[^;&|]";
+  private static final String COMMAND_WITHOUT_OPERATOR = "(?:" + STRING_IN_DOUBLE_QUOTES + "|" + STRING_IN_SIMPLE_QUOTES + "|" + NON_SEPARATOR_CHARACTER + ")*+";
+  private static final String OPERATORS = "(?:;|&&|&|\\|\\||\\|)";
+
+  /**
+   * Validate that the provided input is a mix of commands separated by operators. Split them as firstCommand and the rest.
+   */
+  private static final Pattern FIRST_COMMAND_AND_REST_REGEX = Pattern.compile(
+    "^(?<firstCommand>" + COMMAND_WITHOUT_OPERATOR + ")(?<rest>(?:" + OPERATORS + COMMAND_WITHOUT_OPERATOR + ")++)$");
+
+  /**
+   * Parse repeating operators and commands in the rest part of the {@link #FIRST_COMMAND_AND_REST_REGEX}.
+   */
+  private static final Pattern OPERATOR_AND_COMMAND_REGEX = Pattern.compile(
+    "(?<operator>" + OPERATORS + ")(?<command>" + COMMAND_WITHOUT_OPERATOR + ")");
 
   private final List<CommandPredicate> predicates;
 
@@ -123,7 +131,7 @@ public class CommandDetector {
 
   private static void parseCommand(SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument) {
     String argument = resolvedArgument.value();
-    Matcher fullMatcher = PATTERN_FULL_MULTIPLE_COMMAND.matcher(argument);
+    Matcher fullMatcher = FIRST_COMMAND_AND_REST_REGEX.matcher(argument);
     if (fullMatcher.find()) {
       String firstCommand = fullMatcher.group("firstCommand");
       String rest = fullMatcher.group("rest");
@@ -138,7 +146,7 @@ public class CommandDetector {
   }
 
   private static void parseTheRestOfTheCommand(SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument, Matcher fullMatcher, String rest) {
-    Matcher matcher = PATTERN_PARSE_REST.matcher(rest);
+    Matcher matcher = OPERATOR_AND_COMMAND_REGEX.matcher(rest);
     while (matcher.find()) {
       String operator = matcher.group("operator");
       String command = matcher.group("command");
@@ -287,7 +295,7 @@ public class CommandDetector {
     public CommandDetector.Builder withAnyOptionExcluding(Collection<String> excludedFlags) {
       SingularPredicate flagPredicate = new SingularPredicate(s -> s.startsWith("-") && !excludedFlags.contains(s), ZERO_OR_MORE);
       // should not test for any flag only possible values
-      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || "&&".equals(s) || excludedFlags.contains(s)), ZERO_OR_MORE);
+      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || excludedFlags.contains(s)), ZERO_OR_MORE);
       addOptionPredicate(flagPredicate, valuePredicate);
       return this;
     }
@@ -323,12 +331,12 @@ public class CommandDetector {
 
   public static class SeparatedListBuilder {
     private List<ArgumentResolution> currentCommand;
-    private final List<List<ArgumentResolution>> listOfArgumentList;
+    private final List<List<ArgumentResolution>> commands;
     private final List<String> separators;
 
     public SeparatedListBuilder() {
       this.currentCommand = new ArrayList<>();
-      this.listOfArgumentList = new ArrayList<>();
+      this.commands = new ArrayList<>();
       this.separators = new ArrayList<>();
     }
 
@@ -337,18 +345,18 @@ public class CommandDetector {
     }
 
     public void addOperator(String operator) {
-      listOfArgumentList.add(currentCommand);
+      commands.add(currentCommand);
       currentCommand = new ArrayList<>();
       separators.add(operator);
     }
 
     public SeparatedList<List<ArgumentResolution>, String> build() {
       storeTheLastCommand();
-      return new SeparatedList<>(listOfArgumentList, separators);
+      return new SeparatedList<>(commands, separators);
     }
 
     private void storeTheLastCommand() {
-      listOfArgumentList.add(currentCommand);
+      commands.add(currentCommand);
     }
   }
 }

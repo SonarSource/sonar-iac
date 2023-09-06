@@ -32,7 +32,7 @@ import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 import static java.util.function.Predicate.not;
-import static org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate.equalsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.StringPredicate.equalsIgnoreQuotes;
 
 @Rule(key = "S6506")
 public class ClearTextProtocolDowngradeCheck implements IacCheck {

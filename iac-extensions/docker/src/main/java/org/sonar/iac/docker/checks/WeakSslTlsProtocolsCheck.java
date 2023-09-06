@@ -21,6 +21,7 @@ package org.sonar.iac.docker.checks;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -28,12 +29,11 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
-import org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
-import static org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate.containsIgnoreQuotes;
-import static org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate.equalsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.StringPredicate.containsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.StringPredicate.equalsIgnoreQuotes;
 
 @Rule(key = "S4423")
 public class WeakSslTlsProtocolsCheck implements IacCheck {
@@ -58,7 +58,7 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
     "-1",
     "--tlsv1.1");
 
-  private static final StringQuotedSetPredicate INSECURE_CURL_PREDICATE = containsIgnoreQuotes(INSECURE_CURL_FLAGS);
+  private static final Predicate<String> INSECURE_CURL_PREDICATE = containsIgnoreQuotes(INSECURE_CURL_FLAGS);
   private static final CommandDetector WEAK_CURL_PROTOCOLS = CommandDetector.builder()
     .with("curl")
     .withOptionalRepeatingExcept(INSECURE_CURL_PREDICATE)
@@ -67,7 +67,7 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
 
   public static final String WGET_SECURE_PROTOCOL_FLAG = "--secure-protocol";
   public static final Set<String> INSECURE_WGET_PROTOCOLS = Set.of("SSLv2", "SSLv3", "TLSv1", "TLSv1_1");
-  private static final StringQuotedSetPredicate WGET_SECURE_PROTOCOL_PREDICATE = equalsIgnoreQuotes(WGET_SECURE_PROTOCOL_FLAG);
+  private static final Predicate<String> WGET_SECURE_PROTOCOL_PREDICATE = equalsIgnoreQuotes(WGET_SECURE_PROTOCOL_FLAG);
   private static final CommandDetector WEAK_WGET_PROTOCOLS = CommandDetector.builder()
     .with("wget")
     .withOptionalRepeatingExcept(WGET_SECURE_PROTOCOL_PREDICATE)
