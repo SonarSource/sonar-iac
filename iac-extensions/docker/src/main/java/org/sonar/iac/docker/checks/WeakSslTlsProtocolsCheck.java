@@ -55,18 +55,20 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
     "-1",
     "--tlsv1.1");
 
+  private static final StringQuotedSetPredicate INSECURE_CURL_PREDICATE = new StringQuotedSetPredicate(INSECURE_CURL_FLAGS);
   private static final CommandDetector WEAK_CURL_PROTOCOLS = CommandDetector.builder()
     .with("curl")
-    .withOptionalRepeatingExcept(new StringQuotedSetPredicate(INSECURE_CURL_FLAGS))
-    .with(new StringQuotedSetPredicate(INSECURE_CURL_FLAGS))
+    .withOptionalRepeatingExcept(INSECURE_CURL_PREDICATE)
+    .with(INSECURE_CURL_PREDICATE)
     .build();
 
   public static final String WGET_SECURE_PROTOCOL_FLAG = "--secure-protocol";
   public static final Set<String> INSECURE_WGET_PROTOCOLS = Set.of("SSLv2", "SSLv3", "TLSv1", "TLSv1_1");
+  private static final StringQuotedSetPredicate WGET_SECURE_PROTOCOL_PREDICATE = new StringQuotedSetPredicate(WGET_SECURE_PROTOCOL_FLAG);
   private static final CommandDetector WEAK_WGET_PROTOCOLS = CommandDetector.builder()
     .with("wget")
-    .withOptionalRepeatingExcept(new StringQuotedSetPredicate(WGET_SECURE_PROTOCOL_FLAG))
-    .with(new StringQuotedSetPredicate(WGET_SECURE_PROTOCOL_FLAG))
+    .withOptionalRepeatingExcept(WGET_SECURE_PROTOCOL_PREDICATE)
+    .with(WGET_SECURE_PROTOCOL_PREDICATE)
     .with(new StringQuotedSetPredicate(INSECURE_WGET_PROTOCOLS))
     .build();
 

@@ -62,7 +62,7 @@ public class CommandDetector {
   private static final String COMMAND_WITHOUT_OPERATOR = "(?:" + STRING_IN_DOUBLE_QUOTES + "|" + STRING_IN_SIMPLE_QUOTES + "|" + CHARACTER_OUTSIDE_OF_QUOTES + ")*+";
   private static final String OPERATOR_REGEX = "(?:;|&&|&|\\|\\||\\|)";
   private static final Pattern PATTERN_FULL_MULTIPLE_COMMAND = Pattern.compile(
-    "^(?<firstCommand>" + COMMAND_WITHOUT_OPERATOR + ")(?<rest>(?:" + OPERATOR_REGEX + COMMAND_WITHOUT_OPERATOR + ")+)$");
+    "^(?<firstCommand>" + COMMAND_WITHOUT_OPERATOR + ")(?<rest>(?:" + OPERATOR_REGEX + COMMAND_WITHOUT_OPERATOR + ")++)$");
   private static final Pattern PATTERN_PARSE_REST = Pattern.compile(
     "(?<operator>" + OPERATOR_REGEX + ")(?<command>" + COMMAND_WITHOUT_OPERATOR + ")");
 
@@ -103,40 +103,41 @@ public class CommandDetector {
   // Cognitive Complexity of methods should not be too high
   @SuppressWarnings("java:S3776")
   private static SeparatedList<List<ArgumentResolution>, String> splitCommands(List<ArgumentResolution> resolvedArguments) {
-    List<List<ArgumentResolution>> listOfArgumentList = new ArrayList<>();
-    List<String> separators = new ArrayList<>();
-    List<ArgumentResolution> currentCommand = new ArrayList<>();
+    SeparatedListBuilder separatedListBuilder = new SeparatedListBuilder();
 
     for (ArgumentResolution resolvedArgument : resolvedArguments) {
-      String argument = resolvedArgument.value();
-      Matcher fullMatcher = PATTERN_FULL_MULTIPLE_COMMAND.matcher(argument);
-      if (fullMatcher.find()) {
-        String firstCommand = fullMatcher.group("firstCommand");
-        String rest = fullMatcher.group("rest");
-        if (firstCommand != null && !firstCommand.isBlank()) {
-          ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, firstCommand, 0);
-          currentCommand.add(newResolvedArg);
-        }
+      parseCommand(separatedListBuilder, resolvedArgument);
+    }
+    return separatedListBuilder.build();
+  }
 
-        // parse the rest of the multi-command
-        Matcher matcher = PATTERN_PARSE_REST.matcher(rest);
-        while (matcher.find()) {
-          String operator = matcher.group("operator");
-          String command = matcher.group("command");
-          listOfArgumentList.add(currentCommand);
-          currentCommand = new ArrayList<>();
-          separators.add(operator);
-          if (command != null && !command.isBlank()) {
-            ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, command, fullMatcher.start("rest") + matcher.start("command"));
-            currentCommand.add(newResolvedArg);
-          }
-        }
-      } else {
-        currentCommand.add(resolvedArgument);
+  private static void parseCommand(SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument) {
+    String argument = resolvedArgument.value();
+    Matcher fullMatcher = PATTERN_FULL_MULTIPLE_COMMAND.matcher(argument);
+    if (fullMatcher.find()) {
+      String firstCommand = fullMatcher.group("firstCommand");
+      String rest = fullMatcher.group("rest");
+      if (firstCommand != null && !firstCommand.isBlank()) {
+        ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, firstCommand, 0);
+        separatedListBuilder.addToCurrentCommand(newResolvedArg);
+      }
+      parseTheRestOfTheCommand(separatedListBuilder, resolvedArgument, fullMatcher, rest);
+    } else {
+      separatedListBuilder.addToCurrentCommand(resolvedArgument);
+    }
+  }
+
+  private static void parseTheRestOfTheCommand(SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument, Matcher fullMatcher, String rest) {
+    Matcher matcher = PATTERN_PARSE_REST.matcher(rest);
+    while (matcher.find()) {
+      String operator = matcher.group("operator");
+      String command = matcher.group("command");
+      separatedListBuilder.addOperator(operator);
+      if (command != null && !command.isBlank()) {
+        ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, command, fullMatcher.start("rest") + matcher.start("command"));
+        separatedListBuilder.addToCurrentCommand(newResolvedArg);
       }
     }
-    listOfArgumentList.add(currentCommand);
-    return new SeparatedList<>(listOfArgumentList, separators);
   }
 
   private static ArgumentResolution buildSubArgument(ArgumentResolution resolvedArgument, String firstCommand, int offsetShift) {
@@ -276,7 +277,7 @@ public class CommandDetector {
     public CommandDetector.Builder withAnyOptionExcluding(Collection<String> excludedFlags) {
       SingularPredicate flagPredicate = new SingularPredicate(s -> s.startsWith("-") && !excludedFlags.contains(s), ZERO_OR_MORE);
       // should not test for any flag only possible values
-      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || s.equals("&&") || excludedFlags.contains(s)), ZERO_OR_MORE);
+      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || "&&".equals(s) || excludedFlags.contains(s)), ZERO_OR_MORE);
       addOptionPredicate(flagPredicate, valuePredicate);
       return this;
     }
@@ -310,4 +311,34 @@ public class CommandDetector {
     }
   }
 
+  public static class SeparatedListBuilder {
+    private List<ArgumentResolution> currentCommand;
+    private final List<List<ArgumentResolution>> listOfArgumentList;
+    private final List<String> separators;
+
+    public SeparatedListBuilder() {
+      this.currentCommand = new ArrayList<>();
+      this.listOfArgumentList = new ArrayList<>();
+      this.separators = new ArrayList<>();
+    }
+
+    public void addToCurrentCommand(ArgumentResolution argumentResolution) {
+      currentCommand.add(argumentResolution);
+    }
+
+    public void addOperator(String operator) {
+      listOfArgumentList.add(currentCommand);
+      currentCommand = new ArrayList<>();
+      separators.add(operator);
+    }
+
+    public SeparatedList<List<ArgumentResolution>, String> build() {
+      storeTheLastCommand();
+      return new SeparatedList<>(listOfArgumentList, separators);
+    }
+
+    private void storeTheLastCommand() {
+      listOfArgumentList.add(currentCommand);
+    }
+  }
 }
