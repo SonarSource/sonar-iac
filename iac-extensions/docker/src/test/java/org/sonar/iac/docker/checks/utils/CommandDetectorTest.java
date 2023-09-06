@@ -21,6 +21,8 @@ package org.sonar.iac.docker.checks.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -94,6 +96,12 @@ class CommandDetectorTest {
   }
 
   @Test
+  void shouldParseMultipleCommandWithResolvedArgumentCompressedWithQuotesAndMultipleOperator() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "'foo'&&'bar'");
+    assertDetectedCommands(arguments, "echo", "'foo'", "'bar'");
+  }
+
+  @Test
   void shouldParseSingleCommandWithSeparatorAtTheEnd() {
     List<ArgumentResolution> arguments = buildArgumentList("echo", "test", "&&");
     assertDetectedCommands(arguments, "echo", "test");
@@ -125,4 +133,22 @@ class CommandDetectorTest {
     }
   }
 
+  @Test
+  void quickTest() {
+    String operator = "&&";
+    String strings = "(?:\"(?:\\\\.|[^\"])*+\"|[^&])*+";
+    Pattern pat = Pattern.compile("^(?<strings>"+strings+")(?:(?<operator>"+operator+")(?<strings2>"+strings+"))+$");
+
+    assertThat(pat.matcher("test").matches()).isFalse();
+    assertThat(pat.matcher("\"foo && bar\"").matches()).isFalse();
+    assertThat(pat.matcher("foo && bar").matches()).isTrue();
+    assertThat(pat.matcher("foo &&").matches()).isTrue();
+    assertThat(pat.matcher("&& foo").matches()).isTrue();
+    assertThat(pat.matcher("foo&&").matches()).isTrue();
+    assertThat(pat.matcher("&&foo").matches()).isTrue();
+    assertThat(pat.matcher("\"foo \"&&\" bar\"").matches()).isTrue();
+
+    Matcher m = pat.matcher("foo && bar && barbar");
+    m.find();
+  }
 }

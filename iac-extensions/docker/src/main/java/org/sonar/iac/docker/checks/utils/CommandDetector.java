@@ -50,6 +50,16 @@ import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.
 
 public class CommandDetector {
 
+  private static final String STRING_IN_DOUBLE_QUOTES = "\"(?:\\\\.|[^\"])*+\"";
+  private static final String STRING_IN_SIMPLE_QUOTES = "'(?:\\\\.|[^'])*+'";
+  private static final String CHARACTER_OUTSIDE_OF_QUOTES = "[^;&|]";
+  private static final String COMMAND_WITHOUT_OPERATOR = "(?:" + STRING_IN_DOUBLE_QUOTES + "|" + STRING_IN_SIMPLE_QUOTES + "|" + CHARACTER_OUTSIDE_OF_QUOTES + ")*+";
+  private static final String OPERATOR_REGEX = "(?:;|&&|&|\\|\\||\\|)";
+  private static final Pattern PATTERN_FULL_MULTIPLE_COMMAND = Pattern.compile(
+    "^(?<firstCommand>" + COMMAND_WITHOUT_OPERATOR + ")(?<rest>(?:" + OPERATOR_REGEX + COMMAND_WITHOUT_OPERATOR + ")+)$");
+  private static final Pattern PATTERN_PARSE_REST = Pattern.compile(
+    "(?<operator>" + OPERATOR_REGEX + ")(?<command>" + COMMAND_WITHOUT_OPERATOR + ")");
+
   private final List<CommandPredicate> predicates;
 
   private CommandDetector(List<CommandPredicate> predicates) {
@@ -84,11 +94,6 @@ public class CommandDetector {
     return commands;
   }
 
-  private static final String COMMAND_WITHOUT_OPERATOR = "(?:\"(?:\\\\.|[^\"])*+\"|'(?:\\\\.|[^'])*+'|[^;&|])*+";
-  private static final String OPERATOR_REGEX = ";|&&|&|\\|\\||\\|";
-  private static final Pattern PATTERN_MULTIPLE_OPERATOR_DETECTION_BEFORE = Pattern.compile(
-    "(?<before>" + COMMAND_WITHOUT_OPERATOR + ")(?<operator>" + OPERATOR_REGEX + ")");
-
   // Cognitive Complexity of methods should not be too high
   @SuppressWarnings("java:S3776")
   private static SeparatedList<List<ArgumentResolution>, String> splitCommands(List<ArgumentResolution> resolvedArguments) {
@@ -98,31 +103,30 @@ public class CommandDetector {
 
     for (ArgumentResolution resolvedArgument : resolvedArguments) {
       String str = resolvedArgument.value();
-      if ((str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'"))) {
-        currentCommand.add(resolvedArgument);
-      } else {
-        Matcher matcher = PATTERN_MULTIPLE_OPERATOR_DETECTION_BEFORE.matcher(str);
-        int endIndex = 0;
-        if (matcher.find()) {
-          do {
-            String before = matcher.group("before");
-            String operator = matcher.group("operator");
-            if (before != null && !before.isBlank()) {
-              // TODO improve argument
-              currentCommand.add(new ArgumentResolution(resolvedArgument.argument(), before, ArgumentResolution.Status.RESOLVED));
-            }
-            listOfArgumentList.add(currentCommand);
-            currentCommand = new ArrayList<>();
-            separators.add(operator);
-            endIndex = matcher.end();
-          } while (matcher.find());
-          if (endIndex != str.length()) {
-            // TODO improve argument
-            currentCommand.add(new ArgumentResolution(resolvedArgument.argument(), str.substring(endIndex), ArgumentResolution.Status.RESOLVED));
-          }
-        } else {
-          currentCommand.add(resolvedArgument);
+      Matcher fullMatcher = PATTERN_FULL_MULTIPLE_COMMAND.matcher(str);
+      if (fullMatcher.find()) {
+        String firstCommand = fullMatcher.group("firstCommand");
+        String rest = fullMatcher.group("rest");
+        if (firstCommand != null && !firstCommand.isBlank()) {
+          // TODO improve argument
+          currentCommand.add(new ArgumentResolution(resolvedArgument.argument(), firstCommand, ArgumentResolution.Status.RESOLVED));
         }
+
+        // parse the rest of the multi-command
+        Matcher matcher = PATTERN_PARSE_REST.matcher(rest);
+        while (matcher.find()) {
+          String operator = matcher.group("operator");
+          String command = matcher.group("command");
+          listOfArgumentList.add(currentCommand);
+          currentCommand = new ArrayList<>();
+          separators.add(operator);
+          if (command != null && !command.isBlank()) {
+            // TODO improve argument
+            currentCommand.add(new ArgumentResolution(resolvedArgument.argument(), command, ArgumentResolution.Status.RESOLVED));
+          }
+        }
+      } else {
+        currentCommand.add(resolvedArgument);
       }
     }
     listOfArgumentList.add(currentCommand);
