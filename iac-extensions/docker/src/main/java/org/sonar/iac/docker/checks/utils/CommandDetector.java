@@ -102,8 +102,8 @@ public class CommandDetector {
     List<ArgumentResolution> currentCommand = new ArrayList<>();
 
     for (ArgumentResolution resolvedArgument : resolvedArguments) {
-      String str = resolvedArgument.value();
-      Matcher fullMatcher = PATTERN_FULL_MULTIPLE_COMMAND.matcher(str);
+      String argument = resolvedArgument.value();
+      Matcher fullMatcher = PATTERN_FULL_MULTIPLE_COMMAND.matcher(argument);
       if (fullMatcher.find()) {
         String firstCommand = fullMatcher.group("firstCommand");
         String rest = fullMatcher.group("rest");

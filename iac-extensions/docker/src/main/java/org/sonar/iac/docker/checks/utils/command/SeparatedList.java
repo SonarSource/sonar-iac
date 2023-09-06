@@ -20,8 +20,6 @@
 package org.sonar.iac.docker.checks.utils.command;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class SeparatedList<T, U> {
 
