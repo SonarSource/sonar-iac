@@ -40,7 +40,13 @@ import org.sonar.iac.docker.checks.utils.command.PredicateContext;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
+import org.sonar.iac.docker.tree.impl.ArgumentImpl;
+import org.sonar.iac.docker.tree.impl.LiteralImpl;
+import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.OPTIONAL;
@@ -108,8 +114,8 @@ public class CommandDetector {
         String firstCommand = fullMatcher.group("firstCommand");
         String rest = fullMatcher.group("rest");
         if (firstCommand != null && !firstCommand.isBlank()) {
-          // TODO improve argument
-          currentCommand.add(new ArgumentResolution(resolvedArgument.argument(), firstCommand, ArgumentResolution.Status.RESOLVED));
+          ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, firstCommand, 0);
+          currentCommand.add(newResolvedArg);
         }
 
         // parse the rest of the multi-command
@@ -121,8 +127,8 @@ public class CommandDetector {
           currentCommand = new ArrayList<>();
           separators.add(operator);
           if (command != null && !command.isBlank()) {
-            // TODO improve argument
-            currentCommand.add(new ArgumentResolution(resolvedArgument.argument(), command, ArgumentResolution.Status.RESOLVED));
+            ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, command, fullMatcher.start("rest") + matcher.start("command"));
+            currentCommand.add(newResolvedArg);
           }
         }
       } else {
@@ -131,6 +137,14 @@ public class CommandDetector {
     }
     listOfArgumentList.add(currentCommand);
     return new SeparatedList<>(listOfArgumentList, separators);
+  }
+
+  private static ArgumentResolution buildSubArgument(ArgumentResolution resolvedArgument, String firstCommand, int offsetShift) {
+    TextRange argumentRange = resolvedArgument.argument().textRange();
+    SyntaxToken token = new SyntaxTokenImpl(firstCommand, range(argumentRange.start().line(), argumentRange.start().lineOffset() + offsetShift, firstCommand), Collections.emptyList());
+    LiteralImpl literal = new LiteralImpl(token);
+    Argument newArg = new ArgumentImpl(List.of(literal));
+    return ArgumentResolution.ofNoStripQuotes(newArg);
   }
 
   /**

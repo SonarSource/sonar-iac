@@ -34,6 +34,7 @@ import org.sonar.iac.docker.tree.impl.LiteralImpl;
 import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 
 class CommandDetectorTest {
 
@@ -113,10 +114,38 @@ class CommandDetectorTest {
     assertDetectedCommands(arguments, "echo", "test");
   }
 
+  @Test
+  void shouldParseCommandWithProperRange() {
+    List<ArgumentResolution> arguments = buildArgumentList("command1;command2;command3");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> true)
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(3);
+    DockerAssertions.assertThat(commands.get(0).textRange()).hasRange(1, 0, 1, 8);
+    DockerAssertions.assertThat(commands.get(1).textRange()).hasRange(1, 9, 1, 17);
+    DockerAssertions.assertThat(commands.get(2).textRange()).hasRange(1, 18, 1, 26);
+  }
+
+  @Test
+  void shouldParseCommandWithProperRange2() {
+    List<ArgumentResolution> arguments = buildArgumentList("command1&&command2&&command3");
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> true)
+      .build();
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(3);
+    DockerAssertions.assertThat(commands.get(0).textRange()).hasRange(1, 0, 1, 8);
+    DockerAssertions.assertThat(commands.get(1).textRange()).hasRange(1, 10, 1, 18);
+    DockerAssertions.assertThat(commands.get(2).textRange()).hasRange(1, 20, 1, 28);
+  }
+
   List<ArgumentResolution> buildArgumentList(String... strs) {
     List<ArgumentResolution> arguments = new ArrayList<>();
+    int offset = 0;
     for (String str : strs) {
-      Argument arg = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(str, null, List.of()))));
+      Argument arg = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(str, range(1, offset, str), List.of()))));
+      offset += str.length() + 1;
       arguments.add(ArgumentResolution.ofNoStripQuotes(arg));
     }
     return arguments;

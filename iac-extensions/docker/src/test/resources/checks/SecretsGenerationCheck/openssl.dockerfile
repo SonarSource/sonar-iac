@@ -14,7 +14,7 @@ RUN openssl genrsa -des3 -passout pass:x -out server.pass.key 2048 | other comma
 
 # Noncompliant@+1
 RUN openssl genrsa -des3 -passout pass:x -out server.pass.key 2048; other command
-#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 # Noncompliant@+1
 RUN openssl genrsa -random1
