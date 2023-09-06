@@ -140,6 +140,15 @@ class CommandDetectorTest {
     DockerAssertions.assertThat(commands.get(2).textRange()).hasRange(1, 20, 1, 28);
   }
 
+  @Test
+  void shouldParseEmptyArgumentList() {
+    CommandDetector detector = CommandDetector.builder()
+      .with(s -> true)
+      .build();
+    List<CommandDetector.Command> commands = detector.search(new ArrayList<>());
+    assertThat(commands).isEmpty();
+  }
+
   List<ArgumentResolution> buildArgumentList(String... strs) {
     List<ArgumentResolution> arguments = new ArrayList<>();
     int offset = 0;
@@ -160,24 +169,5 @@ class CommandDetectorTest {
     for (int i = 0; i < commandList.length; i++) {
       DockerAssertions.assertThat(commands.get(i).resolvedArguments.get(0)).hasValue(commandList[i]);
     }
-  }
-
-  @Test
-  void quickTest() {
-    String operator = "&&";
-    String strings = "(?:\"(?:\\\\.|[^\"])*+\"|[^&])*+";
-    Pattern pat = Pattern.compile("^(?<strings>" + strings + ")(?:(?<operator>" + operator + ")(?<strings2>" + strings + "))+$");
-
-    assertThat(pat.matcher("test").matches()).isFalse();
-    assertThat(pat.matcher("\"foo && bar\"").matches()).isFalse();
-    assertThat(pat.matcher("foo && bar").matches()).isTrue();
-    assertThat(pat.matcher("foo &&").matches()).isTrue();
-    assertThat(pat.matcher("&& foo").matches()).isTrue();
-    assertThat(pat.matcher("foo&&").matches()).isTrue();
-    assertThat(pat.matcher("&&foo").matches()).isTrue();
-    assertThat(pat.matcher("\"foo \"&&\" bar\"").matches()).isTrue();
-
-    Matcher m = pat.matcher("foo && bar && barbar");
-    m.find();
   }
 }

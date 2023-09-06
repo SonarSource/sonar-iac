@@ -157,13 +157,6 @@ class RunInstructionImplTest {
   }
 
   @Test
-  void quickTest() {
-    RunInstruction tree = DockerTestUtils.parse("RUN echo \"foo && bar\" ${var}", DockerLexicalGrammar.RUN);
-    List<ArgumentResolution> resolved = tree.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
-  }
-
-  // SONARIAC-504
-  @Test
   void shouldParseMultiline() {
     RunInstruction tree = DockerTestUtils.parse("RUN  \\\n" +
       "        TEST=test && \\\n" +

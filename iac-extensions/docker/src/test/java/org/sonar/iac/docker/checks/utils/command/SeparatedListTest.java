@@ -20,22 +20,18 @@
 package org.sonar.iac.docker.checks.utils.command;
 
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
-public class SeparatedList<T, U> {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private final List<T> elements;
-  private final List<U> separators;
+class SeparatedListTest {
 
-  public SeparatedList(List<T> elements, List<U> separators) {
-    this.elements = elements;
-    this.separators = separators;
-  }
-
-  public List<T> elements() {
-    return elements;
-  }
-
-  public List<U> separators() {
-    return separators;
+  @Test
+  void shouldEncapsulateConstructorArguments() {
+    List<String> elements = List.of("foo");
+    List<String> separators = List.of("bar");
+    SeparatedList<String, String> actual = new SeparatedList<>(elements, separators);
+    assertThat(actual.elements()).isSameAs(elements);
+    assertThat(actual.separators()).isSameAs(separators);
   }
 }

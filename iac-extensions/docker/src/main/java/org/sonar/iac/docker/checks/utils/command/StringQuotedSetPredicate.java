@@ -25,12 +25,20 @@ import java.util.function.Predicate;
 public class StringQuotedSetPredicate implements Predicate<String> {
   private final Set<String> values;
 
-  public StringQuotedSetPredicate(String value) {
+  private StringQuotedSetPredicate(String value) {
     this.values = Set.of(value);
   }
 
-  public StringQuotedSetPredicate(Set<String> values) {
+  private StringQuotedSetPredicate(Set<String> values) {
     this.values = values;
+  }
+
+  public static StringQuotedSetPredicate equalsIgnoreQuotes(String value) {
+    return new StringQuotedSetPredicate(value);
+  }
+
+  public static StringQuotedSetPredicate containsIgnoreQuotes(Set<String> values) {
+    return new StringQuotedSetPredicate(values);
   }
 
   @Override

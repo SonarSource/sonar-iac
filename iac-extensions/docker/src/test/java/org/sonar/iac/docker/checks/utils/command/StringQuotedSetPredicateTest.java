@@ -23,15 +23,23 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate.containsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate.equalsIgnoreQuotes;
 
 class StringQuotedSetPredicateTest {
 
   @Test
-  void testSingleValue() {
-    StringQuotedSetPredicate predicate = new StringQuotedSetPredicate("value");
+  void testSingleValuePositive() {
+    StringQuotedSetPredicate predicate = equalsIgnoreQuotes("value");
+
     assertThat(predicate.test("value")).isTrue();
     assertThat(predicate.test("\"value\"")).isTrue();
     assertThat(predicate.test("'value'")).isTrue();
+  }
+
+  @Test
+  void testSingleValueNegative() {
+    StringQuotedSetPredicate predicate = equalsIgnoreQuotes("value");
 
     assertThat(predicate.test(" value")).isFalse();
     assertThat(predicate.test("value ")).isFalse();
@@ -47,7 +55,7 @@ class StringQuotedSetPredicateTest {
 
   @Test
   void testMultipleValue() {
-    StringQuotedSetPredicate predicate = new StringQuotedSetPredicate(Set.of("string", "value"));
+    StringQuotedSetPredicate predicate = containsIgnoreQuotes(Set.of("string", "value"));
     assertThat(predicate.test("string")).isTrue();
     assertThat(predicate.test("\"string\"")).isTrue();
     assertThat(predicate.test("'string'")).isTrue();

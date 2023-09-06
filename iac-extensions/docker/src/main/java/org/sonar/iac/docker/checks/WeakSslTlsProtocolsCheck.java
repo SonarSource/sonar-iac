@@ -32,6 +32,9 @@ import org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
+import static org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate.containsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.command.StringQuotedSetPredicate.equalsIgnoreQuotes;
+
 @Rule(key = "S4423")
 public class WeakSslTlsProtocolsCheck implements IacCheck {
 
@@ -42,7 +45,7 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
     .with("curl")
     .withOptionalRepeatingExcept("--tls-max")
     .with("--tls-max")
-    .with(new StringQuotedSetPredicate(WEAK_TLS_MAX_VERSIONS))
+    .with(containsIgnoreQuotes(WEAK_TLS_MAX_VERSIONS))
     .build();
 
   public static final Set<String> INSECURE_CURL_FLAGS = Set.of(
@@ -55,7 +58,7 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
     "-1",
     "--tlsv1.1");
 
-  private static final StringQuotedSetPredicate INSECURE_CURL_PREDICATE = new StringQuotedSetPredicate(INSECURE_CURL_FLAGS);
+  private static final StringQuotedSetPredicate INSECURE_CURL_PREDICATE = containsIgnoreQuotes(INSECURE_CURL_FLAGS);
   private static final CommandDetector WEAK_CURL_PROTOCOLS = CommandDetector.builder()
     .with("curl")
     .withOptionalRepeatingExcept(INSECURE_CURL_PREDICATE)
@@ -64,12 +67,12 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
 
   public static final String WGET_SECURE_PROTOCOL_FLAG = "--secure-protocol";
   public static final Set<String> INSECURE_WGET_PROTOCOLS = Set.of("SSLv2", "SSLv3", "TLSv1", "TLSv1_1");
-  private static final StringQuotedSetPredicate WGET_SECURE_PROTOCOL_PREDICATE = new StringQuotedSetPredicate(WGET_SECURE_PROTOCOL_FLAG);
+  private static final StringQuotedSetPredicate WGET_SECURE_PROTOCOL_PREDICATE = equalsIgnoreQuotes(WGET_SECURE_PROTOCOL_FLAG);
   private static final CommandDetector WEAK_WGET_PROTOCOLS = CommandDetector.builder()
     .with("wget")
     .withOptionalRepeatingExcept(WGET_SECURE_PROTOCOL_PREDICATE)
     .with(WGET_SECURE_PROTOCOL_PREDICATE)
-    .with(new StringQuotedSetPredicate(INSECURE_WGET_PROTOCOLS))
+    .with(containsIgnoreQuotes(INSECURE_WGET_PROTOCOLS))
     .build();
 
   private static final Pattern WEAK_WGET_PROTOCOLS_EQUAL_REGEX = Pattern.compile("([\"'])?--secure-protocol=([\"'])?((SSLv2)|(SSLv3)|(TLSv1)|(TLSv1_1))([\"'])?");

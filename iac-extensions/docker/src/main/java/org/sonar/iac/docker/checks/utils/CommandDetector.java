@@ -117,7 +117,7 @@ public class CommandDetector {
     if (fullMatcher.find()) {
       String firstCommand = fullMatcher.group("firstCommand");
       String rest = fullMatcher.group("rest");
-      if (firstCommand != null && !firstCommand.isBlank()) {
+      if (!firstCommand.isBlank()) {
         ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, firstCommand, 0);
         separatedListBuilder.addToCurrentCommand(newResolvedArg);
       }
@@ -133,7 +133,7 @@ public class CommandDetector {
       String operator = matcher.group("operator");
       String command = matcher.group("command");
       separatedListBuilder.addOperator(operator);
-      if (command != null && !command.isBlank()) {
+      if (!command.isBlank()) {
         ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, command, fullMatcher.start("rest") + matcher.start("command"));
         separatedListBuilder.addToCurrentCommand(newResolvedArg);
       }
