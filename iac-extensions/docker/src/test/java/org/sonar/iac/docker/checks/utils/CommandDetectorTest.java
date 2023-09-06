@@ -166,7 +166,7 @@ class CommandDetectorTest {
   void quickTest() {
     String operator = "&&";
     String strings = "(?:\"(?:\\\\.|[^\"])*+\"|[^&])*+";
-    Pattern pat = Pattern.compile("^(?<strings>"+strings+")(?:(?<operator>"+operator+")(?<strings2>"+strings+"))+$");
+    Pattern pat = Pattern.compile("^(?<strings>" + strings + ")(?:(?<operator>" + operator + ")(?<strings2>" + strings + "))+$");
 
     assertThat(pat.matcher("test").matches()).isFalse();
     assertThat(pat.matcher("\"foo && bar\"").matches()).isFalse();

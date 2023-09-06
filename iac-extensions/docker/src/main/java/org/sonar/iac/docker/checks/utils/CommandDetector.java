@@ -141,7 +141,8 @@ public class CommandDetector {
 
   private static ArgumentResolution buildSubArgument(ArgumentResolution resolvedArgument, String firstCommand, int offsetShift) {
     TextRange argumentRange = resolvedArgument.argument().textRange();
-    SyntaxToken token = new SyntaxTokenImpl(firstCommand, range(argumentRange.start().line(), argumentRange.start().lineOffset() + offsetShift, firstCommand), Collections.emptyList());
+    SyntaxToken token = new SyntaxTokenImpl(firstCommand, range(argumentRange.start().line(), argumentRange.start().lineOffset() + offsetShift, firstCommand),
+      Collections.emptyList());
     LiteralImpl literal = new LiteralImpl(token);
     Argument newArg = new ArgumentImpl(List.of(literal));
     return ArgumentResolution.ofNoStripQuotes(newArg);
