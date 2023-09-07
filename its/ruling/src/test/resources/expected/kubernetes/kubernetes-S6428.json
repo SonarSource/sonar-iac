@@ -1,26 +1,26 @@
 {
-'kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml':[
-21,
+"kubernetes-project:sources/kubernetes/examples/staging/elasticsearch/es-rc.yaml": [
+21
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml':[
-26,
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
+26
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml':[
-29,
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml": [
+29
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/podsecuritypolicy/rbac/pod_priv.yaml':[
-14,
+"kubernetes-project:sources/kubernetes/examples/staging/podsecuritypolicy/rbac/pod_priv.yaml": [
+14
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml':[
-44,
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml": [
+44
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml':[
-42,
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml": [
+42
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml':[
-17,
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/flexvolume/deploy/ds.yaml": [
+17
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/volumes/nfs/nfs-server-deployment.yaml':[
-26,
-],
+"kubernetes-project:sources/kubernetes/examples/staging/volumes/nfs/nfs-server-deployment.yaml": [
+26
+]
 }

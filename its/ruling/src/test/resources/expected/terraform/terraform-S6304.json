@@ -1,9 +1,9 @@
 {
-'terraform-project:ruling/src/test/resources/sources/terraform/rules/S6304.tf':[
+"terraform-project:ruling/src/test/resources/sources/terraform/rules/S6304.tf": [
 7,
-20,
+20
 ],
-'terraform-project:ruling/src/test/resources/sources/terraform/rules/S6317.tf':[
-7,
-],
+"terraform-project:ruling/src/test/resources/sources/terraform/rules/S6317.tf": [
+7
+]
 }

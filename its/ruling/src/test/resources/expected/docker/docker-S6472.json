@@ -1,8 +1,8 @@
 {
-'docker-project:sources/docker/dockerfile-examples/mysql/Dockerfile':[
-5,
+"docker-project:sources/docker/dockerfile-examples/mysql/Dockerfile": [
+5
 ],
-'docker-project:sources/docker/dockerfile-examples/postgres/Dockerfile':[
-6,
-],
+"docker-project:sources/docker/dockerfile-examples/postgres/Dockerfile": [
+6
+]
 }

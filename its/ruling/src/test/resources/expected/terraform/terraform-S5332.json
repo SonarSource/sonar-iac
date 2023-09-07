@@ -1,54 +1,54 @@
 {
-'terraform-project:sources/terraform/ibm-tf-training/day_03/file-layout-example/stage/services/webservices-cluster/main.tf':[
-75,
+"terraform-project:sources/terraform/ibm-tf-training/day_03/file-layout-example/stage/services/webservices-cluster/main.tf": [
+75
 ],
-'terraform-project:sources/terraform/ibm-tf-training/day_03/module-example/modules/services/webserver-cluster/main.tf':[
-70,
+"terraform-project:sources/terraform/ibm-tf-training/day_03/module-example/modules/services/webserver-cluster/main.tf": [
+70
 ],
-'terraform-project:sources/terraform/ibm-tf-training/s2/web-cluster/main.tf':[
-79,
+"terraform-project:sources/terraform/ibm-tf-training/s2/web-cluster/main.tf": [
+79
 ],
-'terraform-project:sources/terraform/terragoat/terraform/aws/es.tf':[
-1,
+"terraform-project:sources/terraform/terragoat/terraform/aws/es.tf": [
+1
 ],
-'terraform-project:sources/terraform/terragoat/terraform/azure/app_service.tf':[
-27,
+"terraform-project:sources/terraform/terragoat/terraform/azure/app_service.tf": [
+27
 ],
-'terraform-project:sources/terraform/terragoat/terraform/azure/sql.tf':[
+"terraform-project:sources/terraform/terragoat/terraform/azure/sql.tf": [
 60,
-85,
+85
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticache_replication_group_not_encrypted_at_rest/main.tf':[
-1,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticache_replication_group_not_encrypted_at_rest/main.tf": [
+1
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticsearch_not_encrypted/main.tf':[
-1,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticsearch_not_encrypted/main.tf": [
+1
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/kinesis_stream_not_encrypted/main.tf':[
-1,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/kinesis_stream_not_encrypted/main.tf": [
+1
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/ecs_task_definition_not_encrypted_in_transit/main.tf':[
-44,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/ecs_task_definition_not_encrypted_in_transit/main.tf": [
+44
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/elasticache_replication_group_not_encrypted_in_transit/main.tf':[
-5,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/elasticache_replication_group_not_encrypted_in_transit/main.tf": [
+5
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/elasticsearch_encrypt_node_to_node_disabled/main.tf':[
-5,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/elasticsearch_encrypt_node_to_node_disabled/main.tf": [
+5
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/load_balancer_listener_http/main.tf':[
-68,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/load_balancer_listener_http/main.tf": [
+68
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/cloudwatch_log_destination_insecure_policy/main.tf':[
-49,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/cloudwatch_log_destination_insecure_policy/main.tf": [
+49
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/elasticsearch_domain_not_secure_policy/main.tf':[
-5,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/elasticsearch_domain_not_secure_policy/main.tf": [
+5
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/elasticsearch_domain_logging_disabled/main.tf':[
-1,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/elasticsearch_domain_logging_disabled/main.tf": [
+1
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/public_ec2_points_to_private_domain/main.tf':[
-107,
-],
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/public_ec2_points_to_private_domain/main.tf": [
+107
+]
 }

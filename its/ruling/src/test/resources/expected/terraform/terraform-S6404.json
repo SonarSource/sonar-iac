@@ -1,8 +1,8 @@
 {
-'terraform-project:sources/terraform/terragoat/terraform/gcp/gcs.tf':[
-18,
+"terraform-project:sources/terraform/terragoat/terraform/gcp/gcs.tf": [
+18
 ],
-'terraform-project:sources/terraform/terragoat/terraform/gcp/gke.tf':[
-6,
-],
+"terraform-project:sources/terraform/terragoat/terraform/gcp/gke.tf": [
+6
+]
 }

@@ -1,27 +1,27 @@
 {
-'terraform-project:sources/terraform/terragoat/terraform/aws/es.tf':[
-1,
+"terraform-project:sources/terraform/terragoat/terraform/aws/es.tf": [
+1
 ],
-'terraform-project:sources/terraform/terragoat/terraform/azure/sql.tf':[
+"terraform-project:sources/terraform/terragoat/terraform/azure/sql.tf": [
 44,
-73,
+73
 ],
-'terraform-project:sources/terraform/terragoat/terraform/azure/storage.tf':[
-23,
+"terraform-project:sources/terraform/terragoat/terraform/azure/storage.tf": [
+23
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticsearch_not_encrypted/main.tf':[
-1,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/elasticsearch_not_encrypted/main.tf": [
+1
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/elasticsearch_encrypt_node_to_node_disabled/main.tf':[
-5,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/elasticsearch_encrypt_node_to_node_disabled/main.tf": [
+5
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/elasticsearch_domain_not_secure_policy/main.tf':[
-5,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/elasticsearch_domain_not_secure_policy/main.tf": [
+5
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/elasticsearch_domain_logging_disabled/main.tf':[
-1,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/elasticsearch_domain_logging_disabled/main.tf": [
+1
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/public_ec2_points_to_private_domain/main.tf':[
-107,
-],
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/networking/public_ec2_points_to_private_domain/main.tf": [
+107
+]
 }

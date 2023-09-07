@@ -1,56 +1,56 @@
 {
-'docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile':[
-20,
+"docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile": [
+20
 ],
-'docker-project:sources/docker/awesome-compose/react-java-mysql/backend/Dockerfile':[
-15,
+"docker-project:sources/docker/awesome-compose/react-java-mysql/backend/Dockerfile": [
+15
 ],
-'docker-project:sources/docker/awesome-compose/react-java-mysql/frontend/Dockerfile':[
-20,
+"docker-project:sources/docker/awesome-compose/react-java-mysql/frontend/Dockerfile": [
+20
 ],
-'docker-project:sources/docker/compose-dev-env/backend/Dockerfile':[
-10,
+"docker-project:sources/docker/compose-dev-env/backend/Dockerfile": [
+10
 ],
-'docker-project:sources/docker/compose-dev-env/proxy/Dockerfile':[
-4,
+"docker-project:sources/docker/compose-dev-env/proxy/Dockerfile": [
+4
 ],
-'docker-project:sources/docker/dockerfile-examples/apache/Dockerfile':[
-6,
+"docker-project:sources/docker/dockerfile-examples/apache/Dockerfile": [
+6
 ],
-'docker-project:sources/docker/dockerfile-examples/jdk-oracle/Dockerfile':[
-11,
+"docker-project:sources/docker/dockerfile-examples/jdk-oracle/Dockerfile": [
+11
 ],
-'docker-project:sources/docker/dockerfile-examples/jenkins/Dockerfile':[
-10,
+"docker-project:sources/docker/dockerfile-examples/jenkins/Dockerfile": [
+10
 ],
-'docker-project:sources/docker/dockerfile-examples/maven/Dockerfile':[
-6,
+"docker-project:sources/docker/dockerfile-examples/maven/Dockerfile": [
+6
 ],
-'docker-project:sources/docker/dockerfile-examples/mongodb/Dockerfile':[
-11,
+"docker-project:sources/docker/dockerfile-examples/mongodb/Dockerfile": [
+11
 ],
-'docker-project:sources/docker/dockerfile-examples/mysql/Dockerfile':[
-9,
+"docker-project:sources/docker/dockerfile-examples/mysql/Dockerfile": [
+9
 ],
-'docker-project:sources/docker/dockerfile-examples/nodejs/Dockerfile':[
-7,
+"docker-project:sources/docker/dockerfile-examples/nodejs/Dockerfile": [
+7
 ],
-'docker-project:sources/docker/dockerfile-examples/php-apache/Dockerfile':[
-6,
+"docker-project:sources/docker/dockerfile-examples/php-apache/Dockerfile": [
+6
 ],
-'docker-project:sources/docker/dockerfile-examples/postgres/Dockerfile':[
-14,
+"docker-project:sources/docker/dockerfile-examples/postgres/Dockerfile": [
+14
 ],
-'docker-project:sources/docker/dockerfile-examples/redis/Dockerfile':[
-7,
+"docker-project:sources/docker/dockerfile-examples/redis/Dockerfile": [
+7
 ],
-'docker-project:sources/docker/dockerfile-examples/ruby-rails/Dockerfile':[
-9,
+"docker-project:sources/docker/dockerfile-examples/ruby-rails/Dockerfile": [
+9
 ],
-'docker-project:sources/docker/dockerfile-examples/tomcat/Dockerfile':[
-9,
+"docker-project:sources/docker/dockerfile-examples/tomcat/Dockerfile": [
+9
 ],
-'docker-project:sources/docker/dockerfile-examples/ubuntu/Dockerfile':[
-19,
-],
+"docker-project:sources/docker/dockerfile-examples/ubuntu/Dockerfile": [
+19
+]
 }

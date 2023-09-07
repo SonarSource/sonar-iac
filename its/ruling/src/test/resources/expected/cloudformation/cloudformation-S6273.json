@@ -1,11 +1,11 @@
 {
-'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6273.json':[
+"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6273.json": [
 10,
-14,
+14
 ],
-'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6273.yaml':[
+"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6273.yaml": [
 3,
 11,
-13,
-],
+13
+]
 }
