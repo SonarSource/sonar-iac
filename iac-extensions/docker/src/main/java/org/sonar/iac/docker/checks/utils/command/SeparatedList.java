@@ -17,10 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.checks.utils.command;
 
-public interface Literal extends Expression {
-  String value();
+import java.util.List;
 
-  String originalValue();
+public class SeparatedList<T, U> {
+
+  private final List<T> elements;
+  private final List<U> separators;
+
+  public SeparatedList(List<T> elements, List<U> separators) {
+    this.elements = elements;
+    this.separators = separators;
+  }
+
+  public List<T> elements() {
+    return elements;
+  }
+
+  public List<U> separators() {
+    return separators;
+  }
 }

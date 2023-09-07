@@ -33,7 +33,7 @@ public class CheckUtils {
   }
 
   public static List<ArgumentResolution> resolveInstructionArguments(HasArguments instructionWithArguments) {
-    return instructionWithArguments.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
+    return instructionWithArguments.arguments().stream().map(ArgumentResolution::ofWithoutStrippingQuotes).collect(Collectors.toList());
   }
 
   public static String getFileExtension(String name) {

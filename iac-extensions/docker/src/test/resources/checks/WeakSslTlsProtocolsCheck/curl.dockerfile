@@ -370,12 +370,13 @@ RUN curl --data 'name=bob' "${PROTOCOL_TLSV11_ARG}" --request PUT https://tls-v1
 ## The current limitations of our parser
 # Noncompliant@+1
 RUN curl https://www.sonarsource.com && curl --data 'name=bob' --tls-max 1.1 https://tls-v1-0.badssl.com:1010
-#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-# Noncompliant@+1
+# Noncompliant@+3
 RUN curl https://www.sonarsource.com && \
     other command && \
     curl --data 'name=bob' --tls-max 1.1 https://tls-v1-0.badssl.com:1010 \
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     other command
 
 # One string in EXEC FORM is not splited, so it's not detected

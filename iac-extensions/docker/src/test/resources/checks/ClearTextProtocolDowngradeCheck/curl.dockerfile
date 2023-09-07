@@ -38,6 +38,8 @@ RUN curl --proto -L "=foobar" http://redirecttoinsecure.example.com
 
 RUN curl --proto "=https" -L https://redirecttoinsecure.example.com
 
+RUN curl --proto '=https' -L https://redirecttoinsecure.example.com
+
 RUN curl --location http://redirecttoinsecure.example.com
 
 RUN curl -L http://redirecttoinsecure.example.com

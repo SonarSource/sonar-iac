@@ -44,6 +44,11 @@ public class LiteralImpl extends AbstractDockerTreeImpl implements Literal {
   }
 
   @Override
+  public String originalValue() {
+    return token.value();
+  }
+
+  @Override
   public List<Tree> children() {
     return Collections.singletonList(token);
   }

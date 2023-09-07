@@ -35,9 +35,11 @@ import org.sonar.iac.docker.checks.utils.command.CommandPredicate;
 import org.sonar.iac.docker.checks.utils.command.MultipleUnorderedOptionsPredicate;
 import org.sonar.iac.docker.checks.utils.command.OptionPredicate;
 import org.sonar.iac.docker.checks.utils.command.PredicateContext;
+import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 
+import static org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter.splitCommands;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.OPTIONAL;
@@ -58,11 +60,15 @@ public class CommandDetector {
   }
 
   /**
+   * Perform the same operation as {@link #search(List)}, but it doesn't split arguments at the beginning.
+   * <p>
+   * Implementation details:
+   * <p>
    * A stack is formed on the basis of the arguments provided by a command instruction.
    * This stack is processed until there are no more usable elements.
    * The foremost element is taken from the stack and checked to see if it matches the command to be searched for.
    */
-  public List<Command> search(List<ArgumentResolution> resolvedArguments) {
+  public List<Command> searchWithoutSplit(List<ArgumentResolution> resolvedArguments) {
     List<Command> commands = new ArrayList<>();
     Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolvedArguments);
 
@@ -78,6 +84,33 @@ public class CommandDetector {
   }
 
   /**
+   * Search for the defined command in resolved arguments.
+   * Example:
+   * <pre>
+   * {@code
+   *   List<ArgumentResolution> arguments = buildArgumentList("echo", "foo", "bar");
+   *   CommandDetector detector = CommandDetector.builder()
+   *     .with("echo")
+   *     .with("foo")
+   *     .build();
+   *   detector.search(arguments);
+   * }
+   * </pre>
+   * It will find only {@code echo} and {@code foo} and return as result.
+   * <p>
+   * This method split arguments at the beginning i.e.: {@code echo foo && echo bar} will be searched individually.
+   */
+  public List<Command> search(List<ArgumentResolution> resolvedArguments) {
+    SeparatedList<List<ArgumentResolution>, String> splitCommands = splitCommands(resolvedArguments);
+    List<Command> commands = new ArrayList<>();
+
+    for (List<ArgumentResolution> resolved : splitCommands.elements()) {
+      commands.addAll(searchWithoutSplit(resolved));
+    }
+    return commands;
+  }
+
+  /**
    * Process and reduce the stack of arguments. Within the loop, which iterates over a stack of predicates,
    * each argument from the stack is consumed and tested to see if the corresponding predicate is a match.
    * Each consumed argument that matches is added to the list of arguments that will later form the suitable command.
@@ -87,7 +120,7 @@ public class CommandDetector {
    */
   // Cognitive Complexity of methods should not be too high
   @SuppressWarnings("java:S3776")
-  public List<ArgumentResolution> fullMatch(PredicateContext context) {
+  private static List<ArgumentResolution> fullMatch(PredicateContext context) {
     context.startNewfullMatchOn(context.getDetectorPredicates());
 
     while (context.arePredicatesToDetectLeft()) {
@@ -205,7 +238,7 @@ public class CommandDetector {
     public CommandDetector.Builder withAnyOptionExcluding(Collection<String> excludedFlags) {
       SingularPredicate flagPredicate = new SingularPredicate(s -> s.startsWith("-") && !excludedFlags.contains(s), ZERO_OR_MORE);
       // should not test for any flag only possible values
-      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || s.equals("&&") || excludedFlags.contains(s)), ZERO_OR_MORE);
+      SingularPredicate valuePredicate = new SingularPredicate(s -> !(s.startsWith("-") || excludedFlags.contains(s)), ZERO_OR_MORE);
       addOptionPredicate(flagPredicate, valuePredicate);
       return this;
     }
@@ -239,4 +272,34 @@ public class CommandDetector {
     }
   }
 
+  public static class SeparatedListBuilder {
+    private List<ArgumentResolution> currentCommand;
+    private final List<List<ArgumentResolution>> commands;
+    private final List<String> separators;
+
+    public SeparatedListBuilder() {
+      this.currentCommand = new ArrayList<>();
+      this.commands = new ArrayList<>();
+      this.separators = new ArrayList<>();
+    }
+
+    public void addToCurrentCommand(ArgumentResolution argumentResolution) {
+      currentCommand.add(argumentResolution);
+    }
+
+    public void addOperator(String operator) {
+      storeLastCommand();
+      currentCommand = new ArrayList<>();
+      separators.add(operator);
+    }
+
+    public SeparatedList<List<ArgumentResolution>, String> build() {
+      storeLastCommand();
+      return new SeparatedList<>(commands, separators);
+    }
+
+    private void storeLastCommand() {
+      commands.add(currentCommand);
+    }
+  }
 }

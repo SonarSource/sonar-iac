@@ -29,6 +29,10 @@ public class ArgumentResolutionAssert extends AbstractAssert<ArgumentResolutionA
     super(argumentResolution, ArgumentResolutionAssert.class);
   }
 
+  public static ArgumentResolutionAssert assertThat(ArgumentResolution actual) {
+    return new ArgumentResolutionAssert(actual);
+  }
+
   public ArgumentResolutionAssert hasValue(String value) {
     isNotNull();
     Assertions.assertThat(actual.value())

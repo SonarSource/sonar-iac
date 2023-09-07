@@ -154,7 +154,6 @@ class RunInstructionImplTest {
       .notMatches("RUN <<EOT\n  mkdir -p foo/bar\nEOT5");
   }
 
-  // SONARIAC-504
   @Test
   void shouldParseMultiline() {
     RunInstruction tree = DockerTestUtils.parse("RUN  \\\n" +

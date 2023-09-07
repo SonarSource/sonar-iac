@@ -59,7 +59,7 @@ public class ArgumentResolution {
   @Nullable
   private final Argument argument;
 
-  private ArgumentResolution(@Nullable Argument argument, String value, Status status) {
+  public ArgumentResolution(@Nullable Argument argument, String value, Status status) {
     this.argument = argument;
     this.value = value;
     this.status = status;
@@ -70,9 +70,17 @@ public class ArgumentResolution {
    * In docker, most instruction can expect one or even multiple arguments, which can be a mix of strings, quotes string with spaces,
    * variable reference with or without modifier, ect.
    * This method will provide an ArgumentResolution object with the result of the tentative of resolution: the status and the String value.
+   * The quotes and double quotes in string literals are striped by default.
    */
   public static ArgumentResolution of(@Nullable Argument argument) {
-    return ArgumentResolver.resolve(argument);
+    return ArgumentResolver.resolve(argument, true);
+  }
+
+  /**
+   * The method is similar to {@code ArgumentResolution#of} but there is a control of strip quotes or double quotes in string literal.
+   */
+  public static ArgumentResolution ofWithoutStrippingQuotes(@Nullable Argument argument) {
+    return ArgumentResolver.resolve(argument, false);
   }
 
   public String value() {
@@ -124,11 +132,16 @@ public class ArgumentResolution {
 
   private static class ArgumentResolver {
 
+    private final boolean stripQuotes;
     Builder builder;
     Set<Variable> visitedVariable = new HashSet<>();
 
-    private static ArgumentResolution resolve(@Nullable Argument argument) {
-      return new ArgumentResolver().resolveArgument(argument);
+    private ArgumentResolver(boolean stripQuotes) {
+      this.stripQuotes = stripQuotes;
+    }
+
+    private static ArgumentResolution resolve(@Nullable Argument argument, boolean stripQuotes) {
+      return new ArgumentResolver(stripQuotes).resolveArgument(argument);
     }
 
     private ArgumentResolution resolveArgument(@Nullable Argument argument) {
@@ -149,7 +162,11 @@ public class ArgumentResolution {
     private void resolveExpression(Expression expression) {
       switch (expression.getKind()) {
         case STRING_LITERAL:
-          builder.addValue(((Literal) expression).value());
+          if (stripQuotes) {
+            builder.addValue(((Literal) expression).value());
+          } else {
+            builder.addValue(((Literal) expression).originalValue());
+          }
           break;
         case EXPANDABLE_STRING_CHARACTERS:
           builder.addValue(((ExpandableStringCharacters) expression).value());

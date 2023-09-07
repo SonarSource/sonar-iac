@@ -17,10 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.checks.utils.command;
 
-public interface Literal extends Expression {
-  String value();
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
-  String originalValue();
+import static org.fest.assertions.Assertions.assertThat;
+
+class SeparatedListTest {
+
+  @Test
+  void shouldEncapsulateConstructorArguments() {
+    List<String> elements = List.of("foo");
+    List<String> separators = List.of("bar");
+    SeparatedList<String, String> actual = new SeparatedList<>(elements, separators);
+    assertThat(actual.elements()).isSameAs(elements);
+    assertThat(actual.separators()).isSameAs(separators);
+  }
 }

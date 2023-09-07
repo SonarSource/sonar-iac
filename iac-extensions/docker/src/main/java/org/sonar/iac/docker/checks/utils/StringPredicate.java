@@ -17,10 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.iac.docker.tree.api;
+package org.sonar.iac.docker.checks.utils;
 
-public interface Literal extends Expression {
-  String value();
+import java.util.Set;
+import java.util.function.Predicate;
 
-  String originalValue();
+public class StringPredicate {
+  private StringPredicate() {
+  }
+
+  public static Predicate<String> equalsIgnoreQuotes(String value) {
+    return str -> stripQuotes(str).equals(value);
+  }
+
+  public static Predicate<String> containsIgnoreQuotes(Set<String> values) {
+    return str -> values.contains(stripQuotes(str));
+  }
+
+  private static String stripQuotes(String s) {
+    if ((s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("'") && s.endsWith("'"))) {
+      return s.substring(1, s.length() - 1);
+    } else {
+      return s;
+    }
+  }
 }
