@@ -1,0 +1,71 @@
+{
+"docker-project:ruling/src/test/resources/sources/docker/filename/Bar.Dockerfile": [
+2
+],
+"docker-project:ruling/src/test/resources/sources/docker/filename/Dockerfile.foo": [
+2
+],
+"docker-project:ruling/src/test/resources/sources/docker/filename/Foo.dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/apache/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/ghost/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/hipache/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/jdk-oracle/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/jenkins/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/jmeter-abh/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/maven/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/mongodb/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/mysql/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/nodejs/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/php-apache/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/postgres/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/rails-sample-app/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/redis/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/ruby-rails/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/ruby/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/ssg/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/tomcat/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/ubuntu/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/wordpress/Dockerfile": [
+2
+]
+}

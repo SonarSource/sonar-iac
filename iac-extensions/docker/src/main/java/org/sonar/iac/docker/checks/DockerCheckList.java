@@ -34,6 +34,7 @@ public class DockerCheckList {
       BuilderSandboxCheck.class,
       ClearTextProtocolDowngradeCheck.class,
       DebugModeCheck.class,
+      DeprecatedInstructionCheck.class,
       DirectoryCopySourceCheck.class,
       ExecutableNotOwnedByRootCheck.class,
       ExposePortCheck.class,
