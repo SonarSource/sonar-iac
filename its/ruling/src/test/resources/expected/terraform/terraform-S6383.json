@@ -1,8 +1,8 @@
 {
-'terraform-project:sources/terraform/terragoat/terraform/azure/aks.tf':[
-23,
+"terraform-project:sources/terraform/terragoat/terraform/azure/aks.tf": [
+23
 ],
-'terraform-project:sources/terraform/terragoat/terraform/azure/key_vault.tf':[
-1,
-],
+"terraform-project:sources/terraform/terragoat/terraform/azure/key_vault.tf": [
+1
+]
 }

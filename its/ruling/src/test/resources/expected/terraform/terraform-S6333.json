@@ -1,17 +1,17 @@
 {
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/rest_api_cache_non_encrypted/main.tf':[
-26,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/at-rest/rest_api_cache_non_encrypted/main.tf": [
+26
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-authentication/rest_api_without_authorization/main.tf':[
-26,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-authentication/rest_api_without_authorization/main.tf": [
+26
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/rest_api_not_secure_policy/main.tf':[
-54,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/rest_api_not_secure_policy/main.tf": [
+54
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/api_gateway_no_xray/main.tf':[
-26,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/api_gateway_no_xray/main.tf": [
+26
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/rest_api_no_access_logging/main.tf':[
-26,
-],
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/logging/rest_api_no_access_logging/main.tf": [
+26
+]
 }

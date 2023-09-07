@@ -1,56 +1,71 @@
 {
-"docker-project:sources/docker/awesome-compose/nginx-aspnet-mysql/backend/Dockerfile": [
-20
+"docker-project:ruling/src/test/resources/sources/docker/filename/Bar.Dockerfile": [
+2
 ],
-"docker-project:sources/docker/awesome-compose/react-java-mysql/backend/Dockerfile": [
-15
+"docker-project:ruling/src/test/resources/sources/docker/filename/Dockerfile.foo": [
+2
 ],
-"docker-project:sources/docker/awesome-compose/react-java-mysql/frontend/Dockerfile": [
-20
-],
-"docker-project:sources/docker/compose-dev-env/backend/Dockerfile": [
-10
-],
-"docker-project:sources/docker/compose-dev-env/proxy/Dockerfile": [
-4
+"docker-project:ruling/src/test/resources/sources/docker/filename/Foo.dockerfile": [
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/apache/Dockerfile": [
-6
+2
+],
+"docker-project:sources/docker/dockerfile-examples/ghost/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/hipache/Dockerfile": [
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/jdk-oracle/Dockerfile": [
-11
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/jenkins/Dockerfile": [
-10
+2
+],
+"docker-project:sources/docker/dockerfile-examples/jmeter-abh/Dockerfile": [
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/maven/Dockerfile": [
-6
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/mongodb/Dockerfile": [
-11
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/mysql/Dockerfile": [
-9
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/nodejs/Dockerfile": [
-7
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/php-apache/Dockerfile": [
-6
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/postgres/Dockerfile": [
-14
+2
+],
+"docker-project:sources/docker/dockerfile-examples/rails-sample-app/Dockerfile": [
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/redis/Dockerfile": [
-7
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/ruby-rails/Dockerfile": [
-9
+2
+],
+"docker-project:sources/docker/dockerfile-examples/ruby/Dockerfile": [
+2
+],
+"docker-project:sources/docker/dockerfile-examples/ssg/Dockerfile": [
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/tomcat/Dockerfile": [
-9
+2
 ],
 "docker-project:sources/docker/dockerfile-examples/ubuntu/Dockerfile": [
-19
+2
+],
+"docker-project:sources/docker/dockerfile-examples/wordpress/Dockerfile": [
+2
 ]
 }

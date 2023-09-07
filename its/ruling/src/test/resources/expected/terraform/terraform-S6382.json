@@ -1,6 +1,6 @@
 {
-'terraform-project:sources/terraform/terragoat/terraform/azure/app_service.tf':[
+"terraform-project:sources/terraform/terragoat/terraform/azure/app_service.tf": [
 22,
-43,
-],
+43
+]
 }

@@ -1,38 +1,38 @@
 {
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/create_fail/templates/test.template.yaml':[
-11,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/create_fail/templates/test.template.yaml": [
+11
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/create_no_params/templates/test.template.yaml':[
-11,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/create_no_params/templates/test.template.yaml": [
+11
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/delete_fail/templates/test.template.yaml':[
-11,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/delete_fail/templates/test.template.yaml": [
+11
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/legacy_test/templates/test.template.yaml':[
-11,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/legacy_test/templates/test.template.yaml": [
+11
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/nested-create/templates/test.template_nested.yaml':[
-11,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/nested-create/templates/test.template_nested.yaml": [
+11
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/nested-fail/templates/test.template_inner.yaml':[
-11,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/nested-fail/templates/test.template_inner.yaml": [
+11
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/stackurlhelper/badtemplateurl/templates/test.template_nested.yaml':[
-35,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/stackurlhelper/badtemplateurl/templates/test.template_nested.yaml": [
+35
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/stackurlhelper/badtemplateurl/us-east-1/test.template_nested.yaml':[
-35,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/stackurlhelper/badtemplateurl/us-east-1/test.template_nested.yaml": [
+35
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/standalone_template/test.template_no_tc_meta.yaml':[
-13,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/standalone_template/test.template_no_tc_meta.yaml": [
+13
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/standalone_template/test.template_tc_empty_meta.yaml':[
-13,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/standalone_template/test.template_tc_empty_meta.yaml": [
+13
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/standalone_template/test.template_tc_full_meta.yaml':[
-21,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/standalone_template/test.template_tc_full_meta.yaml": [
+21
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/standalone_template_no_metadata/test.template.yaml':[
-11,
-],
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/standalone_template_no_metadata/test.template.yaml": [
+11
+]
 }

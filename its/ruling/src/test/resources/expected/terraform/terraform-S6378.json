@@ -1,24 +1,24 @@
 {
-'terraform-project:sources/terraform/terragoat/terraform/azure/app_service.tf':[
+"terraform-project:sources/terraform/terragoat/terraform/azure/app_service.tf": [
 22,
-43,
+43
 ],
-'terraform-project:sources/terraform/terragoat/terraform/azure/application_gateway.tf':[
-1,
+"terraform-project:sources/terraform/terragoat/terraform/azure/application_gateway.tf": [
+1
 ],
-'terraform-project:sources/terraform/terragoat/terraform/azure/instance.tf':[
+"terraform-project:sources/terraform/terragoat/terraform/azure/instance.tf": [
+9,
+44
+],
+"terraform-project:sources/terraform/terragoat/terraform/azure/policies.tf": [
+38
+],
+"terraform-project:sources/terraform/terragoat/terraform/azure/sql.tf": [
 9,
 44,
+73
 ],
-'terraform-project:sources/terraform/terragoat/terraform/azure/policies.tf':[
-38,
-],
-'terraform-project:sources/terraform/terragoat/terraform/azure/sql.tf':[
-9,
-44,
-73,
-],
-'terraform-project:sources/terraform/terragoat/terraform/azure/storage.tf':[
-23,
-],
+"terraform-project:sources/terraform/terragoat/terraform/azure/storage.tf": [
+23
+]
 }

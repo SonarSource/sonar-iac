@@ -1,20 +1,20 @@
 {
-'kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml':[
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic-infrastructure/newrelic-infra-daemonset.yaml": [
 18,
 19,
-20,
+20
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml':[
+"kubernetes-project:sources/kubernetes/examples/staging/newrelic/newrelic-daemonset.yaml": [
 21,
 22,
-23,
+23
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml':[
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-daemonset.yaml": [
 38,
-39,
+39
 ],
-'kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml':[
+"kubernetes-project:sources/kubernetes/examples/staging/sysdig-cloud/sysdig-rc.yaml": [
 33,
-34,
-],
+34
+]
 }

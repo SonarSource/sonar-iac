@@ -1,17 +1,17 @@
 {
-'terraform-project:sources/terraform/terragoat/terraform/aws/s3.tf':[
-7,
+"terraform-project:sources/terraform/terragoat/terraform/aws/s3.tf": [
+7
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/cloudfront_protocol_version_is_low/main.tf':[
-16,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/encryption/in-transit/cloudfront_protocol_version_is_low/main.tf": [
+16
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/s3_bucket_acl_public_all_authenticated_users_canned/main.tf':[
-7,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/s3_bucket_acl_public_all_authenticated_users_canned/main.tf": [
+7
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/s3_bucket_acl_public_all_users_canned/main.tf':[
-7,
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/s3_bucket_acl_public_all_users_canned/main.tf": [
+7
 ],
-'terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/s3_bucket_acl_public_all_users_canned_with_overriding_access_block/main.tf':[
-7,
-],
+"terraform-project:sources/terraform/tool-compare/test-cases/terraform/aws/iam/resource-policies/s3_bucket_acl_public_all_users_canned_with_overriding_access_block/main.tf": [
+7
+]
 }

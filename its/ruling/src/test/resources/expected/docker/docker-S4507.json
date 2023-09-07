@@ -1,8 +1,8 @@
 {
-'docker-project:sources/docker/awesome-compose/nginx-flask-mysql/backend/Dockerfile':[
-12,
+"docker-project:sources/docker/awesome-compose/nginx-flask-mysql/backend/Dockerfile": [
+12
 ],
-'docker-project:sources/docker/awesome-compose/react-rust-postgres/backend/Dockerfile':[
-6,
-],
+"docker-project:sources/docker/awesome-compose/react-rust-postgres/backend/Dockerfile": [
+6
+]
 }

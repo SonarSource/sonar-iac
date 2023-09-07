@@ -1,11 +1,11 @@
 {
-'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.yaml':[
-125,
+"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.yaml": [
+125
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/stackurlhelper/badtemplateurl/templates/test.template_nested.yaml':[
-33,
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/stackurlhelper/badtemplateurl/templates/test.template_nested.yaml": [
+33
 ],
-'cloudformation-project:sources/cloudformation/taskcat/tests/data/stackurlhelper/badtemplateurl/us-east-1/test.template_nested.yaml':[
-33,
-],
+"cloudformation-project:sources/cloudformation/taskcat/tests/data/stackurlhelper/badtemplateurl/us-east-1/test.template_nested.yaml": [
+33
+]
 }

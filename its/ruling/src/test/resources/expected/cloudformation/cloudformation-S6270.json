@@ -1,14 +1,14 @@
 {
-'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.json':[
+"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.json": [
 39,
 57,
-109,
+109
 ],
-'cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.yaml':[
+"cloudformation-project:ruling/src/test/resources/sources/cloudformation/rules/S6270.yaml": [
 31,
 43,
 55,
 99,
-130,
-],
+130
+]
 }
