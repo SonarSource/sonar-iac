@@ -61,8 +61,8 @@ public class PackageInstallationScriptExecutionCheck implements IacCheck {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
     List<CommandDetector.Command> sensitiveCommands = new ArrayList<>();
 
-    sensitiveCommands.addAll(NPM_PACKAGE_INSTALLATION.searchWithSplit(resolvedArgument));
-    sensitiveCommands.addAll(YARN_PACKAGE_INSTALL.searchWithSplit(resolvedArgument));
+    sensitiveCommands.addAll(NPM_PACKAGE_INSTALLATION.search(resolvedArgument));
+    sensitiveCommands.addAll(YARN_PACKAGE_INSTALL.search(resolvedArgument));
 
     sensitiveCommands.forEach(command -> ctx.reportIssue(command, MESSAGE));
   }

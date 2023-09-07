@@ -96,6 +96,6 @@ public class WeakSslTlsProtocolsCheck implements IacCheck {
 
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
-    COMMANDS.forEach(detector -> detector.searchWithSplit(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
+    COMMANDS.forEach(detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
   }
 }

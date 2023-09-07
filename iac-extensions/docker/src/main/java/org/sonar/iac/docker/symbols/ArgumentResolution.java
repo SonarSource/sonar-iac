@@ -79,7 +79,7 @@ public class ArgumentResolution {
   /**
    * The method is similar to {@code ArgumentResolution#of} but there is a control of strip quotes or double quotes in string literal.
    */
-  public static ArgumentResolution ofNoStripQuotes(@Nullable Argument argument) {
+  public static ArgumentResolution ofWithoutStrippingQuotes(@Nullable Argument argument) {
     return ArgumentResolver.resolve(argument, false);
   }
 

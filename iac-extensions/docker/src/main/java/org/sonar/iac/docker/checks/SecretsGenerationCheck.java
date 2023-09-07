@@ -76,6 +76,6 @@ public class SecretsGenerationCheck implements IacCheck {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
     DETECTORS.forEach(
-      detector -> detector.searchWithSplit(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
+      detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
   }
 }

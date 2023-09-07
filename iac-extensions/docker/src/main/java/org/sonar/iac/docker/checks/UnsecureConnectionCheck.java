@@ -55,7 +55,7 @@ public class UnsecureConnectionCheck implements IacCheck {
   private static void checkRun(CheckContext ctx, RunInstruction runInstruction) {
     List<ArgumentResolution> resolvedArgument = runInstruction.arguments().stream().map(ArgumentResolution::of).collect(Collectors.toList());
 
-    SENSITIVE_CURL_COMMAND.searchWithSplit(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
-    SENSITIVE_WGET_COMMAND.searchWithSplit(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    SENSITIVE_CURL_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
+    SENSITIVE_WGET_COMMAND.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE));
   }
 }

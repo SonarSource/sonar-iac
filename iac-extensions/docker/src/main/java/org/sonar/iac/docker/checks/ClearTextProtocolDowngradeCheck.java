@@ -133,7 +133,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
     List<ArgumentResolution> resolvedArgument = CheckUtils.resolveInstructionArguments(runInstruction);
 
     SENSITIVE_CURL_COMMAND_DETECTORS.forEach(
-      commandDetector -> commandDetector.searchWithSplit(resolvedArgument).forEach(command -> ctx.reportIssue(command, CURL_MESSAGE)));
-    WGET_DETECTOR.searchWithSplit(resolvedArgument).forEach(command -> ctx.reportIssue(command, WGET_MESSAGE));
+      commandDetector -> commandDetector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, CURL_MESSAGE)));
+    WGET_DETECTOR.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, WGET_MESSAGE));
   }
 }

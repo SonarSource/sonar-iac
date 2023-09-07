@@ -62,17 +62,21 @@ public class CommandDetector {
   private static final String COMMAND_WITHOUT_OPERATOR = "(?:" + STRING_IN_DOUBLE_QUOTES + "|" + STRING_IN_SIMPLE_QUOTES + "|" + NON_SEPARATOR_CHARACTER + ")*+";
   private static final String OPERATORS = "(?:;|&&|&|\\|\\||\\|)";
 
+  private static final String FIRST_COMMAND = "firstCommand";
+  private static final String REMAINDER = "remainder";
   /**
    * Validate that the provided input is a mix of commands separated by operators. Split them as firstCommand and the rest.
    */
   private static final Pattern FIRST_COMMAND_AND_REST_REGEX = Pattern.compile(
-    "^(?<firstCommand>" + COMMAND_WITHOUT_OPERATOR + ")(?<rest>(?:" + OPERATORS + COMMAND_WITHOUT_OPERATOR + ")++)$");
+    "^(?<" + FIRST_COMMAND + ">" + COMMAND_WITHOUT_OPERATOR + ")(?<" + REMAINDER + ">(?:" + OPERATORS + COMMAND_WITHOUT_OPERATOR + ")++)$");
 
+  private static final String OPERATOR = "operator";
+  private static final String COMMAND = "command";
   /**
    * Parse repeating operators and commands in the rest part of the {@link #FIRST_COMMAND_AND_REST_REGEX}.
    */
   private static final Pattern OPERATOR_AND_COMMAND_REGEX = Pattern.compile(
-    "(?<operator>" + OPERATORS + ")(?<command>" + COMMAND_WITHOUT_OPERATOR + ")");
+    "(?<" + OPERATOR + ">" + OPERATORS + ")(?<" + COMMAND + ">" + COMMAND_WITHOUT_OPERATOR + ")");
 
   private final List<CommandPredicate> predicates;
 
@@ -85,13 +89,17 @@ public class CommandDetector {
   }
 
   /**
+   * Perform the same operation as {@link #search(List)}, but it doesn't split arguments at the beginning.
+   * <p>
+   * Implementation details:
+   * <p>
    * A stack is formed on the basis of the arguments provided by a command instruction.
    * This stack is processed until there are no more usable elements.
    * The foremost element is taken from the stack and checked to see if it matches the command to be searched for.
    */
-  public List<Command> search(List<ArgumentResolution> resolved) {
+  public List<Command> searchWithoutSplit(List<ArgumentResolution> resolvedArguments) {
     List<Command> commands = new ArrayList<>();
-    Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolved);
+    Deque<ArgumentResolution> argumentStack = new LinkedList<>(resolvedArguments);
 
     PredicateContext context = new PredicateContext(argumentStack, predicates);
 
@@ -105,14 +113,28 @@ public class CommandDetector {
   }
 
   /**
-   * Perform the same {@link #search(List)} but before it split the command with {@link #splitCommands(List)}.
+   * Search for the defined command in resolved arguments.
+   * Example:
+   * <pre>
+   * {@code
+   *   List<ArgumentResolution> arguments = buildArgumentList("echo", "foo", "bar");
+   *   CommandDetector detector = CommandDetector.builder()
+   *     .with("echo")
+   *     .with("foo")
+   *     .build();
+   *   detector.search(arguments);
+   * }
+   * </pre>
+   * It will find only {@code echo} and {@code foo} and return as result.
+   * <p>
+   * This method split arguments at the beginning i.e.: {@code echo foo && echo bar} will be searched individually.
    */
-  public List<Command> searchWithSplit(List<ArgumentResolution> resolvedArguments) {
+  public List<Command> search(List<ArgumentResolution> resolvedArguments) {
     SeparatedList<List<ArgumentResolution>, String> splitCommands = splitCommands(resolvedArguments);
     List<Command> commands = new ArrayList<>();
 
     for (List<ArgumentResolution> resolved : splitCommands.elements()) {
-      commands.addAll(search(resolved));
+      commands.addAll(searchWithoutSplit(resolved));
     }
     return commands;
   }
@@ -133,26 +155,26 @@ public class CommandDetector {
     String argument = resolvedArgument.value();
     Matcher fullMatcher = FIRST_COMMAND_AND_REST_REGEX.matcher(argument);
     if (fullMatcher.find()) {
-      String firstCommand = fullMatcher.group("firstCommand");
-      String rest = fullMatcher.group("rest");
+      String firstCommand = fullMatcher.group(FIRST_COMMAND);
+      String remainder = fullMatcher.group(REMAINDER);
       if (!firstCommand.isBlank()) {
         ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, firstCommand, 0);
         separatedListBuilder.addToCurrentCommand(newResolvedArg);
       }
-      parseTheRestOfTheCommand(separatedListBuilder, resolvedArgument, fullMatcher, rest);
+      parseRemainderOfTheCommand(separatedListBuilder, resolvedArgument, fullMatcher, remainder);
     } else {
       separatedListBuilder.addToCurrentCommand(resolvedArgument);
     }
   }
 
-  private static void parseTheRestOfTheCommand(SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument, Matcher fullMatcher, String rest) {
-    Matcher matcher = OPERATOR_AND_COMMAND_REGEX.matcher(rest);
+  private static void parseRemainderOfTheCommand(SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument, Matcher fullMatcher, String remainder) {
+    Matcher matcher = OPERATOR_AND_COMMAND_REGEX.matcher(remainder);
     while (matcher.find()) {
-      String operator = matcher.group("operator");
-      String command = matcher.group("command");
+      String operator = matcher.group(OPERATOR);
+      String command = matcher.group(COMMAND);
       separatedListBuilder.addOperator(operator);
       if (!command.isBlank()) {
-        ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, command, fullMatcher.start("rest") + matcher.start("command"));
+        ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, command, fullMatcher.start(REMAINDER) + matcher.start(COMMAND));
         separatedListBuilder.addToCurrentCommand(newResolvedArg);
       }
     }
@@ -164,7 +186,7 @@ public class CommandDetector {
       Collections.emptyList());
     LiteralImpl literal = new LiteralImpl(token);
     Argument newArg = new ArgumentImpl(List.of(literal));
-    return ArgumentResolution.ofNoStripQuotes(newArg);
+    return ArgumentResolution.ofWithoutStrippingQuotes(newArg);
   }
 
   /**
@@ -345,17 +367,17 @@ public class CommandDetector {
     }
 
     public void addOperator(String operator) {
-      commands.add(currentCommand);
+      storeLastCommand();
       currentCommand = new ArrayList<>();
       separators.add(operator);
     }
 
     public SeparatedList<List<ArgumentResolution>, String> build() {
-      storeTheLastCommand();
+      storeLastCommand();
       return new SeparatedList<>(commands, separators);
     }
 
-    private void storeTheLastCommand() {
+    private void storeLastCommand() {
       commands.add(currentCommand);
     }
   }

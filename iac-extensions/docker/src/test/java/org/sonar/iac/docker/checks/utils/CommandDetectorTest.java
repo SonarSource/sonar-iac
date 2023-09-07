@@ -43,7 +43,7 @@ class CommandDetectorTest {
     CommandDetector detector = CommandDetector.builder()
       .with("sensitive"::equals)
       .build();
-    List<CommandDetector.Command> commands = detector.searchWithSplit(arguments);
+    List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(2);
     assertThat(commands.get(0).resolvedArguments).containsExactly(arguments.get(0));
     assertThat(commands.get(1).resolvedArguments).containsExactly(arguments.get(1));
@@ -119,7 +119,7 @@ class CommandDetectorTest {
     CommandDetector detector = CommandDetector.builder()
       .with(s -> true)
       .build();
-    List<CommandDetector.Command> commands = detector.searchWithSplit(arguments);
+    List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(3);
     DockerAssertions.assertThat(commands.get(0).textRange()).hasRange(1, 0, 1, 8);
     DockerAssertions.assertThat(commands.get(1).textRange()).hasRange(1, 9, 1, 17);
@@ -132,7 +132,7 @@ class CommandDetectorTest {
     CommandDetector detector = CommandDetector.builder()
       .with(s -> true)
       .build();
-    List<CommandDetector.Command> commands = detector.searchWithSplit(arguments);
+    List<CommandDetector.Command> commands = detector.search(arguments);
     assertThat(commands).hasSize(3);
     DockerAssertions.assertThat(commands.get(0).textRange()).hasRange(1, 0, 1, 8);
     DockerAssertions.assertThat(commands.get(1).textRange()).hasRange(1, 10, 1, 18);
@@ -144,7 +144,7 @@ class CommandDetectorTest {
     CommandDetector detector = CommandDetector.builder()
       .with(s -> true)
       .build();
-    List<CommandDetector.Command> commands = detector.searchWithSplit(new ArrayList<>());
+    List<CommandDetector.Command> commands = detector.search(new ArrayList<>());
     assertThat(commands).isEmpty();
   }
 
@@ -155,7 +155,7 @@ class CommandDetectorTest {
     CommandDetector detector = CommandDetector.builder()
       .with(s -> true)
       .build();
-    List<CommandDetector.Command> commands = detector.search(arguments);
+    List<CommandDetector.Command> commands = detector.searchWithoutSplit(arguments);
     assertThat(commands).hasSize(3);
     DockerAssertions.assertThat(commands.get(0).resolvedArguments.get(0)).hasValue("command1");
     DockerAssertions.assertThat(commands.get(1).resolvedArguments.get(0)).hasValue(operator);
@@ -185,13 +185,29 @@ class CommandDetectorTest {
     assertThat(separators).containsExactly("&&", "||", ";", "&");
   }
 
+  @Test
+  void shouldCheckJavadocExample() {
+    List<ArgumentResolution> arguments = buildArgumentList("echo", "foo", "bar");
+
+    CommandDetector detector = CommandDetector.builder()
+      .with("echo")
+      .with("foo")
+      .build();
+
+    List<CommandDetector.Command> commands = detector.search(arguments);
+    assertThat(commands).hasSize(1);
+    List<ArgumentResolution> resolvedArguments = commands.get(0).resolvedArguments;
+    DockerAssertions.assertThat(resolvedArguments.get(0)).hasValue("echo");
+    DockerAssertions.assertThat(resolvedArguments.get(1)).hasValue("foo");
+  }
+
   List<ArgumentResolution> buildArgumentList(String... strs) {
     List<ArgumentResolution> arguments = new ArrayList<>();
     int offset = 0;
     for (String str : strs) {
       Argument arg = new ArgumentImpl(List.of(new LiteralImpl(new SyntaxTokenImpl(str, range(1, offset, str), List.of()))));
       offset += str.length() + 1;
-      arguments.add(ArgumentResolution.ofNoStripQuotes(arg));
+      arguments.add(ArgumentResolution.ofWithoutStrippingQuotes(arg));
     }
     return arguments;
   }
@@ -200,7 +216,7 @@ class CommandDetectorTest {
     CommandDetector detector = CommandDetector.builder()
       .with(s -> true)
       .build();
-    List<CommandDetector.Command> commands = detector.searchWithSplit(resolvedArguments);
+    List<CommandDetector.Command> commands = detector.search(resolvedArguments);
     assertThat(commands).hasSize(commandList.length);
     for (int i = 0; i < commandList.length; i++) {
       DockerAssertions.assertThat(commands.get(i).resolvedArguments.get(0)).hasValue(commandList[i]);
