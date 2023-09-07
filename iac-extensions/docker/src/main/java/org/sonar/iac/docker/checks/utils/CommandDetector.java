@@ -27,8 +27,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -40,13 +38,8 @@ import org.sonar.iac.docker.checks.utils.command.PredicateContext;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Argument;
-import org.sonar.iac.docker.tree.api.SyntaxToken;
-import org.sonar.iac.docker.tree.impl.ArgumentImpl;
-import org.sonar.iac.docker.tree.impl.LiteralImpl;
-import org.sonar.iac.docker.tree.impl.SyntaxTokenImpl;
 
-import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter.splitCommands;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.NO_MATCH;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.OPTIONAL;
@@ -55,28 +48,6 @@ import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.
 import static org.sonar.iac.docker.checks.utils.command.PredicateContext.Status.FOUND_NO_PREDICATE_MATCH;
 
 public class CommandDetector {
-
-  private static final String STRING_IN_DOUBLE_QUOTES = "\"(?:\\\\.|[^\"])*+\"";
-  private static final String STRING_IN_SIMPLE_QUOTES = "'(?:\\\\.|[^'])*+'";
-  private static final String NON_SEPARATOR_CHARACTER = "[^;&|]";
-  private static final String COMMAND_WITHOUT_OPERATOR = "(?:" + STRING_IN_DOUBLE_QUOTES + "|" + STRING_IN_SIMPLE_QUOTES + "|" + NON_SEPARATOR_CHARACTER + ")*+";
-  private static final String OPERATORS = "(?:;|&&|&|\\|\\||\\|)";
-
-  private static final String FIRST_COMMAND = "firstCommand";
-  private static final String REMAINDER = "remainder";
-  /**
-   * Validate that the provided input is a mix of commands separated by operators. Split them as firstCommand and the rest.
-   */
-  private static final Pattern FIRST_COMMAND_AND_REST_REGEX = Pattern.compile(
-    "^(?<" + FIRST_COMMAND + ">" + COMMAND_WITHOUT_OPERATOR + ")(?<" + REMAINDER + ">(?:" + OPERATORS + COMMAND_WITHOUT_OPERATOR + ")++)$");
-
-  private static final String OPERATOR = "operator";
-  private static final String COMMAND = "command";
-  /**
-   * Parse repeating operators and commands in the rest part of the {@link #FIRST_COMMAND_AND_REST_REGEX}.
-   */
-  private static final Pattern OPERATOR_AND_COMMAND_REGEX = Pattern.compile(
-    "(?<" + OPERATOR + ">" + OPERATORS + ")(?<" + COMMAND + ">" + COMMAND_WITHOUT_OPERATOR + ")");
 
   private final List<CommandPredicate> predicates;
 
@@ -137,56 +108,6 @@ public class CommandDetector {
       commands.addAll(searchWithoutSplit(resolved));
     }
     return commands;
-  }
-
-  /**
-   * Split commands by separators: {@code &&}, {@code ||}, {@code &}, {@code |} and {@code ;}.
-   */
-  public static SeparatedList<List<ArgumentResolution>, String> splitCommands(List<ArgumentResolution> resolvedArguments) {
-    SeparatedListBuilder separatedListBuilder = new SeparatedListBuilder();
-
-    for (ArgumentResolution resolvedArgument : resolvedArguments) {
-      parseCommand(separatedListBuilder, resolvedArgument);
-    }
-    return separatedListBuilder.build();
-  }
-
-  private static void parseCommand(SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument) {
-    String argument = resolvedArgument.value();
-    Matcher fullMatcher = FIRST_COMMAND_AND_REST_REGEX.matcher(argument);
-    if (fullMatcher.find()) {
-      String firstCommand = fullMatcher.group(FIRST_COMMAND);
-      String remainder = fullMatcher.group(REMAINDER);
-      if (!firstCommand.isBlank()) {
-        ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, firstCommand, 0);
-        separatedListBuilder.addToCurrentCommand(newResolvedArg);
-      }
-      parseRemainderOfTheCommand(separatedListBuilder, resolvedArgument, fullMatcher, remainder);
-    } else {
-      separatedListBuilder.addToCurrentCommand(resolvedArgument);
-    }
-  }
-
-  private static void parseRemainderOfTheCommand(SeparatedListBuilder separatedListBuilder, ArgumentResolution resolvedArgument, Matcher fullMatcher, String remainder) {
-    Matcher matcher = OPERATOR_AND_COMMAND_REGEX.matcher(remainder);
-    while (matcher.find()) {
-      String operator = matcher.group(OPERATOR);
-      String command = matcher.group(COMMAND);
-      separatedListBuilder.addOperator(operator);
-      if (!command.isBlank()) {
-        ArgumentResolution newResolvedArg = buildSubArgument(resolvedArgument, command, fullMatcher.start(REMAINDER) + matcher.start(COMMAND));
-        separatedListBuilder.addToCurrentCommand(newResolvedArg);
-      }
-    }
-  }
-
-  private static ArgumentResolution buildSubArgument(ArgumentResolution resolvedArgument, String firstCommand, int offsetShift) {
-    TextRange argumentRange = resolvedArgument.argument().textRange();
-    SyntaxToken token = new SyntaxTokenImpl(firstCommand, range(argumentRange.start().line(), argumentRange.start().lineOffset() + offsetShift, firstCommand),
-      Collections.emptyList());
-    LiteralImpl literal = new LiteralImpl(token);
-    Argument newArg = new ArgumentImpl(List.of(literal));
-    return ArgumentResolution.ofWithoutStrippingQuotes(newArg);
   }
 
   /**

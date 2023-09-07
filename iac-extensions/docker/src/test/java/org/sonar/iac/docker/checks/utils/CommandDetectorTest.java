@@ -163,29 +163,6 @@ class CommandDetectorTest {
   }
 
   @Test
-  void shouldSplitCommand() {
-    List<ArgumentResolution> arguments = buildArgumentList("command1", "&&", "command2", "||command3", "-option=val", ";command4&command5");
-    SeparatedList<List<ArgumentResolution>, String> commandsWithSeparators = CommandDetector.splitCommands(arguments);
-    List<List<ArgumentResolution>> commands = commandsWithSeparators.elements();
-    List<String> separators = commandsWithSeparators.separators();
-
-    assertThat(commands).hasSize(5);
-    assertThat(commands.get(0)).hasSize(1);
-    DockerAssertions.assertThat(commands.get(0).get(0)).hasValue("command1");
-    assertThat(commands.get(1)).hasSize(1);
-    DockerAssertions.assertThat(commands.get(1).get(0)).hasValue("command2");
-    assertThat(commands.get(2)).hasSize(2);
-    DockerAssertions.assertThat(commands.get(2).get(0)).hasValue("command3");
-    DockerAssertions.assertThat(commands.get(2).get(1)).hasValue("-option=val");
-    assertThat(commands.get(3)).hasSize(1);
-    DockerAssertions.assertThat(commands.get(3).get(0)).hasValue("command4");
-    assertThat(commands.get(4)).hasSize(1);
-    DockerAssertions.assertThat(commands.get(4).get(0)).hasValue("command5");
-
-    assertThat(separators).containsExactly("&&", "||", ";", "&");
-  }
-
-  @Test
   void shouldCheckJavadocExample() {
     List<ArgumentResolution> arguments = buildArgumentList("echo", "foo", "bar");
 
@@ -201,7 +178,7 @@ class CommandDetectorTest {
     DockerAssertions.assertThat(resolvedArguments.get(1)).hasValue("foo");
   }
 
-  List<ArgumentResolution> buildArgumentList(String... strs) {
+  static List<ArgumentResolution> buildArgumentList(String... strs) {
     List<ArgumentResolution> arguments = new ArrayList<>();
     int offset = 0;
     for (String str : strs) {
