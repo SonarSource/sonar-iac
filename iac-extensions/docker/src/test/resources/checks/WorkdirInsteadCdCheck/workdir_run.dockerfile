@@ -9,6 +9,12 @@ RUN unzip foobar.zip && cd foobar
 #                       ^^^^^^^^^
 
 # Noncompliant@+1
+RUN cd /app/bin
+
+# Noncompliant@+1
+RUN cd ..
+
+# Noncompliant@+1
 RUN cd /tmp && unzip foobar.zip
 
 # Noncompliant@+1

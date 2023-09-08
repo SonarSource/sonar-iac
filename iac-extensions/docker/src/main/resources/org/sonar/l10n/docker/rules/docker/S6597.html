@@ -1,8 +1,36 @@
-<p>The <code>cd</code> command should not be used to change the working directory. Instead <code>WORKDIR</code> should be used.</p>
 <h2>Why is this an issue?</h2>
-<p>The <code>cd</code> commands in <code>RUN</code> (and other) instructions make them longer, harder to read, troubleshoot, and maintain. It is
-better to use the <code>WORKDIR</code> instruction to set a working directory for the next Docker instructions.</p>
+<p>In single Dockerfile instructions like <code>RUN</code>, <code>CMD</code>, and <code>ENTRYPOINT</code> multiple commands can be run, including the
+<code>cd</code> command for changing directories. Using <code>WORKDIR</code> instead reduces the complexity of the above instructions and makes them
+easy to read, understand, troubleshoot, and maintain.</p>
+<h3>What is the potential impact?</h3>
+<p>The Dockerfile instructions like <code>RUN</code> allow users to execute longer scripts. See the following example:</p>
+<pre>
+RUN cd /tmp &amp;&amp; \
+  git clone myrepository.com/MyOrganization/project &amp;&amp; \
+  cd project &amp;&amp; \
+  make &amp;&amp; \
+  cd /app/bin
+</pre>
+<p>In this example, the first <code>cd /tmp</code> command can be replaced by <code>WORKDIR cd /tmp</code> put above <code>RUN</code>. The last
+<code>cd /app/bin</code> command can be replaced too. The result will be following:</p>
+<pre>
+WORKDIR /tmp
+RUN git clone myrepository.com/MyOrganization/project &amp;&amp; \
+  cd project &amp;&amp; \
+  make
+WORKDIR /app/bin
+</pre>
+<p>Those actions will reduce the length of the <code>RUN</code> instruction, which makes it easier to read and understand. Sometimes, it is hard to
+avoid the usage of <code>cd</code> command, especially in the middle of a long script. Removing them from the beginning and end of a multi-line is an
+easy improvement. Additionally, a lot of commands work well with absolute paths, so changing directories can be avoided in most cases.</p>
+<p>The <code>WORKDIR</code> instruction can be used multiple times in a Dockerfile. It changes the current directory for the next instructions and
+until there is a following change. This approach simplifies understanding of what is a current directory.</p>
+<p>The same principles apply to <code>CMD</code> and <code>ENTRYPOINT</code> instructions. Following this recommendation provides a clear structure
+for Dockerfiles, making it easier to maintain.</p>
 <h2>How to fix it</h2>
+<p>Where possible, ensure that all usages of <code>cd</code> commands are replaced by a <code>WORKDIR</code> instruction. The <code>cd</code> commands
+at the beginning or end of multiline commands are a reliable sign, that they can be replaced. Also, using absolute paths can be considered for
+commands that accept them.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -13,9 +41,6 @@ RUN cd /app/bin &amp;&amp; ./start.sh
 WORKDIR app/bin
 RUN ./start.sh
 </pre>
-<h3>How does this work?</h3>
-<p>The <code>WORKDIR</code> instruction can be used multiple times in Dockerfile. It sets the working directory for any <code>RUN</code>,
-<code>CMD</code>, <code>ENTRYPOINT</code>, <code>COPY</code>, and <code>ADD</code> instructions that follow. It increases clarity and reliability.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

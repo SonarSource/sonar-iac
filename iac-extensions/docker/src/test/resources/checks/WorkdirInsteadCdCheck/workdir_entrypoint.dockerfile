@@ -9,6 +9,12 @@ ENTRYPOINT unzip foobar.zip && cd foobar
 #                              ^^^^^^^^^
 
 # Noncompliant@+1
+ENTRYPOINT cd /app/bin
+
+# Noncompliant@+1
+ENTRYPOINT cd ..
+
+# Noncompliant@+1
 ENTRYPOINT cd /tmp && unzip foobar.zip
 
 # Noncompliant@+1

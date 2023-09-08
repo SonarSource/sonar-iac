@@ -1,5 +1,5 @@
 {
-  "title": "WORKDIR instruction should be used instead of cd command",
+  "title": "\"WORKDIR\" instruction should be used instead of \"cd\" commands",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {

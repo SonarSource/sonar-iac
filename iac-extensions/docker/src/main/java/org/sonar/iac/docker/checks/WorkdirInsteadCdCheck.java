@@ -52,16 +52,16 @@ public class WorkdirInsteadCdCheck implements IacCheck {
 
   private static void check(CheckContext ctx, CommandInstruction commandInstruction) {
     List<ArgumentResolution> argumentResolutions = CheckUtils.resolveInstructionArguments(commandInstruction);
-    List<List<ArgumentResolution>> elements = ArgumentResolutionSplitter.splitCommands(argumentResolutions).elements();
-    List<List<ArgumentResolution>> toCheck = takeFirstAndLastCommand(elements);
+    List<List<ArgumentResolution>> separatedArguments = ArgumentResolutionSplitter.splitCommands(argumentResolutions).elements();
+    List<List<ArgumentResolution>> argumentsToCheck = takeFirstAndLastArgument(separatedArguments);
 
-    for (List<ArgumentResolution> commands : toCheck) {
-      COMMAND_DETECTOR.searchWithoutSplit(commands)
+    for (List<ArgumentResolution> arguments : argumentsToCheck) {
+      COMMAND_DETECTOR.searchWithoutSplit(arguments)
         .forEach(command -> ctx.reportIssue(command, MESSAGE));
     }
   }
 
-  private static List<List<ArgumentResolution>> takeFirstAndLastCommand(List<List<ArgumentResolution>> elements) {
+  private static List<List<ArgumentResolution>> takeFirstAndLastArgument(List<List<ArgumentResolution>> elements) {
     List<List<ArgumentResolution>> toCheck;
     if (elements.size() == 1) {
       toCheck = elements;
