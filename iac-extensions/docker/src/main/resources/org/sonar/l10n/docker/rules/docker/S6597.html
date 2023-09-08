@@ -1,0 +1,26 @@
+<p>The <code>cd</code> command should not be used to change the working directory. Instead <code>WORKDIR</code> should be used.</p>
+<h2>Why is this an issue?</h2>
+<p>The <code>cd</code> commands in <code>RUN</code> (and other) instructions make them longer, harder to read, troubleshoot, and maintain. It is
+better to use the <code>WORKDIR</code> instruction to set a working directory for the next Docker instructions.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+RUN cd /app/bin &amp;&amp; ./start.sh
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+WORKDIR app/bin
+RUN ./start.sh
+</pre>
+<h3>How does this work?</h3>
+<p>The <code>WORKDIR</code> instruction can be used multiple times in Dockerfile. It sets the working directory for any <code>RUN</code>,
+<code>CMD</code>, <code>ENTRYPOINT</code>, <code>COPY</code>, and <code>ADD</code> instructions that follow. It increases clarity and reliability.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#workdir">WORKDIR - Best practices for writing
+  Dockerfiles</a> </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#workdir">WORKDIR - Dockerfile reference</a> </li>
+</ul>
+
