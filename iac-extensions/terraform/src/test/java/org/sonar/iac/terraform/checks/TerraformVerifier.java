@@ -19,8 +19,6 @@
  */
 package org.sonar.iac.terraform.checks;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.function.Function;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -30,13 +28,14 @@ import org.sonar.iac.terraform.plugin.TerraformProviders.Provider;
 import org.sonar.iac.terraform.visitors.TerraformProviderContext;
 import org.sonarsource.analyzer.commons.checks.verifier.SingleFileVerifier;
 
+import static org.sonar.iac.common.testing.FileReaderUtils.BASE_DIR;
+
 public class TerraformVerifier {
 
   private TerraformVerifier() {
 
   }
 
-  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
   private static final HclParser PARSER = new HclParser();
 
   public static void verify(String fileName, IacCheck check) {

@@ -19,17 +19,15 @@
  */
 package org.sonar.iac.arm.checks;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.testing.Verifier;
 
-public class ArmVerifier {
+import static org.sonar.iac.common.testing.FileReaderUtils.BASE_DIR;
 
-  public static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
+public class ArmVerifier {
 
   private static final TreeParser<Tree> PARSER = new ArmParser();
 

@@ -26,6 +26,7 @@ import org.sonar.iac.arm.ArmTestUtils;
 
 import static org.sonar.iac.arm.checks.ArmVerifier.verify;
 import static org.sonar.iac.arm.checks.ArmVerifier.verifyContent;
+import static org.sonar.iac.common.testing.FileReaderUtils.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class TlsVersionCheckTest {
@@ -51,7 +52,7 @@ class TlsVersionCheckTest {
     "Microsoft.DBforMariaDB/servers"
   })
   void testTlsVersionIsIncorrectOrAbsentInDatabaseResourcesJson(String resourceType) {
-    String content = ArmTestUtils.readTemplateAndReplace("TlsVersionCheck/Microsoft.DBfor_SQL_servers_template.json", resourceType);
+    String content = readTemplateAndReplace("TlsVersionCheck/Microsoft.DBfor_SQL_servers_template.json", resourceType);
     int endColumn = 16 + resourceType.length();
     verifyContent(content,
       CHECK,
@@ -66,7 +67,7 @@ class TlsVersionCheckTest {
     "Microsoft.DBforMariaDB/servers"
   })
   void testTlsVersionIsIncorrectOrAbsentInDatabaseResourcesBicep(String resourceType) {
-    String content = ArmTestUtils.readTemplateAndReplace("TlsVersionCheck/Microsoft.DBfor_SQL_servers_template.bicep", resourceType);
+    String content = readTemplateAndReplace("TlsVersionCheck/Microsoft.DBfor_SQL_servers_template.bicep", resourceType);
     BicepVerifier.verifyContent(content,
       CHECK,
       issue(4, 4, 4, 31, "Change this code to disable support of older TLS versions."),

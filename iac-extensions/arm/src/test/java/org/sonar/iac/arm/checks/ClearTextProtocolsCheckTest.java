@@ -26,8 +26,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.iac.common.api.checks.IacCheck;
 
-import static org.sonar.iac.arm.ArmTestUtils.readTemplateAndReplace;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
+import static org.sonar.iac.common.testing.FileReaderUtils.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class ClearTextProtocolsCheckTest {

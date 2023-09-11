@@ -19,18 +19,17 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.YamlParser;
+
+import static org.sonar.iac.common.testing.FileReaderUtils.BASE_DIR;
 
 public class KubernetesVerifier {
 
   private KubernetesVerifier() {
   }
 
-  private static final Path BASE_DIR = Paths.get("src", "test", "resources", "checks");
   private static final YamlParser PARSER = new YamlParser();
 
   public static void verify(String fileName, IacCheck check) {

@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.sonar.iac.arm.ArmTestUtils.readTemplateAndReplace;
 import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
+import static org.sonar.iac.common.testing.FileReaderUtils.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class SubscriptionOwnerCapabilitiesCheckTest {

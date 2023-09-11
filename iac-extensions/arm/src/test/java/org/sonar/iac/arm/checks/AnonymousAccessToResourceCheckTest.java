@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.iac.arm.ArmTestUtils;
 
+import static org.sonar.iac.common.testing.FileReaderUtils.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class AnonymousAccessToResourceCheckTest {
@@ -44,7 +44,7 @@ class AnonymousAccessToResourceCheckTest {
   @MethodSource(value = "sensitiveDataFactoryTypes")
   @ParameterizedTest(name = "[{index}] JSON should check data factory secure access for type {0}")
   void shouldFindIssuesInDataFactoryJson(String type) {
-    String content = ArmTestUtils.readTemplateAndReplace("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.json", type);
+    String content = readTemplateAndReplace("AnonymousAccessToResourceCheck/Microsoft.DataFactory_factories_linkedservices.json", type);
     ArmVerifier.verifyContent(content, check,
       issue(12, 10, 12, 43, "Make sure that authorizing anonymous access is safe here."));
   }

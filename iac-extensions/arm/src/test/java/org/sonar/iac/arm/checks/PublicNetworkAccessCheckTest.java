@@ -25,8 +25,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static org.sonar.iac.arm.ArmTestUtils.readTemplateAndReplace;
 import static org.sonar.iac.common.api.checks.SecondaryLocation.secondary;
+import static org.sonar.iac.common.testing.FileReaderUtils.readTemplateAndReplace;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
 class PublicNetworkAccessCheckTest {
