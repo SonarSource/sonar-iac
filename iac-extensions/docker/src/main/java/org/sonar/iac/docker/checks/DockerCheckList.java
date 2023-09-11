@@ -31,6 +31,7 @@ public class DockerCheckList {
 
   public static List<Class<?>> checks() {
     return Arrays.asList(
+      ArgDefinedOutsideOfScopeCheck.class,
       BuilderSandboxCheck.class,
       ClearTextProtocolDowngradeCheck.class,
       DebugModeCheck.class,
