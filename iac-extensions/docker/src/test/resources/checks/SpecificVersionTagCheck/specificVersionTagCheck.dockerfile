@@ -58,13 +58,15 @@ foobar:latest
 FROM my-image:1.2.3 as baseWithTag
 FROM my-image:1.2.3-alpine
 FROM ubuntu:18.04 as local-toolchain-ubuntu18.04-manylinux2010
-FROM foobar@12313423 # Compliant usage of digest
+FROM foobar@12313423
+# Above is Compliant as the usage of a digest shouldn't raise anything for this rule
 
 FROM my-image:1.2.3 as baseWithTag
-FROM baseWithTag # Compliant as 'baseWithTag' is used as an alias
-FROM baseWithTag as anotherAlias # Compliant as 'baseWithTag' is used as an alias
+FROM baseWithTag
+FROM baseWithTag as anotherAlias
+FROM baseWithoutTag as builderWithoutTag
+# All three above are Compliant because 'baseWithTag' and 'baseWithoutTag' are used as an alias
 
-FROM baseWithoutTag as builderWithoutTag # Compliant as 'baseWithoutTag' is used as an alias
 
 FROM ${IMAGE_NAME}:${NON_LATEST_TAG}
 FROM ${IMAGE_WITH_TAG}
