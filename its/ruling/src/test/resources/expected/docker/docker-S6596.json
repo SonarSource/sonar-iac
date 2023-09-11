@@ -1,0 +1,80 @@
+{
+"docker-project:ruling/src/test/resources/sources/docker/S6473/Dockerfile.6473": [
+1
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang-mysql/backend/Dockerfile": [
+39
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang-postgres/backend/Dockerfile": [
+39
+],
+"docker-project:sources/docker/awesome-compose/nginx-golang/backend/Dockerfile": [
+39
+],
+"docker-project:sources/docker/awesome-compose/traefik-golang/backend/Dockerfile": [
+25
+],
+"docker-project:sources/docker/docker-containers/ubuntuhost/ubuntu16.04_host_phusion/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/apache/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/ghost/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/hipache/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/jdk-oracle/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/jenkins/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/jmeter-abh/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/maven/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/mongodb/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/mysql/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/nodejs/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/php-apache/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/postgres/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/rails-sample-app/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/redis/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/ruby-rails/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/ruby/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/ssg/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/tomcat/Dockerfile": [
+1
+],
+"docker-project:sources/docker/dockerfile-examples/wordpress/Dockerfile": [
+1
+],
+"docker-project:sources/docker/k8s-wordsmith-demo/web/Dockerfile": [
+8
+]
+}
