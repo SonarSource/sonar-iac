@@ -19,7 +19,8 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -37,18 +38,30 @@ public class SpecificVersionTagCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(FromInstruction.class, SpecificVersionTagCheck::checkFromInstruction);
+    init.register(Body.class, SpecificVersionTagCheck::checkBody);
   }
 
-  private static void checkFromInstruction(CheckContext ctx, FromInstruction fromInstruction) {
+  private static void checkBody(CheckContext ctx, Body body) {
+    Set<String> encounteredAlias = new HashSet<>();
+    for (DockerImage dockerImage : body.dockerImages()) {
+      checkFromInstruction(ctx, dockerImage.from(), encounteredAlias);
+    }
+  }
+
+  private static void checkFromInstruction(CheckContext ctx, FromInstruction fromInstruction, Set<String> encounteredAlias) {
     ArgumentResolution resolvedImage = ArgumentResolution.of(fromInstruction.image());
     if (resolvedImage.isUnresolved()) {
       return;
     }
     String fullImageName = resolvedImage.value();
 
-    if (hasSensitiveVersionTag(fullImageName) && !imageNameIsUsedAsAliasInPreviousImages(fromInstruction, fullImageName)) {
+    if (hasSensitiveVersionTag(fullImageName) && !encounteredAlias.contains(fullImageName)) {
       ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE);
+    }
+
+    Alias alias = fromInstruction.alias();
+    if (alias != null) {
+      encounteredAlias.add(alias.alias().value());
     }
   }
 
@@ -63,27 +76,5 @@ public class SpecificVersionTagCheck implements IacCheck {
       // no version tag specified, docker assumes "latest"
       return true;
     }
-  }
-
-  private static boolean imageNameIsUsedAsAliasInPreviousImages(FromInstruction currentFromInstruction, String currentImageName) {
-    List<DockerImage> dockerImages = ((Body) currentFromInstruction.parent().parent()).dockerImages();
-
-    // only check in those images that appear before the current from instruction
-    for (DockerImage dockerImage : dockerImages) {
-      FromInstruction previousFromInstruction = dockerImage.from();
-      if (previousFromInstruction.equals(currentFromInstruction)) {
-        // no need to check further as all images left appear after the image of the currentFromInstruction
-        break;
-      }
-      if (currentImageIsAliasOf(previousFromInstruction, currentImageName)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static boolean currentImageIsAliasOf(FromInstruction previousFromInstruction, String currentImageName) {
-    Alias alias = previousFromInstruction.alias();
-    return alias != null && currentImageName.equals(alias.alias().value());
   }
 }
