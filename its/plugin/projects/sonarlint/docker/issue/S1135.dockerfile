@@ -1,2 +1,2 @@
 # TODO fix me
-FROM ubuntu
+FROM ubuntu:1.2.3

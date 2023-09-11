@@ -1,0 +1,21 @@
+{
+  "title": "Specific version tag for image should be used",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6596",
+  "sqKey": "S6596",
+  "scope": "All",
+  "quickfix": "unknown"
+}
