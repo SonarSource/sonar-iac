@@ -19,13 +19,16 @@
  */
 package org.sonar.iac.docker.checks;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
+import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.Literal;
@@ -38,19 +41,28 @@ public class ArgDefinedOutsideOfScopeCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(DockerImage.class, ArgDefinedOutsideOfScopeCheck::checkReferencedVariablesAreInScope);
+    init.register(Body.class, ArgDefinedOutsideOfScopeCheck::checkReferencedVariablesAreInScope);
   }
 
-  private static void checkReferencedVariablesAreInScope(CheckContext ctx, DockerImage image) {
-    List<String> argNamesInScope = image.instructions().stream()
-      .filter(ArgInstruction.class::isInstance)
-      .map(ArgInstruction.class::cast)
-      .flatMap(it -> it.keyValuePairs().stream())
+  private static void checkReferencedVariablesAreInScope(CheckContext ctx, Body body) {
+    List<String> globalArgsNames = collectArgNames(body.globalArgs().stream());
+
+    body.dockerImages().forEach(image -> checkArgUsagesIn(image, globalArgsNames, ctx));
+  }
+
+  private static List<String> collectArgNames(Stream<ArgInstruction> args) {
+    return args.flatMap(it -> it.keyValuePairs().stream())
       .map(pair -> {
         Expression e = pair.key().expressions().get(0);
         return ((Literal) e).value();
       })
       .collect(Collectors.toList());
+  }
+
+  private static void checkArgUsagesIn(DockerImage image, List<String> globalArgNames, CheckContext ctx) {
+    List<String> argNamesInStage = collectArgNames(image.instructions().stream().filter(ArgInstruction.class::isInstance).map(ArgInstruction.class::cast));
+    List<String> notRedeclaredArgsNames = new ArrayList<>(globalArgNames);
+    notRedeclaredArgsNames.removeAll(argNamesInStage);
 
     List<Variable> usedVariables = image.instructions().stream()
       .filter(RunInstruction.class::isInstance)
@@ -61,7 +73,7 @@ public class ArgDefinedOutsideOfScopeCheck implements IacCheck {
       .collect(Collectors.toList());
 
     usedVariables.forEach(variable -> {
-      if (!argNamesInScope.contains(variable.identifier())) {
+      if (notRedeclaredArgsNames.contains(variable.identifier())) {
         ctx.reportIssue(variable.textRange(), MESSAGE);
       }
     });
