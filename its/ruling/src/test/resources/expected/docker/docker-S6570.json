@@ -1,0 +1,38 @@
+{
+"docker-project:sources/docker/aspnet-monitoring/grafana/Dockerfile": [
+11
+],
+"docker-project:sources/docker/aspnet-monitoring/grafana/Dockerfile.ltsc2019": [
+9
+],
+"docker-project:sources/docker/aspnet-monitoring/prometheus/Dockerfile": [
+17
+],
+"docker-project:sources/docker/aspnet-monitoring/prometheus/Dockerfile.ltsc2019": [
+16
+],
+"docker-project:sources/docker/aspnet-monitoring/website/Dockerfile": [
+22
+],
+"docker-project:sources/docker/aspnet-monitoring/website/Dockerfile.ltsc2019": [
+19
+],
+"docker-project:sources/docker/awesome-compose/nginx-wsgi-flask/flask/Dockerfile": [
+24
+],
+"docker-project:sources/docker/docker-containers/alpine3.7_py3.5.5_analytics/Dockerfile": [
+80
+],
+"docker-project:sources/docker/docker-containers/dockeransible/Dockerfile": [
+82
+],
+"docker-project:sources/docker/docker-containers/pyalp/alpine3.7_py3.5.5/Dockerfile": [
+80
+],
+"docker-project:sources/docker/docker-containers/pyalp/alpine3.8_py3.5.5/Dockerfile": [
+80
+],
+"docker-project:sources/docker/dockerfile-examples/jmeter-abh/Dockerfile": [
+15
+]
+}
