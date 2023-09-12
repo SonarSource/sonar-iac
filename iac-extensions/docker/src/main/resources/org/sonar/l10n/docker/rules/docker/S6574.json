@@ -1,0 +1,21 @@
+{
+  "title": "A space before the equal sign in key-value pair may lead to unintended behavior",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6574",
+  "sqKey": "S6574",
+  "scope": "All",
+  "quickfix": "unknown"
+}
