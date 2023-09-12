@@ -33,6 +33,7 @@ import org.sonar.iac.docker.tree.api.RunInstruction;
 
 import static java.util.function.Predicate.not;
 import static org.sonar.iac.docker.checks.utils.StringPredicate.equalsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.StringPredicate.startsWithIgnoreQuotes;
 
 @Rule(key = "S6506")
 public class ClearTextProtocolDowngradeCheck implements IacCheck {
@@ -41,10 +42,10 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final String WGET_MESSAGE = "Not disabling redirects might allow for redirections to insecure websites. Make sure it is safe here.";
   private static final String CURL_COMMAND = "curl";
   private static final String PROTO_FLAG = "--proto";
-  private static final String PROTO_FLAG_OPTION = "=https";
   private static final Set<String> REDIRECTION_FLAGS = Set.of("-L", "--location");
   private static final Set<String> SENSITIVE_FLAGS = Set.of("-L", "--location", PROTO_FLAG);
-  private static final Predicate<String> SENSITIVE_HTTPS_URL_BEGINNING = s -> s.startsWith("https");
+  private static final Predicate<String> EQUALS_PROTO_FLAG_OPTION = equalsIgnoreQuotes("=https");
+  private static final Predicate<String> SENSITIVE_HTTPS_URL_BEGINNING = startsWithIgnoreQuotes("https");
   private static final Predicate<String> OPTIONAL_OTHER_FLAGS = s -> s.startsWith("-") && !SENSITIVE_FLAGS.contains(s);
 
   // common predicates of detectors
@@ -56,7 +57,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final CommandDetector.Builder PROTO_FLAG_MISSING_OPTION_PREDICATES = CommandDetector.builder()
     .withOptional(OPTIONAL_OTHER_FLAGS)
     .with(PROTO_FLAG)
-    .notWith(equalsIgnoreQuotes(PROTO_FLAG_OPTION))
+    .notWith(EQUALS_PROTO_FLAG_OPTION)
     .withOptional(OPTIONAL_OTHER_FLAGS);
 
   private static final CommandDetector.Builder PROTO_FLAG_MISSING_PREDICATES = CommandDetector.builder()
@@ -67,7 +68,7 @@ public class ClearTextProtocolDowngradeCheck implements IacCheck {
   private static final CommandDetector.Builder PROTO_FLAG_WITH_WRONG_OPTION_PREDICATES = CommandDetector.builder()
     .withOptional(OPTIONAL_OTHER_FLAGS)
     .with(PROTO_FLAG)
-    .with(not(equalsIgnoreQuotes(PROTO_FLAG_OPTION)))
+    .with(not(EQUALS_PROTO_FLAG_OPTION))
     .withOptional(OPTIONAL_OTHER_FLAGS);
 
   // actual detectors

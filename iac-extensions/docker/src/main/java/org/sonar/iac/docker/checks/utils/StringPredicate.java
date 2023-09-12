@@ -26,6 +26,10 @@ public class StringPredicate {
   private StringPredicate() {
   }
 
+  public static Predicate<String> startsWithIgnoreQuotes(String value) {
+    return str -> stripQuotes(str).startsWith(value);
+  }
+
   public static Predicate<String> equalsIgnoreQuotes(String value) {
     return str -> stripQuotes(str).equals(value);
   }

@@ -22,36 +22,45 @@ package org.sonar.iac.docker.checks.utils;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.docker.checks.utils.StringPredicate.containsIgnoreQuotes;
 import static org.sonar.iac.docker.checks.utils.StringPredicate.equalsIgnoreQuotes;
+import static org.sonar.iac.docker.checks.utils.StringPredicate.startsWithIgnoreQuotes;
 
 class StringPredicateTest {
 
-  @Test
-  void testSingleValuePositive() {
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "value",
+    "\"value\"",
+    "'value'"
+  })
+  void equalsWithSingleValueIsTrue(String value) {
     Predicate<String> predicate = equalsIgnoreQuotes("value");
 
-    assertThat(predicate.test("value")).isTrue();
-    assertThat(predicate.test("\"value\"")).isTrue();
-    assertThat(predicate.test("'value'")).isTrue();
+    assertThat(predicate.test(value)).isTrue();
   }
 
-  @Test
-  void testSingleValueNegative() {
+  @ParameterizedTest
+  @ValueSource(strings = {
+    " value",
+    "value ",
+    " value ",
+    "other",
+    "valueother",
+    "value other",
+    "\"value",
+    "value\"",
+    "'value",
+    "value'"
+  })
+  void equalsWithSingleValueIsFalse(String value) {
     Predicate<String> predicate = equalsIgnoreQuotes("value");
 
-    assertThat(predicate.test(" value")).isFalse();
-    assertThat(predicate.test("value ")).isFalse();
-    assertThat(predicate.test(" value ")).isFalse();
-    assertThat(predicate.test("other")).isFalse();
-    assertThat(predicate.test("valueother")).isFalse();
-    assertThat(predicate.test("value other")).isFalse();
-    assertThat(predicate.test("\"value")).isFalse();
-    assertThat(predicate.test("value\"")).isFalse();
-    assertThat(predicate.test("'value")).isFalse();
-    assertThat(predicate.test("value'")).isFalse();
+    assertThat(predicate.test(value)).isFalse();
   }
 
   @Test
@@ -66,5 +75,37 @@ class StringPredicateTest {
     assertThat(predicate.test("'value'")).isTrue();
 
     assertThat(predicate.test(" other ")).isFalse();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "value",
+    "\"value\"",
+    "'value'",
+    "value123",
+    "\"value123\"",
+    "'value123'"
+  })
+  void startsWithWithSingleValueIsTrue(String value) {
+    Predicate<String> predicate = startsWithIgnoreQuotes("value");
+
+    assertThat(predicate.test(value)).isTrue();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "val",
+    "\"val\"",
+    "'val'",
+    " value",
+    " value ",
+    "other",
+    "\"value",
+    "'value"
+  })
+  void startsWithWithSingleValueIsFalse(String value) {
+    Predicate<String> predicate = startsWithIgnoreQuotes("value");
+
+    assertThat(predicate.test(value)).isFalse();
   }
 }
