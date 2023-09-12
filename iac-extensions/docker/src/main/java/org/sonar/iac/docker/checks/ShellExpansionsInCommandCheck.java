@@ -21,12 +21,12 @@ package org.sonar.iac.docker.checks;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
+import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
@@ -48,14 +48,14 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
   }
 
   private static void check(CheckContext ctx, CommandInstruction cmd) {
-    SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(
-      cmd.arguments().stream().map(ArgumentResolution::ofWithoutStrippingQuotes).collect(Collectors.toList()));
+    SeparatedList<List<ArgumentResolution>, String> splitCommands = ArgumentResolutionSplitter.splitCommands(CheckUtils.resolveInstructionArguments(cmd));
     CommandDetector shellExpansionDetector = CommandDetector.builder()
       .with(ShellExpansionsInCommandCheck::isShellExpansion)
       .build();
     for (List<ArgumentResolution> argumentResolutions : splitCommands.elements()) {
       shellExpansionDetector.search(argumentResolutions).forEach(c -> {
-        if (contains(argumentResolutions.subList(0, argumentResolutions.indexOf(c.getResolvedArguments().get(0))), "--") || isCompliantExceptionCommand(argumentResolutions)) {
+        List<ArgumentResolution> argumentResolutionsBeforeMatch = argumentResolutions.subList(0, argumentResolutions.indexOf(c.getResolvedArguments().get(0)));
+        if (contains(argumentResolutionsBeforeMatch, "--") || isCompliantExceptionCommand(argumentResolutions)) {
           return;
         }
         ctx.reportIssue(c.textRange(), MESSAGE);
