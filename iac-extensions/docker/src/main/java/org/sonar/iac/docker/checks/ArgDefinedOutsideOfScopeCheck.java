@@ -19,20 +19,15 @@
  */
 package org.sonar.iac.docker.checks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.docker.tree.api.ArgInstruction;
-import org.sonar.iac.docker.tree.api.Body;
-import org.sonar.iac.docker.tree.api.DockerImage;
-import org.sonar.iac.docker.tree.api.Expression;
-import org.sonar.iac.docker.tree.api.Literal;
-import org.sonar.iac.docker.tree.api.RunInstruction;
+import org.sonar.iac.docker.symbols.Scope;
+import org.sonar.iac.docker.symbols.Usage;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Variable;
 
 @Rule(key = "S6579")
@@ -41,41 +36,26 @@ public class ArgDefinedOutsideOfScopeCheck implements IacCheck {
 
   @Override
   public void initialize(InitContext init) {
-    init.register(Body.class, ArgDefinedOutsideOfScopeCheck::checkReferencedVariablesAreInScope);
+    init.register(Variable.class, ArgDefinedOutsideOfScopeCheck::checkVariableIsDefinedLocally);
   }
 
-  private static void checkReferencedVariablesAreInScope(CheckContext ctx, Body body) {
-    List<String> globalArgsNames = collectArgNames(body.globalArgs().stream());
+  private static void checkVariableIsDefinedLocally(CheckContext ctx, Variable variable) {
+    if (variable.symbol() == null || Stream.iterate(variable, Objects::nonNull, DockerTree::parent).anyMatch(t -> t.is(DockerTree.Kind.FROM))) {
+      // Variable is either not a Dockerfile variable or is path of FROM instruction where it doesn't need to be redeclared
+      return;
+    }
 
-    body.dockerImages().forEach(image -> checkArgUsagesIn(image, globalArgsNames, ctx));
-  }
-
-  private static List<String> collectArgNames(Stream<ArgInstruction> args) {
-    return args.flatMap(it -> it.keyValuePairs().stream())
-      .map(pair -> {
-        Expression e = pair.key().expressions().get(0);
-        return ((Literal) e).value();
-      })
-      .collect(Collectors.toList());
-  }
-
-  private static void checkArgUsagesIn(DockerImage image, List<String> globalArgNames, CheckContext ctx) {
-    List<String> argNamesInStage = collectArgNames(image.instructions().stream().filter(ArgInstruction.class::isInstance).map(ArgInstruction.class::cast));
-    List<String> notRedeclaredArgsNames = new ArrayList<>(globalArgNames);
-    notRedeclaredArgsNames.removeAll(argNamesInStage);
-
-    List<Variable> usedVariables = image.instructions().stream()
-      .filter(RunInstruction.class::isInstance)
-      .flatMap(run -> ((RunInstruction) run).arguments().stream())
-      .flatMap(arg -> arg.expressions().stream())
-      .filter(Variable.class::isInstance)
-      .map(Variable.class::cast)
-      .collect(Collectors.toList());
-
-    usedVariables.forEach(variable -> {
-      if (notRedeclaredArgsNames.contains(variable.identifier())) {
-        ctx.reportIssue(variable.textRange(), MESSAGE);
+    boolean isDefinedInImageScope = false;
+    boolean isDefinedInGlobalScope = false;
+    for (Usage usage : variable.symbol().usages()) {
+      if (usage.kind().equals(Usage.Kind.ASSIGNMENT)) {
+        isDefinedInImageScope = usage.scope().kind().equals(Scope.Kind.IMAGE);
+        isDefinedInGlobalScope = usage.scope().kind().equals(Scope.Kind.GLOBAL);
       }
-    });
+    }
+    boolean isDefinedOnlyInGlobalScope = isDefinedInGlobalScope && !isDefinedInImageScope;
+    if (isDefinedOnlyInGlobalScope) {
+      ctx.reportIssue(variable.textRange(), MESSAGE);
+    }
   }
 }

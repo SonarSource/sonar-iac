@@ -1,5 +1,10 @@
+ARG BUSYBOX_TAG="latest"
 ARG SETTINGS
 ARG SETTINGS_2="--default-settings"
+ARG USER=builder
+
+FROM busybox:$BUSYBOX_TAG
+RUN ./run/setup
 
 FROM busybox
 # Noncompliant@+1 {{Include the ARG instruction in the build stage where it is used.}}
@@ -19,6 +24,12 @@ ARG SETTINGS_2
 # Noncompliant@+1 {{Include the ARG instruction in the build stage where it is used.}}
 RUN ./run/setup $SETTINGS $SETTINGS_2
 #               ^^^^^^^^^
+
+FROM busybox
+# Noncompliant@+1 {{Include the ARG instruction in the build stage where it is used.}}
+USER $USER
+#    ^^^^^
+RUN ./run/setup
 
 # Variables are neither global nor stage-local ARGs
 FROM busybox
