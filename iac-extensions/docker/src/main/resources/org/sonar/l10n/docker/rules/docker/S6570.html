@@ -1,0 +1,41 @@
+<p>Variable references should be encapsulated with double quotes to avoid globbing and word splitting.</p>
+<h2>Why is this an issue?</h2>
+<p>Within the command, variable references and command substitutions go through word splitting and pathname expansion (globbing).</p>
+<p>This causes issues if the variable contains whitespaces or shell pathname expansion (glob) characters like <code>*</code>.</p>
+<h3>What is the potential impact?</h3>
+<p>This issue can lead to bugs if the variable contains sensitive characters, which may not be interpreted correctly.</p>
+<h2>How to fix it</h2>
+<p>Add the missing double quotes to this variable.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<p>Demonstration of pathname expansion using the <code>echo</code> command:</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+RUN test="command t*.sh"
+RUN echo $test
+</pre>
+<p>This will print <code>"command temp1.sh temp2.sh"</code>, as <code>*</code> is substituted to matching files in the current folder. In this example
+the folder contains the files <code>temp1.sh</code> and <code>temp2.sh</code>.</p>
+<p>Demonstration of word splitting using the <code>echo</code> command:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+RUN test=" Hello World "
+RUN echo $test
+</pre>
+<p>This will print <code>"Hello World"</code>, omitting the leading and trailing whitespaces.</p>
+<h4>Compliant solution</h4>
+<p>Demonstration of pathname expansion using the <code>echo</code> command, which will print <code>"command t*.sh"</code> as intended:</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+RUN test="command t*.sh"
+RUN echo "$test"
+</pre>
+<p>Demonstration of word splitting using the <code>echo</code> command, which will print <code>" Hello World "</code> as intended:</p>
+<pre data-diff-id="2" data-diff-type="compliant">
+RUN test=" Hello World "
+RUN echo "$test"
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://tldp.org/LDP/abs/html/globbingref.html">Linux Documentation Project - Globbing</a> </li>
+  <li> <a href="https://dwheeler.com/essays/filenames-in-shell.html#doublequote">Filenames and Pathnames in Shell: How to do it Correctly</a> </li>
+</ul>
+

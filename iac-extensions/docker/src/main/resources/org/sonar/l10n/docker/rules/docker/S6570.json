@@ -1,0 +1,21 @@
+{
+  "title": "Double quote to prevent globbing and word splitting",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6570",
+  "sqKey": "S6570",
+  "scope": "All",
+  "quickfix": "unknown"
+}
