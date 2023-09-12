@@ -1,0 +1,25 @@
+<p>Filename and pathname should be prefixed to avoid missing filenames starting with a dash when globbing files as program option.</p>
+<h2>Why is this an issue?</h2>
+<p>Within the command, arguments and filenames as options are passed as strings. Programs may misinterpret files as arguments if the file name starts
+with a single or double dash. When filenames are specified using glob, files whose names begin with a dash are not included in the scope. For example,
+if a file is named "-f" and passed as an argument to a command such as "rm", it may be interpreted as a command line option instead of a file, causing
+unexpected behaviour. This issue affects all instructions processing shell commands.</p>
+<h2>How to fix it</h2>
+<p>To avoid this issue, using "./" before the file name will cause it to be interpreted as a file and not an option. Additionally, adding "--" at the
+end of command line arguments indicates the end of options and any subsequent arguments will be treated as file names. However, this fix should only
+be used if the command supports it as expected.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+RUN rm *
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+RUN rm ./*
+RUN rm -- *
+</pre>
+<h2>Resources</h2>
+<ul>
+  <li> <a href="https://dwheeler.com/essays/filenames-in-shell.html">Filenames and Pathnames in Shell: How to do it Correctly</a> </li>
+</ul>
+

@@ -260,6 +260,10 @@ public class CommandDetector {
 
   public static class Command implements HasTextRange {
 
+    public List<ArgumentResolution> getResolvedArguments() {
+      return resolvedArguments;
+    }
+
     final List<ArgumentResolution> resolvedArguments;
 
     public Command(List<ArgumentResolution> resolvedArguments) {
