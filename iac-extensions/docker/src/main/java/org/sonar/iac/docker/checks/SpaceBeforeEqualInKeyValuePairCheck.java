@@ -55,10 +55,11 @@ public class SpaceBeforeEqualInKeyValuePairCheck implements IacCheck {
   }
 
   private static boolean isStartingWithLiteralStringWithEqual(@Nullable Argument argument) {
-    return Optional.ofNullable(argument).stream()
+    return Optional.ofNullable(argument)
       .map(arg -> arg.expressions().get(0))
       .filter(expr -> expr.is(DockerTree.Kind.STRING_LITERAL))
       .map(Literal.class::cast)
-      .anyMatch(literal -> literal.originalValue().startsWith("="));
+      .filter(literal -> literal.originalValue().startsWith("="))
+      .isPresent();
   }
 }
