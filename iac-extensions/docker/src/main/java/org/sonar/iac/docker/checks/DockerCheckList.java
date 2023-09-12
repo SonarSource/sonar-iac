@@ -50,6 +50,7 @@ public class DockerCheckList {
       ToDoCommentCheck.class,
       SecretsGenerationCheck.class,
       SecretsHandlingCheck.class,
+      ShellExpansionsInCommandCheck.class,
       SpaceBeforeEqualInKeyValuePairCheck.class,
       SpecificVersionTagCheck.class,
       UnencryptedProtocolCheck.class,

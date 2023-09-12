@@ -1,0 +1,21 @@
+{
+  "title": "Expanded filenames should not become options",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6573",
+  "sqKey": "S6573",
+  "scope": "All",
+  "quickfix": "unknown"
+}
