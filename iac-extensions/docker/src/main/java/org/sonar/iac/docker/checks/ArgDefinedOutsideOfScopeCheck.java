@@ -26,7 +26,6 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.Scope;
-import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.Variable;
 
@@ -41,20 +40,11 @@ public class ArgDefinedOutsideOfScopeCheck implements IacCheck {
 
   private static void checkVariableIsDefinedLocally(CheckContext ctx, Variable variable) {
     if (variable.symbol() == null || Stream.iterate(variable, Objects::nonNull, DockerTree::parent).anyMatch(t -> t.is(DockerTree.Kind.FROM))) {
-      // Variable is either not a Dockerfile variable or is path of FROM instruction where it doesn't need to be redeclared
+      // Variable is either not a Dockerfile variable or is part of a FROM instruction where it doesn't need to be redeclared
       return;
     }
 
-    boolean isDefinedInImageScope = false;
-    boolean isDefinedInGlobalScope = false;
-    for (Usage usage : variable.symbol().usages()) {
-      if (usage.kind().equals(Usage.Kind.ASSIGNMENT)) {
-        isDefinedInImageScope = usage.scope().kind().equals(Scope.Kind.IMAGE);
-        isDefinedInGlobalScope = usage.scope().kind().equals(Scope.Kind.GLOBAL);
-      }
-    }
-    boolean isDefinedOnlyInGlobalScope = isDefinedInGlobalScope && !isDefinedInImageScope;
-    if (isDefinedOnlyInGlobalScope) {
+    if (Scope.Kind.GLOBAL.equals(variable.symbol().lastDeclarationScope())) {
       ctx.reportIssue(variable.textRange(), MESSAGE);
     }
   }
