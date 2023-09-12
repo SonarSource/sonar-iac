@@ -19,6 +19,9 @@ RUN <<EOT
   $test some value
 # ^^^^^
 EOT
+# Noncompliant@+1
+RUN del -$flag
+#        ^^^^^
 
 
 # Compliant test cases
