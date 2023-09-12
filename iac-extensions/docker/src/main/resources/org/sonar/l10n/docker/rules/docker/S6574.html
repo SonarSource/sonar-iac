@@ -1,0 +1,44 @@
+<p>In places where key-value pairs are used, a space before the equal sign may lead to unintended behavior.</p>
+<h2>Why is this an issue?</h2>
+<p>A few Docker instructions (like <code>ARG</code>, <code>ENV</code>, <code>LABEL</code>) may contain key-value pairs in form of
+<code>&lt;key&gt;=&lt;value&gt;</code>. The equal sign should not be followed by a space. The space before the equal sign may lead to unintended
+behavior. This is critical, especially for multiple key-value pairs, e.g. <code>key1 = value1 key2 = value2</code>, will lead to the key
+<code>key1</code> with the value <code>= value1 key2 = value2</code>. In most cases it is unintended.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+ENV BUILD_NUMBER =1
+RUN echo $BUILD_NUMBER
+</pre>
+<p>This will lead to print <code>=1</code>, which is not expected.</p>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+ENV BUILD_NUMBER=1
+RUN echo $BUILD_NUMBER
+</pre>
+<p>This will lead to print <code>1</code>, which is expected.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+ENV USER = bob MODE = all
+RUN echo $USER
+</pre>
+<p>This will lead to print <code>= bob MODE = all</code>, which is not expected.</p>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+ENV USER=bob MODE=all
+RUN echo $USER
+</pre>
+<p>This will lead to print <code>bob</code>, which is expected.</p>
+<h3>How does this work?</h3>
+<p>The <code>ENV</code> instruction allows alternative syntax <code>ENV &lt;key&gt; &lt;value&gt;</code> and in case of space before equal sign, the
+<code>=1</code> is evaluated as value. The <code>LABEL</code> instruction will be also evaluated to <code>=1</code>. The <code>ARG</code> instruction
+will cause the build error.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#arg">ARG - Dockerfile reference</a> </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#env">ENV - Dockerfile reference</a> </li>
+  <li> <a href="https://docs.docker.com/engine/reference/builder/#label">LABEL - Dockerfile reference</a> </li>
+</ul>
+
