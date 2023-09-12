@@ -260,10 +260,6 @@ public class CommandDetector {
 
   public static class Command implements HasTextRange {
 
-    public List<ArgumentResolution> getResolvedArguments() {
-      return resolvedArguments;
-    }
-
     final List<ArgumentResolution> resolvedArguments;
 
     public Command(List<ArgumentResolution> resolvedArguments) {
@@ -273,6 +269,15 @@ public class CommandDetector {
     @Override
     public TextRange textRange() {
       return TextRanges.mergeElementsWithTextRange(resolvedArguments.stream().map(ArgumentResolution::argument).collect(Collectors.toList()));
+    }
+
+    /**
+     * TODO: After <a href="https://sonarsource.atlassian.net/browse/SONARIAC-1088">SONARIAC-1088</a> may become redundant
+     * as CommandDetector will be capable of more complex matching
+     */
+    @SuppressWarnings("java:S1135")
+    public List<ArgumentResolution> getResolvedArguments() {
+      return resolvedArguments;
     }
   }
 
