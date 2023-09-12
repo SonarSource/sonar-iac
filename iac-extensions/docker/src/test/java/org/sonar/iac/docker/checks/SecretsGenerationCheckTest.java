@@ -20,24 +20,39 @@
 package org.sonar.iac.docker.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.testing.FileReaderUtils;
 
 class SecretsGenerationCheckTest {
 
   final IacCheck check = new SecretsGenerationCheck();
 
   @Test
-  void test_sshKeygen() {
+  void testSshKeygen() {
     DockerVerifier.verify("SecretsGenerationCheck/sshKeygen.dockerfile", new SecretsGenerationCheck());
   }
 
   @Test
-  void test_keytool() {
+  void testKeytool() {
     DockerVerifier.verify("SecretsGenerationCheck/keytool.dockerfile", check);
   }
 
   @Test
-  void test_openssl() {
+  void testOpenssl() {
     DockerVerifier.verify("SecretsGenerationCheck/openssl.dockerfile", check);
+  }
+
+  @ValueSource(strings = {"--password", "--ftp-password", "--http-password", "--proxy-password"})
+  @ParameterizedTest
+  void testWget(String flag) {
+    String content = FileReaderUtils.readTemplateAndReplace("SecretsGenerationCheck/wget_template.dockerfile", "--flag", flag);
+    DockerVerifier.verifyContent(content, check);
+  }
+
+  @Test
+  void testWgetLocation() {
+    DockerVerifier.verify("SecretsGenerationCheck/wget_location.dockerfile", check);
   }
 }

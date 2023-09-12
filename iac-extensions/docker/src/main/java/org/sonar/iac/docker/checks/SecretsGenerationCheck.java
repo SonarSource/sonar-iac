@@ -62,10 +62,51 @@ public class SecretsGenerationCheck implements IacCheck {
     .withAnyOptionExcluding(Collections.emptyList())
     .build();
 
+  private static final CommandDetector WGET_PASSWORD_EQUALS = wgetFlagEquals("--password");
+
+  private static final CommandDetector WGET_PASSWORD_SPACE = wgetFlagSpace("--password");
+
+  private static final CommandDetector WGET_FTP_PASSWORD_EQUALS = wgetFlagEquals("--ftp-password");
+
+  private static final CommandDetector WGET_FTP_PASSWORD_SPACE = wgetFlagSpace("--ftp-password");
+  private static final CommandDetector WGET_HTTP_PASSWORD_EQUALS = wgetFlagEquals("--http-password");
+
+  private static final CommandDetector WGET_HTTP_PASSWORD_SPACE = wgetFlagSpace("--http-password");
+
+  private static final CommandDetector WGET_PROXY_PASSWORD_EQUALS = wgetFlagEquals("--proxy-password");
+
+  private static final CommandDetector WGET_PROXY_PASSWORD_SPACE = wgetFlagSpace("--proxy-password");
+
+  private static CommandDetector wgetFlagEquals(String flag) {
+    String flagAndEquals = flag + "=";
+    return CommandDetector.builder()
+      .with("wget")
+      .withAnyExcludingIncludeUnresolved(arg -> !arg.startsWith(flagAndEquals))
+      .withIncludeUnresolved(arg -> arg.startsWith(flagAndEquals))
+      .build();
+  }
+
+  private static CommandDetector wgetFlagSpace(String flag) {
+    return CommandDetector.builder()
+      .with("wget")
+      .withOptionalRepeatingExcept(flag)
+      .with(flag::equals)
+      .withIncludeUnresolved(a -> true)
+      .build();
+  }
+
   private static final Set<CommandDetector> DETECTORS = Set.of(
     SSH_DETECTOR,
     KEYTOOL_DETECTOR,
-    SENSITIVE_OPENSSL_COMMANDS);
+    SENSITIVE_OPENSSL_COMMANDS,
+    WGET_PASSWORD_EQUALS,
+    WGET_PASSWORD_SPACE,
+    WGET_FTP_PASSWORD_EQUALS,
+    WGET_FTP_PASSWORD_SPACE,
+    WGET_HTTP_PASSWORD_EQUALS,
+    WGET_HTTP_PASSWORD_SPACE,
+    WGET_PROXY_PASSWORD_EQUALS,
+    WGET_PROXY_PASSWORD_SPACE);
 
   @Override
   public void initialize(InitContext init) {

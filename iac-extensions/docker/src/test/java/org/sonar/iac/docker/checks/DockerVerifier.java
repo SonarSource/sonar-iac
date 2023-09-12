@@ -45,6 +45,10 @@ public class DockerVerifier {
     Verifier.verify(root, BASE_DIR.resolve(fileName), check, Verifier.TestContext::new);
   }
 
+  public static void verifyContent(String content, IacCheck check) {
+    Verifier.verify(PARSER, content, check);
+  }
+
   public static void verifyContent(String content, IacCheck check, Verifier.Issue... expectedIssues) {
     Verifier.verify(PARSER, content, check, expectedIssues);
   }
