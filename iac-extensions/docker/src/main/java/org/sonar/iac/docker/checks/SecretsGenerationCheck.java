@@ -64,18 +64,21 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final CommandDetector WGET_PASSWORD_EQUALS = wgetFlagEquals("--password");
 
-  private static final CommandDetector WGET_PASSWORD_SPACE = wgetFlagSpace("--password");
+  private static final CommandDetector WGET_PASSWORD_SPACE = commandFlagSpaceNext("wget", "--password");
 
   private static final CommandDetector WGET_FTP_PASSWORD_EQUALS = wgetFlagEquals("--ftp-password");
 
-  private static final CommandDetector WGET_FTP_PASSWORD_SPACE = wgetFlagSpace("--ftp-password");
+  private static final CommandDetector WGET_FTP_PASSWORD_SPACE = commandFlagSpaceNext("wget", "--ftp-password");
   private static final CommandDetector WGET_HTTP_PASSWORD_EQUALS = wgetFlagEquals("--http-password");
 
-  private static final CommandDetector WGET_HTTP_PASSWORD_SPACE = wgetFlagSpace("--http-password");
+  private static final CommandDetector WGET_HTTP_PASSWORD_SPACE = commandFlagSpaceNext("wget", "--http-password");
 
   private static final CommandDetector WGET_PROXY_PASSWORD_EQUALS = wgetFlagEquals("--proxy-password");
 
-  private static final CommandDetector WGET_PROXY_PASSWORD_SPACE = wgetFlagSpace("--proxy-password");
+  private static final CommandDetector WGET_PROXY_PASSWORD_SPACE = commandFlagSpaceNext("wget", "--proxy-password");
+
+  private static final CommandDetector CURL_USER = commandFlagSpaceNext("curl", "--user");
+  private static final CommandDetector CURL_USER_SHORT = commandFlagSpaceNext("curl", "-u");
 
   private static CommandDetector wgetFlagEquals(String flag) {
     String flagAndEquals = flag + "=";
@@ -86,9 +89,9 @@ public class SecretsGenerationCheck implements IacCheck {
       .build();
   }
 
-  private static CommandDetector wgetFlagSpace(String flag) {
+  private static CommandDetector commandFlagSpaceNext(String command, String flag) {
     return CommandDetector.builder()
-      .with("wget")
+      .with(command)
       .withOptionalRepeatingExcept(flag)
       .with(flag::equals)
       .withIncludeUnresolved(a -> true)
@@ -106,7 +109,9 @@ public class SecretsGenerationCheck implements IacCheck {
     WGET_HTTP_PASSWORD_EQUALS,
     WGET_HTTP_PASSWORD_SPACE,
     WGET_PROXY_PASSWORD_EQUALS,
-    WGET_PROXY_PASSWORD_SPACE);
+    WGET_PROXY_PASSWORD_SPACE,
+    CURL_USER,
+    CURL_USER_SHORT);
 
   @Override
   public void initialize(InitContext init) {

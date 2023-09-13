@@ -55,4 +55,9 @@ class SecretsGenerationCheckTest {
   void testWgetLocation() {
     DockerVerifier.verify("SecretsGenerationCheck/wget_location.dockerfile", check);
   }
+  
+  @Test
+  void testCurl() {
+    DockerVerifier.verify("SecretsGenerationCheck/curl.dockerfile", check);
+  }
 }
