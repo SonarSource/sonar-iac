@@ -19,15 +19,19 @@
  */
 package org.sonar.iac.docker.plugin;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
@@ -64,23 +68,59 @@ class DockerSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void shouldAnalyzeDockerfilesOnly() {
+  void shouldAnalyzeDockerfilesInSonarQube() {
     DockerSensor sensor = sensor();
     analyse(sensor,
+      // should be included based on pattern matching
+      inputFileWithoutAssociatedLanguage("Dockerfile.foo", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile.foo.bar", ""),
+      // should be included based on associated language
       inputFile("Dockerfile", ""),
-      inputFile("Dockerfile.foo", ""),
-      inputFile("FooDockerfile", ""),
-      inputFile("DockerfileFoo", ""),
-      inputFile("Dockerfile.foo.bar", ""),
       inputFile("Foo.Dockerfile", ""),
-      inputFile("Foo.dockerfile", ""));
+      inputFile("Foo.dockerfile", ""),
+      // should not be included after applying file predicates
+      inputFileWithoutAssociatedLanguage("DockerfileFoo", ""),
+      inputFileWithoutAssociatedLanguage("FooDockerfile", ""));
 
     FileSystem fileSystem = context.fileSystem();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context));
 
     assertThat(inputFiles)
       .extracting(inputFile -> Path.of(inputFile.uri()).getFileName().toString())
-      .containsOnly("Dockerfile", "Dockerfile.foo.bar", "Dockerfile.foo", "Foo.Dockerfile", "Foo.dockerfile");
+      .containsExactlyInAnyOrder(
+        "Dockerfile",
+        "Dockerfile.foo.bar",
+        "Dockerfile.foo",
+        "Foo.Dockerfile",
+        "Foo.dockerfile");
+  }
+
+  @Test
+  void shouldAnalyzeDockerfilesInSonarLint() {
+    DockerSensor sonarLintSensor = sonarLintSensor();
+
+    analyse(sonarLintContext, sonarLintSensor,
+      // should be included based on pattern matching
+      inputFileWithoutAssociatedLanguage("Dockerfile.foo", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile.foo.bar", ""),
+      inputFileWithoutAssociatedLanguage("Dockerfile", ""),
+      inputFileWithoutAssociatedLanguage("Foo.Dockerfile", ""),
+      inputFileWithoutAssociatedLanguage("Foo.dockerfile", ""),
+      // should not be included after applying file predicates
+      inputFileWithoutAssociatedLanguage("DockerfileFoo", ""),
+      inputFileWithoutAssociatedLanguage("FooDockerfile", ""));
+
+    FileSystem fileSystem = sonarLintContext.fileSystem();
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(sonarLintSensor.mainFilePredicate(sonarLintContext));
+
+    assertThat(inputFiles)
+      .extracting(inputFile -> Path.of(inputFile.uri()).getFileName().toString())
+      .containsExactlyInAnyOrder(
+        "Dockerfile",
+        "Dockerfile.foo.bar",
+        "Dockerfile.foo",
+        "Foo.Dockerfile",
+        "Foo.dockerfile");
   }
 
   @Test
@@ -149,4 +189,21 @@ class DockerSensorTest extends ExtensionSensorTest {
     return (DockerSensor) sensor(checkFactory(rules));
   }
 
+  private InputFile inputFileWithoutAssociatedLanguage(String relativePath, String content) {
+    return new TestInputFileBuilder("moduleKey", relativePath)
+      .setModuleBaseDir(baseDir.toPath())
+      .setType(InputFile.Type.MAIN)
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents(content)
+      .build();
+  }
+
+  private DockerSensor sonarLintSensor(String... rules) {
+    return new DockerSensor(
+      SonarRuntimeImpl.forSonarLint(Version.create(9, 2)),
+      fileLinesContextFactory,
+      checkFactory(sonarLintContext, rules),
+      noSonarFilter,
+      new DockerLanguage());
+  }
 }
