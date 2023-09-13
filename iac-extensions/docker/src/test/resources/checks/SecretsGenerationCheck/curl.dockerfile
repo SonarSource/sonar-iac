@@ -122,9 +122,17 @@ EOF
 
 
 # Compliant
-#TODO compliant or not?
-#RUN curl --user usernameonly https://example.com
-#RUN curl -u usernameonly https://example.com
+RUN curl --user usernameonly https://example.com
+RUN curl -u usernameonly https://example.com
+# $UNKNOWN is inknown, so do not raise an issue to avoid FP
+RUN curl --user "${UNKNOWN}" https://example.com
+RUN curl -u "${UNKNOWN}" https://example.com
+RUN curl --user "$UNKNOWN" https://example.com
+RUN curl -u "$UNKNOWN" https://example.com
+RUN curl --user ${UNKNOWN} https://example.com
+RUN curl -u ${UNKNOWN} https://example.com
+RUN curl --user $UNKNOWN https://example.com
+RUN curl -u $UNKNOWN https://example.com
 
 RUN curl https://example.com
 RUN curl --remote-name https://example.com

@@ -109,8 +109,9 @@ public class SecretsGenerationCheck implements IacCheck {
     WGET_HTTP_PASSWORD_EQUALS,
     WGET_HTTP_PASSWORD_SPACE,
     WGET_PROXY_PASSWORD_EQUALS,
-    WGET_PROXY_PASSWORD_SPACE,
-    CURL_USER,
+    WGET_PROXY_PASSWORD_SPACE);
+
+  private static final Set<CommandDetector> CURL_DETECTORS = Set.of(CURL_USER,
     CURL_USER_SHORT);
 
   @Override
@@ -123,5 +124,16 @@ public class SecretsGenerationCheck implements IacCheck {
 
     DETECTORS.forEach(
       detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
+
+    CURL_DETECTORS.forEach(
+      detector -> detector.search(resolvedArgument).forEach(command -> {
+        List<ArgumentResolution> arguments = command.getResolvedArguments();
+        ArgumentResolution lastArgument = arguments.get(arguments.size() - 1);
+        if (lastArgument.value().contains(":")) {
+          ctx.reportIssue(command, MESSAGE);
+        }
+      })
+    );
+
   }
 }
