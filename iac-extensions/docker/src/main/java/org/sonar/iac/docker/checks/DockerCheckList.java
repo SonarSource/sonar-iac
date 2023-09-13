@@ -46,6 +46,7 @@ public class DockerCheckList {
       MountWorldPermissionCheck.class,
       PackageInstallationCheck.class,
       PackageInstallationScriptExecutionCheck.class,
+      PackageManagerConsentFlagCheck.class,
       ParsingErrorCheck.class,
       PosixPermissionCheck.class,
       PrivilegedUserCheck.class,
