@@ -71,7 +71,8 @@ public class KubernetesSensor extends YamlSensor {
   protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
     FilePredicates predicates = sensorContext.fileSystem().predicates();
     return predicates.and(
-      predicates.and(predicates.hasLanguage(YAML_LANGUAGE_KEY), predicates.hasType(InputFile.Type.MAIN)),
+      predicates.hasLanguage(YAML_LANGUAGE_KEY),
+      predicates.hasType(InputFile.Type.MAIN),
       customFilePredicate(sensorContext));
   }
 
