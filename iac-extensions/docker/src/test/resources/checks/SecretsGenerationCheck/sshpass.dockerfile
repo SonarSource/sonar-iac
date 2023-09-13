@@ -16,6 +16,9 @@ RUN sshpass -p 'password' ssh user@hostname
 RUN sshpass -p $PASSWORD ssh user@hostname
 
 # Noncompliant@+1
+RUN sshpass -p ${PASSWORD} ssh user@hostname
+
+# Noncompliant@+1
 RUN sshpass -p "$PASSWORD" ssh user@hostname
 
 # Noncompliant@+1
@@ -53,6 +56,9 @@ RUN sshpass -p$PASSWORD ssh user@hostname
 
 # Noncompliant@+1
 RUN sshpass -p"$PASSWORD" ssh user@hostname
+
+# Noncompliant@+1
+RUN sshpass -p"${PASSWORD}" ssh user@hostname
 
 # Noncompliant@+1
 RUN sshpass -p${PASSWORD-test} ssh user@hostname

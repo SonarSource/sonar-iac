@@ -26,6 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
@@ -143,10 +144,59 @@ public class SecretsGenerationCheck implements IacCheck {
           ctx.reportIssue(command, MESSAGE);
         }
       }));
+
+    ArgumentResolutionSplitter.splitCommands(resolvedArgument).elements()
+      .forEach(arguments -> checkHtpasswd(arguments, ctx));
+  }
+
+  private static void checkHtpasswd(List<ArgumentResolution> resolvedArgument, CheckContext ctx) {
+    HtpasswdDetector detector = HtpasswdDetector.create(resolvedArgument);
+    if (detector.isDetected()) {
+      ctx.reportIssue(new CommandDetector.Command(resolvedArgument), MESSAGE);
+    }
   }
 
   private static ArgumentResolution getLastArgument(CommandDetector.Command command) {
     List<ArgumentResolution> arguments = command.getResolvedArguments();
     return arguments.get(arguments.size() - 1);
+  }
+
+  private static class HtpasswdDetector {
+    private final boolean flagB;
+    private final boolean flagN;
+    private final int numberOfNonFlags;
+
+    public HtpasswdDetector(boolean flagB, boolean flagN, int numberOfNonFlags) {
+      this.flagB = flagB;
+      this.flagN = flagN;
+      this.numberOfNonFlags = numberOfNonFlags;
+    }
+
+    public static HtpasswdDetector create(List<ArgumentResolution> resolvedArgument) {
+      boolean flagB = false;
+      boolean flagN = false;
+      int numberOfNonFlags = 0;
+      for (int i = 0; i < resolvedArgument.size(); i++) {
+        String current = resolvedArgument.get(i).value();
+        if (i == 0 && !"htpasswd".equals(current)) {
+          break;
+        }
+        if (current.startsWith("-")) {
+          if (current.contains("b")) {
+            flagB = true;
+          }
+          if (current.contains("n")) {
+            flagN = true;
+          }
+        } else {
+          numberOfNonFlags++;
+        }
+      }
+      return new HtpasswdDetector(flagB, flagN, numberOfNonFlags);
+    }
+
+    public boolean isDetected() {
+      return flagB && ((!flagN && numberOfNonFlags == 4) || (flagN && numberOfNonFlags == 3));
+    }
   }
 }

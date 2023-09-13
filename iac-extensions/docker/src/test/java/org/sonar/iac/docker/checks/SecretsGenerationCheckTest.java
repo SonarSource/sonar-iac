@@ -65,4 +65,9 @@ class SecretsGenerationCheckTest {
   void testSshpass() {
     DockerVerifier.verify("SecretsGenerationCheck/sshpass.dockerfile", check);
   }
+
+  @Test
+  void testHtpasswd() {
+    DockerVerifier.verify("SecretsGenerationCheck/htpasswd.dockerfile", check);
+  }
 }
