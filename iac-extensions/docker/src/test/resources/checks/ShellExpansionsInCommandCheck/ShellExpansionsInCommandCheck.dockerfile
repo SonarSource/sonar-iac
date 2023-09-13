@@ -32,6 +32,20 @@ RUN rm file.*
 RUN echo 'Files: ' *
 RUN printf '%s ' *
 
+# Noncompliant@+3
+RUN case "${alpineArch##*-}" in \
+      x86_64) \
+        rm * ;; \
+      x86_64) \
+        echo 'Files: ' * ;; \
+      *32) ;; \
+      # FN as we don't analyze deeper commands separately
+      *32) echo $(ls *) ;; \
+      *) ;; \
+      *) echo Default ;; \
+      *)echo Default ;; \
+    esac
+
 # Noncompliant@+1
 ENTRYPOINT echo *
 # Noncompliant@+1
