@@ -69,20 +69,28 @@ public abstract class AbstractSensorTest {
     MapSettings settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
     context = SensorContextTester.create(baseDir).setSettings(settings);
-    sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(3, 14))).setSettings(settings);
+    sonarLintContext = SensorContextTester.create(baseDir).setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(9, 2))).setSettings(settings);
   }
 
   protected abstract String getActivationSettingKey();
 
   protected void analyse(InputFile... inputFiles) {
-    analyse(sensor(checkFactory()), inputFiles);
+    analyse(context, inputFiles);
+  }
+
+  protected void analyse(SensorContextTester sensorContext, InputFile... inputFiles) {
+    analyse(sensorContext, sensor(checkFactory(sensorContext)), inputFiles);
   }
 
   protected void analyse(Sensor sensor, InputFile... inputFiles) {
+    analyse(context, sensor, inputFiles);
+  }
+
+  protected void analyse(SensorContextTester sensorContext, Sensor sensor, InputFile... inputFiles) {
     for (InputFile inputFile : inputFiles) {
-      context.fileSystem().add(inputFile);
+      sensorContext.fileSystem().add(inputFile);
     }
-    sensor.execute(context);
+    sensor.execute(sensorContext);
   }
 
   protected InputFile inputFile(String relativePath, String content) {
@@ -96,6 +104,10 @@ public abstract class AbstractSensorTest {
   }
 
   protected CheckFactory checkFactory(String... ruleKeys) {
+    return checkFactory(context, ruleKeys);
+  }
+
+  protected CheckFactory checkFactory(SensorContextTester sensorContext, String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
       NewActiveRule newRule = new NewActiveRule.Builder()
@@ -104,8 +116,8 @@ public abstract class AbstractSensorTest {
         .build();
       builder.addRule(newRule);
     }
-    context.setActiveRules(builder.build());
-    return new CheckFactory(context.activeRules());
+    sensorContext.setActiveRules(builder.build());
+    return new CheckFactory(sensorContext.activeRules());
   }
 
   protected abstract Sensor sensor(CheckFactory checkFactory);

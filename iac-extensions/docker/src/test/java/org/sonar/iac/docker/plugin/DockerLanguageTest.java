@@ -19,15 +19,59 @@
  */
 package org.sonar.iac.docker.plugin;
 
+import java.nio.file.Path;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sonar.api.batch.fs.internal.PathPattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DockerLanguageTest {
 
   @Test
-  void should_return_docker_file_suffixes() {
+  void shouldReturnDockerFileSuffixes() {
     DockerLanguage language = new DockerLanguage();
     assertThat(language.getFileSuffixes()).isEmpty();
   }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "Dockerfile",
+    "filename.dockerfile",
+    "filename.Dockerfile",
+    "filename.dOckerFilE"
+  })
+  void fileNameIsAssignedToLanguage(String fileName) {
+    assertThat(associatedToLanguage(fileName)).isTrue();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "dockerfile",
+    "somefile",
+    "FooDockerfile",
+    "DockerfileFoo",
+    "Dockerfile.java",
+    "Helloworld.java",
+    // TODO: SONARIAC-1095 Extend DockerLanguage to include possible conflicting filePatterns
+    "Dockerfile.foo"
+  })
+  void fileNameIsNotAssignedToLanguage(String fileName) {
+    assertThat(associatedToLanguage(fileName)).isFalse();
+  }
+
+  private static boolean associatedToLanguage(String fileName) {
+    DockerLanguage language = new DockerLanguage();
+
+    // Based on 'LanguageDetection.getLanguagePatterns(...)' from SQ and SC
+    Path realAbsolutePath = Path.of("src", "main", "resources", fileName).toAbsolutePath().normalize();
+    Path projectRelativePath = Path.of("").toAbsolutePath().relativize(realAbsolutePath);
+    return Arrays.stream(language.filenamePatterns())
+      .map(filenamePattern -> "**/" + filenamePattern)
+      .map(PathPattern::create)
+      .anyMatch(pattern -> pattern.match(realAbsolutePath, projectRelativePath, false));
+  }
+
 }

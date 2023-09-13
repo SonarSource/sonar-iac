@@ -25,6 +25,12 @@ public class DockerLanguage extends AbstractLanguage {
   static final String KEY = "docker";
   static final String NAME = "Docker";
 
+  static final String[] DEFAULT_FILE_PATTERNS = new String[] {
+    "Dockerfile",
+    // filename extension matching is case-insensitive, so '*.Dockerfile' is also matched
+    "*.dockerfile"
+  };
+
   public DockerLanguage() {
     super(KEY, NAME);
   }
@@ -32,5 +38,10 @@ public class DockerLanguage extends AbstractLanguage {
   @Override
   public String[] getFileSuffixes() {
     return new String[0];
+  }
+
+  @Override
+  public String[] filenamePatterns() {
+    return DEFAULT_FILE_PATTERNS;
   }
 }
