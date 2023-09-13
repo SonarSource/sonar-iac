@@ -55,7 +55,7 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
     for (List<ArgumentResolution> argumentResolutions : splitCommands.elements()) {
       shellExpansionDetector.search(argumentResolutions).forEach(c -> {
         List<ArgumentResolution> argumentResolutionsBeforeMatch = argumentResolutions.subList(0, argumentResolutions.indexOf(c.getResolvedArguments().get(0)));
-        if (contains(argumentResolutionsBeforeMatch, "--") || isCompliantExceptionCommand(argumentResolutions)) {
+        if (contains(argumentResolutionsBeforeMatch, "--") || isCompliantExceptionCommand(argumentResolutionsBeforeMatch)) {
           return;
         }
         ctx.reportIssue(c.textRange(), MESSAGE);
@@ -64,7 +64,9 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
   }
 
   private static boolean isShellExpansion(String arg) {
-    return arg.startsWith("*");
+    return arg.startsWith("*") &&
+    // Pattern followed by a `)` can belong to Bash case-statement. Moreover, space between `)` and body of the branch is not required.
+      !arg.contains(")");
   }
 
   private static boolean contains(List<ArgumentResolution> argumentResolutions, String symbol) {
@@ -76,10 +78,21 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
     return false;
   }
 
-  private static boolean isCompliantExceptionCommand(List<ArgumentResolution> argumentResolutions) {
-    if (argumentResolutions.size() < 2) {
+  private static boolean isCompliantExceptionCommand(List<ArgumentResolution> argumentResolutionsBeforeWildcard) {
+    // Even exception commands are not allowed to have wildcard as a first argument after flag
+    // So we need to check if one of the compliant commands is somewhere before wildcard but not immediately before
+    // I.e. `echo *` or `echo -n *` are noncompliant, while `echo 'Files: ' *` is.
+    if (argumentResolutionsBeforeWildcard.size() < 2 ||
+      argumentResolutionsBeforeWildcard.get(argumentResolutionsBeforeWildcard.size() - 1).value().startsWith("-")) {
       return false;
     }
-    return exceptionCommands.contains(argumentResolutions.get(0).value()) && !isShellExpansion(argumentResolutions.get(1).value());
+    for (int i = argumentResolutionsBeforeWildcard.size() - 2; i >= 0; i--) {
+      if (argumentResolutionsBeforeWildcard.get(i).value().startsWith("-")) {
+        return false;
+      } else if (exceptionCommands.contains(argumentResolutionsBeforeWildcard.get(i).value())) {
+        return true;
+      }
+    }
+    return false;
   }
 }
