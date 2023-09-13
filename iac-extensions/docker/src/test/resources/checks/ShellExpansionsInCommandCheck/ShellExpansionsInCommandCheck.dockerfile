@@ -13,6 +13,8 @@ RUN rm * --
 # Noncompliant@+1
 RUN echo *
 # Noncompliant@+1
+RUN echo -n *
+# Noncompliant@+1
 RUN printf *.txt
 # Noncompliant@+1
 RUN touch -- '-f oo.bar' && ls *.bar

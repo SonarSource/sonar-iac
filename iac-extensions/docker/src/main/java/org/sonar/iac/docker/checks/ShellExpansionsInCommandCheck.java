@@ -65,8 +65,7 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
 
   private static boolean isShellExpansion(String arg) {
     return arg.startsWith("*") &&
-    // Pattern followed by a `)` can belong to Bash case-statement. Space between `)` and body of the branch is not required,
-    // so `contains` and not `endsWith`.
+    // Pattern followed by a `)` can belong to Bash case-statement. Moreover, space between `)` and body of the branch is not required.
       !arg.contains(")");
   }
 
@@ -80,13 +79,17 @@ public class ShellExpansionsInCommandCheck implements IacCheck {
   }
 
   private static boolean isCompliantExceptionCommand(List<ArgumentResolution> argumentResolutionsBeforeWildcard) {
-    // Even exception commands are not allowed to have wildcard as a first argument
+    // Even exception commands are not allowed to have wildcard as a first argument after flag
     // So we need to check if one of the compliant commands is somewhere before wildcard but not immediately before
-    if (argumentResolutionsBeforeWildcard.size() < 2) {
+    // I.e. `echo *` or `echo -n *` are noncompliant, while `echo 'Files: ' *` is.
+    if (argumentResolutionsBeforeWildcard.size() < 2 ||
+      argumentResolutionsBeforeWildcard.get(argumentResolutionsBeforeWildcard.size() - 1).value().startsWith("-")) {
       return false;
     }
     for (int i = argumentResolutionsBeforeWildcard.size() - 2; i >= 0; i--) {
-      if (exceptionCommands.contains(argumentResolutionsBeforeWildcard.get(i).value())) {
+      if (argumentResolutionsBeforeWildcard.get(i).value().startsWith("-")) {
+        return false;
+      } else if (exceptionCommands.contains(argumentResolutionsBeforeWildcard.get(i).value())) {
         return true;
       }
     }
