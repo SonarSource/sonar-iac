@@ -20,11 +20,11 @@
 package org.sonar.iac.docker.plugin;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -86,7 +86,7 @@ class DockerSensorTest extends ExtensionSensorTest {
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context));
 
     assertThat(inputFiles)
-      .extracting(inputFile -> Path.of(inputFile.uri()).getFileName().toString())
+      .map(IndexedFile::filename)
       .containsExactlyInAnyOrder(
         "Dockerfile",
         "Dockerfile.foo.bar",
@@ -114,7 +114,7 @@ class DockerSensorTest extends ExtensionSensorTest {
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sonarLintSensor.mainFilePredicate(sonarLintContext));
 
     assertThat(inputFiles)
-      .extracting(inputFile -> Path.of(inputFile.uri()).getFileName().toString())
+      .map(IndexedFile::filename)
       .containsExactlyInAnyOrder(
         "Dockerfile",
         "Dockerfile.foo.bar",

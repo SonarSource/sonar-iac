@@ -65,7 +65,7 @@ class DockerLanguageTest {
   private static boolean associatedToLanguage(String fileName) {
     DockerLanguage language = new DockerLanguage();
 
-    // Based on the actual implementation in SQ and SC
+    // Based on 'LanguageDetection.getLanguagePatterns(...)' from SQ and SC
     Path realAbsolutePath = Path.of("src", "main", "resources", fileName).toAbsolutePath().normalize();
     Path projectRelativePath = Path.of("").toAbsolutePath().relativize(realAbsolutePath);
     return Arrays.stream(language.filenamePatterns())
