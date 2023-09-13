@@ -60,6 +60,10 @@ public class SingularPredicate implements CommandPredicate {
       return;
     }
 
+    matchResolution(context, resolution);
+  }
+
+  protected void matchResolution(PredicateContext context, ArgumentResolution resolution) {
     // Test argument resolution with predicate
     if (this.predicate.test(resolution.value())) {
       // Skip argument and start new command detection
