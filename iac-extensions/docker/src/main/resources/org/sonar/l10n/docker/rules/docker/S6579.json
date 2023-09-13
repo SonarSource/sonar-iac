@@ -1,0 +1,21 @@
+{
+  "title": "Access variable which is not available in the current scope",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6579",
+  "sqKey": "S6579",
+  "scope": "All",
+  "quickfix": "unknown"
+}
