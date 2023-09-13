@@ -64,21 +64,29 @@ public class SecretsGenerationCheck implements IacCheck {
 
   private static final CommandDetector WGET_PASSWORD_EQUALS = wgetFlagEquals("--password");
 
-  private static final CommandDetector WGET_PASSWORD_SPACE = commandFlagSpaceNext("wget", "--password");
+  private static final CommandDetector WGET_PASSWORD_SPACE = commandFlagSpace("wget", "--password");
 
   private static final CommandDetector WGET_FTP_PASSWORD_EQUALS = wgetFlagEquals("--ftp-password");
 
-  private static final CommandDetector WGET_FTP_PASSWORD_SPACE = commandFlagSpaceNext("wget", "--ftp-password");
+  private static final CommandDetector WGET_FTP_PASSWORD_SPACE = commandFlagSpace("wget", "--ftp-password");
   private static final CommandDetector WGET_HTTP_PASSWORD_EQUALS = wgetFlagEquals("--http-password");
 
-  private static final CommandDetector WGET_HTTP_PASSWORD_SPACE = commandFlagSpaceNext("wget", "--http-password");
+  private static final CommandDetector WGET_HTTP_PASSWORD_SPACE = commandFlagSpace("wget", "--http-password");
 
   private static final CommandDetector WGET_PROXY_PASSWORD_EQUALS = wgetFlagEquals("--proxy-password");
 
-  private static final CommandDetector WGET_PROXY_PASSWORD_SPACE = commandFlagSpaceNext("wget", "--proxy-password");
+  private static final CommandDetector WGET_PROXY_PASSWORD_SPACE = commandFlagSpace("wget", "--proxy-password");
 
-  private static final CommandDetector CURL_USER = commandFlagSpaceNext("curl", "--user");
-  private static final CommandDetector CURL_USER_SHORT = commandFlagSpaceNext("curl", "-u");
+  private static final CommandDetector CURL_USER = commandFlagSpace("curl", "--user");
+  private static final CommandDetector CURL_USER_SHORT = commandFlagSpace("curl", "-u");
+
+  private static final CommandDetector SSHPASS_SPACE = commandFlagSpace("sshpass", "-p");
+
+  private static final CommandDetector SSHPASS_NO_SPACE = CommandDetector.builder()
+    .with("sshpass")
+    .withAnyExcludingIncludeUnresolved(arg -> !arg.startsWith("-p"))
+    .withIncludeUnresolved(arg -> arg.startsWith("-p"))
+    .build();
 
   private static CommandDetector wgetFlagEquals(String flag) {
     String flagAndEquals = flag + "=";
@@ -89,7 +97,7 @@ public class SecretsGenerationCheck implements IacCheck {
       .build();
   }
 
-  private static CommandDetector commandFlagSpaceNext(String command, String flag) {
+  private static CommandDetector commandFlagSpace(String command, String flag) {
     return CommandDetector.builder()
       .with(command)
       .withOptionalRepeatingExcept(flag)
@@ -109,7 +117,8 @@ public class SecretsGenerationCheck implements IacCheck {
     WGET_HTTP_PASSWORD_EQUALS,
     WGET_HTTP_PASSWORD_SPACE,
     WGET_PROXY_PASSWORD_EQUALS,
-    WGET_PROXY_PASSWORD_SPACE);
+    WGET_PROXY_PASSWORD_SPACE,
+    SSHPASS_NO_SPACE);
 
   private static final Set<CommandDetector> CURL_DETECTORS = Set.of(CURL_USER,
     CURL_USER_SHORT);
@@ -127,13 +136,23 @@ public class SecretsGenerationCheck implements IacCheck {
 
     CURL_DETECTORS.forEach(
       detector -> detector.search(resolvedArgument).forEach(command -> {
-        List<ArgumentResolution> arguments = command.getResolvedArguments();
-        ArgumentResolution lastArgument = arguments.get(arguments.size() - 1);
+        ArgumentResolution lastArgument = getLastArgument(command);
         if (lastArgument.value().contains(":")) {
           ctx.reportIssue(command, MESSAGE);
         }
-      })
-    );
+      }));
 
+//    SSHPASS_NO_SPACE.search(resolvedArgument).forEach(command -> {
+//      ArgumentResolution lastArgument = getLastArgument(command);
+//      if(lastArgument.argument().expressions().size() == 1) {
+//        commandFlagSpace()
+//      }
+//      System.out.println(lastArgument);
+//    });
+  }
+
+  private static ArgumentResolution getLastArgument(CommandDetector.Command command) {
+    List<ArgumentResolution> arguments = command.getResolvedArguments();
+    return arguments.get(arguments.size() - 1);
   }
 }

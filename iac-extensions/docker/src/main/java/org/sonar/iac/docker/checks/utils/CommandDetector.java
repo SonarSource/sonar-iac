@@ -39,6 +39,7 @@ import org.sonar.iac.docker.checks.utils.command.PredicateContext;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.Argument;
 
 import static org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter.splitCommands;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
