@@ -26,6 +26,9 @@ import org.sonar.api.resources.Qualifiers;
 
 public class DockerSettings {
 
+  static final String FILE_PATTERNS_KEY = "sonar.docker.file.patterns";
+  // filename extension matching is case-insensitive, so '*.Dockerfile' is also matched
+  static final String DEFAULT_FILE_PATTERNS = "Dockerfile,*.dockerfile";
   static final String HADOLINT_REPORTS_KEY = "sonar.docker.hadolint.reportPaths";
   static final String ACTIVATION_KEY = "sonar.docker.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
@@ -47,6 +50,17 @@ public class DockerSettings {
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
         .category(DOCKER_CATEGORY)
+        .subCategory(GENERAL_SUBCATEGORY)
+        .build(),
+
+      PropertyDefinition.builder(FILE_PATTERNS_KEY)
+        .defaultValue(DEFAULT_FILE_PATTERNS)
+        .name("File Patterns")
+        .description("List of file patterns of Docker files to be indexed. " +
+          "Details on the expected format can be found on the 'Docker' documentation page.")
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(DOCKER_CATEGORY)
+        .multiValues(true)
         .subCategory(GENERAL_SUBCATEGORY)
         .build());
   }

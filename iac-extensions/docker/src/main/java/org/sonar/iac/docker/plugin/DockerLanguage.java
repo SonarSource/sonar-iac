@@ -19,20 +19,20 @@
  */
 package org.sonar.iac.docker.plugin;
 
+import java.util.Arrays;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
+// AbstractLanguage#equals() should still be used
+@SuppressWarnings("java:S2160")
 public class DockerLanguage extends AbstractLanguage {
   static final String KEY = "docker";
   static final String NAME = "Docker";
+  private final Configuration settings;
 
-  static final String[] DEFAULT_FILE_PATTERNS = new String[] {
-    "Dockerfile",
-    // filename extension matching is case-insensitive, so '*.Dockerfile' is also matched
-    "*.dockerfile"
-  };
-
-  public DockerLanguage() {
+  public DockerLanguage(Configuration settings) {
     super(KEY, NAME);
+    this.settings = settings;
   }
 
   @Override
@@ -42,6 +42,18 @@ public class DockerLanguage extends AbstractLanguage {
 
   @Override
   public String[] filenamePatterns() {
-    return DEFAULT_FILE_PATTERNS;
+    String[] patterns = filterEmptyPatterns(settings.getStringArray(DockerSettings.FILE_PATTERNS_KEY));
+
+    if (patterns.length == 0) {
+      return DockerSettings.DEFAULT_FILE_PATTERNS.split(",");
+    }
+    return patterns;
+  }
+
+  private static String[] filterEmptyPatterns(String[] patterns) {
+    return Arrays.stream(patterns)
+      .filter(string -> !string.isBlank())
+      .map(String::trim)
+      .toArray(String[]::new);
   }
 }

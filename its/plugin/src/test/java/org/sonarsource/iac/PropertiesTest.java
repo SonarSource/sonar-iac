@@ -30,8 +30,8 @@ class PropertiesTest extends TestBase {
   private static final String BASE_DIRECTORY = "projects/properties/";
 
   @Test
-  void test_terraform_custom_file_suffixes() {
-    checkCustomFileSuffixesForLanguage("terraformCustomFileSuffixes", "terraform", ".terra", 1);
+  void testTerraformCustomFileSuffixes() {
+    executeBuildAndAssertMetric("terraformCustomFileSuffixes", "terraform", "suffixes", ".terra", "files", 1);
   }
 
   @ParameterizedTest
@@ -40,7 +40,7 @@ class PropertiesTest extends TestBase {
     "terraformAwsProviderVersion4, 4, 0",
     "terraformAwsProviderVersionNotProvided, '', 0"
   })
-  void test_terraform_aws_provider_version(String projectKey, String version, int expectedHotspots) {
+  void testTerraformAwsProviderVersion(String projectKey, String version, int expectedHotspots) {
     checkTerraformAwsProviderVersion(projectKey, version, expectedHotspots);
   }
 
@@ -50,20 +50,31 @@ class PropertiesTest extends TestBase {
     "cloudformationCustomIdentifier, cloudformation, CustomIdentifier, 3",
     "cloudformationEmptyIdentifier, cloudformation, '', 8"
   })
-  void test_cloudformation_identifier(String projectKey, String language, String identifier, int expectedNcloc) {
-    checkCustomFileIdentifierForLanguage(projectKey, language, identifier, expectedNcloc);
+  void testCloudformationIdentifier(String projectKey, String language, String identifier, int expectedNcloc) {
+    executeBuildAndAssertMetric(projectKey, language, "identifier", identifier, "ncloc", expectedNcloc);
   }
 
-  private void checkCustomFileSuffixesForLanguage(String projectKey, String language, String suffixes, int expectedFiles) {
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "file_suffixes/", language)
-      .setProperty("sonar." + language + ".file.suffixes", suffixes));
-    assertThat(getMeasureAsInt(projectKey, "files")).isEqualTo(expectedFiles);
+  @ParameterizedTest
+  @CsvSource(delimiter = ';', value = {
+    "dockerCustomFilenamePatternsDefaultValue;  Dockerfile,*.dockerfile; 4",
+    // Empty property defaults to default value
+    "dockerCustomFilenamePatternsEmpty; ''; 4",
+    "dockerCustomFilenamePatternsWithEmptyValueInside; Dockerfile,  ,*.dockerfile; 4",
+    // Dockerfile.* are scanned by default and can't be disabled at the moment
+    "dockerCustomFilenamePatternsWithOneElement; customFilename; 2",
+    "dockerCustomFilenamePatterns;  Dockerfile,*.dockerfile,*.suffix,customFilename; 6"
+  })
+  void testDockerFilenamePatterns(String projectKey, String patterns, int expectedFiles) {
+    executeBuildAndAssertMetric(projectKey, "docker", "patterns", patterns, "files", expectedFiles);
   }
 
-  private void checkCustomFileIdentifierForLanguage(String projectKey, String language, String identifier, int expectedNcloc) {
-    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + "identifier/", language)
-      .setProperty("sonar." + language + ".file.identifier", identifier));
-    assertThat(getMeasureAsInt(projectKey, "ncloc")).isEqualTo(expectedNcloc);
+  private void executeBuildAndAssertMetric(
+    String projectKey, String language,
+    String propertySuffix, String propertyValue,
+    String metricKey, int expectedResultOfMetric) {
+    ORCHESTRATOR.executeBuild(getSonarScanner(projectKey, BASE_DIRECTORY + propertySuffix + "/", language)
+      .setProperty("sonar." + language + ".file." + propertySuffix, propertyValue));
+    assertThat(getMeasureAsInt(projectKey, metricKey)).isEqualTo(expectedResultOfMetric);
   }
 
   private void checkTerraformAwsProviderVersion(String projectKey, String version, int expectedHotspots) {
