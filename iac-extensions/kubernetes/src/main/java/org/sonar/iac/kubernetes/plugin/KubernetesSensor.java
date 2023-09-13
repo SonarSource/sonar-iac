@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.yaml.YamlSensor;
@@ -46,6 +47,13 @@ public class KubernetesSensor extends YamlSensor {
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks());
+  }
+
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .onlyOnLanguages(YAML_LANGUAGE_KEY)
+      .name("IaC " + language.getName() + " Sensor");
   }
 
   @Override

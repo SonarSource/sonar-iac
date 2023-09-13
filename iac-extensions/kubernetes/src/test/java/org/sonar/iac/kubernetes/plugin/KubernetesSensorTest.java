@@ -99,7 +99,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC Kubernetes Sensor");
-    assertThat(descriptor.languages()).containsExactly("json", "yaml");
+    assertThat(descriptor.languages()).containsExactly("yaml");
   }
 
   @Test
