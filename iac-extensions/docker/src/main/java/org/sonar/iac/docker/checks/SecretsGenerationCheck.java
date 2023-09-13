@@ -85,7 +85,8 @@ public class SecretsGenerationCheck implements IacCheck {
   private static final CommandDetector SSHPASS_NO_SPACE = CommandDetector.builder()
     .with("sshpass")
     .withAnyExcludingIncludeUnresolved(arg -> !arg.startsWith("-p"))
-    .withIncludeUnresolved(arg -> arg.startsWith("-p"))
+    .withArgumentResolutionIncludeUnresolved(resolution -> resolution.value().startsWith("-p") &&
+      (resolution.value().length() > 2 || resolution.argument().expressions().size() > 1))
     .build();
 
   private static CommandDetector wgetFlagEquals(String flag) {
@@ -118,7 +119,8 @@ public class SecretsGenerationCheck implements IacCheck {
     WGET_HTTP_PASSWORD_SPACE,
     WGET_PROXY_PASSWORD_EQUALS,
     WGET_PROXY_PASSWORD_SPACE,
-    SSHPASS_NO_SPACE);
+    SSHPASS_NO_SPACE,
+    SSHPASS_SPACE);
 
   private static final Set<CommandDetector> CURL_DETECTORS = Set.of(CURL_USER,
     CURL_USER_SHORT);
@@ -141,14 +143,6 @@ public class SecretsGenerationCheck implements IacCheck {
           ctx.reportIssue(command, MESSAGE);
         }
       }));
-
-//    SSHPASS_NO_SPACE.search(resolvedArgument).forEach(command -> {
-//      ArgumentResolution lastArgument = getLastArgument(command);
-//      if(lastArgument.argument().expressions().size() == 1) {
-//        commandFlagSpace()
-//      }
-//      System.out.println(lastArgument);
-//    });
   }
 
   private static ArgumentResolution getLastArgument(CommandDetector.Command command) {

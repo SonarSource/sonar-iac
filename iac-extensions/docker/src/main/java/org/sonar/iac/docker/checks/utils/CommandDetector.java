@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
+import org.sonar.iac.docker.checks.utils.command.ArgumentResolutionIncludeUnresolvedPredicate;
 import org.sonar.iac.docker.checks.utils.command.CommandPredicate;
 import org.sonar.iac.docker.checks.utils.command.IncludeUnresolvedPredicate;
 import org.sonar.iac.docker.checks.utils.command.MultipleUnorderedOptionsPredicate;
@@ -39,7 +40,6 @@ import org.sonar.iac.docker.checks.utils.command.PredicateContext;
 import org.sonar.iac.docker.checks.utils.command.SeparatedList;
 import org.sonar.iac.docker.checks.utils.command.SingularPredicate;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
-import org.sonar.iac.docker.tree.api.Argument;
 
 import static org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter.splitCommands;
 import static org.sonar.iac.docker.checks.utils.command.CommandPredicate.Type.MATCH;
@@ -138,7 +138,7 @@ public class CommandDetector {
       }
 
       // Stop argument detection when argument is unresolved to start new command detection
-      if (resolution.isUnresolved() && !(context.getCurrentPredicate() instanceof IncludeUnresolvedPredicate)) {
+      if (resolution.isUnresolved() && !context.getCurrentPredicate().continueWhenUnresolved()) {
         // remove first element from stack as it is UNRESOLVED
         context.getNextArgumentToHandleAndRemoveFromList();
         return Collections.emptyList();
@@ -266,6 +266,11 @@ public class CommandDetector {
 
     public CommandDetector.Builder withAnyExcludingIncludeUnresolved(Predicate<String> predicate) {
       addCommandPredicate(new IncludeUnresolvedPredicate(predicate, ZERO_OR_MORE));
+      return this;
+    }
+
+    public CommandDetector.Builder withArgumentResolutionIncludeUnresolved(Predicate<ArgumentResolution> predicate) {
+      addCommandPredicate(new ArgumentResolutionIncludeUnresolvedPredicate(predicate, MATCH));
       return this;
     }
 

@@ -31,4 +31,8 @@ public interface CommandPredicate {
   boolean hasType(Type... types);
 
   void match(PredicateContext context);
+
+  default boolean continueWhenUnresolved() {
+    return false;
+  }
 }
