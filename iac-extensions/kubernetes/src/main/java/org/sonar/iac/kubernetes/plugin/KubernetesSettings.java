@@ -41,7 +41,7 @@ public class KubernetesSettings {
         .index(1)
         .defaultValue(ACTIVATION_DEFAULT_VALUE)
         .name("Activate Kubernetes analysis")
-        .description("Activate analysis of JSON and Yaml files recognized as Kubernetes files.")
+        .description("Activate analysis of Yaml files recognized as Kubernetes files.")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
         .category(KUBERNETES_CATEGORY)

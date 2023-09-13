@@ -27,9 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.yaml.YamlSensor;
@@ -49,6 +51,13 @@ public class KubernetesSensor extends YamlSensor {
   }
 
   @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .onlyOnLanguages(YAML_LANGUAGE_KEY)
+      .name("IaC " + language.getName() + " Sensor");
+  }
+
+  @Override
   protected String repositoryKey() {
     return KubernetesExtension.REPOSITORY_KEY;
   }
@@ -56,6 +65,15 @@ public class KubernetesSensor extends YamlSensor {
   @Override
   protected String getActivationSettingKey() {
     return KubernetesSettings.ACTIVATION_KEY;
+  }
+
+  @Override
+  protected FilePredicate mainFilePredicate(SensorContext sensorContext) {
+    FilePredicates predicates = sensorContext.fileSystem().predicates();
+    return predicates.and(
+      predicates.hasLanguage(YAML_LANGUAGE_KEY),
+      predicates.hasType(InputFile.Type.MAIN),
+      customFilePredicate(sensorContext));
   }
 
   @Override
