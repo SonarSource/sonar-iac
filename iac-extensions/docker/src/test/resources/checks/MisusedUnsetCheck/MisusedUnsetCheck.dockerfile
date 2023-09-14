@@ -7,6 +7,8 @@ ARG SECRET_TOKEN=0x42f42f42f
 RUN ./script -p $SECRET_VALUE && unset SECRET_VALUE
 #                                      ^^^^^^^^^^^^
 # Noncompliant@+1
+RUN ./script -p $SECRET_VALUE && sudo unset SECRET_VALUE
+# Noncompliant@+1
 RUN ./script -p $SECRET_VALUE && unset -v SECRET_VALUE
 #                                         ^^^^^^^^^^^^
 # Noncompliant@+1 2
@@ -21,6 +23,7 @@ unset SECRET_VALUE
 EOF
 
 RUN ./script -t $SECRET_TOKEN && unset SECRET_TOKEN
+RUN ./script -t $SECRET_TOKEN && sudo unset SECRET_TOKEN
 RUN export PASSWORD=password && ./script -p $PASSWORD && unset PASSWORD
 RUN PASSWORD=password && ./script -p $PASSWORD && unset -v PASSWORD
 RUN unset -f foo
