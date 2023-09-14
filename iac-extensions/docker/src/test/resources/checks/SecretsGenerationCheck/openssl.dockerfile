@@ -47,6 +47,11 @@ RUN openssl pkey -random1
 RUN openssl genrsa -des3 && other command && other
 #   ^^^^^^^^^^^^^^^^^^^^
 
+# Noncompliant@+1
+RUN --mount=type=secret,id=mysecret,required openssl genrsa -random1
+
+# Compliant
+
 RUN openssl foobar -random1
 
 RUN foobar

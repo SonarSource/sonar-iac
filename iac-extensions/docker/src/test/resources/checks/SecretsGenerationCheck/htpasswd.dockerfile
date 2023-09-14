@@ -109,8 +109,12 @@ RUN htpasswd -n -b -m username "$PASSWORD"
 # Noncompliant@+1
 RUN htpasswd -n -b -m username "$PASSWORD"
 
+# FN It is misuse of --mount=type=secret, but for now detection in sub shell is not possible
+RUN --mount=type=secret,id=mysecret,required htpasswd -b path/to/file username $(echo ${PASSWORD} | openssl passwd -6 -stdin)
+
 
 # Compliant
+RUN --mount=type=secret,id=mysecret,required htpasswd -b path/to/file username $(cat /run/secrets/mysecret | openssl passwd -6 -stdin)
 # no password, valid examples
 RUN htpasswd -n path/to/file username
 RUN htpasswd -n -b -m username

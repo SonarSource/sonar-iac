@@ -163,6 +163,9 @@ RUN ssh-keygen -N $EMPTY     -t dsa -b 1024 -f rsync-key
 # Noncompliant@+1
 RUN ssh-keygen -N $NOT_EMPTY -t dsa -b 1024 -f rsync-key
 
+# Noncompliant@+1
+RUN --mount=type=secret,id=mysecret,required RUN ssh-keygen -N $NOT_EMPTY -t dsa -b 1024 -f rsync-key
+
 
 RUN ssh-keygen -N $UNRESOLVED   -t dsa -b 1024 -f rsync-key
 

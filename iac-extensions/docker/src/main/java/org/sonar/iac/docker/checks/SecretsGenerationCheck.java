@@ -30,6 +30,7 @@ import org.sonar.iac.docker.checks.utils.ArgumentResolutionSplitter;
 import org.sonar.iac.docker.checks.utils.CheckUtils;
 import org.sonar.iac.docker.checks.utils.CommandDetector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.tree.api.Flag;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 
 @Rule(key = "S6437")
@@ -113,7 +114,9 @@ public class SecretsGenerationCheck implements IacCheck {
   private static final Set<CommandDetector> DETECTORS = Set.of(
     SSH_DETECTOR,
     KEYTOOL_DETECTOR,
-    SENSITIVE_OPENSSL_COMMANDS,
+    SENSITIVE_OPENSSL_COMMANDS);
+
+  private static final Set<CommandDetector> DETECTORS_IGNORE_MOUNT_SECRET = Set.of(
     WGET_PASSWORD_FLAG_EQUALS_PWD,
     WGET_PASSWORD_FLAG_SPACE_PWD,
     WGET_FTP_PASSWORD_FLAG_EQUALS_PWD,
@@ -139,6 +142,13 @@ public class SecretsGenerationCheck implements IacCheck {
     DETECTORS.forEach(
       detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
 
+    if (isMountSecret(runInstruction)) {
+      return;
+    }
+
+    DETECTORS_IGNORE_MOUNT_SECRET.forEach(
+      detector -> detector.search(resolvedArgument).forEach(command -> ctx.reportIssue(command, MESSAGE)));
+
     CURL_DETECTORS.forEach(
       detector -> detector.search(resolvedArgument).forEach(command -> {
         ArgumentResolution userAndPassword = getLastArgument(command);
@@ -149,6 +159,16 @@ public class SecretsGenerationCheck implements IacCheck {
 
     ArgumentResolutionSplitter.splitCommands(resolvedArgument).elements()
       .forEach(arguments -> checkHtpasswd(arguments, ctx));
+  }
+
+  // Check if it is: RUN --mount=type=secret ...
+  private static boolean isMountSecret(RunInstruction runInstruction) {
+    for (Flag option : runInstruction.options()) {
+      if ("mount".equals(option.name()) && (ArgumentResolution.of(option.value()).value()).contains("type=secret")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static void checkHtpasswd(List<ArgumentResolution> resolvedArgument, CheckContext ctx) {

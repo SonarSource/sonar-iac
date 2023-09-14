@@ -36,6 +36,11 @@ RUN <<EOF
   keytool -genseckey -random1
 EOF
 
+# Noncompliant@+1
+RUN --mount=type=secret,id=mysecret,required keytool -genseckey -random1
+
+
+# Compliant
 RUN keytool -noprompt -alias tomcat -keyalg RSA -keystore /usr/local/tomcat/.keystore -storepass changeit -keypass changeit -dname "CN=Lyngby, OU=ILoop, O=CFB, L=Christian, S=Ravn, C=DK"
 
 RUN keytool -random1 && unrelated_command -genkeypair

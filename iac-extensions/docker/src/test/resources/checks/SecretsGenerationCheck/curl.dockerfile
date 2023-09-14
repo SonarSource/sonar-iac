@@ -120,8 +120,11 @@ RUN <<EOF
   curl -u "me:password" https://example.com
 EOF
 
+# FN It is misuse of --mount=type=secret, but for now detection in sub shell is not possible
+RUN --mount=type=secret,id=mysecret,required curl --user $(echo ${PASSWORD} | openssl passwd -6 -stdin) https://example.com
 
 # Compliant
+RUN --mount=type=secret,id=mysecret,required curl --user $(cat /run/secrets/mysecret | openssl passwd -6 -stdin) https://example.com
 RUN curl --user usernameonly https://example.com
 RUN curl -u usernameonly https://example.com
 # $UNKNOWN is unknown, so do not raise an issue to avoid FP

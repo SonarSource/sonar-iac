@@ -77,7 +77,12 @@ RUN sshpass -p"$(echo ${PASSWORD} | openssl passwd -6 -stdin)" ssh user@hostname
 RUN cd /tmp && \
     sshpass -p"$(echo ${PASSWORD} | openssl passwd -6 -stdin)" ssh user@hostname
 
+# FN It is misuse of --mount=type=secret, but for now detection in sub shell is not possible
+RUN --mount=type=secret,id=mysecret,required sshpass -p $(echo ${PASSWORD} | openssl passwd -6 -stdin) ssh user@hostname
+
+
 # Compliant
+RUN --mount=type=secret,id=mysecret,required sshpass -p $(cat /run/secrets/mysecret | openssl passwd -6 -stdin) ssh user@hostname
 RUN sshpass -d 0 ssh user@hostname
 RUN sshpass -d0 ssh user@hostname
 RUN sshpass -fpath/to/file ssh user@hostname

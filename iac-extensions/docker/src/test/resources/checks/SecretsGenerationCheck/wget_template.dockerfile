@@ -87,9 +87,11 @@ RUN wget --user=guest --flag ${PASSWORD:+test} https://example.com >> file.zip &
 RUN cd /tmp && \
     wget --user=guest --flag ${PASSWORD:+test} https://example.com >> file.zip
 
-
+# FN It is misuse of --mount=type=secret, but for now detection in sub shell is not possible
+RUN --mount=type=secret,id=mysecret,required wget --user=guest --flag $(echo ${PASSWORD} | openssl passwd -6 -stdin)
 
 # Compliant
+RUN --mount=type=secret,id=mysecret,required wget --user=guest --flag $(cat /run/secrets/mysecret | openssl passwd -6 -stdin)
 RUN wget https://example.com
 RUN wget --user=guest https://example.com
 RUN wget --user=guest --ask-password https://example.com
